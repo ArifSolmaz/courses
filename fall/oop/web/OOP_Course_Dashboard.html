@@ -21,6 +21,22 @@
     --lecture-bg: #1e3a5f;
     --lecture-border: #4b8bbe;
   }
+  body.light {
+    --bg: #f5f0e8;
+    --surface: #ece7df;
+    --surface2: #e5dfd6;
+    --border: #d4cdc2;
+    --text: #3d3929;
+    --text-muted: #8a8070;
+    --text-dim: #a89e8e;
+    --py-yellow: #b8860b;
+    --py-blue: #2b6cb0;
+    --py-blue-light: #1e5a9e;
+    --accent-green: #16763a;
+    --primary-light: #2b6cb0;
+    --lecture-bg: #dde5ef;
+    --lecture-border: #2b6cb0;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Syne', sans-serif;
@@ -56,6 +72,18 @@
   }
   .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
   .pill.blue  { border-color: var(--py-blue); color: var(--py-blue-light); }
+  .dark-toggle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dark-toggle:hover { color: var(--text); border-color: var(--text-muted); }
 
   /* LAYOUT */
   .layout { display: flex; height: calc(100vh - 54px); }
@@ -308,6 +336,7 @@
     border-top: 1px solid var(--border); margin-top: 0.5rem;
   }
   .sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+  body.light .core-mastery-hero { background: rgba(0,0,0,0.06); color: #3d3929; }
 </style>
 </head>
 <body>
@@ -320,6 +349,7 @@
     <span class="pill green">Python 3 &middot; OOP Fundamentals</span>
     <span class="pill green">Core: Composition</span>
     <a href="OOP_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+    <button class="dark-toggle" id="darkToggle" onclick="toggleTheme()">&#9788; Light</button>
   </div>
 </header>
 
@@ -2541,6 +2571,23 @@ r <span class="op">=</span> <span class="fn">Reading</span>(<span class="st">"CP
     if (btns[n - 1]) btns[n - 1].classList.add('active');
     document.querySelector('.main').scrollTop = 0;
   }
+
+  const STORAGE_KEY = 'course_theme';
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+    const isLight = document.body.classList.contains('light');
+    document.getElementById('darkToggle').innerHTML = isLight ? '&#9790; Dark' : '&#9788; Light';
+    try { localStorage.setItem(STORAGE_KEY, isLight ? 'light' : 'dark'); } catch {}
+  }
+  (function() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'light') {
+        document.body.classList.add('light');
+        document.getElementById('darkToggle').innerHTML = '&#9790; Dark';
+      }
+    } catch {}
+  })();
 </script>
 
 </body>

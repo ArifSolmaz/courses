@@ -21,27 +21,11 @@ body {
 
 /* ===== CSS VARIABLES ===== */
 :root {
-  --primary: #1565c0;
-  --primary-dark: #0d47a1;
+  --primary: #42a5f5;
+  --primary-dark: #1565c0;
   --primary-light: #42a5f5;
-  --accent: #00695c;
+  --accent: #26a69a;
   --accent-light: #26a69a;
-  --bg: #f5f7fa;
-  --bg-card: #ffffff;
-  --bg-topbar: #0d47a1;
-  --text: #1a1a2e;
-  --text-secondary: #546e7a;
-  --text-muted: #607080;
-  --border: #e0e6ed;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
-  --shadow-hover: 0 6px 24px rgba(21,101,192,0.15);
-  --radius: 12px;
-  --topbar-height: 60px;
-  --py-yellow: #ffd54f;
-  --py-blue-light: #64b5f6;
-}
-
-body.dark {
   --bg: #0f172a;
   --bg-card: #1e293b;
   --bg-topbar: #0f172a;
@@ -51,13 +35,30 @@ body.dark {
   --border: #334155;
   --shadow: 0 2px 12px rgba(0,0,0,0.3);
   --shadow-hover: 0 6px 24px rgba(66,165,245,0.2);
+  --radius: 12px;
+  --topbar-height: 60px;
+  --py-yellow: #ffd54f;
+  --py-blue-light: #64b5f6;
 }
-body.dark { background: var(--bg); color: var(--text); }
-body.dark .topbar { background: var(--bg-topbar); border-bottom: 1px solid var(--border); }
-body.dark .week-card { background: var(--bg-card); border-color: var(--border); }
-body.dark .hero { background: linear-gradient(135deg, #0d47a1 0%, #004d40 100%); }
-body.dark .info-panel, body.dark .quick-links { background: var(--bg-card); border-color: var(--border); }
-body.dark footer { background: var(--bg-card); border-color: var(--border); }
+
+body.light {
+  --primary: #2b6cb0;
+  --primary-dark: #1e5a9e;
+  --primary-light: #2b6cb0;
+  --accent: #16763a;
+  --accent-light: #16763a;
+  --bg: #f5f0e8;
+  --bg-card: #ece7df;
+  --bg-topbar: #d4c5a9;
+  --text: #3d3929;
+  --text-secondary: #8a8070;
+  --text-muted: #a89e8e;
+  --border: #d4cdc2;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 6px 24px rgba(43,108,176,0.12);
+  --py-yellow: #b8860b;
+  --py-blue-light: #1e5a9e;
+}
 
 /* ===== TOP BAR ===== */
 .topbar {
@@ -110,7 +111,7 @@ body.dark footer { background: var(--bg-card); border-color: var(--border); }
 
 /* ===== HERO ===== */
 .hero {
-  background: linear-gradient(135deg, #1565c0 0%, #00695c 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #004d40 100%);
   color: #fff;
   padding: 3.5rem 2rem 3rem;
   text-align: center;
@@ -559,6 +560,10 @@ body.dark .phase-tag-card {
   background: rgba(66,165,245,0.1);
   color: var(--py-blue-light);
 }
+body.light .hero { background: linear-gradient(135deg, #d4c5a9 0%, #c4b08a 100%); }
+body.light .topbar { background: var(--bg-topbar); border-bottom: 1px solid var(--border); }
+body.light .core-mastery-hero { background: rgba(0,0,0,0.06); color: #3d3929; }
+body.light .grade-table th { background: rgba(43,108,176,0.08); }
 </style>
 </head>
 <body>
@@ -865,28 +870,27 @@ body.dark .phase-tag-card {
   }
   updateProgressBar();
 
-  /* ===== DARK MODE TOGGLE ===== */
-  const DARK_KEY = 'phy102_dark';
+  /* ===== LIGHT MODE TOGGLE ===== */
+  const THEME_KEY = 'course_theme';
   const darkToggle = document.getElementById('darkToggle');
   const darkIcon = document.getElementById('darkIcon');
   const darkLabel = document.getElementById('darkLabel');
 
-  function applyDark(isDark) {
-    document.body.classList.toggle('dark', isDark);
-    darkIcon.innerHTML = isDark ? '&#9788;' : '&#9790;';
-    darkLabel.textContent = isDark ? 'Light' : 'Dark';
-    try { localStorage.setItem(DARK_KEY, isDark ? '1' : '0'); } catch {}
+  function applyLight(isLight) {
+    document.body.classList.toggle('light', isLight);
+    darkIcon.innerHTML = isLight ? '&#9790;' : '&#9788;';
+    darkLabel.textContent = isLight ? 'Dark' : 'Light';
+    try { localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark'); } catch {}
   }
 
   // Load preference
   try {
-    const saved = localStorage.getItem(DARK_KEY);
-    if (saved === '1') applyDark(true);
-    else if (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches) applyDark(true);
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'light') applyLight(true);
   } catch {}
 
   darkToggle.addEventListener('click', () => {
-    applyDark(!document.body.classList.contains('dark'));
+    applyLight(!document.body.classList.contains('light'));
   });
 
   /* ===== SCROLL TO TOP ===== */

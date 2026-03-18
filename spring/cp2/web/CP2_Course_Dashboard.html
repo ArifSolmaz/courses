@@ -27,6 +27,26 @@
     --check-bg: #3d2800;
     --check-border: #ffd43b;
   }
+  body.light {
+    --bg: #f5f0e8;
+    --surface: #ece7df;
+    --surface2: #e5dfd6;
+    --border: #d4cdc2;
+    --text: #3d3929;
+    --text-muted: #8a8070;
+    --text-dim: #a89e8e;
+    --py-yellow: #b8860b;
+    --py-blue: #2b6cb0;
+    --py-blue-light: #1e5a9e;
+    --accent-green: #16763a;
+    --primary-light: #2b6cb0;
+    --lecture-bg: #dde5ef;
+    --lecture-border: #2b6cb0;
+    --lab-bg: #d8ebe0;
+    --lab-border: #16763a;
+    --check-bg: #efe3c8;
+    --check-border: #b8860b;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Syne', sans-serif;
@@ -63,6 +83,18 @@
   .pill.green  { border-color: var(--accent-green);  color: var(--accent-green); }
   .pill.blue   { border-color: var(--py-blue);        color: var(--py-blue-light); }
   .pill.purple { border-color: var(--accent-purple);  color: var(--accent-purple); }
+  .dark-toggle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dark-toggle:hover { color: var(--text); border-color: var(--text-muted); }
 
   /* LAYOUT */
   .layout { display: flex; height: calc(100vh - 54px); }
@@ -393,6 +425,7 @@
     background: rgba(66,165,245,0.1);
     color: var(--py-blue-light);
   }
+  body.light .core-mastery-hero { background: rgba(0,0,0,0.06); color: #3d3929; }
 </style>
 </head>
 <body>
@@ -405,6 +438,7 @@
     <span class="pill purple">Python 3 · Functions → Data → Tests</span>
     <span class="pill green">Core: Functional Decomposition</span>
     <a href="CP2_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+    <button class="dark-toggle" id="darkToggle" onclick="toggleTheme()">&#9788; Light</button>
   </div>
 </header>
 
@@ -1088,6 +1122,23 @@ function showWeek(n) {
   document.querySelectorAll('.week-btn')[n - 1].classList.add('active');
   document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+const STORAGE_KEY = 'course_theme';
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  document.getElementById('darkToggle').innerHTML = isLight ? '&#9790; Dark' : '&#9788; Light';
+  try { localStorage.setItem(STORAGE_KEY, isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('darkToggle').innerHTML = '&#9790; Dark';
+    }
+  } catch {}
+})();
 </script>
 </body>
 </html>

@@ -7,21 +7,38 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f7fa;
-    --surface: #ffffff;
-    --surface2: #eef1f6;
-    --border: #d4dae4;
-    --phy-orange: #e65100;
-    --phy-blue: #1565c0;
-    --phy-blue-light: #1976d2;
-    --accent-green: #2e7d32;
-    --accent-orange: #e65100;
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --phy-orange: #ffa657;
+    --phy-blue: #4b8bbe;
+    --phy-blue-light: #79afd1;
+    --accent-green: #3fb950;
+    --accent-orange: #ffa657;
+    --accent-red: #f85149;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --lecture-bg: #3d2800;
+    --lecture-border: #ffa657;
+  }
+  body.light {
+    --bg: #f5f0e8;
+    --surface: #ece7df;
+    --surface2: #e5dfd6;
+    --border: #d4cdc2;
+    --text: #3d3929;
+    --text-muted: #8a8070;
+    --text-dim: #a89e8e;
+    --phy-orange: #b8860b;
+    --phy-blue: #2b6cb0;
+    --phy-blue-light: #1e5a9e;
+    --accent-green: #16763a;
+    --accent-orange: #b8860b;
     --accent-red: #c62828;
-    --text: #1a1a2e;
-    --text-muted: #5a6070;
-    --text-dim: #8a90a0;
-    --lecture-bg: #fff3e0;
-    --lecture-border: #e65100;
+    --lecture-bg: #efe3c8;
+    --lecture-border: #b8860b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -30,7 +47,6 @@
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
-    background-image: radial-gradient(circle at 50% 0%, #fafbfd 0%, #f5f7fa 100%);
   }
 
   /* TOP BAR */
@@ -61,6 +77,18 @@
   .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
   .pill.blue  { border-color: var(--phy-blue); color: var(--phy-blue-light); }
   .pill.orange { border-color: var(--phy-orange); color: var(--phy-orange); }
+  .dark-toggle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dark-toggle:hover { color: var(--text); border-color: var(--text-muted); }
 
   /* LAYOUT */
   .layout { display: flex; height: calc(100vh - 54px); }
@@ -331,6 +359,7 @@
     .week-header { flex-direction: column; }
     .objectives-grid { grid-template-columns: 1fr; }
   }
+  body.light .core-mastery-hero { background: rgba(0,0,0,0.06); color: #3d3929; }
 </style>
 </head>
 <body>
@@ -344,6 +373,7 @@
     <span class="pill blue">Calculus-Based Physics I</span>
     <span class="pill green">Core: Model &rarr; Predict &rarr; Verify</span>
     <a href="PHY101_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+    <button class="dark-toggle" id="darkToggle" onclick="toggleTheme()">&#9788; Light</button>
   </div>
 </header>
 
@@ -874,6 +904,23 @@ function showWeek(n) {
   const btns = document.querySelectorAll('.week-btn');
   if (btns[n-1]) btns[n-1].classList.add('active');
 }
+
+const STORAGE_KEY = 'course_theme';
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  document.getElementById('darkToggle').innerHTML = isLight ? '&#9790; Dark' : '&#9788; Light';
+  try { localStorage.setItem(STORAGE_KEY, isLight ? 'light' : 'dark'); } catch {}
+}
+(function() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('darkToggle').innerHTML = '&#9790; Dark';
+    }
+  } catch {}
+})();
 </script>
 
 </body>
