@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHY101 — Physics I Course Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface2: #eef1f6;
+    --border: #d4dae4;
+    --phy-orange: #e65100;
+    --phy-blue: #1565c0;
+    --phy-blue-light: #1976d2;
+    --accent-green: #2e7d32;
+    --accent-orange: #e65100;
+    --accent-red: #c62828;
+    --text: #1a1a2e;
+    --text-muted: #5a6070;
+    --text-dim: #8a90a0;
+    --lecture-bg: #fff3e0;
+    --lecture-border: #e65100;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: radial-gradient(circle at 50% 0%, #fafbfd 0%, #f5f7fa 100%);
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    padding: 0 2rem;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 1rem;
+    color: var(--phy-orange); letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--phy-blue); }
+  .topbar-pills { display: flex; gap: 0.6rem; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 20px; color: var(--text-muted);
+  }
+  .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .pill.blue  { border-color: var(--phy-blue); color: var(--phy-blue-light); }
+  .pill.orange { border-color: var(--phy-orange); color: var(--phy-orange); }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 54px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    box-shadow: 1px 0 3px rgba(0,0,0,0.02);
+    overflow-y: auto; padding: 1rem 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #c0c8d4; border-radius: 2px; }
+  .sidebar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+    padding: 0.4rem 1.2rem 0.6rem;
+  }
+  .week-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease; color: inherit;
+  }
+  .week-btn:hover { background: var(--surface2); }
+  .week-btn.active { background: var(--surface2); border-left-color: var(--phy-orange); }
+  .week-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--phy-orange);
+    min-width: 28px; font-weight: 600;
+  }
+  .week-title { font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+  .week-btn.active .week-title { color: #1a1a2e; font-weight: 600; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: #c0c8d4; border-radius: 3px; }
+
+  /* PANEL */
+  .week-panel { display: none; animation: fadeIn 0.2s ease; }
+  .week-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HEADER */
+  .week-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; margin-bottom: 1.8rem;
+  }
+  .week-header-left { flex: 1; }
+  .week-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--phy-orange);
+    font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  .week-heading { font-size: 1.7rem; font-weight: 800; line-height: 1.15; color: #1a1a2e; }
+  .week-heading em { font-style: normal; color: var(--phy-orange); }
+  .week-desc {
+    margin-top: 0.7rem; font-size: 0.88rem;
+    color: var(--text-muted); max-width: 580px; line-height: 1.6;
+  }
+  .progress-ring-wrap { text-align: center; }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 0.4rem;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* OBJECTIVES */
+  .objectives-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.7rem; margin-bottom: 2rem;
+  }
+  .obj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    display: flex; gap: 0.7rem; align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .obj-card:hover { border-color: var(--phy-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .obj-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+  .obj-text code { color: var(--phy-orange); font-size: 0.75rem; }
+
+  /* NOTEBOOKS */
+  .notebooks-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 1rem; margin-bottom: 2rem; max-width: 600px;
+  }
+  .nb-card {
+    border-radius: 10px; padding: 1.2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .nb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+  .nb-card.lecture { background: var(--lecture-bg); border-color: var(--lecture-border); }
+  .nb-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;
+    color: var(--phy-orange);
+  }
+  .nb-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;
+  }
+  .nb-heading { font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.5rem; line-height: 1.3; }
+  .nb-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.9rem;
+  }
+  .nb-topics { list-style: none; margin-bottom: 1.1rem; }
+  .nb-topics li {
+    font-size: 0.8rem; color: var(--text-muted);
+    padding: 0.22rem 0; display: flex; align-items: baseline; gap: 0.5rem;
+  }
+  .nb-topics li::before { content: '\203A'; font-size: 0.9rem; opacity: 0.6; }
+  .nb-topics code { color: var(--phy-blue); font-size: 0.75rem; }
+  .nb-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 0.9rem; border-radius: 6px; border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s; text-decoration: none;
+    background: var(--phy-orange); color: #fff;
+  }
+  .nb-btn:hover { opacity: 0.85; transform: scale(0.98); }
+
+  /* CONCEPTS */
+  .concepts-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .concept-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem;
+  }
+  .concept-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--phy-orange); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 0.9rem;
+  }
+  pre.code-snippet {
+    background: #1e1e1e; border: 1px solid #333;
+    border-radius: 8px; padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; line-height: 1.7; overflow-x: auto; color: #d4d4d4;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .kw { color: #c586c0; }
+  .fn { color: #dcdcaa; }
+  .st { color: #ce9178; }
+  .nm { color: #9cdcfe; }
+  .cm { color: #6a9955; font-style: italic; }
+  .op { color: #d4d4d4; }
+  .bi { color: #dcdcaa; }
+
+  /* FORMULAS */
+  .formula-block {
+    background: #1e1e1e; border: 1px solid #333;
+    border-radius: 8px; padding: 1rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; line-height: 1.8; color: #e0e0e0;
+    margin-bottom: 1rem;
+  }
+  .formula-block .var { color: #9cdcfe; }
+  .formula-block .eq { color: #d97706; font-weight: 700; }
+  .formula-block .unit { color: #6a9955; font-style: italic; }
+
+
+  /* TIMELINE */
+  .timeline-mini { display: flex; gap: 0.3rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .tm-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+  }
+  .tm-dot.current { background: var(--phy-orange); color: #fff; border-color: var(--phy-orange); }
+  .tm-dot:hover:not(.current) { border-color: var(--phy-blue); color: var(--phy-blue); background: #e3f2fd; }
+
+  /* INTERACTIVE BADGE */
+  .interactive-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;
+    margin-left: 0.5rem;
+  }
+
+  /* CORE MASTERY HERO (single instance below topbar) */
+  .core-mastery-hero {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    padding: 1.2rem 2rem;
+    border-left: 3px solid var(--phy-orange);
+    background: linear-gradient(135deg, #1a2332 0%, #1e3a5f 100%);
+    max-width: 600px;
+    margin: 1.2rem auto;
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* PHASE TAG ON CARDS */
+  .phase-tag-card {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--primary-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(21,101,192,0.08);
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  body.dark .phase-tag-card {
+    background: rgba(66,165,245,0.1);
+    color: var(--py-blue-light);
+  }
+  .phase-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--py-blue-light); text-transform: uppercase;
+    letter-spacing: 1.2px; margin-top: 0.4rem;
+  }
+  .sidebar-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; font-weight: 600;
+    color: var(--py-blue-light); text-transform: uppercase;
+    letter-spacing: 1.2px; padding: 0.8rem 1.2rem 0.3rem;
+    border-top: 1px solid var(--border); margin-top: 0.5rem;
+  }
+  .sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { width: 56px; min-width: 56px; padding: 0.5rem 0; }
+    .week-title { display: none; }
+    .week-btn { justify-content: center; padding: 0.5rem; }
+    .concepts-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .topbar-pills { display: none; }
+    .main { padding: 1.2rem 1rem; }
+    .week-header { flex-direction: column; }
+    .objectives-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">PHY<span>101</span>.py</div>
+  <div class="topbar-pills">
+    <span class="pill orange">14 Weeks &middot; 3 hrs/week</span>
+    <span class="pill">Google Colab</span>
+    <span class="pill green">Python 3 &middot; numpy &middot; matplotlib</span>
+    <span class="pill blue">Calculus-Based Physics I</span>
+    <span class="pill green">Core: Model &rarr; Predict &rarr; Verify</span>
+    <a href="PHY101_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+  </div>
+</header>
+
+<div class="core-mastery-hero">"I can model any mechanical system and predict its motion"</div>
+
+<div class="layout">
+
+  <nav class="sidebar">
+    <div class="sidebar-label">Course Weeks</div>
+    <div class="sidebar-phase">Phase 1 &middot; Language of Motion</div>
+    <button class="week-btn active" onclick="showWeek(1)"><span class="week-num">W01</span><span class="week-title">Units &amp; Vectors</span></button>
+    <button class="week-btn" onclick="showWeek(2)"><span class="week-num">W02</span><span class="week-title">1D Kinematics</span></button>
+    <button class="week-btn" onclick="showWeek(3)"><span class="week-num">W03</span><span class="week-title">Projectile Motion</span></button>
+    <div class="sidebar-phase">Phase 2 &middot; Forces Predict</div>
+    <button class="week-btn" onclick="showWeek(4)"><span class="week-num">W04</span><span class="week-title">Newton's Laws I</span></button>
+    <button class="week-btn" onclick="showWeek(5)"><span class="week-num">W05</span><span class="week-title">Circular Motion</span></button>
+    <div class="sidebar-phase">Phase 3 &middot; Conservation</div>
+    <button class="week-btn" onclick="showWeek(6)"><span class="week-num">W06</span><span class="week-title">Work &amp; Energy</span></button>
+    <button class="week-btn" onclick="showWeek(7)"><span class="week-num">W07</span><span class="week-title">Momentum</span></button>
+    <div class="sidebar-phase">Phase 4 &middot; Rotation</div>
+    <button class="week-btn" onclick="showWeek(8)"><span class="week-num">W08</span><span class="week-title">Center of Mass</span></button>
+    <button class="week-btn" onclick="showWeek(9)"><span class="week-num">W09</span><span class="week-title">Rotation I</span></button>
+    <button class="week-btn" onclick="showWeek(10)"><span class="week-num">W10</span><span class="week-title">Angular Momentum</span></button>
+    <div class="sidebar-phase">Phase 5 &middot; Oscillations</div>
+    <button class="week-btn" onclick="showWeek(11)"><span class="week-num">W11</span><span class="week-title">SHM</span></button>
+    <button class="week-btn" onclick="showWeek(12)"><span class="week-num">W12</span><span class="week-title">Resonance</span></button>
+    <button class="week-btn" onclick="showWeek(13)"><span class="week-num">W13</span><span class="week-title">Waves &amp; Sound</span></button>
+    <div class="sidebar-phase">Phase 6 &middot; Capstone</div>
+    <button class="week-btn" onclick="showWeek(14)"><span class="week-num">W14</span><span class="week-title">Capstone Project</span></button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ===== WEEK 01 ===== -->
+    <div class="week-panel active" id="week-1">
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 01 &middot; 3 hours</div>
+          <h1 class="week-heading">Measurements, Units &amp; Vectors<br><em>The Language of Physics</em></h1>
+          <p class="week-desc">Master the foundational tools of physics: SI units, dimensional analysis, significant figures, and vectors. Learn to decompose, add, and project vectors using Python simulations.</p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#d4dae4" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#e65100" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="163.3"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#e65100">W01</text>
+          </svg>
+          <div class="progress-label">Week 1 / 14</div>
+        </div>
+      </div>
+      <div class="phase-tag-card">Phase 1 &middot; The Toolbox &mdash; Units and vectors: the foundation for every prediction.</div>
+      <div class="timeline-mini" id="tl-1"></div>
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">📏</span><span class="obj-text">Understand SI units and dimensional analysis</span></div>
+        <div class="obj-card"><span class="obj-icon">🔢</span><span class="obj-text">Apply significant figures in calculations</span></div>
+        <div class="obj-card"><span class="obj-icon">➡️</span><span class="obj-text">Decompose vectors into x and y components</span></div>
+        <div class="obj-card"><span class="obj-icon">🎯</span><span class="obj-text">Add vectors graphically and analytically with Python</span></div>
+      </div>
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Lecture + Lab Notebook</div>
+          <div class="nb-filename">Week_01.ipynb</div>
+          <div class="nb-heading">Measurements, Units &amp; Vectors</div>
+          <div class="nb-duration">⏱ ~3 hours &middot; lecture + interactive demos</div>
+          <ul class="nb-topics">
+            <li>SI units and unit conversions</li>
+            <li>Dimensional analysis with Python</li>
+            <li>Significant figures</li>
+            <li>Vectors: magnitude, direction, components <span class="interactive-badge">Interactive</span></li>
+            <li>Vector addition &amp; projection visualizer <span class="interactive-badge">Interactive</span></li>
+            <li>Unit vector and dot product</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+      <div class="section-title">Key Formulas</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Vector Components</div>
+          <pre class="code-snippet"><span class="cm"># Decompose vector into components</span>
+<span class="kw">import</span> <span class="nm">numpy</span> <span class="kw">as</span> <span class="nm">np</span>
+
+<span class="nm">magnitude</span> <span class="op">=</span> <span class="nm">10</span>    <span class="cm"># N</span>
+<span class="nm">angle</span>     <span class="op">=</span> <span class="nm">30</span>    <span class="cm"># degrees</span>
+<span class="nm">theta</span>     <span class="op">=</span> <span class="nm">np</span>.<span class="fn">radians</span>(<span class="nm">angle</span>)
+
+<span class="nm">Fx</span> <span class="op">=</span> <span class="nm">magnitude</span> <span class="op">*</span> <span class="nm">np</span>.<span class="fn">cos</span>(<span class="nm">theta</span>)
+<span class="nm">Fy</span> <span class="op">=</span> <span class="nm">magnitude</span> <span class="op">*</span> <span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">theta</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Vector Addition</div>
+          <pre class="code-snippet"><span class="cm"># Add two vectors</span>
+<span class="nm">A</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">array</span>([<span class="nm">3</span>, <span class="nm">4</span>])
+<span class="nm">B</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>])
+<span class="nm">R</span> <span class="op">=</span> <span class="nm">A</span> <span class="op">+</span> <span class="nm">B</span>
+
+<span class="cm"># Magnitude of resultant</span>
+<span class="nm">mag</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">linalg.norm</span>(<span class="nm">R</span>)
+<span class="bi">print</span>(<span class="st">f"|R| = </span>{<span class="nm">mag</span>:<span class="st">.2f</span>}<span class="st">"</span>)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="weeks-placeholder"></div>
+
+  </main>
+</div>
+
+<script>
+// ─── Week Data ───
+const weeks = [
+  null, // index 0 unused
+  null, // week 1 is static HTML above
+  {
+    num: 2, title: "1D Kinematics", subtitle: "Position, Velocity &amp; Acceleration",
+    desc: "Explore one-dimensional motion through position-velocity-acceleration relationships. Build interactive simulations of constant acceleration, free fall, and braking distance.",
+    color: "#1565c0",
+    objectives: [
+      ["📐","Relate position, velocity, and acceleration mathematically"],
+      ["📊","Read and interpret x-t, v-t, a-t graphs"],
+      ["🚀","Simulate constant acceleration motion with Python"],
+      ["🎯","Solve free fall and braking distance problems"]
+    ],
+    filename: "Week_02.ipynb",
+    heading: "1D Kinematics &mdash; Position, Velocity &amp; Acceleration",
+    topics: [
+      "Position, velocity, acceleration definitions",
+      "Kinematic equations for constant acceleration",
+      "x-t, v-t, a-t graph reading and interpretation",
+      ["Constant acceleration motion simulator","Interactive"],
+      ["Free fall & braking distance demos","Interactive"],
+      "Worked examples with numerical solutions"
+    ],
+    codeLeft: { title: "Kinematic Equations", code: `<span class="cm"># Constant acceleration motion</span>\n<span class="nm">x0</span>, <span class="nm">v0</span>, <span class="nm">a</span> <span class="op">=</span> <span class="nm">0</span>, <span class="nm">20</span>, <span class="nm">-9.8</span>\n<span class="nm">t</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">linspace</span>(<span class="nm">0</span>, <span class="nm">4</span>, <span class="nm">100</span>)\n\n<span class="nm">x</span> <span class="op">=</span> <span class="nm">x0</span> <span class="op">+</span> <span class="nm">v0</span><span class="op">*</span><span class="nm">t</span> <span class="op">+</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">a</span><span class="op">*</span><span class="nm">t</span><span class="op">**</span><span class="nm">2</span>\n<span class="nm">v</span> <span class="op">=</span> <span class="nm">v0</span> <span class="op">+</span> <span class="nm">a</span><span class="op">*</span><span class="nm">t</span>` },
+    codeRight: { title: "Free Fall", code: `<span class="cm"># Ball dropped from height h</span>\n<span class="nm">g</span> <span class="op">=</span> <span class="nm">9.8</span>  <span class="cm"># m/s&sup2;</span>\n<span class="nm">h</span> <span class="op">=</span> <span class="nm">45</span>   <span class="cm"># meters</span>\n\n<span class="cm"># Time to hit ground</span>\n<span class="nm">t_fall</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">sqrt</span>(<span class="nm">2</span><span class="op">*</span><span class="nm">h</span> <span class="op">/</span> <span class="nm">g</span>)\n<span class="nm">v_impact</span> <span class="op">=</span> <span class="nm">g</span> <span class="op">*</span> <span class="nm">t_fall</span>` },
+    mastery: "Phase 1 &middot; Describing Motion &mdash; Kinematic equations: your first prediction tools."
+  },
+  {
+    num: 3, title: "Projectile Motion", subtitle: "2D Kinematics",
+    desc: "Extend kinematics to two dimensions. Analyze projectile trajectories, optimize launch angles for maximum range, and compare motion with and without air resistance.",
+    color: "#2e7d32",
+    objectives: [
+      ["🎯","Derive and apply projectile motion equations"],
+      ["📈","Calculate range, max height, and flight time"],
+      ["💨","Compare trajectories with and without air resistance"],
+      ["🏹","Optimize launch angle to hit a target"]
+    ],
+    filename: "Week_03.ipynb",
+    heading: "2D Kinematics &mdash; Projectile Motion",
+    topics: [
+      "Projectile motion decomposition (x and y)",
+      "Range, maximum height, and flight time formulas",
+      ["Animated projectile trajectory simulator","Interactive"],
+      ["Range vs angle optimizer","Interactive"],
+      ["Air resistance comparison demo","Interactive"],
+      "Target hitting mini-game"
+    ],
+    codeLeft: { title: "Projectile Equations", code: `<span class="cm"># Projectile motion (no air resistance)</span>\n<span class="nm">v0</span>, <span class="nm">theta</span> <span class="op">=</span> <span class="nm">25</span>, <span class="nm">np</span>.<span class="fn">radians</span>(<span class="nm">45</span>)\n<span class="nm">g</span> <span class="op">=</span> <span class="nm">9.8</span>\n\n<span class="nm">x</span> <span class="op">=</span> <span class="nm">v0</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">cos</span>(<span class="nm">theta</span>)<span class="op">*</span><span class="nm">t</span>\n<span class="nm">y</span> <span class="op">=</span> <span class="nm">v0</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">theta</span>)<span class="op">*</span><span class="nm">t</span> <span class="op">-</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">g</span><span class="op">*</span><span class="nm">t</span><span class="op">**</span><span class="nm">2</span>` },
+    codeRight: { title: "Range Formula", code: `<span class="cm"># Maximum range</span>\n<span class="nm">R</span> <span class="op">=</span> <span class="nm">v0</span><span class="op">**</span><span class="nm">2</span> <span class="op">*</span> <span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">2</span><span class="op">*</span><span class="nm">theta</span>) <span class="op">/</span> <span class="nm">g</span>\n\n<span class="cm"># Max height</span>\n<span class="nm">H</span> <span class="op">=</span> (<span class="nm">v0</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">theta</span>))<span class="op">**</span><span class="nm">2</span> <span class="op">/</span> (<span class="nm">2</span><span class="op">*</span><span class="nm">g</span>)\n\n<span class="cm"># Flight time</span>\n<span class="nm">T</span> <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">v0</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">theta</span>) <span class="op">/</span> <span class="nm">g</span>` },
+    mastery: "Phase 1 &middot; Motion in 2D &mdash; Decompose into axes, predict each separately."
+  },
+  {
+    num: 4, title: "Newton's Laws (I)", subtitle: "Forces &amp; Free Body Diagrams",
+    desc: "Discover Newton's three laws of motion. Draw free body diagrams, solve problems with friction and tension, and simulate an inclined plane with adjustable parameters.",
+    color: "#e65100",
+    objectives: [
+      ["⚖️","State and apply Newton's three laws"],
+      ["✏️","Draw and analyze free body diagrams"],
+      ["🧊","Solve inclined plane problems with friction"],
+      ["🔗","Handle tension in connected-body problems"]
+    ],
+    filename: "Week_04.ipynb",
+    heading: "Newton's Laws (I) &mdash; Forces &amp; Free Body Diagrams",
+    topics: [
+      "Newton's 1st, 2nd, and 3rd laws",
+      "Types of forces: gravity, normal, friction, tension",
+      "Free body diagram methodology",
+      ["Inclined plane simulator with friction","Interactive"],
+      ["Atwood machine simulator","Interactive"],
+      "Static vs kinetic friction comparison"
+    ],
+    codeLeft: { title: "Newton's Second Law", code: `<span class="cm"># F = ma on inclined plane</span>\n<span class="nm">m</span> <span class="op">=</span> <span class="nm">5</span>      <span class="cm"># kg</span>\n<span class="nm">theta</span> <span class="op">=</span> <span class="nm">30</span>  <span class="cm"># degrees</span>\n<span class="nm">mu_k</span> <span class="op">=</span> <span class="nm">0.2</span>  <span class="cm"># kinetic friction</span>\n<span class="nm">g</span> <span class="op">=</span> <span class="nm">9.8</span>\n\n<span class="nm">a</span> <span class="op">=</span> <span class="nm">g</span><span class="op">*</span>(<span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">th</span>) <span class="op">-</span> <span class="nm">mu_k</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">cos</span>(<span class="nm">th</span>))` },
+    codeRight: { title: "Atwood Machine", code: `<span class="cm"># Two masses on a pulley</span>\n<span class="nm">m1</span>, <span class="nm">m2</span> <span class="op">=</span> <span class="nm">3</span>, <span class="nm">5</span>  <span class="cm"># kg</span>\n\n<span class="nm">a</span> <span class="op">=</span> (<span class="nm">m2</span> <span class="op">-</span> <span class="nm">m1</span>) <span class="op">*</span> <span class="nm">g</span> <span class="op">/</span> (<span class="nm">m1</span> <span class="op">+</span> <span class="nm">m2</span>)\n<span class="nm">T</span> <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">m1</span><span class="op">*</span><span class="nm">m2</span><span class="op">*</span><span class="nm">g</span> <span class="op">/</span> (<span class="nm">m1</span> <span class="op">+</span> <span class="nm">m2</span>)\n\n<span class="bi">print</span>(<span class="st">f"a = </span>{<span class="nm">a</span>:<span class="st">.2f</span>}<span class="st"> m/s&sup2;"</span>)\n<span class="bi">print</span>(<span class="st">f"T = </span>{<span class="nm">T</span>:<span class="st">.2f</span>}<span class="st"> N"</span>)` },
+    mastery: "Phase 2 &middot; The Prediction Engine (CORE) &mdash; F = ma: Draw FBD &rarr; write equation &rarr; predict motion."
+  },
+  {
+    num: 5, title: "Circular Motion", subtitle: "Newton's Laws (II)",
+    desc: "Apply Newton's laws to circular motion. Understand centripetal acceleration, analyze banked curves, and determine the minimum speed for loop-the-loop.",
+    color: "#1565c0",
+    objectives: [
+      ["🔄","Calculate centripetal acceleration and force"],
+      ["🛣️","Analyze banked curves and friction-free turns"],
+      ["🎢","Determine minimum speed for vertical loops"],
+      ["🎡","Simulate circular motion with Python"]
+    ],
+    filename: "Week_05.ipynb",
+    heading: "Newton's Laws (II) &mdash; Circular Motion",
+    topics: [
+      "Uniform circular motion and centripetal acceleration",
+      "Centripetal force from Newton's 2nd law",
+      ["Circular motion animator with velocity/acceleration vectors","Interactive"],
+      ["Banked curve calculator","Interactive"],
+      ["Loop-the-loop minimum speed simulator","Interactive"],
+      "Conical pendulum analysis"
+    ],
+    codeLeft: { title: "Centripetal Acceleration", code: `<span class="cm"># Circular motion</span>\n<span class="nm">v</span> <span class="op">=</span> <span class="nm">15</span>   <span class="cm"># m/s</span>\n<span class="nm">r</span> <span class="op">=</span> <span class="nm">50</span>   <span class="cm"># meters</span>\n\n<span class="nm">a_c</span> <span class="op">=</span> <span class="nm">v</span><span class="op">**</span><span class="nm">2</span> <span class="op">/</span> <span class="nm">r</span>\n<span class="nm">F_c</span> <span class="op">=</span> <span class="nm">m</span> <span class="op">*</span> <span class="nm">a_c</span>\n\n<span class="cm"># Period</span>\n<span class="nm">T</span> <span class="op">=</span> <span class="nm">2</span> <span class="op">*</span> <span class="nm">np</span>.<span class="nm">pi</span> <span class="op">*</span> <span class="nm">r</span> <span class="op">/</span> <span class="nm">v</span>` },
+    codeRight: { title: "Banked Curve", code: `<span class="cm"># Banked curve (no friction)</span>\n<span class="cm"># tan(theta) = v&sup2; / (r*g)</span>\n\n<span class="nm">v</span> <span class="op">=</span> <span class="nm">25</span>   <span class="cm"># m/s</span>\n<span class="nm">r</span> <span class="op">=</span> <span class="nm">100</span>  <span class="cm"># m</span>\n\n<span class="nm">theta</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">arctan</span>(<span class="nm">v</span><span class="op">**</span><span class="nm">2</span> <span class="op">/</span> (<span class="nm">r</span><span class="op">*</span><span class="nm">g</span>))\n<span class="bi">print</span>(<span class="st">f"Bank angle: </span>{<span class="nm">np</span>.<span class="fn">degrees</span>(<span class="nm">theta</span>):<span class="st">.1f</span>}<span class="st">&deg;"</span>)` },
+    mastery: "Phase 2 &middot; Circular Prediction &mdash; Same F = ma, circular geometry. Net force inward."
+  },
+  {
+    num: 6, title: "Work &amp; Energy", subtitle: "Work-Energy Theorem",
+    desc: "Understand the work-energy theorem, kinetic and potential energy, and conservation of mechanical energy. Visualize energy transformations with interactive bar charts and roller coasters.",
+    color: "#2e7d32",
+    objectives: [
+      ["⚡","Define work, kinetic energy, and potential energy"],
+      ["📊","Apply the work-energy theorem"],
+      ["🔄","Use conservation of energy to solve problems"],
+      ["🎢","Visualize energy transformations in simulations"]
+    ],
+    filename: "Week_06.ipynb",
+    heading: "Work-Energy Theorem",
+    topics: [
+      "Work done by constant and variable forces",
+      "Kinetic energy and work-energy theorem",
+      "Gravitational and elastic potential energy",
+      ["Energy bar chart animator","Interactive"],
+      ["Roller coaster energy simulator","Interactive"],
+      ["Spring-block oscillation with energy visualization","Interactive"]
+    ],
+    codeLeft: { title: "Work-Energy Theorem", code: `<span class="cm"># W_net = Delta KE</span>\n<span class="nm">m</span> <span class="op">=</span> <span class="nm">2</span>    <span class="cm"># kg</span>\n<span class="nm">v_i</span> <span class="op">=</span> <span class="nm">3</span>  <span class="cm"># m/s</span>\n<span class="nm">v_f</span> <span class="op">=</span> <span class="nm">7</span>  <span class="cm"># m/s</span>\n\n<span class="nm">W</span> <span class="op">=</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">m</span><span class="op">*</span><span class="nm">v_f</span><span class="op">**</span><span class="nm">2</span> <span class="op">-</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">m</span><span class="op">*</span><span class="nm">v_i</span><span class="op">**</span><span class="nm">2</span>\n<span class="bi">print</span>(<span class="st">f"W = </span>{<span class="nm">W</span>}<span class="st"> J"</span>)` },
+    codeRight: { title: "Conservation of Energy", code: `<span class="cm"># E_i = E_f (no friction)</span>\n<span class="cm"># mgh = 0.5*m*v&sup2;</span>\n\n<span class="nm">h</span> <span class="op">=</span> <span class="nm">10</span>  <span class="cm"># meters</span>\n<span class="nm">v</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">sqrt</span>(<span class="nm">2</span><span class="op">*</span><span class="nm">g</span><span class="op">*</span><span class="nm">h</span>)\n\n<span class="bi">print</span>(<span class="st">f"v = </span>{<span class="nm">v</span>:<span class="st">.2f</span>}<span class="st"> m/s"</span>)` },
+    mastery: "Phase 3 &middot; Energy Shortcut &mdash; Energy conservation bypasses complex force analysis."
+  },
+  {
+    num: 7, title: "Momentum &amp; Collisions", subtitle: "Conservation of Momentum",
+    desc: "Explore conservation of momentum through elastic and inelastic collisions. Simulate 1D collisions, analyze impulse, and design bumpers using energy-momentum principles.",
+    color: "#e65100",
+    objectives: [
+      ["💥","Define linear momentum and impulse"],
+      ["🔄","Apply conservation of momentum"],
+      ["🎱","Distinguish elastic vs inelastic collisions"],
+      ["🛡️","Analyze collision outcomes with Python simulations"]
+    ],
+    filename: "Week_07.ipynb",
+    heading: "Momentum &amp; Collisions",
+    topics: [
+      "Linear momentum and impulse-momentum theorem",
+      "Conservation of momentum",
+      "Elastic vs inelastic vs perfectly inelastic collisions",
+      ["1D collision simulator (elastic)","Interactive"],
+      ["Elastic vs inelastic comparison","Interactive"],
+      ["Impulse-momentum visualizer (F-t area)","Interactive"]
+    ],
+    codeLeft: { title: "Elastic Collision", code: `<span class="cm"># 1D elastic collision</span>\n<span class="nm">m1</span>, <span class="nm">v1i</span> <span class="op">=</span> <span class="nm">2</span>, <span class="nm">5</span>\n<span class="nm">m2</span>, <span class="nm">v2i</span> <span class="op">=</span> <span class="nm">3</span>, <span class="nm">0</span>\n\n<span class="nm">v1f</span> <span class="op">=</span> (<span class="nm">m1</span><span class="op">-</span><span class="nm">m2</span>)<span class="op">/</span>(<span class="nm">m1</span><span class="op">+</span><span class="nm">m2</span>)<span class="op">*</span><span class="nm">v1i</span>\n<span class="nm">v2f</span> <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">m1</span><span class="op">/</span>(<span class="nm">m1</span><span class="op">+</span><span class="nm">m2</span>)<span class="op">*</span><span class="nm">v1i</span>` },
+    codeRight: { title: "Inelastic Collision", code: `<span class="cm"># Perfectly inelastic</span>\n<span class="nm">m1</span>, <span class="nm">v1</span> <span class="op">=</span> <span class="nm">2</span>, <span class="nm">5</span>\n<span class="nm">m2</span>, <span class="nm">v2</span> <span class="op">=</span> <span class="nm">3</span>, <span class="nm">0</span>\n\n<span class="nm">v_f</span> <span class="op">=</span> (<span class="nm">m1</span><span class="op">*</span><span class="nm">v1</span> <span class="op">+</span> <span class="nm">m2</span><span class="op">*</span><span class="nm">v2</span>) <span class="op">/</span> (<span class="nm">m1</span><span class="op">+</span><span class="nm">m2</span>)\n\n<span class="cm"># Energy lost</span>\n<span class="nm">KE_lost</span> <span class="op">=</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">m1</span><span class="op">*</span><span class="nm">v1</span><span class="op">**</span><span class="nm">2</span> <span class="op">-</span> <span class="nm">0.5</span><span class="op">*</span>(<span class="nm">m1</span><span class="op">+</span><span class="nm">m2</span>)<span class="op">*</span><span class="nm">v_f</span><span class="op">**</span><span class="nm">2</span>` },
+    mastery: "Phase 3 &middot; Momentum Shortcut &mdash; Momentum conservation predicts collision outcomes."
+  },
+  {
+    num: 8, title: "Center of Mass &amp; Equilibrium", subtitle: "Static Equilibrium",
+    desc: "Find the center of mass of complex systems, understand torque and rotational equilibrium, and simulate beam loading problems relevant to engineering.",
+    color: "#1565c0",
+    objectives: [
+      ["⚖️","Calculate center of mass for point masses and continuous objects"],
+      ["🔧","Define torque and moment of force"],
+      ["🏗️","Apply conditions for static equilibrium"],
+      ["🤖","Solve beam and lever problems with Python"]
+    ],
+    filename: "Week_08.ipynb",
+    heading: "Center of Mass &amp; Static Equilibrium",
+    topics: [
+      "Center of mass definition and calculation",
+      "Torque (moment of force)",
+      "Conditions for static equilibrium",
+      ["Center of mass visualizer for point masses","Interactive"],
+      ["Beam balance simulator","Interactive"],
+      ["Torque and lever interactive","Interactive"]
+    ],
+    codeLeft: { title: "Center of Mass", code: `<span class="cm"># Center of mass of point masses</span>\n<span class="nm">masses</span> <span class="op">=</span> [<span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">5</span>]  <span class="cm"># kg</span>\n<span class="nm">x_pos</span>  <span class="op">=</span> [<span class="nm">0</span>, <span class="nm">4</span>, <span class="nm">8</span>]  <span class="cm"># m</span>\n\n<span class="nm">x_cm</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">average</span>(<span class="nm">x_pos</span>, <span class="nm">weights</span><span class="op">=</span><span class="nm">masses</span>)\n<span class="bi">print</span>(<span class="st">f"x_cm = </span>{<span class="nm">x_cm</span>:<span class="st">.2f</span>}<span class="st"> m"</span>)` },
+    codeRight: { title: "Torque &amp; Equilibrium", code: `<span class="cm"># Beam equilibrium</span>\n<span class="cm"># Sum of torques = 0</span>\n\n<span class="nm">F1</span>, <span class="nm">d1</span> <span class="op">=</span> <span class="nm">100</span>, <span class="nm">2</span>  <span class="cm"># N, m</span>\n<span class="nm">F2</span>, <span class="nm">d2</span> <span class="op">=</span> <span class="nm">150</span>, <span class="nm">3</span>\n\n<span class="cm"># tau = F * d</span>\n<span class="nm">tau1</span> <span class="op">=</span> <span class="nm">F1</span> <span class="op">*</span> <span class="nm">d1</span>\n<span class="nm">tau2</span> <span class="op">=</span> <span class="nm">F2</span> <span class="op">*</span> <span class="nm">d2</span>` },
+    mastery: "Phase 4 &middot; Balance &mdash; &Sigma;F = 0 and &Sigma;&tau; = 0 predict static equilibrium."
+  },
+  {
+    num: 9, title: "Rotational Dynamics (I)", subtitle: "Angular Kinematics &amp; Moment of Inertia",
+    desc: "Extend Newton's laws to rotation. Learn angular kinematics, calculate moments of inertia for various shapes, and simulate rolling objects on inclines.",
+    color: "#2e7d32",
+    objectives: [
+      ["🔄","Define angular displacement, velocity, and acceleration"],
+      ["📐","Calculate moment of inertia for common shapes"],
+      ["⚙️","Apply Newton's 2nd law for rotation: &tau; = I&alpha;"],
+      ["🎲","Simulate rolling vs sliding on inclines"]
+    ],
+    filename: "Week_09.ipynb",
+    heading: "Rotational Dynamics (I) &mdash; Angular Kinematics",
+    topics: [
+      "Angular position, velocity, acceleration",
+      "Moment of inertia for disk, ring, rod, sphere",
+      "Torque and Newton's 2nd law for rotation",
+      ["Rotating wheel animator","Interactive"],
+      ["Moment of inertia comparison tool","Interactive"],
+      ["Rolling vs sliding race simulator","Interactive"]
+    ],
+    codeLeft: { title: "Angular Kinematics", code: `<span class="cm"># Angular motion equations</span>\n<span class="nm">omega_0</span> <span class="op">=</span> <span class="nm">0</span>    <span class="cm"># rad/s</span>\n<span class="nm">alpha</span>   <span class="op">=</span> <span class="nm">2.5</span>  <span class="cm"># rad/s&sup2;</span>\n<span class="nm">t</span>       <span class="op">=</span> <span class="nm">4</span>    <span class="cm"># s</span>\n\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">omega_0</span> <span class="op">+</span> <span class="nm">alpha</span><span class="op">*</span><span class="nm">t</span>\n<span class="nm">theta</span> <span class="op">=</span> <span class="nm">omega_0</span><span class="op">*</span><span class="nm">t</span> <span class="op">+</span> <span class="nm">0.5</span><span class="op">*</span><span class="nm">alpha</span><span class="op">*</span><span class="nm">t</span><span class="op">**</span><span class="nm">2</span>` },
+    codeRight: { title: "Moment of Inertia", code: `<span class="cm"># Common shapes</span>\n<span class="nm">m</span>, <span class="nm">R</span> <span class="op">=</span> <span class="nm">2</span>, <span class="nm">0.3</span>  <span class="cm"># kg, m</span>\n\n<span class="nm">I_disk</span>   <span class="op">=</span> <span class="nm">0.5</span> <span class="op">*</span> <span class="nm">m</span> <span class="op">*</span> <span class="nm">R</span><span class="op">**</span><span class="nm">2</span>\n<span class="nm">I_ring</span>   <span class="op">=</span> <span class="nm">m</span> <span class="op">*</span> <span class="nm">R</span><span class="op">**</span><span class="nm">2</span>\n<span class="nm">I_sphere</span> <span class="op">=</span> <span class="nm">0.4</span> <span class="op">*</span> <span class="nm">m</span> <span class="op">*</span> <span class="nm">R</span><span class="op">**</span><span class="nm">2</span>\n\n<span class="bi">print</span>(<span class="st">f"Disk: </span>{<span class="nm">I_disk</span>:<span class="st">.4f</span>}<span class="st"> kg m&sup2;"</span>)` },
+    mastery: "Phase 4 &middot; Spinning Up &mdash; &tau; = I&alpha;: rotational F = ma."
+  },
+  {
+    num: 10, title: "Angular Momentum", subtitle: "Rotational Dynamics (II)",
+    desc: "Explore angular momentum conservation. See how an ice skater spins faster by pulling in arms, analyze gyroscopic precession, and solve rotational collision problems.",
+    color: "#e65100",
+    objectives: [
+      ["🌀","Define angular momentum L = I&omega;"],
+      ["🔒","Apply conservation of angular momentum"],
+      ["🎯","Analyze rotational collisions"],
+      ["⚙️","Understand gyroscopic effects qualitatively"]
+    ],
+    filename: "Week_10.ipynb",
+    heading: "Rotational Dynamics (II) &mdash; Angular Momentum",
+    topics: [
+      "Angular momentum definition and calculation",
+      "Conservation of angular momentum",
+      "Rotational collisions (sticky turntable)",
+      ["Ice skater spin simulator","Interactive"],
+      ["Torque and angular acceleration demo","Interactive"],
+      ["Angular momentum conservation visualizer","Interactive"]
+    ],
+    codeLeft: { title: "Angular Momentum", code: `<span class="cm"># L = I * omega</span>\n<span class="nm">I</span> <span class="op">=</span> <span class="nm">0.5</span>    <span class="cm"># kg m&sup2;</span>\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">10</span>  <span class="cm"># rad/s</span>\n\n<span class="nm">L</span> <span class="op">=</span> <span class="nm">I</span> <span class="op">*</span> <span class="nm">omega</span>\n<span class="bi">print</span>(<span class="st">f"L = </span>{<span class="nm">L</span>}<span class="st"> kg m&sup2;/s"</span>)` },
+    codeRight: { title: "Conservation", code: `<span class="cm"># Ice skater pulls arms in</span>\n<span class="nm">I1</span> <span class="op">=</span> <span class="nm">4.0</span>   <span class="cm"># arms out</span>\n<span class="nm">w1</span> <span class="op">=</span> <span class="nm">2.0</span>   <span class="cm"># rad/s</span>\n<span class="nm">I2</span> <span class="op">=</span> <span class="nm">1.5</span>   <span class="cm"># arms in</span>\n\n<span class="cm"># L1 = L2</span>\n<span class="nm">w2</span> <span class="op">=</span> <span class="nm">I1</span><span class="op">*</span><span class="nm">w1</span> <span class="op">/</span> <span class="nm">I2</span>\n<span class="bi">print</span>(<span class="st">f"&omega;2 = </span>{<span class="nm">w2</span>:<span class="st">.1f</span>}<span class="st"> rad/s"</span>)</pre>` },
+    mastery: "Phase 4 &middot; Angular Momentum &mdash; L = I&omega; conserved: predict spinning behavior."
+  },
+  {
+    num: 11, title: "Simple Harmonic Motion", subtitle: "SHM &mdash; Springs &amp; Pendulums",
+    desc: "Study oscillatory motion with spring-mass systems and pendulums. Visualize energy exchange, phase space, and explore damped oscillations using ODE solvers.",
+    color: "#1565c0",
+    objectives: [
+      ["🔄","Derive SHM equations for spring-mass and pendulum"],
+      ["📊","Plot displacement, velocity, and energy vs time"],
+      ["🌀","Visualize phase space trajectories"],
+      ["📉","Simulate damped oscillations with Euler/odeint"]
+    ],
+    filename: "Week_11.ipynb",
+    heading: "Simple Harmonic Motion",
+    topics: [
+      "Spring-mass system and Hooke's law",
+      "SHM: period, frequency, amplitude, phase",
+      "Pendulum and small-angle approximation",
+      ["Animated spring-mass with phase space","Interactive"],
+      ["Energy exchange bar chart (KE/PE)","Interactive"],
+      ["Damped oscillation with adjustable damping","Interactive"]
+    ],
+    codeLeft: { title: "Spring-Mass SHM", code: `<span class="cm"># x(t) = A * cos(omega*t + phi)</span>\n<span class="nm">k</span> <span class="op">=</span> <span class="nm">50</span>    <span class="cm"># N/m</span>\n<span class="nm">m</span> <span class="op">=</span> <span class="nm">2</span>     <span class="cm"># kg</span>\n<span class="nm">A</span> <span class="op">=</span> <span class="nm">0.1</span>   <span class="cm"># m</span>\n\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">sqrt</span>(<span class="nm">k</span><span class="op">/</span><span class="nm">m</span>)\n<span class="nm">T</span> <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">np</span>.<span class="nm">pi</span> <span class="op">/</span> <span class="nm">omega</span>` },
+    codeRight: { title: "Damped Oscillation", code: `<span class="cm"># mx'' + bx' + kx = 0</span>\n<span class="kw">from</span> <span class="nm">scipy.integrate</span> <span class="kw">import</span> <span class="fn">odeint</span>\n\n<span class="kw">def</span> <span class="fn">damped</span>(<span class="nm">y</span>, <span class="nm">t</span>, <span class="nm">b</span>, <span class="nm">k</span>, <span class="nm">m</span>):\n    <span class="nm">x</span>, <span class="nm">v</span> <span class="op">=</span> <span class="nm">y</span>\n    <span class="kw">return</span> [<span class="nm">v</span>, <span class="op">-</span><span class="nm">b</span><span class="op">/</span><span class="nm">m</span><span class="op">*</span><span class="nm">v</span> <span class="op">-</span> <span class="nm">k</span><span class="op">/</span><span class="nm">m</span><span class="op">*</span><span class="nm">x</span>]` },
+    mastery: "Phase 5 &middot; Back and Forth &mdash; Restoring force predicts sinusoidal motion."
+  },
+  {
+    num: 12, title: "Forced Oscillations &amp; Resonance", subtitle: "Vibration Engineering",
+    desc: "Study driven oscillators and resonance phenomena critical for mechatronics. Analyze amplitude-frequency response curves, Q factors, and design vibration dampers.",
+    color: "#2e7d32",
+    objectives: [
+      ["📡","Understand driven (forced) harmonic oscillators"],
+      ["📈","Plot amplitude vs frequency response curves"],
+      ["🎯","Calculate Q factor and resonance width"],
+      ["🛠️","Design a vibration damper with parameter selection"]
+    ],
+    filename: "Week_12.ipynb",
+    heading: "Forced Oscillations &amp; Resonance",
+    topics: [
+      "Driven harmonic oscillator equation",
+      "Resonance: amplitude peak at natural frequency",
+      "Phase lag between driving force and response",
+      ["Resonance curve with adjustable damping","Interactive"],
+      ["Driven oscillator animation","Interactive"],
+      ["Vibration damper design tool","Interactive"]
+    ],
+    codeLeft: { title: "Resonance Curve", code: `<span class="cm"># Amplitude response</span>\n<span class="nm">omega_0</span> <span class="op">=</span> <span class="nm">10</span>  <span class="cm"># natural freq</span>\n<span class="nm">F0</span> <span class="op">=</span> <span class="nm">1.0</span>\n<span class="nm">b</span>  <span class="op">=</span> <span class="nm">0.5</span>   <span class="cm"># damping</span>\n\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">linspace</span>(<span class="nm">0</span>, <span class="nm">20</span>, <span class="nm">500</span>)\n<span class="nm">A</span> <span class="op">=</span> <span class="nm">F0</span> <span class="op">/</span> <span class="nm">np</span>.<span class="fn">sqrt</span>((<span class="nm">omega_0</span><span class="op">**</span><span class="nm">2</span><span class="op">-</span><span class="nm">omega</span><span class="op">**</span><span class="nm">2</span>)<span class="op">**</span><span class="nm">2</span>\n  <span class="op">+</span> (<span class="nm">b</span><span class="op">*</span><span class="nm">omega</span>)<span class="op">**</span><span class="nm">2</span>)` },
+    codeRight: { title: "Q Factor", code: `<span class="cm"># Quality factor</span>\n<span class="nm">Q</span> <span class="op">=</span> <span class="nm">omega_0</span> <span class="op">/</span> <span class="nm">b</span>\n\n<span class="cm"># Higher Q = sharper peak</span>\n<span class="cm"># Q &gt; 10: underdamped</span>\n<span class="cm"># Q ~ 1: critical</span>\n<span class="cm"># Q &lt; 1: overdamped</span>\n\n<span class="bi">print</span>(<span class="st">f"Q = </span>{<span class="nm">Q</span>:<span class="st">.1f</span>}<span class="st">"</span>)` },
+    mastery: "Phase 5 &middot; Resonance &mdash; Drive at natural frequency &rarr; amplitude explodes."
+  },
+  {
+    num: 13, title: "Waves &amp; Sound", subtitle: "Mechanical Waves",
+    desc: "Explore wave physics: transverse and longitudinal waves, superposition, interference, and standing waves. Visualize 2D interference patterns with heatmaps.",
+    color: "#e65100",
+    objectives: [
+      ["🌊","Describe transverse and longitudinal waves"],
+      ["➕","Apply superposition principle"],
+      ["🎵","Understand standing waves and harmonics"],
+      ["📡","Visualize 2D interference patterns"]
+    ],
+    filename: "Week_13.ipynb",
+    heading: "Mechanical Waves &amp; Sound",
+    topics: [
+      "Wave equation: speed, wavelength, frequency",
+      "Transverse vs longitudinal waves",
+      "Superposition and interference",
+      ["Animated wave with adjustable parameters","Interactive"],
+      ["Two-source interference heatmap","Interactive"],
+      ["Standing wave harmonics simulator","Interactive"]
+    ],
+    codeLeft: { title: "Wave Equation", code: `<span class="cm"># y(x,t) = A sin(kx - omega*t)</span>\n<span class="nm">A</span>     <span class="op">=</span> <span class="nm">0.1</span>   <span class="cm"># amplitude</span>\n<span class="nm">lam</span>   <span class="op">=</span> <span class="nm">2.0</span>   <span class="cm"># wavelength</span>\n<span class="nm">f</span>     <span class="op">=</span> <span class="nm">5.0</span>   <span class="cm"># frequency</span>\n\n<span class="nm">k</span>     <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">np</span>.<span class="nm">pi</span> <span class="op">/</span> <span class="nm">lam</span>\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">2</span><span class="op">*</span><span class="nm">np</span>.<span class="nm">pi</span> <span class="op">*</span> <span class="nm">f</span>\n<span class="nm">v</span>     <span class="op">=</span> <span class="nm">lam</span> <span class="op">*</span> <span class="nm">f</span>` },
+    codeRight: { title: "Interference", code: `<span class="cm"># Two-source interference</span>\n<span class="cm"># Constructive: d = n * lambda</span>\n<span class="cm"># Destructive:  d = (n+0.5)*lambda</span>\n\n<span class="nm">d</span> <span class="op">=</span> <span class="nm">3.0</span>  <span class="cm"># source separation</span>\n<span class="nm">lam</span> <span class="op">=</span> <span class="nm">0.5</span>\n\n<span class="cm"># Path difference at point P</span>\n<span class="nm">delta</span> <span class="op">=</span> <span class="nm">r2</span> <span class="op">-</span> <span class="nm">r1</span>` },
+    mastery: "Phase 5 &middot; Waves &mdash; Waves carry energy. Predict speed and interference."
+  },
+  {
+    num: 14, title: "Final Review &amp; Capstone", subtitle: "Mini Project",
+    desc: "Review all topics from the semester and complete a hands-on mini project. Choose from: air resistance projectile, damped spring-mass, or rotational energy analysis.",
+    color: "#1565c0",
+    objectives: [
+      ["📋","Review key formulas and concepts from all weeks"],
+      ["🔬","Complete a physics mini-project with Python"],
+      ["📊","Generate plots and analyze results"],
+      ["📝","Write a brief conclusion with units and error analysis"]
+    ],
+    filename: "Week_14.ipynb",
+    heading: "Final Review &amp; Capstone Project",
+    topics: [
+      "Formula cheat sheet for all 13 weeks",
+      "Project 1: Projectile with air drag",
+      "Project 2: Damped spring-mass curve fitting",
+      "Project 3: Rolling objects energy analysis",
+      ["Parameter fitting with sliders","Interactive"],
+      ["Comprehensive energy/trajectory plots","Interactive"]
+    ],
+    codeLeft: { title: "Project: Air Drag", code: `<span class="cm"># Projectile with quadratic drag</span>\n<span class="cm"># F_drag = -0.5 * C * rho * A * v&sup2;</span>\n\n<span class="kw">from</span> <span class="nm">scipy.integrate</span> <span class="kw">import</span> <span class="fn">odeint</span>\n\n<span class="kw">def</span> <span class="fn">projectile_drag</span>(<span class="nm">state</span>, <span class="nm">t</span>):\n    <span class="nm">x</span>,<span class="nm">y</span>,<span class="nm">vx</span>,<span class="nm">vy</span> <span class="op">=</span> <span class="nm">state</span>\n    <span class="nm">v</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">sqrt</span>(<span class="nm">vx</span><span class="op">**</span><span class="nm">2</span><span class="op">+</span><span class="nm">vy</span><span class="op">**</span><span class="nm">2</span>)\n    <span class="kw">return</span> [<span class="nm">vx</span>,<span class="nm">vy</span>,<span class="op">-</span><span class="nm">c</span><span class="op">*</span><span class="nm">v</span><span class="op">*</span><span class="nm">vx</span>,<span class="op">-</span><span class="nm">g</span><span class="op">-</span><span class="nm">c</span><span class="op">*</span><span class="nm">v</span><span class="op">*</span><span class="nm">vy</span>]` },
+    codeRight: { title: "Project: Damped SHM Fit", code: `<span class="cm"># Fit damping coefficient from data</span>\n<span class="kw">from</span> <span class="nm">scipy.optimize</span> <span class="kw">import</span> <span class="fn">curve_fit</span>\n\n<span class="kw">def</span> <span class="fn">damped_shm</span>(<span class="nm">t</span>, <span class="nm">A</span>, <span class="nm">b</span>, <span class="nm">w</span>, <span class="nm">phi</span>):\n    <span class="kw">return</span> <span class="nm">A</span><span class="op">*</span><span class="nm">np</span>.<span class="fn">exp</span>(<span class="op">-</span><span class="nm">b</span><span class="op">*</span><span class="nm">t</span>)<span class="op">*</span><span class="nm">np</span>.<span class="fn">cos</span>(<span class="nm">w</span><span class="op">*</span><span class="nm">t</span><span class="op">+</span><span class="nm">phi</span>)\n\n<span class="nm">popt</span>, <span class="nm">_</span> <span class="op">=</span> <span class="fn">curve_fit</span>(<span class="fn">damped_shm</span>,\n    <span class="nm">t_data</span>, <span class="nm">x_data</span>)` },
+    mastery: "Phase 6 &middot; Proving Mastery &mdash; Model, predict, verify a complete system."
+  }
+];
+
+// ─── Generate week panels ───
+function generateTimeline(currentWeek) {
+  let html = '';
+  for (let i = 1; i <= 14; i++) {
+    html += `<div class="tm-dot${i===currentWeek?' current':''}" onclick="showWeek(${i})">${i}</div>`;
+  }
+  return html;
+}
+
+// Fill week 1 timeline
+document.getElementById('tl-1').innerHTML = generateTimeline(1);
+
+// Generate panels for weeks 2-14
+const placeholder = document.getElementById('weeks-placeholder');
+for (let i = 2; i <= 14; i++) {
+  const w = weeks[i];
+  if (!w) continue;
+
+  const offset = 175.9 * (1 - i/14);
+
+  let topicsHtml = '';
+  w.topics.forEach(t => {
+    if (Array.isArray(t)) {
+      topicsHtml += `<li>${t[0]} <span class="interactive-badge">${t[1]}</span></li>`;
+    } else {
+      topicsHtml += `<li>${t}</li>`;
+    }
+  });
+
+  let objHtml = '';
+  w.objectives.forEach(o => {
+    objHtml += `<div class="obj-card"><span class="obj-icon">${o[0]}</span><span class="obj-text">${o[1]}</span></div>`;
+  });
+
+
+
+  const panel = document.createElement('div');
+  panel.className = 'week-panel';
+  panel.id = `week-${i}`;
+  panel.innerHTML = `
+    <div class="week-header">
+      <div class="week-header-left">
+        <div class="week-tag">Week ${String(i).padStart(2,'0')} &middot; 3 hours</div>
+        <h1 class="week-heading">${w.title}<br><em>${w.subtitle}</em></h1>
+        <p class="week-desc">${w.desc}</p>
+      </div>
+      <div class="progress-ring-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#d4dae4" stroke-width="5"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="${w.color}" stroke-width="5"
+            stroke-dasharray="175.9" stroke-dashoffset="${offset.toFixed(1)}"
+            stroke-linecap="round" transform="rotate(-90 36 36)"/>
+          <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="${w.color}">W${String(i).padStart(2,'0')}</text>
+        </svg>
+        <div class="progress-label">Week ${i} / 14</div>
+      </div>
+    </div>
+    <div class="phase-tag-card">${w.mastery}</div>
+    <div class="timeline-mini">${generateTimeline(i)}</div>
+    <div class="section-title">Learning Objectives</div>
+    <div class="objectives-grid">${objHtml}</div>
+    <div class="section-title">This Week's Notebook</div>
+    <div class="notebooks-grid">
+      <div class="nb-card lecture">
+        <div class="nb-type">📓 Lecture + Lab Notebook</div>
+        <div class="nb-filename">${w.filename}</div>
+        <div class="nb-heading">${w.heading}</div>
+        <div class="nb-duration">⏱ ~3 hours &middot; lecture + interactive demos</div>
+        <ul class="nb-topics">${topicsHtml}</ul>
+        <a class="nb-btn" href="#">▶ Open in Colab</a>
+      </div>
+    </div>
+    <div class="section-title">Key Concepts: Quick Reference</div>
+    <div class="concepts-row">
+      <div class="concept-block">
+        <div class="concept-block-title">${w.codeLeft.title}</div>
+        <pre class="code-snippet">${w.codeLeft.code}</pre>
+      </div>
+      <div class="concept-block">
+        <div class="concept-block-title">${w.codeRight.title}</div>
+        <pre class="code-snippet">${w.codeRight.code}</pre>
+      </div>
+    </div>
+
+  `;
+  placeholder.appendChild(panel);
+}
+
+// ─── Navigation ───
+function showWeek(n) {
+  document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+
+  const panel = document.getElementById(`week-${n}`);
+  if (panel) panel.classList.add('active');
+
+  const btns = document.querySelectorAll('.week-btn');
+  if (btns[n-1]) btns[n-1].classList.add('active');
+}
+</script>
+
+</body>
+</html>

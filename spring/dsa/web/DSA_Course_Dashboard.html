@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA — Data Structures & Algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --py-yellow: #ffd43b;
+    --py-blue: #4b8bbe;
+    --py-blue-light: #79afd1;
+    --accent-green: #3fb950;
+    --accent-orange: #ffa657;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --lecture-bg: #1e3a5f;
+    --lecture-border: #4b8bbe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 1rem;
+    color: var(--py-yellow); letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--py-blue-light); }
+  .topbar-pills { display: flex; gap: 0.6rem; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 20px; color: var(--text-muted);
+  }
+  .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .pill.blue  { border-color: var(--py-blue); color: var(--py-blue-light); }
+  .pill.orange { border-color: var(--accent-orange); color: var(--accent-orange); }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 54px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+    padding: 0.4rem 1.2rem 0.6rem;
+  }
+  .week-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease; color: inherit;
+  }
+  .week-btn:hover { background: var(--surface2); }
+  .week-btn.active { background: var(--surface2); border-left-color: var(--py-yellow); }
+  .week-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    min-width: 28px; font-weight: 600;
+  }
+  .week-title { font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+  .week-btn.active .week-title { color: #fff; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* PANEL */
+  .week-panel { display: none; animation: fadeIn 0.2s ease; }
+  .week-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HEADER */
+  .week-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; margin-bottom: 1.8rem;
+  }
+  .week-header-left { flex: 1; }
+  .week-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  .week-heading { font-size: 1.7rem; font-weight: 800; line-height: 1.15; color: #fff; }
+  .week-heading em { font-style: normal; color: var(--py-yellow); }
+  .week-desc {
+    margin-top: 0.7rem; font-size: 0.88rem;
+    color: var(--text-muted); max-width: 580px; line-height: 1.6;
+  }
+  .progress-ring-wrap { text-align: center; }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 0.4rem;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* OBJECTIVES */
+  .objectives-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.7rem; margin-bottom: 2rem;
+  }
+  .obj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    display: flex; gap: 0.7rem; align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .obj-card:hover { border-color: var(--py-blue); }
+  .obj-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+
+  /* NOTEBOOKS */
+  .notebooks-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+    max-width: 600px;
+  }
+  .nb-card {
+    border-radius: 10px; padding: 1.2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .nb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .nb-card.lecture { background: var(--lecture-bg); border-color: var(--lecture-border); }
+  .nb-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;
+  }
+  .lecture .nb-type { color: var(--py-blue-light); }
+  .nb-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;
+  }
+  .nb-heading { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; line-height: 1.3; }
+  .nb-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.9rem;
+  }
+  .nb-topics { list-style: none; margin-bottom: 1.1rem; }
+  .nb-topics li {
+    font-size: 0.8rem; color: var(--text-muted);
+    padding: 0.22rem 0; display: flex; align-items: baseline; gap: 0.5rem;
+  }
+  .nb-topics li::before { content: '\203A'; font-size: 0.9rem; opacity: 0.6; }
+  .nb-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 0.9rem; border-radius: 6px; border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s; text-decoration: none;
+  }
+  .nb-btn:hover { opacity: 0.85; transform: scale(0.98); }
+  .lecture .nb-btn { background: var(--py-blue); color: #fff; }
+
+  /* CONCEPTS */
+  .concepts-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  @media (max-width: 800px) { .concepts-row { grid-template-columns: 1fr; } }
+  .concept-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem;
+  }
+  .concept-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--py-yellow); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 0.9rem;
+  }
+  pre.code-snippet {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 7px; padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; line-height: 1.7; overflow-x: auto; color: var(--text);
+  }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .nm { color: #79c0ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .op { color: #ffa657; }
+  .bi { color: #ffa657; }
+
+  /* EXERCISES */
+  .ex-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+  .ex-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ex-badge.l1 { background: #1a3d2e; color: var(--accent-green); border: 1px solid var(--accent-green); }
+  .ex-badge.l2 { background: #1e3a5f; color: var(--py-blue-light); border: 1px solid var(--py-blue); }
+  .ex-badge.l3 { background: #3d2800; color: var(--py-yellow); border: 1px solid var(--py-yellow); }
+  .ex-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.1rem;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: flex-start; gap: 0.8rem;
+  }
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-dim); min-width: 22px; padding-top: 2px;
+  }
+  .ex-content { flex: 1; }
+  .ex-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .ex-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* TIMELINE MINI */
+  .timeline-mini { display: flex; gap: 0.3rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .tm-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+  }
+  .tm-dot.current { background: var(--py-yellow); color: #000; border-color: var(--py-yellow); }
+  .tm-dot:hover:not(.current) { border-color: var(--py-blue); color: var(--py-blue-light); }
+
+  /* CORE MASTERY BANNER */
+  .core-mastery-banner {
+    background: linear-gradient(135deg, #1a2332 0%, #1e3a5f 100%);
+    border: 1px solid var(--py-yellow);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .core-mastery-icon { font-size: 2rem; min-width: 48px; text-align: center; }
+  .core-mastery-text h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--py-yellow); margin-bottom: 0.3rem;
+  }
+  .core-mastery-text p { font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1.3; }
+  .core-mastery-text p em { font-style: normal; color: var(--py-yellow); }
+  .phase-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--py-blue-light); text-transform: uppercase;
+    letter-spacing: 1.2px; margin-top: 0.4rem;
+  }
+  .sidebar-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; font-weight: 600;
+    color: var(--py-blue-light); text-transform: uppercase;
+    letter-spacing: 1.2px; padding: 0.8rem 1.2rem 0.3rem;
+    border-top: 1px solid var(--border); margin-top: 0.5rem;
+  }
+  .sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+
+  /* CORE MASTERY HERO (single instance) */
+  .core-mastery-hero {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin-top: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    border-left: 3px solid var(--py-yellow);
+    background: rgba(255,255,255,0.08);
+    border-radius: 0 8px 8px 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* PHASE TAG ON CARDS */
+  .phase-tag-card {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--primary-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(21,101,192,0.08);
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  body.dark .phase-tag-card {
+    background: rgba(66,165,245,0.1);
+    color: var(--py-blue-light);
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">DSA<span>.</span>py</div>
+  <div class="topbar-pills">
+    <span class="pill blue">14 Weeks &middot; 3 hrs/week</span>
+    <span class="pill">Google Colab</span>
+    <span class="pill green">Python 3 &middot; Beginner Level</span>
+    <span class="pill orange">Benchmark &middot; Plot &middot; Analyze</span>
+    <span class="pill green">Core: Empirical Complexity</span>
+    <a href="DSA_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+  </div>
+</header>
+
+<div class="core-mastery-hero">&ldquo;I can pick the right data structure and prove it&rdquo;</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Course Weeks</div>
+    <div class="sidebar-phase">Phase 1 &middot; Measure &amp; Predict</div>
+    <button class="week-btn active"  onclick="showWeek(1)"><span class="week-num">W01</span><span class="week-title">Big-O & Benchmarking</span></button>
+    <button class="week-btn" onclick="showWeek(2)"><span class="week-num">W02</span><span class="week-title">Python Built-in Costs</span></button>
+    <div class="sidebar-phase">Phase 2 &middot; First Choices</div>
+    <button class="week-btn" onclick="showWeek(3)"><span class="week-num">W03</span><span class="week-title">Stack, Queue & Deque</span></button>
+    <button class="week-btn" onclick="showWeek(4)"><span class="week-num">W04</span><span class="week-title">Recursion & Memoization</span></button>
+    <div class="sidebar-phase">Phase 3 &middot; O(n) vs O(log n) vs O(1)</div>
+    <button class="week-btn" onclick="showWeek(5)"><span class="week-num">W05</span><span class="week-title">Searching Algorithms</span></button>
+    <button class="week-btn" onclick="showWeek(6)"><span class="week-num">W06</span><span class="week-title">Sorting Algorithms</span></button>
+    <button class="week-btn" onclick="showWeek(7)"><span class="week-num">W07</span><span class="week-title">Hashing & Hash Tables</span></button>
+    <div class="sidebar-phase">Phase 4 &middot; Hierarchical</div>
+    <button class="week-btn" onclick="showWeek(8)"><span class="week-num">W08</span><span class="week-title">Heaps & Priority Queues</span></button>
+    <button class="week-btn" onclick="showWeek(9)"><span class="week-num">W09</span><span class="week-title">Trees & Traversal</span></button>
+    <button class="week-btn" onclick="showWeek(10)"><span class="week-num">W10</span><span class="week-title">Binary Search Trees</span></button>
+    <div class="sidebar-phase">Phase 5 &middot; Networks</div>
+    <button class="week-btn" onclick="showWeek(11)"><span class="week-num">W11</span><span class="week-title">Graphs: BFS & DFS</span></button>
+    <button class="week-btn" onclick="showWeek(12)"><span class="week-num">W12</span><span class="week-title">Dijkstra's Algorithm</span></button>
+    <div class="sidebar-phase">Phase 6 &middot; Optimization</div>
+    <button class="week-btn" onclick="showWeek(13)"><span class="week-num">W13</span><span class="week-title">Dynamic Programming</span></button>
+    <div class="sidebar-phase">Phase 7 &middot; Capstone</div>
+    <button class="week-btn" onclick="showWeek(14)"><span class="week-num">W14</span><span class="week-title">Final Project</span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ===== WEEK 01 ===== -->
+    <div class="week-panel active" id="week-1">
+
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 01 &middot; 3 hours total</div>
+          <h1 class="week-heading">Big-O &amp; Benchmarking<br><em>How Fast Is Your Code?</em></h1>
+          <p class="week-desc">What makes one algorithm faster than another? This week you will learn
+            Big-O notation to describe how code scales, and you will use Python's <code style="color:var(--py-yellow)">time</code>
+            module to actually measure it. You will run your first benchmarks, plot the results, and
+            see growth curves come to life.</p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W01</text>
+          </svg>
+          <div class="progress-label">Active Week</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 &middot; The Measuring Mindset &mdash; &ldquo;Predict with Big-O, verify with benchmarks.&rdquo;</div>
+
+      <div class="timeline-mini">
+        <div class="tm-dot current" onclick="showWeek(1)">1</div>
+        <div class="tm-dot" onclick="showWeek(2)">2</div>
+        <div class="tm-dot" onclick="showWeek(3)">3</div>
+        <div class="tm-dot" onclick="showWeek(4)">4</div>
+        <div class="tm-dot" onclick="showWeek(5)">5</div>
+        <div class="tm-dot" onclick="showWeek(6)">6</div>
+        <div class="tm-dot" onclick="showWeek(7)">7</div>
+        <div class="tm-dot" onclick="showWeek(8)">8</div>
+        <div class="tm-dot" onclick="showWeek(9)">9</div>
+        <div class="tm-dot" onclick="showWeek(10)">10</div>
+        <div class="tm-dot" onclick="showWeek(11)">11</div>
+        <div class="tm-dot" onclick="showWeek(12)">12</div>
+        <div class="tm-dot" onclick="showWeek(13)">13</div>
+        <div class="tm-dot" onclick="showWeek(14)">14</div>
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F4CA;</span><span class="obj-text">Explain what Big-O notation means and why it matters for comparing algorithms</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x23F1;</span><span class="obj-text">Identify O(1), O(n), O(n&sup2;), and O(log n) growth patterns by counting operations</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F50D;</span><span class="obj-text">Use Python's <code style="color:var(--py-yellow);font-size:0.75rem">time</code> module to measure execution time</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4C8;</span><span class="obj-text">Run benchmarks at different input sizes and plot results with matplotlib</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x2696;</span><span class="obj-text">Understand trade-offs: time vs space, simplicity vs speed</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4A1;</span><span class="obj-text">Read a growth curve and match it to the correct Big-O class</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_01.ipynb</div>
+          <div class="nb-heading">Big-O Notation, Timing &amp; Your First Benchmark</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises + benchmark</div>
+          <ul class="nb-topics">
+            <li>What is an algorithm? What makes one "better"?</li>
+            <li>Big-O notation: O(1), O(n), O(n&sup2;), O(log n)</li>
+            <li>Counting operations and growth rate intuition</li>
+            <li>Measuring time with the time module</li>
+            <li>Benchmark demo: loop performance at different n values</li>
+            <li>Plotting results with matplotlib</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Big-O Complexity Classes</div>
+          <pre class="code-snippet"><span class="cm"># O(1) &mdash; Constant: does not depend on n</span>
+<span class="kw">def</span> <span class="fn">get_first</span>(lst):
+    <span class="kw">return</span> lst[<span class="nm">0</span>]
+
+<span class="cm"># O(n) &mdash; Linear: grows with n</span>
+<span class="kw">def</span> <span class="fn">find_max</span>(lst):
+    mx <span class="op">=</span> lst[<span class="nm">0</span>]
+    <span class="kw">for</span> x <span class="kw">in</span> lst:
+        <span class="kw">if</span> x <span class="op">&gt;</span> mx:
+            mx <span class="op">=</span> x
+    <span class="kw">return</span> mx
+
+<span class="cm"># O(n&sup2;) &mdash; Quadratic: nested loop</span>
+<span class="kw">def</span> <span class="fn">all_pairs</span>(lst):
+    <span class="kw">for</span> a <span class="kw">in</span> lst:
+        <span class="kw">for</span> b <span class="kw">in</span> lst:
+            <span class="fn">print</span>(a, b)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Benchmarking with time</div>
+          <pre class="code-snippet"><span class="kw">import</span> time
+
+sizes <span class="op">=</span> [<span class="nm">1000</span>, <span class="nm">5000</span>, <span class="nm">10000</span>, <span class="nm">50000</span>]
+times <span class="op">=</span> []
+
+<span class="kw">for</span> n <span class="kw">in</span> sizes:
+    data <span class="op">=</span> <span class="fn">list</span>(<span class="fn">range</span>(n))
+    start <span class="op">=</span> time.<span class="fn">time</span>()
+    <span class="fn">find_max</span>(data)
+    elapsed <span class="op">=</span> time.<span class="fn">time</span>() <span class="op">-</span> start
+    times.<span class="fn">append</span>(elapsed)
+
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+plt.<span class="fn">plot</span>(sizes, times, <span class="st">'o-'</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">'Input Size (n)'</span>)
+plt.<span class="fn">ylabel</span>(<span class="st">'Time (seconds)'</span>)
+plt.<span class="fn">title</span>(<span class="st">'Linear Growth O(n)'</span>)
+plt.<span class="fn">show</span>()</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Classify Big-O</div>
+          <div class="ex-desc">Given three functions (constant, linear, quadratic), identify the Big-O of each and explain your reasoning in a comment.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Count Operations</div>
+          <div class="ex-desc">Write a function with a nested loop. Count how many times the inner operation runs for n = 5, 10, 20. Predict the Big-O.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Time It</div>
+          <div class="ex-desc">Use <code style="color:var(--py-yellow);font-size:0.78rem">time.time()</code> to measure how long a sum-of-list loop takes for n = 1000, 10000, 100000. Print results.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Plot a Curve</div>
+          <div class="ex-desc">Benchmark a nested loop at sizes 100, 500, 1000, 2000. Plot the results and verify the O(n&sup2;) curve shape.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Compare Two Approaches</div>
+          <div class="ex-desc">Write two functions that solve the same problem (e.g., check for duplicates) with different Big-O. Benchmark both, plot on the same chart, and write a 3-sentence conclusion.</div>
+        </div>
+      </div>
+
+    </div><!-- /week-1 -->
+
+    <div id="weeks-placeholder"></div>
+
+  </main>
+</div>
+
+<script>
+  /* ===== WEEK DATA ===== */
+  const weeksData = [
+    null, // index 0 unused (week 1 is in HTML)
+    null, // week 1 already in HTML
+    {
+      tag: "Week 02", heading: "Python Built-in Costs", subtitle: "Lists, Dicts &amp; Sets Under the Hood",
+      desc: "Python gives you powerful built-in data structures, but each operation has a cost. This week you will learn the Big-O of common list, dict, and set operations, then benchmark them yourself to see the real difference between <code style='color:var(--py-yellow)'>in</code> on a list vs a set.",
+      color: "#4b8bbe", offset: 150,
+      objectives: [
+        {icon:"&#x1F4E6;", text:"Review Python list, dict, and set basics"},
+        {icon:"&#x23F1;", text:"Know the Big-O of append, insert, lookup, and membership test"},
+        {icon:"&#x1F4CA;", text:"Compare list vs set membership performance with benchmarks"},
+        {icon:"&#x1F4C8;", text:"Plot timing results and interpret the growth curves"},
+        {icon:"&#x1F4DD;", text:"Write short observations explaining why set is faster for <code style='color:var(--py-yellow);font-size:0.75rem'>in</code>"},
+        {icon:"&#x2696;", text:"Choose the right data structure based on operation costs"}
+      ],
+      filename: "Week_02.ipynb", nbHeading: "Operation Costs &amp; Membership Benchmark",
+      topics: ["Python list operations and their Big-O costs","Dict and set: hash-based O(1) lookups","The membership test: list O(n) vs set O(1)","Benchmark: timing <code style='color:var(--py-yellow);font-size:0.75rem'>in</code> for list vs set","Plotting results with matplotlib","Writing benchmark observations"],
+      concept1: {title:"Common Operation Costs", code:`<span class="cm"># List operations</span>
+lst <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]
+lst.<span class="fn">append</span>(<span class="nm">4</span>)       <span class="cm"># O(1)</span>
+lst.<span class="fn">insert</span>(<span class="nm">0</span>, <span class="nm">0</span>)   <span class="cm"># O(n) &mdash; shifts all</span>
+lst[<span class="nm">2</span>]               <span class="cm"># O(1) &mdash; index</span>
+<span class="nm">3</span> <span class="kw">in</span> lst            <span class="cm"># O(n) &mdash; scan all</span>
+
+<span class="cm"># Set operations</span>
+s <span class="op">=</span> {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>}
+s.<span class="fn">add</span>(<span class="nm">4</span>)            <span class="cm"># O(1)</span>
+<span class="nm">3</span> <span class="kw">in</span> s              <span class="cm"># O(1) &mdash; hash lookup</span>
+
+<span class="cm"># Dict operations</span>
+d <span class="op">=</span> {<span class="st">"a"</span>: <span class="nm">1</span>}
+d[<span class="st">"b"</span>] <span class="op">=</span> <span class="nm">2</span>         <span class="cm"># O(1)</span>
+<span class="st">"a"</span> <span class="kw">in</span> d            <span class="cm"># O(1)</span>`},
+      concept2: {title:"Membership Benchmark", code:`<span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">bench_membership</span>(container, targets):
+    start <span class="op">=</span> time.<span class="fn">time</span>()
+    <span class="kw">for</span> t <span class="kw">in</span> targets:
+        t <span class="kw">in</span> container
+    <span class="kw">return</span> time.<span class="fn">time</span>() <span class="op">-</span> start
+
+n <span class="op">=</span> <span class="nm">100_000</span>
+data_list <span class="op">=</span> <span class="fn">list</span>(<span class="fn">range</span>(n))
+data_set  <span class="op">=</span> <span class="fn">set</span>(data_list)
+targets   <span class="op">=</span> <span class="fn">list</span>(<span class="fn">range</span>(<span class="nm">0</span>, n, <span class="nm">100</span>))
+
+<span class="fn">print</span>(<span class="st">"List:"</span>, <span class="fn">bench_membership</span>(data_list, targets))
+<span class="fn">print</span>(<span class="st">"Set:"</span>,  <span class="fn">bench_membership</span>(data_set, targets))`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Operation Cost Table",desc:"Create a markdown table listing 5 list operations and 5 set operations with their Big-O costs."},
+        {num:"E2",level:"l1",title:"Append vs Insert",desc:"Benchmark <code style='color:var(--py-yellow);font-size:0.78rem'>append()</code> vs <code style='color:var(--py-yellow);font-size:0.78rem'>insert(0, x)</code> for 10,000 operations. Print the time difference."},
+        {num:"E3",level:"l2",title:"List vs Set Membership",desc:"Benchmark the <code style='color:var(--py-yellow);font-size:0.78rem'>in</code> operator on a list vs a set for n = 1000, 10000, 100000. Plot both curves."},
+        {num:"E4",level:"l2",title:"Dict Lookup Speed",desc:"Create a dict and a list of tuples with the same data. Benchmark key lookup in both. Plot and explain."},
+        {num:"E5",level:"l3",title:"Real-World Choice",desc:"Given a problem (e.g., counting word frequencies), implement it using both a list and a dict. Benchmark and write a short paragraph justifying which is better."}
+      ]
+    },
+    {
+      tag: "Week 03", heading: "Stack, Queue &amp; Deque", subtitle: "Abstract Data Types in Action",
+      desc: "A stack is like a pile of plates, a queue is like a line at the cafeteria. This week you will implement these fundamental Abstract Data Types in Python, discover why <code style='color:var(--py-yellow)'>list.pop(0)</code> is slow, and benchmark <code style='color:var(--py-yellow)'>collections.deque</code> as the fast alternative.",
+      color: "#3fb950", offset: 138,
+      objectives: [
+        {icon:"&#x1F4DA;", text:"Define what an Abstract Data Type (ADT) is"},
+        {icon:"&#x1F4E5;", text:"Implement a Stack (LIFO) using a Python list"},
+        {icon:"&#x1F6B6;", text:"Implement a Queue (FIFO) and understand the pop(0) problem"},
+        {icon:"&#x26A1;", text:"Use <code style='color:var(--py-yellow);font-size:0.75rem'>collections.deque</code> for efficient queue operations"},
+        {icon:"&#x1F4CA;", text:"Benchmark list pop(0) vs deque popleft() at different sizes"},
+        {icon:"&#x1F4A1;", text:"Recognize when to use stack, queue, or deque in real problems"}
+      ],
+      filename: "Week_03.ipynb", nbHeading: "Stack, Queue &amp; Deque: ADTs &amp; Benchmarks",
+      topics: ["What is an ADT? Interface vs implementation","Stack (LIFO): push, pop, peek, is_empty","Queue (FIFO): enqueue, dequeue, front","The pop(0) problem: why list queues are slow","collections.deque: the fast alternative","Benchmark: list pop(0) vs deque popleft()"],
+      concept1: {title:"Stack with Python List", code:`<span class="kw">class</span> <span class="fn">Stack</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.items <span class="op">=</span> []
+
+    <span class="kw">def</span> <span class="fn">push</span>(<span class="bi">self</span>, item):
+        <span class="bi">self</span>.items.<span class="fn">append</span>(item)  <span class="cm"># O(1)</span>
+
+    <span class="kw">def</span> <span class="fn">pop</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="bi">self</span>.items.<span class="fn">pop</span>()   <span class="cm"># O(1)</span>
+
+    <span class="kw">def</span> <span class="fn">peek</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="bi">self</span>.items[<span class="op">-</span><span class="nm">1</span>]
+
+s <span class="op">=</span> <span class="fn">Stack</span>()
+s.<span class="fn">push</span>(<span class="nm">10</span>)
+s.<span class="fn">push</span>(<span class="nm">20</span>)
+<span class="fn">print</span>(s.<span class="fn">pop</span>())  <span class="cm"># 20 (LIFO)</span>`},
+      concept2: {title:"Deque vs List for Queues", code:`<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="cm"># Slow queue with list</span>
+q_list <span class="op">=</span> []
+q_list.<span class="fn">append</span>(<span class="nm">1</span>)        <span class="cm"># enqueue O(1)</span>
+q_list.<span class="fn">pop</span>(<span class="nm">0</span>)           <span class="cm"># dequeue O(n)!</span>
+
+<span class="cm"># Fast queue with deque</span>
+q_deque <span class="op">=</span> <span class="fn">deque</span>()
+q_deque.<span class="fn">append</span>(<span class="nm">1</span>)       <span class="cm"># enqueue O(1)</span>
+q_deque.<span class="fn">popleft</span>()       <span class="cm"># dequeue O(1)!</span>
+
+<span class="cm"># The difference matters at scale</span>
+<span class="cm"># n=100,000: list ~2s, deque ~0.01s</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Stack Basics",desc:"Implement a Stack class. Push 5 items, then pop them all. Verify LIFO order."},
+        {num:"E2",level:"l1",title:"Balanced Brackets",desc:"Use a stack to check if a string of brackets like <code style='color:var(--py-yellow);font-size:0.78rem'>\"([{}])\"</code> is balanced."},
+        {num:"E3",level:"l2",title:"Queue Implementation",desc:"Implement a Queue class using a list, then rewrite it using deque. Compare the code."},
+        {num:"E4",level:"l2",title:"Deque Benchmark",desc:"Benchmark list <code style='color:var(--py-yellow);font-size:0.78rem'>pop(0)</code> vs deque <code style='color:var(--py-yellow);font-size:0.78rem'>popleft()</code> for n = 10000, 50000, 100000. Plot both."},
+        {num:"E5",level:"l3",title:"Hot Potato Simulation",desc:"Simulate the Hot Potato game: people stand in a circle, every k-th person is removed. Use a deque to solve it efficiently."}
+      ]
+    },
+    {
+      tag: "Week 04", heading: "Recursion &amp; Memoization", subtitle: "Functions That Call Themselves",
+      desc: "Recursion is one of the most powerful ideas in computer science. This week you will learn how functions call themselves, visualize the call stack, and discover why naive recursion can be catastrophically slow &mdash; then fix it with memoization.",
+      color: "#ffd43b", offset: 125,
+      objectives: [
+        {icon:"&#x1F500;", text:"Understand recursion: base case and recursive case"},
+        {icon:"&#x1F4DA;", text:"Trace the call stack for factorial and Fibonacci"},
+        {icon:"&#x1F4A5;", text:"Recognize exponential blowup in naive recursive Fibonacci"},
+        {icon:"&#x1F4BE;", text:"Apply memoization with a dictionary cache to fix it"},
+        {icon:"&#x26A1;", text:"Use <code style='color:var(--py-yellow);font-size:0.75rem'>functools.lru_cache</code> as a shortcut"},
+        {icon:"&#x1F4CA;", text:"Benchmark naive vs memoized recursion and plot the difference"}
+      ],
+      filename: "Week_04.ipynb", nbHeading: "Recursion, Call Stack &amp; Memoization",
+      topics: ["What is recursion? Base case + recursive case","Factorial and Fibonacci step by step","Visualizing the call stack","The exponential blowup problem","Memoization: caching results in a dict","functools.lru_cache shortcut"],
+      concept1: {title:"Recursion: Factorial", code:`<span class="kw">def</span> <span class="fn">factorial</span>(n):
+    <span class="cm"># Base case</span>
+    <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="nm">1</span>:
+        <span class="kw">return</span> <span class="nm">1</span>
+    <span class="cm"># Recursive case</span>
+    <span class="kw">return</span> n <span class="op">*</span> <span class="fn">factorial</span>(n <span class="op">-</span> <span class="nm">1</span>)
+
+<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nm">5</span>))  <span class="cm"># 120</span>
+<span class="cm"># 5 * 4 * 3 * 2 * 1 = 120</span>
+
+<span class="cm"># Call stack:</span>
+<span class="cm"># factorial(5)</span>
+<span class="cm">#   factorial(4)</span>
+<span class="cm">#     factorial(3)</span>
+<span class="cm">#       factorial(2)</span>
+<span class="cm">#         factorial(1) &rarr; 1</span>`},
+      concept2: {title:"Memoization Fixes Fibonacci", code:`<span class="cm"># Naive: O(2^n) &mdash; very slow!</span>
+<span class="kw">def</span> <span class="fn">fib</span>(n):
+    <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="nm">1</span>: <span class="kw">return</span> n
+    <span class="kw">return</span> <span class="fn">fib</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">+</span> <span class="fn">fib</span>(n<span class="op">-</span><span class="nm">2</span>)
+
+<span class="cm"># Memoized: O(n) &mdash; fast!</span>
+cache <span class="op">=</span> {}
+<span class="kw">def</span> <span class="fn">fib_memo</span>(n):
+    <span class="kw">if</span> n <span class="kw">in</span> cache:
+        <span class="kw">return</span> cache[n]
+    <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="nm">1</span>:
+        result <span class="op">=</span> n
+    <span class="kw">else</span>:
+        result <span class="op">=</span> <span class="fn">fib_memo</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">+</span> <span class="fn">fib_memo</span>(n<span class="op">-</span><span class="nm">2</span>)
+    cache[n] <span class="op">=</span> result
+    <span class="kw">return</span> result`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Recursive Sum",desc:"Write a recursive function that sums numbers from 1 to n. Trace the calls for n = 5."},
+        {num:"E2",level:"l1",title:"Countdown",desc:"Write a recursive function that prints a countdown from n to 1, then prints \"Go!\"."},
+        {num:"E3",level:"l2",title:"Fibonacci Benchmark",desc:"Benchmark naive fib vs memoized fib for n = 10, 20, 30, 35. Plot the time difference."},
+        {num:"E4",level:"l2",title:"lru_cache",desc:"Rewrite Fibonacci using <code style='color:var(--py-yellow);font-size:0.78rem'>@functools.lru_cache</code>. Verify it matches the dict-based memoization."},
+        {num:"E5",level:"l3",title:"Recursive Power Set",desc:"Write a recursive function that generates all subsets of a list. Test with [1, 2, 3]."}
+      ]
+    },
+    {
+      tag: "Week 05", heading: "Searching Algorithms", subtitle: "Linear vs Binary Search",
+      desc: "How do you find a needle in a haystack? This week you will implement linear search and binary search, understand why binary search requires sorted data, and benchmark the dramatic O(n) vs O(log n) performance difference.",
+      color: "#4b8bbe", offset: 113,
+      objectives: [
+        {icon:"&#x1F50D;", text:"Implement linear search and understand its O(n) cost"},
+        {icon:"&#x2702;", text:"Implement binary search on sorted data with O(log n) cost"},
+        {icon:"&#x1F4CB;", text:"Walk through binary search step by step with examples"},
+        {icon:"&#x1F4CA;", text:"Benchmark linear vs binary search at different sizes"},
+        {icon:"&#x1F4E6;", text:"Use Python's <code style='color:var(--py-yellow);font-size:0.75rem'>bisect</code> module for built-in binary search"},
+        {icon:"&#x1F4C8;", text:"Plot O(n) vs O(log n) curves and interpret the difference"}
+      ],
+      filename: "Week_05.ipynb", nbHeading: "Linear Search, Binary Search &amp; Benchmarks",
+      topics: ["Linear search: check every element","Binary search: divide and conquer","Step-by-step walkthrough with examples","Implementing both in Python","Big-O comparison: O(n) vs O(log n)","Python's bisect module"],
+      concept1: {title:"Linear Search O(n)", code:`<span class="kw">def</span> <span class="fn">linear_search</span>(lst, target):
+    <span class="kw">for</span> i, val <span class="kw">in</span> <span class="fn">enumerate</span>(lst):
+        <span class="kw">if</span> val <span class="op">==</span> target:
+            <span class="kw">return</span> i
+    <span class="kw">return</span> <span class="op">-</span><span class="nm">1</span>
+
+data <span class="op">=</span> [<span class="nm">3</span>, <span class="nm">7</span>, <span class="nm">1</span>, <span class="nm">9</span>, <span class="nm">4</span>]
+<span class="fn">print</span>(<span class="fn">linear_search</span>(data, <span class="nm">9</span>))  <span class="cm"># 3</span>
+<span class="fn">print</span>(<span class="fn">linear_search</span>(data, <span class="nm">5</span>))  <span class="cm"># -1</span>
+
+<span class="cm"># Worst case: check ALL elements</span>
+<span class="cm"># Works on any list (sorted or not)</span>`},
+      concept2: {title:"Binary Search O(log n)", code:`<span class="kw">def</span> <span class="fn">binary_search</span>(lst, target):
+    lo, hi <span class="op">=</span> <span class="nm">0</span>, <span class="fn">len</span>(lst) <span class="op">-</span> <span class="nm">1</span>
+    <span class="kw">while</span> lo <span class="op">&lt;=</span> hi:
+        mid <span class="op">=</span> (lo <span class="op">+</span> hi) <span class="op">//</span> <span class="nm">2</span>
+        <span class="kw">if</span> lst[mid] <span class="op">==</span> target:
+            <span class="kw">return</span> mid
+        <span class="kw">elif</span> lst[mid] <span class="op">&lt;</span> target:
+            lo <span class="op">=</span> mid <span class="op">+</span> <span class="nm">1</span>
+        <span class="kw">else</span>:
+            hi <span class="op">=</span> mid <span class="op">-</span> <span class="nm">1</span>
+    <span class="kw">return</span> <span class="op">-</span><span class="nm">1</span>
+
+<span class="cm"># Requires SORTED data!</span>
+sorted_data <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">3</span>, <span class="nm">5</span>, <span class="nm">7</span>, <span class="nm">9</span>, <span class="nm">11</span>]
+<span class="fn">print</span>(<span class="fn">binary_search</span>(sorted_data, <span class="nm">7</span>)) <span class="cm"># 3</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Linear Search",desc:"Implement linear search. Test it on a list of 10 names to find a specific name."},
+        {num:"E2",level:"l1",title:"Binary Search",desc:"Implement binary search. Walk through the steps manually for a list of 8 sorted numbers."},
+        {num:"E3",level:"l2",title:"Search Benchmark",desc:"Benchmark linear vs binary search for n = 1000, 10000, 100000, 1000000. Plot both curves."},
+        {num:"E4",level:"l2",title:"bisect Module",desc:"Use <code style='color:var(--py-yellow);font-size:0.78rem'>bisect.bisect_left()</code> to find insertion points. Compare its speed to your binary search."},
+        {num:"E5",level:"l3",title:"Search Application",desc:"Build a phonebook lookup that uses binary search on sorted names. Handle not-found cases gracefully."}
+      ]
+    },
+    {
+      tag: "Week 06", heading: "Sorting Algorithms", subtitle: "From Insertion Sort to Timsort",
+      desc: "Sorting is one of the most studied problems in computer science. This week you will implement insertion sort, understand merge sort and quicksort conceptually, and benchmark your implementations against Python's built-in <code style='color:var(--py-yellow)'>sorted()</code>.",
+      color: "#3fb950", offset: 100,
+      objectives: [
+        {icon:"&#x1F0CF;", text:"Implement insertion sort using the card-sorting analogy"},
+        {icon:"&#x2702;", text:"Understand merge sort: divide, sort halves, merge"},
+        {icon:"&#x1F3AF;", text:"Understand quicksort: pick pivot, partition, recurse"},
+        {icon:"&#x1F4CA;", text:"Compare O(n&sup2;) vs O(n log n) with a Big-O table"},
+        {icon:"&#x26A1;", text:"Know that Python's <code style='color:var(--py-yellow);font-size:0.75rem'>sorted()</code> uses Timsort (O(n log n))"},
+        {icon:"&#x1F4C8;", text:"Benchmark insertion sort vs sorted() and plot results"}
+      ],
+      filename: "Week_06.ipynb", nbHeading: "Insertion Sort, Merge Sort &amp; Quicksort",
+      topics: ["Why sorting matters","Insertion sort: the card-sorting analogy","Merge sort: divide, sort, merge","Quicksort: pivot and partition","Big-O comparison table","Benchmark: insertion sort vs sorted()"],
+      concept1: {title:"Insertion Sort O(n&sup2;)", code:`<span class="kw">def</span> <span class="fn">insertion_sort</span>(lst):
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="fn">len</span>(lst)):
+        key <span class="op">=</span> lst[i]
+        j <span class="op">=</span> i <span class="op">-</span> <span class="nm">1</span>
+        <span class="kw">while</span> j <span class="op">&gt;=</span> <span class="nm">0</span> <span class="kw">and</span> lst[j] <span class="op">&gt;</span> key:
+            lst[j <span class="op">+</span> <span class="nm">1</span>] <span class="op">=</span> lst[j]
+            j <span class="op">-=</span> <span class="nm">1</span>
+        lst[j <span class="op">+</span> <span class="nm">1</span>] <span class="op">=</span> key
+    <span class="kw">return</span> lst
+
+<span class="cm"># Like sorting playing cards in your hand</span>
+<span class="cm"># Take each card, slide it into position</span>
+data <span class="op">=</span> [<span class="nm">5</span>, <span class="nm">2</span>, <span class="nm">8</span>, <span class="nm">1</span>, <span class="nm">9</span>]
+<span class="fn">print</span>(<span class="fn">insertion_sort</span>(data))
+<span class="cm"># [1, 2, 5, 8, 9]</span>`},
+      concept2: {title:"Python's sorted() &mdash; Timsort", code:`<span class="cm"># Python uses Timsort: O(n log n)</span>
+<span class="cm"># Hybrid of merge sort + insertion sort</span>
+
+data <span class="op">=</span> [<span class="nm">5</span>, <span class="nm">2</span>, <span class="nm">8</span>, <span class="nm">1</span>, <span class="nm">9</span>]
+result <span class="op">=</span> <span class="fn">sorted</span>(data)    <span class="cm"># new list</span>
+data.<span class="fn">sort</span>()               <span class="cm"># in-place</span>
+
+<span class="cm"># Sort with key function</span>
+words <span class="op">=</span> [<span class="st">"banana"</span>, <span class="st">"apple"</span>, <span class="st">"cherry"</span>]
+<span class="fn">sorted</span>(words, key<span class="op">=</span><span class="fn">len</span>)
+<span class="cm"># ['apple', 'banana', 'cherry']</span>
+
+<span class="cm"># For most tasks, just use sorted()!</span>
+<span class="cm"># It's highly optimized in C</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Insertion Sort",desc:"Implement insertion sort. Sort a list of 10 random numbers and print each step."},
+        {num:"E2",level:"l1",title:"sorted() Practice",desc:"Use <code style='color:var(--py-yellow);font-size:0.78rem'>sorted()</code> with key functions to sort strings by length, numbers by absolute value."},
+        {num:"E3",level:"l2",title:"Sorting Benchmark",desc:"Benchmark insertion sort vs <code style='color:var(--py-yellow);font-size:0.78rem'>sorted()</code> for n = 100, 500, 1000, 5000. Plot both curves."},
+        {num:"E4",level:"l2",title:"Merge Sort",desc:"Implement merge sort. Test it on a list of 20 random numbers and verify the output is sorted."},
+        {num:"E5",level:"l3",title:"Stability Test",desc:"Demonstrate sorting stability: sort a list of (name, grade) tuples by grade, then by name. Show that equal-grade items keep their relative order."}
+      ]
+    },
+    {
+      tag: "Week 07", heading: "Hashing &amp; Hash Tables", subtitle: "The Magic of O(1) Lookup",
+      desc: "How does Python's dict find your key instantly among millions? The answer is hashing. This week you will understand hash functions, build a simple hash table from scratch, and benchmark dict lookups vs list searches.",
+      color: "#ffd43b", offset: 88,
+      objectives: [
+        {icon:"&#x1F3B2;", text:"Understand what a hash function does: input &rarr; number &rarr; index"},
+        {icon:"&#x1F4E6;", text:"Build a simple hash table using a list + hash function"},
+        {icon:"&#x1F4A5;", text:"Understand collisions and basic collision handling"},
+        {icon:"&#x26A1;", text:"Know why dict lookup is O(1) on average"},
+        {icon:"&#x1F4CA;", text:"Benchmark dict lookup vs list search and plot the difference"},
+        {icon:"&#x1F527;", text:"Use hashing to speed up a real-world lookup problem"}
+      ],
+      filename: "Week_07.ipynb", nbHeading: "Hash Functions, Hash Tables &amp; Dict Performance",
+      topics: ["What is hashing? The 'magic function' analogy","How Python dict works (simplified)","Hash function: input &rarr; number &rarr; index","Collisions and how to handle them","Building a simple hash table from scratch","Benchmark: dict lookup vs list search"],
+      concept1: {title:"Hash Function Concept", code:`<span class="cm"># A hash function maps input to a number</span>
+<span class="fn">print</span>(<span class="fn">hash</span>(<span class="st">"hello"</span>))   <span class="cm"># some integer</span>
+<span class="fn">print</span>(<span class="fn">hash</span>(<span class="nm">42</span>))        <span class="cm"># 42</span>
+<span class="fn">print</span>(<span class="fn">hash</span>(<span class="st">"world"</span>))   <span class="cm"># different integer</span>
+
+<span class="cm"># To get an index: hash % table_size</span>
+table_size <span class="op">=</span> <span class="nm">10</span>
+index <span class="op">=</span> <span class="fn">hash</span>(<span class="st">"hello"</span>) <span class="op">%</span> table_size
+<span class="fn">print</span>(<span class="st">f"'hello' goes in slot {index}"</span>)
+
+<span class="cm"># This is how dict finds values in O(1)!</span>`},
+      concept2: {title:"Simple Hash Table", code:`<span class="kw">class</span> <span class="fn">SimpleHashTable</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, size<span class="op">=</span><span class="nm">10</span>):
+        <span class="bi">self</span>.table <span class="op">=</span> [[] <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(size)]
+
+    <span class="kw">def</span> <span class="fn">put</span>(<span class="bi">self</span>, key, value):
+        idx <span class="op">=</span> <span class="fn">hash</span>(key) <span class="op">%</span> <span class="fn">len</span>(<span class="bi">self</span>.table)
+        <span class="bi">self</span>.table[idx].<span class="fn">append</span>((key, value))
+
+    <span class="kw">def</span> <span class="fn">get</span>(<span class="bi">self</span>, key):
+        idx <span class="op">=</span> <span class="fn">hash</span>(key) <span class="op">%</span> <span class="fn">len</span>(<span class="bi">self</span>.table)
+        <span class="kw">for</span> k, v <span class="kw">in</span> <span class="bi">self</span>.table[idx]:
+            <span class="kw">if</span> k <span class="op">==</span> key:
+                <span class="kw">return</span> v
+
+ht <span class="op">=</span> <span class="fn">SimpleHashTable</span>()
+ht.<span class="fn">put</span>(<span class="st">"name"</span>, <span class="st">"Alice"</span>)
+<span class="fn">print</span>(ht.<span class="fn">get</span>(<span class="st">"name"</span>))  <span class="cm"># Alice</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Hash Exploration",desc:"Use Python's <code style='color:var(--py-yellow);font-size:0.78rem'>hash()</code> on 10 different values. Observe which types are hashable and which are not."},
+        {num:"E2",level:"l1",title:"Index Calculation",desc:"Given a table of size 7, calculate the index for 5 different keys using <code style='color:var(--py-yellow);font-size:0.78rem'>hash(key) % 7</code>. Show any collisions."},
+        {num:"E3",level:"l2",title:"Build a Hash Table",desc:"Implement a hash table with <code style='color:var(--py-yellow);font-size:0.78rem'>put()</code>, <code style='color:var(--py-yellow);font-size:0.78rem'>get()</code>, and <code style='color:var(--py-yellow);font-size:0.78rem'>contains()</code> methods. Test with 10 key-value pairs."},
+        {num:"E4",level:"l2",title:"Dict vs List Benchmark",desc:"Benchmark dict key lookup vs list linear search for n = 1000, 10000, 100000. Plot and explain."},
+        {num:"E5",level:"l3",title:"Word Frequency Counter",desc:"Read a text, count word frequencies using your hash table vs a dict. Compare results and performance."}
+      ]
+    },
+    {
+      tag: "Week 08", heading: "Heaps &amp; Priority Queues", subtitle: "Always Know the Minimum",
+      desc: "What if you always need the smallest (or largest) element fast? A heap gives you O(log n) insert and O(1) access to the minimum. This week you will use Python's <code style='color:var(--py-yellow)'>heapq</code> module and benchmark it against sorting.",
+      color: "#4b8bbe", offset: 75,
+      objectives: [
+        {icon:"&#x1F3E5;", text:"Understand priority queues with real-world examples (ER triage, print jobs)"},
+        {icon:"&#x1F332;", text:"Know the heap property: parent is always smaller than children"},
+        {icon:"&#x1F4E5;", text:"Use <code style='color:var(--py-yellow);font-size:0.75rem'>heapq.heappush()</code> and <code style='color:var(--py-yellow);font-size:0.75rem'>heapq.heappop()</code>"},
+        {icon:"&#x1F3AF;", text:"Find the smallest/largest k elements efficiently"},
+        {icon:"&#x1F4CA;", text:"Benchmark <code style='color:var(--py-yellow);font-size:0.75rem'>heapq.nsmallest()</code> vs <code style='color:var(--py-yellow);font-size:0.75rem'>sorted()[:k]</code>"},
+        {icon:"&#x1F4A1;", text:"Recognize when a heap is the right data structure"}
+      ],
+      filename: "Week_08.ipynb", nbHeading: "Heaps, heapq &amp; Priority Queue Benchmarks",
+      topics: ["What is a priority queue? Real-world examples","Heap concept: complete binary tree","Python's heapq module: push, pop, heapify","Finding smallest k elements","Benchmark: sorted() vs heapq.nsmallest()","When to use a heap vs sorting"],
+      concept1: {title:"heapq Basics", code:`<span class="kw">import</span> heapq
+
+heap <span class="op">=</span> []
+<span class="fn">heapq.heappush</span>(heap, <span class="nm">30</span>)
+<span class="fn">heapq.heappush</span>(heap, <span class="nm">10</span>)
+<span class="fn">heapq.heappush</span>(heap, <span class="nm">20</span>)
+
+<span class="fn">print</span>(heap[<span class="nm">0</span>])            <span class="cm"># 10 (min)</span>
+<span class="fn">print</span>(<span class="fn">heapq.heappop</span>(heap)) <span class="cm"># 10</span>
+<span class="fn">print</span>(<span class="fn">heapq.heappop</span>(heap)) <span class="cm"># 20</span>
+<span class="fn">print</span>(<span class="fn">heapq.heappop</span>(heap)) <span class="cm"># 30</span>
+
+<span class="cm"># Always gives you the smallest first!</span>`},
+      concept2: {title:"Top-K Elements", code:`<span class="kw">import</span> heapq
+
+scores <span class="op">=</span> [<span class="nm">85</span>, <span class="nm">92</span>, <span class="nm">67</span>, <span class="nm">45</span>, <span class="nm">99</span>, <span class="nm">73</span>, <span class="nm">88</span>]
+
+<span class="cm"># 3 smallest</span>
+<span class="fn">print</span>(<span class="fn">heapq.nsmallest</span>(<span class="nm">3</span>, scores))
+<span class="cm"># [45, 67, 73]</span>
+
+<span class="cm"># 3 largest</span>
+<span class="fn">print</span>(<span class="fn">heapq.nlargest</span>(<span class="nm">3</span>, scores))
+<span class="cm"># [99, 92, 88]</span>
+
+<span class="cm"># More efficient than sorted() when</span>
+<span class="cm"># k is much smaller than n</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Heap Basics",desc:"Create a min-heap. Push 10 random numbers, then pop them all. Verify they come out in sorted order."},
+        {num:"E2",level:"l1",title:"Heapify",desc:"Use <code style='color:var(--py-yellow);font-size:0.78rem'>heapq.heapify()</code> to turn an existing list into a heap. Pop 3 elements and print them."},
+        {num:"E3",level:"l2",title:"Top-K Benchmark",desc:"Benchmark <code style='color:var(--py-yellow);font-size:0.78rem'>heapq.nsmallest(k, data)</code> vs <code style='color:var(--py-yellow);font-size:0.78rem'>sorted(data)[:k]</code> for large data with small k. Plot results."},
+        {num:"E4",level:"l2",title:"Task Scheduler",desc:"Build a simple task scheduler using a heap where tasks have priorities. Process tasks in priority order."},
+        {num:"E5",level:"l3",title:"Running Median",desc:"Given a stream of numbers, use two heaps to maintain the running median. Print the median after each number."}
+      ]
+    },
+    {
+      tag: "Week 09", heading: "Trees &amp; Traversal", subtitle: "Branching Out",
+      desc: "Trees are everywhere: file systems, HTML pages, family trees. This week you will build binary trees from scratch using a Node class, then implement three classic traversal algorithms &mdash; in-order, pre-order, and post-order &mdash; using recursion.",
+      color: "#3fb950", offset: 63,
+      objectives: [
+        {icon:"&#x1F333;", text:"Define tree terminology: root, node, leaf, parent, child, depth"},
+        {icon:"&#x1F4C1;", text:"Recognize trees in real life: file systems, HTML DOM, org charts"},
+        {icon:"&#x1F3D7;", text:"Build a binary tree using a simple <code style='color:var(--py-yellow);font-size:0.75rem'>Node</code> class"},
+        {icon:"&#x1F500;", text:"Implement in-order, pre-order, and post-order traversals"},
+        {icon:"&#x1F4DD;", text:"Trace traversal order by hand on a given tree"},
+        {icon:"&#x2705;", text:"Verify traversal output against expected results"}
+      ],
+      filename: "Week_09.ipynb", nbHeading: "Binary Trees &amp; Traversal Algorithms",
+      topics: ["Tree terminology: root, node, leaf, depth, height","Real-world tree examples","Building a binary tree with a Node class","In-order traversal (left, root, right)","Pre-order traversal (root, left, right)","Post-order traversal (left, right, root)"],
+      concept1: {title:"Binary Tree Node", code:`<span class="kw">class</span> <span class="fn">Node</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, value):
+        <span class="bi">self</span>.value <span class="op">=</span> value
+        <span class="bi">self</span>.left  <span class="op">=</span> <span class="kw">None</span>
+        <span class="bi">self</span>.right <span class="op">=</span> <span class="kw">None</span>
+
+<span class="cm"># Build a tree:</span>
+<span class="cm">#       10</span>
+<span class="cm">#      /  \</span>
+<span class="cm">#     5    15</span>
+<span class="cm">#    / \</span>
+<span class="cm">#   3   7</span>
+
+root <span class="op">=</span> <span class="fn">Node</span>(<span class="nm">10</span>)
+root.left  <span class="op">=</span> <span class="fn">Node</span>(<span class="nm">5</span>)
+root.right <span class="op">=</span> <span class="fn">Node</span>(<span class="nm">15</span>)
+root.left.left  <span class="op">=</span> <span class="fn">Node</span>(<span class="nm">3</span>)
+root.left.right <span class="op">=</span> <span class="fn">Node</span>(<span class="nm">7</span>)</pre>`},
+      concept2: {title:"Tree Traversals", code:`<span class="kw">def</span> <span class="fn">inorder</span>(node):
+    <span class="kw">if</span> node:
+        <span class="fn">inorder</span>(node.left)
+        <span class="fn">print</span>(node.value, end<span class="op">=</span><span class="st">" "</span>)
+        <span class="fn">inorder</span>(node.right)
+
+<span class="kw">def</span> <span class="fn">preorder</span>(node):
+    <span class="kw">if</span> node:
+        <span class="fn">print</span>(node.value, end<span class="op">=</span><span class="st">" "</span>)
+        <span class="fn">preorder</span>(node.left)
+        <span class="fn">preorder</span>(node.right)
+
+<span class="kw">def</span> <span class="fn">postorder</span>(node):
+    <span class="kw">if</span> node:
+        <span class="fn">postorder</span>(node.left)
+        <span class="fn">postorder</span>(node.right)
+        <span class="fn">print</span>(node.value, end<span class="op">=</span><span class="st">" "</span>)
+
+<span class="fn">inorder</span>(root)    <span class="cm"># 3 5 7 10 15</span>
+<span class="fn">preorder</span>(root)   <span class="cm"># 10 5 3 7 15</span>
+<span class="fn">postorder</span>(root)  <span class="cm"># 3 7 5 15 10</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Build a Tree",desc:"Create a binary tree with 7 nodes. Draw it in a comment and print each node's value."},
+        {num:"E2",level:"l1",title:"Traversal by Hand",desc:"Given a tree diagram, write the in-order, pre-order, and post-order output by hand. Verify with code."},
+        {num:"E3",level:"l2",title:"Tree Height",desc:"Write a recursive function that computes the height of a binary tree. Test on trees of different shapes."},
+        {num:"E4",level:"l2",title:"Count Nodes",desc:"Write functions to count: total nodes, leaf nodes, and internal nodes in a binary tree."},
+        {num:"E5",level:"l3",title:"Level-Order Traversal",desc:"Implement BFS-style level-order traversal using a queue. Print nodes level by level."}
+      ]
+    },
+    {
+      tag: "Week 10", heading: "Binary Search Trees", subtitle: "Search Meets Trees",
+      desc: "A Binary Search Tree combines the structure of a tree with the efficiency of binary search. This week you will implement BST insert and search operations, understand why in-order traversal gives sorted output, and explore balanced vs unbalanced trees.",
+      color: "#ffd43b", offset: 50,
+      objectives: [
+        {icon:"&#x1F333;", text:"Understand the BST property: left &lt; parent &lt; right"},
+        {icon:"&#x1F4E5;", text:"Implement BST <code style='color:var(--py-yellow);font-size:0.75rem'>insert()</code> to add values in the correct position"},
+        {icon:"&#x1F50D;", text:"Implement BST <code style='color:var(--py-yellow);font-size:0.75rem'>search()</code> to find values efficiently"},
+        {icon:"&#x1F4CB;", text:"Show that in-order traversal of a BST produces sorted output"},
+        {icon:"&#x2696;", text:"Understand balanced O(log n) vs unbalanced O(n) performance"},
+        {icon:"&#x1F4A1;", text:"Know when BSTs are useful and their limitations"}
+      ],
+      filename: "Week_10.ipynb", nbHeading: "BST: Insert, Search &amp; Traversal",
+      topics: ["BST property: left < parent < right","Inserting into a BST step by step","Searching in a BST step by step","In-order traversal gives sorted output","Balanced vs unbalanced trees","Best case O(log n), worst case O(n)"],
+      concept1: {title:"BST Insert", code:`<span class="kw">class</span> <span class="fn">BST</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.root <span class="op">=</span> <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="fn">insert</span>(<span class="bi">self</span>, value):
+        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">self</span>.root:
+            <span class="bi">self</span>.root <span class="op">=</span> <span class="fn">Node</span>(value)
+        <span class="kw">else</span>:
+            <span class="bi">self</span>.<span class="fn">_insert</span>(<span class="bi">self</span>.root, value)
+
+    <span class="kw">def</span> <span class="fn">_insert</span>(<span class="bi">self</span>, node, value):
+        <span class="kw">if</span> value <span class="op">&lt;</span> node.value:
+            <span class="kw">if</span> node.left <span class="kw">is</span> <span class="kw">None</span>:
+                node.left <span class="op">=</span> <span class="fn">Node</span>(value)
+            <span class="kw">else</span>:
+                <span class="bi">self</span>.<span class="fn">_insert</span>(node.left, value)
+        <span class="kw">else</span>:
+            <span class="kw">if</span> node.right <span class="kw">is</span> <span class="kw">None</span>:
+                node.right <span class="op">=</span> <span class="fn">Node</span>(value)
+            <span class="kw">else</span>:
+                <span class="bi">self</span>.<span class="fn">_insert</span>(node.right, value)</pre>`},
+      concept2: {title:"BST Search", code:`<span class="kw">def</span> <span class="fn">search</span>(<span class="bi">self</span>, value):
+    <span class="kw">return</span> <span class="bi">self</span>.<span class="fn">_search</span>(<span class="bi">self</span>.root, value)
+
+<span class="kw">def</span> <span class="fn">_search</span>(<span class="bi">self</span>, node, value):
+    <span class="kw">if</span> node <span class="kw">is</span> <span class="kw">None</span>:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">if</span> value <span class="op">==</span> node.value:
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">elif</span> value <span class="op">&lt;</span> node.value:
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="fn">_search</span>(node.left, value)
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="fn">_search</span>(node.right, value)
+
+tree <span class="op">=</span> <span class="fn">BST</span>()
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="nm">8</span>, <span class="nm">3</span>, <span class="nm">10</span>, <span class="nm">1</span>, <span class="nm">6</span>]:
+    tree.<span class="fn">insert</span>(v)
+<span class="fn">print</span>(tree.<span class="fn">search</span>(<span class="nm">6</span>))   <span class="cm"># True</span>
+<span class="fn">print</span>(tree.<span class="fn">search</span>(<span class="nm">99</span>))  <span class="cm"># False</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Build a BST",desc:"Insert the values [15, 10, 20, 8, 12, 18, 25] into a BST. Draw the resulting tree in a comment."},
+        {num:"E2",level:"l1",title:"BST Search",desc:"Add a search method to your BST. Test it with values that exist and values that don't."},
+        {num:"E3",level:"l2",title:"Sorted Output",desc:"Implement in-order traversal on your BST. Verify that the output is sorted."},
+        {num:"E4",level:"l2",title:"Min and Max",desc:"Write functions to find the minimum and maximum values in a BST without traversing the whole tree."},
+        {num:"E5",level:"l3",title:"Unbalanced BST",desc:"Insert sorted values [1,2,3,4,5] into a BST. Show that it degenerates to a linked list. Compare search times."}
+      ]
+    },
+    {
+      tag: "Week 11", heading: "Graphs: BFS &amp; DFS", subtitle: "Connecting the Dots",
+      desc: "Graphs model relationships: social networks, maps, web links. This week you will represent graphs with adjacency lists, then explore them using Breadth-First Search (level by level) and Depth-First Search (as deep as possible).",
+      color: "#3fb950", offset: 38,
+      objectives: [
+        {icon:"&#x1F310;", text:"Define graphs: vertices, edges, directed vs undirected"},
+        {icon:"&#x1F4CB;", text:"Represent graphs using adjacency lists (Python dict)"},
+        {icon:"&#x1F6B6;", text:"Implement BFS using a queue to explore level by level"},
+        {icon:"&#x1F4A8;", text:"Implement DFS using a stack or recursion to go deep first"},
+        {icon:"&#x1F4CF;", text:"Find shortest path (number of steps) with BFS"},
+        {icon:"&#x1F5FA;", text:"Apply graph traversal to real problems (maps, social networks)"}
+      ],
+      filename: "Week_11.ipynb", nbHeading: "Graph Representation, BFS &amp; DFS",
+      topics: ["What is a graph? Vertices and edges","Directed vs undirected graphs","Adjacency list representation with dict","BFS: explore level by level with a queue","DFS: explore deep first with stack/recursion","Finding shortest path with BFS"],
+      concept1: {title:"Graph as Adjacency List", code:`<span class="cm"># Undirected graph</span>
+graph <span class="op">=</span> {
+    <span class="st">"A"</span>: [<span class="st">"B"</span>, <span class="st">"C"</span>],
+    <span class="st">"B"</span>: [<span class="st">"A"</span>, <span class="st">"D"</span>],
+    <span class="st">"C"</span>: [<span class="st">"A"</span>, <span class="st">"D"</span>],
+    <span class="st">"D"</span>: [<span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"E"</span>],
+    <span class="st">"E"</span>: [<span class="st">"D"</span>]
+}
+
+<span class="cm"># "A" connects to "B" and "C"</span>
+<span class="cm"># "D" connects to "B", "C", "E"</span>
+
+<span class="fn">print</span>(graph[<span class="st">"A"</span>])  <span class="cm"># ['B', 'C']</span>
+<span class="fn">print</span>(graph[<span class="st">"D"</span>])  <span class="cm"># ['B', 'C', 'E']</span>`},
+      concept2: {title:"BFS &mdash; Shortest Path", code:`<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">bfs</span>(graph, start):
+    visited <span class="op">=</span> <span class="fn">set</span>()
+    queue <span class="op">=</span> <span class="fn">deque</span>([start])
+    visited.<span class="fn">add</span>(start)
+    order <span class="op">=</span> []
+
+    <span class="kw">while</span> queue:
+        node <span class="op">=</span> queue.<span class="fn">popleft</span>()
+        order.<span class="fn">append</span>(node)
+        <span class="kw">for</span> neighbor <span class="kw">in</span> graph[node]:
+            <span class="kw">if</span> neighbor <span class="kw">not in</span> visited:
+                visited.<span class="fn">add</span>(neighbor)
+                queue.<span class="fn">append</span>(neighbor)
+    <span class="kw">return</span> order
+
+<span class="fn">print</span>(<span class="fn">bfs</span>(graph, <span class="st">"A"</span>))
+<span class="cm"># ['A', 'B', 'C', 'D', 'E']</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Build a Graph",desc:"Create an adjacency list for a graph with 6 nodes and 7 edges. Print each node and its neighbors."},
+        {num:"E2",level:"l1",title:"BFS Traversal",desc:"Implement BFS. Run it from different starting nodes and observe the traversal order."},
+        {num:"E3",level:"l2",title:"DFS Traversal",desc:"Implement DFS using both recursion and a stack. Compare the traversal orders."},
+        {num:"E4",level:"l2",title:"Shortest Path",desc:"Modify BFS to track the path. Find the shortest path (fewest edges) between two nodes."},
+        {num:"E5",level:"l3",title:"Connected Components",desc:"Write a function that finds all connected components in an undirected graph. Test with a graph that has 2-3 disconnected parts."}
+      ]
+    },
+    {
+      tag: "Week 12", heading: "Dijkstra's Algorithm", subtitle: "Shortest Weighted Paths",
+      desc: "BFS finds shortest paths when all edges cost the same. But what if edges have different weights (distances, costs)? Dijkstra's algorithm solves this using a priority queue &mdash; connecting heaps from Week 08 to graphs from Week 11.",
+      color: "#ffd43b", offset: 25,
+      objectives: [
+        {icon:"&#x1F5FA;", text:"Understand weighted graphs and why BFS is not enough"},
+        {icon:"&#x2696;", text:"Learn Dijkstra's greedy strategy: always expand the cheapest node"},
+        {icon:"&#x1F4CB;", text:"Walk through Dijkstra's algorithm step by step"},
+        {icon:"&#x1F527;", text:"Implement Dijkstra using <code style='color:var(--py-yellow);font-size:0.75rem'>heapq</code> (priority queue)"},
+        {icon:"&#x1F697;", text:"Build a mini route planner between cities"},
+        {icon:"&#x26A0;", text:"Know the limitation: no negative edge weights"}
+      ],
+      filename: "Week_12.ipynb", nbHeading: "Dijkstra's Algorithm &amp; Route Planning",
+      topics: ["Weighted graphs: edges with costs","Why BFS fails for weighted graphs","Dijkstra's greedy approach step by step","Implementation using heapq","Mini route planner: shortest path between cities","Limitation: no negative weights"],
+      concept1: {title:"Weighted Graph", code:`<span class="cm"># Weighted adjacency list</span>
+<span class="cm"># {node: [(neighbor, weight), ...]}</span>
+graph <span class="op">=</span> {
+    <span class="st">"A"</span>: [(<span class="st">"B"</span>, <span class="nm">4</span>), (<span class="st">"C"</span>, <span class="nm">2</span>)],
+    <span class="st">"B"</span>: [(<span class="st">"D"</span>, <span class="nm">3</span>)],
+    <span class="st">"C"</span>: [(<span class="st">"B"</span>, <span class="nm">1</span>), (<span class="st">"D"</span>, <span class="nm">5</span>)],
+    <span class="st">"D"</span>: []
+}
+
+<span class="cm"># A --4-- B --3-- D</span>
+<span class="cm"># |       |</span>
+<span class="cm"># 2       1</span>
+<span class="cm"># |       |</span>
+<span class="cm"># C ------+</span>
+<span class="cm"># A&rarr;C&rarr;B&rarr;D = 2+1+3 = 6 (shorter!)</span>
+<span class="cm"># A&rarr;B&rarr;D   = 4+3   = 7</span>`},
+      concept2: {title:"Dijkstra with heapq", code:`<span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">dijkstra</span>(graph, start):
+    dist <span class="op">=</span> {node: <span class="fn">float</span>(<span class="st">'inf'</span>)
+            <span class="kw">for</span> node <span class="kw">in</span> graph}
+    dist[start] <span class="op">=</span> <span class="nm">0</span>
+    pq <span class="op">=</span> [(<span class="nm">0</span>, start)]
+
+    <span class="kw">while</span> pq:
+        d, u <span class="op">=</span> <span class="fn">heapq.heappop</span>(pq)
+        <span class="kw">if</span> d <span class="op">&gt;</span> dist[u]:
+            <span class="kw">continue</span>
+        <span class="kw">for</span> v, w <span class="kw">in</span> graph[u]:
+            <span class="kw">if</span> dist[u] <span class="op">+</span> w <span class="op">&lt;</span> dist[v]:
+                dist[v] <span class="op">=</span> dist[u] <span class="op">+</span> w
+                <span class="fn">heapq.heappush</span>(pq, (dist[v], v))
+    <span class="kw">return</span> dist
+
+<span class="fn">print</span>(<span class="fn">dijkstra</span>(graph, <span class="st">"A"</span>))
+<span class="cm"># {'A': 0, 'B': 3, 'C': 2, 'D': 6}</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Weighted Graph",desc:"Create a weighted graph with 5 cities and distances. Print the adjacency list."},
+        {num:"E2",level:"l1",title:"Dijkstra Trace",desc:"Run Dijkstra by hand on a small graph. Write the distance table after each step."},
+        {num:"E3",level:"l2",title:"Implement Dijkstra",desc:"Implement Dijkstra's algorithm using <code style='color:var(--py-yellow);font-size:0.78rem'>heapq</code>. Find shortest distances from a source to all other nodes."},
+        {num:"E4",level:"l2",title:"Path Reconstruction",desc:"Modify Dijkstra to also track the actual path, not just the distance. Print the shortest path between two cities."},
+        {num:"E5",level:"l3",title:"Route Planner",desc:"Build a mini route planner with 8+ cities. Find the shortest route between any two cities and display it with total distance."}
+      ]
+    },
+    {
+      tag: "Week 13", heading: "Dynamic Programming", subtitle: "Breaking Problems Down",
+      desc: "Dynamic Programming solves complex problems by breaking them into overlapping subproblems and storing results. This week you will tackle two classic DP problems &mdash; Climbing Stairs and Coin Change &mdash; using both top-down (memoization) and bottom-up (tabulation) approaches.",
+      color: "#4b8bbe", offset: 13,
+      objectives: [
+        {icon:"&#x1F9E9;", text:"Understand DP: overlapping subproblems + optimal substructure"},
+        {icon:"&#x2B07;", text:"Implement top-down DP (memoization): recursion + cache"},
+        {icon:"&#x2B06;", text:"Implement bottom-up DP (tabulation): fill a table iteratively"},
+        {icon:"&#x1F6B6;", text:"Solve Climbing Stairs: how many ways to reach step n?"},
+        {icon:"&#x1FA99;", text:"Solve Coin Change: minimum coins to make an amount"},
+        {icon:"&#x1F4CA;", text:"Benchmark naive recursion vs memoization vs tabulation"}
+      ],
+      filename: "Week_13.ipynb", nbHeading: "Dynamic Programming: Stairs &amp; Coins",
+      topics: ["What is Dynamic Programming?","Top-down: memoization (recursion + cache)","Bottom-up: tabulation (iterative table)","Classic Problem 1: Climbing Stairs","Classic Problem 2: Coin Change","Benchmark: naive vs memoized vs tabulated"],
+      concept1: {title:"Climbing Stairs (DP)", code:`<span class="cm"># How many ways to climb n stairs?</span>
+<span class="cm"># You can take 1 or 2 steps at a time</span>
+
+<span class="cm"># Top-down (memoization)</span>
+<span class="kw">def</span> <span class="fn">stairs_memo</span>(n, cache<span class="op">=</span>{}):
+    <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="nm">2</span>: <span class="kw">return</span> n
+    <span class="kw">if</span> n <span class="kw">in</span> cache: <span class="kw">return</span> cache[n]
+    cache[n] <span class="op">=</span> <span class="fn">stairs_memo</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">+</span> <span class="fn">stairs_memo</span>(n<span class="op">-</span><span class="nm">2</span>)
+    <span class="kw">return</span> cache[n]
+
+<span class="cm"># Bottom-up (tabulation)</span>
+<span class="kw">def</span> <span class="fn">stairs_tab</span>(n):
+    dp <span class="op">=</span> [<span class="nm">0</span>] <span class="op">*</span> (n <span class="op">+</span> <span class="nm">1</span>)
+    dp[<span class="nm">1</span>], dp[<span class="nm">2</span>] <span class="op">=</span> <span class="nm">1</span>, <span class="nm">2</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>, n<span class="op">+</span><span class="nm">1</span>):
+        dp[i] <span class="op">=</span> dp[i<span class="op">-</span><span class="nm">1</span>] <span class="op">+</span> dp[i<span class="op">-</span><span class="nm">2</span>]
+    <span class="kw">return</span> dp[n]
+
+<span class="fn">print</span>(<span class="fn">stairs_tab</span>(<span class="nm">10</span>))  <span class="cm"># 89</span>`},
+      concept2: {title:"Coin Change (DP)", code:`<span class="cm"># Minimum coins to make amount</span>
+<span class="kw">def</span> <span class="fn">coin_change</span>(coins, amount):
+    dp <span class="op">=</span> [<span class="fn">float</span>(<span class="st">'inf'</span>)] <span class="op">*</span> (amount <span class="op">+</span> <span class="nm">1</span>)
+    dp[<span class="nm">0</span>] <span class="op">=</span> <span class="nm">0</span>
+
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, amount <span class="op">+</span> <span class="nm">1</span>):
+        <span class="kw">for</span> coin <span class="kw">in</span> coins:
+            <span class="kw">if</span> coin <span class="op">&lt;=</span> i:
+                dp[i] <span class="op">=</span> <span class="fn">min</span>(dp[i],
+                            dp[i <span class="op">-</span> coin] <span class="op">+</span> <span class="nm">1</span>)
+
+    <span class="kw">return</span> dp[amount]
+
+coins <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">10</span>, <span class="nm">25</span>]
+<span class="fn">print</span>(<span class="fn">coin_change</span>(coins, <span class="nm">36</span>))
+<span class="cm"># 3 (25 + 10 + 1)</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Stairs by Hand",desc:"Calculate the number of ways to climb 5 stairs by hand (1 or 2 steps). Verify with code."},
+        {num:"E2",level:"l1",title:"Coin Change Trace",desc:"Trace the coin change DP table for amount = 11 with coins [1, 5, 6]. Show the table at each step."},
+        {num:"E3",level:"l2",title:"DP Benchmark",desc:"Benchmark naive recursion vs memoization vs tabulation for climbing stairs with n = 10, 20, 30. Plot the results."},
+        {num:"E4",level:"l2",title:"3-Step Stairs",desc:"Modify the climbing stairs problem to allow 1, 2, or 3 steps. Solve with both memoization and tabulation."},
+        {num:"E5",level:"l3",title:"Longest Common Subsequence",desc:"Implement LCS for two strings using a 2D DP table. Test with \"ABCBDAB\" and \"BDCAB\"."}
+      ]
+    },
+    {
+      tag: "Week 14", heading: "Final Project", subtitle: "Fast Log Indexer",
+      desc: "Put everything together! Build a Fast Log Indexer that uses dict/set for O(1) lookups, supports time-range and threshold queries, and includes a full benchmark report with plots. This is your chance to demonstrate mastery of data structures and algorithms.",
+      color: "#3fb950", offset: 0,
+      objectives: [
+        {icon:"&#x1F3C6;", text:"Apply data structures from the entire course to a real problem"},
+        {icon:"&#x1F4BE;", text:"Index log records using dict and set for fast queries"},
+        {icon:"&#x1F50D;", text:"Implement fast queries: by time range, by ID, by threshold"},
+        {icon:"&#x1F4CA;", text:"Benchmark indexed queries vs brute-force scanning"},
+        {icon:"&#x1F4C8;", text:"Create performance plots comparing approaches"},
+        {icon:"&#x1F4DD;", text:"Write a conclusion: \"Why was my data structure choice correct?\""}
+      ],
+      filename: "Week_14.ipynb", nbHeading: "Final Project: Fast Log Indexer",
+      topics: ["Project overview and requirements","Generating sample log data","Building indexes with dict/set","Implementing fast queries","Benchmarking indexed vs brute-force","Creating plots and writing conclusions"],
+      concept1: {title:"Log Indexing with Dict", code:`<span class="cm"># Sample log entry</span>
+log <span class="op">=</span> {
+    <span class="st">"timestamp"</span>: <span class="st">"2024-03-14 10:30:00"</span>,
+    <span class="st">"id"</span>: <span class="st">"sensor-42"</span>,
+    <span class="st">"level"</span>: <span class="st">"WARNING"</span>,
+    <span class="st">"value"</span>: <span class="nm">87.3</span>
+}
+
+<span class="cm"># Index by ID for O(1) lookup</span>
+id_index <span class="op">=</span> {}  <span class="cm"># {id: [log1, log2, ...]}</span>
+
+<span class="kw">for</span> entry <span class="kw">in</span> logs:
+    sid <span class="op">=</span> entry[<span class="st">"id"</span>]
+    <span class="kw">if</span> sid <span class="kw">not in</span> id_index:
+        id_index[sid] <span class="op">=</span> []
+    id_index[sid].<span class="fn">append</span>(entry)
+
+<span class="cm"># Fast query: all logs for sensor-42</span>
+results <span class="op">=</span> id_index[<span class="st">"sensor-42"</span>]  <span class="cm"># O(1)!</span>`},
+      concept2: {title:"Benchmark: Index vs Scan", code:`<span class="kw">import</span> time
+
+<span class="cm"># Brute force: scan all logs</span>
+<span class="kw">def</span> <span class="fn">scan_by_id</span>(logs, target_id):
+    <span class="kw">return</span> [l <span class="kw">for</span> l <span class="kw">in</span> logs
+            <span class="kw">if</span> l[<span class="st">"id"</span>] <span class="op">==</span> target_id]
+
+<span class="cm"># Indexed: instant lookup</span>
+<span class="kw">def</span> <span class="fn">index_by_id</span>(logs, target_id):
+    <span class="kw">return</span> id_index.<span class="fn">get</span>(target_id, [])
+
+<span class="cm"># Benchmark both approaches</span>
+<span class="cm"># Plot: x = num_logs, y = query_time</span>
+<span class="cm"># Scan grows linearly</span>
+<span class="cm"># Index stays constant!</span>`},
+      exercises: [
+        {num:"E1",level:"l1",title:"Generate Logs",desc:"Generate 10,000 sample log entries with random timestamps, IDs, levels, and values."},
+        {num:"E2",level:"l1",title:"Build Index",desc:"Create a dict-based index by log ID and another by log level. Verify with test queries."},
+        {num:"E3",level:"l2",title:"Query by Threshold",desc:"Implement a query that finds all logs with value above a threshold. Compare indexed vs brute-force."},
+        {num:"E4",level:"l2",title:"Benchmark & Plot",desc:"Benchmark indexed queries vs scanning for log sizes 1K, 10K, 100K. Plot the results."},
+        {num:"E5",level:"l3",title:"Full Report",desc:"Write a complete benchmark report with 3 query types, plots, and a paragraph explaining your data structure choices."}
+      ]
+    }
+  ];
+
+  /* ===== CORE MASTERY DATA ===== */
+  const coreMasteryData = {
+    2:  'Phase 1 &middot; Know Your Tools &mdash; &ldquo;list vs dict vs set &mdash; measure the real costs.&rdquo;',
+    3:  'Phase 2 &middot; The Right Queue &mdash; &ldquo;Stack vs Queue vs Deque for different access patterns.&rdquo;',
+    4:  'Phase 2 &middot; Divide &amp; Remember &mdash; &ldquo;Memoization trades space for time. Benchmark: O(2^n) to O(n).&rdquo;',
+    5:  'Phase 3 &middot; Finding Things &mdash; &ldquo;O(n) vs O(log n) &mdash; binary search needs sorted data.&rdquo;',
+    6:  'Phase 3 &middot; Ordering Things &mdash; &ldquo;Different sorts for different situations. Measure them.&rdquo;',
+    7:  'Phase 3 &middot; Instant Lookup &mdash; &ldquo;O(1) average lookup with hashing. At what memory cost?&rdquo;',
+    8:  'Phase 4 &middot; Always the Best &mdash; &ldquo;Heaps: O(log n) insert + O(1) peek for priority problems.&rdquo;',
+    9:  'Phase 4 &middot; Hierarchical Data &mdash; &ldquo;Trees organize data hierarchically. Traversal order matters.&rdquo;',
+    10: 'Phase 4 &middot; Ordered Hierarchy &mdash; &ldquo;BST: O(log n) when balanced, O(n) when skewed.&rdquo;',
+    11: 'Phase 5 &middot; Connected Data &mdash; &ldquo;Graphs for networks. BFS for shortest, DFS for exhaustive.&rdquo;',
+    12: 'Phase 5 &middot; Weighted Paths &mdash; &ldquo;Dijkstra finds cheapest paths using a heap.&rdquo;',
+    13: 'Phase 6 &middot; Trading Memory for Speed &mdash; &ldquo;DP eliminates redundant computation.&rdquo;',
+    14: 'Phase 7 &middot; Proving Mastery &mdash; &ldquo;Choose, implement, benchmark, and prove your choice was right.&rdquo;'
+  };
+
+  /* ===== BUILD WEEK PANELS (2-14) ===== */
+  function buildPanel(weekNum) {
+    const w = weeksData[weekNum];
+    if (!w) return;
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-' + weekNum;
+
+    const timeline = Array.from({length:14}, (_,i) =>
+      `<div class="tm-dot${i===weekNum-1?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`
+    ).join('');
+
+    const objectives = w.objectives.map(o =>
+      `<div class="obj-card"><span class="obj-icon">${o.icon}</span><span class="obj-text">${o.text}</span></div>`
+    ).join('');
+
+    const topics = w.topics.map(t => `<li>${t}</li>`).join('');
+
+    const exercises = w.exercises.map(e =>
+      `<div class="ex-card">
+        <div class="ex-num">${e.num}</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge ${e.level}" style="font-size:0.58rem;padding:1px 7px">${e.level==='l1'?'L1':''}${e.level==='l2'?'L2':''}${e.level==='l3'?'L3':''}</span> &nbsp;${e.title}</div>
+          <div class="ex-desc">${e.desc}</div>
+        </div>
+      </div>`
+    ).join('');
+
+    const progressColors = {2:"#4b8bbe",3:"#3fb950",4:"#ffd43b",5:"#4b8bbe",6:"#3fb950",7:"#ffd43b",8:"#4b8bbe",9:"#3fb950",10:"#ffd43b",11:"#3fb950",12:"#ffd43b",13:"#4b8bbe",14:"#3fb950"};
+    const pc = progressColors[weekNum] || "#4b8bbe";
+
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">${w.tag} &middot; 3 hours total</div>
+          <h1 class="week-heading">${w.heading}<br><em>${w.subtitle}</em></h1>
+          <p class="week-desc">${w.desc}</p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="${pc}" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="${w.offset}"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="${pc}">W${String(weekNum).padStart(2,'0')}</text>
+          </svg>
+          <div class="progress-label">Week ${weekNum} / 14</div>
+        </div>
+      </div>
+
+      ${coreMasteryData[weekNum] ? `<div class="phase-tag-card">${coreMasteryData[weekNum]}</div>` : ''}
+
+      <div class="timeline-mini">${timeline}</div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">${objectives}</div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">${w.filename}</div>
+          <div class="nb-heading">${w.nbHeading}</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises + benchmark</div>
+          <ul class="nb-topics">${topics}</ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">${w.concept1.title}</div>
+          <pre class="code-snippet">${w.concept1.code}</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">${w.concept2.title}</div>
+          <pre class="code-snippet">${w.concept2.code}</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      ${exercises}
+    `;
+
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  }
+
+  // Build all week panels
+  for (let i = 2; i <= 14; i++) {
+    buildPanel(i);
+  }
+
+  /* ===== NAVIGATION ===== */
+  function showWeek(n) {
+    document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+
+    const panel = document.getElementById('week-' + n);
+    if (panel) panel.classList.add('active');
+
+    const btns = document.querySelectorAll('.week-btn');
+    if (btns[n - 1]) btns[n - 1].classList.add('active');
+  }
+</script>
+
+</body>
+</html>

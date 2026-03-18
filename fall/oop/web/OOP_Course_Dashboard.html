@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OOP — Object Oriented Programming</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --py-yellow: #ffd43b;
+    --py-blue: #4b8bbe;
+    --py-blue-light: #79afd1;
+    --accent-green: #3fb950;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --lecture-bg: #1e3a5f;
+    --lecture-border: #4b8bbe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 1rem;
+    color: var(--py-yellow); letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--py-blue-light); }
+  .topbar-pills { display: flex; gap: 0.6rem; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 20px; color: var(--text-muted);
+  }
+  .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .pill.blue  { border-color: var(--py-blue); color: var(--py-blue-light); }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 54px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 248px; min-width: 248px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+    padding: 0.4rem 1.2rem 0.6rem;
+  }
+  .week-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease; color: inherit;
+  }
+  .week-btn:hover { background: var(--surface2); }
+  .week-btn.active { background: var(--surface2); border-left-color: var(--py-yellow); }
+  .week-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    min-width: 28px; font-weight: 600;
+  }
+  .week-title { font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+  .week-btn.active .week-title { color: #fff; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* PANEL */
+  .week-panel { display: none; animation: fadeIn 0.2s ease; }
+  .week-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HEADER */
+  .week-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; margin-bottom: 1.8rem;
+  }
+  .week-header-left { flex: 1; }
+  .week-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  .week-heading { font-size: 1.7rem; font-weight: 800; line-height: 1.15; color: #fff; }
+  .week-heading em { font-style: normal; color: var(--py-yellow); }
+  .week-desc {
+    margin-top: 0.7rem; font-size: 0.88rem;
+    color: var(--text-muted); max-width: 580px; line-height: 1.6;
+  }
+  .progress-ring-wrap { text-align: center; }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 0.4rem;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* OBJECTIVES */
+  .objectives-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.7rem; margin-bottom: 2rem;
+  }
+  .obj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    display: flex; gap: 0.7rem; align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .obj-card:hover { border-color: var(--py-blue); }
+  .obj-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+
+  /* NOTEBOOKS */
+  .notebooks-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+    max-width: 600px;
+  }
+  .nb-card {
+    border-radius: 10px; padding: 1.2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .nb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .nb-card.lecture { background: var(--lecture-bg); border-color: var(--lecture-border); }
+  .nb-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;
+  }
+  .lecture .nb-type { color: var(--py-blue-light); }
+  .nb-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;
+  }
+  .nb-heading { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; line-height: 1.3; }
+  .nb-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.9rem;
+  }
+  .nb-topics { list-style: none; margin-bottom: 1.1rem; }
+  .nb-topics li {
+    font-size: 0.8rem; color: var(--text-muted);
+    padding: 0.22rem 0; display: flex; align-items: baseline; gap: 0.5rem;
+  }
+  .nb-topics li::before { content: '\203A'; font-size: 0.9rem; opacity: 0.6; }
+  .nb-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 0.9rem; border-radius: 6px; border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s; text-decoration: none;
+  }
+  .nb-btn:hover { opacity: 0.85; transform: scale(0.98); }
+  .lecture .nb-btn { background: var(--py-blue); color: #fff; }
+
+  /* CONCEPTS */
+  .concepts-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  @media (max-width: 800px) { .concepts-row { grid-template-columns: 1fr; } }
+  .concept-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem;
+  }
+  .concept-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--py-yellow); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 0.9rem;
+  }
+  pre.code-snippet {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 7px; padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; line-height: 1.7; overflow-x: auto; color: var(--text);
+  }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .nm { color: #79c0ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .op { color: #ffa657; }
+  .bi { color: #ffa657; }
+
+  /* EXERCISES */
+  .ex-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+  .ex-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ex-badge.l1 { background: #1a3d2e; color: var(--accent-green); border: 1px solid var(--accent-green); }
+  .ex-badge.l2 { background: #1e3a5f; color: var(--py-blue-light); border: 1px solid var(--py-blue); }
+  .ex-badge.l3 { background: #3d2800; color: var(--py-yellow); border: 1px solid var(--py-yellow); }
+  .ex-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.1rem;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: flex-start; gap: 0.8rem;
+  }
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-dim); min-width: 22px; padding-top: 2px;
+  }
+  .ex-content { flex: 1; }
+  .ex-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .ex-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* TIMELINE MINI */
+  .timeline-mini { display: flex; gap: 0.3rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .tm-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+  }
+  .tm-dot.current { background: var(--py-yellow); color: #000; border-color: var(--py-yellow); }
+  .tm-dot:hover:not(.current) { border-color: var(--py-blue); color: var(--py-blue-light); }
+
+  /* CORE MASTERY HERO */
+  .core-mastery-hero {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin-top: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    border-left: 3px solid var(--py-yellow);
+    background: rgba(255,255,255,0.08);
+    border-radius: 0 8px 8px 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* PHASE TAG CARD */
+  .phase-tag-card {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--primary-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(21,101,192,0.08);
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  body.dark .phase-tag-card {
+    background: rgba(66,165,245,0.1);
+    color: var(--py-blue-light);
+  }
+  .sidebar-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; font-weight: 600;
+    color: var(--py-blue-light); text-transform: uppercase;
+    letter-spacing: 1.2px; padding: 0.8rem 1.2rem 0.3rem;
+    border-top: 1px solid var(--border); margin-top: 0.5rem;
+  }
+  .sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">OOP<span>.</span>py</div>
+  <div class="topbar-pills">
+    <span class="pill blue">14 Weeks &middot; 3 hrs/week</span>
+    <span class="pill">Google Colab</span>
+    <span class="pill green">Python 3 &middot; OOP Fundamentals</span>
+    <span class="pill green">Core: Composition</span>
+    <a href="OOP_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Course Weeks</div>
+    <div class="sidebar-phase">Phase 1 · Reliable Components</div>
+    <button class="week-btn active"  onclick="showWeek(1)"><span class="week-num">W01</span><span class="week-title">Classes &amp; Objects</span></button>
+    <button class="week-btn" onclick="showWeek(2)"><span class="week-num">W02</span><span class="week-title">__init__ &amp; Methods</span></button>
+    <button class="week-btn" onclick="showWeek(3)"><span class="week-num">W03</span><span class="week-title">Encapsulation</span></button>
+    <div class="sidebar-phase">Phase 2 · Composing</div>
+    <button class="week-btn" onclick="showWeek(4)"><span class="week-num">W04</span><span class="week-title">Composition</span></button>
+    <button class="week-btn" onclick="showWeek(5)"><span class="week-num">W05</span><span class="week-title">Inheritance</span></button>
+    <button class="week-btn" onclick="showWeek(6)"><span class="week-num">W06</span><span class="week-title">Abstract Classes</span></button>
+    <div class="sidebar-phase">Phase 3 · Maintainability</div>
+    <button class="week-btn" onclick="showWeek(7)"><span class="week-num">W07</span><span class="week-title">SOLID Principles</span></button>
+    <button class="week-btn" onclick="showWeek(8)"><span class="week-num">W08</span><span class="week-title">Custom Exceptions</span></button>
+    <div class="sidebar-phase">Phase 4 · Verify &amp; Swap</div>
+    <button class="week-btn" onclick="showWeek(9)"><span class="week-num">W09</span><span class="week-title">Unit Testing</span></button>
+    <button class="week-btn" onclick="showWeek(10)"><span class="week-num">W10</span><span class="week-title">Design Patterns</span></button>
+    <div class="sidebar-phase">Phase 5 · Organization</div>
+    <button class="week-btn" onclick="showWeek(11)"><span class="week-num">W11</span><span class="week-title">Package Structure</span></button>
+    <div class="sidebar-phase">Phase 6 · Proving Mastery</div>
+    <button class="week-btn" onclick="showWeek(12)"><span class="week-num">W12</span><span class="week-title">Iterators &amp; Generators</span></button>
+    <button class="week-btn" onclick="showWeek(13)"><span class="week-num">W13</span><span class="week-title">Mini Project</span></button>
+    <button class="week-btn" onclick="showWeek(14)"><span class="week-num">W14</span><span class="week-title">Final Review</span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="core-mastery-hero">"I can model a system as collaborating objects"</div>
+
+    <!-- ===== WEEK 01 ===== -->
+    <div class="week-panel active" id="week-1">
+
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 01 &middot; 3 hours total</div>
+          <h1 class="week-heading">Classes &amp; Objects<br><em>Your First Blueprint</em></h1>
+          <p class="week-desc">Everything in Python is an object. This week you will learn what that
+            really means by building your own classes from scratch. You will create LED and Motor
+            objects, attach attributes, and inspect their state &mdash; laying the foundation for
+            every OOP concept that follows.</p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W01</text>
+          </svg>
+          <div class="progress-label">Active Week</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 · Building One Reliable Component — "A component bundles data and behavior. This week: your first class."</div>
+
+      <!-- Timeline -->
+      <div class="timeline-mini">
+        <div class="tm-dot current" onclick="showWeek(1)">1</div>
+        <div class="tm-dot" onclick="showWeek(2)">2</div>
+        <div class="tm-dot" onclick="showWeek(3)">3</div>
+        <div class="tm-dot" onclick="showWeek(4)">4</div>
+        <div class="tm-dot" onclick="showWeek(5)">5</div>
+        <div class="tm-dot" onclick="showWeek(6)">6</div>
+        <div class="tm-dot" onclick="showWeek(7)">7</div>
+        <div class="tm-dot" onclick="showWeek(8)">8</div>
+        <div class="tm-dot" onclick="showWeek(9)">9</div>
+        <div class="tm-dot" onclick="showWeek(10)">10</div>
+        <div class="tm-dot" onclick="showWeek(11)">11</div>
+        <div class="tm-dot" onclick="showWeek(12)">12</div>
+        <div class="tm-dot" onclick="showWeek(13)">13</div>
+        <div class="tm-dot" onclick="showWeek(14)">14</div>
+      </div>
+
+      <!-- Objectives -->
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F4E6;</span><span class="obj-text">Understand the difference between procedural and object-oriented programming</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3D7;</span><span class="obj-text">Define a class using the <code style="color:var(--py-yellow);font-size:0.75rem">class</code> keyword and create instances</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CC;</span><span class="obj-text">Attach attributes to objects using dot notation</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F50D;</span><span class="obj-text">Inspect object state with <code style="color:var(--py-yellow);font-size:0.75rem">print()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">type()</code>, and <code style="color:var(--py-yellow);font-size:0.75rem">vars()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x2699;</span><span class="obj-text">Distinguish between a class (blueprint) and an object (instance)</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4A1;</span><span class="obj-text">Model a real-world mechatronics component (LED, Motor) as a Python class</span></div>
+      </div>
+
+      <!-- Notebook -->
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_01.ipynb</div>
+          <div class="nb-heading">Classes, Objects &amp; Attributes</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>What is OOP? Procedural vs Object-Oriented thinking</li>
+            <li>Defining a class with the class keyword</li>
+            <li>Creating objects (instances) from a class</li>
+            <li>Attributes: attaching data with dot notation</li>
+            <li>Inspecting state: type(), vars(), isinstance()</li>
+            <li>Worked example: LED and Motor objects</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <!-- Key Concepts -->
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Defining a Class &amp; Creating Objects</div>
+          <pre class="code-snippet"><span class="cm"># A class is a blueprint</span>
+<span class="kw">class</span> <span class="fn">LED</span>:
+    <span class="kw">pass</span>
+
+<span class="cm"># Create two LED objects</span>
+red_led   <span class="op">=</span> <span class="fn">LED</span>()
+green_led <span class="op">=</span> <span class="fn">LED</span>()
+
+<span class="cm"># Attach attributes with dot notation</span>
+red_led.color  <span class="op">=</span> <span class="st">"red"</span>
+red_led.pin    <span class="op">=</span> <span class="nm">13</span>
+red_led.is_on  <span class="op">=</span> <span class="kw">False</span>
+
+<span class="cm"># Inspect</span>
+<span class="fn">print</span>(<span class="fn">type</span>(red_led))   <span class="cm"># &lt;class 'LED'&gt;</span>
+<span class="fn">print</span>(<span class="fn">vars</span>(red_led))   <span class="cm"># {'color': 'red', ...}</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Objects Hold Independent State</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Motor</span>:
+    <span class="kw">pass</span>
+
+m1 <span class="op">=</span> <span class="fn">Motor</span>()
+m2 <span class="op">=</span> <span class="fn">Motor</span>()
+
+m1.name  <span class="op">=</span> <span class="st">"Left Wheel"</span>
+m1.speed <span class="op">=</span> <span class="nm">120</span>
+
+m2.name  <span class="op">=</span> <span class="st">"Right Wheel"</span>
+m2.speed <span class="op">=</span> <span class="nm">95</span>
+
+<span class="cm"># Each object has its own state</span>
+<span class="fn">print</span>(m1.speed)  <span class="cm"># 120</span>
+<span class="fn">print</span>(m2.speed)  <span class="cm"># 95</span>
+<span class="fn">print</span>(m1 <span class="kw">is</span> m2)  <span class="cm"># False</span></pre>
+        </div>
+      </div>
+
+      <!-- Exercises -->
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Class vs Object</div>
+          <div class="ex-desc">Create a class called <code style="color:var(--py-yellow);font-size:0.78rem">Sensor</code>. Instantiate two objects and attach <code style="color:var(--py-yellow);font-size:0.78rem">name</code> and <code style="color:var(--py-yellow);font-size:0.78rem">value</code> attributes. Print both using dot notation.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;State Inspector</div>
+          <div class="ex-desc">Use <code style="color:var(--py-yellow);font-size:0.78rem">type()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">vars()</code>, and <code style="color:var(--py-yellow);font-size:0.78rem">isinstance()</code> on your sensor objects. Explain the output of each in a comment.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Robot Builder</div>
+          <div class="ex-desc">Define a <code style="color:var(--py-yellow);font-size:0.78rem">Robot</code> class. Create three robot objects with attributes: name, battery_level, and is_active. Print a status line for each.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Attribute Mutation</div>
+          <div class="ex-desc">Create a Motor object with speed = 0. Write a loop that increments speed by 10 each iteration up to 100. Print the speed at each step.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Sensor Fleet</div>
+          <div class="ex-desc">Create a list of 5 Sensor objects with different names and values. Loop through them, find the one with the highest value, and print a summary including whether it exceeds a threshold of 50.</div>
+        </div>
+      </div>
+
+    </div><!-- /week-1 -->
+
+    <!-- Placeholder for weeks 2-14 -->
+    <div id="weeks-placeholder"></div>
+
+  </main>
+</div>
+
+<script>
+  /* ===== WEEK 02 FULL PANEL ===== */
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-2';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 02 &middot; 3 hours total</div>
+          <h1 class="week-heading">__init__ &amp; Methods<br><em>Bringing Objects to Life</em></h1>
+          <p class="week-desc">
+            Last week you attached attributes manually after creating objects. This week you will
+            learn to use the <code style="color:var(--py-yellow)">__init__</code> constructor to
+            initialise objects properly from the start, and you will define methods &mdash; functions
+            that belong to a class &mdash; giving your objects the ability to act.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="150"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W02</text>
+          </svg>
+          <div class="progress-label">Week 2 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 · Complete Components — "A reliable component initializes properly and describes itself."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===1?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F680;</span><span class="obj-text">Write an <code style="color:var(--py-yellow);font-size:0.75rem">__init__</code> constructor that sets up object state automatically</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F527;</span><span class="obj-text">Define instance methods using <code style="color:var(--py-yellow);font-size:0.75rem">self</code> as the first parameter</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4E1;</span><span class="obj-text">Understand why <code style="color:var(--py-yellow);font-size:0.75rem">self</code> connects methods to the calling object</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3AF;</span><span class="obj-text">Call methods on objects to trigger behaviour</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4DD;</span><span class="obj-text">Implement <code style="color:var(--py-yellow);font-size:0.75rem">__str__</code> for readable object printing</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9EA;</span><span class="obj-text">Build a Servo class with init, rotate, and status methods</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_02.ipynb</div>
+          <div class="nb-heading">Constructors, self &amp; Methods</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>The __init__ constructor &mdash; automatic setup</li>
+            <li>The self parameter &mdash; how Python wires it</li>
+            <li>Defining instance methods: actions on objects</li>
+            <li>Calling methods vs calling functions</li>
+            <li>__str__ for human-readable printing</li>
+            <li>Worked example: Servo motor with angle control</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">__init__ Constructor</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Motor</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, name, max_rpm):
+        <span class="bi">self</span>.name    <span class="op">=</span> name
+        <span class="bi">self</span>.max_rpm <span class="op">=</span> max_rpm
+        <span class="bi">self</span>.speed   <span class="op">=</span> <span class="nm">0</span>
+
+<span class="cm"># Now objects are born ready</span>
+m <span class="op">=</span> <span class="fn">Motor</span>(<span class="st">"Drive"</span>, <span class="nm">3000</span>)
+<span class="fn">print</span>(m.name)      <span class="cm"># Drive</span>
+<span class="fn">print</span>(m.max_rpm)   <span class="cm"># 3000</span>
+<span class="fn">print</span>(m.speed)     <span class="cm"># 0</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Instance Methods &amp; __str__</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Servo</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, pin):
+        <span class="bi">self</span>.pin   <span class="op">=</span> pin
+        <span class="bi">self</span>.angle <span class="op">=</span> <span class="nm">0</span>
+
+    <span class="kw">def</span> <span class="fn">rotate</span>(<span class="bi">self</span>, degrees):
+        <span class="bi">self</span>.angle <span class="op">=</span> <span class="fn">max</span>(<span class="nm">0</span>, <span class="fn">min</span>(<span class="nm">180</span>, degrees))
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="st">f"Servo(pin={<span class="bi">self</span>.pin}, {<span class="bi">self</span>.angle}&deg;)"</span>
+
+s <span class="op">=</span> <span class="fn">Servo</span>(<span class="nm">9</span>)
+s.<span class="fn">rotate</span>(<span class="nm">90</span>)
+<span class="fn">print</span>(s)  <span class="cm"># Servo(pin=9, 90&deg;)</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;LED with __init__</div>
+          <div class="ex-desc">Rewrite last week's LED class so that color, pin, and is_on are set in <code style="color:var(--py-yellow);font-size:0.78rem">__init__</code>. Create two LEDs and print their attributes.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Toggle Method</div>
+          <div class="ex-desc">Add a <code style="color:var(--py-yellow);font-size:0.78rem">toggle()</code> method to LED that flips is_on between True and False. Call it three times and print the state each time.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Sensor with Methods</div>
+          <div class="ex-desc">Create a Sensor class with __init__(name, unit), a <code style="color:var(--py-yellow);font-size:0.78rem">read(value)</code> method that stores the reading, and a <code style="color:var(--py-yellow);font-size:0.78rem">report()</code> method that returns a formatted string.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;__str__ Practice</div>
+          <div class="ex-desc">Add <code style="color:var(--py-yellow);font-size:0.78rem">__str__</code> to Motor so <code style="color:var(--py-yellow);font-size:0.78rem">print(motor)</code> shows <em>"Motor(Drive, 0/3000 RPM)"</em>. Test with two motors at different speeds.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Motor Controller</div>
+          <div class="ex-desc">Build a Motor class with <code style="color:var(--py-yellow);font-size:0.78rem">accelerate(amount)</code> and <code style="color:var(--py-yellow);font-size:0.78rem">brake()</code> methods. Speed must stay between 0 and max_rpm. Test a sequence of accelerate/brake calls and print the speed after each.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').prepend(panel);
+  })();
+
+  // ===== WEEK 03 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-3';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 03 &middot; 3 hours total</div>
+          <h1 class="week-heading">Encapsulation<br><em>Protecting Object State</em></h1>
+          <p class="week-desc">
+            So far anyone can change an object's attributes to anything. This week you will learn
+            to protect internal state using naming conventions, properties, and getters/setters &mdash;
+            ensuring your Motor's speed can never go negative and your Sensor's unit is always valid.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="138"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W03</text>
+          </svg>
+          <div class="progress-label">Week 3 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 · Self-Protecting Components — "A reliable component protects its own state."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===2?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F512;</span><span class="obj-text">Understand public vs private naming conventions (<code style="color:var(--py-yellow);font-size:0.75rem">_single</code> and <code style="color:var(--py-yellow);font-size:0.75rem">__double</code> underscores)</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F6E1;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">@property</code> to create controlled attribute access</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x2705;</span><span class="obj-text">Write setter methods that validate input before storing</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F50F;</span><span class="obj-text">Explain name mangling and when (not) to use <code style="color:var(--py-yellow);font-size:0.75rem">__private</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CA;</span><span class="obj-text">Design a read-only property that computes its value from other attributes</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3AF;</span><span class="obj-text">Refactor a fragile Motor class into a robust encapsulated version</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_03.ipynb</div>
+          <div class="nb-heading">Properties, Getters &amp; Setters</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>The problem: unprotected attributes</li>
+            <li>Convention: _private and __mangled names</li>
+            <li>@property decorator &mdash; getter without parentheses</li>
+            <li>@attr.setter &mdash; validation on assignment</li>
+            <li>Read-only computed properties</li>
+            <li>Worked example: BatteryPack with safe charging</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">@property &amp; @setter</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Motor</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, max_rpm):
+        <span class="bi">self</span>._max_rpm <span class="op">=</span> max_rpm
+        <span class="bi">self</span>._speed   <span class="op">=</span> <span class="nm">0</span>
+
+    <span class="op">@</span><span class="bi">property</span>
+    <span class="kw">def</span> <span class="fn">speed</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="bi">self</span>._speed
+
+    <span class="op">@</span>speed.<span class="fn">setter</span>
+    <span class="kw">def</span> <span class="fn">speed</span>(<span class="bi">self</span>, value):
+        <span class="kw">if</span> value <span class="op">&lt;</span> <span class="nm">0</span> <span class="kw">or</span> value <span class="op">&gt;</span> <span class="bi">self</span>._max_rpm:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"Out of range"</span>)
+        <span class="bi">self</span>._speed <span class="op">=</span> value
+
+m <span class="op">=</span> <span class="fn">Motor</span>(<span class="nm">3000</span>)
+m.speed <span class="op">=</span> <span class="nm">1500</span>   <span class="cm"># OK</span>
+<span class="cm"># m.speed = -10   # ValueError!</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Read-Only Computed Property</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">BatteryPack</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, capacity, voltage):
+        <span class="bi">self</span>._capacity <span class="op">=</span> capacity
+        <span class="bi">self</span>._voltage  <span class="op">=</span> voltage
+        <span class="bi">self</span>._charge   <span class="op">=</span> capacity
+
+    <span class="op">@</span><span class="bi">property</span>
+    <span class="kw">def</span> <span class="fn">percentage</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> (<span class="bi">self</span>._charge <span class="op">/</span> <span class="bi">self</span>._capacity) <span class="op">*</span> <span class="nm">100</span>
+
+    <span class="op">@</span><span class="bi">property</span>
+    <span class="kw">def</span> <span class="fn">energy_wh</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="bi">self</span>._charge <span class="op">*</span> <span class="bi">self</span>._voltage
+
+b <span class="op">=</span> <span class="fn">BatteryPack</span>(<span class="nm">5000</span>, <span class="nm">3.7</span>)
+<span class="fn">print</span>(b.percentage)  <span class="cm"># 100.0</span>
+<span class="fn">print</span>(b.energy_wh)   <span class="cm"># 18500.0</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Private by Convention</div>
+          <div class="ex-desc">Take your Sensor class. Rename the internal attribute to <code style="color:var(--py-yellow);font-size:0.78rem">_value</code>. Show that Python does <em>not</em> actually prevent access &mdash; it is only a signal to other developers.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Property Getter</div>
+          <div class="ex-desc">Add a <code style="color:var(--py-yellow);font-size:0.78rem">@property</code> for <code style="color:var(--py-yellow);font-size:0.78rem">value</code> that returns <code style="color:var(--py-yellow);font-size:0.78rem">_value</code>. Verify you can access it without parentheses.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Validated Setter</div>
+          <div class="ex-desc">Add a setter for Sensor.value that raises <code style="color:var(--py-yellow);font-size:0.78rem">ValueError</code> if the value is negative. Write tests that confirm both valid and invalid assignments.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Temperature Guard</div>
+          <div class="ex-desc">Build a <code style="color:var(--py-yellow);font-size:0.78rem">TemperatureSensor</code> with a setter that clamps readings between &minus;40 and 125 &deg;C instead of raising an error. Add a read-only <code style="color:var(--py-yellow);font-size:0.78rem">fahrenheit</code> property.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;BatteryPack Full</div>
+          <div class="ex-desc">Extend BatteryPack with <code style="color:var(--py-yellow);font-size:0.78rem">drain(mah)</code> and <code style="color:var(--py-yellow);font-size:0.78rem">charge(mah)</code> methods that respect 0 and capacity bounds. Add a <code style="color:var(--py-yellow);font-size:0.78rem">status</code> property that returns "Full" / "OK" / "Low" / "Dead" based on percentage.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 04 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-4';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 04 &middot; 3 hours total</div>
+          <h1 class="week-heading">Composition<br><em>Objects Inside Objects</em></h1>
+          <p class="week-desc">
+            Real systems are built from parts. A Robot has a Motor, a Sensor, and an LED &mdash;
+            not by inheriting from them, but by <em>containing</em> them. This week you will learn
+            composition: the most common and flexible way to build complex objects from simpler ones.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="125"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W04</text>
+          </svg>
+          <div class="progress-label">Week 4 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Composition (CORE WEEK) — "Objects inside objects. Sensor + Filter + Logger wired together."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===3?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F9E9;</span><span class="obj-text">Understand "has-a" relationships vs "is-a" relationships</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F916;</span><span class="obj-text">Build a Robot class that contains Motor, Sensor, and LED objects</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F517;</span><span class="obj-text">Delegate behaviour from the container to its components</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4E6;</span><span class="obj-text">Pass objects as constructor arguments to wire parts together</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Replace components at runtime without changing the container</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4D0;</span><span class="obj-text">Draw simple UML-style diagrams showing composition arrows</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_04.ipynb</div>
+          <div class="nb-heading">Has-A Relationships &amp; Delegation</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>Composition vs Inheritance &mdash; when to use each</li>
+            <li>Passing objects into __init__ as dependencies</li>
+            <li>Delegation: container methods call component methods</li>
+            <li>Replacing parts at runtime</li>
+            <li>Storing lists of components (e.g. sensor array)</li>
+            <li>Worked example: Robot with swappable motor and sensor</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Composition: Robot Has-a Motor</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Motor</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, name, max_rpm):
+        <span class="bi">self</span>.name <span class="op">=</span> name
+        <span class="bi">self</span>.speed <span class="op">=</span> <span class="nm">0</span>
+        <span class="bi">self</span>.max_rpm <span class="op">=</span> max_rpm
+
+    <span class="kw">def</span> <span class="fn">set_speed</span>(<span class="bi">self</span>, rpm):
+        <span class="bi">self</span>.speed <span class="op">=</span> <span class="fn">min</span>(rpm, <span class="bi">self</span>.max_rpm)
+
+<span class="kw">class</span> <span class="fn">Robot</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, name, motor):
+        <span class="bi">self</span>.name  <span class="op">=</span> name
+        <span class="bi">self</span>.motor <span class="op">=</span> motor   <span class="cm"># has-a</span>
+
+    <span class="kw">def</span> <span class="fn">drive</span>(<span class="bi">self</span>, rpm):
+        <span class="bi">self</span>.motor.<span class="fn">set_speed</span>(rpm)
+
+m <span class="op">=</span> <span class="fn">Motor</span>(<span class="st">"Main"</span>, <span class="nm">5000</span>)
+r <span class="op">=</span> <span class="fn">Robot</span>(<span class="st">"Atlas"</span>, m)
+r.<span class="fn">drive</span>(<span class="nm">2500</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Multiple Components &amp; Lists</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">SensorArray</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.sensors <span class="op">=</span> []
+
+    <span class="kw">def</span> <span class="fn">add</span>(<span class="bi">self</span>, sensor):
+        <span class="bi">self</span>.sensors.<span class="fn">append</span>(sensor)
+
+    <span class="kw">def</span> <span class="fn">read_all</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> {s.name: s.value
+                <span class="kw">for</span> s <span class="kw">in</span> <span class="bi">self</span>.sensors}
+
+<span class="cm"># Wire up</span>
+arr <span class="op">=</span> <span class="fn">SensorArray</span>()
+arr.<span class="fn">add</span>(<span class="fn">Sensor</span>(<span class="st">"Temp"</span>, <span class="nm">23.5</span>))
+arr.<span class="fn">add</span>(<span class="fn">Sensor</span>(<span class="st">"Humidity"</span>, <span class="nm">61.2</span>))
+<span class="fn">print</span>(arr.<span class="fn">read_all</span>())
+<span class="cm"># {'Temp': 23.5, 'Humidity': 61.2}</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Has-A Diagram</div>
+          <div class="ex-desc">Draw a diagram (in comments or markdown) showing Robot, Motor, Sensor, and LED. Use arrows labelled "has-a". Then implement the three component classes.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Robot Assembly</div>
+          <div class="ex-desc">Create a Robot that takes a Motor and an LED in __init__. Add a <code style="color:var(--py-yellow);font-size:0.78rem">start()</code> method that turns the LED on and sets motor speed to 100.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Sensor Dashboard</div>
+          <div class="ex-desc">Build a <code style="color:var(--py-yellow);font-size:0.78rem">Dashboard</code> class that holds a list of sensors. Add methods: <code style="color:var(--py-yellow);font-size:0.78rem">add_sensor()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">summary()</code> (prints all readings), and <code style="color:var(--py-yellow);font-size:0.78rem">max_reading()</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Swap a Part</div>
+          <div class="ex-desc">Create a Robot with a basic Motor. Demonstrate replacing <code style="color:var(--py-yellow);font-size:0.78rem">robot.motor</code> with a higher-RPM Motor at runtime. Show the new behaviour via <code style="color:var(--py-yellow);font-size:0.78rem">drive()</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Full Robot Build</div>
+          <div class="ex-desc">Create a Robot with two Motors (left, right), one LED, and a SensorArray with 3 sensors. Add methods: <code style="color:var(--py-yellow);font-size:0.78rem">status()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">turn_left()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">turn_right()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">stop()</code>. Print a full status report.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 05 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-5';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 05 &middot; 3 hours total</div>
+          <h1 class="week-heading">Inheritance<br><em>Reusing &amp; Extending Classes</em></h1>
+          <p class="week-desc">
+            When several classes share common behaviour, inheritance lets you define it once in a
+            parent class and extend it in specialised children. This week you will build a sensor
+            hierarchy: a base Sensor that TemperatureSensor and PressureSensor extend with their
+            own validation and display logic.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="113"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W05</text>
+          </svg>
+          <div class="progress-label">Week 5 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Shared Interfaces — "Interchangeable components through polymorphism."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===4?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F333;</span><span class="obj-text">Define a parent (base) class and extend it with child (derived) classes</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">super().__init__()</code> to call the parent constructor</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x270F;</span><span class="obj-text">Override methods in a child class to specialise behaviour</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F50D;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">isinstance()</code> and <code style="color:var(--py-yellow);font-size:0.75rem">issubclass()</code> to check type hierarchies</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x26A0;</span><span class="obj-text">Recognise when inheritance is appropriate vs when composition is better</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3D7;</span><span class="obj-text">Build a Sensor hierarchy: base Sensor &#x2192; TemperatureSensor, PressureSensor</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_05.ipynb</div>
+          <div class="nb-heading">Parent Classes, super() &amp; Overrides</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>The "is-a" relationship and class hierarchies</li>
+            <li>Syntax: class Child(Parent)</li>
+            <li>super().__init__() &mdash; calling the parent setup</li>
+            <li>Method overriding: same name, different behaviour</li>
+            <li>isinstance() and issubclass() checks</li>
+            <li>Worked example: Sensor &#x2192; TemperatureSensor, PressureSensor</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Inheritance &amp; super()</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Sensor</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, name, unit):
+        <span class="bi">self</span>.name  <span class="op">=</span> name
+        <span class="bi">self</span>.unit  <span class="op">=</span> unit
+        <span class="bi">self</span>.value <span class="op">=</span> <span class="nm">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">read</span>(<span class="bi">self</span>, val):
+        <span class="bi">self</span>.value <span class="op">=</span> val
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="st">f"{<span class="bi">self</span>.name}: {<span class="bi">self</span>.value} {<span class="bi">self</span>.unit}"</span>
+
+<span class="kw">class</span> <span class="fn">TempSensor</span>(<span class="fn">Sensor</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, name):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(name, <span class="st">"&deg;C"</span>)
+
+    <span class="kw">def</span> <span class="fn">read</span>(<span class="bi">self</span>, val):
+        <span class="kw">if</span> <span class="op">-</span><span class="nm">40</span> <span class="op">&lt;=</span> val <span class="op">&lt;=</span> <span class="nm">125</span>:
+            <span class="fn">super</span>().<span class="fn">read</span>(val)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">isinstance() &amp; issubclass()</div>
+          <pre class="code-snippet">t <span class="op">=</span> <span class="fn">TempSensor</span>(<span class="st">"CPU"</span>)
+t.<span class="fn">read</span>(<span class="nm">72.4</span>)
+
+<span class="fn">print</span>(<span class="fn">isinstance</span>(t, <span class="fn">TempSensor</span>))  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">isinstance</span>(t, <span class="fn">Sensor</span>))      <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">isinstance</span>(t, <span class="fn">Motor</span>))       <span class="cm"># False</span>
+
+<span class="fn">print</span>(<span class="fn">issubclass</span>(<span class="fn">TempSensor</span>, <span class="fn">Sensor</span>))
+<span class="cm"># True</span>
+
+<span class="cm"># Works with lists of mixed types</span>
+sensors <span class="op">=</span> [<span class="fn">TempSensor</span>(<span class="st">"A"</span>), <span class="fn">Sensor</span>(<span class="st">"B"</span>, <span class="st">"V"</span>)]
+<span class="kw">for</span> s <span class="kw">in</span> sensors:
+    <span class="kw">if</span> <span class="fn">isinstance</span>(s, <span class="fn">TempSensor</span>):
+        <span class="fn">print</span>(<span class="st">"Temp!"</span>, s)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Basic Inheritance</div>
+          <div class="ex-desc">Create a base <code style="color:var(--py-yellow);font-size:0.78rem">Actuator</code> class with name and status. Derive <code style="color:var(--py-yellow);font-size:0.78rem">Motor</code> and <code style="color:var(--py-yellow);font-size:0.78rem">Servo</code> from it. Show that both are instances of Actuator.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;super() Chain</div>
+          <div class="ex-desc">Write a 3-level hierarchy: <code style="color:var(--py-yellow);font-size:0.78rem">Device &#x2192; Sensor &#x2192; TempSensor</code>. Each __init__ prints its class name. Create a TempSensor and observe the call order.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Method Override</div>
+          <div class="ex-desc">Override the <code style="color:var(--py-yellow);font-size:0.78rem">__str__</code> in TempSensor to include a warning emoji when the value exceeds 80. Compare its output to the base Sensor __str__.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;PressureSensor</div>
+          <div class="ex-desc">Create a PressureSensor(Sensor) with unit "hPa". Override <code style="color:var(--py-yellow);font-size:0.78rem">read()</code> to reject values below 300 or above 1100. Test with edge values.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Polymorphic Loop</div>
+          <div class="ex-desc">Create a list of mixed sensors (Temp, Pressure, base). Loop through them, call <code style="color:var(--py-yellow);font-size:0.78rem">read()</code> with test values, and print each. Show that the correct overridden method runs for each type.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 06 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-6';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 06 &middot; 3 hours total</div>
+          <h1 class="week-heading">Abstract Classes<br><em>Enforcing Contracts</em></h1>
+          <p class="week-desc">
+            Sometimes you want to guarantee that every subclass implements certain methods.
+            Abstract base classes let you define a contract that child classes <em>must</em> follow,
+            catching missing implementations at instantiation time rather than at runtime.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="100"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W06</text>
+          </svg>
+          <div class="progress-label">Week 6 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Contracts — "Interfaces guarantee what a component provides."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===5?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F4DC;</span><span class="obj-text">Import and use <code style="color:var(--py-yellow);font-size:0.75rem">ABC</code> and <code style="color:var(--py-yellow);font-size:0.75rem">abstractmethod</code> from the abc module</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F6AB;</span><span class="obj-text">Understand why abstract classes cannot be instantiated directly</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x2705;</span><span class="obj-text">Define abstract methods that child classes must implement</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3D7;</span><span class="obj-text">Create concrete subclasses that fulfil the abstract contract</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CF;</span><span class="obj-text">Combine abstract and concrete methods in one base class</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9EA;</span><span class="obj-text">Design a Filter hierarchy: LowPass, HighPass, BandPass</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_06.ipynb</div>
+          <div class="nb-heading">ABC, abstractmethod &amp; Contracts</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>The abc module: ABC and abstractmethod</li>
+            <li>Why you cannot instantiate an abstract class</li>
+            <li>Defining abstract methods &mdash; the contract</li>
+            <li>Concrete methods alongside abstract ones</li>
+            <li>Abstract properties with @abstractmethod + @property</li>
+            <li>Worked example: Filter hierarchy for signal processing</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Abstract Base Class</div>
+          <pre class="code-snippet"><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="fn">Filter</span>(ABC):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, cutoff):
+        <span class="bi">self</span>.cutoff <span class="op">=</span> cutoff
+
+    <span class="op">@</span>abstractmethod
+    <span class="kw">def</span> <span class="fn">apply</span>(<span class="bi">self</span>, signal):
+        <span class="st">"""Must be implemented by subclass"""</span>
+        ...
+
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="st">f"{<span class="fn">type</span>(<span class="bi">self</span>).__name__} @ {<span class="bi">self</span>.cutoff} Hz"</span>
+
+<span class="cm"># f = Filter(100)  # TypeError!</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Concrete Subclass</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">LowPassFilter</span>(<span class="fn">Filter</span>):
+    <span class="kw">def</span> <span class="fn">apply</span>(<span class="bi">self</span>, signal):
+        <span class="kw">return</span> [v <span class="kw">for</span> v <span class="kw">in</span> signal
+                <span class="kw">if</span> v <span class="op">&lt;=</span> <span class="bi">self</span>.cutoff]
+
+<span class="kw">class</span> <span class="fn">HighPassFilter</span>(<span class="fn">Filter</span>):
+    <span class="kw">def</span> <span class="fn">apply</span>(<span class="bi">self</span>, signal):
+        <span class="kw">return</span> [v <span class="kw">for</span> v <span class="kw">in</span> signal
+                <span class="kw">if</span> v <span class="op">&gt;=</span> <span class="bi">self</span>.cutoff]
+
+lp <span class="op">=</span> <span class="fn">LowPassFilter</span>(<span class="nm">50</span>)
+data <span class="op">=</span> [<span class="nm">10</span>, <span class="nm">60</span>, <span class="nm">30</span>, <span class="nm">90</span>, <span class="nm">20</span>]
+<span class="fn">print</span>(lp.<span class="fn">apply</span>(data))
+<span class="cm"># [10, 30, 20]</span>
+<span class="fn">print</span>(lp.<span class="fn">describe</span>())
+<span class="cm"># LowPassFilter @ 50 Hz</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Cannot Instantiate</div>
+          <div class="ex-desc">Try to create a <code style="color:var(--py-yellow);font-size:0.78rem">Filter(100)</code> instance. Catch the <code style="color:var(--py-yellow);font-size:0.78rem">TypeError</code> and print its message. Explain why this protection is useful.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;BandPassFilter</div>
+          <div class="ex-desc">Create a BandPassFilter(Filter) with low and high cutoffs. Implement <code style="color:var(--py-yellow);font-size:0.78rem">apply()</code> to keep only values between the two bounds.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Abstract Actuator</div>
+          <div class="ex-desc">Define an abstract <code style="color:var(--py-yellow);font-size:0.78rem">Actuator</code> base with abstract methods <code style="color:var(--py-yellow);font-size:0.78rem">activate()</code> and <code style="color:var(--py-yellow);font-size:0.78rem">deactivate()</code>. Implement Motor and Valve as concrete subclasses.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Mixed Methods</div>
+          <div class="ex-desc">Add a concrete <code style="color:var(--py-yellow);font-size:0.78rem">log(message)</code> method to Actuator that all subclasses inherit. Show that Motor and Valve can both call <code style="color:var(--py-yellow);font-size:0.78rem">.log()</code> without overriding.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Pipeline Runner</div>
+          <div class="ex-desc">Create a <code style="color:var(--py-yellow);font-size:0.78rem">pipeline(signal, filters)</code> function that takes raw data and a list of Filter objects. Apply each filter in sequence. Test with LowPass then HighPass to show band-pass-like behaviour.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 07 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-7';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 07 &middot; 3 hours total</div>
+          <h1 class="week-heading">SOLID Principles<br><em>Writing Maintainable Code</em></h1>
+          <p class="week-desc">
+            Good OOP is not just about making things work &mdash; it is about making things
+            <em>easy to change</em>. The five SOLID principles give you concrete rules for
+            writing classes that are focused, extensible, and resilient to change.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="88"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W07</text>
+          </svg>
+          <div class="progress-label">Week 7 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 3 · Clean Components — "SRP: one thing per component. OCP: extend by adding, not modifying."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===6?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F1F8;</span><span class="obj-text"><strong>S</strong>ingle Responsibility &mdash; each class does one thing well</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F1F4;</span><span class="obj-text"><strong>O</strong>pen/Closed &mdash; extend behaviour without modifying existing code</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F1F1;</span><span class="obj-text"><strong>L</strong>iskov Substitution &mdash; subclasses must be drop-in replacements</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F1EE;</span><span class="obj-text"><strong>I</strong>nterface Segregation &mdash; no class should be forced to implement unused methods</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F1E9;</span><span class="obj-text"><strong>D</strong>ependency Inversion &mdash; depend on abstractions, not concrete classes</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F527;</span><span class="obj-text">Refactor a "God class" Robot into clean, SOLID components</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_07.ipynb</div>
+          <div class="nb-heading">SOLID in Practice with Python</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>S &mdash; Splitting a monolithic class into focused classes</li>
+            <li>O &mdash; Strategy pattern for extensibility without modification</li>
+            <li>L &mdash; Verifying substitutability with isinstance checks</li>
+            <li>I &mdash; Keeping abstract interfaces small and specific</li>
+            <li>D &mdash; Constructor injection for swappable dependencies</li>
+            <li>Worked example: Refactoring a 200-line Robot class</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Single Responsibility</div>
+          <pre class="code-snippet"><span class="cm"># BAD: one class does everything</span>
+<span class="kw">class</span> <span class="fn">RobotGod</span>:
+    <span class="kw">def</span> <span class="fn">read_sensor</span>(<span class="bi">self</span>): ...
+    <span class="kw">def</span> <span class="fn">drive_motor</span>(<span class="bi">self</span>): ...
+    <span class="kw">def</span> <span class="fn">log_data</span>(<span class="bi">self</span>): ...
+    <span class="kw">def</span> <span class="fn">send_email</span>(<span class="bi">self</span>): ...
+
+<span class="cm"># GOOD: each class has one job</span>
+<span class="kw">class</span> <span class="fn">SensorReader</span>:
+    <span class="kw">def</span> <span class="fn">read</span>(<span class="bi">self</span>): ...
+
+<span class="kw">class</span> <span class="fn">MotorDriver</span>:
+    <span class="kw">def</span> <span class="fn">drive</span>(<span class="bi">self</span>, rpm): ...
+
+<span class="kw">class</span> <span class="fn">DataLogger</span>:
+    <span class="kw">def</span> <span class="fn">log</span>(<span class="bi">self</span>, data): ...</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Dependency Inversion</div>
+          <pre class="code-snippet"><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="fn">Logger</span>(ABC):
+    <span class="op">@</span>abstractmethod
+    <span class="kw">def</span> <span class="fn">log</span>(<span class="bi">self</span>, msg): ...
+
+<span class="kw">class</span> <span class="fn">FileLogger</span>(<span class="fn">Logger</span>):
+    <span class="kw">def</span> <span class="fn">log</span>(<span class="bi">self</span>, msg):
+        <span class="fn">print</span>(<span class="st">f"[FILE] {msg}"</span>)
+
+<span class="kw">class</span> <span class="fn">Robot</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, logger: <span class="fn">Logger</span>):
+        <span class="bi">self</span>.logger <span class="op">=</span> logger  <span class="cm"># abstraction</span>
+
+    <span class="kw">def</span> <span class="fn">run</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.logger.<span class="fn">log</span>(<span class="st">"Running"</span>)
+
+<span class="cm"># Easy to swap: FileLogger, ConsoleLogger, etc.</span>
+r <span class="op">=</span> <span class="fn">Robot</span>(<span class="fn">FileLogger</span>())</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Identify Violations</div>
+          <div class="ex-desc">Given a monolithic <code style="color:var(--py-yellow);font-size:0.78rem">SmartHome</code> class with 8 methods, identify which SOLID principle each method grouping violates. Write your answers as comments.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;SRP Split</div>
+          <div class="ex-desc">Refactor the SmartHome class into 3 focused classes, each with a single responsibility. Keep the same total functionality.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Open/Closed Logger</div>
+          <div class="ex-desc">Create a Logger ABC. Implement FileLogger and ConsoleLogger. Show that adding a new DatabaseLogger requires zero changes to existing code.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Liskov Check</div>
+          <div class="ex-desc">Write a function <code style="color:var(--py-yellow);font-size:0.78rem">process_sensors(sensors)</code> that works with any list of Sensor objects. Verify it works identically whether you pass base Sensors or specialised subclasses.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Full SOLID Robot</div>
+          <div class="ex-desc">Redesign the Robot from Week 4 using all 5 SOLID principles. Use constructor injection for Motor, Sensor, and Logger. Each component should have its own abstract base. Write a test that swaps every dependency.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 08 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-8';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 08 &middot; 3 hours total</div>
+          <h1 class="week-heading">Custom Exceptions<br><em>Meaningful Error Handling</em></h1>
+          <p class="week-desc">
+            Generic exceptions like ValueError tell you <em>what</em> went wrong but not <em>where</em>
+            in your domain. This week you will design custom exception hierarchies that make errors
+            self-documenting: MotorOverheatError, SensorTimeoutError, CalibrationError &mdash;
+            errors that immediately tell the developer what failed and why.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="75"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W08</text>
+          </svg>
+          <div class="progress-label">Week 8 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 3 · Clear Errors — "Custom exceptions let components communicate failures clearly."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===7?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F4A5;</span><span class="obj-text">Understand Python's built-in exception hierarchy (<code style="color:var(--py-yellow);font-size:0.75rem">BaseException &#x2192; Exception &#x2192; ...</code>)</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3D7;</span><span class="obj-text">Create custom exception classes that inherit from <code style="color:var(--py-yellow);font-size:0.75rem">Exception</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4DD;</span><span class="obj-text">Add attributes to exceptions to carry context (value, limit, sensor_name)</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F6E1;</span><span class="obj-text">Catch custom exceptions selectively with multiple <code style="color:var(--py-yellow);font-size:0.75rem">except</code> blocks</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">raise ... from ...</code> to chain exceptions and preserve context</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9EA;</span><span class="obj-text">Build a complete error hierarchy for a mechatronics system</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_08.ipynb</div>
+          <div class="nb-heading">Exception Hierarchies &amp; raise/from</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>Python's built-in exception tree</li>
+            <li>class MyError(Exception): custom exceptions</li>
+            <li>Adding __init__ with context attributes</li>
+            <li>Catching specific vs generic exceptions</li>
+            <li>raise ... from ... for exception chaining</li>
+            <li>Worked example: MotorError, SensorError hierarchy</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Custom Exception Hierarchy</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">RobotError</span>(<span class="fn">Exception</span>):
+    <span class="st">"""Base for all robot errors"""</span>
+
+<span class="kw">class</span> <span class="fn">MotorOverheatError</span>(<span class="fn">RobotError</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, temp, limit):
+        <span class="bi">self</span>.temp  <span class="op">=</span> temp
+        <span class="bi">self</span>.limit <span class="op">=</span> limit
+        <span class="fn">super</span>().<span class="fn">__init__</span>(
+            <span class="st">f"Motor at {temp}&deg;C (limit {limit}&deg;C)"</span>
+        )
+
+<span class="kw">class</span> <span class="fn">SensorTimeoutError</span>(<span class="fn">RobotError</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, sensor_name):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(
+            <span class="st">f"{sensor_name} did not respond"</span>
+        )</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Selective Catching</div>
+          <pre class="code-snippet"><span class="kw">def</span> <span class="fn">run_cycle</span>(robot):
+    <span class="kw">try</span>:
+        robot.<span class="fn">read_sensors</span>()
+        robot.<span class="fn">drive</span>()
+    <span class="kw">except</span> <span class="fn">MotorOverheatError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"OVERHEAT: {e.temp}&deg;C"</span>)
+        robot.<span class="fn">emergency_stop</span>()
+    <span class="kw">except</span> <span class="fn">SensorTimeoutError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"TIMEOUT: {e}"</span>)
+        robot.<span class="fn">use_fallback</span>()
+    <span class="kw">except</span> <span class="fn">RobotError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"GENERIC: {e}"</span>)
+    <span class="kw">finally</span>:
+        robot.<span class="fn">log_status</span>()</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Simple Custom Error</div>
+          <div class="ex-desc">Create a <code style="color:var(--py-yellow);font-size:0.78rem">CalibrationError(RobotError)</code>. Raise it when a sensor's calibration offset exceeds &plusmn;10. Catch and print the message.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Context Attributes</div>
+          <div class="ex-desc">Add <code style="color:var(--py-yellow);font-size:0.78rem">sensor_name</code> and <code style="color:var(--py-yellow);font-size:0.78rem">offset</code> attributes to CalibrationError. Catch it and access these attributes to build a detailed recovery message.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Exception Chain</div>
+          <div class="ex-desc">In Motor.set_speed(), catch a generic <code style="color:var(--py-yellow);font-size:0.78rem">ValueError</code> from int conversion and re-raise it as <code style="color:var(--py-yellow);font-size:0.78rem">MotorError</code> using <code style="color:var(--py-yellow);font-size:0.78rem">raise ... from ...</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Multi-Except Handler</div>
+          <div class="ex-desc">Write a function that simulates 5 robot cycles. Each cycle randomly raises one of three custom errors. Use separate except blocks to handle each differently.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Full Error Hierarchy</div>
+          <div class="ex-desc">Design a complete error hierarchy for a factory robot: <code style="color:var(--py-yellow);font-size:0.78rem">RobotError</code> &#x2192; MotorError, SensorError, CommunicationError. Each has 2 specific subclasses. Write a test harness that triggers and catches each one.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 09 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-9';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 09 &middot; 3 hours total</div>
+          <h1 class="week-heading">Unit Testing<br><em>Proving Your Code Works</em></h1>
+          <p class="week-desc">
+            How do you know your Motor class actually clamps speed correctly? This week you will
+            learn to write automated tests using Python's <code style="color:var(--py-yellow)">unittest</code>
+            module. Every class you have built so far gets a test suite &mdash; giving you confidence
+            to refactor without fear.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="63"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W09</text>
+          </svg>
+          <div class="progress-label">Week 9 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 4 · Trusting Components — "Unit tests prove a component works before you plug it in."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===8?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x2705;</span><span class="obj-text">Write test classes using <code style="color:var(--py-yellow);font-size:0.75rem">unittest.TestCase</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9EA;</span><span class="obj-text">Use assert methods: <code style="color:var(--py-yellow);font-size:0.75rem">assertEqual</code>, <code style="color:var(--py-yellow);font-size:0.75rem">assertTrue</code>, <code style="color:var(--py-yellow);font-size:0.75rem">assertRaises</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Set up test fixtures with <code style="color:var(--py-yellow);font-size:0.75rem">setUp()</code> and <code style="color:var(--py-yellow);font-size:0.75rem">tearDown()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3AF;</span><span class="obj-text">Test both normal behaviour and error conditions</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CA;</span><span class="obj-text">Understand edge cases: boundary values, empty inputs, type errors</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F6E0;</span><span class="obj-text">Run tests in Colab and interpret pass/fail output</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_09.ipynb</div>
+          <div class="nb-heading">unittest, Assertions &amp; Fixtures</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>Why test? The cost of bugs vs the cost of tests</li>
+            <li>unittest.TestCase basics: test methods start with test_</li>
+            <li>Assert methods: assertEqual, assertAlmostEqual, assertRaises</li>
+            <li>setUp() for creating shared test objects</li>
+            <li>Testing custom exceptions from Week 08</li>
+            <li>Worked example: full test suite for Motor class</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Basic Test Case</div>
+          <pre class="code-snippet"><span class="kw">import</span> unittest
+
+<span class="kw">class</span> <span class="fn">TestMotor</span>(unittest.<span class="fn">TestCase</span>):
+    <span class="kw">def</span> <span class="fn">setUp</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.motor <span class="op">=</span> <span class="fn">Motor</span>(<span class="st">"Test"</span>, <span class="nm">3000</span>)
+
+    <span class="kw">def</span> <span class="fn">test_initial_speed_zero</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.<span class="fn">assertEqual</span>(<span class="bi">self</span>.motor.speed, <span class="nm">0</span>)
+
+    <span class="kw">def</span> <span class="fn">test_set_speed_valid</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.motor.speed <span class="op">=</span> <span class="nm">1500</span>
+        <span class="bi">self</span>.<span class="fn">assertEqual</span>(<span class="bi">self</span>.motor.speed, <span class="nm">1500</span>)
+
+    <span class="kw">def</span> <span class="fn">test_set_speed_negative</span>(<span class="bi">self</span>):
+        <span class="kw">with</span> <span class="bi">self</span>.<span class="fn">assertRaises</span>(<span class="fn">ValueError</span>):
+            <span class="bi">self</span>.motor.speed <span class="op">=</span> <span class="op">-</span><span class="nm">10</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Running Tests in Colab</div>
+          <pre class="code-snippet"><span class="cm"># In a Colab cell:</span>
+unittest.<span class="fn">main</span>(
+    argv<span class="op">=</span>[<span class="st">''</span>],
+    exit<span class="op">=</span><span class="kw">False</span>,
+    verbosity<span class="op">=</span><span class="nm">2</span>
+)
+
+<span class="cm"># Output:</span>
+<span class="cm"># test_initial_speed_zero ... ok</span>
+<span class="cm"># test_set_speed_valid ... ok</span>
+<span class="cm"># test_set_speed_negative ... ok</span>
+<span class="cm"># ---</span>
+<span class="cm"># Ran 3 tests in 0.001s</span>
+<span class="cm"># OK</span>
+
+<span class="cm"># Useful asserts:</span>
+<span class="cm"># assertEqual(a, b)</span>
+<span class="cm"># assertAlmostEqual(a, b, places=2)</span>
+<span class="cm"># assertTrue(condition)</span>
+<span class="cm"># assertIn(item, list)</span>
+<span class="cm"># assertIsInstance(obj, cls)</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;First Test</div>
+          <div class="ex-desc">Write a TestCase for the LED class with three tests: initial is_on is False, toggle() flips state, and color matches what was passed to __init__.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;assertRaises</div>
+          <div class="ex-desc">Write a test that verifies <code style="color:var(--py-yellow);font-size:0.78rem">Motor.speed = -1</code> raises <code style="color:var(--py-yellow);font-size:0.78rem">ValueError</code>. Use the <code style="color:var(--py-yellow);font-size:0.78rem">with self.assertRaises()</code> context manager.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Sensor Suite</div>
+          <div class="ex-desc">Write 5 tests for TempSensor: valid read, out-of-range read ignored, __str__ format, isinstance check, and initial value is 0.0.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Edge Cases</div>
+          <div class="ex-desc">Test boundary values for Motor: speed = 0 (min), speed = max_rpm (max), speed = max_rpm + 1 (should raise). Test BatteryPack at 0% and 100%.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Full Robot Tests</div>
+          <div class="ex-desc">Write a comprehensive TestRobot class with setUp that builds a full Robot (motor, sensor, LED). Test drive(), status(), stop(), and verify component interaction (e.g. drive sets motor speed AND turns LED on).</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 10 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-10';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 10 &middot; 3 hours total</div>
+          <h1 class="week-heading">Design Patterns<br><em>Proven Solutions to Common Problems</em></h1>
+          <p class="week-desc">
+            Design patterns are battle-tested blueprints for solving recurring OOP problems.
+            This week covers three essential patterns: Singleton for shared resources,
+            Factory for flexible object creation, and Observer for event-driven systems &mdash;
+            all applied to mechatronics scenarios.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="50"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W10</text>
+          </svg>
+          <div class="progress-label">Week 10 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 4 · Swappable Components — "Strategy pattern: swap one component for another at runtime."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===9?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F3ED;</span><span class="obj-text">Use the <strong>Factory</strong> pattern to create objects without specifying exact classes</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4E1;</span><span class="obj-text">Implement the <strong>Observer</strong> pattern for event-driven sensor notifications</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F512;</span><span class="obj-text">Understand the <strong>Singleton</strong> pattern and its trade-offs</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4A1;</span><span class="obj-text">Recognise when a pattern is helpful vs over-engineering</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Refactor existing code to use appropriate patterns</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3AF;</span><span class="obj-text">Apply Factory to create sensors by type string ("temp", "pressure")</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_10.ipynb</div>
+          <div class="nb-heading">Factory, Observer &amp; Singleton</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>What is a design pattern? Catalogue overview</li>
+            <li>Factory: SensorFactory.create("temp") &#x2192; TempSensor</li>
+            <li>Observer: sensor alerts when threshold exceeded</li>
+            <li>Singleton: one shared configuration manager</li>
+            <li>When NOT to use a pattern</li>
+            <li>Worked example: Alarm system with Observer</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Factory Pattern</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">SensorFactory</span>:
+    _registry <span class="op">=</span> {
+        <span class="st">"temp"</span>:     <span class="fn">TempSensor</span>,
+        <span class="st">"pressure"</span>: <span class="fn">PressureSensor</span>,
+        <span class="st">"humidity"</span>: <span class="fn">HumiditySensor</span>,
+    }
+
+    <span class="op">@</span><span class="bi">classmethod</span>
+    <span class="kw">def</span> <span class="fn">create</span>(cls, kind, name):
+        <span class="kw">if</span> kind <span class="kw">not in</span> cls._registry:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">f"Unknown: {kind}"</span>)
+        <span class="kw">return</span> cls._registry[kind](name)
+
+<span class="cm"># Usage</span>
+s <span class="op">=</span> <span class="fn">SensorFactory</span>.<span class="fn">create</span>(<span class="st">"temp"</span>, <span class="st">"CPU"</span>)
+<span class="fn">print</span>(<span class="fn">type</span>(s))  <span class="cm"># TempSensor</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Observer Pattern</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">EventEmitter</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>._listeners <span class="op">=</span> []
+
+    <span class="kw">def</span> <span class="fn">on</span>(<span class="bi">self</span>, callback):
+        <span class="bi">self</span>._listeners.<span class="fn">append</span>(callback)
+
+    <span class="kw">def</span> <span class="fn">emit</span>(<span class="bi">self</span>, data):
+        <span class="kw">for</span> cb <span class="kw">in</span> <span class="bi">self</span>._listeners:
+            <span class="fn">cb</span>(data)
+
+<span class="kw">class</span> <span class="fn">AlarmSensor</span>(<span class="fn">EventEmitter</span>):
+    <span class="kw">def</span> <span class="fn">read</span>(<span class="bi">self</span>, val):
+        <span class="kw">if</span> val <span class="op">&gt;</span> <span class="nm">80</span>:
+            <span class="bi">self</span>.<span class="fn">emit</span>({<span class="st">"alert"</span>: val})
+
+s <span class="op">=</span> <span class="fn">AlarmSensor</span>()
+s.<span class="fn">on</span>(<span class="kw">lambda</span> d: <span class="fn">print</span>(<span class="st">f"ALARM: {d}"</span>))
+s.<span class="fn">read</span>(<span class="nm">85</span>)  <span class="cm"># ALARM: {'alert': 85}</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Simple Factory</div>
+          <div class="ex-desc">Implement SensorFactory with a registry dict. Create sensors by passing type strings. Verify the returned types with <code style="color:var(--py-yellow);font-size:0.78rem">isinstance()</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Observer Basics</div>
+          <div class="ex-desc">Create an EventEmitter. Register two callback functions with <code style="color:var(--py-yellow);font-size:0.78rem">.on()</code>. Call <code style="color:var(--py-yellow);font-size:0.78rem">.emit()</code> and verify both callbacks fire.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Motor Factory</div>
+          <div class="ex-desc">Extend the factory pattern to create actuators: "dc_motor", "servo", "stepper". Each has different __init__ params. The factory handles the wiring.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Alarm System</div>
+          <div class="ex-desc">Build a sensor that emits events when readings cross a threshold. Register a Logger observer and a Buzzer observer. Simulate 10 readings and show the alerts.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Config Singleton</div>
+          <div class="ex-desc">Implement a <code style="color:var(--py-yellow);font-size:0.78rem">RobotConfig</code> singleton that loads settings from a dict. Show that all Robot instances share the same config object. Discuss trade-offs vs dependency injection.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 11 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-11';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 11 &middot; 3 hours total</div>
+          <h1 class="week-heading">Package Structure<br><em>Organising Real Projects</em></h1>
+          <p class="week-desc">
+            A single notebook is fine for learning, but real projects need structure. This week you
+            will learn to organise your classes into modules and packages with proper imports,
+            __init__.py files, and a clean project layout &mdash; the bridge between notebooks
+            and professional Python development.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="38"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W11</text>
+          </svg>
+          <div class="progress-label">Week 11 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 5 · System Structure — "Modules and packages organize your composed system."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===10?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F4C1;</span><span class="obj-text">Understand modules vs packages and the role of <code style="color:var(--py-yellow);font-size:0.75rem">__init__.py</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4E5;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">from ... import ...</code> and <code style="color:var(--py-yellow);font-size:0.75rem">import ... as ...</code> correctly</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3D7;</span><span class="obj-text">Organise a project: models/, utils/, tests/ directory layout</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4DD;</span><span class="obj-text">Write <code style="color:var(--py-yellow);font-size:0.75rem">__all__</code> to control public API of a module</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Avoid circular imports with proper dependency ordering</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4E6;</span><span class="obj-text">Structure the robot project into a clean package hierarchy</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_11.ipynb</div>
+          <div class="nb-heading">Modules, Packages &amp; Imports</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>What is a module? What is a package?</li>
+            <li>__init__.py: package initialisation</li>
+            <li>Import styles: absolute vs relative</li>
+            <li>__all__ for controlling public interface</li>
+            <li>Avoiding circular imports</li>
+            <li>Worked example: robot_kit package with models/ and utils/</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Project Layout</div>
+          <pre class="code-snippet"><span class="cm"># Recommended structure</span>
+robot_kit/
+&#x251C;&#x2500;&#x2500; __init__.py
+&#x251C;&#x2500;&#x2500; models/
+&#x2502;   &#x251C;&#x2500;&#x2500; __init__.py
+&#x2502;   &#x251C;&#x2500;&#x2500; motor.py
+&#x2502;   &#x251C;&#x2500;&#x2500; sensor.py
+&#x2502;   &#x2514;&#x2500;&#x2500; led.py
+&#x251C;&#x2500;&#x2500; utils/
+&#x2502;   &#x251C;&#x2500;&#x2500; __init__.py
+&#x2502;   &#x2514;&#x2500;&#x2500; logger.py
+&#x2514;&#x2500;&#x2500; tests/
+    &#x251C;&#x2500;&#x2500; __init__.py
+    &#x251C;&#x2500;&#x2500; test_motor.py
+    &#x2514;&#x2500;&#x2500; test_sensor.py</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Import Patterns</div>
+          <pre class="code-snippet"><span class="cm"># In robot_kit/__init__.py</span>
+<span class="kw">from</span> .models.motor <span class="kw">import</span> Motor
+<span class="kw">from</span> .models.sensor <span class="kw">import</span> Sensor
+<span class="kw">from</span> .models.led <span class="kw">import</span> LED
+
+__all__ <span class="op">=</span> [<span class="st">"Motor"</span>, <span class="st">"Sensor"</span>, <span class="st">"LED"</span>]
+
+<span class="cm"># In user code</span>
+<span class="kw">from</span> robot_kit <span class="kw">import</span> Motor, Sensor
+
+<span class="cm"># Or for specific submodules</span>
+<span class="kw">from</span> robot_kit.utils.logger <span class="kw">import</span> FileLogger
+
+<span class="cm"># Running tests</span>
+<span class="cm"># python -m pytest robot_kit/tests/</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Module vs Package</div>
+          <div class="ex-desc">In a comment, explain the difference between a module and a package. Create a simple <code style="color:var(--py-yellow);font-size:0.78rem">shapes.py</code> module with two classes and import them in a separate cell.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;__init__.py</div>
+          <div class="ex-desc">Write an <code style="color:var(--py-yellow);font-size:0.78rem">__init__.py</code> that imports Motor, Sensor, and LED from submodules. Test that <code style="color:var(--py-yellow);font-size:0.78rem">from robot_kit import Motor</code> works.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Full Package</div>
+          <div class="ex-desc">Organise your robot classes from previous weeks into the <code style="color:var(--py-yellow);font-size:0.78rem">robot_kit/</code> layout shown above. Move Motor, Sensor, LED, and Logger into separate files.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Public API</div>
+          <div class="ex-desc">Add <code style="color:var(--py-yellow);font-size:0.78rem">__all__</code> to each module. Verify that <code style="color:var(--py-yellow);font-size:0.78rem">from robot_kit.models import *</code> only imports the classes you intended.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Test Reorganisation</div>
+          <div class="ex-desc">Move all Week 9 tests into <code style="color:var(--py-yellow);font-size:0.78rem">robot_kit/tests/</code>. Update imports to use the package structure. Run the full test suite and ensure all tests still pass.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 12 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-12';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 12 &middot; 3 hours total</div>
+          <h1 class="week-heading">Iterators &amp; Generators<br><em>Lazy Data Processing</em></h1>
+          <p class="week-desc">
+            When your sensor array produces millions of readings, you cannot load them all into
+            memory at once. Iterators and generators let you process data one piece at a time,
+            using constant memory. This week you will implement the iterator protocol and write
+            generator functions with <code style="color:var(--py-yellow)">yield</code>.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="25"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W12</text>
+          </svg>
+          <div class="progress-label">Week 12 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 6 · Build the System — "Compose Sensor + Filter + Logger from scratch."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===11?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Implement <code style="color:var(--py-yellow);font-size:0.75rem">__iter__</code> and <code style="color:var(--py-yellow);font-size:0.75rem">__next__</code> to make a class iterable</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F331;</span><span class="obj-text">Write generator functions using <code style="color:var(--py-yellow);font-size:0.75rem">yield</code></span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4BE;</span><span class="obj-text">Understand lazy evaluation and memory efficiency</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F517;</span><span class="obj-text">Chain generators to build data processing pipelines</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CA;</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">yield from</code> for delegating to sub-generators</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3AF;</span><span class="obj-text">Build a SensorStream that yields readings on demand</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_12.ipynb</div>
+          <div class="nb-heading">Iterator Protocol &amp; yield</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; lecture + exercises</div>
+          <ul class="nb-topics">
+            <li>The iterator protocol: __iter__ and __next__</li>
+            <li>StopIteration and the for loop under the hood</li>
+            <li>Generator functions with yield</li>
+            <li>Generator expressions: (x for x in data)</li>
+            <li>yield from for sub-generators</li>
+            <li>Worked example: SensorStream pipeline</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Iterator Protocol</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">Countdown</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, start):
+        <span class="bi">self</span>.current <span class="op">=</span> start
+
+    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="bi">self</span>):
+        <span class="kw">return</span> <span class="bi">self</span>
+
+    <span class="kw">def</span> <span class="fn">__next__</span>(<span class="bi">self</span>):
+        <span class="kw">if</span> <span class="bi">self</span>.current <span class="op">&lt;=</span> <span class="nm">0</span>:
+            <span class="kw">raise</span> <span class="fn">StopIteration</span>
+        val <span class="op">=</span> <span class="bi">self</span>.current
+        <span class="bi">self</span>.current <span class="op">-=</span> <span class="nm">1</span>
+        <span class="kw">return</span> val
+
+<span class="kw">for</span> n <span class="kw">in</span> <span class="fn">Countdown</span>(<span class="nm">3</span>):
+    <span class="fn">print</span>(n)  <span class="cm"># 3, 2, 1</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Generator Functions</div>
+          <pre class="code-snippet"><span class="kw">def</span> <span class="fn">sensor_stream</span>(readings):
+    <span class="st">"""Yield valid readings only"""</span>
+    <span class="kw">for</span> r <span class="kw">in</span> readings:
+        <span class="kw">if</span> r <span class="op">&gt;=</span> <span class="nm">0</span>:
+            <span class="kw">yield</span> r
+
+<span class="kw">def</span> <span class="fn">moving_avg</span>(stream, window<span class="op">=</span><span class="nm">3</span>):
+    <span class="st">"""Yield running average"""</span>
+    buf <span class="op">=</span> []
+    <span class="kw">for</span> val <span class="kw">in</span> stream:
+        buf.<span class="fn">append</span>(val)
+        <span class="kw">if</span> <span class="fn">len</span>(buf) <span class="op">&gt;</span> window:
+            buf.<span class="fn">pop</span>(<span class="nm">0</span>)
+        <span class="kw">yield</span> <span class="fn">sum</span>(buf) <span class="op">/</span> <span class="fn">len</span>(buf)
+
+<span class="cm"># Chain them together</span>
+raw <span class="op">=</span> [<span class="nm">10</span>, <span class="op">-</span><span class="nm">1</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="op">-</span><span class="nm">5</span>, <span class="nm">25</span>]
+pipe <span class="op">=</span> <span class="fn">moving_avg</span>(<span class="fn">sensor_stream</span>(raw))
+<span class="fn">print</span>(<span class="fn">list</span>(pipe))
+<span class="cm"># [10.0, 15.0, 20.0, 25.0]</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Range Clone</div>
+          <div class="ex-desc">Implement a <code style="color:var(--py-yellow);font-size:0.78rem">MyRange</code> class with __iter__ and __next__ that mimics <code style="color:var(--py-yellow);font-size:0.78rem">range(start, stop, step)</code>. Test it in a for loop.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Simple Generator</div>
+          <div class="ex-desc">Write a generator function <code style="color:var(--py-yellow);font-size:0.78rem">even_numbers(n)</code> that yields the first n even numbers. Consume it with a for loop and with <code style="color:var(--py-yellow);font-size:0.78rem">list()</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Filter Generator</div>
+          <div class="ex-desc">Write <code style="color:var(--py-yellow);font-size:0.78rem">valid_readings(data)</code> that yields only values between 0 and 100. Chain it with a sum to get the total of valid readings.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Iterable SensorArray</div>
+          <div class="ex-desc">Make the SensorArray class from Week 4 iterable by implementing __iter__. Users should be able to write <code style="color:var(--py-yellow);font-size:0.78rem">for sensor in array:</code> directly.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Processing Pipeline</div>
+          <div class="ex-desc">Build a 3-stage generator pipeline: (1) read raw sensor data, (2) filter outliers, (3) compute running average. Process 1000 simulated readings using constant memory. Verify with a memory check.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 13 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-13';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 13 &middot; 3 hours total</div>
+          <h1 class="week-heading">Mini Project<br><em>Robot Monitoring System</em></h1>
+          <p class="week-desc">
+            Time to combine everything. You will build a complete Robot Monitoring System
+            that uses classes, inheritance, composition, exceptions, testing, and proper
+            project structure. The system reads sensor data, detects anomalies, logs events,
+            and generates a summary report.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="13"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W13</text>
+          </svg>
+          <div class="progress-label">Week 13 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 6 · Polish the System — "Refactor, document, simplify component interfaces."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===12?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <!-- PROJECT SPEC BANNER -->
+      <div style="background:linear-gradient(135deg,#1e3a5f 0%,#1a3d2e 100%);border:1px solid #3fb950;border-radius:12px;padding:1.4rem 1.6rem;margin-bottom:2rem;display:flex;gap:1.5rem;align-items:flex-start;">
+        <div style="font-size:2.2rem;flex-shrink:0;margin-top:2px;">&#x1F916;</div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;color:#3fb950;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:0.4rem;">Project Spec</div>
+          <div style="font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:0.5rem;">Robot Monitoring System</div>
+          <div style="font-size:0.82rem;color:#7d8590;line-height:1.7;">
+            Build a system with: <code style="color:var(--py-yellow);font-size:0.78rem">SensorArray</code> (reads data),
+            <code style="color:var(--py-yellow);font-size:0.78rem">AnomalyDetector</code> (flags outliers),
+            <code style="color:var(--py-yellow);font-size:0.78rem">EventLogger</code> (records events), and
+            <code style="color:var(--py-yellow);font-size:0.78rem">ReportGenerator</code> (outputs summary).<br>
+            Use composition, custom exceptions, and the Observer pattern.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F517;</span><span class="obj-text">Integrate classes, inheritance, composition, and design patterns in one project</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4A5;</span><span class="obj-text">Use custom exceptions for anomaly detection and error recovery</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4CA;</span><span class="obj-text">Generate formatted reports from processed sensor data</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9EA;</span><span class="obj-text">Write a test suite that covers all major components</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4C1;</span><span class="obj-text">Organise the project using proper package structure</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F3A4;</span><span class="obj-text">Present a 3&ndash;5 minute demo explaining design decisions</span></div>
+      </div>
+
+      <div class="section-title">Project Notebooks</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture" style="border-color:#bc8cff;background:#1e1a3d">
+          <div class="nb-type" style="color:#bc8cff">&#x1F4D0; Starter</div>
+          <div class="nb-filename">Week_13_Starter.ipynb</div>
+          <div class="nb-heading">Skeleton + Spec</div>
+          <div class="nb-duration">&#x23F1; Read carefully before writing any code</div>
+          <ul class="nb-topics">
+            <li>Full project specification and requirements</li>
+            <li>Class stubs with docstrings and type hints</li>
+            <li>Sample sensor data file (100 readings, 15 anomalies)</li>
+            <li>Expected output format described precisely</li>
+          </ul>
+          <a class="nb-btn" href="#" style="background:#bc8cff;color:#000">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">System Architecture</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">MonitoringSystem</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>):
+        <span class="bi">self</span>.sensors  <span class="op">=</span> <span class="fn">SensorArray</span>()
+        <span class="bi">self</span>.detector <span class="op">=</span> <span class="fn">AnomalyDetector</span>()
+        <span class="bi">self</span>.logger   <span class="op">=</span> <span class="fn">EventLogger</span>()
+        <span class="bi">self</span>.reporter <span class="op">=</span> <span class="fn">ReportGenerator</span>()
+
+    <span class="kw">def</span> <span class="fn">run_cycle</span>(<span class="bi">self</span>):
+        readings <span class="op">=</span> <span class="bi">self</span>.sensors.<span class="fn">read_all</span>()
+        <span class="kw">for</span> r <span class="kw">in</span> readings:
+            <span class="kw">try</span>:
+                <span class="bi">self</span>.detector.<span class="fn">check</span>(r)
+            <span class="kw">except</span> <span class="fn">AnomalyError</span> <span class="kw">as</span> e:
+                <span class="bi">self</span>.logger.<span class="fn">log</span>(e)
+        <span class="kw">return</span> <span class="bi">self</span>.reporter.<span class="fn">generate</span>(
+            readings, <span class="bi">self</span>.logger.events
+        )</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Anomaly Detection</div>
+          <pre class="code-snippet"><span class="kw">class</span> <span class="fn">AnomalyError</span>(<span class="fn">Exception</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, sensor, value, reason):
+        <span class="bi">self</span>.sensor <span class="op">=</span> sensor
+        <span class="bi">self</span>.value  <span class="op">=</span> value
+        <span class="bi">self</span>.reason <span class="op">=</span> reason
+        <span class="fn">super</span>().<span class="fn">__init__</span>(
+            <span class="st">f"{sensor}: {value} ({reason})"</span>)
+
+<span class="kw">class</span> <span class="fn">AnomalyDetector</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, lo<span class="op">=</span><span class="nm">0</span>, hi<span class="op">=</span><span class="nm">100</span>):
+        <span class="bi">self</span>.lo, <span class="bi">self</span>.hi <span class="op">=</span> lo, hi
+
+    <span class="kw">def</span> <span class="fn">check</span>(<span class="bi">self</span>, reading):
+        <span class="kw">if</span> reading.value <span class="op">&lt;</span> <span class="bi">self</span>.lo:
+            <span class="kw">raise</span> <span class="fn">AnomalyError</span>(
+                reading.name, reading.value,
+                <span class="st">"below minimum"</span>)
+        <span class="kw">if</span> reading.value <span class="op">&gt;</span> <span class="bi">self</span>.hi:
+            <span class="kw">raise</span> <span class="fn">AnomalyError</span>(
+                reading.name, reading.value,
+                <span class="st">"above maximum"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Implement SensorArray</div>
+          <div class="ex-desc">Build the SensorArray class that holds a list of sensors, supports iteration, and has a <code style="color:var(--py-yellow);font-size:0.78rem">read_all()</code> method returning all current readings.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Implement AnomalyDetector</div>
+          <div class="ex-desc">Build the detector with configurable thresholds. It should raise <code style="color:var(--py-yellow);font-size:0.78rem">AnomalyError</code> with context. Write 4 unit tests covering normal, low, high, and boundary values.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Implement EventLogger</div>
+          <div class="ex-desc">Build a logger that stores events with timestamps. Use the Observer pattern so the detector can emit events and the logger catches them automatically.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Implement ReportGenerator</div>
+          <div class="ex-desc">Build a reporter that produces a formatted text summary: total readings, anomaly count, min/max/mean values, and a list of flagged readings.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Wire Everything</div>
+          <div class="ex-desc">Create MonitoringSystem that composes all four components. Run 3 monitoring cycles with simulated data. Print the full report. Ensure all 10+ unit tests pass.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  // ===== WEEK 14 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-14';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 14 &middot; 3 hours total</div>
+          <h1 class="week-heading">Final Review<br><em>Consolidation &amp; Next Steps</em></h1>
+          <p class="week-desc">
+            The final week brings everything together. You will review all 13 weeks of OOP concepts
+            through a comprehensive exercise, identify areas for deeper study, and see where these
+            skills take you next &mdash; from data science to embedded systems to web frameworks.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W14</text>
+          </svg>
+          <div class="progress-label">Week 14 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 6 · Present the System — "Draw the composition diagram. Prove component swappability."</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===13?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">&#x1F504;</span><span class="obj-text">Review all major OOP concepts: classes, inheritance, composition, SOLID, patterns</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F9E9;</span><span class="obj-text">Identify connections between concepts and when to combine them</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F4DD;</span><span class="obj-text">Complete a comprehensive design exercise covering all 13 weeks</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F50D;</span><span class="obj-text">Self-assess strengths and areas for further practice</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F680;</span><span class="obj-text">Explore next steps: Django, FastAPI, data classes, type hints, asyncio</span></div>
+        <div class="obj-card"><span class="obj-icon">&#x1F393;</span><span class="obj-text">Present your Mini Project with a clean demo and Q&amp;A</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">&#x1F4D3; Lecture Notebook</div>
+          <div class="nb-filename">Week_14.ipynb</div>
+          <div class="nb-heading">OOP Review &amp; Where to Go Next</div>
+          <div class="nb-duration">&#x23F1; ~3 hours &middot; review + final exercise</div>
+          <ul class="nb-topics">
+            <li>Concept map: how all 13 weeks connect</li>
+            <li>Quick-fire review: one question per week</li>
+            <li>Comprehensive design exercise: SmartFactory system</li>
+            <li>Self-assessment checklist: rate your confidence per topic</li>
+            <li>Beyond this course: frameworks, async, data classes</li>
+            <li>Mini Project demo session and peer review</li>
+          </ul>
+          <a class="nb-btn" href="#">&#x25B6; Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">OOP Concept Map</div>
+          <pre class="code-snippet"><span class="cm"># Week 1-2:  Classes, __init__, methods</span>
+<span class="cm"># Week 3:    Encapsulation, @property</span>
+<span class="cm"># Week 4:    Composition (has-a)</span>
+<span class="cm"># Week 5:    Inheritance (is-a), super()</span>
+<span class="cm"># Week 6:    Abstract classes, ABC</span>
+<span class="cm"># Week 7:    SOLID principles</span>
+<span class="cm"># Week 8:    Custom exceptions</span>
+<span class="cm"># Week 9:    Unit testing</span>
+<span class="cm"># Week 10:   Design patterns</span>
+<span class="cm"># Week 11:   Package structure</span>
+<span class="cm"># Week 12:   Iterators &amp; generators</span>
+<span class="cm"># Week 13:   Mini project integration</span>
+<span class="cm"># Week 14:   Review &amp; next steps</span>
+
+<span class="cm"># The golden thread:</span>
+<span class="cm"># Model &rarr; Protect &rarr; Compose &rarr; Extend</span>
+<span class="cm"># &rarr; Abstract &rarr; Test &rarr; Package &rarr; Ship</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Where to Go Next</div>
+          <pre class="code-snippet"><span class="cm"># Data Classes (Python 3.7+)</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+<span class="op">@</span>dataclass
+<span class="kw">class</span> <span class="fn">Reading</span>:
+    sensor: <span class="fn">str</span>
+    value:  <span class="fn">float</span>
+    unit:   <span class="fn">str</span> <span class="op">=</span> <span class="st">"&deg;C"</span>
+
+r <span class="op">=</span> <span class="fn">Reading</span>(<span class="st">"CPU"</span>, <span class="nm">72.4</span>)
+<span class="fn">print</span>(r)
+<span class="cm"># Reading(sensor='CPU', value=72.4, unit='&deg;C')</span>
+
+<span class="cm"># Type Hints</span>
+<span class="kw">def</span> <span class="fn">average</span>(readings: <span class="fn">list</span>[<span class="fn">Reading</span>]) <span class="op">-&gt;</span> <span class="fn">float</span>:
+    vals <span class="op">=</span> [r.value <span class="kw">for</span> r <span class="kw">in</span> readings]
+    <span class="kw">return</span> <span class="fn">sum</span>(vals) <span class="op">/</span> <span class="fn">len</span>(vals)</pre>
+        </div>
+      </div>
+
+      <!-- COMPLETION BANNER -->
+      <div style="background:linear-gradient(135deg,#1a3d2e,#3d2800);border:1px solid var(--py-yellow);border-radius:12px;padding:1.6rem 2rem;text-align:center;margin-bottom:2rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.6rem">&#x1F393;</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:0.5rem">OOP Complete &mdash; You think in objects.</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);max-width:520px;margin:0 auto;line-height:1.7">
+          From empty classes to a full monitoring system in 14 weeks.
+          Classes &rarr; __init__ &rarr; encapsulation &rarr; composition &rarr; inheritance &rarr;
+          abstract classes &rarr; SOLID &rarr; exceptions &rarr; testing &rarr; patterns &rarr;
+          packages &rarr; generators &rarr; project.
+          Next: Django, FastAPI, asyncio, and real-world systems.
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 &mdash; Recall</span>
+        <span class="ex-badge l2">L2 &mdash; Apply</span>
+        <span class="ex-badge l3">L3 &mdash; Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Concept Quick-Fire</div>
+          <div class="ex-desc">Answer one question per week (13 total) in 1&ndash;2 sentences each. Example: "What problem does encapsulation solve?" Grade yourself on confidence.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Self-Assessment</div>
+          <div class="ex-desc">Rate your confidence (1&ndash;5) for each of the 13 weekly topics. Identify your top 3 strengths and top 3 areas needing more practice.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;SmartFactory Design</div>
+          <div class="ex-desc">Design (class diagram + stubs) a SmartFactory with ConveyorBelt, QualityChecker, PackagingUnit, and AlertSystem. Use composition, an abstract base, and the observer pattern.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Data Class Refactor</div>
+          <div class="ex-desc">Take your Sensor and Reading classes. Refactor them using <code style="color:var(--py-yellow);font-size:0.78rem">@dataclass</code>. Compare the before and after: lines of code, readability, and functionality.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Mini Project Demo</div>
+          <div class="ex-desc">Present your Week 13 project in 3&ndash;5 minutes. Walk through the architecture, show the running code, explain one design decision, and handle one Q&amp;A question from a peer.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  /* ===== NAVIGATION ===== */
+  function showWeek(n) {
+    document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('week-' + n);
+    if (panel) panel.classList.add('active');
+    const btns = document.querySelectorAll('.week-btn');
+    if (btns[n - 1]) btns[n - 1].classList.add('active');
+    document.querySelector('.main').scrollTop = 0;
+  }
+</script>
+
+</body>
+</html>

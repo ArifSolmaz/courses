@@ -1,0 +1,2877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CP1 — Computer Programming I</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --py-yellow: #ffd43b;
+    --py-blue: #4b8bbe;
+    --py-blue-light: #79afd1;
+    --accent-green: #3fb950;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --lecture-bg: #1e3a5f;
+    --lecture-border: #4b8bbe;
+    --lab-bg: #1a3d2e;
+    --lab-border: #3fb950;
+    --check-bg: #3d2800;
+    --check-border: #ffd43b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 1rem;
+    color: var(--py-yellow); letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--py-blue-light); }
+  .topbar-pills { display: flex; gap: 0.6rem; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 20px; color: var(--text-muted);
+  }
+  .pill.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .pill.blue  { border-color: var(--py-blue); color: var(--py-blue-light); }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 54px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 248px; min-width: 248px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+    padding: 0.4rem 1.2rem 0.6rem;
+  }
+  .week-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer; border: none; background: none;
+    width: 100%; text-align: left;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease; color: inherit;
+  }
+  .week-btn:hover { background: var(--surface2); }
+  .week-btn.active { background: var(--surface2); border-left-color: var(--py-yellow); }
+  .week-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    min-width: 28px; font-weight: 600;
+  }
+  .week-title { font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+  .week-btn.active .week-title { color: #fff; }
+  .week-btn.locked .week-title,
+  .week-btn.locked .week-num { color: var(--text-dim); }
+  .lock-icon { font-size: 0.65rem; margin-left: auto; color: var(--text-dim); }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* PANEL */
+  .week-panel { display: none; animation: fadeIn 0.2s ease; }
+  .week-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HEADER */
+  .week-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; margin-bottom: 1.8rem;
+  }
+  .week-header-left { flex: 1; }
+  .week-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--py-yellow);
+    font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  .week-heading { font-size: 1.7rem; font-weight: 800; line-height: 1.15; color: #fff; }
+  .week-heading em { font-style: normal; color: var(--py-yellow); }
+  .week-desc {
+    margin-top: 0.7rem; font-size: 0.88rem;
+    color: var(--text-muted); max-width: 580px; line-height: 1.6;
+  }
+  .progress-ring-wrap { text-align: center; }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 0.4rem;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* OBJECTIVES */
+  .objectives-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.7rem; margin-bottom: 2rem;
+  }
+  .obj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    display: flex; gap: 0.7rem; align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .obj-card:hover { border-color: var(--py-blue); }
+  .obj-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+
+  /* NOTEBOOKS */
+  .notebooks-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+    max-width: 600px;
+  }
+  @media (max-width: 900px) { .notebooks-grid { grid-template-columns: 1fr; } }
+  .nb-card {
+    border-radius: 10px; padding: 1.2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .nb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .nb-card.lecture { background: var(--lecture-bg); border-color: var(--lecture-border); }
+  .nb-card.lab     { background: var(--lab-bg);     border-color: var(--lab-border); }
+  .nb-card.check   { background: var(--check-bg);   border-color: var(--check-border); }
+  .nb-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;
+  }
+  .lecture .nb-type { color: var(--py-blue-light); }
+  .lab     .nb-type { color: var(--accent-green); }
+  .check   .nb-type { color: var(--py-yellow); }
+  .nb-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;
+  }
+  .nb-heading { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; line-height: 1.3; }
+  .nb-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.9rem;
+  }
+  .nb-topics { list-style: none; margin-bottom: 1.1rem; }
+  .nb-topics li {
+    font-size: 0.8rem; color: var(--text-muted);
+    padding: 0.22rem 0; display: flex; align-items: baseline; gap: 0.5rem;
+  }
+  .nb-topics li::before { content: '›'; font-size: 0.9rem; opacity: 0.6; }
+  .nb-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 0.9rem; border-radius: 6px; border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s; text-decoration: none;
+  }
+  .nb-btn:hover { opacity: 0.85; transform: scale(0.98); }
+  .lecture .nb-btn { background: var(--py-blue); color: #fff; }
+  .lab     .nb-btn { background: var(--accent-green); color: #000; }
+  .check   .nb-btn { background: var(--py-yellow); color: #000; }
+
+  /* CONCEPTS */
+  .concepts-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  @media (max-width: 800px) { .concepts-row { grid-template-columns: 1fr; } }
+  .concept-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem;
+  }
+  .concept-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--py-yellow); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 0.9rem;
+  }
+  pre.code-snippet {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 7px; padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; line-height: 1.7; overflow-x: auto; color: var(--text);
+  }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .nm { color: #79c0ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .op { color: #ffa657; }
+
+  /* EXERCISES */
+  .ex-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+  .ex-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ex-badge.l1 { background: #1a3d2e; color: var(--accent-green); border: 1px solid var(--accent-green); }
+  .ex-badge.l2 { background: #1e3a5f; color: var(--py-blue-light); border: 1px solid var(--py-blue); }
+  .ex-badge.l3 { background: #3d2800; color: var(--py-yellow); border: 1px solid var(--py-yellow); }
+  .ex-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.1rem;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: flex-start; gap: 0.8rem;
+  }
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-dim); min-width: 22px; padding-top: 2px;
+  }
+  .ex-content { flex: 1; }
+  .ex-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .ex-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* COMING SOON */
+  .coming-soon {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 50vh; gap: 1rem; text-align: center;
+  }
+  .coming-soon .big { font-size: 3rem; }
+  .coming-soon h2 { font-size: 1.4rem; font-weight: 800; color: #fff; }
+  .coming-soon p { font-size: 0.88rem; color: var(--text-muted); max-width: 320px; }
+  .cscode {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;
+    color: var(--py-yellow);
+  }
+
+  /* TIMELINE MINI */
+  .timeline-mini { display: flex; gap: 0.3rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .tm-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+  }
+  .tm-dot.current { background: var(--py-yellow); color: #000; border-color: var(--py-yellow); }
+  .tm-dot:hover:not(.current) { border-color: var(--py-blue); color: var(--py-blue-light); }
+
+  /* CORE MASTERY HERO */
+  .core-mastery-hero {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin-top: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    border-left: 3px solid var(--py-yellow);
+    background: rgba(255,255,255,0.08);
+    border-radius: 0 8px 8px 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* PHASE TAG CARD */
+  .phase-tag-card {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--primary-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(21,101,192,0.08);
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  body.dark .phase-tag-card {
+    background: rgba(66,165,245,0.1);
+    color: var(--py-blue-light);
+  }
+  /* SIDEBAR PHASE DIVIDERS */
+  .sidebar-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--py-blue-light);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 0.8rem 1.2rem 0.3rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+  .sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">CP<span>1</span>.py</div>
+  <div class="topbar-pills">
+    <span class="pill blue">14 Weeks · 5 hrs/week</span>
+    <span class="pill">Google Colab</span>
+    <span class="pill green">Python 3 · Zero to Code</span>
+    <span class="pill green">Core: Step-by-Step Problem Solving</span>
+    <a href="CP1_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
+  </div>
+</header>
+
+<div class="core-mastery-hero">"I can solve a problem step by step with code"</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Course Weeks</div>
+    <div class="sidebar-phase">Phase 1 · Vocabulary</div>
+    <button class="week-btn active"  onclick="showWeek(1)"><span class="week-num">W01</span><span class="week-title">Colab Setup &amp; Variables</span></button>
+    <button class="week-btn" onclick="showWeek(2)"><span class="week-num">W02</span><span class="week-title">Operators &amp; f-strings</span></button>
+    <div class="sidebar-phase">Phase 2 · Decisions &amp; Loops</div>
+    <button class="week-btn" onclick="showWeek(3)"><span class="week-num">W03</span><span class="week-title">Conditionals</span></button>
+    <button class="week-btn" onclick="showWeek(4)"><span class="week-num">W04</span><span class="week-title">for Loops &amp; range</span></button>
+    <button class="week-btn" onclick="showWeek(5)"><span class="week-num">W05</span><span class="week-title">while, break, continue</span></button>
+    <div class="sidebar-phase">Phase 3 · Patterns</div>
+    <button class="week-btn" onclick="showWeek(6)"><span class="week-num">W06</span><span class="week-title">Problem-Solving Patterns</span></button>
+    <div class="sidebar-phase">Phase 4 · Collections</div>
+    <button class="week-btn" onclick="showWeek(7)"><span class="week-num">W07</span><span class="week-title">Lists Fundamentals</span></button>
+    <button class="week-btn" onclick="showWeek(8)"><span class="week-num">W08</span><span class="week-title">2D Lists &amp; Nested Loops</span></button>
+    <button class="week-btn" onclick="showWeek(9)"><span class="week-num">W09</span><span class="week-title">String Processing</span></button>
+    <div class="sidebar-phase">Phase 5 · Functions</div>
+    <button class="week-btn" onclick="showWeek(10)"><span class="week-num">W10</span><span class="week-title">Functions: Basics</span></button>
+    <button class="week-btn" onclick="showWeek(11)"><span class="week-num">W11</span><span class="week-title">Scope &amp; Mini-Library</span></button>
+    <div class="sidebar-phase">Phase 6 · Robustness</div>
+    <button class="week-btn" onclick="showWeek(12)"><span class="week-num">W12</span><span class="week-title">Error Handling</span></button>
+    <button class="week-btn" onclick="showWeek(13)"><span class="week-num">W13</span><span class="week-title">File I/O &amp; CSV</span></button>
+    <div class="sidebar-phase">Phase 7 · Capstone</div>
+    <button class="week-btn" onclick="showWeek(14)"><span class="week-num">W14</span><span class="week-title">Mini Project: Sensor Log</span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ===== WEEK 01 ===== -->
+    <div class="week-panel active" id="week-1">
+
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 01 · 5 hours total</div>
+          <h1 class="week-heading">Colab Setup &amp;<br><em>Variables &amp; Types</em></h1>
+          <p class="week-desc">Your very first Python session — no prior programming experience needed.
+            You'll learn to run code in Google Colab, store values in variables,
+            understand data types, and print results — the foundation for everything ahead.</p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W01</text>
+          </svg>
+          <div class="progress-label">Active Week</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 · Learning the Vocabulary — Before you can solve problems with code, you need to know how to store data and show results.</div>
+
+      <!-- Timeline -->
+      <div class="timeline-mini">
+        <div class="tm-dot current" onclick="showWeek(1)">1</div>
+        <div class="tm-dot" onclick="showWeek(2)">2</div>
+        <div class="tm-dot" onclick="showWeek(3)">3</div>
+        <div class="tm-dot" onclick="showWeek(4)">4</div>
+        <div class="tm-dot" onclick="showWeek(5)">5</div>
+        <div class="tm-dot" onclick="showWeek(6)">6</div>
+        <div class="tm-dot" onclick="showWeek(7)">7</div>
+        <div class="tm-dot" onclick="showWeek(8)">8</div>
+        <div class="tm-dot" onclick="showWeek(9)">9</div>
+        <div class="tm-dot" onclick="showWeek(10)">10</div>
+        <div class="tm-dot" onclick="showWeek(11)">11</div>
+        <div class="tm-dot" onclick="showWeek(12)">12</div>
+        <div class="tm-dot" onclick="showWeek(13)">13</div>
+        <div class="tm-dot" onclick="showWeek(14)">14</div>
+      </div>
+
+      <!-- Objectives -->
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">⚡</span><span class="obj-text">Run code cells in Google Colab and understand the notebook workflow</span></div>
+        <div class="obj-card"><span class="obj-icon">📦</span><span class="obj-text">Declare variables and assign values of different types</span></div>
+        <div class="obj-card"><span class="obj-icon">🔢</span><span class="obj-text">Distinguish between <code style="color:var(--py-yellow);font-size:0.75rem">int</code>, <code style="color:var(--py-yellow);font-size:0.75rem">float</code>, <code style="color:var(--py-yellow);font-size:0.75rem">str</code>, and <code style="color:var(--py-yellow);font-size:0.75rem">bool</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🖨️</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">print()</code> and <code style="color:var(--py-yellow);font-size:0.75rem">type()</code> to inspect values</span></div>
+        <div class="obj-card"><span class="obj-icon">🔧</span><span class="obj-text">Build a simple temperature or distance calculator from scratch</span></div>
+        <div class="obj-card"><span class="obj-icon">💡</span><span class="obj-text">Understand why choosing meaningful variable names matters</span></div>
+      </div>
+
+      <!-- Notebooks -->
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_01.ipynb</div>
+          <div class="nb-heading">Variables, Types &amp; print()</div>
+          <div class="nb-duration">⏱ ~5 hours · lecture + exercises + auto-submit</div>
+          <ul class="nb-topics">
+            <li>What is Python? Notebook environment overview</li>
+            <li>Variables, naming rules, multiple assignment</li>
+            <li>Core types: int, float, str, bool + type()</li>
+            <li>print() with sep, end, escape chars, f-strings</li>
+            <li>Basic arithmetic &amp; operator precedence</li>
+            <li>15 exercises (Easy → Challenge) + auto-submission</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <!-- Key Concepts -->
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Variables &amp; Types</div>
+          <pre class="code-snippet"><span class="cm"># Declaring variables</span>
+<span class="var">name</span>        <span class="op">=</span> <span class="st">"Alice"</span>   <span class="cm"># str</span>
+<span class="var">age</span>         <span class="op">=</span> <span class="nm">20</span>       <span class="cm"># int</span>
+<span class="var">height</span>      <span class="op">=</span> <span class="nm">1.72</span>     <span class="cm"># float</span>
+<span class="var">is_enrolled</span> <span class="op">=</span> <span class="kw">True</span>     <span class="cm"># bool</span>
+
+<span class="cm"># Inspect types</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">age</span>))      <span class="cm"># &lt;class 'int'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">height</span>))   <span class="cm"># &lt;class 'float'&gt;</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">print() Patterns</div>
+          <pre class="code-snippet"><span class="cm"># Basic print</span>
+<span class="fn">print</span>(<span class="st">"Hello, World!"</span>)
+
+<span class="cm"># With variable</span>
+<span class="var">temp_c</span> <span class="op">=</span> <span class="nm">37.5</span>
+<span class="fn">print</span>(<span class="st">"Temperature:"</span>, <span class="var">temp_c</span>)
+
+<span class="cm"># f-string (preview of Week 2)</span>
+<span class="fn">print</span>(<span class="st">f"Temp = {<span class="var">temp_c</span>} °C"</span>)
+
+<span class="cm"># Calculation inside print</span>
+<span class="fn">print</span>(<span class="st">f"= {<span class="var">temp_c</span> <span class="op">*</span> <span class="nm">9</span><span class="op">/</span><span class="nm">5</span> <span class="op">+</span> <span class="nm">32</span>} °F"</span>)</pre>
+        </div>
+      </div>
+
+      <!-- Exercises -->
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Hello, You!</div>
+          <div class="ex-desc">Create variables for your name, age, and favourite colour. Print each on its own line using <code style="color:var(--py-yellow);font-size:0.78rem">print()</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Type Detective</div>
+          <div class="ex-desc">Given 6 mystery values, predict the type before running <code style="color:var(--py-yellow);font-size:0.78rem">type()</code> on each — then verify your predictions.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Celsius → Fahrenheit</div>
+          <div class="ex-desc">Store a temperature in Celsius. Calculate and print the Fahrenheit equivalent using <code style="color:var(--py-yellow);font-size:0.78rem">F = C × 9/5 + 32</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Rectangle Calculator</div>
+          <div class="ex-desc">Given width and height as variables, compute and print the area and perimeter with clearly labelled output lines.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Speed, Distance, Time</div>
+          <div class="ex-desc">Create variables for any two of {speed, distance, time} and compute the third. Print a full sentence like <em>"A car at 90 km/h covers 270 km in 3.0 hours."</em></div>
+        </div>
+      </div>
+
+    </div><!-- /week-1 -->
+
+    <!-- Placeholder container for weeks 2–14 -->
+    <div id="weeks-placeholder"></div>
+
+  </main>
+</div>
+
+<script>
+  /* ===== WEEK 02 FULL PANEL ===== */
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-2';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 02 · 5 hours total</div>
+          <h1 class="week-heading">Operators &amp; Expressions<br><em>f-strings &amp; Type Conversion</em></h1>
+          <p class="week-desc">
+            Now that you can store values, it's time to <em>transform</em> them.
+            This week covers every operator Python offers, how to convert between types,
+            and how to produce polished output with f-strings — the tool you'll use in
+            every single program you write from here on.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="150"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W02</text>
+          </svg>
+          <div class="progress-label">Week 2 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 1 · Learning the Vocabulary — Real problems need comparisons, formatted output, and user input.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===1?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">➕</span><span class="obj-text">Use all arithmetic operators: <code style="color:var(--py-yellow);font-size:0.75rem">+ - * / // % **</code></span></div>
+        <div class="obj-card"><span class="obj-icon">⚖️</span><span class="obj-text">Compare values with <code style="color:var(--py-yellow);font-size:0.75rem">== != &lt; &gt; &lt;= &gt;=</code> and get a bool result</span></div>
+        <div class="obj-card"><span class="obj-icon">🔄</span><span class="obj-text">Convert between types with <code style="color:var(--py-yellow);font-size:0.75rem">int()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">float()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">str()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🎨</span><span class="obj-text">Format output with f-strings including <code style="color:var(--py-yellow);font-size:0.75rem">:.2f</code> and <code style="color:var(--py-yellow);font-size:0.75rem">:&gt;10</code> alignment</span></div>
+        <div class="obj-card"><span class="obj-icon">🧮</span><span class="obj-text">Understand integer division <code style="color:var(--py-yellow);font-size:0.75rem">//</code> and modulo <code style="color:var(--py-yellow);font-size:0.75rem">%</code> and when to use each</span></div>
+        <div class="obj-card"><span class="obj-icon">📐</span><span class="obj-text">Build a multi-unit converter with clean, aligned printed output</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_02.ipynb</div>
+          <div class="nb-heading">Operators, Types &amp; f-strings</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Arithmetic: <code style="color:var(--py-blue-light);font-size:0.75rem">+ - * / // % **</code> with examples</li>
+            <li>Integer vs float division — common surprises</li>
+            <li>Comparison operators → bool results</li>
+            <li>Type conversion: int(), float(), str()</li>
+            <li>f-string syntax: expressions, format specs</li>
+            <li>Worked example: currency converter with formatted table</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_02.ipynb</div>
+          <div class="nb-heading">Unit Conversion Suite</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Complete arithmetic expression stubs</li>
+            <li>Length: mm → cm → m → km chain</li>
+            <li>Mass: g → kg → lbs → oz</li>
+            <li>Time: seconds → minutes → hours → days</li>
+            <li>Format all outputs to 2 decimal places</li>
+            <li>Build a mini conversion table with aligned columns</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_02.ipynb</div>
+          <div class="nb-heading">Quiz + Assert Tests</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>10 operator-result prediction questions</li>
+            <li>3 type conversion traps (int("3.5") etc.)</li>
+            <li>Assert tests on computed values (± tolerance)</li>
+            <li>Mini task: print a 3-row formatted receipt</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Arithmetic &amp; Comparison Operators</div>
+          <pre class="code-snippet"><span class="var">a</span>, <span class="var">b</span> <span class="op">=</span> <span class="nm">17</span>, <span class="nm">5</span>
+
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">+</span>  <span class="var">b</span>)   <span class="cm"># 22   — addition</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">-</span>  <span class="var">b</span>)   <span class="cm"># 12   — subtraction</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">*</span>  <span class="var">b</span>)   <span class="cm"># 85   — multiplication</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">/</span>  <span class="var">b</span>)   <span class="cm"># 3.4  — true division</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">//</span> <span class="var">b</span>)   <span class="cm"># 3    — floor division</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">%</span>  <span class="var">b</span>)   <span class="cm"># 2    — modulo (remainder)</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">**</span> <span class="var">b</span>)   <span class="cm"># 1419857 — power</span>
+
+<span class="cm"># Comparisons → always bool</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">==</span> <span class="nm">17</span>)  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">!=</span> <span class="var">b</span>)   <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="var">a</span> <span class="op">&gt;</span>  <span class="var">b</span>)   <span class="cm"># True</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Type Conversion &amp; f-strings</div>
+          <pre class="code-snippet"><span class="cm"># Type conversion</span>
+<span class="fn">int</span>(<span class="st">"42"</span>)        <span class="cm"># → 42</span>
+<span class="fn">float</span>(<span class="st">"3.14"</span>)   <span class="cm"># → 3.14</span>
+<span class="fn">str</span>(<span class="nm">100</span>)         <span class="cm"># → "100"</span>
+<span class="fn">int</span>(<span class="nm">3.9</span>)         <span class="cm"># → 3  (truncates!)</span>
+
+<span class="cm"># f-string format specs</span>
+<span class="var">price</span> <span class="op">=</span> <span class="nm">4.5</span>
+<span class="var">qty</span>   <span class="op">=</span> <span class="nm">3</span>
+<span class="fn">print</span>(<span class="st">f"Unit price : {<span class="var">price</span>:&gt;8.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Quantity   : {<span class="var">qty</span>:&gt;8d}"</span>)
+<span class="fn">print</span>(<span class="st">f"Total      : {<span class="var">price</span><span class="op">*</span><span class="var">qty</span>:&gt;8.2f}"</span>)
+<span class="cm"># Unit price :     4.50</span>
+<span class="cm"># Quantity   :        3</span>
+<span class="cm"># Total      :    13.50</span></pre>
+        </div>
+      </div>
+
+      <div class="concept-block" style="margin-bottom:2rem">
+        <div class="concept-block-title">Common Pitfall: Integer vs Float Division</div>
+        <pre class="code-snippet"><span class="cm"># True division always returns float</span>
+<span class="fn">print</span>(<span class="nm">7</span> <span class="op">/</span> <span class="nm">2</span>)    <span class="cm"># 3.5   ✓</span>
+
+<span class="cm"># Floor division drops the decimal</span>
+<span class="fn">print</span>(<span class="nm">7</span> <span class="op">//</span> <span class="nm">2</span>)   <span class="cm"># 3     ← might surprise you!</span>
+
+<span class="cm"># Modulo = remainder after floor division</span>
+<span class="fn">print</span>(<span class="nm">7</span> <span class="op">%</span> <span class="nm">2</span>)    <span class="cm"># 1</span>
+
+<span class="cm"># Useful pattern: hours and minutes from seconds</span>
+<span class="var">total_sec</span> <span class="op">=</span> <span class="nm">3725</span>
+<span class="var">hours</span>  <span class="op">=</span> <span class="var">total_sec</span> <span class="op">//</span> <span class="nm">3600</span>
+<span class="var">mins</span>   <span class="op">=</span> (<span class="var">total_sec</span> <span class="op">%</span> <span class="nm">3600</span>) <span class="op">//</span> <span class="nm">60</span>
+<span class="var">secs</span>   <span class="op">=</span> <span class="var">total_sec</span> <span class="op">%</span> <span class="nm">60</span>
+<span class="fn">print</span>(<span class="st">f"{<span class="var">hours</span>}h {<span class="var">mins</span>}m {<span class="var">secs</span>}s"</span>)  <span class="cm"># 1h 2m 5s</span></pre>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Operator Predictions</div>
+          <div class="ex-desc">Before running any code, write down the result of 8 expressions such as <code style="color:var(--py-yellow);font-size:0.78rem">9 // 2</code>, <code style="color:var(--py-yellow);font-size:0.78rem">9 % 2</code>, <code style="color:var(--py-yellow);font-size:0.78rem">2 ** 8</code>. Then run and compare — score yourself.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Conversion Traps</div>
+          <div class="ex-desc">Predict whether each call succeeds or raises an error: <code style="color:var(--py-yellow);font-size:0.78rem">int("3.5")</code>, <code style="color:var(--py-yellow);font-size:0.78rem">float("hello")</code>, <code style="color:var(--py-yellow);font-size:0.78rem">int(True)</code>, <code style="color:var(--py-yellow);font-size:0.78rem">str(0.0)</code>. Run each cell to verify.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Seconds Breakdown</div>
+          <div class="ex-desc">Given a number of total seconds (e.g. <code style="color:var(--py-yellow);font-size:0.78rem">total = 9875</code>), compute and print hours, remaining minutes, and remaining seconds using only <code style="color:var(--py-yellow);font-size:0.78rem">//</code> and <code style="color:var(--py-yellow);font-size:0.78rem">%</code>.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Formatted Receipt</div>
+          <div class="ex-desc">Define three items with a name, price, and quantity. Print a receipt table with right-aligned columns for item name (20 chars), unit price (<code style="color:var(--py-yellow);font-size:0.78rem">:.2f</code>), and line total. Add a "TOTAL" row at the bottom.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Compound Interest</div>
+          <div class="ex-desc">Given principal <code style="color:var(--py-yellow);font-size:0.78rem">P</code>, annual rate <code style="color:var(--py-yellow);font-size:0.78rem">r</code>, and years <code style="color:var(--py-yellow);font-size:0.78rem">n</code>, compute the final amount using <code style="color:var(--py-yellow);font-size:0.78rem">A = P * (1 + r)**n</code>. Print a clear summary showing all inputs and the result formatted to 2 decimal places with a currency symbol.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').prepend(panel);
+  })();
+
+  // ===== WEEK 03 FULL PANEL =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-3';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 03 · 5 hours total</div>
+          <h1 class="week-heading">Conditionals &amp;<br><em>Decision Making</em></h1>
+          <p class="week-desc">
+            Programs that always do the same thing aren't very useful.
+            This week you'll teach your code to <em>decide</em> — branching down
+            different paths based on conditions. You'll also learn how to
+            validate input and handle edge cases from day one.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="138"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W03</text>
+          </svg>
+          <div class="progress-label">Week 3 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Expressing Decisions — Most problems require decisions. Conditionals let your program choose different paths.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===2?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🔀</span><span class="obj-text">Write <code style="color:var(--py-yellow);font-size:0.75rem">if</code>, <code style="color:var(--py-yellow);font-size:0.75rem">elif</code>, and <code style="color:var(--py-yellow);font-size:0.75rem">else</code> blocks with correct indentation</span></div>
+        <div class="obj-card"><span class="obj-icon">🔗</span><span class="obj-text">Combine conditions with <code style="color:var(--py-yellow);font-size:0.75rem">and</code>, <code style="color:var(--py-yellow);font-size:0.75rem">or</code>, <code style="color:var(--py-yellow);font-size:0.75rem">not</code> and understand short-circuit evaluation</span></div>
+        <div class="obj-card"><span class="obj-icon">📋</span><span class="obj-text">Trace multi-branch logic by hand before running code</span></div>
+        <div class="obj-card"><span class="obj-icon">🛡️</span><span class="obj-text">Apply input-validation patterns: range checks, type checks, sentinel values</span></div>
+        <div class="obj-card"><span class="obj-icon">🧪</span><span class="obj-text">Test edge cases: boundary values, zero, negative numbers, equal values</span></div>
+        <div class="obj-card"><span class="obj-icon">🏗️</span><span class="obj-text">Avoid common pitfalls: assignment <code style="color:var(--py-yellow);font-size:0.75rem">=</code> vs comparison <code style="color:var(--py-yellow);font-size:0.75rem">==</code>, unreachable branches</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_03.ipynb</div>
+          <div class="nb-heading">if / elif / else &amp; Logic</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Boolean expressions — review from W02</li>
+            <li>if / elif / else structure and indentation rules</li>
+            <li>Logical operators: and, or, not + truth tables</li>
+            <li>Chained comparisons: <code style="color:var(--py-blue-light);font-size:0.75rem">0 &lt;= x &lt; 100</code></li>
+            <li>Nested conditionals — when to flatten</li>
+            <li>Worked example: BMI classifier with 5 categories</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_03.ipynb</div>
+          <div class="nb-heading">Decision Scenarios</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Traffic light: map a colour string to an action</li>
+            <li>Season classifier: month number → season name</li>
+            <li>Grade calculator: score → letter grade</li>
+            <li>Leap year checker (classic 3-rule problem)</li>
+            <li>Ticket price: age-based discount system</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_03.ipynb</div>
+          <div class="nb-heading">Edge-Case Quiz</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Trace 5 code blocks — predict the printed output</li>
+            <li>Fix 3 broken if/elif chains</li>
+            <li>Assert tests: boundary values (0, -1, 100, 101)</li>
+            <li>Mini task: temperature advisory system</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">if / elif / else Structure</div>
+          <pre class="code-snippet"><span class="var">score</span> <span class="op">=</span> <span class="nm">74</span>
+
+<span class="kw">if</span> <span class="var">score</span> <span class="op">&gt;=</span> <span class="nm">90</span>:
+    <span class="fn">print</span>(<span class="st">"A"</span>)
+<span class="kw">elif</span> <span class="var">score</span> <span class="op">&gt;=</span> <span class="nm">75</span>:
+    <span class="fn">print</span>(<span class="st">"B"</span>)
+<span class="kw">elif</span> <span class="var">score</span> <span class="op">&gt;=</span> <span class="nm">60</span>:
+    <span class="fn">print</span>(<span class="st">"C"</span>)    <span class="cm"># ← this runs</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"F"</span>)
+
+<span class="cm"># Chained comparison (Pythonic!)</span>
+<span class="kw">if</span> <span class="nm">60</span> <span class="op">&lt;=</span> <span class="var">score</span> <span class="op">&lt;</span> <span class="nm">75</span>:
+    <span class="fn">print</span>(<span class="st">"Just passing"</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Logical Operators &amp; Truth Tables</div>
+          <pre class="code-snippet"><span class="cm"># and — both must be True</span>
+<span class="var">age</span>  <span class="op">=</span> <span class="nm">20</span>
+<span class="var">paid</span> <span class="op">=</span> <span class="kw">True</span>
+<span class="kw">if</span> <span class="var">age</span> <span class="op">&gt;=</span> <span class="nm">18</span> <span class="kw">and</span> <span class="var">paid</span>:
+    <span class="fn">print</span>(<span class="st">"Access granted"</span>)
+
+<span class="cm"># or — at least one True</span>
+<span class="kw">if</span> <span class="var">age</span> <span class="op">&lt;</span> <span class="nm">12</span> <span class="kw">or</span> <span class="var">age</span> <span class="op">&gt;</span> <span class="nm">65</span>:
+    <span class="fn">print</span>(<span class="st">"Discount applies"</span>)
+
+<span class="cm"># not — flip True/False</span>
+<span class="kw">if</span> <span class="kw">not</span> <span class="var">paid</span>:
+    <span class="fn">print</span>(<span class="st">"Payment required"</span>)
+
+<span class="cm"># Short-circuit: stops early</span>
+<span class="cm"># False and ... → skips right side</span>
+<span class="cm"># True  or  ... → skips right side</span></pre>
+        </div>
+      </div>
+
+      <div class="concepts-row" style="margin-bottom:2rem">
+        <div class="concept-block">
+          <div class="concept-block-title">Classic Pattern: Input Validation</div>
+          <pre class="code-snippet"><span class="var">temp</span> <span class="op">=</span> <span class="nm">-5</span>   <span class="cm"># imagine this came from a sensor</span>
+
+<span class="kw">if</span> <span class="kw">not</span> (<span class="op">-</span><span class="nm">50</span> <span class="op">&lt;=</span> <span class="var">temp</span> <span class="op">&lt;=</span> <span class="nm">150</span>):
+    <span class="fn">print</span>(<span class="st">"ERROR: temperature out of range"</span>)
+<span class="kw">elif</span> <span class="var">temp</span> <span class="op">&lt;</span> <span class="nm">0</span>:
+    <span class="fn">print</span>(<span class="st">"Below freezing — check sensors"</span>)
+<span class="kw">elif</span> <span class="var">temp</span> <span class="op">&lt;</span> <span class="nm">20</span>:
+    <span class="fn">print</span>(<span class="st">"Cold"</span>)
+<span class="kw">elif</span> <span class="var">temp</span> <span class="op">&lt;</span> <span class="nm">35</span>:
+    <span class="fn">print</span>(<span class="st">"Comfortable"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Hot — possible overheating"</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Common Pitfall: = vs ==</div>
+          <pre class="code-snippet"><span class="cm"># BUG: assignment inside condition</span>
+<span class="var">x</span> <span class="op">=</span> <span class="nm">5</span>
+<span class="kw">if</span> <span class="var">x</span> <span class="op">=</span> <span class="nm">10</span>:          <span class="cm"># ← SyntaxError!</span>
+    <span class="fn">print</span>(<span class="st">"ten"</span>)
+
+<span class="cm"># CORRECT: use == to compare</span>
+<span class="kw">if</span> <span class="var">x</span> <span class="op">==</span> <span class="nm">10</span>:         <span class="cm"># ✓</span>
+    <span class="fn">print</span>(<span class="st">"ten"</span>)
+
+<span class="cm"># Another trap: unreachable elif</span>
+<span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="nm">0</span>:
+    <span class="fn">print</span>(<span class="st">"positive"</span>)
+<span class="kw">elif</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="nm">3</span>:          <span class="cm"># ← never runs!</span>
+    <span class="fn">print</span>(<span class="st">"big"</span>)       <span class="cm"># x>0 catches it first</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E1</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Trace the Output</div>
+          <div class="ex-desc">Three code blocks are given. For each one, trace the execution by hand and write down what gets printed — before running a single cell.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E2</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Fix the Chain</div>
+          <div class="ex-desc">Three broken <code style="color:var(--py-yellow);font-size:0.78rem">if/elif</code> chains are provided (wrong operators, unreachable branches, missing <code style="color:var(--py-yellow);font-size:0.78rem">else</code>). Identify and fix each bug, then verify with assert cells.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E3</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Leap Year Checker</div>
+          <div class="ex-desc">Implement the 3-rule leap year algorithm: divisible by 4, <em>except</em> centuries, <em>unless</em> divisible by 400. Test with: 1900, 2000, 2024, 2100.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E4</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Ticket Price System</div>
+          <div class="ex-desc">Children (&lt;12) pay 50%, seniors (&gt;65) pay 60%, students (12–25) pay 80%, adults pay full price (100 TL). Add a validation branch that rejects negative ages.</div>
+        </div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-num">E5</div>
+        <div class="ex-content">
+          <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Triangle Classifier</div>
+          <div class="ex-desc">Given three side lengths, first verify they form a valid triangle (triangle inequality). If valid, classify as <em>equilateral</em>, <em>isosceles</em>, or <em>scalene</em>, and also as <em>right</em>, <em>acute</em>, or <em>obtuse</em> using the Pythagorean relation.</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-4') || null);
+  })();
+
+  // ===== WEEK 04 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-4';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 04 · 5 hours total</div>
+          <h1 class="week-heading">for Loops &amp;<br><em>range — Repetition</em></h1>
+          <p class="week-desc">
+            Doing something once is easy. Doing it a thousand times — without writing it a thousand times — is what loops are for.
+            This week you'll master Python's <code style="color:var(--py-yellow)">for</code> loop,
+            the <code style="color:var(--py-yellow)">range()</code> function, and the accumulator patterns
+            that appear in almost every program you'll ever write.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#bc8cff" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="126"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#bc8cff">W04</text>
+          </svg>
+          <div class="progress-label">Week 4 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Expressing Repetition — Many solutions require repeating steps. Loops let you repeat without repeating yourself.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===3?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🔁</span><span class="obj-text">Write a <code style="color:var(--py-yellow);font-size:0.75rem">for</code> loop to iterate over a sequence of values</span></div>
+        <div class="obj-card"><span class="obj-icon">📏</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">range(start, stop, step)</code> with all three argument forms</span></div>
+        <div class="obj-card"><span class="obj-icon">➕</span><span class="obj-text">Build accumulator patterns: running sum, count, product, min/max</span></div>
+        <div class="obj-card"><span class="obj-icon">🖨️</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">print()</code> inside a loop to trace execution step-by-step</span></div>
+        <div class="obj-card"><span class="obj-icon">🔢</span><span class="obj-text">Generate multiplication tables, number series, and simple patterns</span></div>
+        <div class="obj-card"><span class="obj-icon">⚠️</span><span class="obj-text">Recognise off-by-one errors and fix them with <code style="color:var(--py-yellow);font-size:0.75rem">range</code> adjustments</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_04.ipynb</div>
+          <div class="nb-heading">for Loops &amp; range()</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Loop anatomy: variable, iterable, body</li>
+            <li>range(n), range(a,b), range(a,b,step)</li>
+            <li>Accumulator pattern: sum, count, product</li>
+            <li>Looping backwards with negative step</li>
+            <li>Nested loops preview: multiplication table</li>
+            <li>Worked example: Fibonacci first N terms</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_04.ipynb</div>
+          <div class="nb-heading">Series &amp; Counters</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Sum of integers 1 to N</li>
+            <li>Factorial of N using a loop</li>
+            <li>Countdown timer printout</li>
+            <li>Print a staircase of # characters</li>
+            <li>Multiplication table for a given number</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_04.ipynb</div>
+          <div class="nb-heading">5 Loop Problems</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Predict loop output for 3 code blocks</li>
+            <li>Fix off-by-one error exercises</li>
+            <li>Assert: sum of evens from 1 to 100</li>
+            <li>Mini task: print a number pyramid</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">range() — Three Forms</div>
+          <pre class="code-snippet"><span class="cm"># range(stop) — 0 to stop-1</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)        <span class="cm"># 0 1 2 3 4</span>
+
+<span class="cm"># range(start, stop)</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)        <span class="cm"># 1 2 3 4 5</span>
+
+<span class="cm"># range(start, stop, step)</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">0</span>, <span class="nm">11</span>, <span class="nm">2</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)        <span class="cm"># 0 2 4 6 8 10</span>
+
+<span class="cm"># Backwards</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>, <span class="nm">0</span>, <span class="op">-</span><span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)        <span class="cm"># 5 4 3 2 1</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Accumulator Patterns</div>
+          <pre class="code-snippet"><span class="var">n</span> <span class="op">=</span> <span class="nm">10</span>
+
+<span class="cm"># Sum accumulator</span>
+<span class="var">total</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="var">n</span><span class="op">+</span><span class="nm">1</span>):
+    <span class="var">total</span> <span class="op">+=</span> <span class="var">i</span>
+<span class="fn">print</span>(<span class="var">total</span>)        <span class="cm"># 55</span>
+
+<span class="cm"># Product accumulator (factorial)</span>
+<span class="var">product</span> <span class="op">=</span> <span class="nm">1</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="var">n</span><span class="op">+</span><span class="nm">1</span>):
+    <span class="var">product</span> <span class="op">*=</span> <span class="var">i</span>
+<span class="fn">print</span>(<span class="var">product</span>)      <span class="cm"># 3628800</span>
+
+<span class="cm"># Counter (even numbers)</span>
+<span class="var">count</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="var">n</span><span class="op">+</span><span class="nm">1</span>):
+    <span class="kw">if</span> <span class="var">i</span> <span class="op">%</span> <span class="nm">2</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="var">count</span> <span class="op">+=</span> <span class="nm">1</span>
+<span class="fn">print</span>(<span class="var">count</span>)        <span class="cm"># 5</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Loop Trace</div>
+        <div class="ex-desc">Three loops are printed on paper. Trace each one by hand — write the value of every variable after each iteration. Then run to verify.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;range() Explorer</div>
+        <div class="ex-desc">Fill in the blank: write a <code style="color:var(--py-yellow);font-size:0.78rem">range()</code> call that produces each sequence: <em>1 to 10</em>, <em>0 to 100 in steps of 5</em>, <em>10 down to 1</em>, <em>all odd numbers from 1 to 19</em>.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Sum &amp; Average</div>
+        <div class="ex-desc">Use a loop to compute the sum and average of all integers from 1 to N. Verify with the formula <code style="color:var(--py-yellow);font-size:0.78rem">N*(N+1)/2</code>. Test for N = 10, 100, 1000.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Number Staircase</div>
+        <div class="ex-desc">Print a right-aligned staircase where row <code style="color:var(--py-yellow);font-size:0.78rem">i</code> contains the numbers 1 through i separated by spaces. For N=5 the last row reads: <code style="color:var(--py-yellow);font-size:0.78rem">1 2 3 4 5</code>.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Prime Checker</div>
+        <div class="ex-desc">Write a loop that tests whether a number N is prime by trying every divisor from 2 up to N-1 (or smarter: up to √N). Print all prime numbers from 2 to 50.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-5') || null);
+  })();
+
+  // ===== WEEK 05 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-5';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 05 · 5 hours total</div>
+          <h1 class="week-heading">while Loops,<br><em>break &amp; continue</em></h1>
+          <p class="week-desc">
+            Sometimes you don't know in advance how many iterations you need — you loop
+            <em>until a condition changes</em>. The <code style="color:var(--py-yellow)">while</code> loop handles
+            that perfectly. You'll also learn how <code style="color:var(--py-yellow)">break</code> and
+            <code style="color:var(--py-yellow)">continue</code> give you fine-grained control
+            inside any loop, and how to avoid the dreaded infinite loop.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#f85149" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="113"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#f85149">W05</text>
+          </svg>
+          <div class="progress-label">Week 5 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 2 · Flexible Repetition — Some problems need to repeat until a condition is met.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===4?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🔄</span><span class="obj-text">Write <code style="color:var(--py-yellow);font-size:0.75rem">while</code> loops and correctly update the loop variable each iteration</span></div>
+        <div class="obj-card"><span class="obj-icon">🛑</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">break</code> to exit a loop early when a condition is met</span></div>
+        <div class="obj-card"><span class="obj-icon">⏭️</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">continue</code> to skip the current iteration without stopping the loop</span></div>
+        <div class="obj-card"><span class="obj-icon">♾️</span><span class="obj-text">Identify and fix infinite loops by ensuring the condition eventually becomes False</span></div>
+        <div class="obj-card"><span class="obj-icon">🔐</span><span class="obj-text">Apply the "guard" pattern: loop until valid input is received</span></div>
+        <div class="obj-card"><span class="obj-icon">🆚</span><span class="obj-text">Choose between <code style="color:var(--py-yellow);font-size:0.75rem">for</code> and <code style="color:var(--py-yellow);font-size:0.75rem">while</code> based on whether the count is known in advance</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_05.ipynb</div>
+          <div class="nb-heading">while, break &amp; continue</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>while loop anatomy: condition, body, update</li>
+            <li>Infinite loops: how they happen, how to stop them</li>
+            <li>break: exit immediately, even mid-body</li>
+            <li>continue: skip to next iteration</li>
+            <li>Guard pattern: while True + break on valid input</li>
+            <li>Worked example: binary search simulation</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_05.ipynb</div>
+          <div class="nb-heading">Input Validation Scenarios</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Collatz conjecture sequence</li>
+            <li>Password checker: loop until correct</li>
+            <li>Sum digits of a number using % and //</li>
+            <li>Find the first number divisible by both 7 and 11</li>
+            <li>Skip multiples of 3 using continue</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_05.ipynb</div>
+          <div class="nb-heading">Robustness Tests</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Spot the infinite loop — 3 broken examples</li>
+            <li>Add a break to a given search loop</li>
+            <li>Assert: Collatz steps for n=27</li>
+            <li>Mini task: print all 3-digit Armstrong numbers</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">while Loop &amp; break</div>
+          <pre class="code-snippet"><span class="cm"># Basic while</span>
+<span class="var">n</span> <span class="op">=</span> <span class="nm">1</span>
+<span class="kw">while</span> <span class="var">n</span> <span class="op">&lt;=</span> <span class="nm">5</span>:
+    <span class="fn">print</span>(<span class="var">n</span>)
+    <span class="var">n</span> <span class="op">+=</span> <span class="nm">1</span>      <span class="cm"># ← MUST update, or infinite loop!</span>
+
+<span class="cm"># break: stop when found</span>
+<span class="var">n</span> <span class="op">=</span> <span class="nm">2</span>
+<span class="kw">while</span> <span class="var">n</span> <span class="op">&lt;</span> <span class="nm">100</span>:
+    <span class="kw">if</span> <span class="var">n</span> <span class="op">%</span> <span class="nm">7</span> <span class="op">==</span> <span class="nm">0</span> <span class="kw">and</span> <span class="var">n</span> <span class="op">%</span> <span class="nm">11</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="fn">print</span>(<span class="st">f"Found: {<span class="var">n</span>}"</span>)  <span class="cm"># 77</span>
+        <span class="kw">break</span>
+    <span class="var">n</span> <span class="op">+=</span> <span class="nm">1</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">continue &amp; Guard Pattern</div>
+          <pre class="code-snippet"><span class="cm"># continue: skip multiples of 3</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">11</span>):
+    <span class="kw">if</span> <span class="var">i</span> <span class="op">%</span> <span class="nm">3</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="kw">continue</span>
+    <span class="fn">print</span>(<span class="var">i</span>)  <span class="cm"># 1 2 4 5 7 8 10</span>
+
+<span class="cm"># Guard pattern (simulated input)</span>
+<span class="var">attempts</span> <span class="op">=</span> [<span class="st">"abc"</span>, <span class="st">"-3"</span>, <span class="st">"42"</span>]
+<span class="var">idx</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="var">val</span> <span class="op">=</span> <span class="var">attempts</span>[<span class="var">idx</span>]; <span class="var">idx</span> <span class="op">+=</span> <span class="nm">1</span>
+    <span class="kw">if</span> <span class="var">val</span>.isdigit() <span class="kw">and</span> <span class="fn">int</span>(<span class="var">val</span>) <span class="op">&gt;</span> <span class="nm">0</span>:
+        <span class="fn">print</span>(<span class="st">f"Valid: {<span class="var">val</span>}"</span>)
+        <span class="kw">break</span>
+    <span class="fn">print</span>(<span class="st">"Try again"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Spot the Infinite Loop</div>
+        <div class="ex-desc">Three while loops are shown. For each, explain why it loops forever and write the single-line fix without running the code first.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;for vs while Decision</div>
+        <div class="ex-desc">Five scenarios are described (e.g. "print numbers 1–10", "loop until user types quit"). Choose <code style="color:var(--py-yellow);font-size:0.78rem">for</code> or <code style="color:var(--py-yellow);font-size:0.78rem">while</code> for each and justify your choice in one sentence.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Collatz Sequence</div>
+        <div class="ex-desc">Starting from a positive integer N: if even divide by 2, if odd multiply by 3 and add 1. Repeat until reaching 1. Print the sequence and the number of steps. Test with N = 6, 27.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Digit Summer</div>
+        <div class="ex-desc">Given an integer N (e.g. 94823), use a <code style="color:var(--py-yellow);font-size:0.78rem">while</code> loop with <code style="color:var(--py-yellow);font-size:0.78rem">%</code> and <code style="color:var(--py-yellow);font-size:0.78rem">//</code> to extract each digit and sum them. No strings, no lists — pure arithmetic.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Armstrong Numbers</div>
+        <div class="ex-desc">A 3-digit Armstrong number equals the sum of its digits each cubed (e.g. 153 = 1³+5³+3³). Use nested loops with <code style="color:var(--py-yellow);font-size:0.78rem">continue</code> to print all Armstrong numbers between 100 and 999.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-6') || null);
+  })();
+
+  // ===== WEEK 06 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-6';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 06 · 5 hours total</div>
+          <h1 class="week-heading">Problem-Solving<br><em>Patterns &amp; Search</em></h1>
+          <p class="week-desc">
+            Loops are only powerful when you know what to <em>build</em> with them.
+            This week consolidates your loop skills into a toolkit of classic patterns —
+            min/max tracking, sum/count, linear scan — that appear in nearly every
+            real-world program involving data. By the end you'll solve any
+            "analyse a sequence of numbers" problem confidently.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="100"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W06</text>
+          </svg>
+          <div class="progress-label">Week 6 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 3 · Recognizing Patterns — Experienced problem-solvers recognize recurring patterns. Now you will too.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===5?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">📊</span><span class="obj-text">Apply the four core patterns: <strong>sum, count, min, max</strong> over any sequence</span></div>
+        <div class="obj-card"><span class="obj-icon">🔍</span><span class="obj-text">Implement linear search: find first match, find all matches, check existence</span></div>
+        <div class="obj-card"><span class="obj-icon">🧩</span><span class="obj-text">Combine patterns: e.g. sum-of-positives, count-above-average</span></div>
+        <div class="obj-card"><span class="obj-icon">📝</span><span class="obj-text">Initialise accumulators correctly (0 for sum, None or ±∞ for min/max)</span></div>
+        <div class="obj-card"><span class="obj-icon">📋</span><span class="obj-text">Summarise a dataset: compute mean, range, and simple frequency counts</span></div>
+        <div class="obj-card"><span class="obj-icon">🏆</span><span class="obj-text">Solve a 1-page mini-exam style problem from scratch under time pressure</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_06.ipynb</div>
+          <div class="nb-heading">Classic Loop Patterns</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Pattern catalogue: sum, count, min, max, product</li>
+            <li>Initialisation choices and why they matter</li>
+            <li>Linear scan: first, all, exists, position</li>
+            <li>Combining patterns in one loop pass</li>
+            <li>Worked example: weather data summary (7 readings)</li>
+            <li>Average, range, above/below threshold count</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_06.ipynb</div>
+          <div class="nb-heading">Data List Summaries</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Hardcoded list of 10 sensor readings</li>
+            <li>Compute: min, max, mean, std deviation</li>
+            <li>Count values above/below a threshold</li>
+            <li>Find index of the maximum value</li>
+            <li>Print a formatted summary report</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_06.ipynb</div>
+          <div class="nb-heading">Mini Exam</div>
+          <div class="nb-duration">⏱ ~1 hour · timed, 1-page style problems</div>
+          <ul class="nb-topics">
+            <li>Given a list of grades, compute summary stats</li>
+            <li>Find the first negative value in a sequence</li>
+            <li>Assert-based automatic grading</li>
+            <li>Bonus: count how many values are above the mean</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">The Four Core Patterns</div>
+          <pre class="code-snippet"><span class="var">data</span> <span class="op">=</span> [<span class="nm">12</span>, <span class="nm">45</span>, <span class="nm">7</span>, <span class="nm">33</span>, <span class="nm">19</span>, <span class="nm">55</span>, <span class="nm">2</span>]
+
+<span class="cm"># Sum</span>
+<span class="var">total</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>: <span class="var">total</span> <span class="op">+=</span> <span class="var">x</span>   <span class="cm"># 173</span>
+
+<span class="cm"># Count (above 20)</span>
+<span class="var">count</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>:
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="nm">20</span>: <span class="var">count</span> <span class="op">+=</span> <span class="nm">1</span>     <span class="cm"># 3</span>
+
+<span class="cm"># Min — start with first value</span>
+<span class="var">minimum</span> <span class="op">=</span> <span class="var">data</span>[<span class="nm">0</span>]
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>:
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&lt;</span> <span class="var">minimum</span>: <span class="var">minimum</span> <span class="op">=</span> <span class="var">x</span> <span class="cm"># 2</span>
+
+<span class="cm"># Max — same idea, flip the sign</span>
+<span class="var">maximum</span> <span class="op">=</span> <span class="var">data</span>[<span class="nm">0</span>]
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>:
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="var">maximum</span>: <span class="var">maximum</span> <span class="op">=</span> <span class="var">x</span> <span class="cm"># 55</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Linear Search Patterns</div>
+          <pre class="code-snippet"><span class="var">data</span> <span class="op">=</span> [<span class="nm">12</span>, <span class="nm">45</span>, <span class="nm">7</span>, <span class="nm">33</span>, <span class="nm">19</span>, <span class="nm">55</span>, <span class="nm">2</span>]
+
+<span class="cm"># Find first value above 40</span>
+<span class="var">found</span> <span class="op">=</span> <span class="kw">None</span>
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>:
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="nm">40</span>:
+        <span class="var">found</span> <span class="op">=</span> <span class="var">x</span>
+        <span class="kw">break</span>
+<span class="fn">print</span>(<span class="var">found</span>)           <span class="cm"># 45</span>
+
+<span class="cm"># Check existence</span>
+<span class="var">exists</span> <span class="op">=</span> <span class="kw">False</span>
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span>:
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">==</span> <span class="nm">33</span>: <span class="var">exists</span> <span class="op">=</span> <span class="kw">True</span>; <span class="kw">break</span>
+<span class="fn">print</span>(<span class="var">exists</span>)          <span class="cm"># True</span>
+
+<span class="cm"># Mean then count above-mean</span>
+<span class="var">mean</span> <span class="op">=</span> <span class="var">total</span> <span class="op">/</span> <span class="fn">len</span>(<span class="var">data</span>)
+<span class="var">above</span> <span class="op">=</span> <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span> <span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="var">mean</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Pattern Match</div>
+        <div class="ex-desc">Four code snippets are shown — each implements one pattern (sum, count, min, or max) but the variable names are scrambled. Label each snippet with the correct pattern name and explain the initialisation value choice.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Initialisation Choices</div>
+        <div class="ex-desc">Why is initialising <code style="color:var(--py-yellow);font-size:0.78rem">min_val = 0</code> often wrong? Construct a counterexample list where it gives the wrong answer, then fix it.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Weather Report</div>
+        <div class="ex-desc">Given a hardcoded list of 7 daily temperatures, compute and print: min, max, mean (2 d.p.), how many days exceeded 30°C, and the day number (1-indexed) of the hottest day.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Grade Analyser</div>
+        <div class="ex-desc">A list of 10 exam scores is provided. In a <em>single loop pass</em>, compute: total, count of passes (≥60), highest score, and lowest score. Print a formatted summary.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Running Statistics</div>
+        <div class="ex-desc">Process a list of numbers and after each new value print the <em>running</em> mean and running max so far — producing a table with columns: index, value, running mean, running max. Use only loops and arithmetic (no imports).</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-7') || null);
+  })();
+
+  // ===== WEEK 07 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-7';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 07 · 5 hours total</div>
+          <h1 class="week-heading">Lists<br><em>Fundamentals</em></h1>
+          <p class="week-desc">
+            So far every value has lived in its own variable. Lists let you store
+            <em>sequences</em> of values under one name — and loop over all of them
+            with a single <code style="color:var(--py-yellow)">for</code>.
+            This week covers indexing, slicing, the most important list methods,
+            and the mental model of map/filter thinking — without yet using builtins.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#4b8bbe" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="88"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#4b8bbe">W07</text>
+          </svg>
+          <div class="progress-label">Week 7 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 4 · Working with Collections — Most real problems involve many data points. Lists let you work with collections.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===6?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">📋</span><span class="obj-text">Create lists with literals and by building them up with <code style="color:var(--py-yellow);font-size:0.75rem">append()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔢</span><span class="obj-text">Access elements by positive and negative index; understand index-out-of-range errors</span></div>
+        <div class="obj-card"><span class="obj-icon">✂️</span><span class="obj-text">Slice a list with <code style="color:var(--py-yellow);font-size:0.75rem">[start:stop:step]</code> — including reverse with <code style="color:var(--py-yellow);font-size:0.75rem">[::-1]</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔧</span><span class="obj-text">Use core list methods: <code style="color:var(--py-yellow);font-size:0.75rem">append, pop, insert, remove, sort, reverse, len</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔁</span><span class="obj-text">Iterate over a list with <code style="color:var(--py-yellow);font-size:0.75rem">for x in lst</code> and with <code style="color:var(--py-yellow);font-size:0.75rem">for i, x in enumerate(lst)</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🧠</span><span class="obj-text">Apply map-style and filter-style thinking: build new lists by transforming or selecting elements</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_07.ipynb</div>
+          <div class="nb-heading">Lists: Create, Access, Modify</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>List literals vs building with append()</li>
+            <li>Indexing: positive (0…n-1) and negative (-1…-n)</li>
+            <li>Slicing: [start:stop], [::step], [::-1]</li>
+            <li>Mutability: lists can change in place</li>
+            <li>enumerate() — index + value together</li>
+            <li>Worked example: sensor readings cleanup pipeline</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_07.ipynb</div>
+          <div class="nb-heading">List Operations</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Build a list of squares from 1 to N using append</li>
+            <li>Reverse a list without using .reverse()</li>
+            <li>Filter: keep only even numbers from a list</li>
+            <li>Map: double every value in a list</li>
+            <li>Merge two sorted lists into one sorted list</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_07.ipynb</div>
+          <div class="nb-heading">5 List Questions</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Predict slice results for 5 expressions</li>
+            <li>Fix index-out-of-range bugs in 2 snippets</li>
+            <li>Assert: filtered and mapped list outputs</li>
+            <li>Mini task: build a running-max list</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Indexing &amp; Slicing</div>
+          <pre class="code-snippet"><span class="var">temps</span> <span class="op">=</span> [<span class="nm">22</span>, <span class="nm">19</span>, <span class="nm">25</span>, <span class="nm">30</span>, <span class="nm">28</span>, <span class="nm">21</span>, <span class="nm">17</span>]
+<span class="cm">#        0    1    2    3    4    5    6</span>
+<span class="cm">#       -7   -6   -5   -4   -3   -2   -1</span>
+
+<span class="var">temps</span>[<span class="nm">0</span>]       <span class="cm"># 22  — first</span>
+<span class="var">temps</span>[<span class="op">-</span><span class="nm">1</span>]      <span class="cm"># 17  — last</span>
+<span class="var">temps</span>[<span class="nm">2</span>:<span class="nm">5</span>]     <span class="cm"># [25, 30, 28]</span>
+<span class="var">temps</span>[:<span class="nm">3</span>]      <span class="cm"># [22, 19, 25]  — first 3</span>
+<span class="var">temps</span>[<span class="nm">4</span>:]      <span class="cm"># [28, 21, 17]  — from index 4</span>
+<span class="var">temps</span>[::<span class="nm">2</span>]     <span class="cm"># [22, 25, 28, 17] — every 2nd</span>
+<span class="var">temps</span>[::<span class="op">-</span><span class="nm">1</span>]    <span class="cm"># [17, 21, 28, 30, 25, 19, 22] reversed</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Core Methods &amp; enumerate()</div>
+          <pre class="code-snippet"><span class="var">lst</span> <span class="op">=</span> [<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>]
+
+<span class="var">lst</span>.<span class="fn">append</span>(<span class="nm">9</span>)    <span class="cm"># [3,1,4,1,5,9]</span>
+<span class="var">lst</span>.<span class="fn">pop</span>()         <span class="cm"># removes & returns 9</span>
+<span class="var">lst</span>.<span class="fn">insert</span>(<span class="nm">0</span>, <span class="nm">7</span>) <span class="cm"># [7,3,1,4,1,5]</span>
+<span class="var">lst</span>.<span class="fn">remove</span>(<span class="nm">1</span>)    <span class="cm"># removes first 1</span>
+<span class="var">lst</span>.<span class="fn">sort</span>()        <span class="cm"># in-place ascending sort</span>
+
+<span class="cm"># enumerate — index + value</span>
+<span class="kw">for</span> <span class="var">i</span>, <span class="var">val</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">lst</span>):
+    <span class="fn">print</span>(<span class="st">f"[{<span class="var">i</span>}] = {<span class="var">val</span>}"</span>)
+
+<span class="cm"># Map-style: double every element</span>
+<span class="var">doubled</span> <span class="op">=</span> []
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">lst</span>:
+    <span class="var">doubled</span>.<span class="fn">append</span>(<span class="var">x</span> <span class="op">*</span> <span class="nm">2</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Slice Predictions</div>
+        <div class="ex-desc">Given <code style="color:var(--py-yellow);font-size:0.78rem">lst = [10, 20, 30, 40, 50, 60]</code>, write down the result of 8 slice/index expressions before running any cell. Include at least one negative index and one step slice.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Method Effects</div>
+        <div class="ex-desc">Starting from <code style="color:var(--py-yellow);font-size:0.78rem">lst = [5, 3, 8, 1]</code>, trace the state of the list after each of six method calls (<code style="color:var(--py-yellow);font-size:0.78rem">append, pop, insert, remove, sort, reverse</code>) — by hand, then verify.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Filter &amp; Map Pipeline</div>
+        <div class="ex-desc">Given a list of integers, produce two new lists in separate loops: one containing only the positive values, one containing the square of every value. Print both with <code style="color:var(--py-yellow);font-size:0.78rem">enumerate</code>-style output.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Running Maximum List</div>
+        <div class="ex-desc">Given an input list, build a new list where element i is the maximum of all elements up to and including index i. E.g. <code style="color:var(--py-yellow);font-size:0.78rem">[3,1,4,1,5]</code> → <code style="color:var(--py-yellow);font-size:0.78rem">[3,3,4,4,5]</code>.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Merge Two Sorted Lists</div>
+        <div class="ex-desc">Given two already-sorted lists, merge them into a single sorted list using two index pointers — without calling <code style="color:var(--py-yellow);font-size:0.78rem">sort()</code>. This is the merge step of merge-sort. Verify the result is sorted and has the correct length.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-8') || null);
+  })();
+
+  // ===== WEEK 08 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-8';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 08 · 5 hours total</div>
+          <h1 class="week-heading">2D Lists &amp;<br><em>Nested Loops</em></h1>
+          <p class="week-desc">
+            A list of lists is Python's simplest table — rows and columns of data
+            stored in memory. This week you'll build and navigate 2D structures,
+            loop over them with nested <code style="color:var(--py-yellow)">for</code> loops,
+            and compute row-wise and column-wise statistics.
+            These skills are the direct gateway to NumPy arrays and data frames later.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="75"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W08</text>
+          </svg>
+          <div class="progress-label">Week 8 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 4 · Tabular Data — Many real-world datasets are tables. 2D lists + nested loops process them.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===7?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">📊</span><span class="obj-text">Create a 2D list (list of lists) and access any element with <code style="color:var(--py-yellow);font-size:0.75rem">matrix[row][col]</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔁</span><span class="obj-text">Write nested <code style="color:var(--py-yellow);font-size:0.75rem">for</code> loops to traverse all rows and all columns</span></div>
+        <div class="obj-card"><span class="obj-icon">📐</span><span class="obj-text">Compute row-wise and column-wise stats: sum, mean, min, max</span></div>
+        <div class="obj-card"><span class="obj-icon">🏗️</span><span class="obj-text">Build a 2D list programmatically using nested loops and <code style="color:var(--py-yellow);font-size:0.75rem">append()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🖨️</span><span class="obj-text">Print a 2D list as a formatted table with aligned columns</span></div>
+        <div class="obj-card"><span class="obj-icon">⚠️</span><span class="obj-text">Avoid the aliasing trap: know why <code style="color:var(--py-yellow);font-size:0.75rem">[[0]*3]*3</code> is dangerous</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_08.ipynb</div>
+          <div class="nb-heading">2D Lists &amp; Nested Loops</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>2D list anatomy: rows, columns, shape</li>
+            <li>Access: matrix[r][c], len(matrix), len(matrix[0])</li>
+            <li>Nested for loops: outer=rows, inner=cols</li>
+            <li>Safe construction: loop + append vs aliasing trap</li>
+            <li>Row sum, column sum, global max</li>
+            <li>Worked example: 3×7 daily temperature matrix</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_08.ipynb</div>
+          <div class="nb-heading">Measurement Matrix</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Build a 5×4 matrix of hardcoded measurements</li>
+            <li>Print the matrix as a padded table</li>
+            <li>Compute mean of each row</li>
+            <li>Find the max value and its (row, col) position</li>
+            <li>Transpose the matrix (rows ↔ columns)</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_08.ipynb</div>
+          <div class="nb-heading">2D Access Tests</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Predict 6 matrix[r][c] access expressions</li>
+            <li>Fix aliasing bug in given construction code</li>
+            <li>Assert: row means and column sums</li>
+            <li>Mini task: identity matrix generator</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">2D List Access &amp; Traversal</div>
+          <pre class="code-snippet"><span class="cm"># 3 rows × 4 columns</span>
+<span class="var">matrix</span> <span class="op">=</span> [
+    [<span class="nm">1</span>,  <span class="nm">2</span>,  <span class="nm">3</span>,  <span class="nm">4</span>],
+    [<span class="nm">5</span>,  <span class="nm">6</span>,  <span class="nm">7</span>,  <span class="nm">8</span>],
+    [<span class="nm">9</span>, <span class="nm">10</span>, <span class="nm">11</span>, <span class="nm">12</span>],
+]
+<span class="var">rows</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">matrix</span>)      <span class="cm"># 3</span>
+<span class="var">cols</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">matrix</span>[<span class="nm">0</span>])   <span class="cm"># 4</span>
+
+<span class="var">matrix</span>[<span class="nm">1</span>][<span class="nm">2</span>]   <span class="cm"># 7  (row 1, col 2)</span>
+<span class="var">matrix</span>[<span class="op">-</span><span class="nm">1</span>][<span class="op">-</span><span class="nm">1</span>] <span class="cm"># 12 (last element)</span>
+
+<span class="cm"># Traverse all elements</span>
+<span class="kw">for</span> <span class="var">r</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">rows</span>):
+    <span class="kw">for</span> <span class="var">c</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">cols</span>):
+        <span class="fn">print</span>(<span class="var">matrix</span>[<span class="var">r</span>][<span class="var">c</span>], <span class="var">end</span><span class="op">=</span><span class="st">" "</span>)
+    <span class="fn">print</span>()  <span class="cm"># newline after each row</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Row Stats &amp; Safe Construction</div>
+          <pre class="code-snippet"><span class="cm"># Row means</span>
+<span class="kw">for</span> <span class="var">r</span>, <span class="var">row</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">matrix</span>):
+    <span class="var">row_sum</span> <span class="op">=</span> <span class="nm">0</span>
+    <span class="kw">for</span> <span class="var">v</span> <span class="kw">in</span> <span class="var">row</span>: <span class="var">row_sum</span> <span class="op">+=</span> <span class="var">v</span>
+    <span class="fn">print</span>(<span class="st">f"Row {<span class="var">r</span>} mean: {<span class="var">row_sum</span><span class="op">/</span><span class="fn">len</span>(<span class="var">row</span>):.1f}"</span>)
+
+<span class="cm"># SAFE: build NxM zero matrix</span>
+<span class="var">N</span>, <span class="var">M</span> <span class="op">=</span> <span class="nm">3</span>, <span class="nm">4</span>
+<span class="var">grid</span> <span class="op">=</span> []
+<span class="kw">for</span> <span class="var">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">N</span>):
+    <span class="var">grid</span>.<span class="fn">append</span>([<span class="nm">0</span>] <span class="op">*</span> <span class="var">M</span>)   <span class="cm"># fresh row each time</span>
+
+<span class="cm"># DANGEROUS — all rows are the SAME object:</span>
+<span class="cm"># bad = [[0] * M] * N  ← don't do this</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Index Predictions</div>
+        <div class="ex-desc">Given a 4×3 matrix, write the value of six <code style="color:var(--py-yellow);font-size:0.78rem">matrix[r][c]</code> expressions — including two with negative indices — before running anything.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Aliasing Detective</div>
+        <div class="ex-desc">The code <code style="color:var(--py-yellow);font-size:0.78rem">m = [[0]*3]*3; m[0][0] = 99</code> is given. Predict what <code style="color:var(--py-yellow);font-size:0.78rem">print(m)</code> outputs — then explain <em>why</em> in two sentences and write the safe version.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Column Sums</div>
+        <div class="ex-desc">Given a 4×5 matrix, compute the sum of each column (not each row) and store results in a list. Print as a formatted table with the sums on a final row, separated by vertical bars.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Find the Peak</div>
+        <div class="ex-desc">Scan a 2D matrix of sensor readings to find the single largest value and record its row and column index. Print: <code style="color:var(--py-yellow);font-size:0.78rem">"Peak value X at row R, col C"</code>.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Matrix Transpose</div>
+        <div class="ex-desc">Write a function-free transpose: given an N×M matrix, build and return (store in a variable) the M×N transposed matrix using nested loops and append. Verify that <code style="color:var(--py-yellow);font-size:0.78rem">T[c][r] == original[r][c]</code> for all positions.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-9') || null);
+  })();
+
+  // ===== WEEK 09 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-9';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 09 · 5 hours total</div>
+          <h1 class="week-heading">String Processing<br><em>&amp; Parsing</em></h1>
+          <p class="week-desc">
+            Real-world data almost always arrives as text — log files, CSV lines,
+            sensor timestamps, user input. This week you'll learn to dissect,
+            transform, and reassemble strings using Python's rich set of string methods.
+            The capstone is parsing a <code style="color:var(--py-yellow)">timestamp, value</code>
+            log format — a skill you'll use directly in the Week 13 file I/O project.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#bc8cff" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="63"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#bc8cff">W09</text>
+          </svg>
+          <div class="progress-label">Week 9 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 4 · Text as Data — Text is data too. String methods let you parse and transform it.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===8?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">✂️</span><span class="obj-text">Split a string into a list of parts with <code style="color:var(--py-yellow);font-size:0.75rem">split()</code> and rejoin with <code style="color:var(--py-yellow);font-size:0.75rem">join()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🧹</span><span class="obj-text">Clean strings using <code style="color:var(--py-yellow);font-size:0.75rem">strip()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">lower()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">upper()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">replace()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔍</span><span class="obj-text">Search within strings using <code style="color:var(--py-yellow);font-size:0.75rem">in</code>, <code style="color:var(--py-yellow);font-size:0.75rem">find()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">startswith()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">endswith()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">🔄</span><span class="obj-text">Convert between strings and numbers; validate with <code style="color:var(--py-yellow);font-size:0.75rem">isdigit()</code>, <code style="color:var(--py-yellow);font-size:0.75rem">isnumeric()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">📋</span><span class="obj-text">Parse structured log lines in the format <code style="color:var(--py-yellow);font-size:0.75rem">"timestamp, value"</code> into usable data</span></div>
+        <div class="obj-card"><span class="obj-icon">🧪</span><span class="obj-text">Handle malformed lines gracefully: empty, missing fields, non-numeric values</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_09.ipynb</div>
+          <div class="nb-heading">String Methods &amp; Parsing</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Strings are immutable — methods return new strings</li>
+            <li>split(), join(), strip(), replace()</li>
+            <li>lower(), upper(), title(), capitalize()</li>
+            <li>find(), in, startswith(), endswith(), count()</li>
+            <li>isdigit(), isnumeric(), isalpha(), isspace()</li>
+            <li>Worked example: parse a multi-line sensor log</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_09.ipynb</div>
+          <div class="nb-heading">Log File Parsing</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Clean a list of raw strings (strip + lower)</li>
+            <li>Split "HH:MM:SS, value" lines into parts</li>
+            <li>Extract timestamps and float values into two lists</li>
+            <li>Skip and count malformed or empty lines</li>
+            <li>Reconstruct cleaned lines with join and print</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_09.ipynb</div>
+          <div class="nb-heading">Parse Validation</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Predict output of 6 string method chains</li>
+            <li>Fix a broken parser that crashes on empty lines</li>
+            <li>Assert: extracted timestamps and values match expected</li>
+            <li>Mini task: word frequency counter (no dicts yet)</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Essential String Methods</div>
+          <pre class="code-snippet"><span class="var">s</span> <span class="op">=</span> <span class="st">"  Hello, World!  "</span>
+
+<span class="var">s</span>.<span class="fn">strip</span>()        <span class="cm"># "Hello, World!"</span>
+<span class="var">s</span>.<span class="fn">lower</span>()        <span class="cm"># "  hello, world!  "</span>
+<span class="var">s</span>.<span class="fn">upper</span>()        <span class="cm"># "  HELLO, WORLD!  "</span>
+<span class="var">s</span>.<span class="fn">replace</span>(<span class="st">","</span>, <span class="st">";"</span>) <span class="cm"># "  Hello; World!  "</span>
+
+<span class="cm"># Chaining methods</span>
+<span class="var">clean</span> <span class="op">=</span> <span class="var">s</span>.<span class="fn">strip</span>().<span class="fn">lower</span>()
+<span class="cm"># "hello, world!"</span>
+
+<span class="cm"># split and join</span>
+<span class="var">words</span> <span class="op">=</span> <span class="var">clean</span>.<span class="fn">split</span>(<span class="st">", "</span>)
+<span class="cm"># ["hello", "world!"]</span>
+<span class="st">" | "</span>.<span class="fn">join</span>(<span class="var">words</span>)
+<span class="cm"># "hello | world!"</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Parsing a Log Line</div>
+          <pre class="code-snippet"><span class="cm"># Raw log lines</span>
+<span class="var">lines</span> <span class="op">=</span> [
+    <span class="st">"08:01:32, 23.4"</span>,
+    <span class="st">"  08:02:15, 24.1  "</span>,
+    <span class="st">""</span>,              <span class="cm"># empty — skip</span>
+    <span class="st">"08:03:00, N/A"</span>, <span class="cm"># bad value — skip</span>
+]
+
+<span class="var">times</span>, <span class="var">values</span> <span class="op">=</span> [], []
+<span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">lines</span>:
+    <span class="var">line</span> <span class="op">=</span> <span class="var">line</span>.<span class="fn">strip</span>()
+    <span class="kw">if</span> <span class="kw">not</span> <span class="var">line</span> <span class="kw">or</span> <span class="st">","</span> <span class="kw">not</span> <span class="kw">in</span> <span class="var">line</span>: <span class="kw">continue</span>
+    <span class="var">t</span>, <span class="var">v</span> <span class="op">=</span> <span class="var">line</span>.<span class="fn">split</span>(<span class="st">","</span>, <span class="nm">1</span>)
+    <span class="kw">if</span> <span class="kw">not</span> <span class="var">v</span>.<span class="fn">strip</span>().<span class="fn">replace</span>(<span class="st">"."</span>,<span class="st">""</span>).<span class="fn">isdigit</span>(): <span class="kw">continue</span>
+    <span class="var">times</span>.<span class="fn">append</span>(<span class="var">t</span>.<span class="fn">strip</span>())
+    <span class="var">values</span>.<span class="fn">append</span>(<span class="fn">float</span>(<span class="var">v</span>.<span class="fn">strip</span>()))</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Method Chain Predictions</div>
+        <div class="ex-desc">Given six string expressions involving chains of methods (e.g. <code style="color:var(--py-yellow);font-size:0.78rem">"  abc  ".strip().upper().replace("A","@")</code>), predict the result before running.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Validator Toolkit</div>
+        <div class="ex-desc">For each of five strings, use <code style="color:var(--py-yellow);font-size:0.78rem">isdigit()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">isalpha()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">isspace()</code> and <code style="color:var(--py-yellow);font-size:0.78rem">startswith()</code> to classify it. Print one descriptive line per string.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Log Parser</div>
+        <div class="ex-desc">A list of 10 raw log strings (some malformed) is given. Parse valid lines into two lists: timestamps and float values. Print the count of valid vs skipped lines, then the mean of all valid values.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Title Cleaner</div>
+        <div class="ex-desc">Given a list of book titles with inconsistent casing and extra spaces (e.g. <code style="color:var(--py-yellow);font-size:0.78rem">"  the great gatsby  "</code>), produce a cleaned list: stripped, title-cased, with double-spaces removed. Sort alphabetically and print.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Word Frequency Counter</div>
+        <div class="ex-desc">Given a multi-word sentence, split into words (strip punctuation with <code style="color:var(--py-yellow);font-size:0.78rem">replace</code>), then use two parallel lists — one for unique words and one for counts — to build a frequency table. Print the top-3 most frequent words. No <code style="color:var(--py-yellow);font-size:0.78rem">dict</code> allowed yet!</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-10') || null);
+  })();
+
+  // ===== WEEK 10 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-10';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 10 · 5 hours total</div>
+          <h1 class="week-heading">Functions:<br><em>Parameters &amp; Return</em></h1>
+          <p class="week-desc">
+            Every program you've written so far runs top to bottom, once.
+            Functions let you name a block of logic, call it anywhere,
+            and pass it different data each time. This week is the single
+            biggest leap in code quality — from scripts to reusable, testable units.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="50"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#ffd43b">W10</text>
+          </svg>
+          <div class="progress-label">Week 10 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 5 · Naming Steps — Functions turn your solution patterns into reusable, named tools.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===9?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🔧</span><span class="obj-text">Define functions with <code style="color:var(--py-yellow);font-size:0.75rem">def</code>, call them, and understand the call-return cycle</span></div>
+        <div class="obj-card"><span class="obj-icon">📥</span><span class="obj-text">Use positional and keyword parameters; provide default argument values</span></div>
+        <div class="obj-card"><span class="obj-icon">📤</span><span class="obj-text">Return single values, multiple values (as a tuple), and understand <code style="color:var(--py-yellow);font-size:0.75rem">None</code></span></div>
+        <div class="obj-card"><span class="obj-icon">📝</span><span class="obj-text">Write a one-line docstring for every function you define</span></div>
+        <div class="obj-card"><span class="obj-icon">♻️</span><span class="obj-text">Identify repeated code and refactor it into a named function</span></div>
+        <div class="obj-card"><span class="obj-icon">🧪</span><span class="obj-text">Test functions independently with <code style="color:var(--py-yellow);font-size:0.75rem">assert</code> — the foundation of unit testing</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_10.ipynb</div>
+          <div class="nb-heading">def, Parameters &amp; return</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>def syntax, indentation, calling a function</li>
+            <li>Parameters vs arguments — the distinction</li>
+            <li>return: sending values back to the caller</li>
+            <li>Default parameter values</li>
+            <li>Returning multiple values with tuples</li>
+            <li>Worked example: unit-converter library (5 functions)</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_10.ipynb</div>
+          <div class="nb-heading">Writing Helper Functions</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Refactor W02 unit converters into functions</li>
+            <li>Write <code style="color:var(--py-blue-light);font-size:0.75rem">is_even(n)</code>, <code style="color:var(--py-blue-light);font-size:0.75rem">factorial(n)</code>, <code style="color:var(--py-blue-light);font-size:0.75rem">clamp(x, lo, hi)</code></li>
+            <li>Write <code style="color:var(--py-blue-light);font-size:0.75rem">list_stats(data)</code> returning (min, max, mean)</li>
+            <li>Add docstrings to all functions</li>
+            <li>Test each with 3 assert cells</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_10.ipynb</div>
+          <div class="nb-heading">Function Output Tests</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Predict return values of 5 function calls</li>
+            <li>Fix 3 functions that return None by mistake</li>
+            <li>Assert suite: clamp, factorial, list_stats</li>
+            <li>Mini task: <code style="color:var(--py-yellow);font-size:0.75rem">celsius_table(start, end, step)</code> function</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">def, Parameters &amp; return</div>
+          <pre class="code-snippet"><span class="cm"># Basic function</span>
+<span class="kw">def</span> <span class="fn">celsius_to_f</span>(<span class="var">c</span>):
+    <span class="st">"""Convert Celsius to Fahrenheit."""</span>
+    <span class="kw">return</span> <span class="var">c</span> <span class="op">*</span> <span class="nm">9</span> <span class="op">/</span> <span class="nm">5</span> <span class="op">+</span> <span class="nm">32</span>
+
+<span class="fn">print</span>(<span class="fn">celsius_to_f</span>(<span class="nm">100</span>))   <span class="cm"># 212.0</span>
+
+<span class="cm"># Default parameter</span>
+<span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>, <span class="var">greeting</span><span class="op">=</span><span class="st">"Hello"</span>):
+    <span class="kw">return</span> <span class="st">f"{<span class="var">greeting</span>}, {<span class="var">name</span>}!"</span>
+
+<span class="fn">greet</span>(<span class="st">"Ali"</span>)              <span class="cm"># "Hello, Ali!"</span>
+<span class="fn">greet</span>(<span class="st">"Ali"</span>, <span class="st">"Hi"</span>)        <span class="cm"># "Hi, Ali!"</span>
+
+<span class="cm"># Multiple return values (tuple)</span>
+<span class="kw">def</span> <span class="fn">min_max</span>(<span class="var">data</span>):
+    <span class="kw">return</span> <span class="fn">min</span>(<span class="var">data</span>), <span class="fn">max</span>(<span class="var">data</span>)  <span class="cm"># tuple</span>
+
+<span class="var">lo</span>, <span class="var">hi</span> <span class="op">=</span> <span class="fn">min_max</span>([<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>])</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Testing with assert</div>
+          <pre class="code-snippet"><span class="kw">def</span> <span class="fn">clamp</span>(<span class="var">x</span>, <span class="var">lo</span>, <span class="var">hi</span>):
+    <span class="st">"""Return x clamped to [lo, hi]."""</span>
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&lt;</span> <span class="var">lo</span>: <span class="kw">return</span> <span class="var">lo</span>
+    <span class="kw">if</span> <span class="var">x</span> <span class="op">&gt;</span> <span class="var">hi</span>: <span class="kw">return</span> <span class="var">hi</span>
+    <span class="kw">return</span> <span class="var">x</span>
+
+<span class="cm"># Unit tests with assert</span>
+<span class="kw">assert</span> <span class="fn">clamp</span>(<span class="nm">5</span>,  <span class="nm">0</span>, <span class="nm">10</span>) <span class="op">==</span> <span class="nm">5</span>   <span class="cm"># in range</span>
+<span class="kw">assert</span> <span class="fn">clamp</span>(<span class="op">-</span><span class="nm">3</span>, <span class="nm">0</span>, <span class="nm">10</span>) <span class="op">==</span> <span class="nm">0</span>   <span class="cm"># below lo</span>
+<span class="kw">assert</span> <span class="fn">clamp</span>(<span class="nm">15</span>, <span class="nm">0</span>, <span class="nm">10</span>) <span class="op">==</span> <span class="nm">10</span>  <span class="cm"># above hi</span>
+<span class="kw">assert</span> <span class="fn">clamp</span>(<span class="nm">0</span>,  <span class="nm">0</span>, <span class="nm">10</span>) <span class="op">==</span> <span class="nm">0</span>   <span class="cm"># at boundary</span>
+<span class="fn">print</span>(<span class="st">"All tests passed ✓"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Return Value Predictions</div>
+        <div class="ex-desc">Five functions are defined. For each, write the return value of a specific call — including one that returns <code style="color:var(--py-yellow);font-size:0.78rem">None</code> because the <code style="color:var(--py-yellow);font-size:0.78rem">return</code> keyword is missing. Verify with <code style="color:var(--py-yellow);font-size:0.78rem">print()</code>.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Fix the None Bug</div>
+        <div class="ex-desc">Three functions compute a result but forget to <code style="color:var(--py-yellow);font-size:0.78rem">return</code> it — they print instead. Refactor each so it returns the value. Add an assert to verify each fix.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;list_stats(data)</div>
+        <div class="ex-desc">Write a function that accepts a list of numbers and returns a tuple <code style="color:var(--py-yellow);font-size:0.78rem">(minimum, maximum, mean)</code>. Do not use Python's built-in <code style="color:var(--py-yellow);font-size:0.78rem">min()</code>, <code style="color:var(--py-yellow);font-size:0.78rem">max()</code>, or <code style="color:var(--py-yellow);font-size:0.78rem">sum()</code>. Test with at least 4 assert statements.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;celsius_table()</div>
+        <div class="ex-desc">Write <code style="color:var(--py-yellow);font-size:0.78rem">celsius_table(start, end, step=5)</code> that prints a formatted two-column table of Celsius → Fahrenheit values. The <code style="color:var(--py-yellow);font-size:0.78rem">step</code> should have a sensible default.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;is_palindrome(s)</div>
+        <div class="ex-desc">Write a function that returns <code style="color:var(--py-yellow);font-size:0.78rem">True</code> if a string reads the same forwards and backwards (ignoring spaces and case). Test with: <em>"racecar"</em>, <em>"A man a plan a canal Panama"</em>, <em>"hello"</em>. Use only string methods and slicing — no imports.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-11') || null);
+  })();
+
+  // ===== WEEK 11 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-11';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 11 · 5 hours total</div>
+          <h1 class="week-heading">Scope &amp;<br><em>Mini-Library Design</em></h1>
+          <p class="week-desc">
+            Now that you can write functions, you need to understand <em>where</em>
+            variables live. Scope rules determine which names are visible where,
+            and getting them wrong causes subtle bugs that are hard to track down.
+            You'll also learn to organise a notebook as a small personal library —
+            a collection of focused, well-named functions that work together.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#79afd1" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="38"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#79afd1">W11</text>
+          </svg>
+          <div class="progress-label">Week 11 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 5 · Building a Toolkit — Composition lets you build larger programs from small, reliable pieces.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===10?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🗺️</span><span class="obj-text">Explain local vs global scope and predict which variables are visible in each function</span></div>
+        <div class="obj-card"><span class="obj-icon">🚫</span><span class="obj-text">Understand why modifying globals inside functions is dangerous and how to avoid it</span></div>
+        <div class="obj-card"><span class="obj-icon">🔍</span><span class="obj-text">Trace name resolution using the LEGB rule (Local → Enclosing → Global → Built-in)</span></div>
+        <div class="obj-card"><span class="obj-icon">📚</span><span class="obj-text">Organise related functions into a coherent "mini-library" within one notebook</span></div>
+        <div class="obj-card"><span class="obj-icon">♻️</span><span class="obj-text">Refactor a monolithic solution into smaller, single-purpose functions</span></div>
+        <div class="obj-card"><span class="obj-icon">🧪</span><span class="obj-text">Write a test block for each function — separating definitions from test cells</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_11.ipynb</div>
+          <div class="nb-heading">Scope &amp; Code Organisation</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Local scope: variables born inside a function</li>
+            <li>Global scope: module-level names</li>
+            <li>LEGB lookup order with diagrams</li>
+            <li>The <code style="color:var(--py-blue-light);font-size:0.75rem">global</code> keyword — and why to rarely use it</li>
+            <li>Notebook layout: define → test → use</li>
+            <li>Worked example: sensor-analysis mini-library</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_11.ipynb</div>
+          <div class="nb-heading">Refactor &amp; Organise</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Take the W06 monolithic solution and decompose it</li>
+            <li>Extract: <code style="color:var(--py-blue-light);font-size:0.75rem">compute_stats()</code>, <code style="color:var(--py-blue-light);font-size:0.75rem">find_outliers()</code>, <code style="color:var(--py-blue-light);font-size:0.75rem">format_report()</code></li>
+            <li>Wire functions together in a <code style="color:var(--py-blue-light);font-size:0.75rem">run_pipeline()</code></li>
+            <li>Verify behaviour is identical before/after refactor</li>
+            <li>Add docstrings and a test cell per function</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_11.ipynb</div>
+          <div class="nb-heading">Refactor Task</div>
+          <div class="nb-duration">⏱ ~1 hour · before/after comparison</div>
+          <ul class="nb-topics">
+            <li>Predict scope errors in 4 code snippets</li>
+            <li>Fix a global-mutation bug without using <code style="color:var(--py-yellow);font-size:0.75rem">global</code></li>
+            <li>Refactor a 30-line script into 4 functions</li>
+            <li>Assert: output is identical before and after</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Local vs Global Scope</div>
+          <pre class="code-snippet"><span class="var">x</span> <span class="op">=</span> <span class="nm">10</span>        <span class="cm"># global</span>
+
+<span class="kw">def</span> <span class="fn">show</span>():
+    <span class="var">x</span> <span class="op">=</span> <span class="nm">99</span>      <span class="cm"># local — different variable!</span>
+    <span class="fn">print</span>(<span class="var">x</span>)    <span class="cm"># 99</span>
+
+<span class="fn">show</span>()
+<span class="fn">print</span>(<span class="var">x</span>)       <span class="cm"># 10 — global unchanged</span>
+
+<span class="cm"># Reading global is fine</span>
+<span class="var">PI</span> <span class="op">=</span> <span class="nm">3.14159</span>
+<span class="kw">def</span> <span class="fn">circle_area</span>(<span class="var">r</span>):
+    <span class="kw">return</span> <span class="var">PI</span> <span class="op">*</span> <span class="var">r</span> <span class="op">**</span> <span class="nm">2</span>   <span class="cm"># ✓ read-only</span>
+
+<span class="cm"># Modifying global — avoid this pattern</span>
+<span class="kw">def</span> <span class="fn">bad</span>():
+    <span class="kw">global</span> <span class="var">x</span>
+    <span class="var">x</span> <span class="op">+=</span> <span class="nm">1</span>      <span class="cm"># ← fragile, hard to test</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Mini-Library Pattern</div>
+          <pre class="code-snippet"><span class="cm"># ── helpers ──────────────────────────</span>
+<span class="kw">def</span> <span class="fn">clean</span>(<span class="var">data</span>):
+    <span class="st">"""Remove None and negative values."""</span>
+    <span class="kw">return</span> [<span class="var">x</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="var">data</span> <span class="kw">if</span> <span class="var">x</span> <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> <span class="var">x</span> <span class="op">&gt;=</span> <span class="nm">0</span>]
+
+<span class="kw">def</span> <span class="fn">stats</span>(<span class="var">data</span>):
+    <span class="st">"""Return (mean, min, max) of data."""</span>
+    <span class="kw">return</span> <span class="fn">sum</span>(<span class="var">data</span>)<span class="op">/</span><span class="fn">len</span>(<span class="var">data</span>), <span class="fn">min</span>(<span class="var">data</span>), <span class="fn">max</span>(<span class="var">data</span>)
+
+<span class="kw">def</span> <span class="fn">report</span>(<span class="var">mean</span>, <span class="var">lo</span>, <span class="var">hi</span>):
+    <span class="st">"""Print a formatted summary."""</span>
+    <span class="fn">print</span>(<span class="st">f"mean={<span class="var">mean</span>:.2f}  min={<span class="var">lo</span>}  max={<span class="var">hi</span>}"</span>)
+
+<span class="cm"># ── pipeline ─────────────────────────</span>
+<span class="kw">def</span> <span class="fn">run</span>(<span class="var">raw</span>):
+    <span class="fn">report</span>(<span class="op">*</span><span class="fn">stats</span>(<span class="fn">clean</span>(<span class="var">raw</span>)))</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Scope Prediction</div>
+        <div class="ex-desc">Four code snippets each define a global variable and a function that also uses that name. Predict what gets printed — then categorise each snippet as "local shadows global", "reads global", or "modifies global with keyword".</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Fix the Global Bug</div>
+        <div class="ex-desc">A function uses <code style="color:var(--py-yellow);font-size:0.78rem">global counter</code> to track calls. Rewrite it to avoid the global entirely by returning the new count from the function and passing it as a parameter. Show that all tests still pass.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Decompose a Script</div>
+        <div class="ex-desc">A 25-line monolithic script (provided) reads a list, validates values, computes stats, and prints a report. Split it into exactly four functions. Wire them together in a <code style="color:var(--py-yellow);font-size:0.78rem">run()</code> call. Assert the output is identical.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Sensor Pipeline v1</div>
+        <div class="ex-desc">Build a 4-function mini-library: <code style="color:var(--py-yellow);font-size:0.78rem">load_data()</code> (returns hardcoded list), <code style="color:var(--py-yellow);font-size:0.78rem">clean_data(data)</code>, <code style="color:var(--py-yellow);font-size:0.78rem">summarise(data)</code>, <code style="color:var(--py-yellow);font-size:0.78rem">print_report(stats)</code>. Each function does exactly one thing.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Recursive Countdown</div>
+        <div class="ex-desc">Write a function <code style="color:var(--py-yellow);font-size:0.78rem">countdown(n)</code> that calls itself: prints <code style="color:var(--py-yellow);font-size:0.78rem">n</code>, then calls <code style="color:var(--py-yellow);font-size:0.78rem">countdown(n-1)</code>, until <code style="color:var(--py-yellow);font-size:0.78rem">n == 0</code>. Understand how each call gets its own local <code style="color:var(--py-yellow);font-size:0.78rem">n</code> — this is scope in action. Extend to recursive factorial.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-12') || null);
+  })();
+
+  // ===== WEEK 12 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-12';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 12 · 5 hours total</div>
+          <h1 class="week-heading">Error Handling<br><em>try / except</em></h1>
+          <p class="week-desc">
+            Real programs crash on unexpected input — a missing file, a letter where
+            a number was expected, a division by zero. This week you'll learn to
+            <em>anticipate</em> failures, catch specific exceptions, and write
+            functions that are robust by design rather than fragile by accident.
+            "Fail fast, fail clearly" is the guiding principle.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#f85149" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="25"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#f85149">W12</text>
+          </svg>
+          <div class="progress-label">Week 12 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 6 · Handling Errors — Error handling makes your solutions robust against messy real-world input.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===11?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🛡️</span><span class="obj-text">Wrap risky code in <code style="color:var(--py-yellow);font-size:0.75rem">try / except</code> blocks and recover gracefully</span></div>
+        <div class="obj-card"><span class="obj-icon">🎯</span><span class="obj-text">Catch specific exceptions: <code style="color:var(--py-yellow);font-size:0.75rem">ValueError</code>, <code style="color:var(--py-yellow);font-size:0.75rem">ZeroDivisionError</code>, <code style="color:var(--py-yellow);font-size:0.75rem">IndexError</code>, <code style="color:var(--py-yellow);font-size:0.75rem">TypeError</code></span></div>
+        <div class="obj-card"><span class="obj-icon">✅</span><span class="obj-text">Use <code style="color:var(--py-yellow);font-size:0.75rem">else</code> (runs if no error) and <code style="color:var(--py-yellow);font-size:0.75rem">finally</code> (always runs) clauses</span></div>
+        <div class="obj-card"><span class="obj-icon">⚡</span><span class="obj-text">Apply "fail fast" validation: check preconditions at function entry with clear error messages</span></div>
+        <div class="obj-card"><span class="obj-icon">🔁</span><span class="obj-text">Combine <code style="color:var(--py-yellow);font-size:0.75rem">while True</code> + <code style="color:var(--py-yellow);font-size:0.75rem">try/except</code> for retry-on-failure input loops</span></div>
+        <div class="obj-card"><span class="obj-icon">📋</span><span class="obj-text">Return a sentinel value (e.g. <code style="color:var(--py-yellow);font-size:0.75rem">None</code>) on failure instead of crashing the whole program</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_12.ipynb</div>
+          <div class="nb-heading">try / except &amp; Robustness</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>Python's exception hierarchy (brief overview)</li>
+            <li>try / except / else / finally structure</li>
+            <li>Catching multiple exceptions in one block</li>
+            <li>Accessing the exception object with <code style="color:var(--py-blue-light);font-size:0.75rem">as e</code></li>
+            <li>Fail-fast pattern: raise ValueError early</li>
+            <li>Worked example: robust CSV value parser</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_12.ipynb</div>
+          <div class="nb-heading">Robust Functions</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Wrap <code style="color:var(--py-blue-light);font-size:0.75rem">float()</code> calls to handle non-numeric strings</li>
+            <li>Safe division function returning None on zero</li>
+            <li>Robust list-index accessor — no IndexError crashes</li>
+            <li>Retry loop: keep asking until a valid float is given</li>
+            <li>Add try/except to the W09 log parser</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_12.ipynb</div>
+          <div class="nb-heading">Error Scenario Tests</div>
+          <div class="nb-duration">⏱ ~1 hour · auto-graded assert cells</div>
+          <ul class="nb-topics">
+            <li>Identify the exception type for 6 crashing snippets</li>
+            <li>Add try/except to 3 given functions</li>
+            <li>Assert: safe_divide(10, 0) returns None</li>
+            <li>Mini task: parse a mixed-type list, skip bad values</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">try / except / else / finally</div>
+          <pre class="code-snippet"><span class="kw">def</span> <span class="fn">safe_parse</span>(<span class="var">text</span>):
+    <span class="st">"""Convert text to float or return None."""</span>
+    <span class="kw">try</span>:
+        <span class="var">value</span> <span class="op">=</span> <span class="fn">float</span>(<span class="var">text</span>)
+    <span class="kw">except</span> <span class="fn">ValueError</span>:
+        <span class="fn">print</span>(<span class="st">f"Bad value: '{<span class="var">text</span>}'"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="var">value</span>     <span class="cm"># only if no exception</span>
+    <span class="kw">finally</span>:
+        <span class="fn">print</span>(<span class="st">"parse attempt done"</span>)  <span class="cm"># always</span>
+
+<span class="fn">safe_parse</span>(<span class="st">"3.14"</span>)   <span class="cm"># → 3.14</span>
+<span class="fn">safe_parse</span>(<span class="st">"N/A"</span>)    <span class="cm"># → None</span>
+
+<span class="cm"># Multiple exception types</span>
+<span class="kw">try</span>:
+    <span class="var">result</span> <span class="op">=</span> <span class="var">lst</span>[<span class="nm">5</span>] <span class="op">/</span> <span class="nm">0</span>
+<span class="kw">except</span> (<span class="fn">IndexError</span>, <span class="fn">ZeroDivisionError</span>) <span class="kw">as</span> <span class="var">e</span>:
+    <span class="fn">print</span>(<span class="st">f"Error: {<span class="var">e</span>}"</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">Fail-Fast &amp; Retry Loop</div>
+          <pre class="code-snippet"><span class="cm"># Fail-fast: validate at function entry</span>
+<span class="kw">def</span> <span class="fn">safe_mean</span>(<span class="var">data</span>):
+    <span class="st">"""Mean of a non-empty list."""</span>
+    <span class="kw">if</span> <span class="kw">not</span> <span class="var">data</span>:
+        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"list must not be empty"</span>)
+    <span class="kw">return</span> <span class="fn">sum</span>(<span class="var">data</span>) <span class="op">/</span> <span class="fn">len</span>(<span class="var">data</span>)
+
+<span class="cm"># Retry loop: simulate user input</span>
+<span class="var">inputs</span> <span class="op">=</span> [<span class="st">"abc"</span>, <span class="st">"-1"</span>, <span class="st">"42"</span>]
+<span class="var">idx</span> <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="var">raw</span> <span class="op">=</span> <span class="var">inputs</span>[<span class="var">idx</span>]; <span class="var">idx</span> <span class="op">+=</span> <span class="nm">1</span>
+    <span class="kw">try</span>:
+        <span class="var">n</span> <span class="op">=</span> <span class="fn">float</span>(<span class="var">raw</span>)
+        <span class="kw">if</span> <span class="var">n</span> <span class="op">&lt;=</span> <span class="nm">0</span>: <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"must be positive"</span>)
+        <span class="kw">break</span>          <span class="cm"># valid — exit loop</span>
+    <span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> <span class="var">e</span>:
+        <span class="fn">print</span>(<span class="st">f"Retry: {<span class="var">e</span>}"</span>)
+<span class="fn">print</span>(<span class="st">f"Got: {<span class="var">n</span>}"</span>)     <span class="cm"># 42.0</span></pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Exception Type ID</div>
+        <div class="ex-desc">Six code snippets are given — each crashes. Before running them, identify the exception type (<code style="color:var(--py-yellow);font-size:0.78rem">ValueError</code>, <code style="color:var(--py-yellow);font-size:0.78rem">ZeroDivisionError</code>, <code style="color:var(--py-yellow);font-size:0.78rem">IndexError</code>, <code style="color:var(--py-yellow);font-size:0.78rem">TypeError</code>, <code style="color:var(--py-yellow);font-size:0.78rem">NameError</code>) and the exact message.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;else vs finally</div>
+        <div class="ex-desc">Three try/except blocks are shown with <code style="color:var(--py-yellow);font-size:0.78rem">else</code> and <code style="color:var(--py-yellow);font-size:0.78rem">finally</code> clauses. Trace which lines print for: (a) no exception, (b) caught exception, (c) uncaught exception.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;safe_divide()</div>
+        <div class="ex-desc">Write <code style="color:var(--py-yellow);font-size:0.78rem">safe_divide(a, b)</code> that returns <code style="color:var(--py-yellow);font-size:0.78rem">a / b</code> normally, but returns <code style="color:var(--py-yellow);font-size:0.78rem">None</code> if <code style="color:var(--py-yellow);font-size:0.78rem">b == 0</code> and raises a <code style="color:var(--py-yellow);font-size:0.78rem">TypeError</code> with a clear message if either argument is not a number. Write 5 assert tests.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Robust List Parser</div>
+        <div class="ex-desc">Given a mixed list like <code style="color:var(--py-yellow);font-size:0.78rem">["1.2", "N/A", "3.5", "", "7"]</code>, write a function that returns a new list with only successfully parsed floats, printing a warning for each skipped value.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Harden the Log Parser</div>
+        <div class="ex-desc">Take your W09 log parser and add a full <code style="color:var(--py-yellow);font-size:0.78rem">try/except</code> wrapper around the float conversion, the split, and the index access. It must never crash regardless of input. Return a <code style="color:var(--py-yellow);font-size:0.78rem">(parsed_count, skipped_count, values)</code> tuple.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-13') || null);
+  })();
+
+  // ===== WEEK 13 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-13';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 13 · 5 hours total</div>
+          <h1 class="week-heading">File I/O<br><em>&amp; CSV Processing</em></h1>
+          <p class="week-desc">
+            Programs that read and write files are programs that actually persist.
+            This week you'll open real data files inside Colab, process them
+            line by line, and write cleaned results back to disk —
+            the complete read → transform → write pipeline you'll use
+            in the Week 14 mini-project and every data task beyond this course.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#3fb950" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="13"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#3fb950">W13</text>
+          </svg>
+          <div class="progress-label">Week 13 / 14</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 6 · Persistent Data — File I/O connects your programs to persistent, real-world data.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===12?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">📂</span><span class="obj-text">Open, read, and close text files using <code style="color:var(--py-yellow);font-size:0.75rem">open()</code> and the <code style="color:var(--py-yellow);font-size:0.75rem">with</code> statement</span></div>
+        <div class="obj-card"><span class="obj-icon">📖</span><span class="obj-text">Read files line by line with <code style="color:var(--py-yellow);font-size:0.75rem">for line in f</code>, <code style="color:var(--py-yellow);font-size:0.75rem">readlines()</code>, and <code style="color:var(--py-yellow);font-size:0.75rem">read()</code></span></div>
+        <div class="obj-card"><span class="obj-icon">✏️</span><span class="obj-text">Write and append to files using <code style="color:var(--py-yellow);font-size:0.75rem">mode="w"</code> and <code style="color:var(--py-yellow);font-size:0.75rem">mode="a"</code></span></div>
+        <div class="obj-card"><span class="obj-icon">📊</span><span class="obj-text">Parse a CSV file manually: skip header, split on comma, convert types</span></div>
+        <div class="obj-card"><span class="obj-icon">🔗</span><span class="obj-text">Load data from a GitHub raw URL or Google Drive path in Colab</span></div>
+        <div class="obj-card"><span class="obj-icon">🔄</span><span class="obj-text">Execute the full pipeline: read CSV → clean rows → compute stats → write output CSV</span></div>
+      </div>
+
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_13.ipynb</div>
+          <div class="nb-heading">File I/O &amp; CSV Basics</div>
+          <div class="nb-duration">⏱ ~2 hours · concept + worked examples</div>
+          <ul class="nb-topics">
+            <li>open() modes: r, w, a, r+ — and when to use each</li>
+            <li>with statement — automatic close, even on error</li>
+            <li>Reading: for line, readlines(), read()</li>
+            <li>Writing: write(), writelines(), f-string lines</li>
+            <li>Loading from GitHub raw URL with <code style="color:var(--py-blue-light);font-size:0.75rem">urllib.request</code></li>
+            <li>Worked example: temperature log → cleaned CSV</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_13.ipynb</div>
+          <div class="nb-heading">CSV → Summary → New CSV</div>
+          <div class="nb-duration">⏱ ~2 hours · guided practice with blanks</div>
+          <ul class="nb-topics">
+            <li>Read a provided sensor_log.csv (header + 20 rows)</li>
+            <li>Skip header row, split each line, convert values</li>
+            <li>Filter out rows with missing or negative values</li>
+            <li>Compute min, max, mean of the value column</li>
+            <li>Write cleaned rows to cleaned_log.csv</li>
+            <li>Write summary stats to summary.txt</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_13.ipynb</div>
+          <div class="nb-heading">Output File Assertion</div>
+          <div class="nb-duration">⏱ ~1 hour · file content checks</div>
+          <ul class="nb-topics">
+            <li>Assert: cleaned_log.csv has correct row count</li>
+            <li>Assert: no negative values remain in output</li>
+            <li>Assert: summary.txt contains min/max/mean lines</li>
+            <li>Mini task: append a timestamp footer to summary.txt</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Key Concepts: Quick Reference</div>
+      <div class="concepts-row">
+        <div class="concept-block">
+          <div class="concept-block-title">Reading &amp; Writing Files</div>
+          <pre class="code-snippet"><span class="cm"># Reading — with auto-closes the file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"data.csv"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">f</span>:
+        <span class="fn">print</span>(<span class="var">line</span>.<span class="fn">strip</span>())
+
+<span class="cm"># Writing — "w" overwrites, "a" appends</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"output.csv"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="st">"timestamp,value\n"</span>)   <span class="cm"># header</span>
+    <span class="kw">for</span> <span class="var">t</span>, <span class="var">v</span> <span class="kw">in</span> <span class="fn">zip</span>(<span class="var">times</span>, <span class="var">values</span>):
+        <span class="var">f</span>.<span class="fn">write</span>(<span class="st">f"{<span class="var">t</span>},{<span class="var">v</span>:.2f}\n"</span>)
+
+<span class="cm"># Appending a footer</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"output.csv"</span>, <span class="st">"a"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="st">"# end of file\n"</span>)</pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">CSV Parse Pipeline</div>
+          <pre class="code-snippet"><span class="var">times</span>, <span class="var">values</span> <span class="op">=</span> [], []
+<span class="var">skipped</span> <span class="op">=</span> <span class="nm">0</span>
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"sensor_log.csv"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="kw">next</span>(<span class="var">f</span>)  <span class="cm"># skip header row</span>
+    <span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">f</span>:
+        <span class="var">line</span> <span class="op">=</span> <span class="var">line</span>.<span class="fn">strip</span>()
+        <span class="kw">if</span> <span class="kw">not</span> <span class="var">line</span>: <span class="kw">continue</span>
+        <span class="var">parts</span> <span class="op">=</span> <span class="var">line</span>.<span class="fn">split</span>(<span class="st">","</span>)
+        <span class="kw">if</span> <span class="fn">len</span>(<span class="var">parts</span>) <span class="op">!=</span> <span class="nm">2</span>: <span class="var">skipped</span><span class="op">+=</span><span class="nm">1</span>; <span class="kw">continue</span>
+        <span class="kw">try</span>:
+            <span class="var">v</span> <span class="op">=</span> <span class="fn">float</span>(<span class="var">parts</span>[<span class="nm">1</span>])
+            <span class="kw">if</span> <span class="var">v</span> <span class="op">&lt;</span> <span class="nm">0</span>: <span class="kw">raise</span> <span class="fn">ValueError</span>()
+        <span class="kw">except</span> <span class="fn">ValueError</span>:
+            <span class="var">skipped</span><span class="op">+=</span><span class="nm">1</span>; <span class="kw">continue</span>
+        <span class="var">times</span>.<span class="fn">append</span>(<span class="var">parts</span>[<span class="nm">0</span>].<span class="fn">strip</span>())
+        <span class="var">values</span>.<span class="fn">append</span>(<span class="var">v</span>)</pre>
+        </div>
+      </div>
+
+      <div class="section-title">Exercises Overview</div>
+      <div class="ex-row">
+        <span class="ex-badge l1">L1 — Recall</span>
+        <span class="ex-badge l2">L2 — Apply</span>
+        <span class="ex-badge l3">L3 — Extend</span>
+      </div>
+      <div class="ex-card"><div class="ex-num">E1</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;Mode Matcher</div>
+        <div class="ex-desc">Six tasks are described (e.g. "read an existing log", "create a new output file", "add a line to an existing report"). Match each to the correct <code style="color:var(--py-yellow);font-size:0.78rem">open()</code> mode (<code style="color:var(--py-yellow);font-size:0.78rem">r / w / a</code>) and explain the consequence of using the wrong one.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E2</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l1" style="font-size:0.58rem;padding:1px 7px">L1</span> &nbsp;with vs without</div>
+        <div class="ex-desc">Rewrite a file-reading snippet that uses <code style="color:var(--py-yellow);font-size:0.78rem">f = open(...)</code> / <code style="color:var(--py-yellow);font-size:0.78rem">f.close()</code> to use the <code style="color:var(--py-yellow);font-size:0.78rem">with</code> statement. Explain in one paragraph why <code style="color:var(--py-yellow);font-size:0.78rem">with</code> is safer even when an exception is raised mid-read.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E3</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;Word Count Tool</div>
+        <div class="ex-desc">Read any plain-text file and compute: total lines, total words (split on whitespace), total characters (excluding newlines). Print a formatted summary. Write the summary to a <code style="color:var(--py-yellow);font-size:0.78rem">wordcount.txt</code> file.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E4</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l2" style="font-size:0.58rem;padding:1px 7px">L2</span> &nbsp;CSV Filter &amp; Rewrite</div>
+        <div class="ex-desc">Given <code style="color:var(--py-yellow);font-size:0.78rem">sensor_log.csv</code>, read all rows, keep only those where the value is between 0 and 100, and write the filtered rows (with original header) to <code style="color:var(--py-yellow);font-size:0.78rem">filtered_log.csv</code>. Print a one-line summary: rows in, rows out, rows dropped.</div>
+      </div></div>
+      <div class="ex-card"><div class="ex-num">E5</div><div class="ex-content">
+        <div class="ex-title"><span class="ex-badge l3" style="font-size:0.58rem;padding:1px 7px">L3</span> &nbsp;Multi-Column CSV</div>
+        <div class="ex-desc">A CSV with columns <code style="color:var(--py-yellow);font-size:0.78rem">timestamp, sensor_A, sensor_B</code> is provided. Parse all rows, compute per-column stats (min/max/mean), and write a summary CSV where each row is: <code style="color:var(--py-yellow);font-size:0.78rem">sensor_name, min, max, mean</code>. Handle missing values (empty cells) gracefully.</div>
+      </div></div>
+    `;
+    document.getElementById('weeks-placeholder').insertBefore(panel,
+      document.getElementById('week-14') || null);
+  })();
+
+  // ===== WEEK 14 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.className = 'week-panel';
+    panel.id = 'week-14';
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">Week 14 · Mini-Project · 5 hours total</div>
+          <h1 class="week-heading">Sensor Log<br><em>Summary v1</em></h1>
+          <p class="week-desc">
+            This is the capstone of CP1. Everything you've learned —
+            variables, loops, conditionals, functions, error handling, file I/O —
+            comes together in one cohesive program. You'll build a complete
+            data pipeline: read raw sensor data, clean it, analyse it,
+            and produce a polished report. No scaffolding. Your code, your design.
+          </p>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#30363d" stroke-width="5"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#ffd43b" stroke-width="5"
+              stroke-dasharray="175.9" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="38" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#ffd43b">DONE</text>
+          </svg>
+          <div class="progress-label">Course Complete 🎉</div>
+        </div>
+      </div>
+
+      <div class="phase-tag-card">Phase 7 · Proving Mastery — You solve a complete real-world problem from scratch, step by step.</div>
+
+      <div class="timeline-mini">
+        ${Array.from({length:14},(_,i)=>`<div class="tm-dot${i===13?' current':''}" onclick="showWeek(${i+1})">${i+1}</div>`).join('')}
+      </div>
+
+      <!-- PROJECT SPEC BANNER -->
+      <div style="background:linear-gradient(135deg,#1e3a5f 0%,#1a3d2e 100%);border:1px solid #3fb950;border-radius:12px;padding:1.4rem 1.6rem;margin-bottom:2rem;display:flex;gap:1.5rem;align-items:flex-start;">
+        <div style="font-size:2.2rem;flex-shrink:0;margin-top:2px;">🏗️</div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;color:#3fb950;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:0.4rem;">Project Spec</div>
+          <div style="font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:0.5rem;">Sensor Log Summary — v1</div>
+          <div style="font-size:0.82rem;color:#7d8590;line-height:1.7;">
+            Input: a <code style="color:var(--py-yellow);font-size:0.78rem">sensor_log.csv</code> file with columns
+            <code style="color:var(--py-yellow);font-size:0.78rem">timestamp, value</code> (may contain empty rows,
+            non-numeric values, and negative readings).<br>
+            Output: (1) <code style="color:var(--py-yellow);font-size:0.78rem">cleaned_log.csv</code> — only valid rows,
+            (2) <code style="color:var(--py-yellow);font-size:0.78rem">summary_report.txt</code> — human-readable stats.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Learning Objectives</div>
+      <div class="objectives-grid">
+        <div class="obj-card"><span class="obj-icon">🔗</span><span class="obj-text">Integrate file I/O, string parsing, error handling, and functions into one pipeline</span></div>
+        <div class="obj-card"><span class="obj-icon">🧹</span><span class="obj-text">Apply data cleaning rules: reject empty rows, non-numeric values, and negatives</span></div>
+        <div class="obj-card"><span class="obj-icon">📊</span><span class="obj-text">Compute summary statistics: count, min, max, mean, and range</span></div>
+        <div class="obj-card"><span class="obj-icon">📝</span><span class="obj-text">Write a formatted, human-readable report file — not just print statements</span></div>
+        <div class="obj-card"><span class="obj-icon">🧪</span><span class="obj-text">Pass a minimum test suite: assert-based checks on output file contents</span></div>
+        <div class="obj-card"><span class="obj-icon">🎤</span><span class="obj-text">Give a short (3–5 min) live demo: walk through the code and output with your own words</span></div>
+      </div>
+
+      <div class="section-title">Project Notebooks</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture" style="border-color:#bc8cff;background:#1e1a3d">
+          <div class="nb-type" style="color:#bc8cff">📐 Starter</div>
+          <div class="nb-filename">W14_CP1_Starter.ipynb</div>
+          <div class="nb-heading">Skeleton + Spec</div>
+          <div class="nb-duration">⏱ Read carefully before writing any code</div>
+          <ul class="nb-topics">
+            <li>Full project specification in plain English</li>
+            <li>Function stubs with docstrings — fill in the bodies</li>
+            <li>Provided test dataset: sensor_log.csv (50 rows, 12 bad)</li>
+            <li>Expected outputs described precisely</li>
+          </ul>
+          <a class="nb-btn" href="#" style="background:#bc8cff;color:#000">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card lab">
+          <div class="nb-type">🛠️ Build</div>
+          <div class="nb-filename">W14_CP1_Build.ipynb</div>
+          <div class="nb-heading">Your Solution</div>
+          <div class="nb-duration">⏱ ~3–4 hours · free-form development</div>
+          <ul class="nb-topics">
+            <li>Implement all 5 pipeline functions</li>
+            <li>Wire them in a <code style="color:var(--py-blue-light);font-size:0.75rem">main()</code> function</li>
+            <li>Run on the provided dataset</li>
+            <li>Run on your own test dataset</li>
+            <li>Verify both output files are correct</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+        <div class="nb-card check">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_14.ipynb</div>
+          <div class="nb-heading">Minimum Test Suite</div>
+          <div class="nb-duration">⏱ ~1 hour · must pass all assertions</div>
+          <ul class="nb-topics">
+            <li>Assert: cleaned CSV has exactly 38 valid rows</li>
+            <li>Assert: no negative values in cleaned output</li>
+            <li>Assert: summary contains "min", "max", "mean" keywords</li>
+            <li>Assert: mean is within ±0.01 of expected value</li>
+            <li>Bonus: edge case — empty input file</li>
+          </ul>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+
+      <div class="section-title">Pipeline Architecture</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.5rem;margin-bottom:2rem;">
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
+          ${[
+            ['📂','load_data()','Read CSV file, return raw lines list'],
+            ['🧹','clean_data()','Filter invalid rows, return valid (time, value) pairs'],
+            ['📊','compute_stats()','Return dict: count, min, max, mean, range'],
+            ['✏️','write_cleaned()','Write header + valid rows to cleaned_log.csv'],
+            ['📝','write_report()','Write formatted summary_report.txt'],
+          ].map((s,i,arr) => `
+            <div style="flex:1;min-width:130px;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem">${s[0]}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--py-yellow);font-weight:700;margin-bottom:0.3rem">${s[1]}</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.4">${s[2]}</div>
+            </div>
+            ${i < arr.length-1 ? '<div style="color:var(--py-yellow);font-size:1.2rem;padding:0 0.3rem;align-self:center">→</div>' : ''}
+          `).join('')}
+        </div>
+        <div style="margin-top:1rem;padding-top:0.8rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);">
+          All five functions are called by a single <span style="color:var(--py-yellow)">main(filepath)</span> entry point.
+          No global variables. Every function has a docstring and at least one assert test.
+        </div>
+      </div>
+
+      <div class="section-title">Grading Rubric</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-bottom:2rem;">
+        ${[
+          ['✅ Correctness','All assert tests pass on the provided dataset','40%','var(--accent-green)'],
+          ['🏗️ Structure','5 functions, main(), docstrings, no globals','25%','var(--py-blue-light)'],
+          ['🛡️ Robustness','Handles empty file and all bad-row types','20%','var(--accent-purple)'],
+          ['🎤 Demo','Can explain each function in 1 sentence live','15%','var(--py-yellow)'],
+        ].map(([title, desc, pct, col]) => `
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.9rem 1rem;display:flex;gap:0.8rem;align-items:flex-start;">
+            <div style="font-size:1.1rem;flex-shrink:0">${title.split(' ')[0]}</div>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;font-weight:700;color:#fff;margin-bottom:0.2rem">${title.split(' ').slice(1).join(' ')}</div>
+              <div style="font-size:0.76rem;color:var(--text-muted);line-height:1.4">${desc}</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:700;color:${col};flex-shrink:0;padding-top:2px">${pct}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-title">Expected Output Files</div>
+      <div class="concepts-row" style="margin-bottom:2rem">
+        <div class="concept-block">
+          <div class="concept-block-title">cleaned_log.csv</div>
+          <pre class="code-snippet"><span class="cm"># Header + valid rows only</span>
+<span class="var">timestamp</span>,<span class="var">value</span>
+<span class="nm">08:01:32</span>,<span class="nm">23.40</span>
+<span class="nm">08:02:15</span>,<span class="nm">24.10</span>
+<span class="nm">08:03:00</span>,<span class="nm">22.80</span>
+<span class="cm">...</span>
+<span class="cm"># 38 data rows (12 bad rows removed)</span>
+<span class="cm"># No empty lines, no negatives, no N/A</span></pre>
+        </div>
+        <div class="concept-block">
+          <div class="concept-block-title">summary_report.txt</div>
+          <pre class="code-snippet"><span class="cm">===== Sensor Log Summary =====</span>
+<span class="var">Input file  :</span> sensor_log.csv
+<span class="var">Total rows  :</span> <span class="nm">50</span>
+<span class="var">Valid rows  :</span> <span class="nm">38</span>
+<span class="var">Skipped rows:</span> <span class="nm">12</span>
+
+<span class="var">Min value   :</span>  <span class="nm">18.30</span>
+<span class="var">Max value   :</span>  <span class="nm">41.70</span>
+<span class="var">Mean value  :</span>  <span class="nm">27.84</span>
+<span class="var">Range       :</span>  <span class="nm">23.40</span>
+
+<span class="cm">Generated: 2025-09-15 14:32:07</span></pre>
+        </div>
+      </div>
+
+      <!-- COMPLETION BANNER -->
+      <div style="background:linear-gradient(135deg,#1a3d2e,#3d2800);border:1px solid var(--py-yellow);border-radius:12px;padding:1.6rem 2rem;text-align:center;margin-bottom:2rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.6rem">🎓</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:0.5rem">CP1 Complete — You can code.</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);max-width:520px;margin:0 auto;line-height:1.7">
+          You've gone from zero to a working data pipeline in 14 weeks.
+          Variables → loops → conditionals → lists → strings → functions → error handling → files.
+          CP2 awaits: dictionaries, classes, NumPy, and real datasets.
+        </div>
+      </div>
+    `;
+    document.getElementById('weeks-placeholder').appendChild(panel);
+  })();
+
+  const weekData = {
+    2:  null,
+    3:  { title:"Conditionals",                   topics:["if / elif / else","Logical operators: and, or, not","Input validation patterns","Lab: decision-based mini-scenarios","Check: edge-case and boundary questions"] },
+    4:  { title:"for Loops &amp; range",          topics:["for loop syntax and indentation","range(start, stop, step)","Sum / count / accumulator patterns","Lab: series calculations, counting","Check: 5 short loop problems with asserts"] },
+    5:  { title:"while, break, continue",         topics:["while loop syntax","break and continue control flow","Infinite loop pitfalls &amp; guard patterns","Lab: simulating user input validation","Check: robustness and sentinel tests"] },
+    6:  { title:"Problem-Solving Patterns",       topics:["min / max / sum / count idioms","Linear scan and search","Combining loop patterns","Lab: summarising a data list","Check: 1-page mini-exam style problems"] },
+    7:  { title:"Lists Fundamentals",             topics:["Creating and indexing lists","Slicing, append, pop, len","Map/filter thinking without builtins","Lab: list operations and transformations","Check: 5 list questions with assert tests"] },
+    8:  { title:"2D Lists &amp; Nested Loops",    topics:["2D list creation and row/col access","Nested for loops","Basic stats: mean, min, max over 2D","Lab: 2D measurement matrix","Check: 2D access and computation tests"] },
+    9:  { title:"String Processing",              topics:["split(), join(), strip(), replace()","lower(), upper(), find()","Parsing 'timestamp, value' formatted lines","Lab: log file line-by-line parsing","Check: parse validation and edge cases"] },
+    10: { title:"Functions: Basics",              topics:["def, parameters, return","Avoiding code repetition","Writing 3–5 helper functions","Docstrings and inline comments","Check: function output assert tests"] },
+    11: { title:"Scope &amp; Mini-Library",       topics:["Local vs global scope","Namespace mental model","Organising functions in one notebook","Lab: refactor a solution into functions","Check: refactor task with before/after"] },
+    12: { title:"Error Handling",                 topics:["try / except syntax","Catching specific exceptions (ValueError, etc.)","Input validation, fail-fast approach","Lab: robust functions for bad/missing data","Check: error scenario tests"] },
+    13: { title:"File I/O &amp; CSV",             topics:["open(), read, write, close","Reading CSV rows line by line","Writing a processed/cleaned CSV","Lab: CSV → summary stats → new CSV","Check: output file content assertion"] },
+    14: { title:"Mini Project: Sensor Log v1",    topics:["Read a time-series CSV (time, value)","Clean: remove empty / negative / outlier rows","Compute: min, max, mean, count per column","Write: cleaned data file + summary report","Check: minimum test suite + short demo"] },
+  };
+
+  const container = document.getElementById('weeks-placeholder');
+  for (let w = 2; w <= 14; w++) {
+    if (w >= 2 && w <= 14) continue;
+    const d = weekData[w];
+    const tag = `Week ${String(w).padStart(2,'0')}`;
+    const fn  = `W${String(w).padStart(2,'0')}_CP1`;
+    const prevW = w - 1;
+    const div = document.createElement('div');
+    div.className = 'week-panel';
+    div.id = `week-${w}`;
+    div.innerHTML = `
+      <div class="week-header">
+        <div class="week-header-left">
+          <div class="week-tag">${tag} · 5 hours total</div>
+          <h1 class="week-heading">${d.title}</h1>
+          <p class="week-desc">Notebooks for this week follow the standard template:
+            <strong>Lecture → Lab → Check</strong>.
+            Full content will be expanded as the course progresses.</p>
+        </div>
+      </div>
+      <div class="section-title">Topics at a Glance</div>
+      <div class="objectives-grid" style="margin-bottom:2rem">
+        ${d.topics.map(t => `<div class="obj-card"><span class="obj-icon">›</span><span class="obj-text">${t}</span></div>`).join('')}
+      </div>
+      <div class="section-title">This Week's Notebook</div>
+      <div class="notebooks-grid">
+        <div class="nb-card lecture">
+          <div class="nb-type">📓 Complete Notebook</div>
+          <div class="nb-filename">Week_${String(w).padStart(2,'0')}.ipynb</div>
+          <div class="nb-heading">${d.title}</div>
+          <div class="nb-duration">⏱ ~5 hours · lecture + exercises + auto-submit</div>
+          <a class="nb-btn" href="#">▶ Open in Colab</a>
+        </div>
+      </div>
+      <div class="coming-soon">
+        <div class="big">📓</div>
+        <h2>Notebook Ready</h2>
+        <p>Open the notebook above to access the complete lecture, exercises, and auto-graded submission system.</p>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  function showWeek(n) {
+    document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById(`week-${n}`);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.week-btn')[n - 1].classList.add('active');
+    document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

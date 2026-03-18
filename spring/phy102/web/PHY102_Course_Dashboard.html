@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHY102 — Physics II | Course Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ===== CSS VARIABLES ===== */
+:root {
+  --primary: #1565c0;
+  --primary-dark: #0d47a1;
+  --primary-light: #42a5f5;
+  --accent: #00695c;
+  --accent-light: #26a69a;
+  --bg: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-topbar: #0d47a1;
+  --text: #1a1a2e;
+  --text-secondary: #546e7a;
+  --text-muted: #607080;
+  --border: #e0e6ed;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-hover: 0 6px 24px rgba(21,101,192,0.15);
+  --radius: 12px;
+  --topbar-height: 60px;
+  --py-yellow: #ffd54f;
+  --py-blue-light: #64b5f6;
+}
+
+body.dark {
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-topbar: #0f172a;
+  --text: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #334155;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-hover: 0 6px 24px rgba(66,165,245,0.2);
+}
+body.dark { background: var(--bg); color: var(--text); }
+body.dark .topbar { background: var(--bg-topbar); border-bottom: 1px solid var(--border); }
+body.dark .week-card { background: var(--bg-card); border-color: var(--border); }
+body.dark .hero { background: linear-gradient(135deg, #0d47a1 0%, #004d40 100%); }
+body.dark .info-panel, body.dark .quick-links { background: var(--bg-card); border-color: var(--border); }
+body.dark footer { background: var(--bg-card); border-color: var(--border); }
+
+/* ===== TOP BAR ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--bg-topbar);
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.topbar-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+.topbar-brand span { color: var(--accent-light); }
+.topbar-actions { display: flex; align-items: center; gap: 1rem; }
+.topbar-actions a {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.topbar-actions a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* Dark mode toggle */
+.dark-toggle {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dark-toggle:hover { background: rgba(255,255,255,0.25); }
+
+/* ===== HERO ===== */
+.hero {
+  background: linear-gradient(135deg, #1565c0 0%, #00695c 100%);
+  color: #fff;
+  padding: 3.5rem 2rem 3rem;
+  text-align: center;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+.hero .subtitle {
+  font-size: 1.05rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+.hero-meta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+.hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-section {
+  max-width: 900px;
+  margin: -1.5rem auto 1.5rem;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+.progress-container {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.progress-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.progress-header span {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+.progress-bar-track {
+  width: 100%;
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent-light));
+  border-radius: 5px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ===== WEEK CARDS GRID ===== */
+.weeks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+.week-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.week-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.week-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary-light);
+}
+.week-card:hover::before { opacity: 1; }
+.week-card.completed::before {
+  background: var(--accent);
+  opacity: 1;
+}
+.week-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+.week-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.week-icon { font-size: 1.4rem; }
+.week-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+}
+.week-topics {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+.week-topics li {
+  list-style: none;
+  padding-left: 1rem;
+  position: relative;
+}
+.week-topics li::before {
+  content: '\25B8';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.week-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.week-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.week-link:hover { background: rgba(21,101,192,0.08); }
+.week-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  font-size: 0.75rem;
+  color: transparent;
+}
+.week-check:hover { border-color: var(--accent); }
+.week-check.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ===== INFO PANELS ===== */
+.panels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+.info-panel, .quick-links {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.grade-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+.grade-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: rgba(21,101,192,0.06);
+  border-radius: 4px;
+  font-weight: 600;
+  color: var(--text);
+}
+body.dark .grade-table th { background: rgba(66,165,245,0.1); }
+.grade-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.grade-table td:last-child {
+  text-align: right;
+  font-weight: 600;
+  color: var(--primary);
+}
+.tools-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tools-list li {
+  background: rgba(0,105,92,0.08);
+  color: var(--accent);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+body.dark .tools-list li { background: rgba(38,166,154,0.15); }
+.quick-links-list { list-style: none; }
+.quick-links-list li { margin-bottom: 0.5rem; }
+.quick-links-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  border: 1px solid transparent;
+}
+.quick-links-list a:hover {
+  background: rgba(21,101,192,0.06);
+  border-color: var(--border);
+  color: var(--primary);
+}
+body.dark .quick-links-list a:hover { background: rgba(66,165,245,0.08); }
+.link-icon { font-size: 1.1rem; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+footer a { color: var(--primary); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ===== SCROLL TO TOP ===== */
+.scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(21,101,192,0.3);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s, transform 0.2s;
+  z-index: 999;
+}
+.scroll-top:hover { transform: scale(1.1); }
+.scroll-top.visible { display: flex; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 1.75rem; }
+  .hero .subtitle { font-size: 0.9rem; }
+  .hero-meta { flex-direction: column; align-items: center; gap: 0.5rem; }
+  .weeks-grid { grid-template-columns: 1fr; }
+  .panels-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0 1rem; }
+  .topbar-brand { font-size: 1rem; }
+  .topbar-actions a { display: none; }
+  .main-content { padding: 1rem; }
+}
+@media (max-width: 480px) {
+  .hero { padding: 2.5rem 1rem 2rem; }
+  .hero h1 { font-size: 1.5rem; }
+  .week-card { padding: 1.25rem; }
+}
+
+/* ===== PILLS ===== */
+.pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.pill.green {
+  background: rgba(76,175,80,0.2);
+  color: #66bb6a;
+  border: 1px solid rgba(76,175,80,0.3);
+}
+
+/* CORE MASTERY HERO */
+.core-mastery-hero {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.92);
+  margin-top: 1.2rem;
+  padding: 0.8rem 1.5rem;
+  border-left: 3px solid var(--py-yellow);
+  background: rgba(255,255,255,0.08);
+  border-radius: 0 8px 8px 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* CORE MASTERY BANNER */
+.core-mastery-banner {
+  background: linear-gradient(135deg, #1a2332 0%, #1e3a5f 100%);
+  border: 1px solid var(--py-yellow);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.core-mastery-icon { font-size: 2rem; min-width: 48px; text-align: center; }
+.core-mastery-text h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--py-yellow); margin-bottom: 0.3rem;
+}
+.core-mastery-text p { font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1.3; }
+.core-mastery-text p em { font-style: normal; color: var(--py-yellow); }
+.phase-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; font-weight: 600;
+  color: var(--py-blue-light); text-transform: uppercase;
+  letter-spacing: 1.2px; margin-top: 0.4rem;
+}
+.sidebar-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem; font-weight: 600;
+  color: var(--py-blue-light); text-transform: uppercase;
+  letter-spacing: 1.2px; padding: 0.8rem 1.2rem 0.3rem;
+  border-top: 1px solid var(--border); margin-top: 0.5rem;
+}
+.sidebar-phase:first-of-type { border-top: none; margin-top: 0; }
+.phase-divider {
+  grid-column: 1 / -1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--py-blue-light); text-transform: uppercase;
+  letter-spacing: 1.5px; padding: 1rem 0 0.3rem;
+  border-top: 1px solid var(--border); margin-top: 0.5rem;
+}
+.phase-divider:first-child { border-top: none; margin-top: 0; }
+.core-mastery-banner-inside {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  padding: 0.8rem 1rem;
+}
+.phase-tag-card {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  background: rgba(21,101,192,0.08);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+body.dark .phase-tag-card {
+  background: rgba(66,165,245,0.1);
+  color: var(--py-blue-light);
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <div class="topbar-brand">PHY102 <span>Physics II</span></div>
+  <div class="topbar-actions">
+    <span class="pill green">Core: Configuration &rarr; Law &rarr; Predict</span>
+    <a href="#weeks">Weeks</a>
+    <a href="#info">Info</a>
+    <a href="#links">Links</a>
+    <a href="PHY102_Syllabus.html" style="text-decoration:none;color:var(--text-muted);font-size:0.75rem;">Syllabus</a>
+    <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+      <span id="darkIcon">&#9790;</span> <span id="darkLabel">Dark</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1>PHY102 &mdash; Physics II</h1>
+  <p class="subtitle">Electricity, Magnetism, Optics &amp; Modern Physics</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">&#128218; Instructor: <strong>Dr. Arif Solmaz</strong></div>
+    <div class="hero-meta-item">&#128197; Term: <strong>Spring 2026-27</strong></div>
+    <div class="hero-meta-item">&#9201; 14 weeks &middot; 3 hrs/week</div>
+  </div>
+  <div class="core-mastery-hero">"I can analyze any circuit or field and predict its behavior"</div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-container">
+    <div class="progress-header">
+      <h3>&#128200; Course Progress</h3>
+      <span id="progressText">0 / 14 weeks</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- WEEKLY CARDS -->
+  <section id="weeks">
+    <h2 class="section-title">&#128467;&#65039; Weekly Schedule</h2>
+    <div class="weeks-grid" id="weeksGrid"></div>
+  </section>
+
+  <!-- INFO PANELS -->
+  <section id="info">
+    <h2 class="section-title">&#9881;&#65039; Course Information</h2>
+    <div class="panels-grid">
+      <div class="info-panel">
+        <h3 class="panel-title">&#128202; Grading Breakdown</h3>
+        <table class="grade-table">
+          <thead>
+            <tr><th>Component</th><th>Weight</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Homework &amp; Notebooks</td><td>20%</td></tr>
+            <tr><td>Midterm Exam I</td><td>20%</td></tr>
+            <tr><td>Midterm Exam II</td><td>20%</td></tr>
+            <tr><td>Capstone Mini-Project</td><td>10%</td></tr>
+            <tr><td>Final Exam</td><td>30%</td></tr>
+          </tbody>
+        </table>
+        <h3 class="panel-title">&#128736;&#65039; Tools &amp; Software</h3>
+        <ul class="tools-list">
+          <li>Python 3.x</li>
+          <li>Jupyter Notebook</li>
+          <li>Google Colab</li>
+          <li>NumPy</li>
+          <li>Matplotlib</li>
+          <li>SciPy</li>
+        </ul>
+      </div>
+      <div class="quick-links" id="links">
+        <h3 class="panel-title">&#128279; Quick Links</h3>
+        <ul class="quick-links-list">
+          <li><a href="../Notebooks/"><span class="link-icon">&#128209;</span> All Notebooks</a></li>
+          <li><a href="#weeks"><span class="link-icon">&#128197;</span> Weekly Schedule</a></li>
+          <li><a href="https://colab.research.google.com/" target="_blank" rel="noopener"><span class="link-icon">&#9889;</span> Google Colab</a></li>
+          <li><a href="https://jupyter.org/" target="_blank" rel="noopener"><span class="link-icon">&#128212;</span> Jupyter Project</a></li>
+          <li><a href="https://numpy.org/doc/" target="_blank" rel="noopener"><span class="link-icon">&#128202;</span> NumPy Docs</a></li>
+          <li><a href="https://matplotlib.org/" target="_blank" rel="noopener"><span class="link-icon">&#127912;</span> Matplotlib Docs</a></li>
+          <li><a href="https://docs.python.org/3/" target="_blank" rel="noopener"><span class="link-icon">&#128013;</span> Python 3 Docs</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  &copy; 2026-2027 Dr. Arif Solmaz &middot; PHY102 Physics II &middot; All rights reserved.
+  <br>
+  Built with care for physics students everywhere.
+</footer>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">&#8593;</button>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ===== WEEK DATA ===== */
+  const weeks = [
+    {
+      num: 1, title: 'Electric Charge, Coulomb\'s Law & Electric Field',
+      icon: '\u26A1',
+      topics: ['Electric charge and conservation', 'Coulomb\'s law and superposition', 'Electric field lines and distributions']
+    },
+    {
+      num: 2, title: 'Electric Potential and Energy',
+      icon: '\uD83D\uDD0B',
+      topics: ['Electric potential and potential difference', 'Equipotential surfaces', 'Potential energy of charge configurations']
+    },
+    {
+      num: 3, title: 'Gauss\'s Law',
+      icon: '\uD83D\uDCA0',
+      topics: ['Electric flux and Gaussian surfaces', 'Gauss\'s law applications', 'Conductors in electrostatic equilibrium']
+    },
+    {
+      num: 4, title: 'Capacitors and Dielectrics',
+      icon: '\uD83D\uDCE6',
+      topics: ['Parallel-plate and cylindrical capacitors', 'Series and parallel combinations', 'Dielectric materials and energy storage']
+    },
+    {
+      num: 5, title: 'DC Circuits (Ohm\'s Law, Kirchhoff\'s Rules)',
+      icon: '\uD83D\uDD0C',
+      topics: ['Ohm\'s law and resistor networks', 'Kirchhoff\'s junction and loop rules', 'Power dissipation and EMF sources']
+    },
+    {
+      num: 6, title: 'RC Circuits and Transient Response',
+      icon: '\u23F1\uFE0F',
+      topics: ['Charging and discharging of RC circuits', 'Time constants and exponential behavior', 'Applications: filters, timing circuits']
+    },
+    {
+      num: 7, title: 'Magnetic Field and Lorentz Force',
+      icon: '\uD83E\uDDF2',
+      topics: ['Magnetic field and force on moving charges', 'Lorentz force and charged particle trajectories', 'Magnetic force on current-carrying wires']
+    },
+    {
+      num: 8, title: 'Ampere\'s Law and Magnetic Field Sources',
+      icon: '\uD83C\uDF00',
+      topics: ['Biot-Savart law for simple geometries', 'Ampere\'s law and symmetric configurations', 'Solenoids and toroids']
+    },
+    {
+      num: 9, title: 'Electromagnetic Induction (Faraday-Lenz)',
+      icon: '\uD83D\uDD04',
+      topics: ['Faraday\'s law of induction', 'Lenz\'s law and eddy currents', 'Generators and motional EMF']
+    },
+    {
+      num: 10, title: 'RL and RLC Circuits (Transient + Resonance)',
+      icon: '\uD83C\uDFB6',
+      topics: ['RL circuit transients and time constants', 'RLC oscillations and damping', 'Resonance and frequency response']
+    },
+    {
+      num: 11, title: 'Maxwell\'s Equations and EM Waves',
+      icon: '\uD83C\uDF10',
+      topics: ['Displacement current and Maxwell\'s equations', 'Electromagnetic wave propagation', 'Energy transport and Poynting vector']
+    },
+    {
+      num: 12, title: 'Geometric Optics',
+      icon: '\uD83D\uDD0D',
+      topics: ['Reflection and refraction (Snell\'s law)', 'Mirrors and thin lenses', 'Ray tracing and image formation']
+    },
+    {
+      num: 13, title: 'Wave Optics (Interference & Diffraction)',
+      icon: '\uD83C\uDF08',
+      topics: ['Young\'s double-slit interference', 'Single-slit diffraction patterns', 'Diffraction gratings and resolution']
+    },
+    {
+      num: 14, title: 'Review + Capstone Mini-Project',
+      icon: '\uD83C\uDFC1',
+      topics: ['Comprehensive topic review', 'Capstone project presentations', 'Connections across E&M, optics, and circuits']
+    }
+  ];
+
+  /* ===== LOAD PROGRESS FROM LOCALSTORAGE ===== */
+  const STORAGE_KEY = 'phy102_progress';
+  function loadProgress() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch { return {}; }
+  }
+  function saveProgress(progress) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch {}
+  }
+
+  let progress = loadProgress();
+
+  /* ===== PHASE DIVIDERS ===== */
+  const phaseDividers = {
+    1: 'Phase 1 \u00B7 Fields & Energy',
+    4: 'Phase 2 \u00B7 Circuits',
+    7: 'Phase 3 \u00B7 Magnetism',
+    10: 'Phase 4 \u00B7 AC & Resonance',
+    11: 'Phase 5 \u00B7 Maxwell',
+    12: 'Phase 6 \u00B7 Light',
+    14: 'Phase 7 \u00B7 Capstone'
+  };
+
+  /* ===== CORE MASTERY DATA ===== */
+  const coreMasteryData = {
+    1:  { phase: 'Phase 1 \u00B7 Invisible Force', desc: 'Coulomb predicts force; E field predicts force on any charge.' },
+    2:  { phase: 'Phase 1 \u00B7 Energy Landscape', desc: 'Potential maps energy. Predict charge energy changes.' },
+    3:  { phase: 'Phase 1 \u00B7 Symmetry Shortcut', desc: 'Gauss: symmetry \u2192 field in one line.' },
+    4:  { phase: 'Phase 2 \u00B7 Storing Energy', desc: 'Capacitors store energy in the field. Predict C, U, dielectrics.' },
+    5:  { phase: 'Phase 2 \u00B7 Circuit Prediction (CORE)', desc: 'Kirchhoff predicts every V and I in any DC circuit.' },
+    6:  { phase: 'Phase 2 \u00B7 Time Behavior', desc: 'RC: \u03C4 = RC predicts charge/discharge speed.' },
+    7:  { phase: 'Phase 3 \u00B7 The Other Force', desc: 'Lorentz force: predict orbits in B fields.' },
+    8:  { phase: 'Phase 3 \u00B7 Creating B', desc: 'Ampere: predict B from symmetric currents.' },
+    9:  { phase: 'Phase 3 \u00B7 Change Creates Current', desc: 'Faraday: changing flux \u2192 EMF. Generators work this way.' },
+    10: { phase: 'Phase 4 \u00B7 Resonance', desc: 'RLC: predict natural frequency, damping, resonance.' },
+    11: { phase: 'Phase 5 \u00B7 Grand Unification', desc: 'Maxwell: fields create each other \u2192 EM waves.' },
+    12: { phase: 'Phase 6 \u00B7 Tracing Light', desc: 'Snell + lens equation predict refraction and images.' },
+    13: { phase: 'Phase 6 \u00B7 Light Waves', desc: 'Superposition predicts interference and diffraction.' },
+    14: { phase: 'Phase 7 \u00B7 Proving Mastery', desc: 'Choose an EM system, predict, verify.' }
+  };
+
+  /* ===== RENDER WEEK CARDS ===== */
+  const grid = document.getElementById('weeksGrid');
+
+  weeks.forEach(w => {
+    const weekNum = String(w.num).padStart(2, '0');
+    const isCompleted = progress[w.num] === true;
+
+    // Insert phase divider if applicable
+    if (phaseDividers[w.num]) {
+      const divider = document.createElement('div');
+      divider.className = 'phase-divider';
+      divider.textContent = phaseDividers[w.num];
+      grid.appendChild(divider);
+    }
+
+    const cm = coreMasteryData[w.num];
+    const coreMasteryHTML = cm ? `
+      <div class="phase-tag-card">${cm.phase} — ${cm.desc}</div>
+    ` : '';
+
+    const card = document.createElement('div');
+    card.className = 'week-card' + (isCompleted ? ' completed' : '');
+    card.innerHTML = `
+      <div class="week-card-header">
+        <span class="week-number">Week ${weekNum}</span>
+        <span class="week-icon">${w.icon}</span>
+      </div>
+      <div class="week-title">${w.title}</div>
+      ${coreMasteryHTML}
+      <ul class="week-topics">
+        ${w.topics.map(t => `<li>${t}</li>`).join('')}
+      </ul>
+      <div class="week-footer">
+        <a class="week-link" href="../Notebooks/Week_${weekNum}.ipynb">&#128209; Open Notebook</a>
+        <div class="week-check ${isCompleted ? 'checked' : ''}" role="checkbox" aria-checked="${isCompleted}" tabindex="0" data-week="${w.num}" title="Mark as complete">&#10003;</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  /* ===== PROGRESS CHECKBOX HANDLER ===== */
+  function toggleCheck(check) {
+    const weekNum = parseInt(check.dataset.week);
+    const isNowChecked = !check.classList.contains('checked');
+    check.classList.toggle('checked');
+    check.setAttribute('aria-checked', String(isNowChecked));
+    check.closest('.week-card').classList.toggle('completed');
+    progress[weekNum] = isNowChecked;
+    if (!isNowChecked) delete progress[weekNum];
+    saveProgress(progress);
+    updateProgressBar();
+  }
+
+  grid.addEventListener('click', function(e) {
+    const check = e.target.closest('.week-check');
+    if (!check) return;
+    toggleCheck(check);
+  });
+
+  grid.addEventListener('keydown', function(e) {
+    const check = e.target.closest('.week-check');
+    if (!check) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleCheck(check);
+    }
+  });
+
+  /* ===== PROGRESS BAR ===== */
+  function updateProgressBar() {
+    const completed = Object.keys(progress).filter(k => progress[k]).length;
+    const pct = Math.round((completed / weeks.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = completed + ' / ' + weeks.length + ' weeks';
+  }
+  updateProgressBar();
+
+  /* ===== DARK MODE TOGGLE ===== */
+  const DARK_KEY = 'phy102_dark';
+  const darkToggle = document.getElementById('darkToggle');
+  const darkIcon = document.getElementById('darkIcon');
+  const darkLabel = document.getElementById('darkLabel');
+
+  function applyDark(isDark) {
+    document.body.classList.toggle('dark', isDark);
+    darkIcon.innerHTML = isDark ? '&#9788;' : '&#9790;';
+    darkLabel.textContent = isDark ? 'Light' : 'Dark';
+    try { localStorage.setItem(DARK_KEY, isDark ? '1' : '0'); } catch {}
+  }
+
+  // Load preference
+  try {
+    const saved = localStorage.getItem(DARK_KEY);
+    if (saved === '1') applyDark(true);
+    else if (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches) applyDark(true);
+  } catch {}
+
+  darkToggle.addEventListener('click', () => {
+    applyDark(!document.body.classList.contains('dark'));
+  });
+
+  /* ===== SCROLL TO TOP ===== */
+  const scrollBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+})();
+</script>
+</body>
+</html>
