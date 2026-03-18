@@ -11,19 +11,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
+    /* ═══════════════════════════════════════════
+       DARK THEME (default)
+    ═══════════════════════════════════════════ */
     :root {
       --color-void: #030308;
+      --color-surface: rgba(255, 255, 255, 0.02);
+      --color-surface-hover: rgba(255, 255, 255, 0.04);
       --color-text: #e4e4ec;
+      --color-text-heading: #fff;
       --color-muted: #6b6b80;
       --color-stellar: #ffd475;
       --color-stellar-glow: rgba(255, 212, 117, 0.3);
+      --color-stellar-bg: rgba(255, 212, 117, 0.08);
       --color-transit: #4a9eff;
       --color-glass-border: rgba(255, 255, 255, 0.08);
+      --color-tag-bg: rgba(255, 255, 255, 0.03);
+      --header-bg: rgba(3, 3, 8, 0.85);
+      --star-color: 255, 255, 255;
+      --star-glow: 255, 212, 117;
 
       --font-display: "Playfair Display", Georgia, serif;
       --font-mono: "Space Mono", monospace;
       --font-body: "Outfit", -apple-system, sans-serif;
     }
+
+    /* ═══════════════════════════════════════════
+       LIGHT THEME (Claude-inspired warm cream)
+    ═══════════════════════════════════════════ */
+    [data-theme="light"] {
+      --color-void: #f5f0e8;
+      --color-surface: rgba(0, 0, 0, 0.03);
+      --color-surface-hover: rgba(0, 0, 0, 0.06);
+      --color-text: #3d3929;
+      --color-text-heading: #1a1710;
+      --color-muted: #8a8070;
+      --color-stellar: #c47a1a;
+      --color-stellar-glow: rgba(196, 122, 26, 0.25);
+      --color-stellar-bg: rgba(196, 122, 26, 0.08);
+      --color-transit: #2b6cb0;
+      --color-glass-border: rgba(0, 0, 0, 0.1);
+      --color-tag-bg: rgba(0, 0, 0, 0.04);
+      --header-bg: rgba(245, 240, 232, 0.9);
+      --star-color: 60, 50, 30;
+      --star-glow: 196, 122, 26;
+    }
+
+    /* Light theme accent overrides */
+    [data-theme="light"] .course[style*="#ffd43b"] { --accent: #b8860b; }
+    [data-theme="light"] .course[style*="#a78bfa"] { --accent: #6d28d9; }
+    [data-theme="light"] .course[style*="#4ade80"] { --accent: #16763a; }
+    [data-theme="light"] .course[style*="#f472b6"] { --accent: #be185d; }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -35,6 +73,7 @@
       background: var(--color-void);
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
+      transition: background 0.4s ease, color 0.4s ease;
     }
 
     #starfield {
@@ -51,22 +90,37 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem 2.5rem;
-      background: rgba(3, 3, 8, 0.85);
+      background: var(--header-bg);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--color-glass-border);
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
     }
 
     .header-brand {
       font-family: var(--font-display);
       font-size: 1.15rem;
-      color: #fff;
+      color: var(--color-text-heading);
       text-decoration: none;
+      transition: color 0.3s ease;
     }
 
     .header-brand span {
       font-style: italic;
       color: var(--color-stellar);
+      transition: color 0.3s ease;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
     .nav-link {
@@ -80,6 +134,28 @@
     }
 
     .nav-link:hover { color: var(--color-stellar); }
+
+    /* THEME TOGGLE */
+    .theme-toggle {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--color-muted);
+      background: var(--color-tag-bg);
+      border: 1px solid var(--color-glass-border);
+      border-radius: 20px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .theme-toggle:hover {
+      color: var(--color-text);
+      border-color: var(--color-muted);
+    }
 
     /* PAGE */
     .page {
@@ -103,14 +179,16 @@
       text-transform: uppercase;
       color: var(--color-transit);
       margin-bottom: 0.75rem;
+      transition: color 0.3s ease;
     }
 
     .page-title {
       font-family: var(--font-display);
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 400;
-      color: #fff;
+      color: var(--color-text-heading);
       margin-bottom: 0.75rem;
+      transition: color 0.3s ease;
     }
 
     .page-subtitle {
@@ -119,6 +197,7 @@
       max-width: 480px;
       margin: 0 auto;
       line-height: 1.7;
+      transition: color 0.3s ease;
     }
 
     /* SEMESTER */
@@ -140,6 +219,7 @@
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--color-glass-border);
+      transition: color 0.3s ease, border-color 0.3s ease;
     }
 
     /* COURSE CARDS */
@@ -155,7 +235,7 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 1.25rem 1.5rem;
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--color-surface);
       border: 1px solid var(--color-glass-border);
       border-left: 3px solid var(--accent, var(--color-stellar));
       border-radius: 8px;
@@ -163,7 +243,7 @@
     }
 
     .course:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--color-surface-hover);
       border-color: var(--accent, var(--color-stellar-glow));
       transform: translateX(4px);
     }
@@ -177,13 +257,15 @@
       text-transform: uppercase;
       color: var(--accent, var(--color-stellar));
       margin-bottom: 0.25rem;
+      transition: color 0.3s ease;
     }
 
     .course-name {
       font-family: var(--font-display);
       font-size: 1.15rem;
-      color: #fff;
+      color: var(--color-text-heading);
       margin-bottom: 0.3rem;
+      transition: color 0.3s ease;
     }
 
     .course-tags {
@@ -198,9 +280,10 @@
       letter-spacing: 0.1em;
       color: var(--color-muted);
       padding: 0.15rem 0.5rem;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--color-tag-bg);
       border: 1px solid var(--color-glass-border);
       border-radius: 20px;
+      transition: all 0.3s ease;
     }
 
     .course-links {
@@ -212,10 +295,10 @@
     .clink {
       font-family: var(--font-body);
       font-size: 0.75rem;
-      color: #fff;
+      color: var(--color-text-heading);
       text-decoration: none;
       padding: 0.4rem 0.8rem;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--color-tag-bg);
       border: 1px solid var(--color-glass-border);
       border-radius: 6px;
       transition: all 0.3s ease;
@@ -224,7 +307,7 @@
 
     .clink:hover {
       border-color: var(--color-stellar);
-      background: rgba(255, 212, 117, 0.08);
+      background: var(--color-stellar-bg);
     }
 
     /* FOOTER */
@@ -237,6 +320,7 @@
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid var(--color-glass-border);
+      transition: border-color 0.3s ease;
     }
 
     .footer-text {
@@ -244,6 +328,7 @@
       font-size: 0.6rem;
       letter-spacing: 0.1em;
       color: var(--color-muted);
+      transition: color 0.3s ease;
     }
 
     .footer-link {
@@ -264,6 +349,7 @@
 
     @media (max-width: 600px) {
       .header { padding: 0.75rem 1.25rem; }
+      .header-left { gap: 1rem; }
       .page { padding: 2rem 1.25rem; }
       .course { flex-direction: column; align-items: flex-start; }
       .course-links { width: 100%; }
@@ -284,8 +370,15 @@
   <canvas id="starfield"></canvas>
 
   <header class="header">
-    <a href="https://arifsolmaz.github.io" class="header-brand">Arif <span>Solmaz</span></a>
-    <a href="https://arifsolmaz.github.io" class="nav-link">&larr; Home</a>
+    <div class="header-left">
+      <a href="https://arifsolmaz.github.io" class="header-brand">Arif <span>Solmaz</span></a>
+      <a href="https://arifsolmaz.github.io" class="nav-link">&larr; Home</a>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <span id="themeIcon">&#9788;</span> <span id="themeLabel">Light</span>
+      </button>
+    </div>
   </header>
 
   <div class="page">
@@ -414,23 +507,65 @@
   </footer>
 
   <script>
+    // ═══════════════════════════════════════════
+    // THEME
+    // ═══════════════════════════════════════════
+    const STORAGE_KEY = 'courses_theme';
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeIcon').innerHTML = theme === 'light' ? '&#9790;' : '&#9788;';
+      document.getElementById('themeLabel').textContent = theme === 'light' ? 'Dark' : 'Light';
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
+      resizeCanvas(); // reinit stars with new colors
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    // Init theme from storage or system preference
+    (function() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { setTheme(saved); return; }
+      } catch {}
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        setTheme('light');
+      }
+    })();
+
+    // ═══════════════════════════════════════════
+    // STARFIELD
+    // ═══════════════════════════════════════════
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
 
+    function getStarColors() {
+      const s = getComputedStyle(document.documentElement);
+      return {
+        color: s.getPropertyValue('--star-color').trim() || '255,255,255',
+        glow: s.getPropertyValue('--star-glow').trim() || '255,212,117'
+      };
+    }
+
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const count = isLight ? 80 : 150;
       stars = [];
-      for (let i = 0; i < 150; i++) {
+      for (let i = 0; i < count; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 1.2 + 0.3,
+          size: Math.random() * (isLight ? 0.9 : 1.2) + 0.3,
           speed: Math.random() * 0.5 + 0.1,
-          brightness: Math.random() * 0.5 + 0.3,
+          brightness: Math.random() * (isLight ? 0.15 : 0.5) + (isLight ? 0.05 : 0.3),
           twinkleSpeed: Math.random() * 0.02 + 0.005,
           twinkleOffset: Math.random() * Math.PI * 2
         });
@@ -440,18 +575,22 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const t = Date.now() * 0.001;
+      const colors = getStarColors();
+
       stars.forEach(s => {
         const px = (mouseX - canvas.width / 2) * s.speed * 0.015;
         const py = (mouseY - canvas.height / 2) * s.speed * 0.015;
         const x = s.x + px, y = s.y + py;
         const a = s.brightness * (Math.sin(t * s.twinkleSpeed * 10 + s.twinkleOffset) * 0.3 + 0.7);
+
         ctx.beginPath();
         ctx.arc(x, y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${a})`;
+        ctx.fillStyle = `rgba(${colors.color},${a})`;
         ctx.fill();
+
         if (s.size > 0.8) {
           const g = ctx.createRadialGradient(x, y, 0, x, y, s.size * 2.5);
-          g.addColorStop(0, `rgba(255,212,117,${a * 0.2})`);
+          g.addColorStop(0, `rgba(${colors.glow},${a * 0.2})`);
           g.addColorStop(1, 'transparent');
           ctx.beginPath();
           ctx.arc(x, y, s.size * 2.5, 0, Math.PI * 2);
