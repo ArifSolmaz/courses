@@ -1,0 +1,377 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>solve one problem four different ways and compare the solutions properly;</li>
+      <li>see how a change of strategy — not a change of language — buys orders of magnitude;</li>
+      <li>recognise the counting trick that turns comparison into arithmetic;</li>
+      <li>explain why an O(n!) solution is not "slow" but impossible;</li>
+      <li>write a comparison report with a table, a plot and a recommendation.</li>
+    </ul>
+  </div>
+  <div class="note blue">
+    <span class="label">Where this comes from</span>
+    <p>
+      This case study is the heart of the classic
+      <a href="https://runestone.academy/ns/books/published/pythonds/AlgorithmAnalysis/AnAnagramDetectionExample.html">Anagram Detection Example</a>
+      from Miller &amp; Ranum's <em>Problem Solving with Algorithms and Data Structures</em>,
+      rewritten here for a first-year audience with counters and benchmarks added.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.1</span>The problem</h2>
+  <p>
+    Two words are <strong>anagrams</strong> if one is a rearrangement of the other:
+    "listen" and "silent"; "python" and "typhon". Write a function that takes two strings
+    of the same length and returns <code>True</code> if they are anagrams.
+  </p>
+  <p>
+    It sounds trivial, and it is — the answer is easy to get right. What makes it the
+    perfect teaching example is that four natural, correct approaches land in four
+    <em>different complexity classes</em>. Same problem, same computer, same programmer:
+    O(n²), O(n log n), O(n!) and O(n).
+  </p>
+  <p>
+    For all four we will use the length of the words as <code>n</code>, and to keep the
+    focus on the idea we will assume lower-case letters only.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">9.2</span>Solution 1 — checking off</h2>
+  <p>
+    The way most people describe it out loud: <em>take each letter of the first word and
+    cross it off in the second; if every letter finds a partner, they are anagrams.</em>
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>solution_1_checking_off.py</div><pre><code>def anagram_checking_off(s1, s2):
+    if len(s1) != len(s2):
+        return False
+
+    letters = list(s2)                <span class="c"># we need to cross letters off</span>
+    for letter in s1:
+        found = False
+        for i in range(len(letters)):     <span class="c"># search for a partner</span>
+            if letters[i] == letter:
+                letters[i] = None         <span class="c"># cross it off</span>
+                found = True
+                break
+        if not found:
+            return False
+    return True
+
+print(anagram_checking_off("listen", "silent"))   <span class="c"># True</span>
+print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span></code></pre></div>
+  <p>
+    <strong>The cost.</strong> For each of the n letters of <code>s1</code> we scan up to n
+    positions of <code>letters</code>. That is a loop inside a loop, both over n:
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent)">
+    T(n) ≈ n + (n−1) + (n−2) + … + 1 = n(n+1)/2 &nbsp;&rarr;&nbsp; O(n²)
+  </p>
+  <p>
+    Correct, readable, and the shape you should now recognise instantly — a nested loop
+    over the same data.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">9.3</span>Solution 2 — sort and compare</h2>
+  <p>
+    A neat observation: two words are anagrams exactly when their letters, sorted, are
+    identical. So sort both and compare.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>solution_2_sort_and_compare.py</div><pre><code>def anagram_sort(s1, s2):
+    if len(s1) != len(s2):
+        return False
+    return sorted(s1) == sorted(s2)</code></pre></div>
+  <p>
+    Three lines, obviously correct, and it looks free — which is the trap. The work has not
+    disappeared, it has moved inside <code>sorted()</code>, which is
+    <strong>O(n log n)</strong>. The final comparison is O(n). Adding them and keeping the
+    dominant term:
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent)">O(n log n) + O(n) &rarr; O(n log n)</p>
+  <p>
+    Better than solution 1 and much shorter to write. This is the "sensible default"
+    answer, and in most real work it is the right one.
+  </p>
+  <div class="note">
+    <span class="label">The habit to build</span>
+    <p>
+      Short code is not cheap code. Whenever a built-in does the heavy lifting, look up
+      what it costs. You wrote three lines; the computer did n log n comparisons.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.4</span>Solution 3 — brute force (do not run this on long words)</h2>
+  <p>
+    The "try everything" approach: generate every possible rearrangement of the first word
+    and check whether the second appears among them.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>solution_3_brute_force.py</div><pre><code>from itertools import permutations
+
+def anagram_brute_force(s1, s2):
+    if len(s1) != len(s2):
+        return False
+    for candidate in permutations(s1):
+        if "".join(candidate) == s2:
+            return True
+    return False</code></pre></div>
+  <p>
+    It is correct. It is also useless, and the reason is arithmetic rather than
+    programming. A word of n letters has <strong>n!</strong> (n factorial) arrangements:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Word length n</th><th>Arrangements n!</th><th>Time at 10 million per second</th></tr></thead>
+      <tbody>
+        <tr><td>5</td><td>120</td><td>instant</td></tr>
+        <tr><td>10</td><td>3 628 800</td><td>0.4 seconds</td></tr>
+        <tr><td>15</td><td>1 307 674 368 000</td><td>1.5 days</td></tr>
+        <tr><td>20</td><td>2 432 902 008 176 640 000</td><td>about 7 700 years</td></tr>
+        <tr><td>25</td><td>1.55 × 10²⁵</td><td>about 49 billion years</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A twenty-letter word would outlast your career, your institution, and — at n = 25 —
+    the age of the universe. This is what people mean when they say a problem is
+    <em>intractable</em>: not "we need a faster machine", but "no machine that could ever
+    exist would finish". Try it at n = 8 to feel it move, and never again.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">9.5</span>Solution 4 — count and compare</h2>
+  <p>
+    The winning move is to stop comparing letters with letters. Count how many times each
+    letter occurs in each word, then compare the two tallies.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>solution_4_count_and_compare.py</div><pre><code>def anagram_count(s1, s2):
+    if len(s1) != len(s2):
+        return False
+
+    counts1 = [0] * 26          <span class="c"># one slot per letter a-z</span>
+    counts2 = [0] * 26
+
+    for letter in s1:                          <span class="c"># n steps</span>
+        counts1[ord(letter) - ord('a')] += 1
+    for letter in s2:                          <span class="c"># n steps</span>
+        counts2[ord(letter) - ord('a')] += 1
+
+    for i in range(26):                        <span class="c"># always 26 steps</span>
+        if counts1[i] != counts2[i]:
+            return False
+    return True</code></pre></div>
+  <p>
+    <code>ord('a')</code> is 97, <code>ord('c')</code> is 99, so
+    <code>ord(letter) - ord('a')</code> turns a letter into a slot number 0–25. Two passes
+    over the words, then a fixed 26 comparisons:
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = 2n + 26 &nbsp;&rarr;&nbsp; O(n)</p>
+  <p>
+    Linear — the best possible, since any correct method must at least look at every
+    letter. Notice what paid for it: <strong>extra memory</strong> (two lists of 26) and a
+    cleverer question ("how many of each?" instead of "does this one match?"). That
+    trade — spend a little space to save a lot of time — is one of the most reliable moves
+    in all of computing, and week 11 is built entirely on it.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">9.6</span>Head to head</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Solution</th><th>Class</th><th>Steps at n = 1 000</th><th>Extra memory</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>1. Checking off</td><td>O(n²)</td><td>~500 000</td><td>a copy of the word</td><td>Fine for words, hopeless for large data</td></tr>
+        <tr><td>2. Sort and compare</td><td>O(n log n)</td><td>~10 000</td><td>two sorted copies</td><td>Excellent default: short and fast enough</td></tr>
+        <tr><td>3. Brute force</td><td>O(n!)</td><td>more than atoms in the galaxy</td><td>tiny</td><td>Never</td></tr>
+        <tr><td>4. Count and compare</td><td>O(n)</td><td>~2 026</td><td>two 26-slot lists</td><td>Fastest; slightly more code</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Now measure it yourself rather than trusting the table. Long "words" made of random
+    letters stand in for real ones:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>benchmark_anagrams.py</div><pre><code>import random, string, time
+
+def make_pair(n):
+    """Two strings of length n that really are anagrams — the worst case."""
+    letters = [random.choice(string.ascii_lowercase) for _ in range(n)]
+    shuffled = letters[:]
+    random.shuffle(shuffled)
+    return "".join(letters), "".join(shuffled)
+
+def time_call(func, s1, s2, repeats=3):
+    best = None
+    for _ in range(repeats):
+        start = time.perf_counter()
+        func(s1, s2)
+        t = time.perf_counter() - start
+        if best is None or t &lt; best:
+            best = t
+    return best
+
+for n in [500, 1000, 2000, 4000]:
+    s1, s2 = make_pair(n)
+    a = time_call(anagram_checking_off, s1, s2)
+    b = time_call(anagram_sort, s1, s2)
+    d = time_call(anagram_count, s1, s2)
+    print(f"n={n:&gt;5}  checking-off {a:.5f}s   sort {b:.5f}s   count {d:.5f}s   speedup {a/d:,.0f}x")</code></pre></div>
+  <div class="out">n=  500  checking-off 0.00832s   sort 0.00006s   count 0.00011s   speedup 76x
+n= 1000  checking-off 0.03310s   sort 0.00013s   count 0.00022s   speedup 150x
+n= 2000  checking-off 0.13245s   sort 0.00028s   count 0.00044s   speedup 301x
+n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</div>
+  <p>
+    Two things to notice. First, the speedup column <em>grows</em> — at n = 4 000 the naive
+    method is already 600 times worse, and it will be 6 000 times worse at n = 40 000.
+    Second, the sort version beats the counting version in wall-clock time even though its
+    class is worse, because <code>sorted()</code> runs in optimised C while your counting
+    loop runs in Python. That is a constant factor at work — and it is exactly why we
+    measure as well as classify.
+  </p>
+  <div class="note green">
+    <span class="label">The lesson of the last paragraph</span>
+    <p>
+      Big-O predicts who wins <em>eventually</em>; the stopwatch tells you who wins
+      <em>today, at this size, in this language</em>. Push n high enough and the O(n)
+      version pulls ahead of the O(n log n) one — find that crossover in the homework.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — instrument solution 1</span>
+    <p>
+      Add a comparison counter to <code>anagram_checking_off</code> and report it for
+      n = 100, 200, 400 on genuine anagram pairs. Compare the counts with the predicted
+      n(n+1)/2.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        About 5 050, 20 100 and 80 200 — close to n²/2 and quadrupling with each doubling,
+        just as predicted.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — how far can brute force go?</span>
+    <p>
+      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there). Then predict
+      n = 12 from the pattern, and say whether you would wait for it.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        Each extra letter multiplies the time by roughly n. From n = 9 to n = 12 is a factor
+        of about 10 × 11 × 12 ≈ 1 320. If n = 9 took a second, n = 12 takes about 22 minutes
+        — and n = 15 about a fortnight.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — find the crossover</span>
+    <p>
+      The sorting solution beats the counting one at small n because of constant factors.
+      Push n up (10 000, 100 000, 1 000 000 — build the strings outside the timer) and find
+      where the O(n) version overtakes.
+    </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — a fifth solution</span>
+    <p>
+      Python has <code>collections.Counter</code>. Write <code>anagram_counter(s1, s2)</code>
+      in one line using it, benchmark it against your solution 4, and explain why the class
+      is the same but the time differs.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>one line</div><pre><code>from collections import Counter
+
+def anagram_counter(s1, s2):
+    return Counter(s1) == Counter(s2)</code></pre></div>
+      <p>
+        Still O(n) — Counter walks each string once. It is usually faster than the hand-written
+        loop because the counting happens in C, not in Python. Same class, smaller constant.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p>Why is <code>sorted(s1) == sorted(s2)</code> not O(n)?</p>
+      <button class="opt">Because comparing two lists is O(n²)</button>
+      <button class="opt">Because sorting itself costs O(n log n), and that dominates the comparison</button>
+      <button class="opt">Because it uses extra memory</button>
+      <button class="opt">It is O(n) — the line is short</button>
+      <div class="why">The cost is inside the built-in. Short code can hide expensive work; always price the built-ins you call.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>What buys the counting solution its linear time?</p>
+      <button class="opt">Writing it in fewer lines</button>
+      <button class="opt">Avoiding functions</button>
+      <button class="opt">Using a faster computer</button>
+      <button class="opt">Spending extra memory on two tally lists, so no letter has to be searched for</button>
+      <div class="why">Trading a little space for a lot of time is one of the most reliable moves in computing — and the whole idea behind week 11.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>An O(n!) method on a 20-letter word is best described as:</p>
+      <button class="opt">Impossible in practice, no matter what hardware you buy</button>
+      <button class="opt">Slow but usable overnight</button>
+      <button class="opt">Fine, since 20 is a small number</button>
+      <button class="opt">Faster than O(n²) for small n, so acceptable</button>
+      <div class="why">2.4 × 10¹⁸ arrangements is thousands of years at ten million per second. Factorial growth ends the conversation.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>In the benchmark, the O(n log n) version beat the O(n) version at n = 1 000. Does that disprove the analysis?</p>
+      <button class="opt">Yes — measurements always beat theory</button>
+      <button class="opt">Yes — the classes must be wrong</button>
+      <button class="opt">No — constant factors dominate at small n; the classes describe the trend, and the O(n) version wins once n is large enough</button>
+      <button class="opt">No — the measurement must have been faulty</button>
+      <div class="why">Both are right about different questions. Report the class <em>and</em> the crossover, and you have told the whole truth.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 10</span>
+    <ol>
+      <li>Create <code>AA_Week09.ipynb</code> with all five solutions and complete Tasks 1–4.</li>
+      <li>Produce one figure with the three usable solutions plotted against n (log–log axes, labelled).</li>
+      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, the crossover you found, and a recommendation for (a) words in a game and (b) million-character biological sequences.</li>
+      <li>Answer in five sentences: solution 3 is correct and yet worthless. What does that tell you about "correct" as a standard for software?</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>anagram</td><td>A word made of exactly the same letters as another.</td></tr>
+        <tr><td>brute force</td><td>Try every possibility. Always correct, usually unusable.</td></tr>
+        <tr><td>factorial n!</td><td>n × (n−1) × … × 1 — the number of arrangements; grows faster than any exponential.</td></tr>
+        <tr><td>intractable</td><td>So expensive that no realistic machine can finish it.</td></tr>
+        <tr><td>space–time trade-off</td><td>Using extra memory to save time, or the reverse.</td></tr>
+        <tr><td>crossover</td><td>The input size at which the better-scaling method overtakes the one with a smaller constant.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

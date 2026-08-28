@@ -1,0 +1,302 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>run a doubling experiment on any function;</li>
+      <li>read the ratio column and name the growth pattern from it alone;</li>
+      <li>draw a labelled plot of time against input size with matplotlib;</li>
+      <li>use a log–log plot when the numbers span several orders of magnitude;</li>
+      <li>write a short, honest paragraph interpreting your own measurements.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.1</span>The question that replaces "is it fast?"</h2>
+  <p>
+    "Is my program fast?" is unanswerable — fast compared to what, on whose machine, with
+    how much data? The useful question is:
+  </p>
+  <div class="note">
+    <span class="label">The doubling question</span>
+    <p style="font-size:1.1rem">
+      <strong>If I double the input, what happens to the time?</strong>
+    </p>
+  </div>
+  <p>
+    This one question has a small number of possible answers, and each answer identifies a
+    family of algorithms. You do not need mathematics to use it. You need a stopwatch, four
+    input sizes, and a division.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time ratio when n doubles</th><th>What it means</th><th>Typical code shape</th><th>Name (week 8)</th></tr></thead>
+      <tbody>
+        <tr><td>≈ 1.0 (unchanged)</td><td>Input size is irrelevant</td><td>A few lines, no loop over the data</td><td>O(1)</td></tr>
+        <tr><td>a fixed tiny <em>addition</em>, not a multiple</td><td>Each doubling costs one more step</td><td>Halving <code>while</code> loop</td><td>O(log n)</td></tr>
+        <tr><td>≈ 2.0</td><td>Twice the data, twice the work</td><td>One loop over the data</td><td>O(n)</td></tr>
+        <tr><td>≈ 2.1 – 2.3</td><td>A loop, plus a little extra per doubling</td><td>Sorting</td><td>O(n log n)</td></tr>
+        <tr><td>≈ 4.0</td><td>Twice the data, four times the work</td><td>Loop inside a loop</td><td>O(n²)</td></tr>
+        <tr><td>≈ 8.0</td><td>Three nested loops</td><td>Triple loop</td><td>O(n³)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Memorise two rows if you memorise nothing else: <strong>2.0 is fine, 4.0 is a warning</strong>.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">6.2</span>Running the experiment</h2>
+  <p>
+    A reusable harness. Give it a function and a list of sizes, get a table with ratios.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>doubling_experiment.py</div><pre><code>import time
+
+def time_it(func, arg, repeats=5):
+    best = None
+    for _ in range(repeats):
+        start = time.perf_counter()
+        func(arg)
+        elapsed = time.perf_counter() - start
+        if best is None or elapsed &lt; best:
+            best = elapsed
+    return best
+
+def doubling(func, start_n=10000, doublings=5):
+    """Time func at n, 2n, 4n ... and print the ratio each time."""
+    sizes, times = [], []
+    n = start_n
+    previous = None
+    print(f"{'n':&gt;9} {'seconds':&gt;12} {'ratio':&gt;7}")
+    for _ in range(doublings):
+        t = time_it(func, n)
+        ratio = t / previous if previous else float('nan')
+        print(f"{n:&gt;9} {t:&gt;12.5f} {ratio:&gt;7.2f}")
+        sizes.append(n); times.append(t)
+        previous = t
+        n = n * 2
+    return sizes, times</code></pre></div>
+  <p>Now try it on three functions with visibly different shapes:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>three shapes</div><pre><code>def constant(n):                 <span class="c"># ignores n entirely</span>
+    return n * (n + 1) // 2
+
+def linear(n):                   <span class="c"># one loop over n</span>
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+def quadratic(n):                <span class="c"># loop inside a loop</span>
+    count = 0
+    for i in range(n):
+        for j in range(n):
+            count += 1
+    return count
+
+sizes_l, times_l = doubling(linear, start_n=100000)
+sizes_q, times_q = doubling(quadratic, start_n=500, doublings=4)</code></pre></div>
+  <div class="out">        n      seconds   ratio
+   100000      0.00489     nan
+   200000      0.00981    2.01
+   400000      0.01955    1.99
+   800000      0.03920    2.01
+  1600000      0.07835    2.00
+
+        n      seconds   ratio
+      500      0.01254     nan
+     1000      0.05001    3.99
+     2000      0.20114    4.02
+     4000      0.80339    3.99</div>
+  <p>
+    You did not need to read the code to tell them apart. The ratio column did it: 2.0
+    versus 4.0. This is the core practical skill of the course, and you now have it.
+  </p>
+  <div class="note red">
+    <span class="label">Watch your starting size</span>
+    <p>
+      Notice that the quadratic experiment starts at n = 500, not 100 000 — a quadratic
+      function at 100 000 would run for hours. Choosing a starting size that finishes but
+      is still big enough to beat the noise is part of the craft. Aim for a first run of
+      roughly 0.01–0.1 seconds.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.3</span>Drawing the picture</h2>
+  <p>
+    A table convinces you; a plot convinces everyone else. Matplotlib is already installed
+    in Colab.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>a plot with everything it needs</div><pre><code>import matplotlib.pyplot as plt
+
+plt.figure(figsize=(6, 4))
+plt.plot(sizes_l, times_l, marker="o", label="one loop")
+plt.plot(sizes_q, times_q, marker="s", label="loop inside a loop")
+
+plt.xlabel("input size n")
+plt.ylabel("time (seconds)")
+plt.title("Running time vs input size")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()</code></pre></div>
+  <p>
+    Every plot you hand in must have: axis labels with units, a title, and a legend if
+    there is more than one line. A plot without labels is not evidence, it is decoration.
+  </p>
+  <h3>When the numbers are wildly different</h3>
+  <p>
+    If one curve is a million times taller than another, the small one flattens into the
+    axis. Switch both axes to logarithmic scale and each straight line's <em>slope</em>
+    tells you the growth: slope 1 is linear, slope 2 is quadratic, flat is constant.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>log–log</div><pre><code>plt.xscale("log")
+plt.yscale("log")</code></pre></div>
+</section>
+
+<section>
+  <h2><span class="num">6.4</span>Interpreting like a scientist</h2>
+  <p>
+    Every benchmark in this course ends with a short paragraph. Use this skeleton until it
+    becomes automatic:
+  </p>
+  <div class="note green">
+    <span class="label">The five-sentence interpretation</span>
+    <ol>
+      <li>What I measured, and at which sizes.</li>
+      <li>What the ratio column did (the numbers, not an adjective).</li>
+      <li>Which growth pattern that matches, and why the code has that shape.</li>
+      <li>One thing that could have distorted the measurement.</li>
+      <li>What I would predict for an input ten times larger — a specific number.</li>
+    </ol>
+  </div>
+  <p>Worked example, for the quadratic run above:</p>
+  <p style="border-left:2px solid var(--border-strong);padding-left:1rem;color:var(--muted)">
+    "I timed the nested-loop counter at n = 500, 1 000, 2 000 and 4 000, five repeats each,
+    taking the fastest. The time ratios were 3.99, 4.02 and 3.99. Four times the work for
+    twice the data matches a loop inside a loop, which is exactly what the code does: the
+    inner loop runs n times for each of the n outer passes. The 4 000 run took nearly a
+    second, so background load on the shared Colab machine could have inflated it slightly.
+    Extrapolating, n = 40 000 would be 100× the 4 000 time — about 80 seconds — which I
+    would not want to run in a live report."
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">6.5</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — identify by ratio alone</span>
+    <p>Someone hands you these timings. Name each pattern without seeing the code.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>n</th><th>A (s)</th><th>B (s)</th><th>C (s)</th><th>D (s)</th></tr></thead>
+        <tbody>
+          <tr><td>1 000</td><td>0.0021</td><td>0.0000004</td><td>0.0100</td><td>0.0000060</td></tr>
+          <tr><td>2 000</td><td>0.0042</td><td>0.0000004</td><td>0.0401</td><td>0.0000065</td></tr>
+          <tr><td>4 000</td><td>0.0084</td><td>0.0000004</td><td>0.1602</td><td>0.0000070</td></tr>
+          <tr><td>8 000</td><td>0.0167</td><td>0.0000004</td><td>0.6410</td><td>0.0000075</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        A doubles each time — one loop over the data (linear). B never changes — constant.
+        C quadruples — nested loops (quadratic). D grows by a small fixed <em>amount</em>
+        each doubling, not a multiple — that is the halving pattern, logarithmic.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — your own doubling study</span>
+    <p>
+      Run <code>doubling()</code> on: (a) summing a list, (b) the worst-case
+      <code>contains</code> search from week 5, (c) the duplicate-finder from week 4, and
+      (d) <code>sorted(data)</code> on a shuffled list. Record all four ratio columns.
+    </p>
+    <details class="solution"><summary>What to expect</summary>
+      <p>
+        (a) and (b) ≈ 2.0; (c) ≈ 4.0; (d) ≈ 2.1–2.2. That last one is the fingerprint of
+        n log n — clearly worse than a plain loop, dramatically better than nested loops.
+        Week 13 explains where it comes from.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — one figure, two curves</span>
+    <p>
+      Plot (b) and (c) from Task 2 on the same axes with labels, title and legend. Then
+      make a second version with log–log axes. Which version communicates better, and to
+      whom?
+    </p>
+    <details class="solution"><summary>Hint</summary>
+      <p>
+        The linear-axis plot shows the practical horror (one curve shoots off the top). The
+        log–log plot shows the structure (two straight lines with different slopes). Reports
+        for decision-makers usually want the first; technical appendices want the second.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.6</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Doubling n makes the time go from 0.10 s to 0.41 s. The most likely shape is:</p>
+      <button class="opt">Constant</button>
+      <button class="opt">One loop over the data</button>
+      <button class="opt">A loop inside a loop</button>
+      <button class="opt">Halving</button>
+      <div class="why">A ratio near 4 is the nested-loop signature. Twice the data, four times the work.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Times at n = 1 000 / 2 000 / 4 000 are 0.0000060 / 0.0000065 / 0.0000070 s. This is:</p>
+      <button class="opt">Logarithmic — each doubling adds a small fixed amount</button>
+      <button class="opt">Linear — the numbers go up</button>
+      <button class="opt">Quadratic — they will explode soon</button>
+      <button class="opt">Meaningless, because the times differ</button>
+      <div class="why">Adding a constant per doubling is exactly what log n does. Multiplying per doubling would be linear or worse.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Your first timing point is 0.00003 s and the ratios are 0.7, 1.9, 0.4. The best next move is:</p>
+      <button class="opt">Report that the algorithm is unpredictable</button>
+      <button class="opt">Increase the starting size until the first run takes tens of milliseconds, then repeat</button>
+      <button class="opt">Average the three ratios and report 1.0</button>
+      <button class="opt">Use time.time() instead</button>
+      <div class="why">Ratios only mean something once the signal is well above the timer noise. Grow n first, interpret second.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.7</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 7</span>
+    <ol>
+      <li>Create <code>AA_Week06.ipynb</code> with the <code>time_it</code> and <code>doubling</code> harness.</li>
+      <li>Complete Task 2 (four studies) and Task 3 (two figures).</li>
+      <li>For each of the four studies, write the five-sentence interpretation from §6.4.</li>
+      <li>Add one prediction and test it: pick any study, predict the time at the next doubling <em>before</em> running it, then run it and report the error as a percentage.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.8</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>doubling experiment</td><td>Measuring at n, 2n, 4n… and watching the ratio of times.</td></tr>
+        <tr><td>ratio column</td><td>Each time divided by the previous one — the machine-independent part of the result.</td></tr>
+        <tr><td>log–log plot</td><td>Both axes logarithmic; growth patterns become straight lines with distinct slopes.</td></tr>
+        <tr><td>extrapolation</td><td>Using a measured pattern to predict a size you have not run.</td></tr>
+        <tr><td>harness</td><td>Reusable code that runs and times an experiment for you.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

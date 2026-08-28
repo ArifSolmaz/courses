@@ -1,0 +1,305 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>make decisions with <code>if</code> / <code>elif</code> / <code>else</code>;</li>
+      <li>repeat work with a <code>for</code> loop and a <code>while</code> loop;</li>
+      <li>add a counter to any program to measure the work it does;</li>
+      <li>predict the step count of a loop before running it;</li>
+      <li>recognise why a loop inside a loop is a different animal entirely.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.1</span>Decisions first</h2>
+  <p>
+    Before repetition, one small tool: doing something only in certain cases. Python
+    checks the condition, and runs the indented block only if it is true.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>if / elif / else</div><pre><code>temperature = 31
+
+if temperature &gt; 30:
+    print("Hot")
+elif temperature &gt; 15:
+    print("Pleasant")
+else:
+    print("Cold")</code></pre></div>
+  <div class="out">Hot</div>
+  <p>
+    Two things trip up beginners: the colon at the end of the line, and the
+    <strong>indentation</strong> (four spaces). In Python the indentation is not
+    decoration — it is how the language knows which lines belong to the <code>if</code>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Comparison</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td><code>==</code></td><td>is equal to (two signs — one sign is assignment!)</td></tr>
+        <tr><td><code>!=</code></td><td>is not equal to</td></tr>
+        <tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td><td>greater / less / at least / at most</td></tr>
+        <tr><td><code>and</code> <code>or</code> <code>not</code></td><td>combine conditions</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.2</span>The for loop: do this n times</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>counting out loud</div><pre><code>for i in range(5):
+    print("step", i)</code></pre></div>
+  <div class="out">step 0
+step 1
+step 2
+step 3
+step 4</div>
+  <p>
+    <code>range(5)</code> produces 0, 1, 2, 3, 4 — five values, starting at zero, stopping
+    <em>before</em> five. Programmers count from zero often enough that you will stop
+    noticing within a fortnight.
+  </p>
+  <ul>
+    <li><code>range(5)</code> → 0 1 2 3 4</li>
+    <li><code>range(1, 6)</code> → 1 2 3 4 5</li>
+    <li><code>range(0, 10, 2)</code> → 0 2 4 6 8 (step of two)</li>
+  </ul>
+  <p>Adding up the numbers from 1 to n is the classic first loop:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>a running total</div><pre><code>n = 100
+total = 0
+
+for number in range(1, n + 1):
+    total = total + number
+
+print(f"The numbers 1 to {n} add up to {total}")</code></pre></div>
+  <div class="out">The numbers 1 to 100 add up to 5050</div>
+  <p>
+    The pattern — start an accumulator at zero, add to it inside the loop, use it after —
+    is worth memorising. You will write it a hundred times.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">3.3</span>The while loop: keep going until</h2>
+  <p>
+    Use <code>for</code> when you know how many repetitions you need, <code>while</code>
+    when you do not.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>halving, in code</div><pre><code>remaining = 1000
+looks = 0
+
+while remaining &gt; 1:
+    remaining = remaining // 2   <span class="c"># throw away half the dictionary</span>
+    looks = looks + 1
+
+print(f"Pages left: {remaining}, looks needed: {looks}")</code></pre></div>
+  <div class="out">Pages left: 1, looks needed: 10</div>
+  <p>
+    That is the dictionary trick from week 1, now measured by the computer instead of by
+    hand. Change 1000 to 1 000 000 and run it again: the answer goes to 20, not to 10 000.
+  </p>
+  <div class="note red">
+    <span class="label">Infinite loops</span>
+    <p>
+      If the condition never becomes false, the cell runs forever. In Colab, press the
+      stop button (■) next to the cell. Every programmer does this in their first week;
+      it breaks nothing.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.4</span>Counting the work</h2>
+  <p>
+    Here is the technique that carries the whole course. Add a variable whose only job is
+    to count how many times the interesting line runs.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the step counter</div><pre><code>n = 50
+steps = 0
+total = 0
+
+for number in range(1, n + 1):
+    total = total + number
+    steps = steps + 1          <span class="c"># one unit of work</span>
+
+print(f"n = {n}, result = {total}, steps = {steps}")</code></pre></div>
+  <div class="out">n = 50, result = 1275, steps = 50</div>
+  <p>
+    Run it with <code>n = 50</code>, then 100, then 200. The step count is always exactly
+    <code>n</code>. Double the input, double the work: a straight-line relationship. In
+    week 8 this gets the name <em>O(n)</em>, but you can already see it in your own output.
+  </p>
+  <div class="note blue">
+    <span class="label">Why not just time it?</span>
+    <p>
+      For a loop this small, timing is useless — the numbers bounce around depending on
+      what else your machine is doing. Counting is exact and repeatable. We will add the
+      stopwatch in week 5 and use both together for the rest of the course.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.5</span>A loop inside a loop</h2>
+  <p>Now the moment that makes people sit up. Put one loop inside another:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>every pair</div><pre><code>n = 5
+steps = 0
+
+for i in range(n):
+    for j in range(n):
+        steps = steps + 1
+
+print(f"n = {n}, steps = {steps}")</code></pre></div>
+  <div class="out">n = 5, steps = 25</div>
+  <p>
+    The inner loop runs <code>n</code> times for <em>each</em> pass of the outer loop, so
+    the total is <code>n × n</code>. Fill in this table by running the code — do not guess:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>single loop steps</th><th>nested loop steps</th></tr></thead>
+      <tbody>
+        <tr><td>5</td><td>5</td><td>25</td></tr>
+        <tr><td>10</td><td>10</td><td>100</td></tr>
+        <tr><td>100</td><td>100</td><td>10 000</td></tr>
+        <tr><td>1 000</td><td>1 000</td><td>1 000 000</td></tr>
+        <tr><td>10 000</td><td>10 000</td><td>100 000 000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Ten times more input, a hundred times more work. This is why "it worked fine on my
+    test data" and "it froze on the real data" are the same program. Nested loops are not
+    forbidden — sometimes you genuinely must compare every pair — but from now on, when
+    you write one, you should feel a small alarm go off.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">3.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — countdown</span>
+    <p>Print 10, 9, 8 &hellip; 1, then "Lift off". Use a loop, not ten print lines.</p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>countdown.py</div><pre><code>for i in range(10, 0, -1):
+    print(i)
+print("Lift off")</code></pre></div>
+      <p>Ten steps for a countdown from 10, a hundred from 100: the work is proportional to where you start.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — count the evens, with a counter</span>
+    <p>
+      Count how many numbers between 1 and <code>n</code> are even, and also count how
+      many <em>steps</em> your program takes. Try <code>n</code> = 100, 200, 400 and note
+      both numbers.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>evens.py</div><pre><code>n = 100
+evens = 0
+steps = 0
+
+for number in range(1, n + 1):
+    steps = steps + 1
+    if number % 2 == 0:
+        evens = evens + 1
+
+print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
+      <p>
+        Steps: 100, 200, 400 — exactly n. Answer: 50, 100, 200. Both grow in a straight
+        line, and doubling n doubles both.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — predict before you run</span>
+    <p>
+      Write down, on paper, the step count you expect from the nested loop for
+      <code>n = 300</code>. Then run it. Then explain any surprise in one sentence.
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        90 000. If you guessed 600 you added when you should have multiplied — a nested
+        loop multiplies, and that single mistake is behind most "why is my program frozen?"
+        questions.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — halving, generalised</span>
+    <p>
+      Modify the while loop from §3.3 so the starting size is a variable. Record the
+      "looks" for 1 000, 10 000, 100 000, 1 000 000. What pattern do you see?
+    </p>
+    <details class="solution"><summary>What you should see</summary>
+      <p>
+        10, 14, 17, 20. Multiplying the input by ten adds only three or four steps. Compare
+        that with the nested-loop table above — these two behaviours are as different as
+        walking and teleporting.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>How many numbers does <code>range(1, 11)</code> produce?</p>
+      <button class="opt">11</button>
+      <button class="opt">9</button>
+      <button class="opt">10</button>
+      <button class="opt">12</button>
+      <div class="why">It starts at 1 and stops <em>before</em> 11, giving 1…10 — ten values.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>A single loop over n items takes 1 000 steps when n = 1 000. A nested double loop over the same data takes:</p>
+      <button class="opt">2 000 steps</button>
+      <button class="opt">1 000 steps as well</button>
+      <button class="opt">About 10 000 steps</button>
+      <button class="opt">1 000 000 steps</button>
+      <div class="why">n × n = 1 000 × 1 000. The inner loop runs completely for every single pass of the outer one.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>You double n from 500 to 1 000. Which program's step count grows the <em>least</em>?</p>
+      <button class="opt">The halving while-loop (adds one step)</button>
+      <button class="opt">The single for-loop (doubles)</button>
+      <button class="opt">The nested loop (four times as many)</button>
+      <button class="opt">They all grow the same amount</button>
+      <div class="why">Halving is the star: each doubling of the input costs exactly one extra step. Week 12 gives it a name.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.8</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 4</span>
+    <ol>
+      <li>Create <code>AA_Week03.ipynb</code> and solve Tasks 1–4.</li>
+      <li>Write a program that prints the multiplication table from 1×1 to n×n using nested loops, with a step counter. Run it for n = 5, 10, 20 and record the counts.</li>
+      <li>Make a table in a text cell: n, single-loop steps, nested-loop steps, halving-loop steps, for n = 10, 100, 1 000, 10 000.</li>
+      <li>Write five sentences on your table: which column worries you most as n grows, and why? Which would you be happy to run on a million rows?</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.9</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>loop / iteration</td><td>Repeating a block of instructions; one pass through it.</td></tr>
+        <tr><td><code>range(a, b)</code></td><td>The numbers from a up to <em>but not including</em> b.</td></tr>
+        <tr><td>accumulator</td><td>A variable that collects a running total or count.</td></tr>
+        <tr><td>step counter</td><td>An accumulator whose only job is to measure the work done.</td></tr>
+        <tr><td>nested loop</td><td>A loop inside a loop — the counts multiply, not add.</td></tr>
+        <tr><td>indentation</td><td>The four spaces that tell Python which lines belong inside a block.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

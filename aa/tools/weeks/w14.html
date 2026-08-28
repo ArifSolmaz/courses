@@ -1,0 +1,291 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>work through a checklist for choosing an approach to a new problem;</li>
+      <li>recognise the five patterns that quietly make beginner code quadratic;</li>
+      <li>find the slow part of a program instead of guessing at it;</li>
+      <li>write a short, honest performance report;</li>
+      <li>say what you would learn next, and why.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.1</span>The whole course on one page</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Class</th><th>What it means</th><th>You met it in</th><th>Typical source</th></tr></thead>
+      <tbody>
+        <tr><td>O(1)</td><td>Cost ignores the data size</td><td>weeks 2, 4, 11</td><td>Indexing, a formula, dict/set lookup</td></tr>
+        <tr><td>O(log n)</td><td>Each doubling adds one step</td><td>weeks 1, 3, 12</td><td>Halving: binary search, bisect</td></tr>
+        <tr><td>O(n)</td><td>One visit per item</td><td>weeks 3–5, 9, 11</td><td>A single loop, <code>sum</code>, <code>max</code>, <code>in</code> on a list</td></tr>
+        <tr><td>O(n log n)</td><td>A pass, repeated log n times</td><td>weeks 9, 12, 13</td><td><code>sorted()</code>, sort-then-search</td></tr>
+        <tr><td>O(n²)</td><td>Every item meets every item</td><td>weeks 3, 9, 10, 13</td><td>Nested loops; a hidden O(n) inside a loop</td></tr>
+        <tr><td>O(2ⁿ), O(n!)</td><td>Unusable beyond tiny inputs</td><td>week 9</td><td>Trying every combination or arrangement</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="widget" id="growth14" data-growth="time"></div>
+</section>
+
+<section>
+  <h2><span class="num">14.2</span>The choosing checklist</h2>
+  <p>
+    Six questions, in this order, for any new task. Most real decisions are settled by
+    question three.
+  </p>
+  <ol>
+    <li><strong>How big is n, really?</strong> Ten rows forever? Then stop — write the clearest code and move on. Ten million, or growing? Continue.</li>
+    <li><strong>What is the dominant operation?</strong> Searching, counting, sorting, matching, or all-pairs comparison? Name it out loud.</li>
+    <li><strong>Am I searching inside a loop?</strong> If yes, a set or dictionary almost certainly turns O(n²) into O(n). Check this before anything else.</li>
+    <li><strong>Can I prepare once instead of repeating?</strong> Build the set, sort the list, compute the tally — once, outside the loop.</li>
+    <li><strong>Do I need order?</strong> Nearest, next, between-two-values: sorted list plus <code>bisect</code>. Only membership: set.</li>
+    <li><strong>What does it cost me?</strong> More memory, lost order, more code to maintain. Say so in your report rather than hiding it.</li>
+  </ol>
+  <div class="note green">
+    <span class="label">And then, always</span>
+    <p>
+      Measure. A doubling experiment at four sizes takes ten minutes and settles arguments
+      that otherwise run for weeks.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.3</span>The five ways beginners go quadratic</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pattern</th><th>Looks like</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Search inside a loop</td><td><code>for x in a: if x in b:</code></td><td><code>b = set(b)</code> before the loop</td></tr>
+        <tr><td>Building by concatenation</td><td><code>result = result + [x]</code>, <code>text += word</code></td><td><code>append</code>, then <code>"".join(...)</code></td></tr>
+        <tr><td>Working at the front of a list</td><td><code>insert(0, x)</code>, <code>pop(0)</code></td><td><code>collections.deque</code></td></tr>
+        <tr><td>Sorting inside a loop</td><td><code>for …: sorted(data)</code></td><td>Sort once, outside</td></tr>
+        <tr><td>Recomputing a total every round</td><td><code>for …: sum(data)</code></td><td>Keep a running total</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Every one of these is two lines of code that look innocent. If you remember only this
+    table from the whole course, you will still write faster programs than most people who
+    have never taken it.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">14.4</span>Finding the slow part</h2>
+  <p>
+    Do not guess — programmers are famously bad at guessing which line is slow. Two tools,
+    in increasing order of effort:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>1. time the sections</div><pre><code>import time
+
+start = time.perf_counter()
+data = load_data()
+print(f"loading:   {time.perf_counter() - start:.3f}s")
+
+start = time.perf_counter()
+result = analyse(data)
+print(f"analysing: {time.perf_counter() - start:.3f}s")
+
+start = time.perf_counter()
+save(result)
+print(f"saving:    {time.perf_counter() - start:.3f}s")</code></pre></div>
+  <div class="code"><div class="code-head"><span class="dot"></span>2. let Python find it</div><pre><code>import cProfile
+
+cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first</span></code></pre></div>
+  <p>
+    Then apply the 90/10 rule: nearly all the time is in a small part of the code.
+    Optimising anything else is wasted effort, however satisfying it feels.
+  </p>
+  <div class="note red">
+    <span class="label">Order of operations</span>
+    <p>
+      Correct first, measured second, optimised third. An optimisation you cannot measure
+      is a superstition, and a fast program that gives wrong answers is worthless — always
+      re-check the output after a rewrite, exactly as the <code>assert</code> in week 13 did.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.5</span>Writing the report</h2>
+  <p>
+    Your final deliverable, and the format for any performance argument you make in future
+    work or study:
+  </p>
+  <ol>
+    <li><strong>The problem</strong> — one paragraph, no code. What data, what question, what size now and what size expected.</li>
+    <li><strong>Approach A</strong> — the obvious one. Code, and its Big-O class with a one-line justification.</li>
+    <li><strong>Approach B</strong> — the considered one. Same treatment, plus what it costs you (memory, complexity, lost order).</li>
+    <li><strong>Evidence</strong> — a table at four sizes with a ratio column, and one labelled figure. State the machine, the repeat count, and whether you took best or mean.</li>
+    <li><strong>Interpretation</strong> — the five sentences from week 6, including a prediction for a size you did not run.</li>
+    <li><strong>Recommendation</strong> — which one, at what data size, and when you would change your mind.</li>
+    <li><strong>Limitations</strong> — one honest paragraph. What you did not test; where the measurement might mislead.</li>
+  </ol>
+  <div class="note">
+    <span class="label">Marking emphasis, restated</span>
+    <p>
+      Point 7 earns marks. Every genuine measurement has a caveat, and naming yours is the
+      difference between a student result and a professional one. "The 4 000-item run was on
+      a shared Colab machine and may be inflated" costs nothing and buys all your other
+      numbers credibility.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.6</span>Workshop tasks</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — diagnose without running</span>
+    <p>Read this function, name its class, identify every problem, and rewrite it.</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>report.py</div><pre><code>def build_report(orders, vip_customers):
+    lines = []
+    text = ""
+    for order in orders:
+        if order["customer"] in vip_customers:      <span class="c"># vip_customers is a list</span>
+            lines = lines + [order]
+            text = text + order["id"] + ", "
+    total = 0
+    for order in lines:
+        total = total + sum(o["value"] for o in lines)
+    return lines, text, total</code></pre></div>
+    <details class="solution"><summary>Solution</summary>
+      <p>
+        Four problems: (1) membership test against a list inside a loop → O(n·m);
+        (2) <code>lines = lines + [order]</code> → quadratic; (3) <code>text = text + …</code>
+        → quadratic; (4) the last loop recomputes the whole sum once per line → quadratic
+        <em>and</em> wrong (it multiplies the total by the number of lines). Rewritten:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>report_fixed.py</div><pre><code>def build_report(orders, vip_customers):
+    vips = set(vip_customers)                <span class="c"># O(m), once</span>
+    lines = [o for o in orders if o["customer"] in vips]   <span class="c"># O(n)</span>
+    text = ", ".join(o["id"] for o in lines)               <span class="c"># O(n)</span>
+    total = sum(o["value"] for o in lines)                 <span class="c"># O(n)</span>
+    return lines, text, total</code></pre></div>
+      <p>From O(n²) to O(n + m) — and the bug in the total is gone as a side effect of writing it clearly.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — the interview question</span>
+    <p>
+      Given a list of a million numbers, find whether any two of them add up to a given
+      target. Write the obvious O(n²) version, then an O(n) version using a set. Benchmark
+      both at 2 000, 4 000 and 8 000.
+    </p>
+    <details class="solution"><summary>The linear version</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>two_sum.py</div><pre><code>def has_pair(data, target):
+    seen = set()
+    for x in data:
+        if target - x in seen:      <span class="c"># O(1)</span>
+            return True
+        seen.add(x)
+    return False</code></pre></div>
+      <p>
+        One pass, constant work per item. The trick — remember what you have seen so that
+        you never search — is the same one that made the anagram counter linear in week 9.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — peer review</span>
+    <p>
+      Swap final-project drafts with a classmate. For their work, answer: is the benchmark
+      honest (data built outside the timer, repeats, worst case chosen)? Does the claimed
+      class match the ratio column? Is there a limitation they did not mention? Write half a
+      page.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Your script is slow. What comes first?</p>
+      <button class="opt">Rewrite the loops you suspect</button>
+      <button class="opt">Buy a faster machine</button>
+      <button class="opt">Measure which section takes the time</button>
+      <button class="opt">Convert every list to a set</button>
+      <div class="why">Guessing wastes days. Time the sections, or profile — nearly all the time will be in a small part of the code.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Which single change most often fixes a beginner's slow program?</p>
+      <button class="opt">Replacing a list membership test inside a loop with a set</button>
+      <button class="opt">Using shorter variable names</button>
+      <button class="opt">Removing comments</button>
+      <button class="opt">Adding more functions</button>
+      <div class="why">It converts O(n²) into O(n), which is a change of class — the only kind of improvement that keeps paying as the data grows.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>n will always be about 50 rows. The right approach is:</p>
+      <button class="opt">Optimise anyway — quadratic is always wrong</button>
+      <button class="opt">Write the clearest correct code; at this size the class barely matters</button>
+      <button class="opt">Always use a set regardless</button>
+      <button class="opt">Benchmark for a week before writing anything</button>
+      <div class="why">Analysis tells you when growth matters. At fifty rows it does not, and clarity wins. Knowing when <em>not</em> to optimise is part of the skill.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>A report claims "our new version is 40× faster". What is the first question to ask?</p>
+      <button class="opt">Which programming language?</button>
+      <button class="opt">How many people worked on it?</button>
+      <button class="opt">Was it written in C?</button>
+      <button class="opt">At what input size — and does the advantage grow or shrink with more data?</button>
+      <div class="why">A constant-factor 40× stays 40×; a change of class grows without limit. Only the ratio-versus-size curve tells you which you bought.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.8</span>Final project — the deliverable</h2>
+  <div class="task">
+    <span class="label">Due at the end of week 14</span>
+    <ol>
+      <li>One notebook, <code>AA_Final_YourName.ipynb</code>, containing both approaches, the benchmark harness, and the figure.</li>
+      <li>A report of about two pages following the seven-part structure in §14.5.</li>
+      <li>A five-minute presentation: the problem, one figure, one recommendation, one limitation. No code on the slides.</li>
+    </ol>
+    <p style="margin-top:.8rem">
+      Marks are for the quality of the reasoning and the honesty of the measurement, not for
+      the size of the speedup. A well-measured 3× improvement with a clear explanation beats
+      an unexplained 1 000×.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">14.9</span>Where to go next</h2>
+  <div class="grid">
+    <div class="card"><h4>Recursion and divide-and-conquer</h4><p>Write merge sort and quicksort yourself, and see where n log n really comes from.</p></div>
+    <div class="card"><h4>More data structures</h4><p>Stacks, queues, linked lists, trees, heaps and graphs — each solving an operation lists do badly.</p></div>
+    <div class="card"><h4>Space complexity</h4><p>The same analysis applied to memory. Sometimes the limit is what fits, not what finishes.</p></div>
+    <div class="card"><h4>Vectorised computing</h4><p>NumPy and pandas: the same O(n) work with constants tens of times smaller.</p></div>
+    <div class="card"><h4>The next course</h4><p><a href="https://arifsolmaz.github.io/courses/spring/dsa/web/DSA_Course_Dashboard.html">Data Structures &amp; Algorithms</a> assumes exactly what you now know.</p></div>
+    <div class="card"><h4>The textbook</h4><p><a href="https://runestone.academy/ns/books/published/pythonds/index.html">Problem Solving with Algorithms and Data Structures</a> — free, interactive, and the source of week 9.</p></div>
+  </div>
+  <p style="margin-top:1.6rem">
+    Fourteen weeks ago the question was "does this program work?" You now ask a better one:
+    <em>"and what happens when there is ten times more data?"</em> That question is the
+    entire subject, and you can answer it with a stopwatch, a table and a plot. Well done.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">14.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>profiling</td><td>Measuring which parts of a program consume the time.</td></tr>
+        <tr><td>90/10 rule</td><td>Almost all the time is spent in a small fraction of the code.</td></tr>
+        <tr><td>premature optimisation</td><td>Making code faster before knowing it is slow, or where.</td></tr>
+        <tr><td>bottleneck</td><td>The part that limits the whole; the only part worth optimising.</td></tr>
+        <tr><td>trade-off</td><td>What the faster version costs you: memory, clarity, order, flexibility.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Seconds depend on your laptop; step counts don't. Meet T(n) and the dominant term.">
+<title>Week 7: Counting Steps Instead of Seconds — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
+  <nav class="header-nav">
+    <a class="hlink" href="../index.html">Course home</a>
+    <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 07 &middot; Phase 3 · The language of growth</div>
+  <h1>Counting Steps Instead of Seconds</h1>
+  <p class="lede">Seconds depend on your laptop; step counts don't. Meet T(n) and the dominant term.</p>
+  <div class="hero-meta"><span class="chip gold">Big question: How do we compare algorithms without comparing computers?</span><span class="chip">T(n)</span><span class="chip">dominant term</span><span class="chip">≈2.5 hours</span></div>
+</div>
+
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>explain why seconds are a poor way to compare two algorithms;</li>
+      <li>write down a step-count formula T(n) for short pieces of code;</li>
+      <li>find the dominant term of a formula and justify dropping the rest;</li>
+      <li>show that constant factors do not change the growth pattern;</li>
+      <li>connect a step-count formula to the ratio column you measured last week.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.1</span>The problem with seconds</h2>
+  <p>
+    Last week you measured seconds, and seconds were useful. But they carry passengers.
+    A time of 0.04 s describes:
+  </p>
+  <ul>
+    <li>the algorithm — the thing you actually care about;</li>
+    <li>the machine — a 2015 laptop or a 2026 server;</li>
+    <li>the language — Python is far slower than C for the same steps;</li>
+    <li>the moment — what else was running, whether the cache was warm.</li>
+  </ul>
+  <p>
+    Publish "0.04 seconds" and it is obsolete when you upgrade your laptop. Publish
+    "one step per item in the list" and it is true forever, on every machine, in every
+    language. That is why the field settled on <strong>counting steps</strong> as the
+    primary description and uses timing as supporting evidence.
+  </p>
+  <div class="note blue">
+    <span class="label">Both, not either</span>
+    <p>
+      Step counting predicts; timing verifies. A theory that disagrees with the stopwatch
+      is wrong, and a stopwatch reading you cannot explain is a mystery worth chasing.
+      Every serious report in this course carries both.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.2</span>T(n): the step-count formula</h2>
+  <p>
+    <code>T(n)</code> is simply "how many steps this code takes when the input size is n".
+    We count assignments — the cost of storing one value — because they are easy to see and
+    roughly proportional to everything else.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>count the assignments</div><pre><code>def sum_to(n):
+    total = 0                          <span class="c"># 1 assignment</span>
+    for number in range(1, n + 1):     <span class="c"># n assignments to 'number'</span>
+        total = total + number         <span class="c"># n assignments to 'total'</span>
+    return total</code></pre></div>
+  <p>
+    So <code>T(n) = 1 + 2n</code>. For n = 10 that is 21 steps; for n = 1 000, 2 001; for
+    n = 1 000 000, 2 000 001.
+  </p>
+  <p>
+    Now the formula version of the same job:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>no loop at all</div><pre><code>def sum_formula(n):
+    return n * (n + 1) // 2            <span class="c"># a fixed handful of operations</span></code></pre></div>
+  <p>
+    Here <code>T(n) = 3</code> or so, whatever n is. That single fact — the formula's step
+    count does not contain <code>n</code> — is exactly what you saw in week 5, when its
+    timings refused to grow.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">7.3</span>The dominant term</h2>
+  <p>
+    Real formulas are messier. Suppose you carefully count a piece of code and get:
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T(n) = 5n² + 200n + 3000</p>
+  <p>Which part matters? Put numbers in and watch:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>5n²</th><th>200n</th><th>3000</th><th>share of total from 5n²</th></tr></thead>
+      <tbody>
+        <tr><td>10</td><td>500</td><td>2 000</td><td>3 000</td><td>9%</td></tr>
+        <tr><td>100</td><td>50 000</td><td>20 000</td><td>3 000</td><td>68%</td></tr>
+        <tr><td>1 000</td><td>5 000 000</td><td>200 000</td><td>3 000</td><td>96%</td></tr>
+        <tr><td>100 000</td><td>50 000 000 000</td><td>20 000 000</td><td>3 000</td><td>99.96%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    For small inputs the constant 3 000 rules. But we are never interested in small inputs
+    — small inputs are fast under any method. As n grows, the <strong>n² term takes over
+    completely</strong> and everything else becomes rounding error.
+  </p>
+  <p>So we throw away the small stuff and keep the shape:</p>
+  <div class="note">
+    <span class="label">Two rules of simplification</span>
+    <ol>
+      <li><strong>Keep only the fastest-growing term.</strong> 5n² + 200n + 3000 → 5n².</li>
+      <li><strong>Drop the constant multiplier.</strong> 5n² → n². The 5 is a property of your machine and your coding style, not of the method.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.4</span>Why dropping the 5 is honest</h2>
+  <p>
+    It feels like cheating. It is not, and the reason is worth a moment. Compare two
+    methods:
+  </p>
+  <ul>
+    <li>Method A: T(n) = 100n — clumsy, a hundred steps per item.</li>
+    <li>Method B: T(n) = n² — tidy, but nested.</li>
+  </ul>
+  <p>
+    At n = 50, A costs 5 000 and B costs 2 500: B wins. At n = 100 they tie at 10 000. At
+    n = 1 000, A costs 100 000 and B costs 1 000 000 — A wins by ten times. At n = 100 000,
+    A wins by a factor of a thousand.
+  </p>
+  <p>
+    A constant factor buys you a fixed head start; a better growth pattern eventually wins
+    by any margin you like. Buying a computer twice as fast halves your constant — and
+    moves the crossover a little. Choosing a better algorithm changes the shape of the
+    curve, and that is the only thing that survives more data.
+  </p>
+  <div class="note green">
+    <span class="label">When constants do matter</span>
+    <p>
+      In real work, if n is genuinely always small and always will be, a "worse" algorithm
+      with a tiny constant can be the right choice. Analysis tells you which method wins
+      <em>eventually</em>; engineering judgment tells you whether you live in "eventually".
+      Say so explicitly in your reports rather than pretending the constant does not exist.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.5</span>Counting practice</h2>
+  <p>Three snippets. Count before reading the answer.</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>snippet A</div><pre><code>total = 0
+for i in range(n):
+    total = total + i
+for j in range(n):
+    total = total + j</code></pre></div>
+  <div class="code"><div class="code-head"><span class="dot"></span>snippet B</div><pre><code>count = 0
+for i in range(n):
+    for j in range(n):
+        count = count + 1</code></pre></div>
+  <div class="code"><div class="code-head"><span class="dot"></span>snippet C</div><pre><code>count = 0
+for i in range(n):
+    for j in range(10):
+        count = count + 1</code></pre></div>
+  <details class="solution"><summary>Answers</summary>
+    <p>
+      <strong>A:</strong> two loops one after another, T(n) = 1 + 2n + 2n = 4n + 1 → keep n.
+      Sequential loops <em>add</em>.
+    </p>
+    <p>
+      <strong>B:</strong> nested loops, T(n) = 1 + n² (counting the inner assignment) → keep
+      n². Nested loops <em>multiply</em>.
+    </p>
+    <p>
+      <strong>C:</strong> nested, but the inner loop runs a fixed 10 times regardless of n:
+      T(n) = 1 + 10n → keep n. This is the trap. A nested loop is only quadratic when
+      <em>both</em> loops grow with the input.
+    </p>
+  </details>
+  <div class="note red">
+    <span class="label">The rule beginners get wrong</span>
+    <p>
+      "Nested loop means n²" is false. What matters is how many times each loop runs
+      <em>as a function of the input</em>. Two loops side by side add; loops inside each
+      other multiply; a loop with a fixed count is just a constant factor.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — count, then verify</span>
+    <p>
+      For each of snippets A, B and C above: write down T(n), then add a step counter and
+      run at n = 10, 100 and 1 000. Does the counter match your formula exactly? Where does
+      it differ, and why?
+    </p>
+    <details class="solution"><summary>What to look for</summary>
+      <p>
+        The counter should match to within the one or two setup assignments you may have
+        counted differently. That "off by one or two" is precisely the constant term the
+        simplification rules tell you to discard.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — simplify</span>
+    <p>Reduce each to its dominant term, no constants:</p>
+    <ol>
+      <li>T(n) = 3n + 17</li>
+      <li>T(n) = n² + n + 1</li>
+      <li>T(n) = 2n³ + 500n² + 10 000n</li>
+      <li>T(n) = 42</li>
+      <li>T(n) = 6n + 3n log n</li>
+    </ol>
+    <details class="solution"><summary>Answers</summary>
+      <p>n; n²; n³; a constant (does not grow); n log n — because n log n grows faster than n.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — the crossover, measured</span>
+    <p>
+      Write one function that does 100 steps per item (a loop of 100 inside a loop of n)
+      and one that does a full nested pass (n inside n). Time both from n = 10 upward and
+      find the n where the second becomes slower. Compare with the predicted crossover at
+      n = 100.
+    </p>
+    <details class="solution"><summary>What you should see</summary>
+      <p>
+        A crossover near n = 100, though the exact point wobbles with machine noise and
+        Python overheads. The lesson is not the exact number: it is that the crossover
+        exists, is predictable from the formulas, and that beyond it the gap only widens.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p>T(n) = 4n² + 1000n + 50 000. Which term decides the behaviour for large n?</p>
+      <button class="opt">50 000, because it is the biggest number</button>
+      <button class="opt">4n², because n² grows faster than anything else here</button>
+      <button class="opt">1000n, because 1000 is a large multiplier</button>
+      <button class="opt">All three equally</button>
+      <div class="why">Growth beats size. At n = 1 000 the n² term is already 25 times everything else combined, and the gap keeps widening.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Two loops written one after the other, each over n items, give:</p>
+      <button class="opt">n² steps</button>
+      <button class="opt">n/2 steps</button>
+      <button class="opt">log n steps</button>
+      <button class="opt">2n steps, which simplifies to n</button>
+      <div class="why">Sequential loops add. Only nesting multiplies.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Method A takes 100n steps, method B takes n². For which inputs is B actually faster?</p>
+      <button class="opt">For n below 100</button>
+      <button class="opt">Never</button>
+      <button class="opt">Always</button>
+      <button class="opt">For n above 100</button>
+      <div class="why">They cross at n = 100. Below it the constant factor dominates and B wins; above it the growth pattern takes over and A wins by ever more.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.8</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 8</span>
+    <ol>
+      <li>Create <code>AA_Week07.ipynb</code> and complete Tasks 1–3.</li>
+      <li>Take any three functions you wrote in weeks 3–6. For each: write T(n), simplify it, then verify with a step counter at three sizes.</li>
+      <li>For one of them, put the predicted step counts and the measured seconds side by side in one table. Do they rise in the same proportions?</li>
+      <li>Write five sentences on this question: your colleague says "just buy a faster computer". Using your own crossover measurement from Task 3, explain when they are right and when they are badly wrong.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.9</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>T(n)</td><td>The number of steps a piece of code takes for input size n.</td></tr>
+        <tr><td>dominant term</td><td>The fastest-growing part of a formula; the only part that matters for large n.</td></tr>
+        <tr><td>constant factor</td><td>The multiplier in front (the 5 in 5n²) — machine and style, not method.</td></tr>
+        <tr><td>crossover point</td><td>The input size where a method with better growth overtakes one with a smaller constant.</td></tr>
+        <tr><td>machine independence</td><td>The reason we count steps: the answer stays true when the hardware changes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="week-nav">
+  <a href="../w6/">&larr; Week 6</a>
+  <button class="done-btn" type="button" data-done="w7">mark this week done</button>
+  <a href="../w8/">Week 8 &rarr;</a>
+</nav>
+
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

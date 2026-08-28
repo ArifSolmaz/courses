@@ -1,0 +1,304 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>create and use dictionaries and sets;</li>
+      <li>explain, in plain words, how hashing makes lookup independent of size;</li>
+      <li>measure the difference between <code>in</code> on a list and <code>in</code> on a set;</li>
+      <li>rewrite a quadratic "check against a list" loop into a linear one;</li>
+      <li>say what dictionaries and sets cost you in memory and in guarantees.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.1</span>The problem this solves</h2>
+  <p>
+    Week 10 left us with an uncomfortable fact: <code>x in my_list</code> is
+    <code>O(n)</code>. Put that inside a loop over m queries and you have
+    <code>O(n × m)</code> — the shape that turns a working prototype into a frozen laptop.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the everyday disaster</div><pre><code>known_emails = list_of_100000_addresses
+new_signups  = list_of_10000_addresses
+
+duplicates = []
+for address in new_signups:            <span class="c"># 10 000 times ...</span>
+    if address in known_emails:        <span class="c"># ... a scan of 100 000</span>
+        duplicates.append(address)</code></pre></div>
+  <p>
+    A billion comparisons for a job that sounds like nothing. This week's tool reduces it
+    to about a hundred and ten thousand — roughly ten thousand times less work — by
+    changing one word.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.2</span>Sets: a bag with instant membership</h2>
+  <p>
+    A <strong>set</strong> is an unordered collection with no duplicates, written with
+    curly braces.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>sets</div><pre><code>enrolled = {"Ada", "Bilal", "Cem"}
+
+enrolled.add("Dilek")
+enrolled.add("Ada")            <span class="c"># already there — no effect, no error</span>
+
+print("Cem" in enrolled)       <span class="c"># True   — and this is O(1)</span>
+print(len(enrolled))           <span class="c"># 4</span>
+
+a = {1, 2, 3}
+b = {3, 4}
+print(a &amp; b, a | b, a - b)     <span class="c"># {3} {1,2,3,4} {1,2}</span></code></pre></div>
+  <p>
+    The last line — intersection, union, difference — often replaces an entire nested loop
+    with one character.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.3</span>Dictionaries: a label on every value</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>dictionaries</div><pre><code>grades = {"Ada": 88, "Bilal": 72, "Cem": 91}
+
+print(grades["Ada"])              <span class="c"># 88     — O(1)</span>
+grades["Dilek"] = 67              <span class="c"># add    — O(1)</span>
+print("Ece" in grades)            <span class="c"># False  — O(1), checks the keys</span>
+print(grades.get("Ece", 0))       <span class="c"># 0      — a safe default</span>
+
+for name, score in grades.items():
+    print(f"{name}: {score}")</code></pre></div>
+  <p>
+    A dictionary maps <strong>keys</strong> to <strong>values</strong>. Keys must be
+    unchangeable things — text, numbers, tuples — and each appears once. Looking one up
+    costs the same whether the dictionary holds ten entries or ten million.
+  </p>
+  <p>
+    Counting things is the everyday use, and it replaces a lot of clumsy list code:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>counting with a dictionary</div><pre><code>text = "the quick brown fox jumps over the lazy dog the end"
+
+counts = {}
+for word in text.split():
+    counts[word] = counts.get(word, 0) + 1     <span class="c"># O(1) per word</span>
+
+print(counts["the"])       <span class="c"># 3</span></code></pre></div>
+  <p>
+    One pass over n words, constant work each: <strong>O(n)</strong> for the whole tally.
+    The list-based equivalent — searching a list of seen words each time — is O(n²).
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.4</span>How can lookup not depend on size?</h2>
+  <p>
+    It feels like a trick. Here is the idea, without any mathematics.
+  </p>
+  <p>
+    Imagine a cloakroom with 1 000 numbered hooks. Instead of searching for a free hook,
+    the attendant computes one from your name: add up the letters, divide by 1 000, take
+    the remainder. "Bilal" always gives the same number — say 417 — so your coat goes on
+    hook 417 and is <em>found</em> on hook 417 later. No searching, ever. The computation is
+    called a <strong>hash</strong>, and it takes the same time regardless of how many coats
+    are already hanging.
+  </p>
+  <p>
+    Two names can compute to the same hook — a <strong>collision</strong>. The structure
+    keeps a small chain there and checks it, which is why the honest statement is "O(1) on
+    average". With a good hash function, collisions are rare enough that this holds up in
+    practice, and Python's is very good.
+  </p>
+  <div class="note">
+    <span class="label">What it costs you</span>
+    <ul>
+      <li><strong>Memory.</strong> Hash tables keep spare room to stay fast — expect roughly two to three times the memory of the equivalent list.</li>
+      <li><strong>Order.</strong> Sets have none. (Dictionaries do keep insertion order in modern Python, but never rely on sets for ordering.)</li>
+      <li><strong>Hashable keys only.</strong> Text, numbers and tuples work; lists cannot be dictionary keys or set members, because they can change.</li>
+      <li><strong>No range queries.</strong> "All names starting with B" still means walking everything.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.5</span>The measurement</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>list vs set membership</div><pre><code>import time
+
+for n in [10000, 100000, 1000000]:
+    as_list = list(range(n))
+    as_set = set(as_list)
+    target = -1                     <span class="c"># missing: the worst case</span>
+
+    start = time.perf_counter()
+    for _ in range(100):
+        target in as_list
+    t_list = (time.perf_counter() - start) / 100
+
+    start = time.perf_counter()
+    for _ in range(100):
+        target in as_set
+    t_set = (time.perf_counter() - start) / 100
+
+    print(f"n={n:&gt;8}  list {t_list*1e6:10.2f} µs   set {t_set*1e6:6.2f} µs   ratio {t_list/t_set:,.0f}x")</code></pre></div>
+  <div class="out">n=   10000  list      52.31 µs   set   0.05 µs   ratio 1,046x
+n=  100000  list     521.90 µs   set   0.05 µs   ratio 10,438x
+n= 1000000  list    5208.44 µs   set   0.05 µs   ratio 104,169x</div>
+  <p>
+    The list column multiplies by ten every row. The set column does not move at all — and
+    so the ratio column multiplies by ten instead. This is what a difference in class looks
+    like when you see it directly: not "faster", but "stops caring how much data there is".
+  </p>
+  <p>Now the disaster from §11.1, repaired:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>one word changed</div><pre><code>known_set = set(known_emails)          <span class="c"># O(n), paid once</span>
+
+duplicates = [a for a in new_signups if a in known_set]   <span class="c"># O(m)</span></code></pre></div>
+  <p>
+    Total cost O(n + m) instead of O(n × m). On the numbers from §11.1 that is about
+    110 000 operations instead of a billion — and the code is shorter.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.6</span>Choosing the container</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>You need to…</th><th>Use</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Keep things in order, access by position</td><td>list</td><td>index O(1), search O(n)</td></tr>
+        <tr><td>Ask "have I seen this?" repeatedly</td><td>set</td><td>O(1) average</td></tr>
+        <tr><td>Look up a value by a label or id</td><td>dict</td><td>O(1) average</td></tr>
+        <tr><td>Count occurrences</td><td>dict or <code>Counter</code></td><td>O(n) total</td></tr>
+        <tr><td>Remove duplicates</td><td><code>set(data)</code></td><td>O(n), loses order</td></tr>
+        <tr><td>Add and remove at both ends</td><td>deque</td><td>O(1) both ends</td></tr>
+        <tr><td>Keep sorted order at all times</td><td>list + <code>bisect</code>, or sort once</td><td>see week 12</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note green">
+    <span class="label">The rule of thumb worth carrying out of this course</span>
+    <p>
+      If you are searching a list inside a loop, you probably want a set or a dictionary.
+      That one sentence covers most beginner performance problems in the wild.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — reproduce the plateau</span>
+    <p>
+      Run §11.5 and plot both columns against n on log–log axes. The set line should be
+      flat and the list line a straight rising slope. Label everything.
+    </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — word frequency two ways</span>
+    <p>
+      Take a long text (paste a chapter, or repeat a paragraph 5 000 times). Count word
+      frequencies (a) with a list of seen words and <code>in</code>, and (b) with a
+      dictionary. Time both, and report the ratio at two text sizes.
+    </p>
+    <details class="solution"><summary>What to expect</summary>
+      <p>
+        The list version is O(n × unique words) and the dictionary version O(n). The gap
+        widens with the vocabulary size, so a bigger text makes it worse — the opposite of
+        what most people expect from "it worked on the small file".
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — find the common elements</span>
+    <p>
+      Given two lists of 50 000 random numbers, find the values present in both, first with
+      nested loops, then with <code>set(a) &amp; set(b)</code>. Time both and confirm they
+      agree on the answer.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>both ways</div><pre><code>common_slow = []
+for x in a:                       <span class="c"># O(n × m)</span>
+    if x in b:
+        common_slow.append(x)
+
+common_fast = list(set(a) &amp; set(b))    <span class="c"># O(n + m)</span>
+
+print(sorted(common_slow) == sorted(common_fast))</code></pre></div>
+      <p>Expect a factor of thousands, and identical results. Always check that the fast version is still correct.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — when a set is the wrong answer</span>
+    <p>
+      Name two situations where converting a list to a set would be a mistake, and explain
+      why in one sentence each.
+    </p>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        (1) When duplicates carry meaning — a set silently discards them, changing your
+        results. (2) When order matters, such as a ranked leaderboard. A third: when you do
+        only one or two lookups, building the set costs more than the scan it saves.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p><code>x in data</code> where <code>data</code> is a set of one million items costs about:</p>
+      <button class="opt">One million steps</button>
+      <button class="opt">A constant handful of steps, regardless of size</button>
+      <button class="opt">Twenty steps, because it halves</button>
+      <button class="opt">It depends on where x was inserted</button>
+      <div class="why">The hash computes the location directly. Size does not enter into it — that is the whole point of a hash table.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>Converting a 100 000-item list to a set before 10 000 lookups changes the total cost from:</p>
+      <button class="opt">O(n) to O(n²)</button>
+      <button class="opt">O(log n) to O(1)</button>
+      <button class="opt">O(n × m) to O(n + m)</button>
+      <button class="opt">O(n!) to O(n)</button>
+      <div class="why">Building the set is one pass (n); each lookup is then constant, so the queries cost m. About a billion operations become about a hundred and ten thousand.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Which is <em>not</em> a real cost of using a dictionary or set?</p>
+      <button class="opt">Extra memory</button>
+      <button class="opt">Keys must be hashable — no lists as keys</button>
+      <button class="opt">Sets do not preserve order</button>
+      <button class="opt">Lookups get slower as the structure grows</button>
+      <div class="why">That is precisely what does <em>not</em> happen. The other three are genuine trade-offs you should state when you recommend one.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 12</span>
+    <ol>
+      <li>Create <code>AA_Week11.ipynb</code> and complete Tasks 1–4.</li>
+      <li>Take any O(n²) function you wrote in weeks 4, 9 or 10 and rewrite it using a set or dictionary. Benchmark both at three sizes and prove the class changed.</li>
+      <li>Produce one labelled figure showing the flat set line against the rising list line.</li>
+      <li>Write five sentences for a non-technical manager explaining why the report that "took 3 hours" now takes 4 seconds, without using the words "hash" or "complexity".</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>set</td><td>Unordered collection, no duplicates, instant membership test.</td></tr>
+        <tr><td>dictionary</td><td>Key → value store with instant lookup by key.</td></tr>
+        <tr><td>key / value</td><td>The label you look things up by / the thing stored under it.</td></tr>
+        <tr><td>hash</td><td>A computed number that says where an item belongs — no searching required.</td></tr>
+        <tr><td>collision</td><td>Two keys landing in the same place; handled internally, and why we say "O(1) on average".</td></tr>
+        <tr><td>hashable</td><td>A value stable enough to be used as a key: text, numbers, tuples — not lists.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

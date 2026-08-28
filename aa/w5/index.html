@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Wrap work in a function, then time it honestly with perf_counter and repeats.">
+<title>Week 5: Functions and the Stopwatch — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
+  <nav class="header-nav">
+    <a class="hlink" href="../index.html">Course home</a>
+    <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 05 &middot; Phase 2 · Measuring for real</div>
+  <h1>Functions and the Stopwatch</h1>
+  <p class="lede">Wrap work in a function, then time it honestly with perf_counter and repeats.</p>
+  <div class="hero-meta"><span class="chip gold">Big question: How long does my code actually take?</span><span class="chip">functions</span><span class="chip">timing</span><span class="chip">≈2.5 hours</span></div>
+</div>
+
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>write a function with <code>def</code>, give it inputs and get a value back;</li>
+      <li>time a piece of code with <code>time.perf_counter()</code>;</li>
+      <li>explain why one measurement is never enough;</li>
+      <li>run the same function at several input sizes and put the results in a table;</li>
+      <li>spot the three things that make a benchmark lie.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.1</span>A function is a named piece of work</h2>
+  <p>
+    Up to now, changing <code>n</code> meant editing the code and running it again. A
+    <strong>function</strong> lets you say "do that job, with this input" as many times as
+    you like.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>def, parameter, return</div><pre><code>def sum_to(n):
+    total = 0
+    for number in range(1, n + 1):
+        total = total + number
+    return total
+
+print(sum_to(10))
+print(sum_to(1000))</code></pre></div>
+  <div class="out">55
+500500</div>
+  <p>Three parts, and each has a job:</p>
+  <ul>
+    <li><code>def sum_to(n):</code> — the name and the <strong>parameter</strong> it expects.</li>
+    <li>the indented block — the work, which can use <code>n</code> as if it were a variable.</li>
+    <li><code>return total</code> — hand the answer back. Without it, the function gives back <code>None</code>, which is the most common cause of "why is my result empty?"</li>
+  </ul>
+  <div class="note">
+    <span class="label">Defining is not running</span>
+    <p>
+      Running the <code>def</code> block produces no output — it only teaches Python the
+      word. Nothing happens until you <em>call</em> it: <code>sum_to(10)</code>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.2</span>The stopwatch</h2>
+  <p>
+    Python's <code>time</code> module has a high-resolution clock. Read it before, read it
+    after, subtract.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>timing pattern — memorise this</div><pre><code>import time
+
+start = time.perf_counter()
+result = sum_to(1000000)
+elapsed = time.perf_counter() - start
+
+print(f"result {result}, took {elapsed:.4f} seconds")</code></pre></div>
+  <div class="out">result 500000500000, took 0.0521 seconds</div>
+  <p>
+    Your number will differ from mine, and from your own number thirty seconds from now.
+    That is not a flaw in the method — it is the first thing you have to learn to handle.
+  </p>
+  <div class="note red">
+    <span class="label">Use perf_counter, not the clock on the wall</span>
+    <p>
+      <code>time.perf_counter()</code> is designed for measuring short intervals. Do not
+      use <code>time.time()</code> for benchmarks — it can jump when the system clock
+      adjusts. The number it returns is meaningless on its own; only the difference
+      matters.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.3</span>One measurement is not a measurement</h2>
+  <p>
+    Your computer is doing dozens of other things while it runs your loop. Time the same
+    call five times and you will get five different answers:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>repeat and take the best</div><pre><code>import time
+
+def time_it(func, n, repeats=5):
+    """Run func(n) several times, return the fastest time in seconds."""
+    best = None
+    for _ in range(repeats):
+        start = time.perf_counter()
+        func(n)
+        elapsed = time.perf_counter() - start
+        if best is None or elapsed &lt; best:
+            best = elapsed
+    return best
+
+print(f"{time_it(sum_to, 1000000):.4f} s")</code></pre></div>
+  <p>
+    Why the <em>fastest</em> run and not the average? Because interference only ever makes
+    code slower. The quickest run is the one that got the least interrupted — the closest
+    thing to the true cost. (Averages are fine too, as long as you say which you used.)
+  </p>
+  <div class="note blue">
+    <span class="label">The three ways a benchmark lies</span>
+    <ol>
+      <li><strong>Too small.</strong> Anything under a millisecond is mostly noise. Increase n until the run takes at least 0.05 s.</li>
+      <li><strong>Something else was running.</strong> Close the video tab. On Colab, other people's load can bleed in — repeat and take the best.</li>
+      <li><strong>You measured the wrong thing.</strong> Building a million-item test list inside the timed block measures list-building, not your algorithm. Build the data <em>before</em> <code>start</code>.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.4</span>Your first benchmark table</h2>
+  <p>
+    Now the pattern that every remaining week of this course uses. Same function, several
+    sizes, one table:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>benchmark.py</div><pre><code>sizes = [100000, 200000, 400000, 800000]
+
+print(f"{'n':&gt;10} {'seconds':&gt;12} {'ratio':&gt;8}")
+previous = None
+for n in sizes:
+    t = time_it(sum_to, n)
+    ratio = t / previous if previous else 1.0
+    print(f"{n:&gt;10} {t:&gt;12.5f} {ratio:&gt;8.2f}")
+    previous = t</code></pre></div>
+  <div class="out">         n      seconds    ratio
+    100000      0.00512     1.00
+    200000      0.01031     2.01
+    400000      0.02064     2.00
+    800000      0.04119     2.00</div>
+  <p>
+    Read the <em>ratio</em> column, not the seconds column. The seconds depend on your
+    laptop; the ratio is a property of the algorithm. Double the input, double the time:
+    this function's cost grows in a straight line. Next week you will use that column to
+    identify every growth pattern in the course.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">5.5</span>Two functions, one job</h2>
+  <p>
+    There is a closed-form formula for the same sum: n(n+1)/2. Same answer, different
+    method:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>loop vs formula</div><pre><code>def sum_formula(n):
+    return n * (n + 1) // 2
+
+for n in [1000, 100000, 10000000]:
+    a = time_it(sum_to, n)
+    b = time_it(sum_formula, n)
+    print(f"n={n:&gt;9}  loop {a:.6f}s   formula {b:.9f}s   x{a/b:,.0f} faster")</code></pre></div>
+  <div class="out">n=     1000  loop 0.000041s   formula 0.000000160s   x256 faster
+n=   100000  loop 0.004900s   formula 0.000000170s   x28824 faster
+n= 10000000  loop 0.512000s   formula 0.000000180s   x2844444 faster</div>
+  <p>
+    Look at the formula column: it barely moves. The loop's time grows with n; the
+    formula's does not grow at all. And notice the last column growing too — the gap
+    between the two methods widens with the data. <em>That</em> is the thing this course
+    teaches you to see coming, before you write the slow one.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">5.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — functions from last week</span>
+    <p>
+      Turn the linear search from week 4 into <code>def contains(data, target)</code> that
+      returns <code>True</code> or <code>False</code>. Test it on a small list.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>contains.py</div><pre><code>def contains(data, target):
+    for item in data:
+        if item == target:
+            return True      <span class="c"># return leaves the function immediately</span>
+    return False
+
+print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — time the worst case</span>
+    <p>
+      Time <code>contains</code> searching for a missing item in lists of 100 000,
+      200 000, 400 000 and 800 000 items. Build each list <em>before</em> starting the
+      clock. Report the ratio column.
+    </p>
+    <details class="solution"><summary>What you should see</summary>
+      <p>
+        Ratios close to 2.0. A missing item forces a full pass, so the time follows the
+        length of the list exactly. If your ratios are wild (0.4, 6.1), your n is too small
+        or you timed the list construction.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — a deliberately dishonest benchmark</span>
+    <p>
+      Move the line that builds the test list <em>inside</em> the timed region and re-run
+      Task 2. What happens to the numbers, and why is the result meaningless?
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        Times jump several-fold and the ratios still look roughly linear — which is exactly
+        what makes it dangerous. You are now measuring "build a list of n items" plus your
+        search, and you can no longer tell which part dominates. Always ask: what exactly is
+        inside my stopwatch?
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>A function without a <code>return</code> statement gives back:</p>
+      <button class="opt">The last value it computed</button>
+      <button class="opt">Zero</button>
+      <button class="opt">None</button>
+      <button class="opt">An error</button>
+      <div class="why">It runs happily and hands back None. Printing inside a function is not the same as returning.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Why take the fastest of several runs rather than the slowest?</p>
+      <button class="opt">The fastest run is the only correct one</button>
+      <button class="opt">Interference can only add time, so the fastest run is closest to the true cost</button>
+      <button class="opt">Because Python speeds up as it warms</button>
+      <button class="opt">It makes the numbers look better in reports</button>
+      <div class="why">Other processes, disk activity and garbage collection add time; nothing subtracts it.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Your benchmark reports 0.00002 s for n = 10 and 0.00003 s for n = 20. What should you do?</p>
+      <button class="opt">Report that the algorithm is roughly linear</button>
+      <button class="opt">Report that it is constant time</button>
+      <button class="opt">Switch to a faster computer</button>
+      <button class="opt">Increase n until the runs take tens of milliseconds — these numbers are noise</button>
+      <div class="why">At this scale you are measuring the clock and the loop overhead, not the algorithm. Grow n until the signal is well above the noise.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.8</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 6</span>
+    <ol>
+      <li>Create <code>AA_Week05.ipynb</code>, define <code>time_it</code>, and solve Tasks 1–3.</li>
+      <li>Benchmark three functions at four sizes each: <code>sum_to</code>, <code>sum_formula</code>, and <code>contains</code> (worst case). One table each, with a ratio column.</li>
+      <li>Add a step counter to <code>contains</code> and report both steps and seconds for each size.</li>
+      <li>Write five sentences: where do the step counts and the seconds agree, and where does the timing wobble? Which of the three ways to lie (§5.3) did you have to guard against?</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.9</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>function</td><td>A named block of work you can call with different inputs.</td></tr>
+        <tr><td>parameter / argument</td><td>The name in the definition / the value you pass in.</td></tr>
+        <tr><td>return</td><td>Hand a value back to whoever called the function, and stop.</td></tr>
+        <tr><td>benchmark</td><td>A measurement of how long code takes, done carefully enough to trust.</td></tr>
+        <tr><td>perf_counter</td><td>Python's high-resolution stopwatch; only differences are meaningful.</td></tr>
+        <tr><td>noise</td><td>Variation in timings caused by everything else the machine is doing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="week-nav">
+  <a href="../w4/">&larr; Week 4</a>
+  <button class="done-btn" type="button" data-done="w5">mark this week done</button>
+  <a href="../w6/">Week 6 &rarr;</a>
+</nav>
+
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

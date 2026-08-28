@@ -1,0 +1,314 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>create lists, read items by position, and add to a list;</li>
+      <li>loop over a list to search, count and total;</li>
+      <li>use <code>in</code> to ask "is this here?" and know roughly what it costs;</li>
+      <li>build test data of any size with <code>range</code> and <code>random</code>;</li>
+      <li>show, with your own step counts, that searching an unsorted list grows with its length.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.1</span>One name, many values</h2>
+  <p>
+    So far every variable held one thing. A <strong>list</strong> holds many, in order,
+    under one name — written in square brackets, separated by commas.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>lists look like this</div><pre><code>grades = [72, 88, 45, 91, 63]
+students = ["Ada", "Bilal", "Cem", "Dilek"]
+mixed = ["Ada", 72, True]        <span class="c"># allowed, but rarely a good idea</span>
+
+print(grades)
+print(len(grades))               <span class="c"># how many items</span></code></pre></div>
+  <div class="out">[72, 88, 45, 91, 63]
+5</div>
+  <p>
+    Items are numbered from <strong>zero</strong>. The last item is at position
+    <code>len(list) - 1</code>, or more conveniently at <code>-1</code>.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>reading by position</div><pre><code>print(students[0])     <span class="c"># Ada     — the first</span>
+print(students[2])     <span class="c"># Cem     — the third</span>
+print(students[-1])    <span class="c"># Dilek   — the last</span>
+print(students[1:3])   <span class="c"># ['Bilal', 'Cem'] — a slice, stops before 3</span></code></pre></div>
+  <p>
+    Asking for <code>students[9]</code> in a four-item list gives
+    <code>IndexError: list index out of range</code> — "there is no ninth shelf".
+  </p>
+  <div class="note blue">
+    <span class="label">Worth knowing already</span>
+    <p>
+      Reading <code>students[0]</code> and reading <code>students[999999]</code> cost the
+      computer exactly the same: it computes where the shelf is and goes straight there.
+      Position access does not care how long the list is. Remember this in week 10, where
+      it becomes the first row of an important table.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.2</span>Changing a list</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>the four you need</div><pre><code>queue = []                     <span class="c"># start empty</span>
+
+queue.append("Ada")            <span class="c"># add to the end</span>
+queue.append("Bilal")
+queue.append("Cem")
+print(queue)
+
+queue[1] = "Burak"             <span class="c"># replace an item</span>
+last = queue.pop()             <span class="c"># take the last one off</span>
+
+print(queue, "| removed:", last)</code></pre></div>
+  <div class="out">['Ada', 'Bilal', 'Cem']
+['Ada', 'Burak'] | removed: Cem</div>
+  <p>
+    <code>append</code> and <code>pop</code> work at the <em>end</em> of the list, which
+    turns out to be the cheap end. There are also <code>insert(0, x)</code> and
+    <code>pop(0)</code> for the front, and those are quietly expensive — week 10 measures
+    exactly how expensive, and the answer is worse than most people expect.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.3</span>Looping over a list</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>three everyday jobs</div><pre><code>grades = [72, 88, 45, 91, 63]
+
+total = 0
+passed = 0
+best = grades[0]
+
+for g in grades:
+    total = total + g
+    if g &gt;= 60:
+        passed = passed + 1
+    if g &gt; best:
+        best = g
+
+print(f"average {total / len(grades):.1f}, passed {passed}, best {best}")</code></pre></div>
+  <div class="out">average 71.8, passed 4, best 91</div>
+  <p>
+    One pass over the list answers three questions at once. And notice the shape of the
+    cost: <strong>one visit per item</strong>. A list ten times longer takes ten times the
+    work. Your step counter from week 3 will confirm it.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.4</span>Searching, and what it costs</h2>
+  <p>
+    "Is this name in my list?" Python has a short way to ask, and it is worth writing the
+    long way first so you can see what really happens.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>searching by hand, with a counter</div><pre><code>names = ["Ada", "Bilal", "Cem", "Dilek", "Ece"]
+target = "Dilek"
+
+found = False
+looks = 0
+
+for name in names:
+    looks = looks + 1
+    if name == target:
+        found = True
+        break                  <span class="c"># stop early — we found it</span>
+
+print(f"found: {found} after {looks} looks")</code></pre></div>
+  <div class="out">found: True after 4 looks</div>
+  <p>The short way does exactly the same work behind the scenes:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the in operator</div><pre><code>print("Dilek" in names)     <span class="c"># True</span>
+print("Zeynep" in names)    <span class="c"># False</span></code></pre></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation</th><th>Looks needed</th><th>Name for it</th></tr></thead>
+      <tbody>
+        <tr><td>The item is first</td><td>1</td><td>best case</td></tr>
+        <tr><td>The item is somewhere in the middle</td><td>about n / 2</td><td>average case</td></tr>
+        <tr><td>The item is last, or missing entirely</td><td>n</td><td>worst case</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The worst case is the one we plan around, and it is the interesting one for another
+    reason: <em>every</em> failed search costs a full pass. A program that checks
+    thousands of items against a list of thousands is doing millions of comparisons — and
+    it looks like two innocent lines of code.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.5</span>Making test data of any size</h2>
+  <p>
+    From next week you will need lists far too long to type. Two ways to conjure them:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>data on demand</div><pre><code>import random
+
+numbers = list(range(100000))                     <span class="c"># 0, 1, 2, ... 99999</span>
+squares = [x * x for x in range(10)]              <span class="c"># a list comprehension</span>
+shuffled = random.sample(range(100000), 100000)   <span class="c"># same numbers, random order</span>
+
+print(len(numbers), squares[:5], shuffled[:5])</code></pre></div>
+  <div class="out">100000 [0, 1, 4, 9, 16] [48213, 7, 99001, 15522, 6]</div>
+  <p>
+    The middle line is a <strong>list comprehension</strong>: "make a list of
+    <code>x * x</code> for every <code>x</code> in this range". Read it right to left. It
+    is the compact Python idiom for building a list from another sequence, and it appears
+    in nearly every benchmark in this course.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.6</span>The experiment: does searching get slower?</h2>
+  <p>
+    Run this, then change <code>size</code> to 10 000 and 100 000. Predict the numbers
+    <em>before</em> each run and write your predictions down.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>worst-case search, counted</div><pre><code>size = 1000
+data = list(range(size))
+target = -1                    <span class="c"># deliberately not in the list</span>
+
+looks = 0
+for item in data:
+    looks = looks + 1
+    if item == target:
+        break
+
+print(f"list of {size}: {looks} looks for a missing item")</code></pre></div>
+  <div class="out">list of 1000: 1000 looks for a missing item</div>
+  <p>
+    Ten times the data, ten times the looks — every time, no exceptions. You have just
+    measured your first growth law with your own hands. Week 5 puts a stopwatch next to
+    the counter, and week 6 turns the pair into a graph.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — basic statistics, by hand</span>
+    <p>
+      Given <code>[12, 7, 30, 4, 18]</code>, compute the total, average, largest and
+      smallest using a single loop and no built-in functions except <code>len</code>.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>stats.py</div><pre><code>data = [12, 7, 30, 4, 18]
+total = 0
+biggest = data[0]
+smallest = data[0]
+
+for x in data:
+    total = total + x
+    if x &gt; biggest:
+        biggest = x
+    if x &lt; smallest:
+        smallest = x
+
+print(total, total / len(data), biggest, smallest)</code></pre></div>
+      <p>One pass, four answers — and the cost is one visit per item however long the list is.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — count the misses</span>
+    <p>
+      Build <code>data = list(range(10000))</code>. Search for 20 different values that
+      are all missing, adding up the total looks. How many comparisons did those 20
+      innocent-looking searches cost?
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        200 000. Twenty searches × 10 000 looks. Now imagine 10 000 searches over 10 000
+        items: 100 million comparisons — a nested loop in disguise. Week 11 shows how to
+        make this same job almost free.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — duplicates the obvious way</span>
+    <p>
+      Write code that reports whether a list contains any repeated value, comparing every
+      item with every later item. Count the comparisons for lists of 100, 200 and 400
+      random numbers.
+    </p>
+    <details class="solution"><summary>Solution and what to notice</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>duplicates.py</div><pre><code>import random
+data = random.sample(range(1000000), 400)
+
+comparisons = 0
+found = False
+for i in range(len(data)):
+    for j in range(i + 1, len(data)):
+        comparisons = comparisons + 1
+        if data[i] == data[j]:
+            found = True
+
+print(found, comparisons)</code></pre></div>
+      <p>
+        About 4 950, 19 900 and 79 800 comparisons. Doubling the list roughly quadruples
+        the work — the nested-loop signature from week 3, now on real data.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p><code>colours = ["red", "green", "blue"]</code>. What is <code>colours[1]</code>?</p>
+      <button class="opt">"red"</button>
+      <button class="opt">"green"</button>
+      <button class="opt">"blue"</button>
+      <button class="opt">An IndexError</button>
+      <div class="why">Counting starts at zero, so position 1 is the second item.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Searching an unsorted list of 1 000 items for something that is <em>not</em> there costs about:</p>
+      <button class="opt">1 look</button>
+      <button class="opt">10 looks</button>
+      <button class="opt">32 looks</button>
+      <button class="opt">1 000 looks</button>
+      <div class="why">A miss is the worst case: you cannot conclude "not here" until you have checked every item.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Which pair of operations costs the same no matter how long the list is?</p>
+      <button class="opt">Reading data[0] and reading data[999999]</button>
+      <button class="opt">Searching for the first item and searching for a missing item</button>
+      <button class="opt">Looping over the whole list and reading one item</button>
+      <button class="opt">Appending one item and comparing all pairs</button>
+      <div class="why">Position access jumps straight to the shelf; the length of the list is irrelevant. The other pairs differ wildly.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 5</span>
+    <ol>
+      <li>Create <code>AA_Week04.ipynb</code> and solve Tasks 1–3.</li>
+      <li>Run the §4.6 experiment for sizes 1 000, 10 000, 100 000 and 1 000 000. Record the looks in a table.</li>
+      <li>Repeat the experiment searching for an item that is <em>first</em> in the list. Put both columns in the same table.</li>
+      <li>Write five sentences: what does the gap between the two columns tell you about best case and worst case? Which would you quote to a client, and why?</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>list</td><td>An ordered collection of values under one name.</td></tr>
+        <tr><td>index</td><td>The position of an item, counted from zero.</td></tr>
+        <tr><td>append / pop</td><td>Add to / remove from the end of a list.</td></tr>
+        <tr><td>linear search</td><td>Checking items one by one until you find it or run out.</td></tr>
+        <tr><td>best / worst / average case</td><td>The luckiest, unluckiest and typical amount of work for the same method.</td></tr>
+        <tr><td>list comprehension</td><td><code>[f(x) for x in things]</code> — build a list from a sequence in one line.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

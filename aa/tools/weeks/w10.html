@@ -1,0 +1,311 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>say what the common list operations cost, and why;</li>
+      <li>explain why <code>append</code> is cheap and <code>insert(0, x)</code> is not;</li>
+      <li>measure the difference yourself instead of taking my word for it;</li>
+      <li>rewrite a slow list-building loop into a fast one;</li>
+      <li>read a cost table for a data structure and use it to make a choice.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.1</span>What a list really is</h2>
+  <p>
+    Picture a row of numbered lockers, side by side, with no gaps. That is a Python list:
+    a block of slots in order, each holding a reference to a value.
+  </p>
+  <p>Two consequences follow from the "no gaps" part, and they explain everything else:</p>
+  <ul>
+    <li>
+      <strong>Reading a position is instant.</strong> To find item 4 719, the computer
+      computes where the slot is and goes there. Length is irrelevant: <code>O(1)</code>.
+    </li>
+    <li>
+      <strong>Inserting or removing at the front is expensive.</strong> If you take out the
+      first locker, everything behind it has to shuffle forward one place to close the gap.
+      That is n moves: <code>O(n)</code>.
+    </li>
+  </ul>
+  <div class="note blue">
+    <span class="label">The mental picture to keep</span>
+    <p>
+      Adding at the <em>end</em> is like putting a book on the end of a shelf. Adding at the
+      <em>front</em> is like inserting a book at the start of a full shelf: every other book
+      moves. Same act, entirely different price.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.2</span>The cost table</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Operation</th><th>Example</th><th>Cost</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>index read / write</td><td><code>data[i]</code></td><td>O(1)</td><td>Jump straight to the slot</td></tr>
+        <tr><td>length</td><td><code>len(data)</code></td><td>O(1)</td><td>Python keeps a running count</td></tr>
+        <tr><td>append</td><td><code>data.append(x)</code></td><td>O(1)*</td><td>Write into the next free slot</td></tr>
+        <tr><td>pop from end</td><td><code>data.pop()</code></td><td>O(1)</td><td>Nothing has to move</td></tr>
+        <tr><td>insert at front</td><td><code>data.insert(0, x)</code></td><td>O(n)</td><td>Everything shifts right</td></tr>
+        <tr><td>pop from front</td><td><code>data.pop(0)</code></td><td>O(n)</td><td>Everything shifts left</td></tr>
+        <tr><td>membership</td><td><code>x in data</code></td><td>O(n)</td><td>Look at items until found</td></tr>
+        <tr><td>delete by value</td><td><code>data.remove(x)</code></td><td>O(n)</td><td>Find it, then shift</td></tr>
+        <tr><td>slice</td><td><code>data[a:b]</code></td><td>O(k)</td><td>Copies k items into a new list</td></tr>
+        <tr><td>concatenate</td><td><code>a + b</code></td><td>O(n+m)</td><td>Builds a whole new list</td></tr>
+        <tr><td>sort</td><td><code>data.sort()</code></td><td>O(n log n)</td><td>See week 13</td></tr>
+        <tr><td>min / max / sum</td><td><code>max(data)</code></td><td>O(n)</td><td>Must inspect everything</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted)">
+    * <code>append</code> is O(1) <em>amortised</em>: occasionally Python has to move the
+    whole list into a bigger block of memory, which costs O(n), but it doubles the space
+    each time so those events are rare enough to average out to a constant. You can quote
+    it as O(1) and mention the word "amortised" to sound like you have read the manual —
+    which, having read this line, you now have.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">10.3</span>Measuring it: front versus back</h2>
+  <p>
+    Never take a table on trust, this one included. Build the same list two ways:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>append vs insert(0)</div><pre><code>import time
+
+def build_append(n):
+    data = []
+    for i in range(n):
+        data.append(i)          <span class="c"># cheap end</span>
+    return data
+
+def build_insert_front(n):
+    data = []
+    for i in range(n):
+        data.insert(0, i)       <span class="c"># expensive end</span>
+    return data
+
+for n in [10000, 20000, 40000, 80000]:
+    start = time.perf_counter(); build_append(n)
+    t_app = time.perf_counter() - start
+
+    start = time.perf_counter(); build_insert_front(n)
+    t_ins = time.perf_counter() - start
+
+    print(f"n={n:&gt;6}  append {t_app:.4f}s   insert(0) {t_ins:.4f}s   ratio {t_ins/t_app:,.0f}x")</code></pre></div>
+  <div class="out">n= 10000  append 0.0008s   insert(0) 0.0221s   ratio 27x
+n= 20000  append 0.0016s   insert(0) 0.0872s   ratio 55x
+n= 40000  append 0.0031s   insert(0) 0.3510s   ratio 113x
+n= 80000  append 0.0062s   insert(0) 1.4102s   ratio 227x</div>
+  <p>
+    Read the ratio column: it doubles every time n doubles. That is the fingerprint of one
+    method being O(n) overall while the other is O(n²) — because n insertions at
+    <code>O(n)</code> each is <code>n × n</code>. The two loops look almost identical on
+    the page. One of them is a bomb with a slow fuse.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">10.4</span>Building strings and lists the fast way</h2>
+  <p>
+    The same trap appears when you build a list or a string by repeated concatenation.
+    <code>result = result + [x]</code> creates a <em>whole new list</em> each round.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>four ways to build the same list</div><pre><code>import time
+
+def by_concat(n):
+    result = []
+    for i in range(n):
+        result = result + [i]        <span class="c"># new list every time: O(n) each</span>
+    return result
+
+def by_append(n):
+    result = []
+    for i in range(n):
+        result.append(i)             <span class="c"># O(1) each</span>
+    return result
+
+def by_comprehension(n):
+    return [i for i in range(n)]     <span class="c"># same work, less Python overhead</span>
+
+def by_list_range(n):
+    return list(range(n))            <span class="c"># all the work happens in C</span>
+
+for func in [by_concat, by_append, by_comprehension, by_list_range]:
+    start = time.perf_counter()
+    func(20000)
+    print(f"{func.__name__:&gt;18}: {time.perf_counter() - start:.5f}s")</code></pre></div>
+  <div class="out">          by_concat: 0.41230s
+          by_append: 0.00151s
+   by_comprehension: 0.00062s
+      by_list_range: 0.00031s</div>
+  <p>
+    A factor of over a thousand between the first and the last, for code that produces an
+    identical result. The first is O(n²); the other three are O(n) with progressively
+    smaller constants. Note the two different kinds of improvement on display: the jump
+    from <code>by_concat</code> to <code>by_append</code> is a <em>class</em> change and it
+    grows with n; the jump from <code>by_append</code> to <code>list(range(n))</code> is a
+    <em>constant factor</em> and it does not.
+  </p>
+  <div class="note red">
+    <span class="label">Same trap, with text</span>
+    <p>
+      <code>text = text + word</code> inside a loop is quadratic for exactly the same
+      reason: strings, like lists, get copied. Collect the pieces in a list and use
+      <code>"".join(pieces)</code> once at the end. That single habit has rescued more
+      slow scripts than any other tip in this course.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.5</span>When you need a fast front: deque</h2>
+  <p>
+    Sometimes you genuinely need to add and remove at both ends — a queue of jobs, a
+    history of moves. Python has a structure built for it.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>list vs deque at the front</div><pre><code>from collections import deque
+import time
+
+n = 100000
+
+data = list(range(n))
+start = time.perf_counter()
+while data:
+    data.pop(0)                      <span class="c"># O(n) each → O(n²) total</span>
+print(f"list.pop(0):    {time.perf_counter() - start:.3f}s")
+
+data = deque(range(n))
+start = time.perf_counter()
+while data:
+    data.popleft()                   <span class="c"># O(1) each → O(n) total</span>
+print(f"deque.popleft(): {time.perf_counter() - start:.3f}s")</code></pre></div>
+  <div class="out">list.pop(0):    1.812s
+deque.popleft(): 0.006s</div>
+  <p>
+    Three hundred times faster, and the gap widens with n. You do not need to know how a
+    deque works internally to use it. You do need the habit of asking "is there a structure
+    designed for the operation I keep repeating?" — which is the whole of next week.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">10.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — verify the table</span>
+    <p>
+      Design and run a doubling experiment for each of these, and state the class you
+      measured: <code>data[n // 2]</code>, <code>data.append(1)</code>,
+      <code>data.pop(0)</code>, <code>x in data</code> (for a missing x),
+      <code>data[:]</code> (a full copy).
+    </p>
+    <details class="solution"><summary>Hint on method</summary>
+      <p>
+        For the O(1) operations one call is far too fast to time — repeat the operation
+        100 000 times inside the timed region and divide, keeping the list size fixed
+        between repeats. For <code>pop(0)</code>, rebuild the list before each timing.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — fix a slow function</span>
+    <p>Here is a real-shaped piece of slow code. Find both problems and rewrite it.</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>slow.py</div><pre><code>def unique_reversed(data):
+    result = []
+    for item in data:
+        if item not in result:          <span class="c"># problem 1</span>
+            result = [item] + result    <span class="c"># problem 2</span>
+    return result</code></pre></div>
+    <details class="solution"><summary>Solution</summary>
+      <p>
+        Problem 1: <code>not in result</code> is an O(n) scan inside an O(n) loop → O(n²).
+        Problem 2: building a new list every round is another O(n) per item. Fixed version,
+        using a set for the membership test (week 11) and appending at the cheap end:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>fast.py</div><pre><code>def unique_reversed(data):
+    seen = set()
+    result = []
+    for item in data:
+        if item not in seen:      <span class="c"># O(1)</span>
+            seen.add(item)
+            result.append(item)   <span class="c"># O(1)</span>
+    result.reverse()              <span class="c"># O(n), once</span>
+    return result</code></pre></div>
+      <p>From O(n²) to O(n). At 100 000 items that is minutes down to milliseconds — measure both to see it.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — the string version</span>
+    <p>
+      Build a string of 50 000 words by repeated <code>+=</code>, then by collecting into a
+      list and calling <code>join</code>. Time both, and report the ratio at 25 000 and
+      50 000 to show the class difference.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Why is <code>data.pop(0)</code> O(n) while <code>data.pop()</code> is O(1)?</p>
+      <button class="opt">Because removing from the front needs a search</button>
+      <button class="opt">Because Python lists are stored backwards</button>
+      <button class="opt">Because every remaining item must shift one place to close the gap at the front</button>
+      <button class="opt">They are actually the same cost</button>
+      <div class="why">A list is a contiguous row of slots. Removing from the end leaves no gap; removing from the front leaves one that must be closed.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p><code>result = result + [i]</code> inside a loop of n items is:</p>
+      <button class="opt">O(n), the same as append</button>
+      <button class="opt">O(n²), because each round copies the whole list into a new one</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1)</button>
+      <div class="why">Copying a list of length k costs k. Doing that for k = 1, 2, 3 … n adds up to about n²/2.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>You keep taking jobs from the front of a very long queue. The right change is:</p>
+      <button class="opt">Buy more memory</button>
+      <button class="opt">Sort the list first</button>
+      <button class="opt">Use <code>data.remove(job)</code> instead</button>
+      <button class="opt">Use <code>collections.deque</code> and <code>popleft()</code></button>
+      <div class="why">A deque is designed for cheap operations at both ends: O(1) per removal instead of O(n).</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.8</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 11</span>
+    <ol>
+      <li>Create <code>AA_Week10.ipynb</code> and complete Tasks 1–3.</li>
+      <li>Reproduce §10.3 and §10.4 on your own machine and put both ratio columns in one table.</li>
+      <li>Produce one labelled figure comparing <code>append</code> and <code>insert(0, …)</code> across four sizes.</li>
+      <li>Write five sentences: you inherit a script that took 20 minutes on 10 000 rows and now must run on 100 000. Based on this week, name the two things you would look for first, and what you would expect the runtime to become if the culprit is quadratic.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">10.9</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>contiguous storage</td><td>Items kept in one unbroken row of slots — the reason indexing is instant.</td></tr>
+        <tr><td>shifting</td><td>Moving every later item to close or open a gap; the hidden cost at the front.</td></tr>
+        <tr><td>amortised O(1)</td><td>Usually constant, occasionally expensive, cheap on average over many calls.</td></tr>
+        <tr><td>accidentally quadratic</td><td>An O(n) operation used once per item, giving O(n²) without any visible nested loop.</td></tr>
+        <tr><td>deque</td><td>A structure with cheap adds and removes at <em>both</em> ends.</td></tr>
+        <tr><td>join</td><td><code>"".join(pieces)</code> — the linear way to build a big string.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

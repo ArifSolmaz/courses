@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Recipes, step-by-step thinking, and why two correct methods can be wildly different.">
+<title>Week 1: What Is an Algorithm? — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
+  <nav class="header-nav">
+    <a class="hlink" href="../index.html">Course home</a>
+    <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 01 &middot; Phase 1 · Thinking in steps</div>
+  <h1>What Is an Algorithm?</h1>
+  <p class="lede">Recipes, step-by-step thinking, and why two correct methods can be wildly different.</p>
+  <div class="hero-meta"><span class="chip gold">Big question: If two people both get the right answer, why would we prefer one method?</span><span class="chip">no programming needed</span><span class="chip">Colab setup</span><span class="chip">≈2 hours</span></div>
+</div>
+
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>say what an algorithm is, and give three examples from your own day;</li>
+      <li>write a set of instructions precise enough that a stranger could follow them;</li>
+      <li>count the steps of a method by hand, for a small input and for a big one;</li>
+      <li>explain why two correct methods can be worlds apart in cost;</li>
+      <li>open Google Colab and run your first line of Python.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.1</span>An algorithm is a recipe</h2>
+  <p>
+    An <strong>algorithm</strong> is a finite list of clear instructions that turns some
+    input into some output. That is the whole definition. Making tea is an algorithm.
+    Long division is an algorithm. The instructions for assembling a bookshelf are an
+    algorithm — a bad one, but an algorithm.
+  </p>
+  <p>Four things make a list of instructions count:</p>
+  <ul>
+    <li><strong>Input</strong> — what you start with (tea leaves, a number, a list of names).</li>
+    <li><strong>Definite steps</strong> — each step is unambiguous. "Add salt to taste" is a human instruction; "add 2 grams of salt" is an algorithmic one.</li>
+    <li><strong>Finite</strong> — it ends. A recipe that says "stir until you feel it is right" may never end.</li>
+    <li><strong>Output</strong> — something comes out: a cup of tea, an answer, a sorted pile.</li>
+  </ul>
+  <div class="note">
+    <span class="label">Try this before reading on</span>
+    <p>
+      Write instructions for making a cheese sandwich, precise enough for someone who
+      has never seen bread. Most people write six steps. Most people's six steps produce
+      a person holding an unopened packet, because "put cheese on bread" assumes the
+      packet is open. That gap — between what you meant and what you said — is the
+      entire difficulty of programming, and you have now met it in week 1.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.2</span>The dictionary, and the whole course in one example</h2>
+  <p>
+    Suppose you have a paper dictionary of 1000 pages and you want the word
+    <em>"quokka"</em>. Here are two correct methods.
+  </p>
+  <h3>Method A — page by page</h3>
+  <ol>
+    <li>Open page 1. Is "quokka" here? No.</li>
+    <li>Open page 2. Is it here? No.</li>
+    <li>&hellip; keep going until you find it.</li>
+  </ol>
+  <p>
+    This works. It always works. For "quokka", sitting somewhere around page 700, it
+    costs about <strong>700 page-opens</strong>.
+  </p>
+  <h3>Method B — open in the middle</h3>
+  <ol>
+    <li>Open the middle page. Are we past "quokka" alphabetically? If yes, throw away the right half; if no, throw away the left half.</li>
+    <li>Open the middle of what is left. Throw away half again.</li>
+    <li>Repeat until you land on the word.</li>
+  </ol>
+  <p>
+    Each step halves the problem: 1000 → 500 → 250 → 125 → 63 → 32 → 16 → 8 → 4 → 2 → 1.
+    That is <strong>about 10 page-opens</strong>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dictionary size</th><th>Method A (page by page)</th><th>Method B (halving)</th></tr></thead>
+      <tbody>
+        <tr><td>1 000 pages</td><td>up to 1 000 looks</td><td>10 looks</td></tr>
+        <tr><td>1 000 000 pages</td><td>up to 1 000 000 looks</td><td>20 looks</td></tr>
+        <tr><td>1 000 000 000 pages</td><td>up to 1 000 000 000 looks</td><td>30 looks</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Look at the right-hand column again. The dictionary grew a <em>million times</em>
+    bigger and method B needed <strong>ten extra looks</strong>. That is not a small
+    improvement, it is a different category of solution. Noticing which category a
+    method belongs to — before you write it, and confirmed by measurement afterwards —
+    is what "algorithm analysis" means.
+  </p>
+  <div class="note blue">
+    <span class="label">Notice what we did not do</span>
+    <p>
+      We never mentioned how fast you flip pages, or whether you had coffee. We counted
+      <em>looks</em>, not seconds. That choice is deliberate and we will come back to it
+      properly in week 7.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.3</span>A first look at how work grows</h2>
+  <p>
+    Drag the slider below. Each row is a different kind of method — one that ignores the
+    input size, one that halves like our dictionary trick, one that looks at everything
+    once, and one that compares every item with every other item.
+  </p>
+  <div class="widget" id="growth1" data-growth="steps"></div>
+  <p>
+    You do not need the names yet. The only thing to take away today: the gaps between
+    these rows are not "a bit slower". At <code>n = 1000</code> the bottom rows are
+    already thousands of times more expensive, and they get worse from there.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">1.4</span>Correct is the floor, not the goal</h2>
+  <p>When we judge a piece of code in this course, we ask three questions in order:</p>
+  <ol>
+    <li><strong>Is it correct?</strong> Does it give the right answer for every input, including the empty and the weird ones? If not, nothing else matters.</li>
+    <li><strong>Can a human read it?</strong> Code is read far more often than it is written — by other people, and by you in three months.</li>
+    <li><strong>What does it cost?</strong> How much <em>time</em> does it use as the input grows, and how much <em>memory</em>?</li>
+  </ol>
+  <p>
+    Weeks 1–6 are mostly about the first two. From week 7 on, the third question takes
+    over — and it is the one that separates a program that works on your ten test rows
+    from one that still works on the real ten million.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">1.5</span>Setting up: Google Colab in four steps</h2>
+  <p>
+    You will not install anything. Colab is Python running on someone else's computer,
+    displayed in your browser tab.
+  </p>
+  <ol>
+    <li>Go to <a href="https://colab.research.google.com">colab.research.google.com</a> and sign in with a Google account.</li>
+    <li>Choose <strong>File &rarr; New notebook</strong>.</li>
+    <li>Click the grey box (a "cell") and type the line below.</li>
+    <li>Press <strong>Shift + Enter</strong> to run it.</li>
+  </ol>
+  <div class="code"><div class="code-head"><span class="dot"></span>your very first cell</div><pre><code>print("Hello, algorithms!")</code></pre></div>
+  <div class="out">Hello, algorithms!</div>
+  <p>
+    If you see that line under the cell, you are done: you have a working Python
+    environment and you never have to think about installation again. Rename the
+    notebook <code>AA_Week01.ipynb</code> (click the title at the top left) and keep it —
+    every week you will start a new one and keep them all in one Drive folder.
+  </p>
+  <div class="note red">
+    <span class="label">If something goes wrong</span>
+    <p>
+      A red block under the cell is an <em>error message</em>, not a scolding. Read the
+      last line first — it is usually the useful one. <code>SyntaxError</code> almost
+      always means a missing quote or bracket. You will see hundreds of these; every
+      programmer alive does.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — count by hand</span>
+    <p>
+      Write ten different numbers on ten cards, face down. Your job: find the largest.
+      You may turn over one card at a time and you must remember only one number
+      ("the biggest so far").
+    </p>
+    <p>How many cards do you turn over? Now answer for 100 cards, and for 1000 cards.</p>
+    <details class="solution"><summary>Show the answer</summary>
+      <p>
+        Ten cards, ten turns. Hundred cards, hundred turns. Thousand cards, thousand turns.
+        You cannot do better: any card you never look at might be the largest. Finding a
+        maximum in unsorted data costs one look per item — no cleverness helps. Knowing
+        when a problem <em>cannot</em> be improved is as valuable as speeding one up.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — the halving trick, by hand</span>
+    <p>
+      A friend thinks of a number between 1 and 100. You guess; they say "higher",
+      "lower" or "correct". Play it twice: once guessing 1, 2, 3&hellip;, once always
+      guessing the middle of the remaining range. Count guesses both times.
+    </p>
+    <details class="solution"><summary>What you should see</summary>
+      <p>
+        Counting up takes up to 100 guesses; halving takes at most 7 (100 → 50 → 25 → 13 →
+        7 → 4 → 2 → 1). Doubling the range to 200 adds exactly <em>one</em> guess to the
+        halving method. In week 12 this gets a name: binary search.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — precision practice</span>
+    <p>
+      Write instructions for putting the letters A, C, E, B, D in alphabetical order,
+      precise enough for someone who can only compare two letters at a time and swap
+      them. Then follow your own instructions exactly, with no improvising. Count the
+      comparisons.
+    </p>
+    <details class="solution"><summary>Hint</summary>
+      <p>
+        A workable answer: "Compare the first two; if they are out of order, swap them.
+        Move one position right and repeat to the end of the row. If you made any swap
+        during a pass, start over from the left." That is bubble sort, and you will meet
+        it properly — and measure how slow it is — in week 13.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Which of these is <em>not</em> an algorithm?</p>
+      <button class="opt">The steps for long division</button>
+      <button class="opt">A recipe for bread with exact quantities and times</button>
+      <button class="opt">"Keep stirring until it feels right"</button>
+      <button class="opt">The halving method for finding a word in a dictionary</button>
+      <div class="why">It fails two tests: the steps are not definite ("feels right" is not checkable), and there is no guarantee it ever ends.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>A dictionary grows from 1 000 to 1 000 000 pages. Roughly what happens to the number of looks needed by the halving method?</p>
+      <button class="opt">It grows about a thousand times</button>
+      <button class="opt">It roughly doubles, from about 10 to about 20</button>
+      <button class="opt">It stays exactly the same</button>
+      <button class="opt">It grows a million times</button>
+      <div class="why">Each doubling of the size adds one look. Going from 1 000 to 1 000 000 is about ten more doublings, so about ten more looks.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Why did we count "page-opens" instead of seconds?</p>
+      <button class="opt">Seconds are hard to spell</button>
+      <button class="opt">Because page-opens are always exactly one second each</button>
+      <button class="opt">Because the halving method has no time cost</button>
+      <button class="opt">Because seconds depend on the person and the day, while the number of looks is a property of the method itself</button>
+      <div class="why">Exactly — a step count describes the method; a stopwatch describes the method <em>and</em> the machine <em>and</em> the moment. We will use both, for different jobs.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.8</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 2</span>
+    <ol>
+      <li>Create <code>AA_Week01.ipynb</code> in Colab and run a <code>print()</code> line that displays your name.</li>
+      <li>In a text cell in the same notebook, write an everyday task of yours as a numbered algorithm (7–12 steps). Mark clearly what the input and the output are.</li>
+      <li>Play the guessing game from Task 2 with a friend or with yourself and record the guess counts for both strategies in the notebook.</li>
+      <li>Write five sentences: which strategy was better, by how much, and what you predict happens if the range goes from 1–100 to 1–1 000 000.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.9</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>algorithm</td><td>A finite list of clear steps turning input into output.</td></tr>
+        <tr><td>input / output</td><td>What you start with / what you end up with.</td></tr>
+        <tr><td>problem size (n)</td><td>How big the job is: number of pages, cards, names, rows.</td></tr>
+        <tr><td>step</td><td>One unit of work we have chosen to count (a page-open, a comparison, a line of code).</td></tr>
+        <tr><td>Colab</td><td>A free browser page that runs Python for you.</td></tr>
+        <tr><td>cell</td><td>One box in a Colab notebook, holding either code or text.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="week-nav">
+  <a href="../index.html">&larr; Course home</a>
+  <button class="done-btn" type="button" data-done="w1">mark this week done</button>
+  <a href="../w2/">Week 2 &rarr;</a>
+</nav>
+
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

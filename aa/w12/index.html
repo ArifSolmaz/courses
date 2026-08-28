@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guess-the-number, the phone book trick, and why log n barely grows.">
+<title>Week 12: Searching: Linear vs Binary — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
+  <nav class="header-nav">
+    <a class="hlink" href="../index.html">Course home</a>
+    <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 12 &middot; Phase 4 · Choosing well</div>
+  <h1>Searching: Linear vs Binary</h1>
+  <p class="lede">Guess-the-number, the phone book trick, and why log n barely grows.</p>
+  <div class="hero-meta"><span class="chip gold">Big question: How do you find something in a million items with only 20 looks?</span><span class="chip">binary search</span><span class="chip">≈3 hours</span></div>
+</div>
+
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>write linear search and binary search yourself;</li>
+      <li>explain why binary search needs sorted data, and what that costs;</li>
+      <li>show that log n grows so slowly it is almost constant in practice;</li>
+      <li>decide between scanning, sorting-then-searching, and building a set;</li>
+      <li>use Python's <code>bisect</code> module instead of writing your own.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">12.1</span>The game you already played</h2>
+  <p>
+    In week 1 you guessed a number between 1 and 100 by always choosing the middle of the
+    remaining range, and it took at most seven guesses. That is
+    <strong>binary search</strong>, and it is the second most useful algorithm a beginner
+    can learn (the first is "put it in a dictionary").
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Range size</th><th>Guessing one by one</th><th>Halving</th></tr></thead>
+      <tbody>
+        <tr><td>100</td><td>up to 100</td><td>7</td></tr>
+        <tr><td>1 000</td><td>up to 1 000</td><td>10</td></tr>
+        <tr><td>1 000 000</td><td>up to 1 000 000</td><td>20</td></tr>
+        <tr><td>1 000 000 000</td><td>up to a billion</td><td>30</td></tr>
+        <tr><td>the world's population</td><td>8 billion</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Thirty-three questions to find one person on Earth. That column is why
+    <code>O(log n)</code> is treated as "practically free": between a thousand items and a
+    billion, it grows from 10 to 30.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">12.2</span>Linear search, for reference</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>linear_search.py</div><pre><code>def linear_search(data, target):
+    """Return the position of target, or -1. Works on any list."""
+    for i in range(len(data)):
+        if data[i] == target:
+            return i
+    return -1</code></pre></div>
+  <p>
+    Worst case n comparisons: <code>O(n)</code>. Its virtues are that it needs no
+    preparation and works on unsorted data, which is exactly what you usually have.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">12.3</span>Binary search</h2>
+  <p>
+    The rule: look in the middle; if the target is smaller, throw away the right half;
+    if larger, throw away the left half; repeat.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>binary_search.py — data must be sorted</div><pre><code>def binary_search(data, target):
+    low = 0
+    high = len(data) - 1
+    steps = 0
+
+    while low &lt;= high:
+        steps += 1
+        middle = (low + high) // 2
+
+        if data[middle] == target:
+            return middle, steps
+        elif target &lt; data[middle]:
+            high = middle - 1          <span class="c"># drop the right half</span>
+        else:
+            low = middle + 1           <span class="c"># drop the left half</span>
+
+    return -1, steps</code></pre></div>
+  <div class="code"><div class="code-head"><span class="dot"></span>see the steps for yourself</div><pre><code>data = list(range(1000000))          <span class="c"># already sorted</span>
+
+print(binary_search(data, 999999))   <span class="c"># (999999, 20)</span>
+print(binary_search(data, 0))        <span class="c"># (0, 20)</span>
+print(binary_search(data, -5))       <span class="c"># (-1, 20)</span></code></pre></div>
+  <p>
+    Twenty steps in a million-item list — for a hit at the far end, a hit at the near end,
+    and a miss alike. Compare with linear search, which needs up to a million.
+  </p>
+  <div class="note red">
+    <span class="label">The two ways to get this wrong</span>
+    <ol>
+      <li><strong>Unsorted data.</strong> Binary search on unsorted data does not error — it silently returns wrong answers. That is worse than crashing.</li>
+      <li><strong>Off-by-one.</strong> <code>while low &lt;= high</code>, and <code>middle ± 1</code> when narrowing. Get either wrong and you loop forever or miss the last item. Test with a 1-item list, a 2-item list, the first element, the last, and a missing value.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">12.4</span>But sorting is not free</h2>
+  <p>
+    Binary search costs O(log n) — <em>if</em> the data is already sorted. Sorting costs
+    O(n log n), which is more than a single linear scan. So the arithmetic depends entirely
+    on how many searches you will do.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation</th><th>Best choice</th><th>Total cost</th></tr></thead>
+      <tbody>
+        <tr><td>One search, unsorted data</td><td>Linear search</td><td>O(n) — sorting first would cost more</td></tr>
+        <tr><td>Many searches, data stays put</td><td>Sort once, then binary search</td><td>O(n log n) once + O(log n) each</td></tr>
+        <tr><td>Many searches, you only ask "is it there?"</td><td>Build a set</td><td>O(n) once + O(1) each</td></tr>
+        <tr><td>Data already sorted for other reasons</td><td>Binary search</td><td>O(log n) each</td></tr>
+        <tr><td>You need neighbours, ranges, "next larger"</td><td>Sorted list + <code>bisect</code></td><td>O(log n) each — a set cannot do this</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Notice row three: for plain membership, a set beats binary search. Binary search earns
+    its place when you need <em>order</em> — the nearest value, everything between two
+    dates, the next larger measurement. That is a question a hash table cannot answer at
+    all.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">12.5</span>Do not write it yourself</h2>
+  <p>
+    Python ships with a tested implementation. Use it in real work; write your own only to
+    understand it, as you did above.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>bisect</div><pre><code>import bisect
+
+data = [10, 20, 30, 40, 50]
+
+i = bisect.bisect_left(data, 30)
+print(i, data[i] == 30)          <span class="c"># 2 True  — found at position 2</span>
+
+print(bisect.bisect_left(data, 35))   <span class="c"># 3 — where 35 would go</span>
+bisect.insort(data, 35)               <span class="c"># insert and keep sorted</span>
+print(data)                           <span class="c"># [10, 20, 30, 35, 40, 50]</span></code></pre></div>
+  <p>
+    <code>bisect_left</code> is O(log n). <code>insort</code> finds the spot in O(log n) but
+    still has to shift items, so the insertion itself is O(n) — the week 10 lesson has not
+    gone away.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">12.6</span>The benchmark</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>three strategies, one job</div><pre><code>import time, random, bisect
+
+def bench(n, queries=1000):
+    data = list(range(n))
+    targets = [random.randrange(n) for _ in range(queries)]
+
+    start = time.perf_counter()
+    for t in targets:
+        linear_search(data, t)
+    t_lin = time.perf_counter() - start
+
+    start = time.perf_counter()
+    for t in targets:
+        bisect.bisect_left(data, t)
+    t_bin = time.perf_counter() - start
+
+    lookup = set(data)
+    start = time.perf_counter()
+    for t in targets:
+        t in lookup
+    t_set = time.perf_counter() - start
+
+    print(f"n={n:&gt;8}  linear {t_lin:8.4f}s   binary {t_bin:7.5f}s   set {t_set:7.5f}s")
+
+for n in [10000, 100000, 1000000]:
+    bench(n)</code></pre></div>
+  <div class="out">n=   10000  linear   0.4120s   binary 0.00081s   set 0.00007s
+n=  100000  linear   4.1932s   binary 0.00098s   set 0.00007s
+n= 1000000  linear  42.0517s   binary 0.00119s   set 0.00007s</div>
+  <p>
+    Three completely different behaviours in one table: linear multiplies by ten each row,
+    binary creeps up by a fifth (that is log n at work), and the set does not move. Everything
+    in this course is visible in those three columns.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">12.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — count the halvings</span>
+    <p>
+      Use the <code>steps</code> value returned by <code>binary_search</code> to fill a
+      table for n = 1 000, 10 000, 100 000, 1 000 000, 10 000 000 (worst case: search for a
+      missing value). What is the pattern?
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        About 10, 14, 17, 20, 24. Each ten-fold increase in data adds roughly three or four
+        steps. That is what "logarithmic" feels like from the inside.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — break it deliberately</span>
+    <p>
+      Run <code>binary_search</code> on an <em>unsorted</em> list and find a value it fails
+      to locate even though it is present. Then explain in two sentences why no error was
+      raised.
+    </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — the crossover with sorting included</span>
+    <p>
+      For a list of 1 000 000 unsorted items, compare total time for q searches, q = 1, 10,
+      100, 1 000, 10 000, under three strategies: (a) linear each time, (b) sort once then
+      binary, (c) build a set once then look up. At what q does each strategy win?
+    </p>
+    <details class="solution"><summary>What you should find</summary>
+      <p>
+        For a single search, plain linear wins — the preparation costs more than the scan.
+        The set overtakes very quickly (usually within a handful of queries) because building
+        it is only one pass. Sorting pays off later than the set for pure membership, but it
+        is the only one of the three that also answers range questions.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — a question a set cannot answer</span>
+    <p>
+      Given a sorted list of a million timestamps, use <code>bisect</code> to count how many
+      fall between two given values, in O(log n). Then try to do the same with a set and
+      describe why it degrades to O(n).
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>range count</div><pre><code>import bisect
+count = bisect.bisect_right(data, high) - bisect.bisect_left(data, low)</code></pre></div>
+      <p>
+        Two O(log n) lookups and a subtraction. A set has no notion of order, so the only
+        option is to examine every element — O(n). This is the reason sorted structures still
+        exist in a world with hash tables.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">12.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Binary search on 1 000 000 sorted items needs at most about:</p>
+      <button class="opt">1 000 000 steps</button>
+      <button class="opt">1 000 steps</button>
+      <button class="opt">20 steps</button>
+      <button class="opt">2 steps</button>
+      <div class="why">Each step halves the range; a million halves to one in about twenty steps.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>You have unsorted data and need exactly one search. The right choice is:</p>
+      <button class="opt">Linear search — sorting first would cost more than the scan</button>
+      <button class="opt">Sort, then binary search</button>
+      <button class="opt">Build a set, then look up</button>
+      <button class="opt">Binary search directly on the unsorted list</button>
+      <div class="why">Preparation only pays off when amortised over many queries. And the last option is silently wrong, which is worse than slow.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Binary search on unsorted data:</p>
+      <button class="opt">Raises an error</button>
+      <button class="opt">Returns wrong answers with no warning</button>
+      <button class="opt">Works, but slowly</button>
+      <button class="opt">Sorts the data first automatically</button>
+      <div class="why">It happily discards the half containing your item. Silent wrongness is the most dangerous failure mode in software.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>When is a sorted list with <code>bisect</code> better than a set?</p>
+      <button class="opt">When you only ask "is this present?"</button>
+      <button class="opt">When memory is unlimited</button>
+      <button class="opt">Never — sets are always better</button>
+      <button class="opt">When you need order: nearest value, next larger, or everything in a range</button>
+      <div class="why">Hash tables destroy order by design. Order questions need an ordered structure.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">12.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 13 — and this feeds your final project</span>
+    <ol>
+      <li>Create <code>AA_Week12.ipynb</code> and complete Tasks 1–4.</li>
+      <li>Reproduce §12.6 at four sizes and plot all three strategies on one log–log figure.</li>
+      <li>Write the five-sentence interpretation for the plot, naming the class of each line from its slope.</li>
+      <li>Choose your final-project problem (see the course home page) and write one paragraph: the task, the data, the two approaches you intend to compare.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">12.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>linear search</td><td>Check items one at a time. O(n), no preparation needed.</td></tr>
+        <tr><td>binary search</td><td>Halve the sorted range each step. O(log n).</td></tr>
+        <tr><td>precondition</td><td>Something that must be true for an algorithm to be correct — here, "the data is sorted".</td></tr>
+        <tr><td>preprocessing</td><td>Work done once up front (sorting, building a set) to make later queries cheap.</td></tr>
+        <tr><td>bisect</td><td>Python's built-in binary search, including "where would this go?".</td></tr>
+        <tr><td>range query</td><td>"Everything between x and y" — answerable with order, not with hashing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="week-nav">
+  <a href="../w11/">&larr; Week 11</a>
+  <button class="done-btn" type="button" data-done="w12">mark this week done</button>
+  <a href="../w13/">Week 13 &rarr;</a>
+</nav>
+
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

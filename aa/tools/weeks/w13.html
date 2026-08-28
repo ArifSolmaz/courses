@@ -1,0 +1,323 @@
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>perform bubble sort and selection sort by hand on paper;</li>
+      <li>implement both, count their comparisons, and confirm the n² pattern;</li>
+      <li>explain in plain words where n log n comes from;</li>
+      <li>measure the gap between your sort and Python's <code>sorted()</code>;</li>
+      <li>use <code>sort</code>, <code>sorted</code> and <code>key=</code> properly in real work.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.1</span>Why study slow sorts?</h2>
+  <p>
+    You will never ship bubble sort. You study it because it is the clearest example in all
+    of computing of a genuine trade: two methods, both obviously correct, separated by a
+    complexity class you can feel on a laptop within thirty seconds.
+  </p>
+  <p>
+    Sorting also underpins week 12 (binary search needs sorted data), week 9 (the sort-and-
+    compare anagram solution) and any report you will ever produce from data.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.2</span>Bubble sort</h2>
+  <p>
+    Walk along the row comparing neighbours; swap them if they are out of order. Each full
+    pass drags the largest remaining value to the end — it "bubbles up". Repeat until a
+    pass makes no swaps.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>bubble_sort.py</div><pre><code>def bubble_sort(data):
+    """Sorts a copy of data. Returns (sorted list, comparisons, swaps)."""
+    items = data[:]                      <span class="c"># work on a copy</span>
+    comparisons = swaps = 0
+    n = len(items)
+
+    for end in range(n - 1, 0, -1):      <span class="c"># shrinking unsorted region</span>
+        swapped = False
+        for i in range(end):
+            comparisons += 1
+            if items[i] &gt; items[i + 1]:
+                items[i], items[i + 1] = items[i + 1], items[i]
+                swaps += 1
+                swapped = True
+        if not swapped:                  <span class="c"># already sorted — stop early</span>
+            break
+
+    return items, comparisons, swaps
+
+print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
+  <div class="out">([1, 2, 4, 5, 8], 10, 4)</div>
+  <p>
+    <strong>Cost.</strong> Passes shrink: (n−1) + (n−2) + … + 1 = n(n−1)/2 comparisons —
+    <code>O(n²)</code>. The early exit gives a best case of <code>O(n)</code> on data that
+    is already sorted, which is bubble sort's only redeeming feature.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.3</span>Selection sort</h2>
+  <p>
+    Find the smallest item, put it first. Find the smallest of the rest, put it second.
+    Continue. This is what most people do with a hand of cards.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>selection_sort.py</div><pre><code>def selection_sort(data):
+    items = data[:]
+    comparisons = swaps = 0
+
+    for start in range(len(items)):
+        smallest = start
+        for i in range(start + 1, len(items)):
+            comparisons += 1
+            if items[i] &lt; items[smallest]:
+                smallest = i
+        if smallest != start:
+            items[start], items[smallest] = items[smallest], items[start]
+            swaps += 1
+
+    return items, comparisons, swaps</code></pre></div>
+  <p>
+    Same n(n−1)/2 comparisons — <code>O(n²)</code> in every case, best included, because it
+    cannot know it is finished early. But it performs at most n−1 <em>swaps</em>, against
+    bubble sort's possible n²/2. If moving items is expensive and comparing them is cheap,
+    that matters. Two algorithms in the same class can still differ in ways worth measuring.
+  </p>
+  <div class="note blue">
+    <span class="label">Insertion sort, in one line</span>
+    <p>
+      The third classic: take each item and slide it back into its correct place among the
+      already-sorted items on its left. Also O(n²) in the worst case, but genuinely fast on
+      nearly-sorted data — which is why real sorting libraries use it for small chunks.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.4</span>Where n log n comes from</h2>
+  <p>
+    Both sorts above compare every item with essentially every other. The better sorts
+    refuse to do that, using a divide-and-conquer idea:
+  </p>
+  <ol>
+    <li>Split the list into two halves.</li>
+    <li>Sort each half (by the same method, on smaller pieces).</li>
+    <li><strong>Merge</strong> the two sorted halves by repeatedly taking the smaller front item — one pass, O(n).</li>
+  </ol>
+  <p>
+    How many times can you split a list of n items in half? <strong>log n</strong> times —
+    the same halving from weeks 1 and 12. Each of those levels does O(n) work merging. So
+    the total is <strong>n × log n</strong>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>n² comparisons</th><th>n log₂ n comparisons</th><th>How much better</th></tr></thead>
+      <tbody>
+        <tr><td>100</td><td>10 000</td><td>664</td><td>15×</td></tr>
+        <tr><td>1 000</td><td>1 000 000</td><td>9 966</td><td>100×</td></tr>
+        <tr><td>10 000</td><td>100 000 000</td><td>132 877</td><td>753×</td></tr>
+        <tr><td>1 000 000</td><td>10¹²</td><td>19 931 569</td><td>50 000×</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    You will not implement merge sort in this course — writing it well needs recursion,
+    which belongs to the follow-on course. What you need is the intuition ("split, sort,
+    merge — log n levels of n work each") and the ability to recognise its 2.1–2.2 ratio in
+    a doubling experiment.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.5</span>Python's sorted(), and how far ahead it is</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>your sort vs the real one</div><pre><code>import time, random
+
+for n in [1000, 2000, 4000, 8000]:
+    data = [random.randrange(1000000) for _ in range(n)]
+
+    start = time.perf_counter()
+    result_b, comps, swaps = bubble_sort(data)
+    t_bubble = time.perf_counter() - start
+
+    start = time.perf_counter()
+    result_p = sorted(data)
+    t_python = time.perf_counter() - start
+
+    print(f"n={n:&gt;5}  bubble {t_bubble:8.4f}s ({comps:,} comparisons)"
+          f"   sorted() {t_python:.5f}s   {t_bubble/t_python:,.0f}x")
+    assert result_b == result_p          <span class="c"># both are correct!</span></code></pre></div>
+  <div class="out">n= 1000  bubble   0.0921s (499,500 comparisons)   sorted() 0.00023s   401x
+n= 2000  bubble   0.3701s (1,999,000 comparisons)   sorted() 0.00048s   771x
+n= 4000  bubble   1.4890s (7,998,000 comparisons)   sorted() 0.00104s   1,432x
+n= 8000  bubble   5.9612s (31,996,000 comparisons)   sorted() 0.00228s   2,615x</div>
+  <p>
+    The <code>assert</code> line matters: both produce identical output. The difference is
+    entirely in how the answer is reached. And look at the last column — the gap doubles
+    every time the data doubles, because the two are in different classes. At n = 100 000
+    bubble sort would need roughly 5 000 million comparisons and about fifteen minutes;
+    <code>sorted()</code> takes about a twentieth of a second.
+  </p>
+  <div class="note green">
+    <span class="label">What Python actually uses</span>
+    <p>
+      An algorithm called Timsort: merge sort combined with insertion sort for small runs,
+      plus a trick that detects stretches of data that are already in order. It is
+      O(n log n) in the worst case and O(n) on already-sorted data — and it is written in C.
+      That is your baseline. Beating it is a research project, not a homework.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.6</span>Using sorting properly</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>the everyday toolkit</div><pre><code>data = [5, 2, 9, 1]
+
+new = sorted(data)              <span class="c"># returns a new list, leaves data alone</span>
+data.sort()                     <span class="c"># sorts in place, returns None</span>
+
+names = ["Cem", "ada", "Bilal"]
+print(sorted(names))                          <span class="c"># capitals first — probably not what you want</span>
+print(sorted(names, key=str.lower))           <span class="c"># case-insensitive</span>
+
+students = [("Ada", 88), ("Bilal", 72), ("Cem", 91)]
+print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by grade, best first</span></code></pre></div>
+  <div class="note red">
+    <span class="label">The classic beginner bug</span>
+    <p>
+      <code>data = data.sort()</code> throws your list away and leaves you holding
+      <code>None</code>. Use <code>data.sort()</code> on its own line, or
+      <code>data = sorted(data)</code> — never both at once.
+    </p>
+  </div>
+  <p>
+    One more cost worth knowing: sorting inside a loop is a classic accidental disaster.
+    Sorting a list of n items m times is O(m · n log n) when sorting once outside the loop
+    would have done. Ask yourself every time: does this need to happen again?
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — on paper first</span>
+    <p>
+      Sort <code>[5, 1, 4, 2, 8]</code> by hand with bubble sort, writing out the list after
+      each pass, and count comparisons and swaps. Then run the code and check that your
+      numbers match its output exactly.
+    </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — confirm the class</span>
+    <p>
+      Run <code>bubble_sort</code> and <code>selection_sort</code> at n = 500, 1 000, 2 000,
+      4 000 on random data. Record comparisons and seconds for each, and compute the ratio
+      column for both.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        Comparisons quadruple exactly; times quadruple approximately. Selection sort usually
+        wins slightly on time despite identical comparison counts, because it does far fewer
+        swaps — a constant-factor difference within the same class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — best and worst case</span>
+    <p>
+      Run bubble sort on (a) already sorted data, (b) reverse-sorted data, (c) random data,
+      at n = 2 000. Explain the three comparison counts.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        (a) about 2 000 — one clean pass, then the early exit fires: O(n). (b) about 2 million
+        — every comparison and every swap: the worst case. (c) roughly the worst case too,
+        because a random list needs nearly all the passes. Selection sort shows no such
+        variation at all.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — the honest comparison plot</span>
+    <p>
+      Plot bubble sort, selection sort and <code>sorted()</code> on one log–log figure across
+      four sizes. Report the slope of each line in words, and state the largest n you would
+      be willing to hand each one.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p>Bubble sort on 4 000 random items does about 8 million comparisons. At 8 000 items, expect about:</p>
+      <button class="opt">16 million</button>
+      <button class="opt">32 million</button>
+      <button class="opt">8 million</button>
+      <button class="opt">64 million</button>
+      <div class="why">Quadratic: doubling n quadruples the comparisons.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>Where does the "log n" in n log n come from?</p>
+      <button class="opt">From comparing every pair of items</button>
+      <button class="opt">From the number of swaps</button>
+      <button class="opt">From the number of times a list can be split in half</button>
+      <button class="opt">From Python's internal optimisations</button>
+      <div class="why">Split, sort halves, merge: log n levels of splitting, each doing O(n) merging work.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p><code>data = data.sort()</code> leaves <code>data</code> holding:</p>
+      <button class="opt">None — sort() sorts in place and returns nothing</button>
+      <button class="opt">The sorted list</button>
+      <button class="opt">The original unsorted list</button>
+      <button class="opt">A copy of the sorted list</button>
+      <div class="why">Use <code>data.sort()</code> alone, or <code>data = sorted(data)</code>. This bug appears in every beginner cohort.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Bubble sort and selection sort do the same number of comparisons. Why is selection sort often faster in practice?</p>
+      <button class="opt">It is written in C</button>
+      <button class="opt">It has a better complexity class</button>
+      <button class="opt">It skips items</button>
+      <button class="opt">It performs far fewer swaps — a smaller constant factor in the same class</button>
+      <div class="why">Same class, different constant. This is exactly why we report both the class and the measurement.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 14</span>
+    <ol>
+      <li>Create <code>AA_Week13.ipynb</code> and complete Tasks 1–4.</li>
+      <li>Implement insertion sort yourself, count its comparisons, and add it to the Task 4 figure.</li>
+      <li>Write the five-sentence interpretation for that figure, including a prediction of bubble sort's runtime at n = 50 000 (do not run it — say how you extrapolated).</li>
+      <li>Bring a working draft of your final project: both approaches implemented, at least one benchmark table produced. Week 14 is a workshop.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">13.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>bubble sort</td><td>Repeatedly swap out-of-order neighbours. O(n²), O(n) on sorted data.</td></tr>
+        <tr><td>selection sort</td><td>Repeatedly pick the smallest remaining item. O(n²) always, few swaps.</td></tr>
+        <tr><td>insertion sort</td><td>Slide each item back into its place. O(n²) worst, excellent on nearly-sorted data.</td></tr>
+        <tr><td>divide and conquer</td><td>Split the problem, solve the parts, combine — the source of log n levels.</td></tr>
+        <tr><td>merge</td><td>Combine two sorted lists into one in a single pass.</td></tr>
+        <tr><td>Timsort</td><td>Python's built-in sort: O(n log n) worst case, O(n) on already-ordered data.</td></tr>
+        <tr><td>in place</td><td>Modifies the original rather than returning a new one (<code>sort</code> vs <code>sorted</code>).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

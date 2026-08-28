@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="One short symbol for a growth story: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).">
+<title>Week 8: Big-O Notation — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
+  <nav class="header-nav">
+    <a class="hlink" href="../index.html">Course home</a>
+    <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 08 &middot; Phase 3 · The language of growth</div>
+  <h1>Big-O Notation</h1>
+  <p class="lede">One short symbol for a growth story: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).</p>
+  <div class="hero-meta"><span class="chip gold">Big question: What is the shortest honest way to describe how an algorithm scales?</span><span class="chip">big-O</span><span class="chip">midterm review</span><span class="chip">≈3 hours</span></div>
+</div>
+
+<section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>read and write Big-O notation for the six patterns that cover most code;</li>
+      <li>translate a step-count formula into a Big-O class in one line;</li>
+      <li>say what each class means in plain words and in real time;</li>
+      <li>distinguish best, worst and average case, and say which one to quote;</li>
+      <li>revise everything from weeks 1–7 for the midterm.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.1</span>The notation</h2>
+  <p>
+    Last week you learned to reduce a step count to its dominant term with the constants
+    stripped off. Big-O is just the standard way of writing that result down:
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1.05rem;color:var(--accent)">
+    T(n) = 5n² + 200n + 3000 &nbsp;&rarr;&nbsp; O(n²)
+  </p>
+  <p>
+    Read it aloud as "oh of n squared" or "order n squared". It means: <em>as the input
+    grows, the work grows in proportion to n²</em>. It is a statement about shape, not
+    about speed. O(n²) code can be quick on ten items and hopeless on ten thousand;
+    Big-O tells you which of those two facts will still be true next year.
+  </p>
+  <div class="note blue">
+    <span class="label">What Big-O deliberately ignores</span>
+    <p>
+      The multiplier, the smaller terms, your CPU, your programming language, and whether
+      n is small. It answers exactly one question: <strong>how does the cost respond to
+      more data?</strong> Every other question needs the stopwatch as well.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.2</span>The six you need</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Notation</th><th>Name</th><th>In plain words</th><th>Everyday example</th><th>n doubles ⇒ time</th></tr></thead>
+      <tbody>
+        <tr><td><code>O(1)</code></td><td>constant</td><td>Cost does not depend on the input size at all</td><td>Reading <code>data[5]</code>; a formula</td><td>unchanged</td></tr>
+        <tr><td><code>O(log n)</code></td><td>logarithmic</td><td>Each doubling of the data adds one step</td><td>The dictionary halving trick</td><td>+1 step</td></tr>
+        <tr><td><code>O(n)</code></td><td>linear</td><td>One visit per item</td><td>Summing a list; searching for a missing item</td><td>×2</td></tr>
+        <tr><td><code>O(n log n)</code></td><td>linearithmic</td><td>A pass over the data, repeated log n times</td><td>Good sorting: <code>sorted()</code></td><td>slightly more than ×2</td></tr>
+        <tr><td><code>O(n²)</code></td><td>quadratic</td><td>Every item meets every item</td><td>Comparing all pairs; bubble sort</td><td>×4</td></tr>
+        <tr><td><code>O(2ⁿ)</code></td><td>exponential</td><td>Each extra item doubles the total work</td><td>Trying every combination</td><td>squared — hopeless</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The order above is from best to worst, and the gaps between the rows are enormous.
+    Drag the slider and read the right-hand column as clock time, on a computer doing ten
+    million steps a second:
+  </p>
+  <div class="widget" id="growth8" data-growth="time"></div>
+  <p>
+    At n = 1 000 000 the difference between O(n) and O(n²) is the difference between "a
+    tenth of a second" and "the rest of the week". No hardware purchase closes that gap.
+    Choosing the right approach does.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">8.3</span>Reading code and naming its class</h2>
+  <p>Four questions, in order. They resolve most everyday code:</p>
+  <ol>
+    <li><strong>Is there a loop over the data at all?</strong> No → <code>O(1)</code>.</li>
+    <li><strong>One loop over n?</strong> → <code>O(n)</code>.</li>
+    <li><strong>A loop inside a loop, both over n?</strong> → <code>O(n²)</code>.</li>
+    <li><strong>Does the problem halve each round?</strong> → <code>O(log n)</code>, or <code>O(n log n)</code> if that halving happens inside a pass over the data.</li>
+  </ol>
+  <div class="code"><div class="code-head"><span class="dot"></span>name each one</div><pre><code><span class="c"># A</span>
+def first_item(data):
+    return data[0]
+
+<span class="c"># B</span>
+def total(data):
+    result = 0
+    for x in data:
+        result += x
+    return result
+
+<span class="c"># C</span>
+def any_duplicate(data):
+    for i in range(len(data)):
+        for j in range(i + 1, len(data)):
+            if data[i] == data[j]:
+                return True
+    return False
+
+<span class="c"># D</span>
+def halvings(n):
+    count = 0
+    while n &gt; 1:
+        n = n // 2
+        count += 1
+    return count</code></pre></div>
+  <details class="solution"><summary>Answers</summary>
+    <p>
+      A is <code>O(1)</code>: one shelf lookup, whatever the length. B is <code>O(n)</code>:
+      one visit each. C is <code>O(n²)</code>: every pair, in the worst case — note that
+      "return True early" helps only when duplicates exist, and Big-O quotes the worst case.
+      D is <code>O(log n)</code>: the value halves every round.
+    </p>
+  </details>
+  <div class="note red">
+    <span class="label">Hidden loops</span>
+    <p>
+      Some innocent-looking lines contain a loop inside Python itself. <code>x in my_list</code>
+      is <code>O(n)</code>. <code>sorted(data)</code> is <code>O(n log n)</code>.
+      <code>data.insert(0, x)</code> is <code>O(n)</code>. Put any of those inside your own
+      loop and you have quietly written nested loops. This is the single most common way
+      beginners produce accidentally quadratic code, and weeks 10–11 are devoted to it.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.4</span>Best, worst and average case</h2>
+  <p>Searching a list of n items for a value:</p>
+  <ul>
+    <li><strong>Best case</strong> — it is the first item. One step. <code>O(1)</code>.</li>
+    <li><strong>Worst case</strong> — it is last, or absent. n steps. <code>O(n)</code>.</li>
+    <li><strong>Average case</strong> — roughly n/2 steps, which is still <code>O(n)</code> once constants go.</li>
+  </ul>
+  <p>
+    Unqualified Big-O means <strong>worst case</strong>. That is the honest default: it is
+    the promise you can make to a user without knowing their data. Quote a best case only
+    when you say the words "best case", or you are selling something.
+  </p>
+  <div class="note green">
+    <span class="label">Why worst case is the professional default</span>
+    <p>
+      Systems fail at their worst moments, not their average ones. A search that is
+      normally instant but occasionally scans ten million rows will be discovered by your
+      users at the busiest hour of the year.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.5</span>Common mistakes</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
+      <tbody>
+        <tr><td>"O(2n) is worse than O(n)"</td><td>They are the same class. Constants are dropped.</td></tr>
+        <tr><td>"O(n²) is always slower than O(n)"</td><td>Only beyond the crossover point. For small n a fat constant on the O(n) side can lose.</td></tr>
+        <tr><td>"Nested loops are always O(n²)"</td><td>Only if both loops grow with n. An inner loop of fixed length 10 is a constant factor.</td></tr>
+        <tr><td>"Big-O tells me how many seconds"</td><td>It tells you the shape of the curve, not a point on it. You still need the stopwatch.</td></tr>
+        <tr><td>"My code has no loops, so it is O(1)"</td><td>Check the built-in calls: <code>in</code>, <code>sorted</code>, <code>max</code>, <code>sum</code>, slicing and copying all walk the data.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.6</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — classify</span>
+    <p>Give the Big-O class of each, in terms of the length of <code>data</code>:</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>classify these</div><pre><code>a = len(data)
+b = data[len(data) // 2]
+c = max(data)
+d = sorted(data)
+e = [x * 2 for x in data]
+f = [(x, y) for x in data for y in data]</code></pre></div>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        <code>a</code> O(1) — Python stores the length. <code>b</code> O(1) — arithmetic plus
+        one lookup. <code>c</code> O(n) — must inspect every item. <code>d</code> O(n log n).
+        <code>e</code> O(n). <code>f</code> O(n²) — and it builds a list of n² pairs, so it
+        eats memory at the same rate.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — from measurement to notation</span>
+    <p>
+      Take the four ratio columns you measured in week 6 and write the Big-O class each
+      one implies. Then look at the code and confirm the class from its shape. Any
+      disagreement is a finding worth a paragraph.
+    </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — predict in seconds</span>
+    <p>
+      An O(n²) function takes 1.0 second at n = 10 000. Predict its time at n = 40 000,
+      then write and run it to check. Do the same for an O(n) function.
+    </p>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        Four times the data on a quadratic curve is sixteen times the work: about 16 seconds.
+        The linear one goes to about 4 seconds. Expect real measurements a bit above the
+        prediction — memory effects usually work against the bigger run.
+      </p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.7</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>T(n) = 7n + 300. In Big-O this is:</p>
+      <button class="opt">O(7n)</button>
+      <button class="opt">O(300)</button>
+      <button class="opt">O(n)</button>
+      <button class="opt">O(n + 300)</button>
+      <div class="why">Drop the constant multiplier and the lower-order term: the shape is linear.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Which grows fastest as n becomes large?</p>
+      <button class="opt">O(n log n)</button>
+      <button class="opt">O(n²)</button>
+      <button class="opt">O(n)</button>
+      <button class="opt">O(log n)</button>
+      <div class="why">Order from best to worst: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>You write <code>for item in queries:</code> and inside it <code>if item in big_list:</code>. If both hold n items, the class is:</p>
+      <button class="opt">O(n) — there is only one loop written</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1) — <code>in</code> is a single operation</button>
+      <button class="opt">O(n²) — <code>in</code> on a list is itself a loop over n</button>
+      <div class="why">This is the hidden-loop trap. One visible loop plus one hidden loop is still nesting, and week 11 shows the one-line fix.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Unqualified, "this search is O(n)" refers to which case?</p>
+      <button class="opt">The worst case</button>
+      <button class="opt">The best case</button>
+      <button class="opt">The average case</button>
+      <button class="opt">Whichever the author prefers</button>
+      <div class="why">Worst case is the professional default because it is the only promise that holds for data you have not seen.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.8</span>Midterm revision checklist</h2>
+  <div class="note">
+    <span class="label">Weeks 1–8 in one list</span>
+    <ul>
+      <li>Define "algorithm" and give the four properties (week 1).</li>
+      <li>Write a loop, a nested loop and a halving loop from memory (weeks 3–4).</li>
+      <li>Add a step counter to any function and predict what it will print (week 3).</li>
+      <li>Time a function correctly, with repeats, and say what could distort the result (week 5).</li>
+      <li>Run a doubling experiment and name the pattern from the ratio column (week 6).</li>
+      <li>Write T(n) for a short snippet and simplify it to a dominant term (week 7).</li>
+      <li>Convert T(n) to Big-O, and explain the class in plain words (week 8).</li>
+      <li>Explain best / worst / average case for linear search (weeks 4, 8).</li>
+      <li>Explain the crossover between 100n and n², with a number (week 7).</li>
+    </ul>
+  </div>
+  <p>
+    The midterm gives you short code snippets and measurement tables. You will count steps,
+    name classes, and justify each answer in one sentence. Nothing needs to be memorised
+    that is not in this checklist.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">8.9</span>Homework</h2>
+  <div class="task">
+    <span class="label">Due before week 9</span>
+    <ol>
+      <li>Create <code>AA_Week08.ipynb</code> and complete Tasks 1–3.</li>
+      <li>Build a personal reference table of the six classes: notation, plain-words meaning, a code example you wrote yourself, and a measured timing from your own notebooks.</li>
+      <li>Find one example of a hidden loop in code you wrote in an earlier week. Name its true class and describe how you would test that claim.</li>
+      <li>Write five sentences answering: "Why do we say O(n²) is worse than O(n) even though a particular O(n²) program might run faster today?"</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.10</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>Big-O</td><td>A short label for how cost grows with input size.</td></tr>
+        <tr><td>constant / logarithmic / linear</td><td>O(1) / O(log n) / O(n).</td></tr>
+        <tr><td>linearithmic</td><td>O(n log n) — the speed of good sorting.</td></tr>
+        <tr><td>quadratic / exponential</td><td>O(n²) — every pair. O(2ⁿ) — every combination; unusable beyond tiny n.</td></tr>
+        <tr><td>worst case</td><td>The most work the method can be forced to do; the default meaning of a Big-O claim.</td></tr>
+        <tr><td>hidden loop</td><td>A built-in operation that walks the data even though you wrote no loop.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="week-nav">
+  <a href="../w7/">&larr; Week 7</a>
+  <button class="done-btn" type="button" data-done="w8">mark this week done</button>
+  <a href="../w9/">Week 9 &rarr;</a>
+</nav>
+
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>
