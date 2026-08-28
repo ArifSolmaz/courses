@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Static site generator for the "Algorithm Analysis for Absolute Beginners" course.
+Static site generator for the "Algorithm Analysis with Python" course.
 
     python3 aa/tools/build.py
 
@@ -22,7 +22,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent      # .../aa
 FRAG = ROOT / "tools" / "weeks"
 
-SITE = "Algorithm Analysis for Absolute Beginners"
+SITE = "Algorithm Analysis with Python"
 SHORT = "AA"
 
 PHASES = {

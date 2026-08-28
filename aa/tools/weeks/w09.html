@@ -5,7 +5,9 @@
       <li>solve one problem four different ways and compare the solutions properly;</li>
       <li>see how a change of strategy — not a change of language — buys orders of magnitude;</li>
       <li>recognise the counting trick that turns comparison into arithmetic;</li>
+      <li>confirm a complexity class by counting operations, not just by timing;</li>
       <li>explain why an O(n!) solution is not "slow" but impossible;</li>
+      <li>weigh readability, memory and speed to say which solution you would actually ship;</li>
       <li>write a comparison report with a table, a plot and a recommendation.</li>
     </ul>
   </div>
@@ -247,7 +249,130 @@ n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</
 </section>
 
 <section>
-  <h2><span class="num">9.7</span>Try it yourself</h2>
+  <h2><span class="num">9.7</span>Counting operations to confirm the class</h2>
+  <p>
+    Timing is honest but noisy — it mixes in your CPU, the language and whatever else the
+    machine is doing. There is a cleaner way to <em>prove</em> a class: count the
+    fundamental operations the algorithm performs and watch how the count grows. If the
+    theory says O(n²), then doubling n should roughly quadruple the count; if it says O(n),
+    doubling should roughly double it. No stopwatch required.
+  </p>
+  <p>
+    We add a counter to each method — for the two loop-based ones we count letter
+    comparisons; for the counting method we count tally updates plus the 26 final checks.
+    Because <code>anagram_sort</code> hides its work inside C, we time it separately in the
+    benchmark; here we compare the two we can instrument.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>count_operations.py</div><pre><code>import random, string
+
+def make_pair(n):
+    letters = [random.choice(string.ascii_lowercase) for _ in range(n)]
+    shuffled = letters[:]
+    random.shuffle(shuffled)
+    return "".join(letters), "".join(shuffled)
+
+def checking_off_ops(s1, s2):
+    ops = 0
+    letters = list(s2)
+    for letter in s1:
+        for i in range(len(letters)):
+            ops += 1                         <span class="c"># one comparison</span>
+            if letters[i] == letter:
+                letters[i] = None
+                break
+    return ops
+
+def count_ops(s1, s2):
+    ops = 0
+    c1 = [0] * 26
+    c2 = [0] * 26
+    for letter in s1:
+        c1[ord(letter) - ord('a')] += 1; ops += 1
+    for letter in s2:
+        c2[ord(letter) - ord('a')] += 1; ops += 1
+    for i in range(26):
+        ops += 1
+    return ops
+
+print(f"{'n':&gt;6}  {'checking-off':&gt;14}  {'ratio':&gt;6}   {'count':&gt;8}  {'ratio':&gt;6}")
+prev_a = prev_c = None
+for n in [250, 500, 1000, 2000]:
+    s1, s2 = make_pair(n)
+    a = checking_off_ops(s1, s2)
+    c = count_ops(s1, s2)
+    ra = "-" if prev_a is None else f"{a/prev_a:.1f}x"
+    rc = "-" if prev_c is None else f"{c/prev_c:.1f}x"
+    print(f"{n:&gt;6}  {a:&gt;14,}  {ra:&gt;6}   {c:&gt;8,}  {rc:&gt;6}")
+    prev_a, prev_c = a, c</code></pre></div>
+  <div class="out">     n    checking-off   ratio      count   ratio
+   250          31,653       -        526       -
+   500         125,910    4.0x      1,026    2.0x
+  1000         503,110    4.0x      2,026    2.0x
+  2000       2,006,214    4.0x      4,026    2.0x</div>
+  <p>
+    Read the two ratio columns and the classes fall straight out. Checking-off quadruples
+    with every doubling — the unmistakable fingerprint of <strong>O(n²)</strong>, and the
+    raw counts sit right on the predicted n²/2. Counting doubles with every doubling —
+    <strong>O(n)</strong>, sitting on the predicted 2n + 26. This is the same ratio-column
+    reasoning you used with the doubling harness in weeks 5–7, applied to operation counts
+    instead of seconds, and it is immune to a noisy laptop.
+  </p>
+  <div class="note blue">
+    <span class="label">Two tools, one verdict</span>
+    <p>
+      When the operation-count ratio and the timing ratio agree, you have a strong claim:
+      the shape is confirmed by arithmetic <em>and</em> by the clock. When they disagree,
+      you have found a constant factor — usually a chunk of work happening in C — and that
+      is exactly what §9.6 showed for <code>sorted()</code>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.8</span>Which would you ship?</h2>
+  <p>
+    "Fastest class" is not automatically "best choice". Real decisions weigh speed against
+    readability, memory, and the size of the data you will actually see. Line the four up
+    against those questions and the answer stops being obvious:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Solution</th><th>Reads clearly?</th><th>Extra memory</th><th>Wins when…</th></tr></thead>
+      <tbody>
+        <tr><td>1. Checking off</td><td>yes, mirrors the spoken idea</td><td>O(n)</td><td>never — the O(n²) is a liability with no upside</td></tr>
+        <tr><td>2. Sort and compare</td><td>yes, one obvious line</td><td>O(n)</td><td>ordinary word-sized inputs; you value short, clear code</td></tr>
+        <tr><td>3. Brute force</td><td>yes, but pointless</td><td>O(1)</td><td>never — correct yet unusable past a handful of letters</td></tr>
+        <tr><td>4. Count and compare</td><td>a little more code</td><td>O(1)*</td><td>huge inputs, or the same check run millions of times</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted)">
+    * Two fixed 26-slot lists — the memory does not grow with n, so this is O(1) extra
+    space, unlike the sorted copies solution 2 must build.
+  </p>
+  <p>
+    So which do you ship? For a word game where inputs are a dozen letters and the check
+    runs occasionally, <strong>solution 2</strong> is the right call: one line, obviously
+    correct, fast enough that its worse class never bites. For a bioinformatics tool
+    comparing million-character sequences, or a service that runs the check millions of
+    times a second, <strong>solution 4</strong> is the only responsible choice — its linear
+    time and constant extra space are the difference between "instant" and "times out".
+    The professional answer is not a single winner; it is "solution 2 by default, solution
+    4 when the numbers say so, and here is the number that flips it" — the crossover you
+    will find in the homework.
+  </p>
+  <div class="note">
+    <span class="label">Say the trade out loud</span>
+    <p>
+      A good recommendation names what it is optimising for. "I chose sort-and-compare for
+      readability because our words are short" is a decision. "I used sorting because it
+      was first on the page" is an accident that happens to be fine until the data grows.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">9.9</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — instrument solution 1</span>
@@ -306,10 +431,54 @@ def anagram_counter(s1, s2):
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 5 — a variation: are they permutations of digits?</span>
+    <p>
+      Adapt the counting solution to decide whether two lists of integers (each 0–9) are
+      rearrangements of each other — e.g. <code>[3, 1, 4, 1]</code> and
+      <code>[1, 4, 3, 1]</code>. What is the class, and what changed from the letters
+      version?
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>digits version</div><pre><code>def same_multiset(a, b):
+    if len(a) != len(b):
+        return False
+    counts = [0] * 10          <span class="c"># one slot per digit 0-9</span>
+    for x in a:
+        counts[x] += 1
+    for x in b:
+        counts[x] -= 1         <span class="c"># cancel out</span>
+    return all(c == 0 for c in counts)</code></pre></div>
+      <p>
+        Still <strong>O(n)</strong>: two passes over the data and a fixed 10-slot check.
+        The only change is a smaller alphabet (10 slots instead of 26) and a tidy trick —
+        add for one list, subtract for the other, and everything should cancel to zero.
+        Same idea, same class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — confirm by counting, not timing</span>
+    <p>
+      Run the operation-counter from §9.7 for the checking-off and counting methods at
+      n = 100, 200, 400, 800. Put the two ratio columns side by side and state, in one
+      sentence each, what class each column proves — without ever calling
+      <code>time.perf_counter</code>.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        The checking-off ratio hovers around 4.0×, proving O(n²); the counting ratio hovers
+        around 2.0×, proving O(n). A quadrupling means the exponent is 2; a doubling means
+        the exponent is 1.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">9.8</span>Self-check</h2>
+  <h2><span class="num">9.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
       <p>Why is <code>sorted(s1) == sorted(s2)</code> not O(n)?</p>
@@ -343,24 +512,41 @@ def anagram_counter(s1, s2):
       <button class="opt">No — the measurement must have been faulty</button>
       <div class="why">Both are right about different questions. Report the class <em>and</em> the crossover, and you have told the whole truth.</div>
     </div>
+    <div class="q" data-answer="1">
+      <p>When you double n, the checking-off operation count roughly quadruples. That confirms:</p>
+      <button class="opt">O(n) — the count grew</button>
+      <button class="opt">O(n²) — quadrupling on a doubling means the exponent is 2</button>
+      <button class="opt">O(log n) — the count is small</button>
+      <button class="opt">Nothing — only timing can prove a class</button>
+      <div class="why">A ×4 response to a ×2 input is the fingerprint of quadratic growth, just as it was in the doubling harness of weeks 5–7 — counts work as well as seconds.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>Inputs are a dozen letters and the check runs a handful of times. Which do you ship, and why?</p>
+      <button class="opt">Brute force — it uses the least memory</button>
+      <button class="opt">Counting — the fastest class always wins</button>
+      <button class="opt">Sort-and-compare — its worse class never bites at that size, and one clear line is easier to trust</button>
+      <button class="opt">Checking-off — it reads like the spoken idea</button>
+      <div class="why">At tiny n the class barely matters; readability and correctness do. The counting version earns its keep only when the data is large or the call is hot.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">9.9</span>Homework</h2>
+  <h2><span class="num">9.11</span>Homework</h2>
   <div class="task">
     <span class="label">Due before week 10</span>
     <ol>
-      <li>Create <code>AA_Week09.ipynb</code> with all five solutions and complete Tasks 1–4.</li>
+      <li>Create <code>AA_Week09.ipynb</code> with all five solutions and complete Tasks 1–6.</li>
+      <li>Run the operation-counter from §9.7 and produce a table with the two ratio columns; write one sentence under it naming the class each column proves.</li>
       <li>Produce one figure with the three usable solutions plotted against n (log–log axes, labelled).</li>
-      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, the crossover you found, and a recommendation for (a) words in a game and (b) million-character biological sequences.</li>
+      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, the crossover you found, and a recommendation for (a) words in a game and (b) million-character biological sequences — say explicitly what each recommendation is optimising for.</li>
       <li>Answer in five sentences: solution 3 is correct and yet worthless. What does that tell you about "correct" as a standard for software?</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">9.10</span>Words from this week</h2>
+  <h2><span class="num">9.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -369,6 +555,7 @@ def anagram_counter(s1, s2):
         <tr><td>brute force</td><td>Try every possibility. Always correct, usually unusable.</td></tr>
         <tr><td>factorial n!</td><td>n × (n−1) × … × 1 — the number of arrangements; grows faster than any exponential.</td></tr>
         <tr><td>intractable</td><td>So expensive that no realistic machine can finish it.</td></tr>
+        <tr><td>operation count</td><td>The number of fundamental steps an algorithm performs; its ratio confirms a class without a stopwatch.</td></tr>
         <tr><td>space–time trade-off</td><td>Using extra memory to save time, or the reverse.</td></tr>
         <tr><td>crossover</td><td>The input size at which the better-scaling method overtakes the one with a smaller constant.</td></tr>
       </tbody>

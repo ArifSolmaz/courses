@@ -37,6 +37,7 @@
       <li>write a set of instructions precise enough that a stranger could follow them;</li>
       <li>count the steps of a method by hand, for a small input and for a big one;</li>
       <li>explain why two correct methods can be worlds apart in cost;</li>
+      <li>spot the three habits that make a described method ambiguous, endless or wrong;</li>
       <li>open Google Colab and run your first line of Python.</li>
     </ul>
   </div>
@@ -57,6 +58,14 @@
     <li><strong>Finite</strong> — it ends. A recipe that says "stir until you feel it is right" may never end.</li>
     <li><strong>Output</strong> — something comes out: a cup of tea, an answer, a sorted pile.</li>
   </ul>
+  <p>
+    A second picture, if the kitchen one does not land: think of <strong>giving someone
+    directions</strong>. "Head towards the tall building" depends on which building they
+    are looking at; "turn left after 300 metres onto Mill Road" does not. Good directions
+    and good algorithms share the same virtue — the person following them never has to
+    guess what you meant. A computer is the most literal follower you will ever meet: it
+    does exactly what you wrote, never what you intended.
+  </p>
   <div class="note">
     <span class="label">Try this before reading on</span>
     <p>
@@ -92,7 +101,7 @@
     <li>Repeat until you land on the word.</li>
   </ol>
   <p>
-    Each step halves the problem: 1000 → 500 → 250 → 125 → 63 → 32 → 16 → 8 → 4 → 2 → 1.
+    Each step halves the problem: 1000 &rarr; 500 &rarr; 250 &rarr; 125 &rarr; 63 &rarr; 32 &rarr; 16 &rarr; 8 &rarr; 4 &rarr; 2 &rarr; 1.
     That is <strong>about 10 page-opens</strong>.
   </p>
   <div class="table-wrap">
@@ -118,6 +127,16 @@
       We never mentioned how fast you flip pages, or whether you had coffee. We counted
       <em>looks</em>, not seconds. That choice is deliberate and we will come back to it
       properly in week 7.
+    </p>
+  </div>
+  <div class="note green">
+    <span class="label">Why method B needs the dictionary sorted</span>
+    <p>
+      The halving trick only works because the words are in alphabetical order — that is
+      what lets you throw away a whole half after a single look. Method A needs no such
+      thing; it will find a word in a shuffled dictionary too, just slowly. Almost every
+      dramatic speed-up in this course is paid for by some structure like this. Keep the
+      question in mind: <em>what does this fast method assume about its input?</em>
     </p>
   </div>
 </section>
@@ -146,14 +165,55 @@
     <li><strong>What does it cost?</strong> How much <em>time</em> does it use as the input grows, and how much <em>memory</em>?</li>
   </ol>
   <p>
-    Weeks 1–6 are mostly about the first two. From week 7 on, the third question takes
+    Weeks 1&ndash;6 are mostly about the first two. From week 7 on, the third question takes
     over — and it is the one that separates a program that works on your ten test rows
     from one that still works on the real ten million.
   </p>
 </section>
 
 <section>
-  <h2><span class="num">1.5</span>Setting up: Google Colab in four steps</h2>
+  <h2><span class="num">1.5</span>Counting steps by hand: a worked trace</h2>
+  <p>
+    Before a computer counts anything for us, we should be able to count by hand. Here is
+    the number-guessing game — a friend thinks of a number from 1 to 100, and after each
+    guess they tell you "higher", "lower" or "correct". Watch the halving method play it,
+    step by step, when the secret number is <strong>73</strong>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Look</th><th>Range still possible</th><th>You guess the middle</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>1&ndash;100</td><td>50</td><td>higher</td></tr>
+        <tr><td>2</td><td>51&ndash;100</td><td>75</td><td>lower</td></tr>
+        <tr><td>3</td><td>51&ndash;74</td><td>62</td><td>higher</td></tr>
+        <tr><td>4</td><td>63&ndash;74</td><td>68</td><td>higher</td></tr>
+        <tr><td>5</td><td>69&ndash;74</td><td>71</td><td>higher</td></tr>
+        <tr><td>6</td><td>72&ndash;74</td><td>73</td><td>correct</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Six looks, and the worst any number could take is seven. Every look throws away half
+    of what is left: 100 &rarr; 50 &rarr; 25 &rarr; 13 &rarr; 7 &rarr; 4 &rarr; 2 &rarr; 1.
+    The counting-up method, by contrast, could take all 100 guesses. Notice how we did the
+    analysis: we did not run anything, we did not time anything — we simply followed the
+    rules on paper and <em>counted the looks</em>. That is the same move we will automate
+    with a computer in week 3, and it is the backbone of everything after.
+  </p>
+  <div class="note blue">
+    <span class="label">The doubling rule of thumb</span>
+    <p>
+      Here is a fact worth carrying for the whole course: each time you <em>double</em> the
+      range, the halving method needs exactly <strong>one more look</strong>. 1&ndash;100
+      needs 7; 1&ndash;200 needs 8; 1&ndash;400 needs 9. Multiplying the size by a thousand
+      (about ten doublings) adds about ten looks. That single sentence is why the
+      right-hand column of the dictionary table barely moved.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.6</span>Setting up: Google Colab in four steps</h2>
   <p>
     You will not install anything. Colab is Python running on someone else's computer,
     displayed in your browser tab.
@@ -172,6 +232,21 @@
     notebook <code>AA_Week01.ipynb</code> (click the title at the top left) and keep it —
     every week you will start a new one and keep them all in one Drive folder.
   </p>
+  <p>
+    One cell can do more than one thing. Type these three lines into a new cell and run
+    it — <code>print</code> shows text, but it can also do arithmetic and narrate a plan:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>a second cell</div><pre><code>print("Step 1: open the middle page")
+print("Halving 1000 pages needs about", 10, "looks")
+print(1000 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2)</code></pre></div>
+  <div class="out">Step 1: open the middle page
+Halving 1000 pages needs about 10 looks
+0.9765625</div>
+  <p>
+    That last line halved 1000 ten times in a row and landed just below 1 — the arithmetic
+    behind "ten looks", done by the machine. We are not writing real programs yet; we are
+    just checking that the tool obeys us. From week 2 we build up properly.
+  </p>
   <div class="note red">
     <span class="label">If something goes wrong</span>
     <p>
@@ -184,7 +259,42 @@
 </section>
 
 <section>
-  <h2><span class="num">1.6</span>Try it yourself</h2>
+  <h2><span class="num">1.7</span>Common mistakes when you describe a method</h2>
+  <p>
+    Most first attempts at writing an algorithm fail in one of three ways. All three come
+    from the same root — assuming the follower knows what you know. Learn to spot them on
+    paper now and you will spot them in your code for the rest of the course.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>What it looks like</th><th>The fix</th></tr></thead>
+      <tbody>
+        <tr><td>Ambiguous step</td><td>"Sort the cards" — by what? Colour, number, size?</td><td>Say exactly what to compare and what "in order" means.</td></tr>
+        <tr><td>No stopping rule</td><td>"Keep shuffling until it looks random" — when is that?</td><td>Give a condition that can be checked and will eventually be met.</td></tr>
+        <tr><td>Hidden assumption</td><td>"Open the middle page" on an <em>unsorted</em> pile.</td><td>State what the method needs to be true about its input.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Here is the same idea as a tiny story. You tell a friend: <em>"To find the largest of
+    these ten cards, look through them and pick the biggest."</em> It sounds complete. But
+    a truly literal follower asks: pick the biggest <strong>compared with what?</strong> The
+    reliable version keeps a "biggest so far", starts it at the first card, and updates it
+    only when a bigger card appears. Spelling out that hidden "so far" is the difference
+    between a method a person can guess and one a computer can run.
+  </p>
+  <div class="note">
+    <span class="label">A rule you can use forever</span>
+    <p>
+      If you cannot follow your own instructions <em>without improvising</em>, they are not
+      yet an algorithm. The test is boringly literal: hand them to someone (or pretend to
+      be a machine yourself) and do exactly what is written, nothing more.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">1.8</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — count by hand</span>
@@ -213,8 +323,8 @@
     </p>
     <details class="solution"><summary>What you should see</summary>
       <p>
-        Counting up takes up to 100 guesses; halving takes at most 7 (100 → 50 → 25 → 13 →
-        7 → 4 → 2 → 1). Doubling the range to 200 adds exactly <em>one</em> guess to the
+        Counting up takes up to 100 guesses; halving takes at most 7 (100 &rarr; 50 &rarr; 25 &rarr; 13 &rarr;
+        7 &rarr; 4 &rarr; 2 &rarr; 1). Doubling the range to 200 adds exactly <em>one</em> guess to the
         halving method. In week 12 this gets a name: binary search.
       </p>
     </details>
@@ -237,10 +347,68 @@
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — hunt the assumption</span>
+    <p>
+      Your friend hands you a shuffled pile of 100 numbered cards and says: "Find card
+      number 42 by the halving trick — open the middle, then throw away a half each time."
+      Follow the instruction literally on a shuffled pile. What goes wrong, and what one
+      word in the instruction was doing all the work?
+    </p>
+    <details class="solution"><summary>Show the answer</summary>
+      <p>
+        It falls apart immediately: on a shuffled pile, seeing the middle card tells you
+        nothing about which half 42 is in, so you cannot safely throw either half away. The
+        halving trick has a hidden assumption — the pile must be <strong>sorted</strong>.
+        The word "middle" only helps when position tells you about value. On unsorted cards
+        you are stuck with looking at them one by one, up to all 100. Every fast method in
+        this course leans on some structure like this; naming that structure is half the job.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — how many doublings?</span>
+    <p>
+      Without a computer, work out roughly how many looks the halving method needs for a
+      list of 1 000 000 items, using only the doubling rule of thumb from &sect;1.5. Then
+      do the same for 1 000 000 000. Explain your reasoning in one sentence each.
+    </p>
+    <details class="solution"><summary>Show the answer</summary>
+      <p>
+        Doubling from 1 gets to about a million in roughly 20 steps (2 to the power 20 is
+        just over a million), so about <strong>20 looks</strong>. A billion is about a
+        thousand times a million, and a thousand is about ten more doublings, so roughly
+        <strong>30 looks</strong>. You never had to run anything — the doubling rule turns
+        "how big is it?" into "how many times can I halve it?", which is all binary search
+        ever asks.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — rewrite a bad instruction</span>
+    <p>
+      Each of these steps breaks one of the three rules from &sect;1.7. Say which rule, and
+      rewrite it so a literal follower could obey it. (a) "Warm the milk a bit."
+      (b) "Keep drawing cards until you have enough." (c) "Put the book back where it goes."
+    </p>
+    <details class="solution"><summary>Show the answer</summary>
+      <p>
+        (a) Ambiguous — "a bit" is not checkable. Fix: "Heat the milk to 60&deg;C."
+        (b) No stopping rule — "enough" is never defined. Fix: "Draw cards until you hold
+        exactly five." (c) Hidden assumption — "where it goes" assumes a known shelving
+        scheme. Fix: "Place the book on the shelf whose label matches the first letter of
+        the author's surname." In every case the fix replaces a word the follower would
+        have to interpret with one they can simply act on.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">1.7</span>Self-check</h2>
+  <h2><span class="num">1.9</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
       <p>Which of these is <em>not</em> an algorithm?</p>
@@ -266,24 +434,42 @@
       <button class="opt">Because seconds depend on the person and the day, while the number of looks is a property of the method itself</button>
       <div class="why">Exactly — a step count describes the method; a stopwatch describes the method <em>and</em> the machine <em>and</em> the moment. We will use both, for different jobs.</div>
     </div>
+    <div class="q" data-answer="0">
+      <p>The halving trick works on a dictionary but fails on a shuffled pile of cards. Why?</p>
+      <button class="opt">It assumes the input is sorted, so a look in the middle tells you which half to keep</button>
+      <button class="opt">Shuffled piles are always larger</button>
+      <button class="opt">The trick needs a computer, and cards are physical</button>
+      <button class="opt">It only works on words, never on numbers</button>
+      <div class="why">Structure buys speed. Sorted order is what lets a single look throw away half the possibilities; remove the order and the trick has nothing to stand on.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>You must find the largest of 500 unsorted numbers. What is the fewest looks that could possibly work in the worst case?</p>
+      <button class="opt">About 9 (halving)</button>
+      <button class="opt">1</button>
+      <button class="opt">500 — you must look at every one</button>
+      <button class="opt">250, on average</button>
+      <div class="why">Any number you never look at might be the largest, so no method can promise the answer without checking all 500. Some problems simply cannot be sped up.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">1.8</span>Homework</h2>
+  <h2><span class="num">1.10</span>Homework</h2>
   <div class="task">
     <span class="label">Due before week 2</span>
     <ol>
       <li>Create <code>AA_Week01.ipynb</code> in Colab and run a <code>print()</code> line that displays your name.</li>
-      <li>In a text cell in the same notebook, write an everyday task of yours as a numbered algorithm (7–12 steps). Mark clearly what the input and the output are.</li>
+      <li>In a text cell in the same notebook, write an everyday task of yours as a numbered algorithm (7&ndash;12 steps). Mark clearly what the input and the output are.</li>
       <li>Play the guessing game from Task 2 with a friend or with yourself and record the guess counts for both strategies in the notebook.</li>
-      <li>Write five sentences: which strategy was better, by how much, and what you predict happens if the range goes from 1–100 to 1–1 000 000.</li>
+      <li>Do the worked trace from &sect;1.5 for your own secret number between 1 and 100. Write out the range, the middle guess and the answer at every look, and count the total.</li>
+      <li>Take one instruction from your week's routine that breaks a rule from &sect;1.7 (ambiguous, no stopping rule, or hidden assumption). Write the broken version, name the rule, and rewrite it so a literal follower could obey it.</li>
+      <li>Write five sentences: which guessing strategy was better, by how much, and what you predict happens if the range goes from 1&ndash;100 to 1&ndash;1 000 000.</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">1.9</span>Words from this week</h2>
+  <h2><span class="num">1.11</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -292,6 +478,8 @@
         <tr><td>input / output</td><td>What you start with / what you end up with.</td></tr>
         <tr><td>problem size (n)</td><td>How big the job is: number of pages, cards, names, rows.</td></tr>
         <tr><td>step</td><td>One unit of work we have chosen to count (a page-open, a comparison, a line of code).</td></tr>
+        <tr><td>definite step</td><td>An instruction with no room for interpretation — checkable, not "to taste".</td></tr>
+        <tr><td>doubling rule</td><td>Each time the input doubles, a halving method needs just one more step.</td></tr>
         <tr><td>Colab</td><td>A free browser page that runs Python for you.</td></tr>
         <tr><td>cell</td><td>One box in a Colab notebook, holding either code or text.</td></tr>
       </tbody>
@@ -307,7 +495,7 @@
 
 </main>
 <footer class="site-footer">
-  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
   <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
 <script src="../assets/app.js"></script>

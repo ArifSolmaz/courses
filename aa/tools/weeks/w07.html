@@ -6,6 +6,8 @@
       <li>write down a step-count formula T(n) for short pieces of code;</li>
       <li>find the dominant term of a formula and justify dropping the rest;</li>
       <li>show that constant factors do not change the growth pattern;</li>
+      <li>decide which operation to count, and see why the choice never changes the dominant term;</li>
+      <li>tell arithmetic growth (adding a step) from geometric growth (multiplying), and read log n out of the second;</li>
       <li>connect a step-count formula to the ratio column you measured last week.</li>
     </ul>
   </div>
@@ -133,7 +135,125 @@
 </section>
 
 <section>
-  <h2><span class="num">7.5</span>Counting practice</h2>
+  <h2><span class="num">7.5</span>Which operation do you count?</h2>
+  <p>
+    A fair question hangs over §7.2: we chose to count assignments, but why those? A loop
+    also does comparisons, additions, and list look-ups. Would counting a different one
+    change the answer?
+  </p>
+  <p>
+    Take a linear search and count the thing that actually does the work — the
+    <em>comparison</em> <code>item == target</code>:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>count comparisons</div><pre><code>def contains(data, target):
+    comparisons = 0
+    for item in data:
+        comparisons += 1
+        if item == target:
+            return True, comparisons
+    return False, comparisons
+
+haystack = list(range(1000))
+print(contains(haystack, 999))   <span class="c"># found at the very end</span>
+print(contains(haystack, -1))    <span class="c"># missing: full pass</span></code></pre></div>
+  <div class="out">(True, 1000)
+(False, 1000)</div>
+  <p>
+    In the <strong>worst case</strong> (target missing, or last) the loop makes n
+    comparisons — so counting comparisons gives T(n) = n. Counting assignments to
+    <code>item</code> would also give n. Counting the loop's additions: also n. Every
+    reasonable choice lands on "some constant times n", so the dominant term — the part we
+    keep — is <strong>n</strong> whichever operation you picked.
+  </p>
+  <div class="note">
+    <span class="label">The choice sets the constant, not the shape</span>
+    <p>
+      Counting comparisons might give T(n) = n; counting every basic operation in the loop
+      body might give T(n) = 4n. Different constant, identical growth. Since we throw the
+      constant away anyway (§7.3), the choice of operation cannot change the class. Pick the
+      operation that is easiest to see, and say which one you counted.
+    </p>
+  </div>
+  <p>
+    This is also <em>why</em> the constant is machine-dependent and the shape is not. On a
+    fast CPU a comparison might take 2 nanoseconds; on a slow one, 20. In C it is faster
+    than in Python. Every one of those facts scales the constant up or down — none of them
+    turns an n into an n². The growth pattern is a property of the algorithm; the constant
+    is a property of everything else.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">7.6</span>Arithmetic growth vs geometric growth</h2>
+  <p>
+    There is one more distinction that decides an algorithm's class, and it hides in how a
+    loop variable changes. Watch two loops that both stop at n:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>adding vs multiplying</div><pre><code>def arithmetic_steps(n):     <span class="c"># i goes 0, 1, 2, 3, ... up to n</span>
+    steps = 0
+    i = 0
+    while i &lt; n:
+        i = i + 1            <span class="c"># ADD a constant each pass</span>
+        steps += 1
+    return steps
+
+def geometric_steps(n):      <span class="c"># i goes n, n/2, n/4, ... down to 1</span>
+    steps = 0
+    i = n
+    while i &gt; 1:
+        i = i // 2           <span class="c"># MULTIPLY (by 1/2) each pass</span>
+        steps += 1
+    return steps
+
+for n in [8, 1024, 1000000]:
+    print(f"n={n:&gt;8}   adding: {arithmetic_steps(n):&gt;8}   halving: {geometric_steps(n)}")</code></pre></div>
+  <div class="out">n=       8   adding:        8   halving: 3
+n=    1024   adding:     1024   halving: 10
+n= 1000000   adding:  1000000   halving: 19</div>
+  <p>
+    The gap is enormous, and it comes entirely from <em>add</em> versus <em>multiply</em>.
+    When a loop variable <strong>adds</strong> a fixed amount, it needs about n passes to
+    reach n — that is <strong>arithmetic growth</strong>, and it gives O(n). When a loop
+    variable <strong>multiplies</strong> (here, halves) each pass, it reaches its target in
+    only about <code>log₂ n</code> passes — <strong>geometric growth</strong>, and it gives
+    O(log n). Doubling n adds exactly <em>one</em> pass to the halving loop, which is the
+    "small fixed addition, not a multiple" row you spotted in last week's ratio table.
+  </p>
+  <div class="note blue">
+    <span class="label">The one-line test</span>
+    <p>
+      Look at what happens to the loop variable each pass. <em>Adding</em> a constant →
+      linear in that variable. <em>Multiplying</em> by a constant → logarithmic. This single
+      question separates a scan (O(n)) from a halving search like the one in week 8's binary
+      search (O(log n)).
+    </p>
+  </div>
+
+  <h3>A second dominant-term example: the triangular loop</h3>
+  <p>
+    Nested loops are not always a clean n². Here the inner loop's length depends on the
+    outer counter:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>inner loop grows with i</div><pre><code>def triangular(n):
+    count = 0
+    for i in range(n):
+        for j in range(i):       <span class="c"># runs i times, not n</span>
+            count += 1
+    return count</code></pre></div>
+  <p>
+    The inner loop runs 0 times, then 1, then 2, … up to n−1. Add those up:
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T(n) = 0 + 1 + 2 + … + (n−1) = n(n−1)/2 = ½n² − ½n &nbsp;&rarr;&nbsp; keep n²</p>
+  <p>
+    Only <em>half</em> the full grid of n² is visited, yet the dominant term is still n²:
+    the ½ is a constant multiplier, and we drop it. So this loop is O(n²) and its ratio
+    column will still read ≈ 4 when you double n — exactly the behaviour you will meet again
+    in week 9's "checking off" anagram solution. Half of a quadratic is still a quadratic.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">7.7</span>Counting practice</h2>
   <p>Three snippets. Count before reading the answer.</p>
   <div class="code"><div class="code-head"><span class="dot"></span>snippet A</div><pre><code>total = 0
 for i in range(n):
@@ -164,7 +284,7 @@ for i in range(n):
     </p>
   </details>
   <div class="note red">
-    <span class="label">The rule beginners get wrong</span>
+    <span class="label">The rule people get wrong</span>
     <p>
       "Nested loop means n²" is false. What matters is how many times each loop runs
       <em>as a function of the input</em>. Two loops side by side add; loops inside each
@@ -174,7 +294,7 @@ for i in range(n):
 </section>
 
 <section>
-  <h2><span class="num">7.6</span>Try it yourself</h2>
+  <h2><span class="num">7.8</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — count, then verify</span>
@@ -223,10 +343,61 @@ for i in range(n):
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — count a different operation</span>
+    <p>
+      Instrument the worst-case <code>contains</code> from §7.5 twice: once counting
+      comparisons, once counting <em>every</em> assignment in the loop body. Run both at
+      n = 100, 200, 400 on a missing target. Do the two counts differ? Do they grow in the
+      same proportion? What does that tell you about which operation to count?
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        The raw counts differ by a constant factor (say n vs 3n), but both double when n
+        doubles — the ratio column is identical. The choice of operation set the constant,
+        not the shape, so either is fine as long as you state which you counted.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — the triangular loop</span>
+    <p>
+      Predict T(n) for the <code>triangular</code> function in §7.6, then add a counter and
+      run it at n = 500, 1 000, 2 000. Does <code>count</code> match n(n−1)/2? What is the
+      ratio when n doubles, and why is it ≈ 4 even though only half the grid is visited?
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        <code>count</code> equals n(n−1)/2 exactly: 124 750, 499 500, 1 999 000. The ratio
+        is ≈ 4 because the dominant term is ½n² — doubling n multiplies ½n² by 4. The ½ is a
+        constant we drop; half a quadratic is still a quadratic.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — adding vs multiplying</span>
+    <p>
+      Run <code>arithmetic_steps</code> and <code>geometric_steps</code> from §7.6 at
+      n = 1 000, 1 000 000 and 1 000 000 000. For each, say how the step count changes when
+      you multiply n by 1 000. Which one barely moves, and which log connects it to week 6's
+      "adds a fixed amount per doubling" row?
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        The adding loop's count multiplies by 1 000 each time (linear). The halving loop's
+        count rises by only about 10 each time (log₂ 1000 ≈ 10) — that is O(log n). Doubling
+        n adds exactly one step to the halving loop, which is precisely the logarithmic row
+        of last week's ratio table.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">7.7</span>Self-check</h2>
+  <h2><span class="num">7.9</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
       <p>T(n) = 4n² + 1000n + 50 000. Which term decides the behaviour for large n?</p>
@@ -252,31 +423,51 @@ for i in range(n):
       <button class="opt">For n above 100</button>
       <div class="why">They cross at n = 100. Below it the constant factor dominates and B wins; above it the growth pattern takes over and A wins by ever more.</div>
     </div>
+    <div class="q" data-answer="2">
+      <p>A loop variable starts at n and is halved each pass until it reaches 1. The number of passes grows like:</p>
+      <button class="opt">n</button>
+      <button class="opt">n²</button>
+      <button class="opt">log n</button>
+      <button class="opt">n log n</button>
+      <div class="why">Multiplying (here, halving) the variable each pass is geometric growth: it reaches the target in about log₂ n steps. Adding a constant instead would be linear.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>You count comparisons instead of assignments and get a different constant factor. The dominant term:</p>
+      <button class="opt">Changes completely</button>
+      <button class="opt">Is unchanged — the choice of which basic operation to count moves the constant, not the growth</button>
+      <button class="opt">Becomes n²</button>
+      <button class="opt">Disappears</button>
+      <div class="why">Different operations differ by a constant factor, and we drop constants. The growth pattern belongs to the algorithm; the constant belongs to your choice of operation and your machine.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">7.8</span>Homework</h2>
+  <h2><span class="num">7.10</span>Homework</h2>
   <div class="task">
-    <span class="label">Due before week 8</span>
+    <span class="label">Due before week 8 — about 3 hours</span>
     <ol>
-      <li>Create <code>AA_Week07.ipynb</code> and complete Tasks 1–3.</li>
+      <li>Create <code>AA_Week07.ipynb</code> and complete Tasks 1–6.</li>
       <li>Take any three functions you wrote in weeks 3–6. For each: write T(n), simplify it, then verify with a step counter at three sizes.</li>
       <li>For one of them, put the predicted step counts and the measured seconds side by side in one table. Do they rise in the same proportions?</li>
+      <li>Using Task 6, write two sentences contrasting arithmetic and geometric growth in your own words, and name one algorithm from an earlier week that is each kind.</li>
       <li>Write five sentences on this question: your colleague says "just buy a faster computer". Using your own crossover measurement from Task 3, explain when they are right and when they are badly wrong.</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">7.9</span>Words from this week</h2>
+  <h2><span class="num">7.11</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
       <tbody>
         <tr><td>T(n)</td><td>The number of steps a piece of code takes for input size n.</td></tr>
         <tr><td>dominant term</td><td>The fastest-growing part of a formula; the only part that matters for large n.</td></tr>
-        <tr><td>constant factor</td><td>The multiplier in front (the 5 in 5n²) — machine and style, not method.</td></tr>
+        <tr><td>constant factor</td><td>The multiplier in front (the 5 in 5n²) — machine, language and style, not method.</td></tr>
+        <tr><td>basic operation</td><td>The step you choose to count (comparison, assignment…); it sets the constant, not the shape.</td></tr>
+        <tr><td>arithmetic growth</td><td>A variable that <em>adds</em> a constant each pass — reaches n in about n steps (linear).</td></tr>
+        <tr><td>geometric growth</td><td>A variable that <em>multiplies</em> each pass — reaches n in about log n steps.</td></tr>
         <tr><td>crossover point</td><td>The input size where a method with better growth overtakes one with a smaller constant.</td></tr>
         <tr><td>machine independence</td><td>The reason we count steps: the answer stays true when the hardware changes.</td></tr>
       </tbody>

@@ -5,7 +5,9 @@
       <li>read and write Big-O notation for the six patterns that cover most code;</li>
       <li>translate a step-count formula into a Big-O class in one line;</li>
       <li>say what each class means in plain words and in real time;</li>
+      <li>read the class straight off a function, line by line, without measuring;</li>
       <li>distinguish best, worst and average case, and say which one to quote;</li>
+      <li>tell time cost from space cost, and quote both;</li>
       <li>revise everything from weeks 1–7 for the midterm.</li>
     </ul>
   </div>
@@ -65,7 +67,55 @@
 </section>
 
 <section>
-  <h2><span class="num">8.3</span>Reading code and naming its class</h2>
+  <h2><span class="num">8.3</span>Why we drop constants and lower terms</h2>
+  <p>
+    This is the step people take on faith at first, so it is worth doing once with real
+    numbers. Take a made-up step count with a fat constant and a big linear term bolted on:
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = 3n² + 500n + 8000</p>
+  <p>
+    Watch which term actually decides the total as n grows. The table shows what each term
+    contributes and, in the last column, the share the n² term takes:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>3n²</th><th>500n</th><th>8000</th><th>share from 3n²</th></tr></thead>
+      <tbody>
+        <tr><td>10</td><td>300</td><td>5 000</td><td>8 000</td><td>2%</td></tr>
+        <tr><td>100</td><td>30 000</td><td>50 000</td><td>8 000</td><td>34%</td></tr>
+        <tr><td>1 000</td><td>3 000 000</td><td>500 000</td><td>8 000</td><td>85%</td></tr>
+        <tr><td>10 000</td><td>300 000 000</td><td>5 000 000</td><td>8 000</td><td>98%</td></tr>
+        <tr><td>1 000 000</td><td>3 × 10¹²</td><td>5 × 10⁸</td><td>8 000</td><td>99.98%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    At small n the constant 8000 is the biggest thing on the row and the "slow" n² term is
+    invisible. But every column except the first eventually surrenders to n²: the constant
+    never moves, the linear term is left in the dust, and by n = 1 000 000 the squared term
+    <em>is</em> the answer to two decimal places. Big-O reports the term that wins this
+    race, because that is the term that decides what happens when the data grows — which is
+    the only question Big-O is asked.
+  </p>
+  <p>
+    And the multiplier? Drop it because it does not change the <em>shape</em>. Double the
+    input on any n² curve — whether it is <code>n²</code>, <code>3n²</code> or
+    <code>1000n²</code> — and the time goes up four-fold. The 3 sets the height of the
+    curve; the n² sets its bend. Big-O is a claim about the bend.
+  </p>
+  <div class="note">
+    <span class="label">A one-line rule you can trust</span>
+    <p>
+      To go from T(n) to Big-O: <strong>keep the fastest-growing term, throw away its
+      multiplier.</strong> <code>7n + 3</code> → O(n). <code>n²/2 − n</code> → O(n²).
+      <code>4n log n + 90n</code> → O(n log n). Everything else on the line is noise once
+      n is large.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.4</span>Reading code and naming its class</h2>
   <p>Four questions, in order. They resolve most everyday code:</p>
   <ol>
     <li><strong>Is there a loop over the data at all?</strong> No → <code>O(1)</code>.</li>
@@ -120,7 +170,64 @@ def halvings(n):
 </section>
 
 <section>
-  <h2><span class="num">8.4</span>Best, worst and average case</h2>
+  <h2><span class="num">8.5</span>Reading Big-O off code, line by line</h2>
+  <p>
+    When the shape is not obvious at a glance, fall back on two mechanical rules and add the
+    costs up like a shopping receipt:
+  </p>
+  <ul>
+    <li><strong>Statements in sequence add.</strong> A + B + C → keep the biggest.
+      O(n) then O(n) then O(1) is O(n).</li>
+    <li><strong>Nested loops multiply.</strong> A loop that runs n times, doing O(n) work
+      each time, is O(n) × O(n) = O(n²).</li>
+  </ul>
+  <p>Here is a function built to exercise both rules. Price it one region at a time:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>price_each_region.py</div><pre><code>def report(data):                      <span class="c"># n = len(data)</span>
+    n = len(data)                      <span class="c"># O(1)  — length is stored</span>
+
+    total = 0
+    for x in data:                     <span class="c"># O(n)  — one pass</span>
+        total += x
+
+    biggest_gap = 0
+    for i in range(n):                 <span class="c"># outer runs n times…</span>
+        for j in range(n):             <span class="c"># …inner runs n times each → O(n²)</span>
+            gap = abs(data[i] - data[j])
+            if gap &gt; biggest_gap:
+                biggest_gap = gap
+
+    top10 = sorted(data)[-10:]         <span class="c"># O(n log n) sort, then O(1) slice</span>
+
+    return total, biggest_gap, top10</code></pre></div>
+  <p>
+    Reading top to bottom, the receipt is:
+    <span style="font-family:var(--font-mono);color:var(--accent)">O(1) + O(n) + O(n²) + O(n log n)</span>.
+    Sequential parts add, so we keep the biggest — and <code>n²</code> beats
+    <code>n log n</code> beats <code>n</code> beats <code>1</code>. The whole function is
+    <strong>O(n²)</strong>, and the culprit is the one nested loop. Everything else is along
+    for the ride.
+  </p>
+  <div class="note blue">
+    <span class="label">Two loops side by side are not nested</span>
+    <p>
+      The first loop and the double loop are written one after another, so they
+      <em>add</em>: <code>O(n) + O(n²)</code>, which is still O(n²). Only loops written
+      <em>inside</em> each other multiply. It is worth pointing at the indentation and
+      saying which rule applies — that habit alone prevents most misreadings.
+    </p>
+  </div>
+  <details class="solution"><summary>What if the inner loop were <code>for j in range(10):</code>?</summary>
+    <p>
+      Then the inner loop is a fixed ten steps, not n, so the double loop is
+      <code>O(n) × O(10) = O(10n) = O(n)</code>. The whole function would drop to
+      <code>O(n log n)</code>, decided by the sort. A loop bound that does not grow with the
+      data is a constant, and constants leave.
+    </p>
+  </details>
+</section>
+
+<section>
+  <h2><span class="num">8.6</span>Best, worst and average case</h2>
   <p>Searching a list of n items for a value:</p>
   <ul>
     <li><strong>Best case</strong> — it is the first item. One step. <code>O(1)</code>.</li>
@@ -131,6 +238,24 @@ def halvings(n):
     Unqualified Big-O means <strong>worst case</strong>. That is the honest default: it is
     the promise you can make to a user without knowing their data. Quote a best case only
     when you say the words "best case", or you are selling something.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the three cases, on one function</div><pre><code>def find(data, target):
+    for i, x in enumerate(data):
+        if x == target:
+            return i          <span class="c"># stops the moment it hits</span>
+    return -1
+
+nums = list(range(1000))
+print(find(nums, 0))          <span class="c"># best case: 1 comparison</span>
+print(find(nums, 999))        <span class="c"># worst case: 1000 comparisons</span>
+print(find(nums, -1))         <span class="c"># worst case: 1000 comparisons, absent</span></code></pre></div>
+  <div class="out">0
+999
+-1</div>
+  <p>
+    Same function, three wildly different amounts of work, and the input alone decides
+    which you get. When you report "linear search is O(n)", you are quoting the middle and
+    third lines — the promise that holds even for the unlucky user.
   </p>
   <div class="note green">
     <span class="label">Why worst case is the professional default</span>
@@ -143,7 +268,102 @@ def halvings(n):
 </section>
 
 <section>
-  <h2><span class="num">8.5</span>Common mistakes</h2>
+  <h2><span class="num">8.7</span>A space-complexity teaser</h2>
+  <p>
+    Big-O is not only about time. The same notation describes how much <em>extra memory</em>
+    a method needs as the input grows — its <strong>space complexity</strong>. When you
+    quote a cost, it is fair to ask which one you mean, because a method can be cheap in one
+    and dear in the other.
+  </p>
+  <p>"Extra" is the key word: it means memory <em>beyond</em> the input you were handed.</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>same job, different space</div><pre><code>def reverse_in_place(data):
+    i, j = 0, len(data) - 1
+    while i &lt; j:                    <span class="c"># swaps ends inward</span>
+        data[i], data[j] = data[j], data[i]
+        i += 1
+        j -= 1
+    <span class="c"># uses two index variables, whatever n is → O(1) extra space</span>
+
+def reverse_copy(data):
+    result = []
+    for x in data:
+        result = [x] + result      <span class="c"># builds a brand-new list of n items</span>
+    return result                  <span class="c"># → O(n) extra space</span></code></pre></div>
+  <p>
+    Both return a reversed sequence. The first rearranges the list you gave it and borrows
+    only two counters, so its extra space is <strong>O(1)</strong>. The second grows a
+    second list the size of the first, so its extra space is <strong>O(n)</strong>. Neither
+    is "wrong" — an in-place reverse is leaner, a copy leaves the original untouched — but
+    you should be able to say which you are paying for.
+  </p>
+  <div class="note">
+    <span class="label">A cheap watch for space</span>
+    <p>
+      Every time your code builds a new list, string or dictionary whose size follows n,
+      that is O(n) space. The list comprehension <code>[(x, y) for x in data for y in
+      data]</code> from earlier is O(n²) in <em>both</em> time and space — it constructs n²
+      pairs and has to hold them all. Week 9's counting solution spends O(1) extra space
+      (two fixed 26-slot lists) to buy O(n) time; that is the trade named in full next
+      week.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8.8</span>Name that complexity — a gallery</h2>
+  <p>
+    Cover the answers and call each one before you read on. These are the shapes you will
+    meet again and again; the goal is to name them on sight.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>gallery.py</div><pre><code><span class="c"># 1</span>
+def middle(data):
+    return data[len(data) // 2]
+
+<span class="c"># 2</span>
+def pair_sums(data):
+    out = []
+    for x in data:
+        for y in data:
+            out.append(x + y)
+    return out
+
+<span class="c"># 3</span>
+def count_down(n):
+    while n &gt; 1:
+        n = n // 2
+        print(n)
+
+<span class="c"># 4</span>
+def has_common(a, b):
+    for x in a:              <span class="c"># len(a) = n</span>
+        if x in b:           <span class="c"># 'in' on a list = O(len(b))</span>
+            return True
+    return False
+
+<span class="c"># 5</span>
+def sort_then_scan(data):
+    data = sorted(data)      <span class="c"># O(n log n)</span>
+    for x in data:           <span class="c"># O(n)</span>
+        print(x)
+
+<span class="c"># 6</span>
+def first_three(data):
+    return data[0], data[1], data[2]</code></pre></div>
+  <details class="solution"><summary>Answers</summary>
+    <p>
+      <strong>1</strong> — O(1): one division, one lookup, length is free.
+      <strong>2</strong> — O(n²) in time <em>and</em> O(n²) in space; it stores every pair.
+      <strong>3</strong> — O(log n): the value halves each round.
+      <strong>4</strong> — O(n × m), and if both lists are length n that is O(n²): the
+      hidden loop inside <code>in</code> nests under the visible loop.
+      <strong>5</strong> — O(n log n): sort dominates the later linear scan.
+      <strong>6</strong> — O(1): three fixed lookups, no dependence on length.
+    </p>
+  </details>
+</section>
+
+<section>
+  <h2><span class="num">8.9</span>Common mistakes</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
@@ -151,15 +371,17 @@ def halvings(n):
         <tr><td>"O(2n) is worse than O(n)"</td><td>They are the same class. Constants are dropped.</td></tr>
         <tr><td>"O(n²) is always slower than O(n)"</td><td>Only beyond the crossover point. For small n a fat constant on the O(n) side can lose.</td></tr>
         <tr><td>"Nested loops are always O(n²)"</td><td>Only if both loops grow with n. An inner loop of fixed length 10 is a constant factor.</td></tr>
+        <tr><td>"Two loops in a row is O(n²)"</td><td>Sequential loops add, not multiply: O(n) + O(n) = O(n). Only nested loops multiply.</td></tr>
         <tr><td>"Big-O tells me how many seconds"</td><td>It tells you the shape of the curve, not a point on it. You still need the stopwatch.</td></tr>
         <tr><td>"My code has no loops, so it is O(1)"</td><td>Check the built-in calls: <code>in</code>, <code>sorted</code>, <code>max</code>, <code>sum</code>, slicing and copying all walk the data.</td></tr>
+        <tr><td>"O(n) time means O(n) memory"</td><td>Different questions. A pass that keeps one running total is O(n) time but O(1) space.</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">8.6</span>Try it yourself</h2>
+  <h2><span class="num">8.10</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — classify</span>
@@ -203,10 +425,55 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — price the receipt</span>
+    <p>
+      Give the overall time class of each function, showing the per-region receipt you added
+      up. Then say the space class of the second one.
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>receipts.py</div><pre><code>def one(data):
+    s = sum(data)                 <span class="c"># ?</span>
+    data.sort()                   <span class="c"># ?</span>
+    return s, data[0]
+
+def two(data):
+    seen = []
+    for x in data:                <span class="c"># ?</span>
+        if x not in seen:         <span class="c"># ?</span>
+            seen.append(x)
+    return seen</code></pre></div>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        <code>one</code>: <code>sum</code> is O(n), <code>sort</code> is O(n log n), the
+        return is O(1). Add and keep the biggest → <strong>O(n log n)</strong>.
+        <code>two</code>: the loop runs n times, and <code>not in seen</code> is itself an
+        O(n) scan, so it is O(n) × O(n) = <strong>O(n²)</strong> time. Its space is
+        <strong>O(n)</strong> because <code>seen</code> can grow to the size of the input.
+        (Week 11's set turns that membership test into O(1) and the whole thing into O(n).)
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — best, worst, average by hand</span>
+    <p>
+      For the <code>find</code> function in §8.6, and a list of 1 000 items, give the exact
+      number of comparisons in the best case, the worst case, and the average case when the
+      target is present and equally likely to be anywhere. Then say the Big-O of each.
+    </p>
+    <details class="solution"><summary>Answers</summary>
+      <p>
+        Best: 1 comparison, O(1). Worst: 1 000 comparisons, O(n). Average: the target is at
+        position 1 to 1 000 with equal chance, so the mean is (1 + 1 000) / 2 ≈ 500
+        comparisons — still O(n) once the ½ constant is dropped.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">8.7</span>Self-check</h2>
+  <h2><span class="num">8.11</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
       <p>T(n) = 7n + 300. In Big-O this is:</p>
@@ -240,11 +507,35 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
       <button class="opt">Whichever the author prefers</button>
       <div class="why">Worst case is the professional default because it is the only promise that holds for data you have not seen.</div>
     </div>
+    <div class="q" data-answer="2">
+      <p>A function does one O(n) loop, then a separate O(n²) double loop, then returns. Its class is:</p>
+      <button class="opt">O(n³) — you multiply the two</button>
+      <button class="opt">O(n) — the smaller one wins</button>
+      <button class="opt">O(n²) — sequential parts add, so keep the biggest</button>
+      <button class="opt">O(n + n²) — you must write both</button>
+      <div class="why">Statements in sequence add; adding O(n) and O(n²) keeps the dominant O(n²). Only nested loops multiply.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>A function walks a list once keeping a single running maximum. Its time and space are:</p>
+      <button class="opt">O(n) time, O(n) space</button>
+      <button class="opt">O(n) time, O(1) space</button>
+      <button class="opt">O(1) time, O(1) space</button>
+      <button class="opt">O(n²) time, O(n) space</button>
+      <div class="why">One pass is O(n) time; storing a single number regardless of n is O(1) extra space. Time and space are separate questions.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>An inner loop written as <code>for j in range(10):</code> sits inside a loop over n items. The pair is:</p>
+      <button class="opt">O(n²) — any nested loop is quadratic</button>
+      <button class="opt">O(10n²)</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(n) — the inner bound is a constant, not n</button>
+      <div class="why">A loop whose length does not grow with the data is a constant factor. O(n) × O(10) = O(n).</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">8.8</span>Midterm revision checklist</h2>
+  <h2><span class="num">8.12</span>Midterm revision checklist</h2>
   <div class="note">
     <span class="label">Weeks 1–8 in one list</span>
     <ul>
@@ -255,7 +546,9 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
       <li>Run a doubling experiment and name the pattern from the ratio column (week 6).</li>
       <li>Write T(n) for a short snippet and simplify it to a dominant term (week 7).</li>
       <li>Convert T(n) to Big-O, and explain the class in plain words (week 8).</li>
+      <li>Read the class off a function by adding sequential parts and multiplying nested loops (week 8).</li>
       <li>Explain best / worst / average case for linear search (weeks 4, 8).</li>
+      <li>Tell time cost from space cost, and quote both for a short function (week 8).</li>
       <li>Explain the crossover between 100n and n², with a number (week 7).</li>
     </ul>
   </div>
@@ -267,20 +560,22 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">8.9</span>Homework</h2>
+  <h2><span class="num">8.13</span>Homework</h2>
   <div class="task">
     <span class="label">Due before week 9</span>
     <ol>
-      <li>Create <code>AA_Week08.ipynb</code> and complete Tasks 1–3.</li>
+      <li>Create <code>AA_Week08.ipynb</code> and complete Tasks 1–5.</li>
       <li>Build a personal reference table of the six classes: notation, plain-words meaning, a code example you wrote yourself, and a measured timing from your own notebooks.</li>
+      <li>Take the <code>report</code> function from §8.5, type it into Colab, and add a comment above every region naming its class. Then change the inner loop bound from <code>n</code> to <code>10</code> and write one sentence on how the overall class changes and why.</li>
       <li>Find one example of a hidden loop in code you wrote in an earlier week. Name its true class and describe how you would test that claim.</li>
+      <li>Pick any function you have written and state <em>both</em> its time class and its extra-space class, with a sentence of justification for each.</li>
       <li>Write five sentences answering: "Why do we say O(n²) is worse than O(n) even though a particular O(n²) program might run faster today?"</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">8.10</span>Words from this week</h2>
+  <h2><span class="num">8.14</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -289,7 +584,9 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
         <tr><td>constant / logarithmic / linear</td><td>O(1) / O(log n) / O(n).</td></tr>
         <tr><td>linearithmic</td><td>O(n log n) — the speed of good sorting.</td></tr>
         <tr><td>quadratic / exponential</td><td>O(n²) — every pair. O(2ⁿ) — every combination; unusable beyond tiny n.</td></tr>
+        <tr><td>dominant term</td><td>The fastest-growing part of T(n); the one Big-O keeps.</td></tr>
         <tr><td>worst case</td><td>The most work the method can be forced to do; the default meaning of a Big-O claim.</td></tr>
+        <tr><td>space complexity</td><td>How the <em>extra</em> memory a method needs grows with the input.</td></tr>
         <tr><td>hidden loop</td><td>A built-in operation that walks the data even though you wrote no loop.</td></tr>
       </tbody>
     </table>

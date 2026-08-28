@@ -33,11 +33,11 @@
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
-      <li>perform bubble sort and selection sort by hand on paper;</li>
-      <li>implement both, count their comparisons, and confirm the n² pattern;</li>
-      <li>explain in plain words where n log n comes from;</li>
+      <li>perform bubble, selection and insertion sort by hand on paper;</li>
+      <li>implement all three, count their comparisons and swaps, and confirm the n² pattern;</li>
+      <li>explain in plain words where n log n comes from, and see it beat n² in a measured table;</li>
       <li>measure the gap between your sort and Python's <code>sorted()</code>;</li>
-      <li>use <code>sort</code>, <code>sorted</code> and <code>key=</code> properly in real work.</li>
+      <li>use <code>sort</code>, <code>sorted</code> and <code>key=</code> properly, and explain what a <em>stable</em> sort buys you.</li>
     </ul>
   </div>
 </section>
@@ -82,11 +82,13 @@
     return items, comparisons, swaps
 
 print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
-  <div class="out">([1, 2, 4, 5, 8], 10, 4)</div>
+  <div class="out">([1, 2, 4, 5, 8], 9, 4)</div>
   <p>
     <strong>Cost.</strong> Passes shrink: (n−1) + (n−2) + … + 1 = n(n−1)/2 comparisons —
     <code>O(n²)</code>. The early exit gives a best case of <code>O(n)</code> on data that
-    is already sorted, which is bubble sort's only redeeming feature.
+    is already sorted, which is bubble sort's only redeeming feature. (Here the early exit
+    fires after the third pass finds nothing to swap, so it stops at 9 comparisons instead of
+    the full 10.)
   </p>
 </section>
 
@@ -117,21 +119,70 @@ print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
     bubble sort's possible n²/2. If moving items is expensive and comparing them is cheap,
     that matters. Two algorithms in the same class can still differ in ways worth measuring.
   </p>
-  <div class="note blue">
-    <span class="label">Insertion sort, in one line</span>
-    <p>
-      The third classic: take each item and slide it back into its correct place among the
-      already-sorted items on its left. Also O(n²) in the worst case, but genuinely fast on
-      nearly-sorted data — which is why real sorting libraries use it for small chunks.
-    </p>
-  </div>
 </section>
 
 <section>
-  <h2><span class="num">13.4</span>Where n log n comes from</h2>
+  <h2><span class="num">13.4</span>Insertion sort, and all three by hand</h2>
   <p>
-    Both sorts above compare every item with essentially every other. The better sorts
-    refuse to do that, using a divide-and-conquer idea:
+    The third classic completes the set. Take each item and slide it back into its correct
+    place among the already-sorted items on its left — the way most people order a hand of
+    playing cards as they pick them up.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>insertion_sort.py</div><pre><code>def insertion_sort(data):
+    items = data[:]
+    comparisons = shifts = 0
+
+    for i in range(1, len(items)):
+        current = items[i]               <span class="c"># the card in your hand</span>
+        j = i - 1
+        while j &gt;= 0:
+            comparisons += 1
+            if items[j] &gt; current:       <span class="c"># make room by shifting right</span>
+                items[j + 1] = items[j]
+                shifts += 1
+                j -= 1
+            else:
+                break
+        items[j + 1] = current           <span class="c"># drop it into the gap</span>
+
+    return items, comparisons, shifts
+
+print(insertion_sort([5, 1, 4, 2, 8]))</code></pre></div>
+  <div class="out">([1, 2, 4, 5, 8], 7, 4)</div>
+  <p>
+    Insertion sort is O(n²) in the worst case, but genuinely fast on nearly-sorted data — on
+    an already-sorted list every item drops straight in after a single comparison, giving
+    O(n). That is why real sorting libraries use it for small chunks.
+  </p>
+  <p>
+    Now the point of this section: sort <code>[5, 1, 4, 2, 8]</code> by hand with each method,
+    writing the list after every pass, and confirm your counts against the three outputs above.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Bubble — after each pass</th><th>Selection — after each round</th><th>Insertion — after each insert</th></tr></thead>
+      <tbody>
+        <tr><td>start [5,1,4,2,8]</td><td>start [5,1,4,2,8]</td><td>start [5,1,4,2,8]</td></tr>
+        <tr><td>pass 1 → [1,4,2,5,8]</td><td>put smallest first → [1,5,4,2,8]</td><td>insert 1 → [1,5,4,2,8]</td></tr>
+        <tr><td>pass 2 → [1,2,4,5,8]</td><td>next smallest → [1,2,4,5,8]</td><td>insert 4 → [1,4,5,2,8]</td></tr>
+        <tr><td>pass 3 → no swaps, stop</td><td>rest already in place</td><td>insert 2 → [1,2,4,5,8]; insert 8 → done</td></tr>
+        <tr><td><strong>9 comparisons, 4 swaps</strong></td><td><strong>10 comparisons, 2 swaps</strong></td><td><strong>7 comparisons, 4 shifts</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Three correct answers, three different amounts of work on the very same five numbers.
+    Selection sort always does its full 10 comparisons; bubble sort's early exit saves it one;
+    insertion sort does the fewest here because the data was not badly scrambled. The class is
+    the same for all three — the constants are not.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.5</span>Where n log n comes from</h2>
+  <p>
+    All three sorts above compare, in the worst case, every item with essentially every other.
+    The better sorts refuse to do that, using a divide-and-conquer idea:
   </p>
   <ol>
     <li>Split the list into two halves.</li>
@@ -163,7 +214,7 @@ print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">13.5</span>Python's sorted(), and how far ahead it is</h2>
+  <h2><span class="num">13.6</span>Python's sorted(), and how far ahead it is</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>your sort vs the real one</div><pre><code>import time, random
 
 for n in [1000, 2000, 4000, 8000]:
@@ -186,10 +237,27 @@ n= 4000  bubble   1.4890s (7,998,000 comparisons)   sorted() 0.00104s   1,432x
 n= 8000  bubble   5.9612s (31,996,000 comparisons)   sorted() 0.00228s   2,615x</div>
   <p>
     The <code>assert</code> line matters: both produce identical output. The difference is
-    entirely in how the answer is reached. And look at the last column — the gap doubles
-    every time the data doubles, because the two are in different classes. At n = 100 000
-    bubble sort would need roughly 5 000 million comparisons and about fifteen minutes;
-    <code>sorted()</code> takes about a twentieth of a second.
+    entirely in how the answer is reached. Read the two time columns down the page as a
+    doubling experiment, exactly as in weeks 5–7:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n doubles</th><th>bubble time × …</th><th>sorted() time × …</th><th>what the ratio says</th></tr></thead>
+      <tbody>
+        <tr><td>1000 → 2000</td><td>0.37 / 0.09 ≈ 4.0×</td><td>0.00048 / 0.00023 ≈ 2.1×</td><td>4× is n²; 2.1× is n log n</td></tr>
+        <tr><td>2000 → 4000</td><td>1.49 / 0.37 ≈ 4.0×</td><td>0.00104 / 0.00048 ≈ 2.2×</td><td>same story, one class down</td></tr>
+        <tr><td>4000 → 8000</td><td>5.96 / 1.49 ≈ 4.0×</td><td>0.00228 / 0.00104 ≈ 2.2×</td><td>and it holds every row</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A ratio column that sits at 4 is the fingerprint of O(n²); one that sits just above 2 is
+    the fingerprint of O(n log n). You do not need to know the constant, the machine or the
+    language to read the class straight off those numbers — which is the whole method of this
+    course. And the final speedup column keeps growing precisely because the two lines belong
+    to different classes: at n = 100 000 bubble sort would need roughly 5 000 million
+    comparisons and about fifteen minutes; <code>sorted()</code> takes about a twentieth of a
+    second.
   </p>
   <div class="note green">
     <span class="label">What Python actually uses</span>
@@ -203,7 +271,7 @@ n= 8000  bubble   5.9612s (31,996,000 comparisons)   sorted() 0.00228s   2,615x<
 </section>
 
 <section>
-  <h2><span class="num">13.6</span>Using sorting properly</h2>
+  <h2><span class="num">13.7</span>Using sorting properly</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>the everyday toolkit</div><pre><code>data = [5, 2, 9, 1]
 
 new = sorted(data)              <span class="c"># returns a new list, leaves data alone</span>
@@ -231,14 +299,53 @@ print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by
 </section>
 
 <section>
-  <h2><span class="num">13.7</span>Try it yourself</h2>
+  <h2><span class="num">13.8</span>Stability, and sorting by more than one key</h2>
+  <p>
+    A sort is <strong>stable</strong> when items that compare equal keep their original order.
+    Python's <code>sorted</code> and <code>list.sort</code> are stable — a guarantee, not an
+    accident — and it is more useful than it first sounds.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>equal keys keep their order</div><pre><code>scores = [("Ada", 88), ("Bilal", 88), ("Cem", 72)]
+
+print(sorted(scores, key=lambda p: p[1], reverse=True))</code></pre></div>
+  <div class="out">[('Ada', 88), ('Bilal', 88), ('Cem', 72)]</div>
+  <p>
+    Ada and Bilal both scored 88, and Ada stays ahead of Bilal because she came first in the
+    input. An <em>unstable</em> sort would be free to swap them, and you would have no way to
+    predict the order of ties.
+  </p>
+  <p>
+    Stability is what lets you sort by several keys in stages: sort by the <em>least</em>
+    important key first, then by the most important, and the earlier order survives inside each
+    group. Or, more directly, hand <code>key</code> a tuple and let Python compare left to right:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>two keys at once</div><pre><code>students = [
+    ("maths",   "Bilal"),
+    ("art",     "Cem"),
+    ("maths",   "Ada"),
+    ("art",     "Ada"),
+]
+
+<span class="c"># by subject A→Z, then by name A→Z within each subject</span>
+print(sorted(students, key=lambda s: (s[0], s[1])))</code></pre></div>
+  <div class="out">[('art', 'Ada'), ('art', 'Cem'), ('maths', 'Ada'), ('maths', 'Bilal')]</div>
+  <p>
+    The tuple <code>(subject, name)</code> is compared position by position: subjects first,
+    and names only to break a tie on subject. To mix directions — say subject ascending but
+    grade descending — sort in two stable passes (grade first with <code>reverse=True</code>,
+    then subject), because a single tuple key cannot reverse just one of its parts.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">13.9</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — on paper first</span>
     <p>
       Sort <code>[5, 1, 4, 2, 8]</code> by hand with bubble sort, writing out the list after
       each pass, and count comparisons and swaps. Then run the code and check that your
-      numbers match its output exactly.
+      numbers match its output exactly (9 comparisons, 4 swaps).
     </p>
   </div>
 
@@ -277,15 +384,50 @@ print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by
   <div class="task">
     <span class="label">Task 4 — the honest comparison plot</span>
     <p>
-      Plot bubble sort, selection sort and <code>sorted()</code> on one log–log figure across
-      four sizes. Report the slope of each line in words, and state the largest n you would
-      be willing to hand each one.
+      Plot bubble sort, selection sort, insertion sort and <code>sorted()</code> on one
+      log–log figure across four sizes. Report the slope of each line in words, and state the
+      largest n you would be willing to hand each one.
     </p>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — insertion sort loves order</span>
+    <p>
+      Run <code>insertion_sort</code> on (a) already-sorted, (b) reverse-sorted, and (c) random
+      data at n = 2 000, reporting comparisons for each. Which input is its best case, and why
+      is the reverse-sorted input its worst?
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        (a) about 1 999 — every item is already in place, so each inner <code>while</code> stops
+        after a single comparison: O(n), its best case. (b) about 2 million — every item must
+        travel all the way to the front, shifting everything: the worst case, O(n²). (c) roughly
+        half the worst case. This sensitivity to how sorted the input already is is exactly why
+        Timsort reaches for insertion sort on short, nearly-ordered runs.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — stability you can see</span>
+    <p>
+      Build a list of <code>(name, grade)</code> tuples where several people share a grade.
+      Sort it by grade with <code>sorted(..., key=lambda p: p[1])</code> and confirm that
+      same-grade people keep their input order. Then sort by <code>(grade, name)</code> and
+      describe, in one sentence, what changed and why.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        With the single key, ties keep input order (that is stability). With the tuple key,
+        ties are now broken by name alphabetically, because the second element of the tuple is
+        consulted whenever the first is equal. Same sort, richer key.
+      </p>
+    </details>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">13.8</span>Self-check</h2>
+  <h2><span class="num">13.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
       <p>Bubble sort on 4 000 random items does about 8 million comparisons. At 8 000 items, expect about:</p>
@@ -319,34 +461,52 @@ print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by
       <button class="opt">It performs far fewer swaps — a smaller constant factor in the same class</button>
       <div class="why">Same class, different constant. This is exactly why we report both the class and the measurement.</div>
     </div>
+    <div class="q" data-answer="1">
+      <p>In the doubling table, <code>sorted()</code>'s time multiplies by about 2.1 each time n doubles. That ratio is the fingerprint of:</p>
+      <button class="opt">O(n²)</button>
+      <button class="opt">O(n log n)</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1)</button>
+      <div class="why">A pure O(n) line would double (2.0×); O(n²) would quadruple (4×). Just above 2 is the signature of n log n.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A <em>stable</em> sort guarantees that:</p>
+      <button class="opt">It never crashes</button>
+      <button class="opt">It always runs in O(n log n)</button>
+      <button class="opt">Items comparing equal keep their original order</button>
+      <button class="opt">It uses no extra memory</button>
+      <div class="why">Stability is about ties, not speed. It is what lets you sort by several keys in stages, each pass preserving the last.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">13.9</span>Homework</h2>
+  <h2><span class="num">13.11</span>Homework</h2>
   <div class="task">
-    <span class="label">Due before week 14</span>
+    <span class="label">Due before week 14 — about three hours</span>
     <ol>
-      <li>Create <code>AA_Week13.ipynb</code> and complete Tasks 1–4.</li>
-      <li>Implement insertion sort yourself, count its comparisons, and add it to the Task 4 figure.</li>
-      <li>Write the five-sentence interpretation for that figure, including a prediction of bubble sort's runtime at n = 50 000 (do not run it — say how you extrapolated).</li>
+      <li>Create <code>AA_Week13.ipynb</code> and complete Tasks 1–6.</li>
+      <li>Add insertion sort's comparison counts to the Task 4 figure so all three hand-written sorts and <code>sorted()</code> appear together.</li>
+      <li>Reproduce the doubling table from §13.6 with your own timings, and state the ratio each algorithm settles on. Name the class of each from its ratio alone.</li>
+      <li>Write the five-sentence interpretation for the Task 4 figure, including a prediction of bubble sort's runtime at n = 50 000 (do not run it — say how you extrapolated from the 4× ratio).</li>
       <li>Bring a working draft of your final project: both approaches implemented, at least one benchmark table produced. Week 14 is a workshop.</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">13.10</span>Words from this week</h2>
+  <h2><span class="num">13.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
       <tbody>
         <tr><td>bubble sort</td><td>Repeatedly swap out-of-order neighbours. O(n²), O(n) on sorted data.</td></tr>
         <tr><td>selection sort</td><td>Repeatedly pick the smallest remaining item. O(n²) always, few swaps.</td></tr>
-        <tr><td>insertion sort</td><td>Slide each item back into its place. O(n²) worst, excellent on nearly-sorted data.</td></tr>
+        <tr><td>insertion sort</td><td>Slide each item back into its place. O(n²) worst, O(n) on already-sorted data.</td></tr>
         <tr><td>divide and conquer</td><td>Split the problem, solve the parts, combine — the source of log n levels.</td></tr>
         <tr><td>merge</td><td>Combine two sorted lists into one in a single pass.</td></tr>
         <tr><td>Timsort</td><td>Python's built-in sort: O(n log n) worst case, O(n) on already-ordered data.</td></tr>
+        <tr><td>stable sort</td><td>One that keeps equal items in their original order — lets you sort by keys in stages.</td></tr>
         <tr><td>in place</td><td>Modifies the original rather than returning a new one (<code>sort</code> vs <code>sorted</code>).</td></tr>
       </tbody>
     </table>
@@ -361,7 +521,7 @@ print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by
 
 </main>
 <footer class="site-footer">
-  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
   <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
 <script src="../assets/app.js"></script>

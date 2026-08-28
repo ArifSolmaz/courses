@@ -6,7 +6,9 @@
       <li>time a piece of code with <code>time.perf_counter()</code>;</li>
       <li>explain why one measurement is never enough;</li>
       <li>run the same function at several input sizes and put the results in a table;</li>
-      <li>spot the three things that make a benchmark lie.</li>
+      <li>spot the three things that make a benchmark lie;</li>
+      <li>know why the first timed run is usually thrown away, and how fine your stopwatch really is;</li>
+      <li>choose between <code>perf_counter</code> and the <code>timeit</code> module for a given job.</li>
     </ul>
   </div>
 </section>
@@ -34,6 +36,13 @@ print(sum_to(1000))</code></pre></div>
     <li>the indented block — the work, which can use <code>n</code> as if it were a variable.</li>
     <li><code>return total</code> — hand the answer back. Without it, the function gives back <code>None</code>, which is the most common cause of "why is my result empty?"</li>
   </ul>
+  <p>
+    A useful picture: a function is a <em>recipe card</em>. Writing the card teaches the
+    kitchen a dish; it does not cook anything. You only get food when someone reads the card
+    and follows it — that is a <strong>call</strong>. The parameter <code>n</code> is the
+    blank on the card that says "however many portions you asked for", filled in fresh each
+    time the card is used.
+  </p>
   <div class="note">
     <span class="label">Defining is not running</span>
     <p>
@@ -92,6 +101,11 @@ def time_it(func, n, repeats=5):
     return best
 
 print(f"{time_it(sum_to, 1000000):.4f} s")</code></pre></div>
+  <p>
+    This little <code>time_it</code> is the harness the whole course leans on. Every week
+    from here on hands it a function and a size and reads back a trustworthy number, so it
+    is worth understanding line by line now.
+  </p>
   <p>
     Why the <em>fastest</em> run and not the average? Because interference only ever makes
     code slower. The quickest run is the one that got the least interrupted — the closest
@@ -160,7 +174,113 @@ n= 10000000  loop 0.512000s   formula 0.000000180s   x2844444 faster</div>
 </section>
 
 <section>
-  <h2><span class="num">5.6</span>Try it yourself</h2>
+  <h2><span class="num">5.6</span>Going deeper: warm-up, resolution and timeit</h2>
+  <p>
+    You have a working stopwatch. Three refinements separate a rough timing from one you
+    would stake a grade — or a production decision — on.
+  </p>
+
+  <h3>The first run is a little lie</h3>
+  <p>
+    Time the same call five times in a row and watch the very first number:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>watch the first run</div><pre><code>import time
+
+data = list(range(1000000))          <span class="c"># built once, before timing</span>
+
+for run in range(5):
+    start = time.perf_counter()
+    total = sum(data)
+    print(f"run {run}: {time.perf_counter() - start:.5f} s")</code></pre></div>
+  <div class="out">run 0: 0.01204 s
+run 1: 0.00781 s
+run 2: 0.00773 s
+run 3: 0.00772 s
+run 4: 0.00774 s</div>
+  <p>
+    The first run is reliably slower. It pays one-off costs the others do not: the CPU's
+    cache is cold, memory is allocated fresh, and Python may still be settling. That first
+    run is called a <strong>warm-up</strong>, and serious benchmarks throw it away.
+  </p>
+  <div class="note green">
+    <span class="label">Why our harness already survives this</span>
+    <p>
+      Look again at <code>time_it</code>: it takes the <em>fastest</em> of the repeats. The
+      cold first run is the slowest, so it is never the minimum — taking the best quietly
+      discards the warm-up for you. If you switch to averaging instead, add an explicit
+      warm-up call before the loop (<code>func(n)</code> on its own, result ignored),
+      otherwise the cold run drags the average up.
+    </p>
+  </div>
+
+  <h3>How fine is the ruler?</h3>
+  <p>
+    A stopwatch that ticks in whole seconds cannot measure a 3-millisecond event. Every
+    clock has a smallest step it can see, its <strong>resolution</strong>. Ask Python what
+    yours is:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>clock info</div><pre><code>import time
+
+info = time.get_clock_info("perf_counter")
+print("resolution:", info.resolution, "seconds")
+print("monotonic:", info.monotonic)</code></pre></div>
+  <div class="out">resolution: 1e-09 seconds
+monotonic: True</div>
+  <p>
+    A nanosecond sounds plenty fine, and the raw clock is. But the practical floor is much
+    higher: the overhead of calling a Python function and reading the clock twice is itself
+    hundreds of nanoseconds, and that is your real smallest trustworthy interval. This is
+    the arithmetic behind the rule from §5.3 — if a run lasts only a few times the smallest
+    step you can measure, the trailing digits are decoration. Grow <code>n</code> until the
+    time is a comfortable multiple of the resolution.
+    (<code>monotonic: True</code> confirms the clock only ever moves forwards, which is why
+    a difference can never come out negative.)
+  </p>
+
+  <h3>Let the standard library do it: timeit</h3>
+  <p>
+    For a very fast snippet — a single arithmetic expression, a one-line call —
+    <code>perf_counter</code> around one call measures mostly its own overhead. The
+    <code>timeit</code> module exists for exactly this: it runs the snippet many times,
+    reports the total, and turns off the garbage collector during timing to remove one
+    source of noise.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>timeit for tiny snippets</div><pre><code>import timeit
+
+<span class="c"># run sum_to(1000) ten thousand times, get the total, divide back</span>
+total = timeit.timeit("sum_to(1000)", globals=globals(), number=10000)
+per_call = total / 10000
+print(f"{per_call * 1e6:.2f} microseconds per call")</code></pre></div>
+  <div class="out">41.30 microseconds per call</div>
+  <p>
+    Use the right tool for the scale. For the tiny, use <code>timeit</code>; for the
+    doubling experiments in the rest of the course — where each input size takes tens of
+    milliseconds and you want its own number and a ratio — the <code>time_it</code> harness
+    is the better fit. Both read the same underlying <code>perf_counter</code>; they just
+    package it differently.
+  </p>
+
+  <h3>Why noise is a percentage, not an amount</h3>
+  <p>
+    When the operating system steals the CPU to service the network card, it takes a
+    roughly <em>fixed</em> slice of time — say a quarter of a millisecond. On a 0.5 ms run
+    that is a 50% error; on a 2-second run it is 0.0000125%. The interruption is the same
+    size; what changes is its share of your measurement. That is the deep reason we grow
+    <code>n</code>: not to make the algorithm slower for its own sake, but to make every
+    fixed disturbance shrink to a rounding error <em>relative</em> to the signal.
+  </p>
+  <div class="note blue">
+    <span class="label">Report noise the honest way</span>
+    <p>
+      "It varied by 0.3 ms" tells nobody anything. "It varied by 40% at n = 1 000 but under
+      1% at n = 1 000 000" tells the whole story — and shows you understand where your
+      numbers are trustworthy and where they are not.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5.7</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — functions from last week</span>
@@ -210,10 +330,64 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — see the warm-up for yourself</span>
+    <p>
+      Time <code>sum_to(2000000)</code> eight times in a row with a plain
+      <code>perf_counter</code> loop, printing each run. Then print the fastest and the mean
+      of all eight, and the fastest and the mean of runs 2–8 only (dropping the first). Which
+      statistic changed the most when you dropped run 1, and why?
+    </p>
+    <details class="solution"><summary>What to look for</summary>
+      <p>
+        The <em>mean</em> moves noticeably when you drop the cold first run; the
+        <em>fastest</em> barely moves, because the first run was never the minimum in the
+        first place. This is the point of §5.6: taking the best is a free warm-up, but an
+        average needs the first run removed by hand.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — perf_counter vs timeit</span>
+    <p>
+      Measure the cost of one call to <code>sum_to(1000)</code> two ways: once with a single
+      <code>perf_counter</code> pair around one call, and once with
+      <code>timeit.timeit("sum_to(1000)", globals=globals(), number=10000)</code> divided by
+      10 000. Which gives the steadier answer across three repeats, and why?
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        The single <code>perf_counter</code> reading jumps around — a 41-microsecond call is
+        only a few hundred times the measurement overhead, so a single interruption swamps
+        it. The <code>timeit</code> figure is steady, because averaging over 10 000 runs
+        turns each fixed disturbance into a tiny percentage (§5.6, "noise is a percentage").
+        For calls this fast, <code>timeit</code> is the correct instrument.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — relative noise shrinks with n</span>
+    <p>
+      For n = 1 000 and again for n = 2 000 000, time <code>sum_to(n)</code> ten times and
+      report the spread as a percentage: <code>(slowest − fastest) / fastest × 100</code>.
+      Explain the two numbers using the idea from §5.6.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        The small n shows a large spread (tens of percent or more); the large n shows a
+        small one (a few percent or less). The interruptions are the same size in
+        milliseconds either way — but as a <em>share</em> of a longer run they shrink. This
+        is why we grow n until the run is well clear of the noise before trusting a ratio.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">5.7</span>Self-check</h2>
+  <h2><span class="num">5.8</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
       <p>A function without a <code>return</code> statement gives back:</p>
@@ -239,24 +413,42 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       <button class="opt">Increase n until the runs take tens of milliseconds — these numbers are noise</button>
       <div class="why">At this scale you are measuring the clock and the loop overhead, not the algorithm. Grow n until the signal is well above the noise.</div>
     </div>
+    <div class="q" data-answer="1">
+      <p>The very first of five identical timed runs is noticeably slower than the other four. The usual reason is:</p>
+      <button class="opt">A bug that only shows up once</button>
+      <button class="opt">One-off warm-up costs — cold cache and fresh allocation — which is why the first run is discarded, or why we take the fastest</button>
+      <button class="opt">perf_counter is broken until it is called twice</button>
+      <button class="opt">Python runs faster later in the day</button>
+      <div class="why">The first call pays start-up costs the rest do not. Taking the minimum already ignores it; an average would need it removed by hand.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>You want to measure one call to a snippet that takes about 40 microseconds. The best tool is:</p>
+      <button class="opt">time.time() around a single call</button>
+      <button class="opt">A single perf_counter pair — one reading is enough for tiny code</button>
+      <button class="opt">timeit, which runs it thousands of times and disables the garbage collector</button>
+      <button class="opt">A wall clock and a keen eye</button>
+      <div class="why">At tens of microseconds a single reading is mostly overhead. timeit repeats the snippet many times so each fixed disturbance becomes a negligible percentage.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">5.8</span>Homework</h2>
+  <h2><span class="num">5.9</span>Homework</h2>
   <div class="task">
-    <span class="label">Due before week 6</span>
+    <span class="label">Due before week 6 — about 3 hours</span>
     <ol>
-      <li>Create <code>AA_Week05.ipynb</code>, define <code>time_it</code>, and solve Tasks 1–3.</li>
+      <li>Create <code>AA_Week05.ipynb</code>, define <code>time_it</code>, and solve Tasks 1–6.</li>
       <li>Benchmark three functions at four sizes each: <code>sum_to</code>, <code>sum_formula</code>, and <code>contains</code> (worst case). One table each, with a ratio column.</li>
       <li>Add a step counter to <code>contains</code> and report both steps and seconds for each size.</li>
-      <li>Write five sentences: where do the step counts and the seconds agree, and where does the timing wobble? Which of the three ways to lie (§5.3) did you have to guard against?</li>
+      <li>Run the warm-up demonstration from §5.6 and Task 4 on your own machine or Colab. Paste your eight run times and state, in one sentence, whether taking the fastest saved you from the cold first run.</li>
+      <li>Measure the relative noise (Task 6) at your smallest and largest size, and quote both percentages.</li>
+      <li>Write five sentences: where do the step counts and the seconds agree, and where does the timing wobble? Which of the three ways to lie (§5.3) did you have to guard against, and did growing <code>n</code> shrink your relative noise as §5.6 predicts?</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">5.9</span>Words from this week</h2>
+  <h2><span class="num">5.10</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -266,6 +458,9 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
         <tr><td>return</td><td>Hand a value back to whoever called the function, and stop.</td></tr>
         <tr><td>benchmark</td><td>A measurement of how long code takes, done carefully enough to trust.</td></tr>
         <tr><td>perf_counter</td><td>Python's high-resolution stopwatch; only differences are meaningful.</td></tr>
+        <tr><td>warm-up run</td><td>A first, discarded run that pays one-off costs so the timed runs are fair.</td></tr>
+        <tr><td>resolution</td><td>The smallest interval a clock can distinguish; times near it are untrustworthy.</td></tr>
+        <tr><td>timeit</td><td>A standard-library tool that repeats a tiny snippet many times for a steady figure.</td></tr>
         <tr><td>noise</td><td>Variation in timings caused by everything else the machine is doing.</td></tr>
       </tbody>
     </table>

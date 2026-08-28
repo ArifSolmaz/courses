@@ -4,9 +4,11 @@
     <ul>
       <li>create and use dictionaries and sets;</li>
       <li>explain, in plain words, how hashing makes lookup independent of size;</li>
+      <li>trace by hand how a key lands in a bucket, and what a collision is;</li>
       <li>measure the difference between <code>in</code> on a list and <code>in</code> on a set;</li>
+      <li>count occurrences with <code>get</code>, <code>setdefault</code> and <code>Counter</code>;</li>
       <li>rewrite a quadratic "check against a list" loop into a linear one;</li>
-      <li>say what dictionaries and sets cost you in memory and in guarantees.</li>
+      <li>say what dictionaries and sets cost you in memory and in guarantees, and when a set is the wrong tool.</li>
     </ul>
   </div>
 </section>
@@ -53,6 +55,14 @@ print(a &amp; b, a | b, a - b)     <span class="c"># {3} {1,2,3,4} {1,2}</span><
     The last line — intersection, union, difference — often replaces an entire nested loop
     with one character.
   </p>
+  <div class="note red">
+    <span class="label">One trap to note now</span>
+    <p>
+      <code>{}</code> is an empty <em>dictionary</em>, not an empty set — Python got there
+      first with dictionaries. For an empty set you must write <code>set()</code>. This
+      catches almost everyone once.
+    </p>
+  </div>
 </section>
 
 <section>
@@ -71,8 +81,22 @@ for name, score in grades.items():
     unchangeable things — text, numbers, tuples — and each appears once. Looking one up
     costs the same whether the dictionary holds ten entries or ten million.
   </p>
+  <div class="note">
+    <span class="label">Bracket vs get</span>
+    <p>
+      <code>grades["Ece"]</code> raises <code>KeyError</code> if the key is missing;
+      <code>grades.get("Ece", 0)</code> hands back a default instead. Use the bracket form
+      when a missing key is a genuine bug you want to hear about, and <code>get</code> when
+      "not present" is a normal, expected case.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.4</span>Counting, done properly</h2>
   <p>
-    Counting things is the everyday use, and it replaces a lot of clumsy list code:
+    Tallying how often each thing occurs is the single most common use of a dictionary, and
+    it replaces a lot of clumsy list code. Three ways, worst to best:
   </p>
   <div class="code"><div class="code-head"><span class="dot"></span>counting with a dictionary</div><pre><code>text = "the quick brown fox jumps over the lazy dog the end"
 
@@ -85,10 +109,44 @@ print(counts["the"])       <span class="c"># 3</span></code></pre></div>
     One pass over n words, constant work each: <strong>O(n)</strong> for the whole tally.
     The list-based equivalent — searching a list of seen words each time — is O(n²).
   </p>
+  <p>
+    <code>get(word, 0)</code> is the idiom to remember: "the current count, or nought if we
+    have not seen this word before". A close cousin, <code>setdefault</code>, does the same
+    job when the value is a list you want to grow:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>grouping with setdefault</div><pre><code>students = [("maths", "Ada"), ("history", "Bilal"), ("maths", "Cem")]
+
+by_subject = {}
+for subject, name in students:
+    by_subject.setdefault(subject, []).append(name)   <span class="c"># make the list if absent, then append</span>
+
+print(by_subject)</code></pre></div>
+  <div class="out">{'maths': ['Ada', 'Cem'], 'history': ['Bilal']}</div>
+  <p>
+    And when all you want is a count, the standard library hands it to you outright.
+    <code>Counter</code> is a dictionary that already knows how to tally:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>Counter — a dictionary that counts</div><pre><code>from collections import Counter
+
+text = "the quick brown fox jumps over the lazy dog the end"
+
+counts = Counter(text.split())     <span class="c"># one pass, O(n), written in C</span>
+
+print(counts["the"])               <span class="c"># 3</span>
+print(counts["missing"])           <span class="c"># 0   — never a KeyError</span>
+print(counts.most_common(2))       <span class="c"># [('the', 3), ('quick', 1)]</span></code></pre></div>
+  <div class="out">3
+0
+[('the', 3), ('quick', 1)]</div>
+  <p>
+    Same class as the hand-written loop — O(n) — but a smaller constant, because the
+    counting happens in C, and <code>most_common</code> saves you a sort. This is the same
+    space-for-time trade you met with the anagram counter in week 9.
+  </p>
 </section>
 
 <section>
-  <h2><span class="num">11.4</span>How can lookup not depend on size?</h2>
+  <h2><span class="num">11.5</span>How can lookup not depend on size?</h2>
   <p>
     It feels like a trick. Here is the idea, without any mathematics.
   </p>
@@ -118,7 +176,90 @@ print(counts["the"])       <span class="c"># 3</span></code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">11.5</span>The measurement</h2>
+  <h2><span class="num">11.6</span>Inside the table: buckets and collisions</h2>
+  <p>
+    Let us make the cloakroom concrete and small enough to trace by hand. Build a tiny table
+    of eight buckets and drop five integers into it, sending each number <code>key</code> to
+    bucket <code>key % 8</code>. Integers are perfect for a trace because in Python
+    <code>hash(n) == n</code> for a small integer, so the arithmetic is reproducible.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>a hash table you can see</div><pre><code>size = 8
+buckets = [[] for _ in range(size)]     <span class="c"># eight empty chains</span>
+
+for key in [10, 18, 3, 26, 7]:
+    home = key % size                   <span class="c"># the "hook number"</span>
+    buckets[home].append(key)
+    print(f"{key:&gt;3}  -&gt;  bucket {home}")
+
+print(buckets)</code></pre></div>
+  <div class="out"> 10  ->  bucket 2
+ 18  ->  bucket 2
+  3  ->  bucket 3
+ 26  ->  bucket 2
+  7  ->  bucket 7
+[[], [], [10, 18, 26], [3], [], [], [], [7]]</div>
+  <p>
+    Work the arithmetic yourself: 10 % 8 = 2, 18 % 8 = 2, 3 % 8 = 3, 26 % 8 = 2, 7 % 8 = 7.
+    Three keys — 10, 18 and 26 — all landed in bucket 2. That is a <strong>collision</strong>,
+    and the bucket holds a short <em>chain</em> of them.
+  </p>
+  <p>
+    Now watch a lookup. To find 26 the table computes 26 % 8 = 2, goes straight to bucket 2,
+    and walks its tiny chain — three items — until it matches. To decide that 99 is absent it
+    computes 99 % 8 = 3, looks in bucket 3, finds only <code>[3]</code>, and stops. Neither
+    lookup ever touched the other buckets. That is the whole secret: the hash jumps you to a
+    tiny neighbourhood, and only the neighbourhood is searched.
+  </p>
+  <p>
+    Two things keep the neighbourhoods tiny. First, a <em>good</em> hash function scatters
+    keys evenly, so chains stay short. Second, when the table starts to fill up Python quietly
+    builds a bigger one and re-files everything — this is called <strong>resizing</strong>,
+    and it is why a set needs spare room and therefore extra memory. If chains were ever
+    allowed to grow long, lookup would slide back towards O(n); the average-case O(1) promise
+    depends on keeping them short.
+  </p>
+  <div class="note blue">
+    <span class="label">Why real string hashes are not reproducible</span>
+    <p>
+      Try the same trace with <code>hash("Ada")</code> and you will get a huge number that
+      <em>changes between program runs</em>. Python deliberately randomises string hashing so
+      that an attacker cannot feed your server keys engineered to collide (which would drag
+      every lookup down to O(n)). The integer trace above is stable only because integers hash
+      to themselves.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">11.7</span>What each operation costs</h2>
+  <p>
+    Keep this table beside you when you reach for a container. "Average" is the honest word:
+    a pathological run of collisions can degrade any single operation, but in practice Python
+    holds these costs.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Operation</th><th>list</th><th>set</th><th>dict</th></tr></thead>
+      <tbody>
+        <tr><td><code>x in c</code> (membership)</td><td>O(n)</td><td>O(1) avg</td><td>O(1) avg (keys)</td></tr>
+        <tr><td>add an item</td><td>O(1) at end, O(n) at front</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+        <tr><td>remove a given item</td><td>O(n)</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+        <tr><td>look up by position / key</td><td>O(1) by index</td><td>—</td><td>O(1) avg by key</td></tr>
+        <tr><td>walk everything</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
+        <tr><td>keeps order?</td><td>yes</td><td>no</td><td>yes (insertion)</td></tr>
+        <tr><td>duplicates?</td><td>yes</td><td>no</td><td>keys no, values yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Read the first row downwards: it is the entire reason this week exists. Everything a set
+    and dictionary give you is bought with the memory and the lost order in the bottom rows —
+    a trade that is almost always worth it once you are searching inside a loop.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.8</span>The measurement</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>list vs set membership</div><pre><code>import time
 
 for n in [10000, 100000, 1000000]:
@@ -156,7 +297,7 @@ duplicates = [a for a in new_signups if a in known_set]   <span class="c"># O(m)
 </section>
 
 <section>
-  <h2><span class="num">11.6</span>Choosing the container</h2>
+  <h2><span class="num">11.9</span>Choosing the container</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>You need to…</th><th>Use</th><th>Cost</th></tr></thead>
@@ -181,12 +322,54 @@ duplicates = [a for a in new_signups if a in known_set]   <span class="c"># O(m)
 </section>
 
 <section>
-  <h2><span class="num">11.7</span>Try it yourself</h2>
+  <h2><span class="num">11.10</span>Common mistakes, and when a set is the wrong answer</h2>
+  <p>
+    A set is a hammer that makes a lot of problems look like nails. Four situations where
+    reaching for one is a genuine error:
+  </p>
+  <ul>
+    <li>
+      <strong>Duplicates carry meaning.</strong> <code>set(votes)</code> to "clean up" a
+      list of votes silently throws away every repeat — and repeats were the whole point.
+      A set answers "which values appear?", never "how many times?".
+    </li>
+    <li>
+      <strong>Order matters.</strong> A leaderboard, a queue, a log, anything the user reads
+      top to bottom: a set scrambles it. If you need both fast membership <em>and</em> order,
+      keep the list and build a set alongside it for the lookups.
+    </li>
+    <li>
+      <strong>You only look once or twice.</strong> Building a set is a full O(n) pass. For a
+      single membership test, <code>x in my_list</code> is simpler and no slower. The set only
+      pays off when the build cost is spread over many lookups.
+    </li>
+    <li>
+      <strong>You need order questions.</strong> Nearest value, next larger, everything between
+      two dates — a hash table cannot answer any of these. That is next week's subject.
+    </li>
+  </ul>
+  <p>And two mistakes that produce wrong answers rather than slow ones:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>predict the output before you run it</div><pre><code>seen = set()
+seen.add([1, 2])            <span class="c"># TypeError: unhashable type: 'list'</span>
+
+scores = {"Ada": 88}
+scores["Ada"] = 91          <span class="c"># not a new entry — it overwrites 88</span>
+print(len(scores))          <span class="c"># 1, not 2: keys are unique</span></code></pre></div>
+  <p>
+    A list cannot go into a set or be a dictionary key, because it can change and so its hash
+    would move — Python refuses outright with <code>TypeError</code>. Use a <code>tuple</code>
+    when you need a compound key. And assigning to an existing key <em>replaces</em> its value;
+    it does not add a second entry. Both of these surprise people exactly once.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">11.11</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — reproduce the plateau</span>
     <p>
-      Run §11.5 and plot both columns against n on log–log axes. The set line should be
+      Run §11.8 and plot both columns against n on log–log axes. The set line should be
       flat and the list line a straight rising slope. Label everything.
     </p>
   </div>
@@ -241,10 +424,47 @@ print(sorted(common_slow) == sorted(common_fast))</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 5 — trace the buckets by hand</span>
+    <p>
+      Without running anything, work out which bucket each of <code>[16, 24, 5, 40, 9]</code>
+      lands in for a table of <code>size = 8</code>, and draw the eight buckets with their
+      chains. Which bucket holds a collision? Then run the §11.6 code with these numbers to
+      check yourself.
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        16 % 8 = 0, 24 % 8 = 0, 5 % 8 = 5, 40 % 8 = 0, 9 % 8 = 1. So bucket 0 holds the chain
+        <code>[16, 24, 40]</code> — a three-way collision — bucket 1 holds <code>[9]</code>,
+        bucket 5 holds <code>[5]</code>, and the rest are empty. A poor choice of table size
+        (here, everything divisible by 8 collides) is exactly the sort of thing a real hash
+        function is designed to avoid.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — count without a set</span>
+    <p>
+      You are handed a list of a million dice rolls (each an integer 1–6) and asked for the
+      most common face. Write it with <code>Counter</code>, then argue in two sentences why
+      turning the list into a <em>set</em> first would destroy the answer.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>counting, not de-duplicating</div><pre><code>from collections import Counter
+print(Counter(rolls).most_common(1))      <span class="c"># e.g. [(4, 167012)]</span></code></pre></div>
+      <p>
+        A set would collapse the million rolls to at most six values <code>{1,2,3,4,5,6}</code>,
+        erasing the very frequencies you were asked for. This is the "duplicates carry meaning"
+        trap: the counts <em>are</em> the data.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">11.8</span>Self-check</h2>
+  <h2><span class="num">11.12</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
       <p><code>x in data</code> where <code>data</code> is a set of one million items costs about:</p>
@@ -270,24 +490,41 @@ print(sorted(common_slow) == sorted(common_fast))</code></pre></div>
       <button class="opt">Lookups get slower as the structure grows</button>
       <div class="why">That is precisely what does <em>not</em> happen. The other three are genuine trade-offs you should state when you recommend one.</div>
     </div>
+    <div class="q" data-answer="2">
+      <p>Three keys hash to the same bucket. This is called a collision, and the table handles it by:</p>
+      <button class="opt">Raising an error and refusing the third key</button>
+      <button class="opt">Overwriting the first two keys</button>
+      <button class="opt">Keeping a short chain in that bucket and checking it on lookup</button>
+      <button class="opt">Doubling the size of every key</button>
+      <div class="why">Collisions are normal. A good hash keeps chains short, which is why membership stays O(1) on average rather than O(n).</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>You have a million dice rolls and need the most common face. The right tool is:</p>
+      <button class="opt">A dictionary or <code>Counter</code> — the frequencies are the answer</button>
+      <button class="opt">A set, to remove duplicates first</button>
+      <button class="opt">A sorted list</button>
+      <button class="opt">Binary search</button>
+      <div class="why">A set would discard the repeats, and the repeats are exactly what you were asked to count. Counting needs a count, not a de-duplication.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">11.9</span>Homework</h2>
+  <h2><span class="num">11.13</span>Homework</h2>
   <div class="task">
-    <span class="label">Due before week 12</span>
+    <span class="label">Due before week 12 — about three hours</span>
     <ol>
-      <li>Create <code>AA_Week11.ipynb</code> and complete Tasks 1–4.</li>
-      <li>Take any O(n²) function you wrote in weeks 4, 9 or 10 and rewrite it using a set or dictionary. Benchmark both at three sizes and prove the class changed.</li>
-      <li>Produce one labelled figure showing the flat set line against the rising list line.</li>
+      <li>Create <code>AA_Week11.ipynb</code> and complete Tasks 1–6.</li>
+      <li>Take any O(n²) function you wrote in weeks 4, 9 or 10 and rewrite it using a set or dictionary. Benchmark both at three sizes and prove the class changed with a ratio column.</li>
+      <li>Produce one labelled log–log figure showing the flat set line against the rising list line from Task 1.</li>
+      <li>Extend the §11.6 hash-table demo to <em>report</em> the longest chain for 1 000 random integers at three table sizes (say 128, 256, 1024). Write two sentences on what the longest chain tells you about lookup cost.</li>
       <li>Write five sentences for a non-technical manager explaining why the report that "took 3 hours" now takes 4 seconds, without using the words "hash" or "complexity".</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">11.10</span>Words from this week</h2>
+  <h2><span class="num">11.14</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -296,8 +533,11 @@ print(sorted(common_slow) == sorted(common_fast))</code></pre></div>
         <tr><td>dictionary</td><td>Key → value store with instant lookup by key.</td></tr>
         <tr><td>key / value</td><td>The label you look things up by / the thing stored under it.</td></tr>
         <tr><td>hash</td><td>A computed number that says where an item belongs — no searching required.</td></tr>
-        <tr><td>collision</td><td>Two keys landing in the same place; handled internally, and why we say "O(1) on average".</td></tr>
+        <tr><td>bucket</td><td>One slot of the table, holding all keys whose hash points there.</td></tr>
+        <tr><td>collision</td><td>Two keys landing in the same bucket; handled by a short chain, and why we say "O(1) on average".</td></tr>
+        <tr><td>resizing</td><td>Building a bigger table and re-filing everything when it starts to fill — the source of the spare memory.</td></tr>
         <tr><td>hashable</td><td>A value stable enough to be used as a key: text, numbers, tuples — not lists.</td></tr>
+        <tr><td>Counter</td><td>A ready-made dictionary from <code>collections</code> that tallies occurrences.</td></tr>
       </tbody>
     </table>
   </div>

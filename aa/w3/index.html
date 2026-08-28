@@ -35,6 +35,7 @@
     <ul>
       <li>make decisions with <code>if</code> / <code>elif</code> / <code>else</code>;</li>
       <li>repeat work with a <code>for</code> loop and a <code>while</code> loop;</li>
+      <li>stop or skip a loop early with <code>break</code> and <code>continue</code>;</li>
       <li>add a counter to any program to measure the work it does;</li>
       <li>predict the step count of a loop before running it;</li>
       <li>recognise why a loop inside a loop is a different animal entirely.</li>
@@ -73,6 +74,12 @@ else:
       </tbody>
     </table>
   </div>
+  <p>
+    The order matters. Python checks the branches top to bottom and takes the
+    <em>first</em> one that is true, then skips the rest. That is why the "Pleasant" branch
+    can safely say just <code>&gt; 15</code>: if the temperature had been above 30 we would
+    already have stopped at "Hot". Read a chain of <code>elif</code>s as "otherwise, if…".
+  </p>
 </section>
 
 <section>
@@ -90,9 +97,9 @@ step 4</div>
     noticing within a fortnight.
   </p>
   <ul>
-    <li><code>range(5)</code> → 0 1 2 3 4</li>
-    <li><code>range(1, 6)</code> → 1 2 3 4 5</li>
-    <li><code>range(0, 10, 2)</code> → 0 2 4 6 8 (step of two)</li>
+    <li><code>range(5)</code> &rarr; 0 1 2 3 4</li>
+    <li><code>range(1, 6)</code> &rarr; 1 2 3 4 5</li>
+    <li><code>range(0, 10, 2)</code> &rarr; 0 2 4 6 8 (step of two)</li>
   </ul>
   <p>Adding up the numbers from 1 to n is the classic first loop:</p>
   <div class="code"><div class="code-head"><span class="dot"></span>a running total</div><pre><code>n = 100
@@ -132,8 +139,9 @@ print(f"Pages left: {remaining}, looks needed: {looks}")</code></pre></div>
     <span class="label">Infinite loops</span>
     <p>
       If the condition never becomes false, the cell runs forever. In Colab, press the
-      stop button (■) next to the cell. Every programmer does this in their first week;
-      it breaks nothing.
+      stop button (&#9632;) next to the cell. Every programmer does this in their first week;
+      it breaks nothing. The usual cause: you forgot to change, inside the loop, the very
+      thing the condition tests.
     </p>
   </div>
 </section>
@@ -183,7 +191,7 @@ print(f"n = {n}, steps = {steps}")</code></pre></div>
   <div class="out">n = 5, steps = 25</div>
   <p>
     The inner loop runs <code>n</code> times for <em>each</em> pass of the outer loop, so
-    the total is <code>n × n</code>. Fill in this table by running the code — do not guess:
+    the total is <code>n &times; n</code>. Fill in this table by running the code — do not guess:
   </p>
   <div class="table-wrap">
     <table>
@@ -206,7 +214,107 @@ print(f"n = {n}, steps = {steps}")</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">3.6</span>Try it yourself</h2>
+  <h2><span class="num">3.6</span>Deciding inside a loop: break and continue</h2>
+  <p>
+    Combining a decision with a loop is where loops earn their keep. Two keywords give you
+    fine control: <code>break</code> leaves the loop immediately, and <code>continue</code>
+    skips the rest of the current pass and moves on to the next.
+  </p>
+  <p>
+    <strong>Early exit with <code>break</code>.</strong> Suppose we want the first number
+    whose square is over 1000, and we want to know how many we had to check:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>stop as soon as you find it</div><pre><code>steps = 0
+answer = None
+
+for k in range(1, 1000):
+    steps = steps + 1
+    if k * k &gt; 1000:
+        answer = k
+        break              <span class="c"># found it — no need to look further</span>
+
+print(f"first is {answer}, checked {steps} numbers")</code></pre></div>
+  <div class="out">first is 32, checked 32 numbers</div>
+  <p>
+    Without <code>break</code> the loop would grind on to 999 for no reason. Stopping early
+    is exactly what makes a "best case" cheaper than a "worst case" — a distinction we make
+    precise when we search lists in week 4.
+  </p>
+  <p>
+    <strong>Skipping with <code>continue</code>.</strong> Add up only the numbers from 1 to
+    20 that are <em>not</em> multiples of 3:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>skip the ones you do not want</div><pre><code>total = 0
+skipped = 0
+
+for number in range(1, 21):
+    if number % 3 == 0:
+        skipped = skipped + 1
+        continue           <span class="c"># jump straight to the next number</span>
+    total = total + number
+
+print(f"total {total}, skipped {skipped}")</code></pre></div>
+  <div class="out">total 147, skipped 6</div>
+  <p>
+    Notice that <code>continue</code> did not save any work in the big-picture sense — the
+    loop still visited all 20 numbers, so the step count is still <code>n</code>. It changed
+    <em>what</em> happens on a pass, not <em>how many</em> passes there are. Keep that
+    separation clear: skipping an item is not the same as never visiting it.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">3.7</span>Common mistakes with loops</h2>
+  <p>
+    Four loop bugs account for most of the confusion in these first weeks. Meet them here
+    so you recognise them in your own cells tonight.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Off-by-one in <code>range</code></td><td>Loop stops one short, or runs one too many</td><td>Remember <code>range(a, b)</code> stops <em>before</em> b; for 1&hellip;n use <code>range(1, n + 1)</code>.</td></tr>
+        <tr><td>Resetting inside the loop</td><td>Your total or counter is always tiny or wrong</td><td>Set the accumulator to 0 <em>above</em> the loop, not inside it.</td></tr>
+        <tr><td>Wrong indentation</td><td>A line runs once after the loop instead of every pass (or vice versa)</td><td>Lines inside the loop are indented under it; lines after it are not.</td></tr>
+        <tr><td>Infinite <code>while</code></td><td>The cell never finishes</td><td>Make sure the loop body changes the variable the condition tests.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The second one is subtle enough to show. Both loops below look reasonable; only one
+    gives the right total for 1 to 5, which is 15:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>where does total = 0 belong?</div><pre><code><span class="c"># WRONG: total is wiped clean on every pass</span>
+for number in range(1, 6):
+    total = 0
+    total = total + number
+print("wrong version:", total)      <span class="c"># prints 5, not 15</span>
+
+<span class="c"># RIGHT: total starts at 0 once, then grows</span>
+total = 0
+for number in range(1, 6):
+    total = total + number
+print("right version:", total)      <span class="c"># prints 15</span></code></pre></div>
+  <div class="out">wrong version: 5
+right version: 15</div>
+  <p>
+    In the wrong version, every pass throws the running total away and rebuilds it from
+    zero, so at the end it only holds the last number. The lesson is the one-line habit:
+    <strong>initialise accumulators above the loop</strong>. When a total or a counter comes
+    out wrong, this is the first place to look.
+  </p>
+  <div class="note">
+    <span class="label">Reading a loop like Python</span>
+    <p>
+      When a loop confuses you, trace it for a tiny input — say <code>n = 3</code> — writing
+      down the value of every variable after each pass. Three rows of a table almost always
+      reveal the bug, and it is far faster than staring at the whole thing.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3.8</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — countdown</span>
@@ -262,7 +370,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
   <div class="task">
     <span class="label">Task 4 — halving, generalised</span>
     <p>
-      Modify the while loop from §3.3 so the starting size is a variable. Record the
+      Modify the while loop from &sect;3.3 so the starting size is a variable. Record the
       "looks" for 1 000, 10 000, 100 000, 1 000 000. What pattern do you see?
     </p>
     <details class="solution"><summary>What you should see</summary>
@@ -273,10 +381,60 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 5 — first multiple, counted</span>
+    <p>
+      Using <code>break</code>, find the first number from 1 upward that is a multiple of
+      both 7 and 9, and report how many numbers you had to check. Predict the count before
+      you run it.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>first_multiple.py</div><pre><code>steps = 0
+answer = None
+
+for k in range(1, 1000):
+    steps = steps + 1
+    if k % 7 == 0 and k % 9 == 0:
+        answer = k
+        break
+
+print(f"answer {answer}, checked {steps}")</code></pre></div>
+      <div class="out">answer 63, checked 63</div>
+      <p>
+        63 is 7 &times; 9, the first number both divide, so the loop stops after checking 63.
+        Without <code>break</code> it would have run all the way to 999.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — FizzBuzz, the classic</span>
+    <p>
+      For numbers 1 to 20, print "Fizz" if the number is a multiple of 3, "Buzz" if a
+      multiple of 5, "FizzBuzz" if both, and the number itself otherwise.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>fizzbuzz.py</div><pre><code>for n in range(1, 21):
+    if n % 3 == 0 and n % 5 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)</code></pre></div>
+      <p>
+        The order of the branches is the whole trick: test "both" <em>first</em>, because a
+        multiple of 15 is also a multiple of 3, and Python takes the first true branch. Put
+        the "Fizz" test first and 15 would wrongly print "Fizz".
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">3.7</span>Self-check</h2>
+  <h2><span class="num">3.9</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
       <p>How many numbers does <code>range(1, 11)</code> produce?</p>
@@ -284,7 +442,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
       <button class="opt">9</button>
       <button class="opt">10</button>
       <button class="opt">12</button>
-      <div class="why">It starts at 1 and stops <em>before</em> 11, giving 1…10 — ten values.</div>
+      <div class="why">It starts at 1 and stops <em>before</em> 11, giving 1&hellip;10 — ten values.</div>
     </div>
     <div class="q" data-answer="3">
       <p>A single loop over n items takes 1 000 steps when n = 1 000. A nested double loop over the same data takes:</p>
@@ -292,7 +450,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
       <button class="opt">1 000 steps as well</button>
       <button class="opt">About 10 000 steps</button>
       <button class="opt">1 000 000 steps</button>
-      <div class="why">n × n = 1 000 × 1 000. The inner loop runs completely for every single pass of the outer one.</div>
+      <div class="why">n &times; n = 1 000 &times; 1 000. The inner loop runs completely for every single pass of the outer one.</div>
     </div>
     <div class="q" data-answer="0">
       <p>You double n from 500 to 1 000. Which program's step count grows the <em>least</em>?</p>
@@ -302,16 +460,33 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
       <button class="opt">They all grow the same amount</button>
       <div class="why">Halving is the star: each doubling of the input costs exactly one extra step. Week 12 gives it a name.</div>
     </div>
+    <div class="q" data-answer="1">
+      <p>What does <code>break</code> do inside a loop?</p>
+      <button class="opt">Skips the rest of the current pass and starts the next one</button>
+      <button class="opt">Leaves the loop immediately, running no further passes</button>
+      <button class="opt">Restarts the loop from the beginning</button>
+      <button class="opt">Prints an error and stops the whole program</button>
+      <div class="why"><code>break</code> exits the loop then and there. The skip-this-pass keyword is <code>continue</code>.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A loop that should total 1 to 5 keeps printing 5. The most likely cause is:</p>
+      <button class="opt">Using a for loop instead of a while loop</button>
+      <button class="opt"><code>range</code> stopping one short</button>
+      <button class="opt"><code>total = 0</code> is written inside the loop, so it resets every pass</button>
+      <button class="opt">Python cannot add numbers above 5</button>
+      <div class="why">Resetting the accumulator each pass leaves only the last value. Initialise it once, above the loop.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">3.8</span>Homework</h2>
+  <h2><span class="num">3.10</span>Homework</h2>
   <div class="task">
     <span class="label">Due before week 4</span>
     <ol>
-      <li>Create <code>AA_Week03.ipynb</code> and solve Tasks 1–4.</li>
-      <li>Write a program that prints the multiplication table from 1×1 to n×n using nested loops, with a step counter. Run it for n = 5, 10, 20 and record the counts.</li>
+      <li>Create <code>AA_Week03.ipynb</code> and solve Tasks 1&ndash;6.</li>
+      <li>Write a program that prints the multiplication table from 1&times;1 to n&times;n using nested loops, with a step counter. Run it for n = 5, 10, 20 and record the counts.</li>
+      <li>Write a program that finds the first number above 1 that is divisible by 2, 3, 4, 5 and 6, using <code>break</code>, and reports how many numbers it checked. Explain the result in one sentence.</li>
       <li>Make a table in a text cell: n, single-loop steps, nested-loop steps, halving-loop steps, for n = 10, 100, 1 000, 10 000.</li>
       <li>Write five sentences on your table: which column worries you most as n grows, and why? Which would you be happy to run on a million rows?</li>
     </ol>
@@ -319,7 +494,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">3.9</span>Words from this week</h2>
+  <h2><span class="num">3.11</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -328,6 +503,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
         <tr><td><code>range(a, b)</code></td><td>The numbers from a up to <em>but not including</em> b.</td></tr>
         <tr><td>accumulator</td><td>A variable that collects a running total or count.</td></tr>
         <tr><td>step counter</td><td>An accumulator whose only job is to measure the work done.</td></tr>
+        <tr><td><code>break</code> / <code>continue</code></td><td>Leave the loop now / skip to the next pass.</td></tr>
         <tr><td>nested loop</td><td>A loop inside a loop — the counts multiply, not add.</td></tr>
         <tr><td>indentation</td><td>The four spaces that tell Python which lines belong inside a block.</td></tr>
       </tbody>
@@ -343,7 +519,7 @@ print(f"n = {n}: {evens} evens, {steps} steps")</code></pre></div>
 
 </main>
 <footer class="site-footer">
-  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
   <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
 <script src="../assets/app.js"></script>

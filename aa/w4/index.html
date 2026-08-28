@@ -35,6 +35,7 @@
     <ul>
       <li>create lists, read items by position, and add to a list;</li>
       <li>loop over a list to search, count and total;</li>
+      <li>build a new list from an old one, with a loop or a comprehension;</li>
       <li>use <code>in</code> to ask "is this here?" and know roughly what it costs;</li>
       <li>build test data of any size with <code>range</code> and <code>random</code>;</li>
       <li>show, with your own step counts, that searching an unsorted list grows with its length.</li>
@@ -124,6 +125,16 @@ print(f"average {total / len(grades):.1f}, passed {passed}, best {best}")</code>
     cost: <strong>one visit per item</strong>. A list ten times longer takes ten times the
     work. Your step counter from week 3 will confirm it.
   </p>
+  <div class="note blue">
+    <span class="label">Two ways to walk a list</span>
+    <p>
+      <code>for g in grades</code> hands you each <em>value</em> in turn — use it when you
+      only care about the items. When you also need the <em>position</em>, loop over
+      <code>range(len(grades))</code> and read <code>grades[i]</code>. You will want the
+      position version in &sect;4.4, where the point is precisely <em>how far along</em> the
+      match was found.
+    </p>
+  </div>
 </section>
 
 <section>
@@ -160,15 +171,55 @@ print("Zeynep" in names)    <span class="c"># False</span></code></pre></div>
     </table>
   </div>
   <p>
-    The worst case is the one we plan around, and it is the interesting one for another
-    reason: <em>every</em> failed search costs a full pass. A program that checks
-    thousands of items against a list of thousands is doing millions of comparisons — and
-    it looks like two innocent lines of code.
+    This one-by-one method has a name we will use for the rest of the course:
+    <strong>linear search</strong>. The worst case is the one we plan around, and it is the
+    interesting one for another reason: <em>every</em> failed search costs a full pass. A
+    program that checks thousands of items against a list of thousands is doing millions of
+    comparisons — and it looks like two innocent lines of code.
   </p>
 </section>
 
 <section>
-  <h2><span class="num">4.5</span>Making test data of any size</h2>
+  <h2><span class="num">4.5</span>Building a new list from an old one</h2>
+  <p>
+    Very often you do not want to change a list in place — you want to make a
+    <em>new</em> one from it: the passing grades only, each price with tax added, the names
+    in capitals. The reliable pattern is: start with an empty list and <code>append</code>
+    as you go.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>keep only what passes</div><pre><code>grades = [72, 88, 45, 91, 63, 30]
+
+passing = []                 <span class="c"># start empty</span>
+for g in grades:
+    if g &gt;= 60:
+        passing.append(g)    <span class="c"># add the ones we want to keep</span>
+
+print(passing)
+print(f"{len(passing)} of {len(grades)} passed")</code></pre></div>
+  <div class="out">[72, 88, 91, 63]
+4 of 6 passed</div>
+  <p>
+    The same shape builds a transformed list — here, each grade rounded up by 5 marks of
+    generous marking:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>transform every item</div><pre><code>grades = [72, 88, 45, 91, 63]
+
+boosted = []
+for g in grades:
+    boosted.append(g + 5)
+
+print(boosted)</code></pre></div>
+  <div class="out">[77, 93, 50, 96, 68]</div>
+  <p>
+    Python has a compact one-line spelling for exactly this pattern, the
+    <strong>list comprehension</strong>, which you will meet properly in the next section.
+    Whichever spelling you use, the cost is the same and familiar: one visit per item, so a
+    list ten times longer takes ten times the work.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">4.6</span>Making test data of any size</h2>
   <p>
     From next week you will need lists far too long to type. Two ways to conjure them:
   </p>
@@ -182,14 +233,26 @@ print(len(numbers), squares[:5], shuffled[:5])</code></pre></div>
   <div class="out">100000 [0, 1, 4, 9, 16] [48213, 7, 99001, 15522, 6]</div>
   <p>
     The middle line is a <strong>list comprehension</strong>: "make a list of
-    <code>x * x</code> for every <code>x</code> in this range". Read it right to left. It
-    is the compact Python idiom for building a list from another sequence, and it appears
-    in nearly every benchmark in this course.
+    <code>x * x</code> for every <code>x</code> in this range". It is the compact Python
+    idiom for building a list from another sequence — the same job as the append loop in
+    &sect;4.5, written in one line. You can add a condition too, which reads like plain
+    English:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>comprehension with a filter</div><pre><code>evens = [x for x in range(20) if x % 2 == 0]
+passing = [g for g in [72, 45, 88, 30, 63] if g &gt;= 60]
+
+print(evens)
+print(passing)</code></pre></div>
+  <div class="out">[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+[72, 88, 63]</div>
+  <p>
+    Read it left to right: the value to keep, then where the items come from, then the
+    condition they must pass. It appears in nearly every benchmark in this course.
   </p>
 </section>
 
 <section>
-  <h2><span class="num">4.6</span>The experiment: does searching get slower?</h2>
+  <h2><span class="num">4.7</span>The experiment: does searching get slower?</h2>
   <p>
     Run this, then change <code>size</code> to 10 000 and 100 000. Predict the numbers
     <em>before</em> each run and write your predictions down.
@@ -214,7 +277,65 @@ print(f"list of {size}: {looks} looks for a missing item")</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">4.7</span>Try it yourself</h2>
+  <h2><span class="num">4.8</span>Common mistakes with lists</h2>
+  <p>
+    Lists bring two surprises that catch nearly everyone, because they involve how Python
+    <em>shares</em> and <em>returns</em> things. Meet them now.
+  </p>
+  <p>
+    <strong>1. Two names, one list.</strong> Writing <code>b = a</code> does not copy the
+    list — it gives the same list a second name. Change it through one name and the other
+    sees it too:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the aliasing surprise</div><pre><code>a = [1, 2, 3]
+b = a                 <span class="c"># NOT a copy — same list, two names</span>
+b.append(4)
+
+print("a:", a)        <span class="c"># a changed too!</span>
+print("b:", b)
+
+c = a[:]              <span class="c"># a real copy (a full slice)</span>
+c.append(99)
+print("a:", a, "c:", c)</code></pre></div>
+  <div class="out">a: [1, 2, 3, 4]
+b: [1, 2, 3, 4]
+a: [1, 2, 3, 4] c: [1, 2, 3, 4, 99]
+</div>
+  <p>
+    When you genuinely want a separate list, copy it with <code>a[:]</code> (or
+    <code>list(a)</code>). Otherwise the two names move together forever.
+  </p>
+  <p>
+    <strong>2. <code>append</code> changes the list and returns nothing.</strong> A very
+    common bug is to assign its result back:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>append returns None</div><pre><code>nums = [3, 1, 2]
+
+<span class="c"># WRONG: append changes nums in place and hands back None</span>
+<span class="c"># nums = nums.append(5)   -&gt; nums becomes None, next line crashes</span>
+
+nums.append(5)        <span class="c"># RIGHT: just call it; the list is already changed</span>
+print(nums)</code></pre></div>
+  <div class="out">[3, 1, 2, 5]</div>
+  <p>
+    The rule: methods that <em>change</em> a list (<code>append</code>, <code>sort</code>,
+    <code>pop</code> when you ignore its result) do their work in place. Do not reassign the
+    variable from them.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>b = a</code> then editing <code>b</code></td><td>The other list changes too</td><td>Copy with <code>a[:]</code> or <code>list(a)</code>.</td></tr>
+        <tr><td><code>x = mylist.append(v)</code></td><td><code>x</code> is <code>None</code></td><td>Write <code>mylist.append(v)</code> on its own line.</td></tr>
+        <tr><td>Index past the end</td><td><code>IndexError</code></td><td>Valid positions run 0 to <code>len(list) - 1</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4.9</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — basic statistics, by hand</span>
@@ -249,7 +370,7 @@ print(total, total / len(data), biggest, smallest)</code></pre></div>
     </p>
     <details class="solution"><summary>Answer</summary>
       <p>
-        200 000. Twenty searches × 10 000 looks. Now imagine 10 000 searches over 10 000
+        200 000. Twenty searches &times; 10 000 looks. Now imagine 10 000 searches over 10 000
         items: 100 million comparisons — a nested loop in disguise. Week 11 shows how to
         make this same job almost free.
       </p>
@@ -282,10 +403,85 @@ print(found, comparisons)</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — two ways to keep the evens</span>
+    <p>
+      From <code>list(range(20))</code>, build a list of just the even numbers <em>twice</em>:
+      once with an empty list and an append loop, once with a one-line comprehension.
+      Confirm both lists are equal.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>two_ways.py</div><pre><code>data = list(range(20))
+
+loop_way = []
+for x in data:
+    if x % 2 == 0:
+        loop_way.append(x)
+
+comp_way = [x for x in data if x % 2 == 0]
+
+print(loop_way == comp_way)   <span class="c"># True — same result</span>
+print(comp_way)</code></pre></div>
+      <div class="out">True
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</div>
+      <p>Same answer, same cost (one visit per item) — the comprehension is just the compact spelling.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — where was it found?</span>
+    <p>
+      Write a linear search over <code>["Ada", "Bilal", "Cem", "Dilek", "Ece"]</code> that
+      returns the <em>position</em> of a target, or <code>-1</code> if it is missing. Report
+      the position and the number of looks for a first item, a last item, and a missing one.
+    </p>
+    <details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>find_position.py</div><pre><code>names = ["Ada", "Bilal", "Cem", "Dilek", "Ece"]
+target = "Dilek"
+
+position = -1
+looks = 0
+for i in range(len(names)):
+    looks = looks + 1
+    if names[i] == target:
+        position = i
+        break
+
+print(f"position {position}, {looks} looks")</code></pre></div>
+      <div class="out">position 3, 4 looks</div>
+      <p>
+        A first item costs 1 look (best case), a last or missing item costs 5 (worst case) —
+        the three rows of the &sect;4.4 table, measured directly.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — spot the aliasing bug</span>
+    <p>
+      This code should leave <code>original</code> untouched while building a doubled copy,
+      but it corrupts <code>original</code>. Explain why, then fix it with a one-character
+      change.
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>buggy.py</div><pre><code>original = [1, 2, 3]
+copy = original
+for i in range(len(copy)):
+    copy[i] = copy[i] * 2
+print("original:", original)   <span class="c"># [2, 4, 6] — wrong!</span></code></pre></div>
+    <details class="solution"><summary>Show the answer</summary>
+      <p>
+        <code>copy = original</code> makes a second name for the same list, so editing
+        <code>copy</code> edits <code>original</code>. Take a real copy with a slice:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>fixed.py</div><pre><code>copy = original[:]      <span class="c"># the [:] makes a separate list</span></code></pre></div>
+      <p>Now the loop changes only <code>copy</code>, and <code>original</code> stays <code>[1, 2, 3]</code>.</p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">4.8</span>Self-check</h2>
+  <h2><span class="num">4.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
       <p><code>colours = ["red", "green", "blue"]</code>. What is <code>colours[1]</code>?</p>
@@ -311,24 +507,41 @@ print(found, comparisons)</code></pre></div>
       <button class="opt">Appending one item and comparing all pairs</button>
       <div class="why">Position access jumps straight to the shelf; the length of the list is irrelevant. The other pairs differ wildly.</div>
     </div>
+    <div class="q" data-answer="2">
+      <p>After <code>b = a</code> where <code>a = [1, 2, 3]</code>, you run <code>b.append(4)</code>. What is <code>a</code>?</p>
+      <button class="opt"><code>[1, 2, 3]</code> — a is untouched</button>
+      <button class="opt"><code>None</code></button>
+      <button class="opt"><code>[1, 2, 3, 4]</code> — a and b are the same list</button>
+      <button class="opt">An IndexError</button>
+      <div class="why"><code>b = a</code> does not copy; both names point at one list, so appending through <code>b</code> is visible through <code>a</code>. Use <code>a[:]</code> for a real copy.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>What does <code>[x * x for x in range(4)]</code> produce?</p>
+      <button class="opt"><code>[0, 1, 2, 3]</code></button>
+      <button class="opt"><code>[0, 1, 4, 9]</code></button>
+      <button class="opt"><code>[1, 4, 9, 16]</code></button>
+      <button class="opt"><code>16</code></button>
+      <div class="why"><code>range(4)</code> gives 0, 1, 2, 3, and the comprehension squares each: 0, 1, 4, 9.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">4.9</span>Homework</h2>
+  <h2><span class="num">4.11</span>Homework</h2>
   <div class="task">
     <span class="label">Due before week 5</span>
     <ol>
-      <li>Create <code>AA_Week04.ipynb</code> and solve Tasks 1–3.</li>
-      <li>Run the §4.6 experiment for sizes 1 000, 10 000, 100 000 and 1 000 000. Record the looks in a table.</li>
+      <li>Create <code>AA_Week04.ipynb</code> and solve Tasks 1&ndash;6.</li>
+      <li>Run the &sect;4.7 experiment for sizes 1 000, 10 000, 100 000 and 1 000 000. Record the looks in a table.</li>
       <li>Repeat the experiment searching for an item that is <em>first</em> in the list. Put both columns in the same table.</li>
-      <li>Write five sentences: what does the gap between the two columns tell you about best case and worst case? Which would you quote to a client, and why?</li>
+      <li>Build a list of the first 50 square numbers two ways — an append loop and a comprehension — and confirm with <code>==</code> that they match.</li>
+      <li>Write five sentences: what does the gap between the best-case and worst-case columns tell you about linear search? Which figure would you quote to a client, and why?</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">4.10</span>Words from this week</h2>
+  <h2><span class="num">4.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -337,6 +550,7 @@ print(found, comparisons)</code></pre></div>
         <tr><td>index</td><td>The position of an item, counted from zero.</td></tr>
         <tr><td>append / pop</td><td>Add to / remove from the end of a list.</td></tr>
         <tr><td>linear search</td><td>Checking items one by one until you find it or run out.</td></tr>
+        <tr><td>aliasing</td><td>Two names pointing at the same list; a change through one shows through the other.</td></tr>
         <tr><td>best / worst / average case</td><td>The luckiest, unluckiest and typical amount of work for the same method.</td></tr>
         <tr><td>list comprehension</td><td><code>[f(x) for x in things]</code> — build a list from a sequence in one line.</td></tr>
       </tbody>
@@ -352,7 +566,7 @@ print(found, comparisons)</code></pre></div>
 
 </main>
 <footer class="site-footer">
-  <span>Algorithm Analysis for Absolute Beginners &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
   <span><a href="../index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
 <script src="../assets/app.js"></script>

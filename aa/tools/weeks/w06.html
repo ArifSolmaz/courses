@@ -6,6 +6,8 @@
       <li>read the ratio column and name the growth pattern from it alone;</li>
       <li>draw a labelled plot of time against input size with matplotlib;</li>
       <li>use a log–log plot when the numbers span several orders of magnitude;</li>
+      <li>read a growth pattern off the <em>slope</em> of a log–log line, and fit that slope with one line of code;</li>
+      <li>recognise the situations where the ratio column quietly misleads you;</li>
       <li>write a short, honest paragraph interpreting your own measurements.</li>
     </ul>
   </div>
@@ -121,6 +123,14 @@ sizes_q, times_q = doubling(quadratic, start_n=500, doublings=4)</code></pre></d
       roughly 0.01–0.1 seconds.
     </p>
   </div>
+  <p>
+    How do you pick that starting size without guessing? Run the function once at a small
+    <code>n</code>, look at the time, and scale up. If your shape is linear and n = 1 000
+    took 0.00001 s, then 0.05 s needs about 5 000 times more work, so start near
+    n = 5 000 000. If the shape is quadratic, remember that the time grows with the
+    <em>square</em>: a 100× longer run only needs a 10× bigger n. A quick pilot run saves you
+    from either a wall of noise or a coffee break.
+  </p>
 </section>
 
 <section>
@@ -156,7 +166,118 @@ plt.yscale("log")</code></pre></div>
 </section>
 
 <section>
-  <h2><span class="num">6.4</span>Interpreting like a scientist</h2>
+  <h2><span class="num">6.4</span>Reading — and measuring — the slope</h2>
+  <p>
+    Why does a log–log plot turn every growth pattern into a straight line? A little algebra
+    makes it click. Almost every function here has the shape "some constant times n to a
+    power":
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T = c · n<sup>k</sup></p>
+  <p>
+    Take the logarithm of both sides and the multiplication becomes addition, the power
+    becomes a multiplier:
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">log T = log c + k · log n</p>
+  <p>
+    That is the equation of a straight line — <code>log n</code> along the bottom,
+    <code>log T</code> up the side, a slope of exactly <code>k</code>, and the constant
+    <code>c</code> only shifting the line up or down without tilting it. So on log–log axes
+    the <em>power</em> becomes the <em>slope</em>, and the machine-dependent constant becomes
+    an offset you can ignore. Constant → slope 0 (flat). Linear → slope 1. Quadratic →
+    slope 2. Cubic → slope 3.
+  </p>
+  <p>
+    You do not have to eyeball the slope. <code>numpy.polyfit</code> fits the best straight
+    line through your logged points and hands you the slope as a number:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>fit the slope</div><pre><code>import numpy as np
+
+def loglog_slope(sizes, times):
+    """Best-fit slope through the points on log-log axes."""
+    slope, intercept = np.polyfit(np.log(sizes), np.log(times), 1)
+    return slope
+
+print(f"linear    slope = {loglog_slope(sizes_l, times_l):.2f}")
+print(f"quadratic slope = {loglog_slope(sizes_q, times_q):.2f}")</code></pre></div>
+  <div class="out">linear    slope = 1.00
+quadratic slope = 2.00</div>
+  <p>
+    This is the ratio column's more grown-up cousin. The ratio reads growth from two points
+    at a time; the fitted slope uses <em>all</em> your points at once, so a single noisy
+    measurement cannot swing the verdict. When a ratio column is bouncing around, fit the
+    slope and see the pattern the individual ratios were hiding.
+  </p>
+  <div class="note green">
+    <span class="label">Slope and ratio say the same thing</span>
+    <p>
+      A slope of <code>k</code> means doubling n multiplies the time by
+      <code>2<sup>k</sup></code>. Slope 1 → ratio 2. Slope 2 → ratio 4. Slope 3 → ratio 8.
+      Slope 0 → ratio 1. They are two readings of one truth: the ratio is local and quick,
+      the slope is global and steady.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.5</span>When the ratio column misleads you</h2>
+  <p>
+    The ratio is a wonderful tool, but a tool you trust blindly will eventually cut you.
+    Three situations make honest ratios lie about the pattern.
+  </p>
+
+  <h3>1. The starting size is too small</h3>
+  <p>
+    Below the noise floor the ratio is meaningless — it wanders 0.6, 1.9, 0.4 with no shape
+    at all, because you are timing interruptions, not your algorithm. This is the number one
+    cause of a "weird" ratio column, and the fix is always the same: grow the starting size
+    until the first run clears roughly 0.01–0.1 seconds, then read again.
+  </p>
+
+  <h3>2. n log n looks like a drifting 2</h3>
+  <p>
+    The most subtle case. A sorting run does not give a clean 2.0 or 4.0 — it gives a ratio
+    just above 2 that slowly <em>drifts downward towards</em> 2 as n grows:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>ratio for n·log₂n</th><th>reading</th></tr></thead>
+      <tbody>
+        <tr><td>1 000 → 2 000</td><td>2.20</td><td>above 2, so worse than linear</td></tr>
+        <tr><td>2 000 → 4 000</td><td>2.18</td><td>…</td></tr>
+        <tr><td>4 000 → 8 000</td><td>2.17</td><td>…creeping down…</td></tr>
+        <tr><td>1 000 000 → 2 000 000</td><td>2.10</td><td>…towards 2, but never reaching it</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The reason: doubling n doubles the loop (that is the 2), and the <code>log n</code>
+    factor adds only a sliver more each time — a sliver that shrinks as n grows, because the
+    logarithm grows ever more slowly. Read too high a starting size and you might call it
+    linear; read too low and you might call it quadratic. The honest verdict is "just above
+    2 and falling slowly", the fingerprint of n log n — confirm it by fitting a slope
+    (§6.4), which lands near 1.05–1.1.
+  </p>
+
+  <h3>3. Memory effects can inflate a linear ratio</h3>
+  <p>
+    A perfectly linear loop can show ratios above 2 once the data grows too big to sit in
+    the CPU's fast cache. Suddenly each item costs a slow trip to main memory, and the time
+    per item rises just as n rises. The algorithm did not change class; the hardware changed
+    gear. If a clean O(n) function starts posting 2.3, 2.6 at very large sizes, suspect the
+    cache before you rewrite the algorithm.
+  </p>
+  <div class="note blue">
+    <span class="label">The habit</span>
+    <p>
+      When a ratio surprises you, do not immediately believe it. Ask the three questions in
+      order: is the run long enough, could this be n log n drifting, and has the data
+      outgrown the cache? Then fit a slope across all your points as a tie-breaker.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6.6</span>Interpreting like a scientist</h2>
   <p>
     Every benchmark in this course ends with a short paragraph. Use this skeleton until it
     becomes automatic:
@@ -174,17 +295,17 @@ plt.yscale("log")</code></pre></div>
   <p>Worked example, for the quadratic run above:</p>
   <p style="border-left:2px solid var(--border-strong);padding-left:1rem;color:var(--muted)">
     "I timed the nested-loop counter at n = 500, 1 000, 2 000 and 4 000, five repeats each,
-    taking the fastest. The time ratios were 3.99, 4.02 and 3.99. Four times the work for
-    twice the data matches a loop inside a loop, which is exactly what the code does: the
-    inner loop runs n times for each of the n outer passes. The 4 000 run took nearly a
-    second, so background load on the shared Colab machine could have inflated it slightly.
-    Extrapolating, n = 40 000 would be 100× the 4 000 time — about 80 seconds — which I
-    would not want to run in a live report."
+    taking the fastest. The time ratios were 3.99, 4.02 and 3.99, and a log–log fit gave a
+    slope of 2.00. Four times the work for twice the data matches a loop inside a loop, which
+    is exactly what the code does: the inner loop runs n times for each of the n outer
+    passes. The 4 000 run took nearly a second, so background load on the shared Colab
+    machine could have inflated it slightly. Extrapolating, n = 40 000 would be 100× the
+    4 000 time — about 80 seconds — which I would not want to run in a live report."
   </p>
 </section>
 
 <section>
-  <h2><span class="num">6.5</span>Try it yourself</h2>
+  <h2><span class="num">6.7</span>Try it yourself</h2>
 
   <div class="task">
     <span class="label">Task 1 — identify by ratio alone</span>
@@ -240,10 +361,62 @@ plt.yscale("log")</code></pre></div>
       </p>
     </details>
   </div>
+
+  <div class="task">
+    <span class="label">Task 4 — fit the slope, don't just guess it</span>
+    <p>
+      Write the <code>loglog_slope</code> helper from §6.4 and run it on all four studies
+      from Task 2. Line the fitted slopes up against the last ratio in each column. Do slope
+      and ratio agree (slope 1 ↔ ratio 2, slope 2 ↔ ratio 4)? Where they disagree, which do
+      you trust more, and why?
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        (a) and (b) fit near 1.0, (c) near 2.0, (d) near 1.05–1.1. The slope is steadier
+        because it uses every point at once; a lone noisy ratio cannot tilt it. When a single
+        ratio looks odd but the slope is clean, trust the slope.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — watch n log n drift</span>
+    <p>
+      Run <code>doubling(sorted_wrapper, start_n=10000, doublings=7)</code> where
+      <code>sorted_wrapper(n)</code> shuffles a list of n items and sorts it. Read the ratio
+      column top to bottom. Does it settle on a single number, or drift? Explain what you see
+      using §6.5, and give the fitted slope.
+    </p>
+    <details class="solution"><summary>Expected</summary>
+      <p>
+        The ratio hovers a little above 2 and drifts slowly downward as n grows — never
+        landing on a clean value — because the log factor adds an ever-smaller sliver each
+        doubling. The fitted slope comes out near 1.05–1.1, which is the honest label:
+        n log n, distinctly worse than linear but far better than quadratic.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — a misleading start size</span>
+    <p>
+      Run your linear study twice: once with <code>start_n=10</code> and once with
+      <code>start_n=1000000</code>, four doublings each. Compare the two ratio columns. Which
+      one gives clean 2.0s, and what does the other one teach you about trusting a ratio?
+    </p>
+    <details class="solution"><summary>Answer</summary>
+      <p>
+        The tiny start gives a jumpy, meaningless column (0.7, 1.8, 1.1…) because every run
+        is buried in noise; the large start gives steady 2.0s. Same algorithm, same code —
+        only the size changed. A ratio is only worth reading once the run is well clear of
+        the noise floor (§6.5, case 1).
+      </p>
+    </details>
+  </div>
 </section>
 
 <section>
-  <h2><span class="num">6.6</span>Self-check</h2>
+  <h2><span class="num">6.8</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
       <p>Doubling n makes the time go from 0.10 s to 0.41 s. The most likely shape is:</p>
@@ -269,24 +442,41 @@ plt.yscale("log")</code></pre></div>
       <button class="opt">Use time.time() instead</button>
       <div class="why">Ratios only mean something once the signal is well above the timer noise. Grow n first, interpret second.</div>
     </div>
+    <div class="q" data-answer="2">
+      <p>On a log–log plot your measurements form a straight line of slope 2. The algorithm is:</p>
+      <button class="opt">Constant</button>
+      <button class="opt">Linear</button>
+      <button class="opt">Quadratic</button>
+      <button class="opt">Logarithmic</button>
+      <div class="why">On log–log axes the power becomes the slope: slope 1 is linear, 2 is quadratic, 3 is cubic, and a flat line is constant.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>A sorting benchmark posts ratios 2.20, 2.18, 2.16, 2.15 as n grows. The best reading is:</p>
+      <button class="opt">Quadratic, because every ratio is above 2</button>
+      <button class="opt">n log n — just above 2 and drifting slowly towards it, because the log factor grows ever more slowly</button>
+      <button class="opt">Linear — the numbers are basically 2</button>
+      <button class="opt">Broken measurement — a real ratio never changes</button>
+      <div class="why">A slowly drifting ratio a little above 2 is the fingerprint of n log n. A fitted slope near 1.05–1.1 confirms it.</div>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">6.7</span>Homework</h2>
+  <h2><span class="num">6.9</span>Homework</h2>
   <div class="task">
-    <span class="label">Due before week 7</span>
+    <span class="label">Due before week 7 — about 3 hours</span>
     <ol>
-      <li>Create <code>AA_Week06.ipynb</code> with the <code>time_it</code> and <code>doubling</code> harness.</li>
-      <li>Complete Task 2 (four studies) and Task 3 (two figures).</li>
-      <li>For each of the four studies, write the five-sentence interpretation from §6.4.</li>
+      <li>Create <code>AA_Week06.ipynb</code> with the <code>time_it</code> and <code>doubling</code> harness, plus the <code>loglog_slope</code> helper.</li>
+      <li>Complete Task 2 (four studies), Task 3 (two figures) and Task 4 (fitted slopes for all four).</li>
+      <li>Complete Task 5 (watch n log n drift) and Task 6 (the misleading start size), and write one sentence on what each taught you about reading a ratio.</li>
+      <li>For each of the four studies, write the five-sentence interpretation from §6.6, quoting both the last ratio and the fitted slope.</li>
       <li>Add one prediction and test it: pick any study, predict the time at the next doubling <em>before</em> running it, then run it and report the error as a percentage.</li>
     </ol>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">6.8</span>Words from this week</h2>
+  <h2><span class="num">6.10</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
@@ -294,6 +484,9 @@ plt.yscale("log")</code></pre></div>
         <tr><td>doubling experiment</td><td>Measuring at n, 2n, 4n… and watching the ratio of times.</td></tr>
         <tr><td>ratio column</td><td>Each time divided by the previous one — the machine-independent part of the result.</td></tr>
         <tr><td>log–log plot</td><td>Both axes logarithmic; growth patterns become straight lines with distinct slopes.</td></tr>
+        <tr><td>slope (log–log)</td><td>The power in T = c·nᵏ; slope 1 is linear, 2 is quadratic, 0 is constant.</td></tr>
+        <tr><td>line fitting</td><td>Using every point at once (e.g. <code>numpy.polyfit</code>) to read a steady slope.</td></tr>
+        <tr><td>cache effect</td><td>Data outgrowing fast memory, which can push a linear ratio above 2.</td></tr>
         <tr><td>extrapolation</td><td>Using a measured pattern to predict a size you have not run.</td></tr>
         <tr><td>harness</td><td>Reusable code that runs and times an experiment for you.</td></tr>
       </tbody>
