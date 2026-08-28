@@ -92,6 +92,51 @@ WEEKS = [
      ["review", "final project", "≈3 hours"]),
 ]
 
+# A short "where this leads" bridge shown at the foot of each week, tying the
+# idea just finished to the one that opens next week. Keyed by week number;
+# week 14 hands off to the engineering capstone. HTML is allowed.
+BRIDGES = {
+    1: "You reasoned about steps on <em>paper</em>. Next week the computer does the "
+       "counting for you — your first lines of Python.",
+    2: "You can now give the computer one instruction at a time. Real work means "
+       "repeating instructions — so week 3 brings loops, and a counter that measures them.",
+    3: "You can repeat work and count the repetitions. Week 4 gives you something worth "
+       "repeating over — <strong>lists</strong> — and you will watch the count grow with the data.",
+    4: "You searched a list by hand and felt the work grow with <code>n</code>. Time to stop "
+       "counting by hand: week 5 wraps work in a function and times it with a real stopwatch.",
+    5: "You can time one input size. Week 6 times several sizes at once and reads the pattern in "
+       "the numbers — the doubling experiment.",
+    6: "The ratio column revealed the shape, but the seconds drift with your laptop. Week 7 "
+       "switches to counting <em>steps</em> — a measure that does not change when the hardware does.",
+    7: "You can boil a step count down to its dominant term. Week 8 gives that shape its "
+       "standard name and shorthand: <strong>Big-O</strong>.",
+    8: "You can read a Big-O class off code. Week 9 puts it to work: one problem, solved four "
+       "ways, landing in four completely different classes.",
+    9: "You saw that changing <em>strategy</em> — not language or hardware — buys orders of "
+       "magnitude. Week 10 hunts those costs inside everyday Python list operations.",
+    10: "You learned that searching a list and inserting at its front are both O(n). Week 11 "
+        "introduces the structures that make lookup O(1): dictionaries and sets.",
+    11: "Hashing bought O(1) lookup but threw away order. Week 12 is for when you need order "
+        "back — searching sorted data in O(log n) with binary search.",
+    12: "Binary search only works on sorted data. Week 13 asks what sorting itself costs, and "
+        "why the sort you invent is so much slower than the built-in one.",
+    13: "You now have the whole toolkit — measuring, naming, choosing, and the cost of the "
+        "common structures. Week 14 ties it together with a checklist, the classic traps, and "
+        "your final project.",
+    14: 'You can analyse an algorithm and defend a choice with evidence. One question remains, '
+        'and it is the one that matters most for your degree: <strong>why does any of this belong '
+        'in mechatronics engineering?</strong> The capstone answers it — deadlines, tiny chips, '
+        'and control loops that cannot wait. '
+        '<a href="../engineering/">Read the engineering capstone &rarr;</a>',
+}
+
+# The engineering-context capstone that closes the course.
+CAP_SLUG = "engineering"
+CAP_TITLE = "Why Algorithm Analysis Belongs in Mechatronics"
+CAP_SUMMARY = ("The engineering payoff: in a mechatronic system an algorithm must not only be "
+               "correct, it must finish before the next sensor sample arrives — on a chip with "
+               "kilobytes of memory.")
+
 HEAD = """<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -137,7 +182,16 @@ def week_page(meta, body):
     )
     next_link = (
         f'<a href="../w{num+1}/">Week {num+1} &rarr;</a>' if num < len(WEEKS)
-        else '<a href="../index.html#final-project">Final project &rarr;</a>'
+        else f'<a href="../{CAP_SLUG}/">Engineering capstone &rarr;</a>'
+    )
+    bridge = BRIDGES.get(num)
+    bridge_html = (
+        f"""
+<div class="note blue">
+  <span class="label">Where this leads</span>
+  <p>{bridge}</p>
+</div>
+""" if bridge else ""
     )
     chip_html = "".join(f'<span class="chip">{c}</span>' for c in chips)
     out = [
@@ -154,11 +208,41 @@ def week_page(meta, body):
 </div>
 """,
         body.strip(),
+        bridge_html,
         f"""
 <nav class="week-nav">
   {prev_link}
   <button class="done-btn" type="button" data-done="w{num}">mark this week done</button>
   {next_link}
+</nav>
+""",
+        FOOT.format(site=SITE, base=base),
+    ]
+    return "\n".join(out)
+
+
+def capstone_page(body):
+    """The engineering-context page that closes the course."""
+    base = "../"
+    out = [
+        HEAD.format(
+            title=f"{CAP_TITLE} — {SHORT}",
+            desc=CAP_SUMMARY,
+            base=base,
+        ),
+        f"""<div class="hero">
+  <div class="eyebrow">Capstone &middot; Engineering context</div>
+  <h1>{CAP_TITLE}</h1>
+  <p class="lede">{CAP_SUMMARY}</p>
+  <div class="hero-meta"><span class="chip gold">For Mechatronics Engineering students</span><span class="chip blue">Real-time &middot; embedded &middot; control</span><span class="chip">reading, ≈1 hour</span></div>
+</div>
+""",
+        body.strip(),
+        """
+<nav class="week-nav">
+  <a href="../w14/">&larr; Week 14</a>
+  <a href="../index.html">Course home</a>
+  <a href="https://arifsolmaz.github.io/courses/spring/dsa/web/DSA_Course_Dashboard.html">Next course: DSA &rarr;</a>
 </nav>
 """,
         FOOT.format(site=SITE, base=base),
@@ -189,7 +273,7 @@ def home_page(intro):
     return "\n".join([
         HEAD.format(
             title=f"{SITE} — {SHORT}",
-            desc="A 14-week, no-experience-required introduction to algorithm analysis with Python.",
+            desc="A 14-week introduction to algorithm analysis with Python, from the basics to Big-O, with a mechatronics engineering capstone.",
             base="",
         ),
         body.strip(),
@@ -217,10 +301,19 @@ def main():
     else:
         missing.append("home.html")
 
+    cap_frag = ROOT / "tools" / f"{CAP_SLUG}.html"
+    if cap_frag.exists():
+        target = ROOT / CAP_SLUG / "index.html"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(capstone_page(cap_frag.read_text()), encoding="utf-8")
+        print(f"  wrote {target.relative_to(ROOT.parent)}")
+    else:
+        missing.append(f"{CAP_SLUG}.html")
+
     if missing:
         print("\nMISSING FRAGMENTS: " + ", ".join(missing), file=sys.stderr)
         return 1
-    print("\nOK — 14 weeks + home built.")
+    print("\nOK — 14 weeks + capstone + home built.")
     return 0
 
 
