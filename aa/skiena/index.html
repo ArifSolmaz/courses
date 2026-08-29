@@ -72,6 +72,7 @@
     h2.cat-head{break-before:page;border-top:none}
     a{color:#000;text-decoration:none}
     p.answer{background:#f3f3f3}
+    pre code{white-space:pre-wrap;overflow-wrap:anywhere}
   }
 </style>
 </head>
@@ -776,11 +777,13 @@ print(m)                       # claim: this is the biggest</code></pre>
     <p><strong>(b) Simplify.</strong> The innermost <code>&sum;<sub>k=1</sub><sup>j</sup> 1</code> is just <code>j</code>. So</p>
     <p style="font-family:monospace">T(n) = &sum;<sub>i=1</sub><sup>n/2</sup> &sum;<sub>j=i</sub><sup>n&minus;i</sup> j</p>
     <p>The inner sum adds the whole numbers from <code>i</code> up to <code>n&minus;i</code>, which is <code>[(n&minus;i)(n&minus;i+1) &minus; (i&minus;1)i] / 2</code>. Now write <code>n = 2m</code> and show the work:</p>
-    <pre><code>T(n) = &sum;<sub>i=1</sub><sup>m</sup> [ (2m-i)(2m-i+1) - (i-1)i ] / 2
-     = &sum;<sub>i=1</sub><sup>m</sup> m(2m - 2i + 1)          # the bracket simplifies to 2m(2m-2i+1)
-     = m [ (2m-1) + (2m-3) + ... + 3 + 1 ]     # the odd numbers 1..2m-1
-     = m &middot; m<sup>2</sup>                            # sum of the first m odd numbers is m<sup>2</sup>
-     = m<sup>3</sup> = (n/2)<sup>3</sup> = n<sup>3</sup>/8</code></pre>
+    <pre><code>T(n) = &sum; [ (2m-i)(2m-i+1) - (i-1)i ] / 2   (i = 1..m, n = 2m)
+     = &sum; m(2m - 2i + 1)
+       # numerator simplifies to 2m(2m - 2i + 1)
+     = m [ (2m-1) + (2m-3) + ... + 1 ]
+       # these are the odd numbers 1 .. 2m-1
+     = m &middot; m<sup>2</sup> = m<sup>3</sup> = (n/2)<sup>3</sup> = n<sup>3</sup>/8
+       # the first m odd numbers sum to m<sup>2</sup></code></pre>
     <p><strong>Check:</strong> for <code>n = 4</code> (<code>m = 2</code>) this predicts <code>8</code>, and counting the prints by hand gives 8. For <code>n = 10</code> it predicts <code>125</code>, which also matches a direct count.</p>
   </div>
   <p class="answer"><span class="lab">Answer</span> (a) <code>T(n) = &sum;<sub>i=1</sub><sup>n/2</sup> &sum;<sub>j=i</sub><sup>n&minus;i</sup> &sum;<sub>k=1</sub><sup>j</sup> 1</code>. (b) It simplifies exactly to <code>T(n) = n<sup>3</sup>/8</code> for even <code>n</code>, so <code>T(n) = &Theta;(n<sup>3</sup>)</code>.</p>
@@ -926,7 +929,8 @@ def reservoir(stream, k):
         else:
             j = random.randint(0, i)    # keep with probability k/(i+1)
             if j &lt; k:
-                keep[j] = item          # evict a random held item, insert the new one
+                keep[j] = item
+                # evict a random held item and insert the new one
     return keep</code></pre>
     </div>
     <p>It reads the stream once, stores only k items, and never needs to know the total ahead of time — perfect for a stream too big to hold or of unknown length.</p>
@@ -939,12 +943,12 @@ def reservoir(stream, k):
   <h3>Problem 2-44 <span class="tag">interview</span></h3>
   <p class="ask"><span class="lab">In plain words</span> You have 1000 items spread over 1000 computers (nodes), and each node holds 3 items. Nodes sometimes die. How should you place things so you lose as little as possible, and roughly how much do you expect to lose if 3 random nodes fail at once?</p>
   <div class="body">
-    <p>The core idea is simple: <strong>keep three copies of every item, on three well-spread-out nodes</strong>, and never let two items live on the exact same trio of nodes. An easy way: put item i on nodes i, i+1 and i+2 (wrapping around at the end). Now every item has three homes, every node still holds three items, and each item's trio of homes is different.</p>
+    <p>The core idea is simple: <strong>keep three copies of every item, on three <strong>distinct</strong> nodes</strong>, and never let two items live on the exact same trio of nodes. An easy way: put item i on nodes i, i+1 and i+2 (wrapping around at the end). Now every item has three homes, every node still holds three items, and each item's trio of homes is different.</p>
     <p>An item is only lost if <em>all three</em> of its nodes die. If 3 random nodes fail, one item is lost only if those 3 dead nodes are exactly its 3 homes. The chance of that for one item is 1 divided by the number of ways to pick 3 nodes out of 1000 — a huge number, about 166 million. So one item's chance of loss is tiny. Add it up over all 1000 items:</p>
-    <p style="font-family:monospace">expected items lost ≈ 1000 × 1 / C(1000, 3) ≈ 6 × 10⁻⁶</p>
-    <p>That is essentially zero. Almost always you lose nothing at all; in the rare unlucky case you lose about one item.</p>
+    <p style="font-family:monospace">E[items lost] = 1000 / C(1000, 3) ≈ 6.02 × 10⁻⁶</p>
+    <p>Read that carefully: it is <em>not</em> "6 lost per million items". It means the <strong>expected number of items lost per 3-node failure is about 6 × 10⁻⁶</strong> — equivalently, only about a 6-in-a-million chance that a given random 3-node failure destroys even one item. Almost always you lose nothing.</p>
   </div>
-  <p class="answer"><span class="lab">Answer</span> Three copies per item, spread over well-separated nodes so no two items share a trio. With 3 random node failures the expected loss is essentially zero (about 6 in a million items).</p>
+  <p class="answer"><span class="lab">Answer</span> Keep three copies of each item on three distinct nodes, with no two items sharing the same trio. The expected number of items lost when 3 random nodes fail is 1000 / C(1000, 3) ≈ 6.02 × 10⁻⁶ — i.e. about a 6-in-a-million chance that one item is lost, essentially zero.</p>
   <p class="why"><span class="lab">Why it matters</span> It shows how a little replication plus spreading copies out makes data survive hardware failures almost for free.</p>
 </article>
 

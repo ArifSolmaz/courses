@@ -515,7 +515,8 @@ def reservoir(stream, k):
         else:
             j = random.randint(0, i)      <span class="c"># 0..i inclusive → keep with prob k/(i+1)</span>
             if j &lt; k:
-                keep[j] = item            <span class="c"># evict a random held item, insert the new one</span>
+                keep[j] = item
+                <span class="c"># evict a random held item and insert the new one</span>
     return keep</code></pre></div>
       <p>
         <strong>Answer:</strong> reservoir sampling. Hold the first k items; for each later item i
@@ -553,7 +554,7 @@ def reservoir(stream, k):
         expected items lost ≈ 1000 × 1 / C(1000, 3) ≈ 6 × 10⁻⁶
       </p>
       <p>
-        <strong>Answer:</strong> three copies per item, spread across well-separated nodes so no
+        <strong>Answer:</strong> three copies per item, spread across distinct nodes so no
         two items share a trio. With 3 random node failures the expected loss is essentially zero
         — almost always no item is lost at all, and even in the rare case the 3 failures happen to
         be one item's exact trio, you lose at most about one item. The whole win comes from
@@ -617,7 +618,7 @@ def reservoir(stream, k):
 
   <div class="task challenge">
     <span class="label">Problem 2-50 &middot; Ramanujan numbers</span>
-    <p>A <strong>Ramanujan number</strong> can be written as a sum of two cubes in two different ways: <code>a&sup3; + b&sup3; = c&sup3; + d&sup3;</code>. Find all of them with <code>a, b, c, d &lt; n</code>, faster than trying every four numbers.</p>
+    <p>A <strong>Ramanujan number</strong> can be written as a sum of two cubes in two different ways: <code>a&sup3; + b&sup3; = c&sup3; + d&sup3;</code> (with distinct <code>a, b, c, d</code>). Find all of them with <code>a, b, c, d &lt; n</code>, faster than trying every four numbers.</p>
     <details class="solution"><summary>Worked solution</summary>
       <p>Four nested loops would be <code>O(n&#8308;)</code>. Instead use the "remember what you have seen" trick: build every two-cube sum once and look for collisions. Go over each pair <code>(a, b)</code> with <code>a &le; b &lt; n</code>, and store <code>a&sup3; + b&sup3;</code> in a dictionary keyed by the sum. Any key hit by two or more different pairs is a Ramanujan number.</p>
       <div class="code"><div class="code-head"><span class="dot"></span>ramanujan.py</div><pre><code>def ramanujan(n):
