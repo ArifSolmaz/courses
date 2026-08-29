@@ -562,3 +562,108 @@ def anagram_counter(s1, s2):
     </table>
   </div>
 </section>
+
+<section>
+  <h2><span class="num">9.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    These two problems from Skiena's <em>The Algorithm Design Manual</em> ask exactly the
+    question week 9 keeps asking — two correct methods, two wildly different costs — but about
+    a problem every child already knows: multiplying two numbers. Read each restated problem,
+    have a go, then open the worked solution.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-37 · multiplication by repeated addition</span>
+    <p>
+      You first learned to multiply as repeated addition: 5 × 4 = 5 + 5 + 5 + 5. What is the
+      time complexity of multiplying two n-digit numbers in base b this way, written as a
+      function of n and b? (Hint: how large can the multiplier get?)
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        To compute x × y by repeated addition we add x to a running total y times, so the whole
+        cost hangs on <strong>how big y can be</strong>. An n-digit number in base b is at most
+        b to the power n, minus one — roughly b<sup>n</sup>. In base 10 a 3-digit number reaches
+        999 ≈ 10³; in base 2 a 3-bit number reaches 7 ≈ 2³. So y can force us to perform about
+        b<sup>n</sup> additions.
+      </p>
+      <p>
+        Each of those additions is of two n-digit numbers, which costs O(n) — you add digit by
+        digit, carrying as you go. Multiply the two together:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        (about b<sup>n</sup> additions) × (O(n) per addition) &nbsp;&rarr;&nbsp; O(n · b<sup>n</sup>)
+      </p>
+      <p>
+        That b<sup>n</sup> is <em>exponential in n</em> — the same runaway growth week 9 called
+        intractable. A table makes the hopelessness concrete for base 10:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Digits n</th><th>Largest value ≈ 10ⁿ</th><th>Additions needed (worst case)</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>9</td><td>up to 9</td></tr>
+            <tr><td>3</td><td>999</td><td>up to ~1 000</td></tr>
+            <tr><td>6</td><td>999 999</td><td>up to ~1 000 000</td></tr>
+            <tr><td>10</td><td>~10¹⁰</td><td>up to ~10 billion</td></tr>
+            <tr><td>20</td><td>~10²⁰</td><td>more additions than there are seconds since the Big Bang</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Answer:</strong> O(n · b<sup>n</sup>) — exponential in the number of digits.
+        Repeated addition is perfectly fine for 5 × 4, but hopeless for real numbers: multiplying
+        two 20-digit numbers would need something like 10²⁰ additions, which no machine will ever
+        finish. The moral is week 9's exactly — a method can be entirely correct and still
+        unusable.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-38 · grade-school long multiplication</span>
+    <p>
+      In grade school you learned to multiply digit by digit — long multiplication, with the
+      partial rows lined up and added. What is the complexity of multiplying two n-digit numbers
+      this way, for a fixed base?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Long multiplication pairs every digit of one number with every digit of the other. With
+        n digits in each, that is n × n = n² single-digit multiplications. Each produces a small
+        partial result, and we then line those partials up and add them — which is another O(n²)
+        of work to combine (there are n rows, each up to about n digits wide).
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        n² single-digit products + O(n²) additions to combine &nbsp;&rarr;&nbsp; O(n²)
+      </p>
+      <p>
+        Now stand the two problems side by side — this is the whole point of the pair:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Class</th><th>Multiplying two 20-digit numbers</th></tr></thead>
+          <tbody>
+            <tr><td>2-37 repeated addition</td><td>O(n · b<sup>n</sup>)</td><td>about 10²⁰ steps — impossible</td></tr>
+            <tr><td>2-38 long multiplication</td><td>O(n²)</td><td>about 400 steps — instant</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Answer:</strong> O(n²). Long multiplication is astronomically better than
+        repeated addition: for 20-digit numbers it is roughly 400 steps against 10²⁰ — the
+        difference between "instant" and "never". And notice what bought that gap — a smarter
+        <em>method</em>, on the same machine, not faster hardware.
+      </p>
+      <div class="note">
+        <span class="label">A note for the curious</span>
+        <p>
+          n² is not the end of the story either. Cleverer methods do better still: Karatsuba's
+          algorithm multiplies in about O(n<sup>1.585</sup>) by replacing four sub-multiplications
+          with three, and modern FFT-based methods get close to O(n log n). Those belong to a
+          later course — but it is worth knowing that even the grade-school n² can be beaten.
+        </p>
+      </div>
+    </details>
+  </div>
+</section>

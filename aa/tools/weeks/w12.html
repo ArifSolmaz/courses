@@ -518,3 +518,283 @@ count = bisect.bisect_right(data, high) - bisect.bisect_left(data, low)</code></
     </table>
   </div>
 </section>
+
+<section>
+  <h2><span class="num">12.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    Binary search runs on logarithms, so this is the natural week to meet the log rules and a
+    cluster of Skiena's puzzles that all turn on the same idea: <em>halving</em>, and the number
+    of times you can do it. Throughout, <code>lg</code> means log base 2.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-39 · proving the logarithm rules</span>
+    <p>
+      Give an accessible argument for each identity: (a) log<sub>a</sub>(xy) = log<sub>a</sub> x +
+      log<sub>a</sub> y; (b) log<sub>a</sub>(x<sup>y</sup>) = y · log<sub>a</sub> x; (c) the
+      change-of-base rule log<sub>a</sub> x = log<sub>b</sub> x / log<sub>b</sub> a; and
+      (d) x<sup>log<sub>b</sub> y</sup> = y<sup>log<sub>b</sub> x</sup>.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The one fact behind all four: a logarithm is just "the exponent you need". If
+        <code>log<sub>a</sub> x = p</code>, that is only shorthand for <code>x = a<sup>p</sup></code>.
+        Keep swapping between those two ways of writing the same thing and the rules fall out.
+      </p>
+      <p>
+        <strong>(a) log<sub>a</sub>(xy) = log<sub>a</sub> x + log<sub>a</sub> y.</strong> Write
+        x = a<sup>p</sup> and y = a<sup>q</sup>. When you multiply powers of the same base you
+        <em>add</em> the exponents: xy = a<sup>p+q</sup>. So the exponent for xy is p + q, i.e.
+        log<sub>a</sub>(xy) = p + q = log<sub>a</sub> x + log<sub>a</sub> y. (This is exactly why
+        old slide rules turned multiplication into addition.)
+      </p>
+      <p>
+        <strong>(b) log<sub>a</sub>(x<sup>y</sup>) = y · log<sub>a</sub> x.</strong> With
+        x = a<sup>p</sup>, raising to the y-th power multiplies the exponent: x<sup>y</sup> =
+        a<sup>py</sup>. So the exponent for x<sup>y</sup> is py = y · log<sub>a</sub> x.
+      </p>
+      <p>
+        <strong>(c) change of base.</strong> Start from x = a<sup>p</sup> where p = log<sub>a</sub> x.
+        Take log base b of both sides and use rule (b): log<sub>b</sub> x = p · log<sub>b</sub> a.
+        Divide across: p = log<sub>b</sub> x / log<sub>b</sub> a. That is the rule.
+      </p>
+      <p>
+        <strong>(d) x<sup>log<sub>b</sub> y</sup> = y<sup>log<sub>b</sub> x</sup>.</strong> Two
+        things are equal when their logs are equal. Take log base b of each side (rule b):
+        the left gives log<sub>b</sub> y · log<sub>b</sub> x, the right gives
+        log<sub>b</sub> x · log<sub>b</sub> y. Same product, so the two sides are equal.
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>check_log_rules.py</div><pre><code>import math
+
+x, a, b = 50, 2, 10
+print(math.log(x, a))                    <span class="c"># log base 2 of 50</span>
+print(math.log(x, b) / math.log(a, b))   <span class="c"># change of base — same value</span>
+
+<span class="c"># identity (d): x**(log_b y) should equal y**(log_b x)</span>
+print(3 ** math.log(8, 10))              <span class="c"># 2.6968...</span>
+print(8 ** math.log(3, 10))              <span class="c"># 2.6968... — equal</span></code></pre></div>
+      <div class="out">5.643856189774724
+5.643856189774724
+2.696844...
+2.696844...</div>
+      <p>
+        <strong>Answer:</strong> all four hold, and each is just the exponent rules read through
+        the "log = exponent" lens. Rule (c) is the one you will use most: it says any two bases
+        differ only by the constant factor 1 / log<sub>b</sub> a. That constant vanishes inside
+        Big-O — which is <em>why the base of the log never matters for complexity</em>, and why we
+        can write O(log n) without ever naming a base.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-40 · ⌈lg(n+1)⌉ = ⌊lg n⌋ + 1</span>
+    <p>
+      Show that the ceiling of lg(n+1) equals the floor of lg n, plus one, for every integer
+      n ≥ 1.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Both sides are secretly counting the same thing: <strong>how many bits n needs</strong>
+        (equivalently, how many times you halve n before reaching 1). The interesting action is
+        all at the powers of two, so tabulate a few values and watch the two columns agree:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>lg n</th><th>⌊lg n⌋ + 1</th><th>lg(n+1)</th><th>⌈lg(n+1)⌉</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>0.00</td><td>1</td><td>1.00</td><td>1</td></tr>
+            <tr><td>2</td><td>1.00</td><td>2</td><td>1.58</td><td>2</td></tr>
+            <tr><td>3</td><td>1.58</td><td>2</td><td>2.00</td><td>2</td></tr>
+            <tr><td>4</td><td>2.00</td><td>3</td><td>2.32</td><td>3</td></tr>
+            <tr><td>5</td><td>2.32</td><td>3</td><td>2.58</td><td>3</td></tr>
+            <tr><td>6</td><td>2.58</td><td>3</td><td>2.81</td><td>3</td></tr>
+            <tr><td>7</td><td>2.81</td><td>3</td><td>3.00</td><td>3</td></tr>
+            <tr><td>8</td><td>3.00</td><td>4</td><td>3.17</td><td>4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Why it works: for any n with 2<sup>k−1</sup> ≤ n &lt; 2<sup>k</sup>, the floor ⌊lg n⌋ is
+        k−1, so the left-hand side is k. On the same range n+1 sits in (2<sup>k−1</sup>,
+        2<sup>k</sup>], so lg(n+1) is just above k−1 and at most exactly k, and its ceiling is
+        also k. Both sides are k. The only place to be careful is the boundary n = 2<sup>k</sup>:
+        there lg n is exactly k so the left side is k+1, and n+1 = 2<sup>k</sup>+1 pushes lg(n+1)
+        just above k so its ceiling is k+1 too — they still agree (look at the n = 2, 4, 8 rows).
+      </p>
+      <p>
+        <strong>Answer:</strong> both sides count the number of bits of n, so ⌈lg(n+1)⌉ =
+        ⌊lg n⌋ + 1 for all n ≥ 1, the two ways of writing "how many halvings to reach 1".
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-41 · how many bits does n need?</span>
+    <p>
+      Prove that the binary representation of an integer n ≥ 1 has exactly ⌊lg n⌋ + 1 bits.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The largest number you can write with b bits is <code>2<sup>b</sup> − 1</code> (all ones):
+        1 bit reaches 1, 2 bits reach 3, 3 bits reach 7, 8 bits reach 255. So a number n needs
+        exactly b bits when it fits in b bits but not in b−1:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        2<sup>b−1</sup> ≤ n &lt; 2<sup>b</sup>
+      </p>
+      <p>
+        Take lg of that double inequality (lg is increasing, so it preserves order):
+        b − 1 ≤ lg n &lt; b. The only integer in the half-open interval [lg n, lg n + 1) whose
+        floor sits at the bottom is b − 1 = ⌊lg n⌋, so b = ⌊lg n⌋ + 1. A small table confirms it:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>binary</th><th>bits</th><th>⌊lg n⌋ + 1</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td><td>0 + 1 = 1</td></tr>
+            <tr><td>2</td><td>10</td><td>2</td><td>1 + 1 = 2</td></tr>
+            <tr><td>4</td><td>100</td><td>3</td><td>2 + 1 = 3</td></tr>
+            <tr><td>255</td><td>11111111</td><td>8</td><td>7 + 1 = 8</td></tr>
+            <tr><td>256</td><td>100000000</td><td>9</td><td>8 + 1 = 9</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Answer:</strong> ⌊lg n⌋ + 1 bits. This is the same quantity as problem 2-40, and
+        it is exactly why binary search takes about lg n steps — each comparison learns one bit
+        about where the target sits, and a number in a list of n needs ⌊lg n⌋ + 1 bits to pin
+        down.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-42 · a sort in O(n log √n)?</span>
+    <p>
+      Someone shows you a sorting algorithm that runs in O(n log √n). Sorting is known to need
+      Ω(n log n) comparisons in the worst case. How can both be true?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        It looks like a contradiction until you simplify the log. Using rule (b) from 2-39,
+        √n = n<sup>1/2</sup>, so:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        log √n = log(n<sup>1/2</sup>) = ½ · log n
+      </p>
+      <p>
+        Therefore O(n log √n) = O(n · ½ log n) = O(½ · n log n) = O(n log n) — the one-half is a
+        constant factor, and Big-O throws constant factors away.
+      </p>
+      <p>
+        <strong>Answer:</strong> nothing is broken. O(n log √n) is <em>the very same class</em> as
+        O(n log n), just written in a disguise. It does not beat the Ω(n log n) lower bound — it
+        sits right on it. A tidy reminder that "log √n" and "½ log n" are the same thing, and that
+        constant factors never change the class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-46 · marbles and a 100-storey building</span>
+    <p>
+      You want the lowest floor of a 100-storey building from which a dropped marble breaks. How
+      few drops do you need (a) with a plentiful supply of identical marbles, and (b) with only
+      <strong>two</strong> marbles?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>(a) Plenty of marbles → binary search.</strong> A broken marble is no loss, so
+        you can gamble on the middle floor every time: drop from 50. If it breaks, the answer is
+        below 50; if not, above. Each drop halves the range, so you need ⌈lg 100⌉ = <strong>7
+        drops</strong> — the same halving as every other week-12 idea.
+      </p>
+      <p>
+        <strong>(b) Only two marbles → you cannot binary search.</strong> If your first marble
+        breaks at floor 50, you have one marble left and no choice but to walk it up one floor at
+        a time from where you last knew it was safe — a linear scan. So a reckless first jump
+        risks up to 49 further drops. The cure is to make the <em>first</em> marble take smaller
+        and smaller steps, so that whichever gap it breaks in, the linear finish with the second
+        marble is short. Drop the first marble at floors 14, then 27, 39, 50, 60, 69, 77, 84, 90,
+        95, 99, 100 — gaps of 14, 13, 12, … shrinking by one each time.
+      </p>
+      <p>
+        Why 14? If the first marble breaks on drop number d, you have already spent d drops and
+        the remaining gap to scan is 14 − d floors, for a total of about 14 every time. You want
+        the first gap k big enough that k + (k−1) + … + 1 = k(k+1)/2 covers all 100 floors: the
+        smallest such k is 14, because 14 × 15 / 2 = 105 ≥ 100 while 13 × 14 / 2 = 91 falls short.
+      </p>
+      <p>
+        <strong>Answer:</strong> 7 drops with unlimited marbles (binary search); about
+        <strong>14 drops</strong> worst case with just two, using the shrinking-gap (triangular-
+        number) strategy. Two marbles cost you the logarithm — you drop from lg n to roughly √n.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-47 · ten bags, one weighing</span>
+    <p>
+      You have 10 bags of coins. Nine hold genuine 10-gram coins; one bag holds only 9-gram
+      forgeries. With a digital scale that reads exact grams, identify the bad bag in a
+      <strong>single</strong> weighing.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The trick is to make each bag contribute a <em>different, recognisable</em> amount to one
+        pile. Number the bags 1 to 10, and take 1 coin from bag 1, 2 coins from bag 2, 3 from bag
+        3, …, 10 from bag 10 — 55 coins in all. If every coin were genuine the pile would weigh
+        55 × 10 = 550 grams. Each forged coin is 1 gram light, and bag k contributed exactly k
+        coins, so a light bag k makes the pile read <code>550 − k</code> grams. The number of
+        grams missing <em>is</em> the guilty bag's number.
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>coin_bags.py</div><pre><code>weights = [10] * 10          <span class="c"># ten bags, all 10-gram coins to start</span>
+weights[6] = 9               <span class="c"># bag number 7 secretly holds 9-gram coins</span>
+
+<span class="c"># take (i+1) coins from bag i (0-indexed) and weigh them all together</span>
+total = sum((i + 1) * weights[i] for i in range(10))
+print(550 - total)           <span class="c"># 7  -> the light bag is number 7</span></code></pre></div>
+      <div class="out">7</div>
+      <p>
+        <strong>Answer:</strong> take k coins from bag k, weigh all 55 together, and read off
+        <code>550 − (reading)</code> — that difference is the light bag's number. One weighing,
+        no searching: a positional-counting trick that packs ten answers into a single number.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-48 · eight balls, two weighings</span>
+    <p>
+      You have 8 balls that look identical, but one is slightly heavier. Using a balance scale
+      only <strong>twice</strong>, find the heavy one.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        A balance has <em>three</em> outcomes each time — left heavier, right heavier, or level —
+        so two weighings can distinguish up to 3 × 3 = 9 possibilities, and 9 ≥ 8. That count
+        tells you it must be doable; here is how. Split the 8 balls into groups of
+        <strong>3, 3 and 2</strong>.
+      </p>
+      <ol>
+        <li><strong>Weighing 1:</strong> put the two groups of 3 on the pans.
+          <ul>
+            <li>If they <em>balance</em>, the heavy ball is one of the 2 set aside. Weigh those
+              two against each other — the heavier pan shows it. Done in two.</li>
+            <li>If one side is <em>heavier</em>, the heavy ball is among those 3.</li>
+          </ul>
+        </li>
+        <li><strong>Weighing 2</strong> (when the heavy ball is in a group of 3): take that group
+          and weigh any 1 against another 1. If one is heavier, that is it; if they balance, it is
+          the third ball you did not place.</li>
+      </ol>
+      <p>
+        <strong>Answer:</strong> split 3 / 3 / 2 and you always finish in two weighings. It works
+        because each weighing yields three outcomes, so two weighings carry 3² = 9 distinguishable
+        results — comfortably more than the 8 balls you must tell apart. (The same reasoning shows
+        you could handle up to 9 balls in two weighings, but not 10.)
+      </p>
+    </details>
+  </div>
+</section>

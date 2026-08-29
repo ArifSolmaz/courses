@@ -479,3 +479,199 @@ print(f"answer {answer}, checked {steps}")</code></pre></div>
     </table>
   </div>
 </section>
+
+<section>
+  <h2><span class="num">3.12</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    These are exercises from Skiena's <em>Algorithm Design Manual</em>, Chapter 2, matched to
+    this week and solved step by step. They are all about the same skill you practised above:
+    counting how many times a loop runs, and turning that count into a tidy formula.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-35 · how many times does the inner loop run?</span>
+    <p>
+      Consider this fragment. The outer loop runs <code>i</code> from 1 to <code>n</code>; for
+      each <code>i</code> the inner loop runs <code>j</code> from <code>i</code> up to
+      <code>2*i</code>, printing "foobar" each time. Let <code>T(n)</code> be the total number
+      of "foobar"s printed. <strong>(a)</strong> Write <code>T(n)</code> as a summation.
+      <strong>(b)</strong> Simplify it to a closed form.
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>the fragment</div><pre><code>for i in range(1, n + 1):          <span class="c"># i = 1, 2, ..., n</span>
+    for j in range(i, 2 * i + 1):  <span class="c"># j = i, i+1, ..., 2i</span>
+        print("foobar")</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>Start with one pass of the outer loop.</strong> Fix a value of <code>i</code>.
+        The inner loop runs <code>j</code> from <code>i</code> up to and including <code>2*i</code>.
+        How many whole numbers are there from <code>i</code> to <code>2*i</code>? Count them:
+        it is <code>(2i &minus; i) + 1 = i + 1</code>. The "+1" is the same off-by-one care from
+        &sect;3.2 — both ends are included, so you add one. Quick check with <code>i = 3</code>:
+        <code>j</code> takes 3, 4, 5, 6 — that is four values, and <code>i + 1 = 4</code>. Good.
+      </p>
+      <p>
+        <strong>(a) Add up every pass of the outer loop.</strong> The outer loop does this for
+        <code>i = 1, 2, &hellip;, n</code>, so we add <code>i + 1</code> for each of those:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = &sum;<sub>i=1</sub><sup>n</sup> (i + 1)</p>
+      <p>
+        <strong>(b) Simplify.</strong> Split the sum into two easier sums:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = (1 + 2 + &hellip; + n) + (1 + 1 + &hellip; + 1)</p>
+      <p>
+        The first bracket is the famous "add 1 up to n" from &sect;3.2, which equals
+        <code>n(n+1)/2</code>. The second bracket is just the number 1 added <code>n</code>
+        times, which is <code>n</code>. So:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = n(n+1)/2 + n = (n&sup2; + n + 2n)/2 = (n&sup2; + 3n)/2</p>
+      <p>
+        The biggest piece is the <code>n&sup2;</code>, so for large <code>n</code> this grows like
+        a nested loop should — it is &Theta;(n&sup2;), the two-loops-multiply behaviour from &sect;3.5.
+      </p>
+      <p>A step counter confirms the formula for small <code>n</code>:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>confirm_2_35.py</div><pre><code>for n in range(1, 6):
+    steps = 0
+    for i in range(1, n + 1):
+        for j in range(i, 2 * i + 1):
+            steps = steps + 1              <span class="c"># one "foobar"</span>
+    formula = (n * n + 3 * n) // 2
+    print(f"n = {n}: counted {steps}, formula {formula}")</code></pre></div>
+      <div class="out">n = 1: counted 2, formula 2
+n = 2: counted 5, formula 5
+n = 3: counted 9, formula 9
+n = 4: counted 14, formula 14
+n = 5: counted 20, formula 20</div>
+      <p><strong>Answer:</strong> (a) <code>T(n) = &sum;<sub>i=1</sub><sup>n</sup> (i + 1)</code>;
+        (b) <code>T(n) = n(n+1)/2 + n = (n&sup2; + 3n)/2</code>, which is &Theta;(n&sup2;).</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-32 · an alternating sum of squares</span>
+    <p>
+      Show that the alternating sum
+      <code>1&sup2; &minus; 2&sup2; + 3&sup2; &minus; 4&sup2; + &hellip; + (&minus;1)<sup>k&minus;1</sup> k&sup2;</code>
+      equals <code>(&minus;1)<sup>k&minus;1</sup> &middot; k(k+1)/2</code>. (We will convince
+      ourselves it is true rather than write a formal proof.)
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>What the statement says.</strong> On the left we add the squares
+        1, 4, 9, 16, &hellip; but flip the sign on every second one: plus, minus, plus, minus.
+        The claim is that this messy-looking total is always just <code>k(k+1)/2</code> —
+        the plain "add 1 up to k" number — carrying a plus sign when <code>k</code> is odd and
+        a minus sign when <code>k</code> is even (that is all <code>(&minus;1)<sup>k&minus;1</sup></code>
+        does: it is +1 for odd <code>k</code>, &minus;1 for even <code>k</code>).
+      </p>
+      <p>
+        <strong>Check the pattern for the first few k.</strong> The quickest way to trust an
+        identity is to compute both sides on small cases and watch them line up:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>k</th><th>Left side (the alternating sum)</th><th>Right side (&minus;1)<sup>k&minus;1</sup>&middot;k(k+1)/2</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1 = <strong>1</strong></td><td>+ 1&middot;2/2 = <strong>1</strong></td></tr>
+            <tr><td>2</td><td>1 &minus; 4 = <strong>&minus;3</strong></td><td>&minus; 2&middot;3/2 = <strong>&minus;3</strong></td></tr>
+            <tr><td>3</td><td>1 &minus; 4 + 9 = <strong>6</strong></td><td>+ 3&middot;4/2 = <strong>6</strong></td></tr>
+            <tr><td>4</td><td>1 &minus; 4 + 9 &minus; 16 = <strong>&minus;10</strong></td><td>&minus; 4&middot;5/2 = <strong>&minus;10</strong></td></tr>
+            <tr><td>5</td><td>&hellip; + 25 = <strong>15</strong></td><td>+ 5&middot;6/2 = <strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Why it works — pair the terms.</strong> Group each minus with the plus just
+        before it: <code>(1&sup2; &minus; 2&sup2;)</code>, then <code>(3&sup2; &minus; 4&sup2;)</code>,
+        and so on. Each pair is a difference of squares, and there is a neat fact hiding in it:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">(2m&minus;1)&sup2; &minus; (2m)&sup2; = &minus;(4m &minus; 1) = &minus;(2m&minus;1) &minus; (2m)</p>
+      <p>
+        In plain words, each plus-minus pair collapses to just the <em>negative sum of the two
+        numbers involved</em>. So after pairing, the whole alternating sum of squares turns into
+        a plain running total of 1, 2, 3, &hellip; (with a sign) — and a plain running total of
+        1 up to <code>k</code> is exactly <code>k(k+1)/2</code>. The sign at the end is whatever
+        the last term carried: plus for odd <code>k</code>, minus for even <code>k</code>. That
+        is the right-hand side. (If <code>k</code> is odd there is one unpaired plus term left
+        over at the end, and the arithmetic still lands on the same formula — worth checking
+        yourself as an <em>optional challenge</em>.)
+      </p>
+      <p>A four-line check confirms both sides agree all the way to k = 20:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>confirm_2_32.py</div><pre><code>for k in range(1, 21):
+    left = sum((-1) ** (i - 1) * i * i for i in range(1, k + 1))
+    right = (-1) ** (k - 1) * k * (k + 1) // 2
+    print(k, left, right, left == right)</code></pre></div>
+      <div class="out">1 1 1 True
+2 -3 -3 True
+3 6 6 True
+...
+20 -210 -210 True
+(every row prints True)</div>
+      <p><strong>Answer:</strong> the identity holds:
+        <code>1&sup2; &minus; 2&sup2; + &hellip; + (&minus;1)<sup>k&minus;1</sup> k&sup2; = (&minus;1)<sup>k&minus;1</sup> &middot; k(k+1)/2</code>,
+        verified for k = 1&hellip;20 and explained by pairing consecutive terms.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-34 · the Twelve Days of Christmas</span>
+    <p>
+      In the song "The Twelve Days of Christmas", on the first day my true love sends 1 gift,
+      on the second day 2 new gifts <em>plus</em> the 1 from before, and so on — each day you
+      receive that day's number of gifts on top of everything from the earlier days. If
+      Christmas lasts <code>n</code> days, exactly how many presents arrive in total?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>How many arrive on a single day.</strong> On day <code>d</code> the true love
+        delivers 1 + 2 + &hellip; + <code>d</code> presents (the first gift, plus the second,
+        &hellip;, up to the <code>d</code>-th). That is the "add 1 up to d" number again, so a
+        single day <code>d</code> brings <code>d(d+1)/2</code> presents.
+      </p>
+      <p>
+        <strong>Add up all the days.</strong> The grand total over <code>n</code> days is the
+        sum of each day's haul:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">Total(n) = &sum;<sub>d=1</sub><sup>n</sup> d(d+1)/2</p>
+      <p>A small table makes the running total concrete:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day n</th><th>Presents that day = n(n+1)/2</th><th>Total so far</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>2</td><td>3</td><td>4</td></tr>
+            <tr><td>3</td><td>6</td><td>10</td></tr>
+            <tr><td>4</td><td>10</td><td>20</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The closed form.</strong> Those running totals 1, 4, 10, 20, &hellip; are the
+        <em>tetrahedral numbers</em> (imagine stacking triangular layers of cannonballs into a
+        pyramid). The tidy formula for the sum above is:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">Total(n) = n(n+1)(n+2)/6</p>
+      <p>
+        Check it against the table: <code>n = 4</code> gives <code>4&middot;5&middot;6/6 = 20</code>.
+        For the real song, <code>n = 12</code>: <code>12&middot;13&middot;14/6 = 2184/6 = 364</code> —
+        one present for (almost) every day of the year. A tiny program agrees:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>confirm_2_34.py</div><pre><code>for n in (1, 2, 3, 4, 12):
+    total = 0
+    for d in range(1, n + 1):
+        total = total + d * (d + 1) // 2   <span class="c"># presents delivered on day d</span>
+    formula = n * (n + 1) * (n + 2) // 6
+    print(f"n = {n}: total {total}, formula {formula}")</code></pre></div>
+      <div class="out">n = 1: total 1, formula 1
+n = 2: total 4, formula 4
+n = 3: total 10, formula 10
+n = 4: total 20, formula 20
+n = 12: total 364, formula 364</div>
+      <p>
+        Notice the highest power is <code>n&sup3;</code>, so the present count grows like
+        &Theta;(n&sup3;) — even faster than the nested-loop &Theta;(n&sup2;) tables of &sect;3.5.
+      </p>
+      <p><strong>Answer:</strong> <code>Total(n) = &sum;<sub>d=1</sub><sup>n</sup> d(d+1)/2 = n(n+1)(n+2)/6</code>,
+        which for <code>n = 12</code> is <strong>364</strong> presents. The growth is &Theta;(n&sup3;).</p>
+    </details>
+  </div>
+</section>

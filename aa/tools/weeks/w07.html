@@ -474,3 +474,338 @@ for i in range(n):
     </table>
   </div>
 </section>
+
+<section>
+  <h2><span class="num">7.12</span>The RAM model — counting the way computer scientists do</h2>
+  <p>
+    You have been counting steps all week without asking a slightly awkward question: what
+    exactly <em>is</em> a step? Adding two numbers, comparing two letters, reading
+    <code>data[i]</code> out of a list — are those all one step, or does a big multiplication
+    cost more than a small one? The computer scientist Steven Skiena answers this with a
+    deliberately simple picture called the <strong>Random Access Machine</strong>, or RAM
+    model, and it is the quiet foundation under everything in this course.
+  </p>
+  <p>
+    The idea is a bargain. We agree to <strong>pretend that every simple operation costs
+    exactly one time unit</strong>, and that this one unit is the same no matter what the
+    values are. On this imaginary machine:
+  </p>
+  <ul>
+    <li>arithmetic — <code>+</code>, <code>−</code>, <code>×</code>, a division — is one step each;</li>
+    <li>an assignment <code>=</code> is one step;</li>
+    <li>a comparison such as <code>a &lt; b</code> or <code>x == y</code> is one step;</li>
+    <li>reading or writing one array slot, <code>data[i]</code>, is one step — the "random access" part, meaning any slot is reachable in the same single unit, whether it is the first or the millionth;</li>
+    <li>the bookkeeping of a function call — the one step of handing control over — counts too.</li>
+  </ul>
+  <p>
+    Once we accept that, the <strong>running time of a program is just the total number of
+    those steps it performs</strong>. That is the whole model. It is exactly the number your
+    step counters have been printing: a program that runs a one-step body <code>n</code>
+    times costs <code>n</code>, and one that runs it <code>n²</code> times costs
+    <code>n²</code>. Counting assignments in §7.2 was a first, honest instance of RAM-model
+    counting — we simply picked one operation and tallied it.
+  </p>
+  <p>
+    Is this true? Not literally. On a real chip a multiply can take longer than an addition,
+    a value already in cache is fetched far faster than one out in main memory, and a
+    number too big to fit a machine word costs more still. The RAM model wilfully ignores all
+    of that. It is a <em>simplification</em>, and a proud one — the same kind of move a
+    physicist makes when they drop air resistance to see the shape of a falling body. What we
+    buy with the simplification is enormous: we can compare two algorithms with pencil and
+    paper, on no particular machine, in no particular language, and get an answer that stays
+    true when the hardware is replaced. That is the machine independence you met in §7.1,
+    now given a name and a rule.
+  </p>
+  <div class="note blue">
+    <span class="label">Why the small lie is worth it</span>
+    <p>
+      Because we throw the constant factor away anyway (§7.3), the exact per-operation cost
+      never reaches the final answer. Whether a multiply "really" costs one unit or three,
+      the dominant term of a loop that runs <code>n²</code> times is still <code>n²</code>.
+      The RAM model lets us stop arguing about nanoseconds and start comparing shapes — which
+      is the only comparison that survives the next generation of laptops.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    Here are four classic exercises from Skiena's <em>The Algorithm Design Manual</em>, worked
+    at our level. Three of them are little loop puzzles written in pseudocode; for each we will
+    first rewrite the loops as readable Python — so you can drop them into a notebook and run
+    them — then trace what they count and read off the growth. The fourth is about counting the
+    real work inside a familiar formula. Reach for the same tools you have used all week: the
+    RAM-model step count, the dominant term, and a Python counter to check the arithmetic.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-1 · the mystery function</span>
+    <p>Skiena gives this triple-nested loop and asks: what value does it return as a function
+      of <code>n</code>, and what is its worst-case running time in Big-O? Written out in Python:</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>mystery.py</div><pre><code>def mystery(n):
+    r = 0
+    for i in range(1, n):              <span class="c"># i = 1 .. n-1</span>
+        for j in range(i + 1, n + 1):  <span class="c"># j = i+1 .. n</span>
+            for k in range(1, j + 1):  <span class="c"># k = 1 .. j</span>
+                r += 1
+    return r</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Start from the inside and work out. The innermost loop runs <code>k = 1 .. j</code>,
+        which is exactly <strong>j</strong> passes, and each pass adds 1 to <code>r</code>. So
+        the inner loop contributes <code>j</code> to the total. That means the whole function
+        is really adding up a pile of <code>j</code>-values:
+      </p>
+      <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">r = Σ<sub>i=1</sub><sup>n−1</sup> Σ<sub>j=i+1</sub><sup>n</sup> j</p>
+      <p>
+        Do not panic at the double sum — the point is only its <em>shape</em>. There are three
+        loops stacked inside each other, and all three ranges grow with <code>n</code>: the
+        outer runs about <code>n</code> times, the middle about <code>n</code> times, and the
+        inner up to <code>n</code> times. A quantity that is "about n, times about n, times
+        about n" is <strong>cubic</strong> — proportional to <code>n³</code>. Every extra
+        factor of <code>n</code> from a nested loop that grows with the input multiplies the
+        work again, exactly the "loops inside each other multiply" rule from §7.7, here applied
+        three times.
+      </p>
+      <p>
+        So the returned value <code>r</code> is a cubic polynomial in <code>n</code>, and the
+        worst-case running time is Θ(n³), i.e. <strong>O(n³)</strong>. (There is no early
+        <code>return</code> or data-dependent branch, so best and worst case are the same — the
+        loops always run to completion.) Confirm both claims with a counter, and watch the
+        tell-tale ×8 when you double <code>n</code>:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>check the cubic growth</div><pre><code>prev = None
+for n in [5, 10, 20]:
+    r = mystery(n)
+    ratio = "-" if prev is None else f"{r / prev:.2f}x"
+    print(f"n={n:&gt;3}   r={r:&gt;6}   ratio {ratio}")
+    prev = r</code></pre></div>
+      <div class="out">n=  5   r=    40   ratio -
+n= 10   r=   330   ratio 8.25x
+n= 20   r=  2660   ratio 8.06x</div>
+      <p>
+        The counter matches the value the function returns, and each doubling of <code>n</code>
+        multiplies <code>r</code> by roughly 8. A ×8 response to a ×2 input is the fingerprint
+        of cubic growth: 2³ = 8, just as a ×4 response meant an exponent of 2 in §7.6.
+      </p>
+      <p><strong>Answer:</strong> <code>mystery(n)</code> returns a cubic polynomial in
+        <code>n</code> (the sum Σ<sub>i</sub> Σ<sub>j</sub> j of the inner-loop lengths), and its
+        worst-case running time is Θ(n³) = <strong>O(n³)</strong>. Doubling <code>n</code>
+        multiplies the returned value by about 8, confirming the cube.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-2 · the pesky function</span>
+    <p>A second triple-nested loop, this time with the inner range depending on both counters.
+      What does it return, and what is its running time? In Python:</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>pesky.py</div><pre><code>def pesky(n):
+    r = 0
+    for i in range(1, n + 1):          <span class="c"># i = 1 .. n</span>
+        for j in range(1, i + 1):      <span class="c"># j = 1 .. i</span>
+            for k in range(j, i + j + 1):  <span class="c"># k = j .. i+j</span>
+                r += 1
+    return r</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Again begin at the innermost loop. It runs <code>k = j .. i+j</code>. The number of
+        integers from <code>j</code> to <code>i+j</code> inclusive is
+      </p>
+      <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">(i + j) − j + 1 = i + 1.</p>
+      <p>
+        Notice what happened: the <code>j</code> cancelled clean out. However far up the range
+        starts, its <em>length</em> is always <code>i + 1</code> — it does not depend on
+        <code>j</code> at all. That is the whole trick of this problem. So the inner loop
+        contributes <code>i + 1</code> every time, and the two outer loops just repeat that:
+      </p>
+      <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">r = Σ<sub>i=1</sub><sup>n</sup> Σ<sub>j=1</sub><sup>i</sup> (i + 1) = Σ<sub>i=1</sub><sup>n</sup> i·(i + 1)</p>
+      <p>
+        The middle line simplifies because the summand <code>(i + 1)</code> does not mention
+        <code>j</code>, so adding it up <code>i</code> times (as <code>j</code> runs from 1 to
+        <code>i</code>) is just multiplying it by <code>i</code> — giving <code>i(i+1)</code>.
+        Now <code>i(i+1) = i² + i</code>, and summing a term that grows like <code>i²</code>
+        across <code>n</code> values of <code>i</code> lands us at something proportional to
+        <code>n³</code>. (The tidy closed form is
+        <code>n(n+1)(n+2)/3</code>, plainly a cubic — but you do not need it to see the shape.)
+      </p>
+      <p>Confirm the value and the class with a counter, comparing against that closed form:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>match the formula, watch the growth</div><pre><code>for n in [5, 10, 20]:
+    r = pesky(n)
+    formula = n * (n + 1) * (n + 2) // 3
+    print(f"n={n:&gt;3}   r={r:&gt;5}   n(n+1)(n+2)/3={formula:&gt;5}")</code></pre></div>
+      <div class="out">n=  5   r=   70   n(n+1)(n+2)/3=   70
+n= 10   r=  440   n(n+1)(n+2)/3=  440
+n= 20   r= 3080   n(n+1)(n+2)/3= 3080</div>
+      <p>
+        The counter sits exactly on <code>n(n+1)(n+2)/3</code>. The doubling ratios here
+        (70 → 440 → 3080, about 6.3× then 7.0×) are still climbing towards 8 rather than sitting
+        on it, because at these small sizes the lower-order <code>+n²</code> and <code>+n</code>
+        parts of the cubic have not yet faded — push <code>n</code> higher and the ratio settles
+        on 8, exactly the "small inputs are noisy, the trend is cubic" story of §7.3.
+      </p>
+      <p><strong>Answer:</strong> The inner loop always runs <code>(i+j)−j+1 = i+1</code> times,
+        so <code>pesky(n)</code> returns Σ<sub>i=1</sub><sup>n</sup> i(i+1) = n(n+1)(n+2)/3, a
+        cubic polynomial, and its running time is Θ(n³) = <strong>O(n³)</strong>.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-36 · nested summations</span>
+    <p>This one asks you to describe the work rather than compute a return value. The
+      pseudocode prints <code>"foobar"</code> from inside three nested loops (take <code>n</code>
+      even). (a) Write its running time <code>T(n)</code> as three nested summations; (b) simplify
+      to a Big-O class. In Python:</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>foobar.py</div><pre><code>def foobar(n):
+    for i in range(1, n // 2 + 1):     <span class="c"># i = 1 .. n/2</span>
+        for j in range(i, n - i + 1):  <span class="c"># j = i .. n-i</span>
+            for k in range(1, j + 1):  <span class="c"># k = 1 .. j</span>
+                print("foobar")</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>(a) The nested-sum form.</strong> Each loop becomes one summation sign, and the
+        printed line — the thing we are counting — is the "1" being summed at the very centre.
+        Reading the ranges straight off the loops:
+      </p>
+      <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n−i</sup> Σ<sub>k=1</sub><sup>j</sup> 1</p>
+      <p>
+        The innermost sum, <code>Σ<sub>k=1</sub><sup>j</sup> 1</code>, is just "add 1 to yourself
+        <code>j</code> times", which equals <code>j</code>. Substituting that collapses the triple
+        sum to a double one:
+      </p>
+      <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n−i</sup> j</p>
+      <p>
+        The inner sum now adds up the whole numbers from <code>j = i</code> up to
+        <code>j = n − i</code>. That is a run of consecutive integers, and a run of consecutive
+        integers up to about <code>n</code> adds up to something on the order of <code>n²</code>
+        (the triangular-number idea from §7.6: 1 + 2 + … + m ≈ m²/2). So the inner sum alone is
+        already quadratic in <code>n</code> for the early values of <code>i</code>.
+      </p>
+      <p>
+        <strong>(b) Simplify.</strong> We then repeat that quadratic amount of work for each
+        <code>i</code> from 1 up to <code>n/2</code> — that is, about <code>n</code> more times.
+        "About n²" of work, done "about n" times, is <strong>cubic</strong>. So
+        T(n) = Θ(n³) = <strong>O(n³)</strong>. The <code>n/2</code> and the shrinking
+        <code>i .. n−i</code> window only change constant factors — half a cube is still a cube,
+        exactly as half a square was still a square in §7.6 — they do not touch the class.
+      </p>
+      <p>Confirm the cube with a counter that tallies the prints instead of doing them:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>count the foobars</div><pre><code>def foobar_count(n):
+    total = 0
+    for i in range(1, n // 2 + 1):
+        for j in range(i, n - i + 1):
+            for k in range(1, j + 1):
+                total += 1             <span class="c"># one 'print' would fire here</span>
+    return total
+
+prev = None
+for n in [10, 20, 40]:
+    t = foobar_count(n)
+    ratio = "-" if prev is None else f"{t / prev:.1f}x"
+    print(f"n={n:&gt;3}   prints={t:&gt;5}   ratio {ratio}")
+    prev = t</code></pre></div>
+      <div class="out">n= 10   prints=  125   ratio -
+n= 20   prints= 1000   ratio 8.0x
+n= 40   prints= 8000   ratio 8.0x</div>
+      <p>
+        Each doubling multiplies the print count by exactly 8 — a clean ×8 on a ×2, the
+        signature of Θ(n³).
+      </p>
+      <p><strong>Answer:</strong> (a) T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n−i</sup> Σ<sub>k=1</sub><sup>j</sup> 1,
+        which simplifies to Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n−i</sup> j once the
+        inner sum of 1's is replaced by <code>j</code>. (b) The inner sum of consecutive integers
+        is Θ(n²), repeated Θ(n) times, so T(n) = Θ(n³) = <strong>O(n³)</strong> — confirmed by the
+        ×8-per-doubling counter.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-5 · evaluating a polynomial</span>
+    <p>
+      The straightforward way to evaluate a polynomial
+      <code>p(x) = a₀ + a₁x + a₂x² + … + aₙxⁿ</code> is to build each power of <code>x</code> as
+      you go. Skiena asks: (a) how many multiplications and additions does it do in the worst
+      case; (b) how many multiplications on average; (c) can you do better? The method, as Python:
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>evaluate_naive.py</div><pre><code>def evaluate_naive(a, x):
+    <span class="c"># a is the list of coefficients: a[0], a[1], ..., a[n]</span>
+    n = len(a) - 1
+    p = a[0]
+    xpower = 1
+    for i in range(1, n + 1):
+        xpower = x * xpower            <span class="c"># one multiplication</span>
+        p = p + a[i] * xpower          <span class="c"># one multiplication, one addition</span>
+    return p</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>(a) Worst case.</strong> Look inside the loop and just count the arithmetic.
+        The line <code>xpower = x * xpower</code> is <strong>one multiplication</strong>. The line
+        <code>p = p + a[i] * xpower</code> is <strong>one multiplication</strong>
+        (<code>a[i] * xpower</code>) and <strong>one addition</strong> (<code>p + …</code>). So
+        every pass of the loop costs <em>two</em> multiplications and <em>one</em> addition, and
+        the loop runs <code>n</code> times (for <code>i = 1 .. n</code>). Total:
+        <strong>2n multiplications and n additions</strong>.
+      </p>
+      <p>
+        <strong>(b) Average case.</strong> Here is the quiet insight: there is no
+        <code>if</code>, no <code>break</code>, nothing in this loop that depends on the
+        <em>values</em> of the coefficients or of <code>x</code>. The loop always runs the same
+        <code>n</code> times and always does the same arithmetic each pass. When behaviour never
+        branches on the data, the average case cannot differ from the worst case — so the average
+        is also <strong>2n multiplications</strong>. (Contrast the linear search of §7.5, whose
+        count <em>did</em> depend on where the target sat.)
+      </p>
+      <p>
+        <strong>(c) Can we do better? Yes — Horner's rule.</strong> The waste in the naive method
+        is that first multiplication, the one that keeps rebuilding <code>xpower</code>. Horner's
+        rule rewrites the polynomial by factoring <code>x</code> out repeatedly —
+        <code>a₀ + x(a₁ + x(a₂ + … ))</code> — so each step folds in one coefficient with a single
+        multiply-and-add:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>evaluate_horner.py</div><pre><code>def evaluate_horner(a, x):
+    n = len(a) - 1
+    p = a[n]                           <span class="c"># start from the top coefficient</span>
+    for i in range(n - 1, -1, -1):     <span class="c"># i = n-1, n-2, ..., 0</span>
+        p = p * x + a[i]               <span class="c"># one multiplication, one addition</span>
+    return p</code></pre></div>
+      <p>
+        Now the loop body is a single <code>p * x + a[i]</code>: <strong>one multiplication and
+        one addition per pass</strong>, over <code>n</code> passes. That is <strong>n
+        multiplications and n additions</strong> — the additions are unchanged, but the
+        multiplications have been <em>halved</em>, from <code>2n</code> to <code>n</code>. The
+        reason it needs only <code>n</code> multiplications is that it never builds the powers of
+        <code>x</code> separately; each existing running total is multiplied by <code>x</code>
+        exactly once as the next coefficient is folded in.
+      </p>
+      <p>Check that both agree on the answer while the counts differ:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>same value, fewer multiplications</div><pre><code>def naive_counts(a, x):
+    n = len(a) - 1; m = adds = 0; p = a[0]; xpower = 1
+    for i in range(1, n + 1):
+        xpower = x * xpower;      m += 1
+        p = p + a[i] * xpower;    m += 1; adds += 1
+    return p, m, adds
+
+def horner_counts(a, x):
+    n = len(a) - 1; m = adds = 0; p = a[n]
+    for i in range(n - 1, -1, -1):
+        p = p * x + a[i];         m += 1; adds += 1
+    return p, m, adds
+
+a = [2, -3, 1, 4]                <span class="c"># 2 - 3x + x^2 + 4x^3, so n = 3</span>
+print("naive :", naive_counts(a, 2))    <span class="c"># (value, mults, adds)</span>
+print("horner:", horner_counts(a, 2))</code></pre></div>
+      <div class="out">naive : (32, 6, 3)
+horner: (32, 3, 3)</div>
+      <p>
+        Both return 32, but the naive method spent 6 multiplications (2n = 2×3) where Horner's
+        rule spent only 3 (n = 3). Same additions, half the multiplications — and both are still
+        O(n), the best class possible since you must at least touch every coefficient once.
+      </p>
+      <p><strong>Answer:</strong> (a) 2n multiplications and n additions in the worst case.
+        (b) 2n multiplications on average too, because the loop has no data-dependent branch, so
+        average equals worst. (c) Yes — Horner's rule, <code>p = p*x + a[i]</code> evaluated from
+        the top coefficient down, uses only n multiplications and n additions, halving the
+        multiplications.</p>
+    </details>
+  </div>
+</section>

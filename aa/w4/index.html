@@ -558,6 +558,165 @@ print("original:", original)   <span class="c"># [2, 4, 6] — wrong!</span></co
   </div>
 </section>
 
+<section>
+  <h2><span class="num">4.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    These are exercises from Skiena's <em>Algorithm Design Manual</em>, Chapter 2, matched to
+    this week and solved step by step. Both are about the little loop you used to find a
+    maximum or minimum — why it is correct, and how much work it really does.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-6 · why the maximum algorithm is correct</span>
+    <p>
+      Here is the standard way to find the largest value in a list <code>A</code>: remember the
+      first item, then walk through the rest, keeping whatever is bigger. Argue that this really
+      does return the maximum, for any list.
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>max_of_list.py</div><pre><code>m = A[0]                       <span class="c"># current champion</span>
+for i in range(1, len(A)):
+    if A[i] &gt; m:
+        m = A[i]               <span class="c"># a bigger value dethrones it</span>
+print(m)                       <span class="c"># claim: this is the maximum</span></code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>The idea: a running champion.</strong> Think of <code>m</code> as the current
+        title-holder in a "who is biggest?" contest. We claim something simple stays true the
+        whole way through the loop — a <em>loop invariant</em>:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">After we have looked at the first k items, m holds the largest of those k.</p>
+      <p>
+        If that sentence is true right up to the last item, then when the loop ends —
+        having looked at all of them — <code>m</code> must hold the largest of the whole list.
+        So we just need to see why it can never become false. Two small checks do it.
+      </p>
+      <p>
+        <strong>Base case (before the loop, k = 1).</strong> We set <code>m = A[0]</code>. The
+        largest of just the first item is, of course, the first item. So the invariant is true
+        at the start — with one item examined, <code>m</code> holds the biggest of that one item.
+      </p>
+      <p>
+        <strong>Each step keeps it true.</strong> Suppose it is true after <code>k</code> items:
+        <code>m</code> is the biggest of the first <code>k</code>. Now we look at the next item,
+        <code>A[k]</code>. Only two things can happen:
+      </p>
+      <ul>
+        <li>
+          <code>A[k]</code> is bigger than the champion — the <code>if</code> fires,
+          <code>m</code> becomes <code>A[k]</code>, and now <code>m</code> is the biggest of all
+          <code>k + 1</code> items (it beat the old best, which beat everyone before it).
+        </li>
+        <li>
+          <code>A[k]</code> is not bigger — we leave <code>m</code> alone, and it is still the
+          biggest of the first <code>k</code>, which are all at least as big as the newcomer,
+          so it is the biggest of all <code>k + 1</code> too.
+        </li>
+      </ul>
+      <p>
+        Either way the invariant survives the step. Since it is true for one item, and each pass
+        carries it from <code>k</code> to <code>k + 1</code>, it is still true after the last item —
+        so the printed <code>m</code> is the maximum of the whole list. (This is the "running
+        champion" version of a formal induction proof; it is exactly the argument you traced by
+        hand on tiny inputs in &sect;4.3.)
+      </p>
+      <p><strong>Answer:</strong> the loop keeps the invariant "<code>m</code> is the maximum of
+        <code>A</code> seen so far". It holds before the loop (one item), each pass preserves it,
+        so after the final pass <code>m</code> is the maximum of the entire list — the algorithm
+        is correct.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-45 · how often does the minimum get updated?</span>
+    <p>
+      To find the minimum of a list, set <code>tmp = A[0]</code>, then compare
+      <code>tmp</code> against <code>A[1], A[2], &hellip;, A[n]</code> in order, doing
+      <code>tmp = A[i]</code> whenever <code>A[i]</code> is smaller. If the list is in a random
+      order, how many times, on average, does that assignment <code>tmp = A[i]</code> run?
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>min_of_list.py</div><pre><code>tmp = A[0]
+assignments = 0
+for i in range(1, len(A)):
+    if A[i] &lt; tmp:
+        tmp = A[i]                 <span class="c"># how often does THIS line run?</span>
+        assignments = assignments + 1
+print(tmp, "updated", assignments, "times")</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>When does the assignment happen at position i?</strong> The line
+        <code>tmp = A[i]</code> runs only when <code>A[i]</code> is smaller than everything we
+        have seen before it — that is, when <code>A[i]</code> is the smallest of the first
+        <code>i</code> items looked at so far. (A new "record low".)
+      </p>
+      <p>
+        <strong>The probability of that.</strong> Here is the pretty part. Among the first
+        <code>i</code> items, each one is equally likely to be the smallest when the order is
+        random — there is nothing special about the last position. So the chance that the
+        <em>i</em>-th item happens to be the smallest of those <code>i</code> is exactly
+        <code>1/i</code>. As <code>i</code> grows, a new record gets rarer and rarer: the first
+        few items set records easily, but by the thousandth item you would need to beat 999
+        earlier values, which almost never happens.
+      </p>
+      <p>
+        <strong>Add up the chances.</strong> The expected total number of assignments is the sum
+        of these per-position chances (each position contributes its own probability of firing):
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">expected updates = 1/1 + 1/2 + 1/3 + &hellip; + 1/n = H<sub>n</sub></p>
+      <p>
+        That sum has a name — the <strong>harmonic number</strong> <code>H<sub>n</sub></code> —
+        and a famous fact: it grows about like <code>ln n</code>, the natural logarithm (which is
+        roughly <code>0.69 &times; log&#8322; n</code>). This is astonishingly slow. Look at the
+        list length going up by a factor of 10 and the update count barely moving:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>List length n</th><th>Expected updates &asymp; ln n</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>about 2.3</td></tr>
+            <tr><td>100</td><td>about 4.6</td></tr>
+            <tr><td>1 000</td><td>about 6.9</td></tr>
+            <tr><td>1 000 000</td><td>about 13.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A million items and the minimum changes hands only about fourteen times on average. A
+        simulation — shuffling a list many times and averaging the count — confirms it. Counting
+        just the in-loop assignments lands a little under <code>ln n</code> (the very first pick,
+        <code>tmp = A[0]</code>, is not counted), but it rises by the same <code>ln 10 &asymp; 2.3</code>
+        every time <code>n</code> is multiplied by ten — the signature of logarithmic growth:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>simulate_2_45.py</div><pre><code>import random, math
+
+def average_updates(n, trials=20000):
+    total = 0
+    for _ in range(trials):
+        A = list(range(n))
+        random.shuffle(A)              <span class="c"># a fresh random order</span>
+        tmp = A[0]
+        for i in range(1, n):
+            if A[i] &lt; tmp:
+                tmp = A[i]
+                total = total + 1      <span class="c"># count one assignment</span>
+    return total / trials
+
+for n in (100, 1000):
+    print(f"n = {n}: average {average_updates(n):.2f} updates, ln n = {math.log(n):.2f}")</code></pre></div>
+      <div class="out">n = 100: average 4.19 updates, ln n = 4.61
+n = 1000: average 6.47 updates, ln n = 6.91</div>
+      <p>
+        Both columns crawl upward together, ten times the data buying only about two more
+        updates. That gentle, logarithmic climb is the <code>O(log n)</code> growth you first met
+        in the halving loop of week 3 — the opposite extreme from a nested loop.
+      </p>
+      <p><strong>Answer:</strong> the assignment fires at position <code>i</code> with probability
+        <code>1/i</code>, so the expected number of updates is the harmonic number
+        <code>H<sub>n</sub> = 1 + 1/2 + &hellip; + 1/n &asymp; ln n</code> — that is
+        <code>O(log n)</code>, growing extremely slowly.</p>
+    </details>
+  </div>
+</section>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>You searched a list by hand and felt the work grow with <code>n</code>. Time to stop counting by hand: week 5 wraps work in a function and times it with a real stopwatch.</p>

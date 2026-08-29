@@ -502,6 +502,253 @@ cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first<
   </div>
 </section>
 
+<section>
+  <h2><span class="num">14.12</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    A capstone deserves capstone puzzles. These last problems from Skiena's <em>The Algorithm
+    Design Manual</em> are the kind asked in interviews: each one rewards a clear idea over brute
+    force, and each connects back to a habit this course has drilled — prepare once, count
+    carefully, reason backwards. Read, attempt, then unfold the solution.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-43 · sampling a stream in one pass</span>
+    <p>
+      From a set S of n numbers, choose a subset S′ of k numbers so that every element of S is
+      picked with equal probability k/n — in a <strong>single pass</strong>. Now the twist: do it
+      when n is <em>not known</em> in advance (the numbers arrive one by one and stop when they
+      stop).
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        This is <strong>reservoir sampling</strong>. Start with the easy case, k = 1 — keep a
+        single item. The rule: when the i-th item arrives (counting from 1), keep it with
+        probability 1/i, otherwise stick with what you already hold. Why does that give everyone
+        the same 1/n at the end? The last item, number n, is kept with probability 1/n directly.
+        An earlier item j was kept when it arrived (prob 1/j) and then survived every later item
+        not replacing it: (1 − 1/(j+1)) × (1 − 1/(j+2)) × … × (1 − 1/n). Those brackets are
+        j/(j+1) × (j+1)/(j+2) × … × (n−1)/n, a telescoping product that collapses to j/n.
+        Multiply by the 1/j from the start and you get 1/n. Everyone ties.
+      </p>
+      <p>
+        For general k, keep the first k items as the initial "reservoir". When the i-th item
+        arrives (i &gt; k), keep it with probability k/i; if you keep it, drop one of the k held
+        items chosen at random to make room. The same telescoping argument gives every item a
+        final probability of exactly k/n.
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>reservoir.py</div><pre><code>import random
+
+def reservoir(stream, k):
+    keep = []
+    for i, item in enumerate(stream):     <span class="c"># i counts from 0; n never needed</span>
+        if i &lt; k:
+            keep.append(item)             <span class="c"># fill the reservoir first</span>
+        else:
+            j = random.randint(0, i)      <span class="c"># 0..i inclusive → keep with prob k/(i+1)</span>
+            if j &lt; k:
+                keep[j] = item            <span class="c"># evict a random held item, insert the new one</span>
+    return keep</code></pre></div>
+      <p>
+        <strong>Answer:</strong> reservoir sampling. Hold the first k items; for each later item i
+        keep it with probability k/i, replacing a random current member. It makes one pass, stores
+        only k items, and never needs to know n ahead of time — perfect for a stream too big to
+        hold or of unknown length. A quick simulation (run <code>reservoir</code> many times over
+        <code>range(100)</code> with k = 10 and tally how often each number appears) confirms every
+        element shows up almost exactly k/n of the time.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-44 · replicating to survive failures</span>
+    <p>
+      You store 1000 items across 1000 nodes; each node holds 3 different items. Propose a
+      replication scheme that minimises data loss when nodes fail, and estimate how many items you
+      expect to lose when 3 randomly chosen nodes fail at once.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The core idea is simple: <strong>keep three copies of every item, on three well-separated
+        nodes</strong>, and never let two items share the exact same trio of nodes. An easy scheme
+        that does this: put item i on nodes i, i+1 and i+2 (wrapping round mod 1000). Every item
+        now has three homes, every node still holds three items, and each item's trio is a
+        distinct set of three consecutive nodes.
+      </p>
+      <p>
+        An item is lost only when <em>all three</em> of its nodes are down. If just 3 random nodes
+        fail, a given item is lost only if those 3 failures are precisely its 3 nodes. The chance
+        of that for one item is 1 divided by the number of ways to choose 3 nodes from 1000 —
+        that is 1 / C(1000, 3) = 1 / 166 167 000, a tiny number. Add that up over all 1000 items:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        expected items lost ≈ 1000 × 1 / C(1000, 3) ≈ 6 × 10⁻⁶
+      </p>
+      <p>
+        <strong>Answer:</strong> three copies per item, spread across well-separated nodes so no
+        two items share a trio. With 3 random node failures the expected loss is essentially zero
+        — almost always no item is lost at all, and even in the rare case the 3 failures happen to
+        be one item's exact trio, you lose at most about one item. The whole win comes from
+        replication plus <em>spreading the copies out</em>: three copies packed onto overlapping
+        node sets would lose far more.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-49 · counting the ways to merge</span>
+    <p>
+      n companies gradually merge until a single company remains. Each merge combines two
+      companies into one. How many different sequences of pairwise merges are possible?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        First the easy half: each merge turns two companies into one, so it reduces the count by
+        exactly one. Going from n down to 1 therefore always takes <strong>n − 1 merges</strong>,
+        no matter the order. The interesting question is how many <em>ordered</em> ways those
+        merges can play out. Do the small cases by hand:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>ways</th><th>why</th></tr></thead>
+          <tbody>
+            <tr><td>2</td><td>1</td><td>only one pair to merge</td></tr>
+            <tr><td>3</td><td>3</td><td>first merge is one of the 3 pairs (AB, AC, BC); then only one pair is left</td></tr>
+            <tr><td>4</td><td>18</td><td>more choices at each of the 3 merges</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The closed form that produces 1, 3, 18, … is:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        number of merge sequences = n! · (n−1)! / 2<sup>n−1</sup>
+      </p>
+      <p>
+        Check it: n = 2 gives 2 · 1 / 2 = 1; n = 3 gives 6 · 2 / 4 = 3; n = 4 gives 24 · 6 / 8 =
+        18. All match.
+      </p>
+      <p>
+        <strong>Answer:</strong> n − 1 merges are always needed, and the number of distinct ordered
+        merge sequences is n!(n−1)! / 2<sup>n−1</sup>, matching the hand counts 1, 3, 18 for
+        n = 2, 3, 4.
+      </p>
+      <div class="note">
+        <span class="label">Optional challenge — where the formula comes from</span>
+        <p>
+          Think of building the merge history as a rooted binary tree with the n companies as
+          leaves and each internal node a merge. There are (n−1)! orders in which to perform the
+          n−1 merges, and counting the distinct labelled shapes contributes the extra n! / 2<sup>n−1</sup>
+          factor — the 2<sup>n−1</sup> divides out because swapping the two companies in a single
+          merge does not make a new sequence. Deriving it fully is a combinatorics exercise; the
+          formula and the small-case checks are what you need here.
+        </p>
+      </div>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-51 &amp; 2-52 · the rational pirates</span>
+    <p>
+      Six pirates must divide $300 by seniority. The most senior proposes a split; <em>all</em>
+      pirates (proposer included) vote; if at least half agree, it passes, otherwise the proposer
+      is thrown overboard and the next most senior proposes. Pirates are perfectly rational and
+      value, in order: staying alive, then money. How is the $300 divided (2-51)? And what happens
+      if there is only <strong>one indivisible dollar</strong> to share (2-52)?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The trick to every puzzle like this is to <strong>reason backwards</strong> from the
+        smallest case, because each pirate, when voting, compares "what I get now" against "what I
+        would get if this proposer is thrown overboard". Label the pirates P1 (most junior) up to
+        P6 (most senior); the senior proposes first. "At least half" means a tie is enough to pass.
+      </p>
+      <p><strong>Part 2-51, dividing $300.</strong> Build up one pirate at a time:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>pirates left</th><th>votes needed</th><th>proposer keeps</th><th>who gets $1 (to buy the vote)</th></tr></thead>
+          <tbody>
+            <tr><td>2 (P2, P1)</td><td>1</td><td>$300</td><td>nobody — P2's own vote is half of 2</td></tr>
+            <tr><td>3 (P3…)</td><td>2</td><td>$299</td><td>P1 (who would get $0 if it fell to 2 pirates)</td></tr>
+            <tr><td>4 (P4…)</td><td>2</td><td>$299</td><td>P2 (who gets $0 in the 3-pirate outcome)</td></tr>
+            <tr><td>5 (P5…)</td><td>3</td><td>$298</td><td>P3 and P1 (the two who get $0 with 4 pirates)</td></tr>
+            <tr><td>6 (P6…)</td><td>3</td><td>$298</td><td>P4 and P2 (the two who get $0 with 5 pirates)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Each proposer only has to bribe the <em>cheapest</em> pirates — the ones who would get
+        nothing in the next round — and just enough of them to reach half the votes. So with six
+        pirates, the senior P6 needs 3 votes (his own plus two), and he secures them by handing
+        $1 each to P4 and P2, keeping the other $298 for himself.
+      </p>
+      <p>
+        <strong>Answer (2-51):</strong> the top pirate keeps $298 and gives $1 each to two
+        specific juniors (P4 and P2) to secure a passing vote of 3-to-3; P5, P3 and P1 get nothing.
+        Rationality, not generosity, produces the lopsided split — the juniors accept $1 because
+        the alternative is $0.
+      </p>
+      <p><strong>Part 2-52, a single indivisible dollar.</strong> Now the proposer has almost
+        nothing to bribe with, so <em>survival</em> votes do the work. Reasoning down the chain,
+        with 5 pirates the proposer P5 would need 3 votes but can bribe at most one pirate with the
+        lone dollar — so a 5-pirate proposal fails and P5 is thrown overboard. That fact is the key:
+        it means P5 is <em>desperate</em> to avoid ever reaching a 5-pirate game.
+      </p>
+      <p>
+        So when 6 pirates face the single dollar, the senior P6 needs 3 votes and gets them like
+        this: his own vote; P5's vote for free (because if P6 is thrown over, the game drops to 5
+        pirates where P5 dies, so P5 will support almost any proposal that keeps P6 afloat); and
+        one more vote bought by giving the single dollar to one of the pirates who would otherwise
+        get nothing (P4, P3 or P1). That is a winning coalition of three, so the proposal passes.
+      </p>
+      <p>
+        <strong>Answer (2-52):</strong> the top pirate survives and <em>no one need die</em>. He
+        gives the one dollar to a single pirate whose vote he needs and relies on the vote of P5,
+        who backs him purely to avoid being thrown overboard in the next round. The dollar plus one
+        life-saving vote is exactly enough to form a majority — a neat demonstration that "value
+        survival first" can be worth more than money at the table.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Programming challenges · optional practice on the judges</span>
+    <p>
+      Skiena pairs the chapter with three short programming problems on the online judges (UVA).
+      Each is a one-idea problem — no heavy machinery, just the right observation. Try them for
+      practice; a sketch of the approach is enough to get you started.
+    </p>
+    <details class="solution"><summary>Approaches</summary>
+      <p>
+        <strong>Primary Arithmetic</strong> — count the carry operations when two unsigned numbers
+        are added. Add the two numbers the grade-school way, digit by digit from the right, keeping
+        a running carry; each position where the column plus the incoming carry reaches 10 produces
+        a carry into the next column. Count those events. It is O(number of digits), and the whole
+        problem is really just "do primary-school addition and watch the carries" — report none, one,
+        or the count.
+      </p>
+      <p>
+        <strong>A Multiplication Game</strong> — two players start from a product of 1 and take
+        turns multiplying it by any integer from 2 to 9; the first to reach or pass n wins, and the
+        first player (Stan) moves first. This is a small combinatorial game: reason <em>backwards</em>
+        from n about which running totals are winning positions for the player about to move. With
+        optimal play the winner depends only on which "band" n falls in — Stan wins for n up to 9,
+        the second player for 10–18, Stan again for 19–162, and so on, each band nine times wider
+        than the last (because the fastest advance multiplies by 9 and the best stall multiplies by
+        2). Determine the band by repeatedly comparing n against powers of nine — no search needed.
+      </p>
+      <p>
+        <strong>Light, More Light</strong> — lamps numbered 1..N start off; person i toggles every
+        lamp whose number is a multiple of i, so lamp k is toggled once for each of its divisors.
+        A lamp ends <em>on</em> exactly when it was toggled an odd number of times, i.e. when k has
+        an odd number of divisors. Divisors come in pairs (d and k/d) <em>except</em> when k is a
+        perfect square (where the square root pairs with itself), so the only lamps left on are the
+        perfect squares. The whole problem collapses to: is k a perfect square? Check with an integer
+        square root in O(1) per query.
+      </p>
+    </details>
+  </div>
+</section>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>You can analyse an algorithm and defend a choice with evidence. One question remains, and it is the one that matters most for your degree: <strong>why does any of this belong in mechatronics engineering?</strong> The capstone answers it — deadlines, tiny chips, and control loops that cannot wait. <a href="../engineering/">Read the engineering capstone &rarr;</a></p>

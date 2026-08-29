@@ -513,6 +513,76 @@ print(sorted(students, key=lambda s: (s[0], s[1])))</code></pre></div>
   </div>
 </section>
 
+<section>
+  <h2><span class="num">13.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    Sorting rested on a summation — adding up n(n−1)/2 comparisons — so this is a good week to
+    practise reading a pattern and pinning down the expression behind it. Here is one of
+    Skiena's, solved the way this course likes: spot the pattern, then say <em>why</em>.
+  </p>
+
+  <div class="task">
+    <span class="label">Problem 2-33 · a self-referential triangle</span>
+    <p>
+      Build a triangle in which every entry is the sum of the three entries directly above it
+      (above-left, above, above-right — treat any missing neighbour as 0). It begins:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>row</th><th colspan="7">entries</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td colspan="7">1</td></tr>
+          <tr><td>2</td><td colspan="7">1&nbsp;&nbsp;1&nbsp;&nbsp;1</td></tr>
+          <tr><td>3</td><td colspan="7">1&nbsp;&nbsp;2&nbsp;&nbsp;3&nbsp;&nbsp;2&nbsp;&nbsp;1</td></tr>
+          <tr><td>4</td><td colspan="7">1&nbsp;&nbsp;3&nbsp;&nbsp;6&nbsp;&nbsp;7&nbsp;&nbsp;6&nbsp;&nbsp;3&nbsp;&nbsp;1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Find an expression for the sum of the entries in the i-th row, and justify it.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Add up each row first and look for the pattern: row 1 sums to 1, row 2 to 1+1+1 = 3, row
+        3 to 1+2+3+2+1 = 9, row 4 to 1+3+6+7+6+3+1 = 27. That is 1, 3, 9, 27 — the powers of
+        three. So the answer looks like <strong>3<sup>i−1</sup></strong>.
+      </p>
+      <p>
+        Now the <em>why</em>, which is the pretty part. Ask where each entry's value ends up in
+        the next row down. An entry sitting in one row is one of the "three above" for exactly
+        three positions in the row beneath it — the slot below-left of it, the slot directly
+        below, and the slot below-right. So every entry contributes its full value to the next
+        row <em>three times over</em>. Add that up across the whole row and you get:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        (sum of next row) = 3 × (sum of this row)
+      </p>
+      <p>
+        The total triples at every step. Row 1 starts at 1, so row i is 1 tripled i−1 times —
+        that is 3<sup>i−1</sup>. A short program confirms both the rows and their tripling totals:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>triangle_rows.py</div><pre><code>def next_row(row):
+    padded = [0, 0] + row + [0, 0]        <span class="c"># room for the row widening by one each side</span>
+    return [padded[i] + padded[i + 1] + padded[i + 2] for i in range(len(row) + 2)]
+
+row = [1]
+for i in range(1, 6):
+    print(f"row {i}: sum {sum(row):>3}   {row}")
+    row = next_row(row)</code></pre></div>
+      <div class="out">row 1: sum   1   [1]
+row 2: sum   3   [1, 1, 1]
+row 3: sum   9   [1, 2, 3, 2, 1]
+row 4: sum  27   [1, 3, 6, 7, 6, 3, 1]
+row 5: sum  81   [1, 4, 10, 16, 19, 16, 10, 4, 1]</div>
+      <p>
+        <strong>Answer:</strong> the i-th row sums to <strong>3<sup>i−1</sup></strong>, because
+        each entry feeds into three entries below it, so the grand total triples with every new
+        row. The sums 1, 3, 9, 27, 81 are exactly the powers of three, and the reasoning — count
+        how many times each value is reused — is the same "count the contributions" move that
+        gave n(n−1)/2 for the sorts.
+      </p>
+    </details>
+  </div>
+</section>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>You now have the whole toolkit — measuring, naming, choosing, and the cost of the common structures. Week 14 ties it together with a checklist, the classic traps, and your final project.</p>
