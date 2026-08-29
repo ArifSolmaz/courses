@@ -745,7 +745,7 @@ n= 80  r=   5,335,740  ratio=15.36x</div>
         techniques of &sect;8.16's later problems, but the marks are for the class, not the
         formula.
       </p>
-      <p><strong>Answer:</strong> the loop body runs &Theta;(n&#8308;) times, so the running time is <strong>O(n&#8308;)</strong>.</p>
+      <p><strong>Answer:</strong> peeling the loops from the inside gives the exact value <code>r = n(n+1)(n+2)(3n+1)/24</code>, so the running time is <strong>&Theta;(n&#8308;)</strong>. (The loop <em>depth</em> only hints at the class; summing the loops proves it.)</p>
     </details>
   </div>
 
@@ -786,7 +786,7 @@ n= 40  r=     5,530  ratio=7.73x
 n= 80  r=    43,460  ratio=7.86x
 n=160  r=   344,520  ratio=7.93x</div>
       <p>The ratio settles towards 8 &mdash; cubic confirmed by arithmetic, no stopwatch needed.</p>
-      <p><strong>Answer:</strong> the loop body runs &Theta;(n&sup3;) times, so the worst-case running time is <strong>O(n&sup3;)</strong>.</p>
+      <p><strong>Answer:</strong> the moving start points empty many iterations, leaving the exact count <code>r = &Sigma;<sub>i=1</sub><sup>&lfloor;n/2&rfloor;</sup> (n&minus;2i+1)(n&minus;2i+2)/2</code> (a closed form <code>m(m+1)(4m&minus;1)/6</code> for even <code>n = 2m</code>), so the worst-case running time is <strong>&Theta;(n&sup3;)</strong>. Depth alone would not prove this &mdash; the ranges must be summed.</p>
     </details>
   </div>
 
@@ -977,23 +977,13 @@ n=160  r=   344,520  ratio=7.93x</div>
   </div>
 
   <div class="task challenge">
-    <span class="label">Problem 2-16 &middot; any polynomial is O(n&#8319;)</span>
-    <p>Prove that a polynomial <code>a&#8342; n&#8319; + a&#8342;&#8331;&#8321; n&#8319;&#8315;&sup1; + &hellip; + a&#8321; n + a&#8320;</code> of degree k is <code>O(n&#8319;)</code>.</p>
+    <span class="label">Problem 2-16 &middot; any polynomial is O(n<sup>k</sup>)</span>
+    <p>Prove that a polynomial <code>a<sub>k</sub> n<sup>k</sup> + a<sub>k&minus;1</sub> n<sup>k&minus;1</sup> + &hellip; + a<sub>1</sub> n + a<sub>0</sub></code> of degree <code>k</code> is <code>O(n<sup>k</sup>)</code>.</p>
     <details class="solution"><summary>Worked solution</summary>
-      <p>
-        This is the formal version of "keep the highest power". Every term
-        <code>a&#8341; n&#8339;</code> with <code>i &le; k</code> satisfies
-        <code>|a&#8341; n&#8339;| &le; |a&#8341;| n&#8319;</code> once <code>n &ge; 1</code>,
-        because a smaller power of n (for n at least 1) is no larger than the top power. Add
-        the terms up:
-      </p>
-      <p style="font-family:var(--font-mono);color:var(--accent)">|a&#8342; n&#8319; + &hellip; + a&#8320;| &le; (|a&#8342;| + &hellip; + |a&#8320;|) &middot; n&#8319;</p>
-      <p>
-        The bracket <code>C = |a&#8342;| + &hellip; + |a&#8320;|</code> is a fixed constant &mdash;
-        it does not depend on n. So the whole polynomial is at most <code>C &middot; n&#8319;</code>,
-        which is precisely <code>O(n&#8319;)</code>.
-      </p>
-      <p><strong>Answer:</strong> <code>O(n&#8319;)</code>, with the constant being the sum of the absolute values of the coefficients.</p>
+      <p>This is the formal version of "keep the highest power". Every term <code>a<sub>i</sub> n<sup>i</sup></code> with <code>i &le; k</code> satisfies <code>|a<sub>i</sub> n<sup>i</sup>| &le; |a<sub>i</sub>| n<sup>k</sup></code> once <code>n &ge; 1</code>, because a lower power of <code>n</code> is no larger than the top power. Add the terms up:</p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">|a<sub>k</sub> n<sup>k</sup> + &hellip; + a<sub>0</sub>| &le; (|a<sub>k</sub>| + &hellip; + |a<sub>0</sub>|) &middot; n<sup>k</sup></p>
+      <p>The bracket <code>c = |a<sub>k</sub>| + &hellip; + |a<sub>0</sub>|</code> is a fixed constant &mdash; it does not depend on <code>n</code>. So the whole polynomial is at most <code>c &middot; n<sup>k</sup></code>, which is precisely <code>O(n<sup>k</sup>)</code>.</p>
+      <p><strong>Answer:</strong> <code>O(n<sup>k</sup>)</code>, with the constant being the sum of the absolute values of the coefficients.</p>
     </details>
   </div>
 
@@ -1018,30 +1008,23 @@ n=160  r=   344,520  ratio=7.93x</div>
     </details>
   </div>
 
-  <div class="task">
-    <span class="label">Problem 2-18 / 2-19 &middot; order by growth rate</span>
-    <p>List the following from slowest-growing to fastest-growing, noting any ties:</p>
-    <p style="font-family:var(--font-mono);color:var(--accent)">1 &nbsp; lg lg n &nbsp; ln n &nbsp; &radic;n &nbsp; n &nbsp; n lg n &nbsp; n&sup2; &nbsp; n&sup3; &nbsp; 2&#8319; &nbsp; n!</p>
+  <div class="task challenge">
+    <span class="label">Problem 2-18 &middot; order Skiena's 16 functions</span>
+    <p>List these from slowest- to fastest-growing, marking ties (Skiena's own set):</p>
+    <p style="font-family:var(--font-mono);color:var(--accent)">n &nbsp; 2<sup>n</sup> &nbsp; n lg n &nbsp; ln n &nbsp; n&minus;n<sup>3</sup>+7n<sup>5</sup> &nbsp; lg n &nbsp; &radic;n &nbsp; e<sup>n</sup> &nbsp; n<sup>2</sup>+lg n &nbsp; n<sup>2</sup> &nbsp; 2<sup>n&minus;1</sup> &nbsp; lg lg n &nbsp; n<sup>3</sup> &nbsp; (lg n)<sup>2</sup> &nbsp; n! &nbsp; n<sup>1+&epsilon;</sup> (0&lt;&epsilon;&lt;1)</p>
     <details class="solution"><summary>Worked solution</summary>
-      <p>This is the growth ladder from &sect;8.15, one item at a time. Walk up it:</p>
-      <ol>
-        <li><code>1</code> &mdash; a constant; does not grow at all.</li>
-        <li><code>lg lg n</code> &mdash; the log <em>of</em> a log; grows fantastically slowly, but still creeps up, so it beats the constant.</li>
-        <li><code>ln n</code> &mdash; a single logarithm; above lg lg n. (lg n and ln n differ only by a constant factor, so they would tie.)</li>
-        <li><code>&radic;n = n<sup>0.5</sup></code> &mdash; a genuine power of n beats any logarithm.</li>
-        <li><code>n</code> &mdash; linear, above &radic;n.</li>
-        <li><code>n lg n</code> &mdash; a shade above linear.</li>
-        <li><code>n&sup2;</code>, then <code>n&sup3;</code> &mdash; higher powers, in order.</li>
-        <li><code>2&#8319;</code> &mdash; exponential; beats every polynomial.</li>
-        <li><code>n!</code> &mdash; factorial; beats every fixed-base exponential.</li>
-      </ol>
-      <p>
-        <strong>Answer:</strong> slowest &rarr; fastest is
-        <code>1 &Lt; lg lg n &Lt; ln n &Lt; &radic;n &Lt; n &Lt; n lg n &Lt; n&sup2; &Lt; n&sup3; &Lt; 2&#8319; &Lt; n!</code>
-        No ties among the listed items (ln n would tie with lg n, had it appeared). Skiena's
-        full exercises pack in trickier functions, but this captures the whole skill: place
-        each function on the ladder.
-      </p>
+      <p>Tidy each into its shape first: <code>n&minus;n<sup>3</sup>+7n<sup>5</sup> &rarr; n<sup>5</sup></code>; <code>n<sup>2</sup>+lg n &rarr; n<sup>2</sup></code> (ties with <code>n<sup>2</sup></code>); <code>ln n</code> ties <code>lg n</code>; <code>2<sup>n&minus;1</sup> = &frac12;&middot;2<sup>n</sup></code> ties <code>2<sup>n</sup></code>; <code>e<sup>n</sup></code> is above <code>2<sup>n</sup></code> (since <code>e&gt;2</code>); and <code>n<sup>1+&epsilon;</sup></code> sits between <code>n lg n</code> and <code>n<sup>2</sup></code>. Then walk the ladder &mdash; remembering any real power of <code>n</code> beats any power of a logarithm.</p>
+      <p><strong>Answer (braces = ties):</strong> <code>lg lg n &lt; {ln n = lg n} &lt; (lg n)<sup>2</sup> &lt; &radic;n &lt; n &lt; n lg n &lt; n<sup>1+&epsilon;</sup> &lt; {n<sup>2</sup> = n<sup>2</sup>+lg n} &lt; n<sup>3</sup> &lt; n<sup>5</sup> &lt; {2<sup>n&minus;1</sup> = 2<sup>n</sup>} &lt; e<sup>n</sup> &lt; n!</code></p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-19 &middot; order Skiena's trickier 18 functions</span>
+    <p>Same task, with a function that <em>shrinks</em> and a constant hidden in the list:</p>
+    <p style="font-family:var(--font-mono);color:var(--accent)">&radic;n &nbsp; n &nbsp; 2<sup>n</sup> &nbsp; n log n &nbsp; n&minus;n<sup>3</sup>+7n<sup>5</sup> &nbsp; n<sup>2</sup>+log n &nbsp; n<sup>2</sup> &nbsp; n<sup>3</sup> &nbsp; log n &nbsp; n<sup>1/3</sup>+log n &nbsp; (log n)<sup>2</sup> &nbsp; n! &nbsp; ln n &nbsp; n/log n &nbsp; log log n &nbsp; (1/3)<sup>n</sup> &nbsp; (3/2)<sup>n</sup> &nbsp; 6</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>The traps: <code>(1/3)<sup>n</sup></code> shrinks to 0 (smallest of all); <code>6</code> is a constant; and the sneaky pair <code>(log n)<sup>2</sup></code> vs <code>n<sup>1/3</sup></code> &mdash; a squared logarithm is still a logarithm, and any real power of <code>n</code> (even 1/3) eventually wins, so <code>(log n)<sup>2</sup> &lt; n<sup>1/3</sup></code>. Also <code>n/log n</code> sits just below <code>n</code>, and <code>(3/2)<sup>n</sup> &lt; 2<sup>n</sup></code>.</p>
+      <p><strong>Answer (braces = ties):</strong> <code>(1/3)<sup>n</sup> &lt; 6 &lt; log log n &lt; {log n = ln n} &lt; (log n)<sup>2</sup> &lt; n<sup>1/3</sup> &lt; &radic;n &lt; n/log n &lt; n &lt; n log n &lt; {n<sup>2</sup> = n<sup>2</sup>+log n} &lt; n<sup>3</sup> &lt; n<sup>5</sup> &lt; (3/2)<sup>n</sup> &lt; 2<sup>n</sup> &lt; n!</code></p>
     </details>
   </div>
 

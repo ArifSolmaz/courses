@@ -616,6 +616,25 @@ def reservoir(stream, k):
   </div>
 
   <div class="task challenge">
+    <span class="label">Problem 2-50 &middot; Ramanujan numbers</span>
+    <p>A <strong>Ramanujan number</strong> can be written as a sum of two cubes in two different ways: <code>a&sup3; + b&sup3; = c&sup3; + d&sup3;</code>. Find all of them with <code>a, b, c, d &lt; n</code>, faster than trying every four numbers.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>Four nested loops would be <code>O(n&#8308;)</code>. Instead use the "remember what you have seen" trick: build every two-cube sum once and look for collisions. Go over each pair <code>(a, b)</code> with <code>a &le; b &lt; n</code>, and store <code>a&sup3; + b&sup3;</code> in a dictionary keyed by the sum. Any key hit by two or more different pairs is a Ramanujan number.</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>ramanujan.py</div><pre><code>def ramanujan(n):
+    seen = {}                     <span class="c"># sum -&gt; list of (a, b) pairs</span>
+    for a in range(1, n):
+        for b in range(a, n):     <span class="c"># a &lt;= b avoids double-counting</span>
+            seen.setdefault(a**3 + b**3, []).append((a, b))
+    return {s: p for s, p in seen.items() if len(p) &gt;= 2}
+
+print(sorted(ramanujan(20)))</code></pre></div>
+      <div class="out">[(1729, [(1, 12), (9, 10)])]</div>
+      <p>The smallest is the famous <strong>1729 = 1&sup3; + 12&sup3; = 9&sup3; + 10&sup3;</strong> (the Hardy&ndash;Ramanujan taxicab number). One pass over the <code>&asymp; n&sup2;/2</code> pairs, O(1) per insert on average.</p>
+      <p><strong>Answer:</strong> hash every <code>a&sup3; + b&sup3;</code> and keep the sums reachable two ways &mdash; <strong>O(n&sup2;)</strong> time and space, versus brute-force O(n&#8308;). Smallest Ramanujan number: 1729.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
     <span class="label">Problem 2-51 &amp; 2-52 · the rational pirates</span>
     <p>
       Six pirates must divide $300 by seniority. The most senior proposes a split; <em>all</em>
@@ -700,10 +719,12 @@ def reservoir(stream, k):
         turns multiplying it by any integer from 2 to 9; the first to reach or pass n wins, and the
         first player (Stan) moves first. This is a small combinatorial game: reason <em>backwards</em>
         from n about which running totals are winning positions for the player about to move. With
-        optimal play the winner depends only on which "band" n falls in — Stan wins for n up to 9,
-        the second player for 10–18, Stan again for 19–162, and so on, each band nine times wider
-        than the last (because the fastest advance multiplies by 9 and the best stall multiplies by
-        2). Determine the band by repeatedly comparing n against powers of nine — no search needed.
+        optimal play the winner depends only on which "band" n falls in, and the band edges are
+        <strong>9, 18, 162, 324, 2916, &hellip;</strong> — the gaps alternate <strong>&times;2 then
+        &times;9</strong> (not "powers of nine"): Stan wins for n in 2–9, the second player for
+        10–18, Stan for 19–162, the second player for 163–324, Stan for 325–2916, and so on. A clean
+        rule: repeatedly replace n by ⌈n/18⌉ until n ≤ 18, then Stan wins exactly when the leftover
+        n ≤ 9 (with n = 1 a second-player win). No search is needed — just a handful of divisions.
       </p>
       <p>
         <strong>Light, More Light</strong> — lamps numbered 1..N start off; person i toggles every
@@ -716,4 +737,5 @@ def reservoir(stream, k):
       </p>
     </details>
   </div>
-</section>
+</section><p><strong>One caveat.</strong> The single-dollar "nobody dies" outcome needs a tie-break rule: Skiena states only "survival first, then money", which leaves what an <em>indifferent</em> pirate (same survival and same money either way) does. The clean result assumes such a pirate votes <strong>for</strong> the proposal; under the opposite tie-break the split shifts and some proposers die. So the unique answer requires stating that extra preference.</p>
+      
