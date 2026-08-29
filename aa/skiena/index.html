@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skiena Chapter 2 — Every Problem Explained Simply</title>
+<meta name="description" content="A plain-English companion to the exercises in Skiena's Algorithm Design Manual, Chapter 2: every problem restated gently, solved step by step with tiny numbers, for the Algorithm Analysis with Python course.">
+<link rel="icon" href="../../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;--panel:#f7f7f4;--panel-2:#f1f1ec;--border:#e6e6e0;--border-strong:#d4d4cc;
+    --ink:#1c2024;--ink-soft:#3b414a;--muted:#6b7280;--faint:#98a0aa;
+    --accent:#1f6feb;--accent-ink:#1a5fce;--accent-soft:#eaf1fe;--gold:#b8860b;--green:#1a7f45;
+    --serif:"Newsreader",Georgia,serif;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    --measure:70ch;--topbar:52px;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1117;--panel:#12161d;--panel-2:#161b23;--border:#242b35;--border-strong:#323a46;
+    --ink:#e8eef4;--ink-soft:#c6cfda;--muted:#939dab;--faint:#69727d;
+    --accent:#6fb2ff;--accent-ink:#8ec2ff;--accent-soft:rgba(111,178,255,.12);--gold:#e3b341;--green:#57d38c;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:64px}
+  body{font-family:var(--sans);font-size:16px;line-height:1.68;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-ink);text-decoration:none}a:hover{text-decoration:underline}
+  .topbar{position:sticky;top:0;z-index:50;height:var(--topbar);display:flex;align-items:center;gap:1rem;padding:0 clamp(1rem,4vw,2rem);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .topbar .h{font-family:var(--serif);font-weight:600;font-size:.95rem;color:var(--ink)}
+  .topbar .h span{color:var(--muted);font-weight:400}
+  .topbar .sp{margin-left:auto;display:flex;gap:.4rem}
+  .topbar a,.topbar button{font-size:.78rem;color:var(--muted);border:1px solid var(--border);background:none;border-radius:8px;padding:.3rem .6rem;cursor:pointer;font-family:var(--sans)}
+  .topbar a:hover,.topbar button:hover{color:var(--ink);border-color:var(--border-strong);text-decoration:none}
+  .wrap{max-width:860px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 4rem}
+  header.hero{padding:2.6rem 0 1.4rem;border-bottom:1px solid var(--border)}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,5vw,2.7rem);line-height:1.1;color:var(--ink);letter-spacing:-.01em}
+  .lede{font-size:1.08rem;color:var(--ink-soft);margin-top:1rem;max-width:var(--measure)}
+  .legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+  .pill{font-family:var(--mono);font-size:.68rem;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:.24rem .7rem}
+  nav.toc{margin:2rem 0 1rem;border:1px solid var(--border);border-radius:12px;background:var(--panel);padding:1.1rem 1.3rem}
+  nav.toc h2{font-family:var(--sans);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.7rem}
+  nav.toc ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.3rem .9rem}
+  nav.toc a{font-size:.9rem;color:var(--ink-soft)}
+  h2.cat-head{font-family:var(--serif);font-weight:600;font-size:1.5rem;color:var(--ink);margin:2.6rem 0 .3rem;padding-top:1rem;border-top:2px solid var(--border-strong)}
+  article.prob{padding:1.4rem 0;border-bottom:1px solid var(--border)}
+  article.prob h3{font-family:var(--serif);font-weight:600;font-size:1.2rem;color:var(--ink);margin-bottom:.6rem}
+  article.prob h3 .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border:1px solid var(--border);border-radius:5px;padding:.1rem .4rem;margin-left:.5rem;vertical-align:middle}
+  .lab{font-family:var(--mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  p.ask{max-width:var(--measure)}p.ask .lab{color:var(--accent-ink)}
+  .body{max-width:var(--measure);margin:.7rem 0}
+  .body p{margin-bottom:.7rem}
+  p.answer{max-width:var(--measure);background:var(--panel);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:.7rem .95rem;margin:.8rem 0 .6rem}
+  p.answer .lab{color:var(--green)}
+  p.why{max-width:var(--measure);font-size:.92rem;color:var(--muted)}
+  p.why .lab{color:var(--gold)}
+  code{font-family:var(--mono);font-size:.86em;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:.06em .35em}
+  pre{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.05rem;overflow-x:auto;margin:.7rem 0}
+  pre code{background:none;border:none;padding:0;font-size:.82rem;line-height:1.6}
+  table{border-collapse:collapse;width:100%;font-size:.88rem;margin:.7rem 0}
+  th,td{border:1px solid var(--border);padding:.4rem .6rem;text-align:left}
+  th{background:var(--panel);font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:400}
+  ol,ul{margin:.3rem 0 .8rem 1.3rem}li{margin-bottom:.3rem}
+  footer.foot{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+  footer.foot a{color:var(--muted)}
+  @media print{
+    .topbar,nav.toc .noprint{display:none}
+    body{font-size:11.5pt;color:#000;background:#fff}
+    .wrap{max-width:none}
+    article.prob{break-inside:avoid;border-bottom:1px solid #ccc}
+    h2.cat-head{break-before:page;border-top:none}
+    a{color:#000;text-decoration:none}
+    p.answer{background:#f3f3f3}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="h">Skiena Ch. 2 <span>· solutions companion</span></span>
+  <span class="sp">
+    <a href="../">Course home</a>
+    <button id="printBtn" type="button">Print / Save PDF</button>
+    <button id="themeBtn" type="button">Dark</button>
+  </span>
+</div>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Companion booklet · Algorithm Analysis with Python</div>
+    <h1>Skiena Chapter 2 —<br>Every Problem, Explained Simply</h1>
+    <p class="lede">
+      Every exercise from Chapter 2 (“Algorithm Analysis”) of Steven Skiena's
+      <em>The Algorithm Design Manual</em>, restated in plain words and worked out step by step
+      with tiny numbers. Nothing here assumes more than the Python taught in the first few weeks
+      of the course. Where a textbook would write a proof, we tell the story instead.
+    </p>
+    <div class="legend">
+      <span class="pill">~50 problems</span>
+      <span class="pill">no jargon left unexplained</span>
+      <span class="pill">print-friendly</span>
+      <span class="pill">answers in green</span>
+    </div>
+    <p style="margin-top:1.1rem"><a href="Skiena_Ch2_Explained_Simply.pdf" style="font-family:var(--mono);font-size:.82rem">&#8595; Download this booklet as a PDF</a></p>
+  </header>
+
+  <nav class="toc noprint" id="toc">
+    <h2>Jump to a section</h2>
+    <ul>
+      <li><a href="#cat-program-analysis">Program Analysis (2-1 – 2-6)</a></li>
+      <li><a href="#cat-big-oh">Big Oh Notation (2-7 – 2-24)</a></li>
+      <li><a href="#cat-ordering">Ordering &amp; Summation Growth (2-25 – 2-31)</a></li>
+      <li><a href="#cat-summations">Summations (2-32 – 2-38)</a></li>
+      <li><a href="#cat-logarithms">Logarithms (2-39 – 2-42)</a></li>
+      <li><a href="#cat-interview">Interview &amp; Puzzles (2-43 – 2-52)</a></li>
+      <li><a href="#cat-programming">Programming Challenges</a></li>
+    </ul>
+  </nav>
+
+<h2 class="cat-head" id="cat-program-analysis">Program Analysis</h2>
+
+<article class="prob" id="p2-1">
+  <h3>Problem 2-1 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> You are given a little function with three loops stacked inside each other. It counts something up in a variable called <code>r</code>. The question is: how big does <code>r</code> get compared to <code>n</code>, and how slow is the function as <code>n</code> grows?</p>
+  <div class="body">
+    <p>Here is the function written in Python so you can run it:</p>
+    <pre><code>def mystery(n):
+    r = 0
+    for i in range(1, n):              # i = 1, 2, ... up to n-1
+        for j in range(i + 1, n + 1):  # j = i+1 ... up to n
+            for k in range(1, j + 1):  # k = 1 ... up to j
+                r += 1
+    return r</code></pre>
+    <p>Do not stare at the letters. Just notice one thing: there are three loops, one inside the other, and each one runs a number of times that grows with <code>n</code>. That is the whole story.</p>
+    <p>Think of it like a counter that clicks once every time the innermost line runs. The outer loop runs about <code>n</code> times. Inside each of those, the middle loop runs about <code>n</code> times. Inside each of those, the inner loop runs up to about <code>n</code> times. So the clicks pile up like <code>n</code> times <code>n</code> times <code>n</code>.</p>
+    <p>Let us actually count for a tiny case, <code>n = 5</code>. If you run the function you get <code>r = 40</code>. For <code>n = 10</code> you get <code>r = 330</code>. For <code>n = 20</code> you get <code>r = 2660</code>.</p>
+    <p>Now watch what happens each time we double <code>n</code>. From 40 to 330 is about 8 times bigger. From 330 to 2660 is again about 8 times bigger. So doubling the input makes the work jump by 8. And 8 is just 2 multiplied by itself three times (2 x 2 x 2 = 8), which is the fingerprint of "three loops deep".</p>
+    <p>When the work grows like <code>n</code> times <code>n</code> times <code>n</code>, we write that as <strong>O(n&sup3;)</strong>, said "oh of n cubed". In other words, if you make the list ten times longer, the function does roughly a thousand times more work (because 10 x 10 x 10 = 1000).</p>
+    <p>One more note: there is no early <code>return</code> and no <code>if</code> that skips work, so the loops always run all the way through. That means the slowest case and the fastest case are the same.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The value <code>r</code> is a cubic polynomial in <code>n</code> (a formula whose biggest piece is <code>n&sup3;</code>), and the running time is <strong>O(n&sup3;)</strong>. Doubling <code>n</code> multiplies the work by about 8.</p>
+  <p class="why"><span class="lab">Why it matters</span> Whenever you see three loops nested inside each other over the same data, you can call it O(n&sup3;) on sight and know it will crawl on large inputs.</p>
+</article>
+
+<article class="prob" id="p2-2">
+  <h3>Problem 2-2 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Another three-loop function that counts up in <code>r</code>. This one looks trickier because the innermost loop's start and stop both move around. The question is the same: what does <code>r</code> come out to, and how slow is it?</p>
+  <div class="body">
+    <p>Here it is in Python:</p>
+    <pre><code>def pesky(n):
+    r = 0
+    for i in range(1, n + 1):              # i = 1 ... n
+        for j in range(1, i + 1):          # j = 1 ... i
+            for k in range(j, i + j + 1):  # k = j ... i+j
+                r += 1
+    return r</code></pre>
+    <p>The scary-looking part is the inner loop: <code>k</code> goes from <code>j</code> up to <code>i + j</code>. So how many numbers is that? Count them: from <code>j</code> to <code>i + j</code> the count is <code>(i + j) - j + 1</code>. The two <code>j</code>s cancel out, leaving just <code>i + 1</code>.</p>
+    <p>So here is the nice surprise: the inner loop always runs <code>i + 1</code> times, no matter what <code>j</code> is. The wobbly start and stop were a distraction. The length never depended on <code>j</code> at all.</p>
+    <p>Now it is just three loops that all grow with <code>n</code>, so again the work piles up like <code>n</code> times <code>n</code> times <code>n</code>. That is cubic.</p>
+    <p>Let us check with tiny numbers. The tidy formula for this one turns out to be <code>n(n+1)(n+2)/3</code>. For <code>n = 5</code> that is 5 x 6 x 7 / 3 = 70. And if you run <code>pesky(5)</code>, you get exactly 70. For <code>n = 10</code> both give 440. For <code>n = 20</code> both give 3080. So the counting and the formula agree perfectly.</p>
+    <p>You do not need to memorise that formula. Just notice it multiplies three things that each grow like <code>n</code> (roughly <code>n</code> times <code>n</code> times <code>n</code>, divided by 3). The divide-by-3 is a fixed shrink that does not change the shape, so the shape is still cubic.</p>
+    <p>So the running time is <strong>O(n&sup3;)</strong>, which means ten times the input is about a thousand times the work.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The inner loop always runs <code>i + 1</code> times, so <code>pesky(n)</code> returns <code>n(n+1)(n+2)/3</code>, a cubic polynomial, and its running time is <strong>O(n&sup3;)</strong>.</p>
+  <p class="why"><span class="lab">Why it matters</span> Messy-looking loop bounds often simplify to something clean once you count "how many numbers is that?" &mdash; do the subtraction before you panic.</p>
+</article>
+
+<article class="prob" id="p2-3">
+  <h3>Problem 2-3 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> This one has <em>four</em> loops nested inside each other, with some ugly-looking bounds. You are asked how many times the counter <code>r</code> goes up, and how slow the whole thing is.</p>
+  <div class="body">
+    <p>Here is the code as a runnable function:</p>
+    <pre><code>def prestiferous(n):
+    r = 0
+    for i in range(1, n + 1):
+        for j in range(1, i + 1):
+            for k in range(j, i + j + 1):
+                for l in range(1, (i + j - k) + 1):
+                    r += 1
+    return r</code></pre>
+    <p>Ignore the messy bounds completely. Just count the loops: there are <strong>four</strong>, one inside the other, and each one runs a number of times that is at most about <code>n</code>. So the work piles up like <code>n</code> times <code>n</code> times <code>n</code> times <code>n</code> &mdash; four <code>n</code>s multiplied together.</p>
+    <p>The way to check "four <code>n</code>s deep" is the doubling test. If the work really grows like <code>n&#8308;</code>, then doubling <code>n</code> should multiply the count by about 2 x 2 x 2 x 2 = 16.</p>
+    <p>Run the counter and watch:</p>
+    <pre><code>prev = None
+for n in [5, 10, 20, 40, 80]:
+    r = prestiferous(n)
+    ratio = "-" if prev is None else f"{r / prev:.2f}x"
+    print(f"n={n:&gt;3}  r={r:&gt;12,}  ratio={ratio}")
+    prev = r</code></pre>
+    <p>The output climbs like this: at <code>n = 10</code> the ratio is about 12x, at <code>n = 20</code> about 13.8x, at <code>n = 40</code> about 14.8x, at <code>n = 80</code> about 15.4x. In other words, each doubling multiplies the work by a number creeping steadily up toward 16.</p>
+    <p>It approaches 16 from below (rather than sitting exactly on it) because at small sizes the smaller pieces of the formula still count a little. But the trend is unmistakable: this is 16-per-doubling, which is the signature of four loops deep.</p>
+    <p>Sixteen-per-doubling is what we write as <strong>O(n&#8308;)</strong>, said "oh of n to the fourth". Ten times the input means about ten thousand times the work.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The counter runs about <code>n&#8308;</code> times, so the running time is <strong>O(n&#8308;)</strong>. Doubling <code>n</code> multiplies the work by about 16.</p>
+  <p class="why"><span class="lab">Why it matters</span> Each extra nested loop over the data adds one more factor of <code>n</code>, and O(n&#8308;) code becomes unusable very fast &mdash; a reason to avoid piling loops inside loops.</p>
+</article>
+
+<article class="prob" id="p2-4">
+  <h3>Problem 2-4 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Three loops nested inside each other again, with awkward starting points that depend on the earlier counters. How many times does <code>r</code> go up, and how slow is it in the worst case?</p>
+  <div class="body">
+    <p>The function:</p>
+    <pre><code>def conundrum(n):
+    r = 0
+    for i in range(1, n + 1):
+        for j in range(i + 1, n + 1):
+            for k in range(i + j - 1, n + 1):
+                r += 1
+    return r</code></pre>
+    <p>Same trick as before: do not fight the awkward starting points. Just count the loops. There are <strong>three</strong>, nested, and each one runs over a stretch that is at worst about <code>n</code> long. Three loops each about <code>n</code> long gives about <code>n</code> times <code>n</code> times <code>n</code>.</p>
+    <p>The odd starting points (like <code>i + j - 1</code>) only make each loop a bit shorter &mdash; they chop off a fixed fraction of the work. But cutting the work by a fixed fraction does not change the shape, it just makes it smaller. So the shape is still cubic.</p>
+    <p>The doubling test settles it. If it is really cubic, doubling <code>n</code> should multiply the count by about 2 x 2 x 2 = 8:</p>
+    <pre><code>prev = None
+for n in [10, 20, 40, 80, 160]:
+    r = conundrum(n)
+    ratio = "-" if prev is None else f"{r / prev:.2f}x"
+    print(f"n={n:&gt;3}  r={r:&gt;10,}  ratio={ratio}")
+    prev = r</code></pre>
+    <p>The ratios come out about 7.5x, then 7.7x, then 7.9x, then 7.9x &mdash; settling toward 8. That gentle climb toward 8 is exactly what cubic growth looks like, and we did not even need a stopwatch to see it.</p>
+    <p>So the running time is <strong>O(n&sup3;)</strong>: ten times the input, about a thousand times the work.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The counter runs about <code>n&sup3;</code> times, so the worst-case running time is <strong>O(n&sup3;)</strong>. Doubling <code>n</code> multiplies the work by about 8.</p>
+  <p class="why"><span class="lab">Why it matters</span> Shrinking the loop bounds by a constant fraction never rescues you from the class &mdash; three nested loops over the data are cubic no matter where they start.</p>
+</article>
+
+<article class="prob" id="p2-5">
+  <h3>Problem 2-5 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> A polynomial is just a sum like <code>a&#8320; + a&#8321;x + a&#8322;x&sup2; + ...</code> &mdash; each term is a number times a power of <code>x</code>. To work out its value you have to do some multiplying and adding. The question has three parts: (a) how many multiplications and additions does the obvious method do in the worst case; (b) how many multiplications on average; (c) can we do it with fewer?</p>
+  <div class="body">
+    <p>Here is the obvious method. It builds each power of <code>x</code> as it goes:</p>
+    <pre><code>def evaluate_naive(a, x):
+    # a is the list of numbers in front: a[0], a[1], ..., a[n]
+    n = len(a) - 1
+    p = a[0]
+    xpower = 1
+    for i in range(1, n + 1):
+        xpower = x * xpower       # one multiplication
+        p = p + a[i] * xpower     # one multiplication, one addition
+    return p</code></pre>
+    <p><strong>(a) Worst case.</strong> Just count the arithmetic inside the loop. The line <code>xpower = x * xpower</code> is one multiply. The line <code>p = p + a[i] * xpower</code> is one multiply (<code>a[i] * xpower</code>) and one add. So every trip around the loop costs <em>two</em> multiplies and <em>one</em> add. The loop runs <code>n</code> times. So the totals are <strong>2n multiplications and n additions</strong>.</p>
+    <p><strong>(b) Average case.</strong> Here is the quiet insight. Look at the loop: there is no <code>if</code>, no <code>break</code>, nothing that changes based on the actual numbers. The loop always runs the same <code>n</code> times and always does the same work each time. When the work never depends on the data, the average case cannot be any different from the worst case. So the average is also <strong>2n multiplications</strong>.</p>
+    <p><strong>(c) Can we do better? Yes.</strong> The waste is that first multiply, the one that keeps rebuilding <code>xpower</code> from scratch. There is a smarter method called <strong>Horner's rule</strong>. Instead of building powers, it starts from the top number and folds one number in at a time:</p>
+    <pre><code>def evaluate_horner(a, x):
+    n = len(a) - 1
+    p = a[n]                       # start from the top number
+    for i in range(n - 1, -1, -1): # i = n-1, n-2, ..., 0
+        p = p * x + a[i]           # one multiplication, one addition
+    return p</code></pre>
+    <p>Now the loop body is a single <code>p * x + a[i]</code>: <strong>one multiply and one add per trip</strong>, over <code>n</code> trips. That is <strong>n multiplications and n additions</strong>. The additions are the same as before, but the multiplications have been cut in half, from <code>2n</code> down to <code>n</code>.</p>
+    <p>Let us see both give the same answer on a tiny example. Take the numbers <code>[2, -3, 1, 4]</code> (which means the polynomial <code>2 - 3x + x&sup2; + 4x&sup3;</code>, so <code>n = 3</code>) and plug in <code>x = 2</code>. Both methods return 32. But the obvious method used 6 multiplies (that is 2n = 2 x 3), while Horner used only 3 (that is n = 3). Same answer, half the multiplying.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) The obvious method does <strong>2n multiplications and n additions</strong> in the worst case. (b) The average is also <strong>2n multiplications</strong>, because the loop never branches on the data, so average equals worst. (c) Yes &mdash; <strong>Horner's rule</strong> does it with only <strong>n multiplications and n additions</strong>, halving the multiplications.</p>
+  <p class="why"><span class="lab">Why it matters</span> The same result can often be computed with far less work just by reorganising the arithmetic &mdash; Horner's rule is the standard, faster way every calculator and library evaluates polynomials.</p>
+</article>
+
+<article class="prob" id="p2-6">
+  <h3>Problem 2-6 <span class="tag">Program Analysis</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Here is the usual way to find the biggest value in a list: remember the first item, then walk through the rest and keep whatever is bigger. You are asked to argue that this really does find the biggest, for <em>any</em> list &mdash; not just to trust it, but to explain why it can never go wrong.</p>
+  <div class="body">
+    <p>The code:</p>
+    <pre><code>m = A[0]                       # current champion
+for i in range(1, len(A)):
+    if A[i] &gt; m:
+        m = A[i]               # a bigger value takes the title
+print(m)                       # claim: this is the biggest</code></pre>
+    <p>Think of it as a sports tournament. <code>m</code> is the current champion &mdash; the biggest value we have seen so far. We start by crowning the first item as champion. Then each new item steps up as a challenger. If the challenger is bigger, it becomes the new champion. If not, the old champion keeps the belt.</p>
+    <p>To prove this always works, we lean on one simple sentence that stays true the whole way through. (A sentence that stays true through every loop trip has a name: a <em>loop invariant</em>.) Ours is:</p>
+    <p><em>After we have looked at the first k items, <code>m</code> holds the biggest of those k.</em></p>
+    <p>If that sentence is still true at the very end &mdash; when we have looked at every item &mdash; then <code>m</code> must hold the biggest of the whole list. So all we have to do is show it can never become false. Two little checks do it.</p>
+    <p><strong>The start.</strong> Before the loop we set <code>m = A[0]</code>. With just one item looked at, the biggest of that one item is obviously itself. So the sentence is true at the start.</p>
+    <p><strong>Each step keeps it true.</strong> Suppose the sentence is true after <code>k</code> items, so <code>m</code> is the biggest of the first <code>k</code>. Now the next item, <code>A[k]</code>, steps up. Only two things can happen:</p>
+    <ul>
+      <li>The newcomer is bigger &mdash; the <code>if</code> fires, <code>m</code> becomes <code>A[k]</code>, and since it beat the old champion (which had already beaten everyone before it), <code>m</code> is now the biggest of all <code>k + 1</code> items.</li>
+      <li>The newcomer is not bigger &mdash; we leave <code>m</code> alone. It is still the biggest of the first <code>k</code>, and those were all at least as big as the newcomer, so <code>m</code> is still the biggest of all <code>k + 1</code>.</li>
+    </ul>
+    <p>Either way the sentence survives the step. So it is true after one item, and each trip carries it safely from <code>k</code> items to <code>k + 1</code> items. Therefore it is still true after the last item &mdash; which means the <code>m</code> we print really is the biggest in the whole list.</p>
+    <p>Trace it once by hand on a tiny list, say <code>[3, 7, 2]</code>: champion starts at 3, then 7 beats it (champion becomes 7), then 2 loses (champion stays 7). Out comes 7, the biggest. That is exactly the running-champion argument, just done with real numbers.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The loop keeps the running-champion sentence "<code>m</code> is the biggest seen so far" true at every step: it is true after the first item, and each trip preserves it, so after the last item <code>m</code> is the biggest of the whole list. The algorithm is correct.</p>
+  <p class="why"><span class="lab">Why it matters</span> The "one sentence that stays true every loop" idea is how programmers convince themselves (and each other) that a loop is right, instead of just hoping it is.</p>
+</article>
+
+<h2 class="cat-head" id="cat-big-oh">Big Oh Notation</h2>
+
+<article class="prob" id="bigoh-intro">
+  <h3>First, the five words</h3>
+  <div class="body">
+    <p>All of Big-O is about one question: <em>as the input gets bigger, how fast does the work grow?</em> Not the exact number of steps &mdash; just the growth. Here are the five symbols in plain words. Whenever you see one, read the plain words instead.</p>
+    <table>
+      <thead><tr><th>Symbol</th><th>Say it as</th><th>Everyday meaning</th></tr></thead>
+      <tbody>
+        <tr><td>O</td><td>Big Oh</td><td>grows no faster than &mdash; a <strong>ceiling</strong></td></tr>
+        <tr><td>&Omega;</td><td>Big Omega</td><td>grows no slower than &mdash; a <strong>floor</strong></td></tr>
+        <tr><td>&Theta;</td><td>Big Theta</td><td>grows at the <strong>same rate</strong> (a ceiling and a floor at the same height)</td></tr>
+        <tr><td>o</td><td>little oh</td><td><strong>strictly slower</strong> (below, and never catches up)</td></tr>
+        <tr><td>&omega;</td><td>little omega</td><td><strong>strictly faster</strong> (above, and pulls away)</td></tr>
+      </tbody>
+    </table>
+    <p>Two handy facts that come up again and again:</p>
+    <ul>
+      <li><strong>&Theta; = O and &Omega; together.</strong> If something is both a ceiling and a floor, it pins the rate exactly.</li>
+      <li><strong>Big-O ignores constant factors and smaller pieces.</strong> <code>5n</code>, <code>n</code>, and <code>1000n</code> all count as the same: linear. And in <code>n&sup2; + n</code>, the little <code>+ n</code> does not matter &mdash; only the biggest piece, <code>n&sup2;</code>, counts.</li>
+    </ul>
+    <h4>The growth ladder (your everyday tool)</h4>
+    <p>Almost every problem in this chapter is solved by this one picture. It lists common functions from <em>slowest-growing</em> to <em>fastest-growing</em>. The symbol <code>&Lt;</code> means &ldquo;grows slower than&rdquo;.</p>
+    <p style="font-family:monospace" class="ladder">1 &nbsp;&Lt;&nbsp; log n &nbsp;&Lt;&nbsp; &radic;n &nbsp;&Lt;&nbsp; n &nbsp;&Lt;&nbsp; n log n &nbsp;&Lt;&nbsp; n&sup2; &nbsp;&Lt;&nbsp; n&sup3; &nbsp;&Lt;&nbsp; 2&#8319; &nbsp;&Lt;&nbsp; 3&#8319; &nbsp;&Lt;&nbsp; n!</p>
+    <p><strong>The recipe for almost every true/false or relationship question:</strong> replace each side by where it sits on the ladder, then compare. If the left side is lower on the ladder, it is <code>O</code> of the right. If higher, it is <code>&Omega;</code>. If they land on the same rung, it is <code>&Theta;</code>.</p>
+    <p>A few ladder facts worth memorising, because they settle most questions instantly:</p>
+    <ul>
+      <li>Any <strong>power of n</strong> (even tiny <code>&radic;n</code>) beats <strong>any logarithm</strong>.</li>
+      <li>Any <strong>exponential</strong> (like <code>2&#8319;</code>) beats <strong>any polynomial</strong> (like <code>n&sup3;</code> or <code>n&sup1;&#8304;&#8304;</code>).</li>
+      <li><strong>n!</strong> beats every fixed-base exponential.</li>
+      <li>Bases matter for exponentials: <code>2&#8319; &Lt; 3&#8319;</code>. But adding a constant to <code>n</code> does <em>not</em> matter: <code>2&#8319;&#8314;&sup1; = 2&middot;2&#8319;</code> is the same rate as <code>2&#8319;</code>.</li>
+    </ul>
+  </div>
+</article>
+
+<article class="prob" id="p2-7">
+  <h3>Problem 2-7 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Two yes/no questions. (a) Does <code>2&#8319;&#8314;&sup1;</code> (that is <code>2</code> to the power <code>n+1</code>) grow no faster than <code>2&#8319;</code>? (b) Does <code>2&sup2;&#8319;</code> (that is <code>2</code> to the power <code>2n</code>) grow no faster than <code>2&#8319;</code>?</p>
+  <div class="body">
+    <p><strong>(a)</strong> Rewrite it: <code>2&#8319;&#8314;&sup1; = 2 &middot; 2&#8319;</code>. That is just <code>2&#8319;</code> with a <code>2</code> stuck on the front &mdash; a constant factor. Big-O throws away constant factors, so this stays the same rate. At <code>n=10</code>: <code>2&#8319;&#8314;&sup1; = 2048</code> and <code>2&#8319; = 1024</code>. Always exactly double, never runs away.</p>
+    <p><strong>(b)</strong> Rewrite it: <code>2&sup2;&#8319; = (2&#8319;)&sup2; = 4&#8319;</code>. That is a bigger base, <code>4</code> instead of <code>2</code>. Their ratio is <code>4&#8319; / 2&#8319; = 2&#8319;</code>, which itself shoots off to infinity. No fixed number <code>c</code> can hold <code>4&#8319;</code> below <code>c &middot; 2&#8319;</code>. At <code>n=10</code>: <code>4&#8319; = 1,048,576</code> versus <code>2&#8319; = 1024</code> &mdash; already 1024 times bigger, and the gap keeps widening. Doubling the <em>exponent</em> changes the base; it is not a constant factor.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) True. (b) False.</p>
+  <p class="why"><span class="lab">Why it matters</span> It teaches the single most common trap: a constant on the exponent (<code>+1</code>) is harmless, but multiplying the exponent (<code>2n</code>) secretly changes the base and breaks the bound.</p>
+</article>
+
+<article class="prob" id="p2-8">
+  <h3>Problem 2-8 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each pair of functions <code>f</code> and <code>g</code>, is <code>f</code> a ceiling (<code>O</code>), a floor (<code>&Omega;</code>), or exactly the same rate (<code>&Theta;</code>) as <code>g</code>? Just read each pair off the ladder. (When both O and &Omega; hold, the honest answer is &Theta;.)</p>
+  <div class="body">
+    <table>
+      <thead><tr><th></th><th>f</th><th>g</th><th>Verdict</th><th>Plain reason</th></tr></thead>
+      <tbody>
+        <tr><td>(a)</td><td><code>log(n&sup2;)</code></td><td><code>log n + 5</code></td><td>&Theta;</td><td><code>log(n&sup2;) = 2 log n</code>; both are just <code>log n</code> up to a constant &mdash; same rung</td></tr>
+        <tr><td>(b)</td><td><code>&radic;n</code></td><td><code>log(n&sup2;) = 2 log n</code></td><td>&Omega;</td><td>a power of n beats any log, so <code>f</code> is above <code>g</code></td></tr>
+        <tr><td>(c)</td><td><code>(log n)&sup2;</code></td><td><code>log n</code></td><td>&Omega;</td><td>squaring a growing thing makes it grow faster</td></tr>
+        <tr><td>(d)</td><td><code>n</code></td><td><code>(log n)&sup2;</code></td><td>&Omega;</td><td>a plain power of n beats any power of a log</td></tr>
+        <tr><td>(e)</td><td><code>n log n + n</code></td><td><code>log n</code></td><td>&Omega;</td><td><code>n log n</code> sits far above <code>log n</code></td></tr>
+        <tr><td>(f)</td><td><code>10</code></td><td><code>log 10</code></td><td>&Theta;</td><td>both are fixed numbers &mdash; neither grows, same rung (the bottom)</td></tr>
+        <tr><td>(g)</td><td><code>2&#8319;</code></td><td><code>10 n&sup2;</code></td><td>&Omega;</td><td>an exponential beats any polynomial</td></tr>
+        <tr><td>(h)</td><td><code>2&#8319;</code></td><td><code>3&#8319;</code></td><td>O</td><td><code>2&#8319;</code> grows slower than <code>3&#8319;</code> (their ratio <code>(2/3)&#8319;</code> shrinks to 0)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) &Theta; &middot; (b) &Omega; &middot; (c) &Omega; &middot; (d) &Omega; &middot; (e) &Omega; &middot; (f) &Theta; &middot; (g) &Omega; &middot; (h) O.</p>
+  <p class="why"><span class="lab">Why it matters</span> It drills the ladder-reading skill you will lean on for every other problem in the chapter.</p>
+</article>
+
+<article class="prob" id="p2-9">
+  <h3>Problem 2-9 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each pair, which one is the ceiling of the other? Answer <code>f = O(g)</code> (f is the smaller/lower one), <code>g = O(f)</code> (g is the smaller one), or both (a tie, meaning &Theta;). Trick: simplify each function to its biggest piece, then compare on the ladder.</p>
+  <div class="body">
+    <table>
+      <thead><tr><th></th><th>f</th><th>g</th><th>Verdict</th><th>Plain reason</th></tr></thead>
+      <tbody>
+        <tr><td>(a)</td><td><code>(n&sup2; &minus; n)/2</code></td><td><code>6n</code></td><td><code>g = O(f)</code></td><td><code>f</code> is basically <code>n&sup2;/2</code> (quadratic); <code>g</code> is only linear, so <code>g</code> is the smaller</td></tr>
+        <tr><td>(b)</td><td><code>n + 2&radic;n</code></td><td><code>n&sup2;</code></td><td><code>f = O(g)</code></td><td><code>f</code> is basically <code>n</code>, well below <code>n&sup2;</code></td></tr>
+        <tr><td>(c)</td><td><code>n log n</code></td><td><code>n&radic;n / 2</code></td><td><code>f = O(g)</code></td><td><code>&radic;n</code> grows faster than <code>log n</code>, so <code>n&radic;n</code> beats <code>n log n</code></td></tr>
+        <tr><td>(d)</td><td><code>n + log n</code></td><td><code>&radic;n</code></td><td><code>g = O(f)</code></td><td><code>f</code> is basically <code>n</code>, above <code>&radic;n</code></td></tr>
+        <tr><td>(e)</td><td><code>2(log n)&sup2;</code></td><td><code>log n + 1</code></td><td><code>g = O(f)</code></td><td><code>(log n)&sup2;</code> grows faster than <code>log n</code></td></tr>
+        <tr><td>(f)</td><td><code>4n log n + n</code></td><td><code>(n&sup2; &minus; n)/2</code></td><td><code>f = O(g)</code></td><td><code>n log n</code> sits below <code>n&sup2;</code></td></tr>
+      </tbody>
+    </table>
+    <p>None of these pairs lands on the same rung, so there is no &Theta; tie here.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) g=O(f) &middot; (b) f=O(g) &middot; (c) f=O(g) &middot; (d) g=O(f) &middot; (e) g=O(f) &middot; (f) f=O(g).</p>
+  <p class="why"><span class="lab">Why it matters</span> Simplifying to the biggest piece before comparing is exactly how you read the running time of real code.</p>
+</article>
+
+<article class="prob" id="p2-10">
+  <h3>Problem 2-10 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that <code>n&sup3; &minus; 3n&sup2; &minus; n + 1</code> grows at the same rate as <code>n&sup3;</code> &mdash; that is, it is <code>&Theta;(n&sup3;)</code>.</p>
+  <div class="body">
+    <p><code>&Theta;(n&sup3;)</code> means &ldquo;trapped between two constant copies of <code>n&sup3;</code> once n is big&rdquo;. The clean trick: divide the whole thing by <code>n&sup3;</code> and watch it settle.</p>
+    <p style="font-family:monospace">(n&sup3; &minus; 3n&sup2; &minus; n + 1) / n&sup3; = 1 &minus; 3/n &minus; 1/n&sup2; + 1/n&sup3;</p>
+    <p>Each little fraction (<code>3/n</code>, <code>1/n&sup2;</code>, <code>1/n&sup3;</code>) shrinks to 0 as n grows, so the whole ratio settles near <strong>1</strong>. That means the expression is basically <code>n&sup3;</code> for large n &mdash; caught between, say, <code>0.5 n&sup3;</code> and <code>1 &middot; n&sup3;</code>. Quick check at <code>n=10</code>: the value is <code>1000 &minus; 300 &minus; 10 + 1 = 691</code>, and indeed <code>500 &le; 691 &le; 1000</code>. Two constant copies of <code>n&sup3;</code> trap it &mdash; that is the definition of &Theta;.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> It is <code>&Theta;(n&sup3;)</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> &ldquo;Divide by the top term and watch it settle near 1&rdquo; is the one move that proves any polynomial matches its highest power.</p>
+</article>
+
+<article class="prob" id="p2-11">
+  <h3>Problem 2-11 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that <code>n&sup2;</code> has <code>2&#8319;</code> as a ceiling &mdash; that is, <code>n&sup2; = O(2&#8319;)</code>.</p>
+  <div class="body">
+    <p>This is the headline ladder fact: an exponential eventually overtakes any polynomial and never looks back. To prove it we just need <em>one</em> constant <code>c</code> and a starting point <code>n&#8320;</code> so that <code>n&sup2; &le; c &middot; 2&#8319;</code> from there on. Watch the race:</p>
+    <table>
+      <thead><tr><th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>8</th><th>10</th></tr></thead>
+      <tbody>
+        <tr><td><code>n&sup2;</code></td><td>1</td><td>4</td><td>9</td><td>16</td><td>25</td><td>36</td><td>64</td><td>100</td></tr>
+        <tr><td><code>2&#8319;</code></td><td>2</td><td>4</td><td>8</td><td>16</td><td>32</td><td>64</td><td>256</td><td>1024</td></tr>
+      </tbody>
+    </table>
+    <p>At <code>n=3</code> the polynomial briefly leads (<code>9 &gt; 8</code>), but from <strong>n=4</strong> onward <code>2&#8319;</code> catches up and then pulls away for good. At <code>n=10</code> it is already ten times bigger, and the gap only grows. So with <code>c = 1</code> and <code>n&#8320; = 4</code> we have <code>n&sup2; &le; 2&#8319;</code> for all <code>n &ge; 4</code> &mdash; exactly what a ceiling needs.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> <code>n&sup2; = O(2&#8319;)</code>, shown by <code>c = 1</code>, <code>n&#8320; = 4</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> To prove an O bound you only need one <code>c</code> and one starting point &mdash; you do not have to win the race at the very beginning.</p>
+</article>
+
+<article class="prob" id="p2-12">
+  <h3>Problem 2-12 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each pair, find one positive number <code>c</code> so that <code>f(n) &le; c &middot; g(n)</code> for all <code>n &gt; 1</code>. The tactic every time: replace each small term of <code>f</code> by a copy of its biggest term, then compare with <code>g</code>.</p>
+  <div class="body">
+    <p><strong>(a)</strong> <code>f = n&sup2; + n + 1</code>, <code>g = 2n&sup3;</code>. For <code>n &gt; 1</code>, both <code>n</code> and <code>1</code> are at most <code>n&sup2;</code>, so <code>f &le; 3n&sup2;</code>. And <code>3n&sup2; &le; 4n&sup3; = 2 &middot; (2n&sup3;)</code>. So <strong>c = 2</strong> works.</p>
+    <p><strong>(b)</strong> <code>f = n&radic;n + n&sup2;</code> (that is <code>n&sup1;&middot;&#8309; + n&sup2;</code>), <code>g = n&sup2;</code>. For <code>n &gt; 1</code>, <code>n&sup1;&middot;&#8309; &le; n&sup2;</code>, so <code>f &le; n&sup2; + n&sup2; = 2n&sup2;</code>. So <strong>c = 2</strong>.</p>
+    <p><strong>(c)</strong> <code>f = n&sup2; &minus; n + 1</code>, <code>g = n&sup2;/2</code>. Since <code>&minus;n + 1 &le; 0</code> for <code>n &ge; 1</code>, we get <code>f &le; n&sup2; = 2 &middot; (n&sup2;/2)</code>. So <strong>c = 2</strong>.</p>
+    <p>Many other constants would also work &mdash; you only need to show one.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> <code>c = 2</code> works for all three: (a), (b), and (c).</p>
+  <p class="why"><span class="lab">Why it matters</span> It turns the abstract phrase &ldquo;there exists a constant c&rdquo; into a concrete, do-able hunt: bound every term, then pick a c.</p>
+</article>
+
+<article class="prob" id="p2-13">
+  <h3>Problem 2-13 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> The <strong>sum rule</strong>. If <code>f&#8321;</code> has ceiling <code>g&#8321;</code> and <code>f&#8322;</code> has ceiling <code>g&#8322;</code>, show that adding them keeps a ceiling: <code>f&#8321; + f&#8322; = O(g&#8321; + g&#8322;)</code>.</p>
+  <div class="body">
+    <p>Remember what a ceiling means: <code>f = O(g)</code> is just &ldquo;<code>f &le; c &middot; g</code> for big n&rdquo;. So we start with two facts:</p>
+    <p style="font-family:monospace">f&#8321; &le; c&#8321; &middot; g&#8321; &nbsp;&nbsp;and&nbsp;&nbsp; f&#8322; &le; c&#8322; &middot; g&#8322;</p>
+    <p>Add them straight down: <code>f&#8321; + f&#8322; &le; c&#8321; g&#8321; + c&#8322; g&#8322;</code>. Now let <code>c</code> be the bigger of <code>c&#8321;</code> and <code>c&#8322;</code>. Then the right side is at most <code>c(g&#8321; + g&#8322;)</code>. Done &mdash; the sum has ceiling <code>g&#8321; + g&#8322;</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> True: <code>f&#8321; + f&#8322; = O(g&#8321; + g&#8322;)</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> This is the rule that lets you analyse two code blocks one after another and just add their costs (then keep the bigger).</p>
+</article>
+
+<article class="prob" id="p2-14">
+  <h3>Problem 2-14 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> The same two rules (sum and product) but with the <strong>floor</strong> <code>&Omega;</code> instead of the ceiling <code>O</code>. Show that if <code>f&#8321; = &Omega;(g&#8321;)</code> and <code>f&#8322; = &Omega;(g&#8322;)</code>, then adding keeps a floor and multiplying keeps a floor.</p>
+  <div class="body">
+    <p>It is the exact same argument as 2-13 and 2-15, just with the inequalities flipped. A floor means <code>f &ge; c &middot; g</code> for big n. So:</p>
+    <ul>
+      <li><strong>Sum:</strong> add <code>f&#8321; &ge; c&#8321; g&#8321;</code> and <code>f&#8322; &ge; c&#8322; g&#8322;</code>; take the smaller of the two c's, and you get a floor on the sum.</li>
+      <li><strong>Product:</strong> multiply the two (everything positive) to get a floor on the product, with constant <code>c&#8321; c&#8322;</code>.</li>
+    </ul>
+    <p>And since <code>&Theta;</code> is just a ceiling and a floor together, both rules automatically hold for <code>&Theta;</code> too.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> True: the sum rule and product rule both hold for <code>&Omega;</code> (and therefore for <code>&Theta;</code>).</p>
+  <p class="why"><span class="lab">Why it matters</span> Floors combine just like ceilings, so &ldquo;same rate&rdquo; (&Theta;) survives adding and multiplying too.</p>
+</article>
+
+<article class="prob" id="p2-15">
+  <h3>Problem 2-15 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> The <strong>product rule</strong>. If <code>f&#8321;</code> has ceiling <code>g&#8321;</code> and <code>f&#8322;</code> has ceiling <code>g&#8322;</code>, show that multiplying them keeps a ceiling: <code>f&#8321; &middot; f&#8322; = O(g&#8321; &middot; g&#8322;)</code>.</p>
+  <div class="body">
+    <p>Start with the same two facts (all quantities positive):</p>
+    <p style="font-family:monospace">f&#8321; &le; c&#8321; &middot; g&#8321; &nbsp;&nbsp;and&nbsp;&nbsp; f&#8322; &le; c&#8322; &middot; g&#8322;</p>
+    <p>Multiply them together: <code>f&#8321; &middot; f&#8322; &le; (c&#8321; c&#8322;) &middot; g&#8321; &middot; g&#8322;</code>. The single constant <code>c&#8321; c&#8322;</code> does the whole job, so the product has ceiling <code>g&#8321; &middot; g&#8322;</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> True: <code>f&#8321; &middot; f&#8322; = O(g&#8321; &middot; g&#8322;)</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> This is why a loop that runs <code>O(g&#8321;)</code> times doing <code>O(g&#8322;)</code> work each pass costs the product <code>O(g&#8321; g&#8322;)</code> &mdash; the rule behind nested loops.</p>
+</article>
+
+<article class="prob" id="p2-16">
+  <h3>Problem 2-16 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Prove that any polynomial of degree <code>k</code> &mdash; something like <code>a&#8342;n&#8319; + &hellip; + a&#8321;n + a&#8320;</code> &mdash; has ceiling <code>n&#8319;</code>. In short: the highest power wins.</p>
+  <div class="body">
+    <p>This is the formal version of &ldquo;keep the highest power&rdquo;. Take any single term <code>a&#8341; n&#8339;</code> where <code>i &le; k</code>. Once <code>n &ge; 1</code>, a smaller power of n is no bigger than the top power, so <code>|a&#8341; n&#8339;| &le; |a&#8341;| &middot; n&#8319;</code>. Add up all the terms:</p>
+    <p style="font-family:monospace">|a&#8342;n&#8319; + &hellip; + a&#8320;| &le; (|a&#8342;| + &hellip; + |a&#8320;|) &middot; n&#8319;</p>
+    <p>The bracket <code>C = |a&#8342;| + &hellip; + |a&#8320;|</code> is just a fixed number &mdash; it does not depend on n. So the whole polynomial is at most <code>C &middot; n&#8319;</code>, which is exactly <code>O(n&#8319;)</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Any degree-<code>k</code> polynomial is <code>O(n&#8319;)</code>, with <code>c</code> = the sum of the sizes of the coefficients.</p>
+  <p class="why"><span class="lab">Why it matters</span> It justifies the habit you already have: read off a polynomial's running time by looking only at its biggest term.</p>
+</article>
+
+<article class="prob" id="p2-17">
+  <h3>Problem 2-17 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that shifting <code>n</code> by a constant does not change the growth rate: <code>(n + a)&#7495; = &Theta;(n&#7495;)</code> for any fixed <code>a</code> and any power <code>b &gt; 0</code>.</p>
+  <div class="body">
+    <p>Intuition first: when n is huge, adding a fixed number <code>a</code> barely nudges it. <code>1,000,000 + 7</code> is still, for growth purposes, a million. So <code>(n + a)</code> and <code>n</code> grow at the same rate, and raising both to the same power <code>b</code> keeps them matched. To confirm, look at the ratio:</p>
+    <p style="font-family:monospace">(n + a)&#7495; / n&#7495; = (1 + a/n)&#7495; &rarr; 1 &nbsp;as n grows</p>
+    <p>Because <code>a/n</code> shrinks to 0, the ratio settles at 1. So for big n the expression stays trapped between two fixed constants (say <code>&frac12; n&#7495;</code> and <code>2 n&#7495;</code>) &mdash; the sandwich that means &Theta;.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> <code>(n + a)&#7495; = &Theta;(n&#7495;)</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> It lets you drop &ldquo;+1&rdquo; and &ldquo;&minus;3&rdquo; kinds of shifts inside a running-time expression without a second thought.</p>
+</article>
+
+<article class="prob" id="p2-18">
+  <h3>Problem 2-18 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Line these functions up from slowest-growing to fastest-growing, and note any ties. (Problems 2-18 and 2-19 are the same skill: sorting functions by how fast they grow.)</p>
+  <div class="body">
+    <p>The list: <code>1</code>, <code>lg lg n</code>, <code>ln n</code>, <code>&radic;n</code>, <code>n</code>, <code>n lg n</code>, <code>n&sup2;</code>, <code>n&sup3;</code>, <code>2&#8319;</code>, <code>n!</code>. Just walk up the ladder, placing each one:</p>
+    <ol>
+      <li><code>1</code> &mdash; a constant; does not grow at all.</li>
+      <li><code>lg lg n</code> &mdash; the log <em>of</em> a log; grows unbelievably slowly, but still creeps up, so it beats the constant.</li>
+      <li><code>ln n</code> &mdash; a single log; above <code>lg lg n</code>. (<code>lg n</code> and <code>ln n</code> differ only by a constant factor, so they would <strong>tie</strong>.)</li>
+      <li><code>&radic;n</code> &mdash; a real power of n beats any log.</li>
+      <li><code>n</code> &mdash; linear, above <code>&radic;n</code>.</li>
+      <li><code>n lg n</code> &mdash; a shade above linear.</li>
+      <li><code>n&sup2;</code>, then <code>n&sup3;</code> &mdash; higher powers, in order.</li>
+      <li><code>2&#8319;</code> &mdash; exponential; beats every polynomial.</li>
+      <li><code>n!</code> &mdash; factorial; beats every fixed-base exponential.</li>
+    </ol>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Slowest &rarr; fastest: <code>1 &Lt; lg lg n &Lt; ln n &Lt; &radic;n &Lt; n &Lt; n lg n &Lt; n&sup2; &Lt; n&sup3; &Lt; 2&#8319; &Lt; n!</code> No ties among these (though <code>ln n</code> would tie with <code>lg n</code> if it appeared).</p>
+  <p class="why"><span class="lab">Why it matters</span> Sorting functions by growth is the whole point of the ladder &mdash; and the skill that lets you say which of two algorithms scales better.</p>
+</article>
+
+<article class="prob" id="p2-19">
+  <h3>Problem 2-19 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Same task as 2-18: sort a set of functions from slowest-growing to fastest-growing, marking ties. Skiena's own version packs in trickier functions, but the method is identical.</p>
+  <div class="body">
+    <p>The recipe never changes: <strong>simplify each function to its shape, then place it on the ladder.</strong> Two habits handle almost everything:</p>
+    <ul>
+      <li>Turn logs of powers into plain logs: <code>lg(n&#7495;) = b &middot; lg n</code>, which is just <code>lg n</code> up to a constant &mdash; same rung.</li>
+      <li>Turn exponentials into a base comparison: <code>2&#8319;</code> is below <code>3&#8319;</code> is below <code>n!</code>.</li>
+    </ul>
+    <p>Then compare rung by rung, exactly as in 2-18. Any two functions that differ only by a constant factor (like <code>lg n</code> and <code>ln n</code>, or <code>n</code> and <code>2n</code>) land on the same rung &mdash; that is a <strong>tie</strong> (&Theta;).</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Same ordering rule as 2-18: place each function on the ladder from slowest to fastest, and any two that differ by only a constant factor are tied (&Theta;).</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows the ladder handles messy-looking functions too &mdash; you just tidy each one first, then read its rung.</p>
+</article>
+
+<article class="prob" id="p2-20">
+  <h3>Problem 2-20 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each condition, either give two functions <code>f</code> and <code>g</code> that satisfy it, or explain why it is impossible. Remember: little-o means &ldquo;strictly slower&rdquo;, &Theta; means &ldquo;same rate&rdquo;, O means &ldquo;ceiling&rdquo;, &Omega; means &ldquo;floor&rdquo;.</p>
+  <div class="body">
+    <p><strong>(a)</strong> Want <code>f = o(g)</code> (strictly slower) and <code>f &ne; &Theta;(g)</code> (not the same rate). <strong>Easy.</strong> Take <code>f = n</code>, <code>g = n&sup2;</code>. n is strictly slower than n&sup2;, and they are clearly not the same rate. In fact &ldquo;strictly slower&rdquo; always rules out &ldquo;same rate&rdquo;, so any little-o pair works.</p>
+    <p><strong>(b)</strong> Want <code>f = &Theta;(g)</code> and <code>f = o(g)</code> at once. <strong>Impossible.</strong> &Theta; says &ldquo;exactly the same rate&rdquo;; little-o says &ldquo;strictly slower&rdquo;. Nothing can be both exactly as fast and strictly slower.</p>
+    <p><strong>(c)</strong> Want <code>f = &Theta;(g)</code> but <code>f &ne; O(g)</code>. <strong>Impossible.</strong> &Theta; is a ceiling and a floor together, so <code>f = &Theta;(g)</code> already includes <code>f = O(g)</code>. You cannot keep the first and drop the second.</p>
+    <p><strong>(d)</strong> Want <code>f = &Omega;(g)</code> (floor) but <code>f &ne; O(g)</code> (no ceiling). <strong>Easy.</strong> Take <code>f = n&sup2;</code>, <code>g = n</code>. n&sup2; grows at least as fast as n (floor holds), but it is not capped by n (no ceiling). That is the picture of a strict lower bound.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) possible, e.g. <code>f = n, g = n&sup2;</code> &middot; (b) impossible &middot; (c) impossible &middot; (d) possible, e.g. <code>f = n&sup2;, g = n</code>.</p>
+  <p class="why"><span class="lab">Why it matters</span> It makes you feel how the five words fit together &mdash; which combinations are contradictions and which are everyday examples.</p>
+</article>
+
+<article class="prob" id="p2-21">
+  <h3>Problem 2-21 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> True or false for each claim, with a one-line reason from the ladder. Recipe: simplify each side to its biggest piece, then check whether the left really is a ceiling of the right.</p>
+  <div class="body">
+    <table>
+      <thead><tr><th></th><th>Claim</th><th>Verdict</th><th>Plain reason</th></tr></thead>
+      <tbody>
+        <tr><td>(a)</td><td><code>2n&sup2; + 1 = O(n&sup2;)</code></td><td>True</td><td>constant factor plus a tiny term; still <code>n&sup2;</code></td></tr>
+        <tr><td>(b)</td><td><code>&radic;n = O(log n)</code></td><td>False</td><td><code>&radic;n</code> grows faster than <code>log n</code>, not slower</td></tr>
+        <tr><td>(c)</td><td><code>log n = O(&radic;n)</code></td><td>True</td><td>a log sits below any power of n</td></tr>
+        <tr><td>(d)</td><td><code>n&sup2;(1 + &radic;n) = O(n&sup2; log n)</code></td><td>False</td><td>left side is about <code>n&sup2;&middot;&radic;n = n&sup2;&middot;&#8309;</code>, above <code>n&sup2; log n</code></td></tr>
+        <tr><td>(e)</td><td><code>3n&sup2; + &radic;n = O(n&sup2;)</code></td><td>True</td><td><code>&radic;n</code> is a tiny term; <code>n&sup2;</code> dominates</td></tr>
+        <tr><td>(f)</td><td><code>&radic;n log n = O(n)</code></td><td>True</td><td><code>&radic;n &middot; log n</code> grows slower than <code>&radic;n &middot; &radic;n = n</code></td></tr>
+        <tr><td>(g)</td><td><code>log n = O(n<sup>&minus;1/2</sup>)</code></td><td>False</td><td><code>log n</code> grows to infinity while <code>n<sup>&minus;1/2</sup> = 1/&radic;n</code> shrinks to 0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) True &middot; (b) False &middot; (c) True &middot; (d) False &middot; (e) True &middot; (f) True &middot; (g) False.</p>
+  <p class="why"><span class="lab">Why it matters</span> These are the exact patterns (drop small terms, drop constants, compare rungs) you will apply every time you eyeball a running time.</p>
+</article>
+
+<article class="prob" id="p2-22">
+  <h3>Problem 2-22 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> State the tightest single relationship of <code>f</code> to <code>g</code>: is <code>f</code> a ceiling (O), a floor (&Omega;), the same rate (&Theta;), or none? Simplify each to its biggest piece first.</p>
+  <div class="body">
+    <p><strong>(a)</strong> <code>f = n&sup2; + 3n + 4</code>, <code>g = 6n + 7</code>. <code>f</code> is quadratic, <code>g</code> is linear, so <code>f</code> grows faster: <code>f = &Omega;(g)</code> (and definitely not a ceiling).</p>
+    <p><strong>(b)</strong> <code>f = n&radic;n = n&sup1;&middot;&#8309;</code>, <code>g = n&sup2; &minus; n</code>. <code>g</code> is basically <code>n&sup2;</code>, above <code>n&sup1;&middot;&#8309;</code>, so <code>f</code> is the smaller one: <code>f = O(g)</code>.</p>
+    <p><strong>(c)</strong> <code>f = 2&#8319; &minus; n&sup2;</code>, <code>g = n&#8308; + n&sup2;</code>. The <code>2&#8319;</code> completely swamps the <code>&minus;n&sup2;</code> (a rounding error beside it), so <code>f</code> grows like <code>2&#8319;</code> &mdash; an exponential, above the polynomial <code>g</code>: <code>f = &Omega;(g)</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) &Omega; &middot; (b) O &middot; (c) &Omega;.</p>
+  <p class="why"><span class="lab">Why it matters</span> It trains you to ignore the noise (small and subtracted terms) and judge by the one dominant piece.</p>
+</article>
+
+<article class="prob" id="p2-23">
+  <h3>Problem 2-23 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> A yes/no quiz about what Big-O really promises. Key idea: <code>O</code> is only a <em>ceiling</em> on the worst case &mdash; it never stops an algorithm from being faster. <code>&Theta;</code> on the worst case is stronger: it says the worst case really does reach that height.</p>
+  <div class="body">
+    <p><strong>(a)</strong> Worst case <code>O(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on <em>some</em> inputs? <strong>Yes.</strong> Some inputs (like a best case) can finish far faster; the ceiling only caps the slowest.</p>
+    <p><strong>(b)</strong> Worst case <code>O(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on <em>all</em> inputs? <strong>Yes.</strong> <code>O(n&sup2;)</code> is only an upper bound; an algorithm that is actually linear everywhere is still (loosely) <code>O(n&sup2;)</code>. O does not claim the bound is tight.</p>
+    <p><strong>(c)</strong> Worst case <code>&Theta;(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on <em>some</em> inputs? <strong>Yes.</strong> &Theta; pins the <em>worst</em> case at quadratic, but the best case (some inputs) can still be linear.</p>
+    <p><strong>(d)</strong> Worst case <code>&Theta;(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on <em>all</em> inputs? <strong>No.</strong> A &Theta;(n&sup2;) worst case means some inputs genuinely force quadratic work, so not every input can be linear.</p>
+    <p><strong>(e)</strong> Is <code>f(n) = &Theta;(n&sup2;)</code> when <code>f = 100n&sup2;</code> for even n and <code>f = 20n&sup2; &minus; n&middot;log&sup2;n</code> for odd n? <strong>Yes.</strong> Either way, every value sits between constant copies of <code>n&sup2;</code> (roughly between <code>19n&sup2;</code> and <code>100n&sup2;</code> for large n), so the whole function is &Theta;(n&sup2;) no matter which branch it takes.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) yes &middot; (b) yes &middot; (c) yes &middot; (d) no &middot; (e) yes.</p>
+  <p class="why"><span class="lab">Why it matters</span> It fixes the most common misreading: O is a promise of &ldquo;no worse than&rdquo;, not &ldquo;always exactly this&rdquo; &mdash; only &Theta; makes the tight claim.</p>
+</article>
+
+<article class="prob" id="p2-24">
+  <h3>Problem 2-24 <span class="tag">Big Oh</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Yes, no, or can't-tell for each claim about exponentials and their logs. Handy fact: <code>log(a&#8319;) = n &middot; log a</code> &mdash; taking a log turns an exponential into a plain multiple of n.</p>
+  <div class="body">
+    <p><strong>(a)</strong> Is <code>3&#8319; = O(2&#8319;)</code>? <strong>No.</strong> The ratio <code>3&#8319; / 2&#8319; = (3/2)&#8319; = 1.5&#8319;</code> races off to infinity, so no constant can cap it. Different bases are not a constant factor apart.</p>
+    <p><strong>(b)</strong> Is <code>log(3&#8319;) = O(log(2&#8319;))</code>? <strong>Yes.</strong> Take logs: <code>log(3&#8319;) = n log 3</code> and <code>log(2&#8319;) = n log 2</code>. Their ratio is the fixed number <code>log 3 / log 2 &asymp; 1.585</code> &mdash; a constant factor &mdash; so each is a ceiling of the other. Taking the log tamed the exponential into a linear function of n.</p>
+    <p><strong>(c)</strong> Is <code>3&#8319; = &Omega;(2&#8319;)</code>? <strong>Yes.</strong> A floor asks whether <code>3&#8319;</code> grows <em>at least</em> as fast as <code>2&#8319;</code> &mdash; and it grows much faster, so certainly at least as fast.</p>
+    <p><strong>(d)</strong> Is <code>log(3&#8319;) = &Omega;(log(2&#8319;))</code>? <strong>Yes.</strong> Same constant-ratio picture as (b): <code>n log 3</code> versus <code>n log 2</code>. A constant factor apart means each is both a ceiling and a floor of the other.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) no &middot; (b) yes &middot; (c) yes &middot; (d) yes.</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows the magic of logs: two exponentials that are worlds apart become mere constant-factor neighbours once you take their logarithms.</p>
+</article>
+
+<h2 class="cat-head" id="cat-ordering">Ordering &amp; Summation Growth</h2>
+
+<article class="prob" id="p2-25">
+  <h3>Problem 2-25 <span class="tag">summation asymptotics</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> We add up four different lists of numbers, with <code>i</code> counting from 1 up to n. For each list, we just want to know how fast the total grows as n gets big. "Grows at the same rate as g" is written &Theta;(g).</p>
+  <div class="body">
+    <p>A Σ (sigma) just means "add these up".</p>
+    <p><strong>(a) Add up 1/i:</strong> that is 1/1 + 1/2 + 1/3 + ... + 1/n. Each new piece is tiny, so the total creeps up very slowly. It turns out to stay close to <code>log n</code> forever (the gap between them settles near 0.577 and stops moving). So the total grows at the same rate as <code>log n</code>.</p>
+    <p><strong>(b) Add up &lceil;1/i&rceil;:</strong> the &lceil; &rceil; brackets mean "round up to the next whole number". For any i of 1 or more, 1/i is a number between 0 and 1, so rounding it up always gives exactly 1. Adding 1 to itself n times gives n. So the total grows like <code>n</code>.</p>
+    <p><strong>(c) Add up log i:</strong> that is log 1 + log 2 + ... + log n. A handy fact: adding logs is the same as taking the log of the product. So this equals log(1 &middot; 2 &middot; 3 &middot; ... &middot; n) = log(n!). See part (d): it grows like <code>n log n</code>.</p>
+    <p><strong>(d) log(n!):</strong> here n! means 1 &middot; 2 &middot; ... &middot; n. At least half of those factors are n/2 or bigger, so n! is at least (n/2) multiplied by itself n/2 times &mdash; that makes log(n!) at least about (n/2)&middot;log(n/2), which is on the order of n log n. And n! is at most n multiplied by itself n times, so log(n!) is at most n log n. Squeezed from both sides, it grows like <code>n log n</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) &Theta;(log n) &middot; (b) &Theta;(n) &middot; (c) &Theta;(n log n) &middot; (d) &Theta;(n log n).</p>
+  <p class="why"><span class="lab">Why it matters</span> Knowing the growth rate of a sum lets you predict how slow a loop will be without adding up every single term.</p>
+</article>
+
+<article class="prob" id="p2-26">
+  <h3>Problem 2-26 <span class="tag">put functions in order</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> We have four formulas. Line them up from the slowest-growing to the fastest-growing as n gets big.</p>
+  <div class="body">
+    <p>The four are:</p>
+    <ul>
+      <li>f1 = n&sup2; log n</li>
+      <li>f2 = n (log n)&sup2;</li>
+      <li>f3 = 2&#8304; + 2&sup1; + ... + 2&#8319; (add up the powers of two)</li>
+      <li>f4 = log of that same sum</li>
+    </ul>
+    <p>First, tidy up the two that hide a sum. A sum of powers that keep doubling is basically its last term. So f3 = 1 + 2 + 4 + ... + 2&#8319; adds up to just over 2&#8319; &mdash; it grows like <code>2&#8319;</code>. And f4 is the log of that. Since the log of 2&#8319; is about n, f4 grows like <code>n</code>.</p>
+    <p>Now compare the simple shapes: <code>n</code>, <code>n(log n)&sup2;</code>, <code>n&sup2; log n</code>, <code>2&#8319;</code>. To see which of f2 and f1 is bigger, divide both by n log n: f2 becomes log n, f1 becomes n. Since n is far bigger than log n, f1 beats f2.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> f4 (&asymp; n) &lt; f2 (n log&sup2; n) &lt; f1 (n&sup2; log n) &lt; f3 (2&#8319;).</p>
+  <p class="why"><span class="lab">Why it matters</span> Sorting formulas by growth rate is how you tell at a glance which algorithm will win on big inputs.</p>
+</article>
+
+<article class="prob" id="p2-27">
+  <h3>Problem 2-27 <span class="tag">order functions, note ties</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Another four formulas to line up slowest to fastest &mdash; and this time, say if any two grow at the same rate.</p>
+  <div class="body">
+    <p>The four are:</p>
+    <ul>
+      <li>f1 = &radic;1 + &radic;2 + ... + &radic;n (add up the square roots)</li>
+      <li>f2 = (&radic;n)<sup>log n</sup></li>
+      <li>f3 = n<sup>&radic;(log n)</sup></li>
+      <li>f4 = 12&middot;n<sup>1.5</sup> + 4n</li>
+    </ul>
+    <p>Simplify each:</p>
+    <p><strong>f1:</strong> adding up &radic;1, &radic;2, ..., &radic;n grows like <code>n<sup>1.5</sup></code> (about two-thirds of n<sup>1.5</sup>).</p>
+    <p><strong>f4:</strong> keep the biggest piece, 12&middot;n<sup>1.5</sup>, and drop the constant &mdash; it is also <code>n<sup>1.5</sup></code>. So f1 and f4 grow at the same rate (a tie).</p>
+    <p><strong>f2:</strong> this rewrites as n raised to the power (log n)/2. The power itself grows with n, so it beats any fixed power of n.</p>
+    <p><strong>f3:</strong> this is n raised to the power &radic;(log n). That power grows too, so it also beats any fixed power &mdash; but slower than f2, because (log n)/2 eventually gets much bigger than &radic;(log n).</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> f1 = f4 (both n<sup>1.5</sup>) &lt; f3 (n<sup>&radic;log n</sup>) &lt; f2 (n<sup>(log n)/2</sup>).</p>
+  <p class="why"><span class="lab">Why it matters</span> A fixed power like n<sup>1.5</sup> always loses to n raised to a power that itself keeps growing.</p>
+</article>
+
+<article class="prob" id="p2-28">
+  <h3>Problem 2-28 <span class="tag">simplify each sum</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each of three sums (add up the terms for i = 1 to n), give the simplest formula it grows like.</p>
+  <div class="body">
+    <p>Two easy facts do all the work:</p>
+    <ul>
+      <li>If you add up n terms whose biggest is a power like i<sup>k</sup>, the total grows like n<sup>k+1</sup> (roughly n copies of the top term).</li>
+      <li>A sum where each term is a fixed multiple of the last (like 4&#8305;, which keeps quadrupling) is basically its final term.</li>
+    </ul>
+    <p><strong>(a) add up 3i&#8308; + 2i&sup3; &minus; 19i + 20:</strong> the biggest piece is i&#8308;, and adding up i&#8308; grows like n&#8309;. So <code>&Theta;(n&#8309;)</code>.</p>
+    <p><strong>(b) add up 3&middot;4&#8305; + 2&middot;3&#8305; &minus; i&sup1;&#8313; + 20:</strong> the 4&#8305; term quadruples each step and outgrows everything. That sum is basically its last term, 4&#8319;. So <code>&Theta;(4&#8319;)</code>.</p>
+    <p><strong>(c) add up 5i + 3&middot;2&#8305;:</strong> the 2&#8305; term doubles each step and beats the plain 5i. The sum is basically its last term. So <code>&Theta;(2&#8319;)</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) &Theta;(n&#8309;) &middot; (b) &Theta;(4&#8319;) &middot; (c) &Theta;(2&#8319;).</p>
+  <p class="why"><span class="lab">Why it matters</span> Most messy sums collapse to one simple term, so you rarely need to compute the whole thing.</p>
+</article>
+
+<article class="prob" id="p2-29">
+  <h3>Problem 2-29 <span class="tag">a geometric sum</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Let S be the sum 3&sup1; + 3&sup2; + ... + 3&#8319; (add up the powers of three). We are shown three guesses for its growth rate and asked which are true.</p>
+  <div class="body">
+    <p>The three guesses are: (a) S grows like 3<sup>n&minus;1</sup>, (b) S grows like 3&#8319;, (c) S grows like 3<sup>n+1</sup>.</p>
+    <p>A sum of powers that keep tripling is basically its last term. Working it out exactly, S = (3<sup>n+1</sup> &minus; 3) / 2, which is about 3<sup>n+1</sup>/2. Either way, the last term rules, so S grows like <code>3&#8319;</code>.</p>
+    <p>Here is the trick: 3<sup>n&minus;1</sup>, 3&#8319;, and 3<sup>n+1</sup> only differ by a factor of 3 up or down. And a plain factor of 3 does not change a growth rate &mdash; &Theta; ignores constant multipliers. So all three name the very same growth class.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a), (b) and (c) are all true &mdash; they name the same growth rate up to a constant factor.</p>
+  <p class="why"><span class="lab">Why it matters</span> Constant factors vanish in &Theta;, so several different-looking answers can all be correct.</p>
+</article>
+
+<article class="prob" id="p2-30">
+  <h3>Problem 2-30 <span class="tag">keep the fastest term</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each formula f, give the simplest thing it grows like. The rule: keep the biggest piece and drop its constant.</p>
+  <div class="body">
+    <p><strong>(a) f = 1000&middot;2&#8319; + 4&#8319;:</strong> note 4&#8319; equals (2&#8319;)&sup2;, so it dwarfs 2&#8319; no matter how big the 1000 is. Keep 4&#8319;. So <code>&Theta;(4&#8319;)</code>.</p>
+    <p><strong>(b) f = n + n log n + &radic;n:</strong> of the three, n log n grows fastest. So <code>&Theta;(n log n)</code>.</p>
+    <p><strong>(c) f = log(n&sup2;&#8304;) + (log n)&sup1;&#8304;:</strong> the first piece is just 20 log n (a constant times log n). The second is a much higher power of log n and wins. So <code>&Theta;((log n)&sup1;&#8304;)</code>.</p>
+    <p><strong>(d) f = (0.99)&#8319; + n&sup1;&#8304;&#8304;:</strong> a base below 1 means (0.99)&#8319; shrinks toward 0 as n grows, so it adds nothing. Only n&sup1;&#8304;&#8304; matters. So <code>&Theta;(n&sup1;&#8304;&#8304;)</code>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) &Theta;(4&#8319;) &middot; (b) &Theta;(n log n) &middot; (c) &Theta;((log n)&sup1;&#8304;) &middot; (d) &Theta;(n&sup1;&#8304;&#8304;).</p>
+  <p class="why"><span class="lab">Why it matters</span> For big n, only the fastest-growing piece counts &mdash; the rest is noise.</p>
+</article>
+
+<article class="prob" id="p2-31">
+  <h3>Problem 2-31 <span class="tag">which relations hold</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> For each pair (A, B), say which growth relationships hold. Quick gloss: O means "A is no faster than B", o (little-oh) means "A is strictly slower than B", &Omega; means "A is no slower", &omega; means "A is strictly faster", and &Theta; means "same rate". If A is strictly slower than B, then both O and the stronger o hold.</p>
+  <div class="body">
+    <p><strong>(a) A = n&sup1;&#8304;&#8304;, B = 2&#8319;:</strong> a polynomial is strictly slower than an exponential. So O and o.</p>
+    <p><strong>(b) A = (log n)&sup1;&sup2;, B = &radic;n:</strong> any power of a log is strictly slower than any power of n. So O and o.</p>
+    <p><strong>(c) A = &radic;n, B = n<sup>cos(&pi;n/8)</sup>:</strong> the cos part swings forever between &minus;1 and +1, so B keeps swinging from 1/n up to n and back. Sometimes B is way above A, sometimes way below &mdash; no single relationship holds for all big n. So <strong>none</strong> apply (a genuine "can't compare" case).</p>
+    <p><strong>(d) A = 10&#8319;, B = 100&#8319;:</strong> since 100 &gt; 10, the ratio 0.1&#8319; shrinks to 0, so A is strictly slower. So O and o.</p>
+    <p><strong>(e) A = n<sup>log n</sup>, B = (log n)&#8319;:</strong> compare their logs: log A = (log n)&sup2;, while log B = n &middot; log log n. The second grows far faster (it has a factor of n), so B beats A. So O and o.</p>
+    <p><strong>(f) A = log(n!), B = n log n:</strong> from Problem 2-25, log(n!) grows at the same rate as n log n. So &Theta; (and therefore also O and &Omega;, but not the strict little versions).</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) O, o &middot; (b) O, o &middot; (c) none &middot; (d) O, o &middot; (e) O, o &middot; (f) &Theta; (with O and &Omega;).</p>
+  <p class="why"><span class="lab">Why it matters</span> These five relations are the vocabulary for saying exactly how two running times compare.</p>
+</article>
+
+<h2 class="cat-head" id="cat-summations">Summations</h2>
+
+<article class="prob" id="p2-32">
+  <h3>Problem 2-32 <span class="tag">alternating sum of squares</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that the plus-minus sum of squares 1&sup2; &minus; 2&sup2; + 3&sup2; &minus; 4&sup2; + ... equals (with the right sign) k(k+1)/2.</p>
+  <div class="body">
+    <p>We add the squares 1, 4, 9, 16, ... but flip the sign on every second one: plus, minus, plus, minus. The claim is that the messy total is always just k(k+1)/2 (the plain "add 1 up to k" number), with a plus sign when k is odd and a minus sign when k is even. (That is all the (&minus;1)<sup>k&minus;1</sup> factor does: +1 for odd k, &minus;1 for even k.)</p>
+    <p>Check small cases and watch both sides line up:</p>
+    <table>
+      <thead><tr><th>k</th><th>Left (the plus-minus sum)</th><th>Right (sign)&middot;k(k+1)/2</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>1 = 1</td><td>+ 1&middot;2/2 = 1</td></tr>
+        <tr><td>2</td><td>1 &minus; 4 = &minus;3</td><td>&minus; 2&middot;3/2 = &minus;3</td></tr>
+        <tr><td>3</td><td>1 &minus; 4 + 9 = 6</td><td>+ 3&middot;4/2 = 6</td></tr>
+        <tr><td>4</td><td>1 &minus; 4 + 9 &minus; 16 = &minus;10</td><td>&minus; 4&middot;5/2 = &minus;10</td></tr>
+        <tr><td>5</td><td>... + 25 = 15</td><td>+ 5&middot;6/2 = 15</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Why it works:</strong> pair each minus with the plus just before it: (1&sup2; &minus; 2&sup2;), (3&sup2; &minus; 4&sup2;), and so on. Each such pair equals the negative of the two numbers added together. So the whole plus-minus sum of squares turns into a plain running total of 1, 2, 3, ... (carrying a sign) &mdash; and a running total of 1 up to k is exactly k(k+1)/2. The final sign is whatever the last term had: plus for odd k, minus for even k.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The identity holds: 1&sup2; &minus; 2&sup2; + ... + (&minus;1)<sup>k&minus;1</sup> k&sup2; = (&minus;1)<sup>k&minus;1</sup> &middot; k(k+1)/2 (checked for k = 1..20 and explained by pairing consecutive terms).</p>
+  <p class="why"><span class="lab">Why it matters</span> Pairing terms turns a scary alternating sum into the friendly triangle-number formula.</p>
+</article>
+
+<article class="prob" id="p2-33">
+  <h3>Problem 2-33 <span class="tag">a self-referential triangle</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Build a triangle where each entry is the sum of the three entries above it (above-left, above, above-right; treat any missing neighbour as 0). Find a formula for the sum of the entries in row i.</p>
+  <div class="body">
+    <p>The triangle starts like this:</p>
+    <table>
+      <thead><tr><th>row</th><th>entries</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>1</td></tr>
+        <tr><td>2</td><td>1 1 1</td></tr>
+        <tr><td>3</td><td>1 2 3 2 1</td></tr>
+        <tr><td>4</td><td>1 3 6 7 6 3 1</td></tr>
+      </tbody>
+    </table>
+    <p>Add up each row: row 1 gives 1, row 2 gives 3, row 3 gives 9, row 4 gives 27. That is 1, 3, 9, 27 &mdash; the powers of three. So the answer looks like <code>3<sup>i&minus;1</sup></code>.</p>
+    <p><strong>Why:</strong> ask where each entry lands in the row below. Every entry is one of the "three above" for exactly three spots underneath it &mdash; the slot below-left, the slot directly below, and the slot below-right. So each entry passes its full value down three times. Add that across the whole row: (sum of next row) = 3 &times; (sum of this row). The total triples at every step. Row 1 starts at 1, so row i is 1 tripled i&minus;1 times, which is 3<sup>i&minus;1</sup>.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Row i sums to 3<sup>i&minus;1</sup>, because each entry feeds into three entries below it, so the total triples with every new row.</p>
+  <p class="why"><span class="lab">Why it matters</span> Counting how many times each value gets reused is a reliable trick for finding a sum's formula.</p>
+</article>
+
+<article class="prob" id="p2-34">
+  <h3>Problem 2-34 <span class="tag">Twelve Days of Christmas</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> In the song, on day 1 you get 1 gift, on day 2 you get 2 new gifts plus the 1 from before, and so on &mdash; each day you get that day's gifts on top of all the earlier ones. If Christmas lasts n days, how many presents arrive in total?</p>
+  <div class="body">
+    <p><strong>One day at a time:</strong> on day d the true love brings 1 + 2 + ... + d presents (that day's new gift plus everything repeated). That is the "add 1 up to d" number, so day d brings d(d+1)/2 presents.</p>
+    <p><strong>Add up all the days:</strong> the grand total is the sum of each day's haul, Σ (for d = 1 to n) of d(d+1)/2. A small table:</p>
+    <table>
+      <thead><tr><th>Day n</th><th>Presents that day = n(n+1)/2</th><th>Total so far</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>2</td><td>3</td><td>4</td></tr>
+        <tr><td>3</td><td>6</td><td>10</td></tr>
+        <tr><td>4</td><td>10</td><td>20</td></tr>
+      </tbody>
+    </table>
+    <p>Those running totals 1, 4, 10, 20 have a tidy formula: n(n+1)(n+2)/6. Check it: for n = 4 that is 4&middot;5&middot;6/6 = 20. For the real song, n = 12: 12&middot;13&middot;14/6 = 2184/6 = 364.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Total(n) = Σ<sub>d=1</sub><sup>n</sup> d(d+1)/2 = n(n+1)(n+2)/6, which for n = 12 is 364 presents. The growth is &Theta;(n&sup3;).</p>
+  <p class="why"><span class="lab">Why it matters</span> A stack of triangle numbers has its own neat closed form, so you never have to add all n days by hand.</p>
+</article>
+
+<article class="prob" id="p2-35">
+  <h3>Problem 2-35 <span class="tag">how many times does the loop run</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> An outer loop runs i from 1 to n. For each i, an inner loop runs j from i up to 2i, printing once each time. Let T(n) be the total number of prints. (a) Write T(n) as a sum. (b) Simplify it.</p>
+  <div class="body">
+    <p><strong>One pass of the outer loop:</strong> fix i. The inner loop runs j from i up to and including 2i. How many whole numbers is that? (2i &minus; i) + 1 = i + 1. (The "+1" is because both ends count.) Quick check with i = 3: j is 3, 4, 5, 6 &mdash; four values, and i + 1 = 4. Good.</p>
+    <p><strong>(a) Add up every outer pass:</strong> the outer loop does this for i = 1, 2, ..., n, so add up (i + 1) for each. As a sum: T(n) = Σ<sub>i=1</sub><sup>n</sup> (i + 1) (that Σ just means "add these up").</p>
+    <p><strong>(b) Simplify:</strong> split into two easier sums:</p>
+    <p>T(n) = (1 + 2 + ... + n) + (1 + 1 + ... + 1). The first bracket is the "add 1 up to n" number, n(n+1)/2. The second is 1 added n times, which is n. So T(n) = n(n+1)/2 + n = (n&sup2; + 3n)/2.</p>
+    <p>The biggest piece is n&sup2;, so this grows like &Theta;(n&sup2;) &mdash; the usual two-nested-loops behaviour.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) T(n) = Σ<sub>i=1</sub><sup>n</sup> (i + 1). (b) T(n) = n(n+1)/2 + n = (n&sup2; + 3n)/2, which is &Theta;(n&sup2;).</p>
+  <p class="why"><span class="lab">Why it matters</span> Turning a loop's step count into a formula is exactly how you find its running time.</p>
+</article>
+
+<article class="prob" id="p2-36">
+  <h3>Problem 2-36 <span class="tag">nested summations</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Some code prints from inside three nested loops (take n even). (a) Write the running time T(n) as three nested sums. (b) Simplify to a Big-O class.</p>
+  <div class="body">
+    <p>The loops run: i from 1 to n/2, then j from i to n&minus;i, then k from 1 to j, printing once at the centre.</p>
+    <p><strong>(a) The nested-sum form:</strong> each loop becomes one Σ ("add up"), and the printed line is the "1" being counted at the very centre:</p>
+    <p>T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n&minus;i</sup> Σ<sub>k=1</sub><sup>j</sup> 1</p>
+    <p>The innermost sum, Σ<sub>k=1</sub><sup>j</sup> 1, is just "add 1 to itself j times", which is j. Putting that in:</p>
+    <p>T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n&minus;i</sup> j</p>
+    <p>The inner sum now adds up consecutive whole numbers up to about n, which comes to something on the order of n&sup2; (the 1 + 2 + ... + m &asymp; m&sup2;/2 idea).</p>
+    <p><strong>(b) Simplify:</strong> we do that n&sup2;-sized chunk of work for each i from 1 up to n/2 &mdash; about n more times. "About n&sup2;" of work done "about n" times is cubic. The n/2 and the shrinking window only change constant factors, not the class.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (a) T(n) = Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n&minus;i</sup> Σ<sub>k=1</sub><sup>j</sup> 1, which simplifies to Σ<sub>i=1</sub><sup>n/2</sup> Σ<sub>j=i</sub><sup>n&minus;i</sup> j. (b) T(n) = &Theta;(n&sup3;) = O(n&sup3;).</p>
+  <p class="why"><span class="lab">Why it matters</span> Three nested loops over a range usually means cubic time &mdash; and the sums make that precise.</p>
+</article>
+
+<article class="prob" id="p2-37">
+  <h3>Problem 2-37 <span class="tag">multiply by repeated addition</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> You first learned multiplication as repeated adding: 5 &times; 4 = 5 + 5 + 5 + 5. How long does it take to multiply two n-digit numbers (in base b) this way?</p>
+  <div class="body">
+    <p>To do x &times; y by repeated addition, we add x to a running total y times. So the cost depends on how big y can get. An n-digit number in base b is at most about b<sup>n</sup> (in base 10 a 3-digit number reaches about 10&sup3; = 1000; in base 2 a 3-bit number reaches about 2&sup3; = 8). So y can force about b<sup>n</sup> additions.</p>
+    <p>Each addition is of two n-digit numbers, which costs about n steps (add digit by digit, carrying). Multiply the two together: about b<sup>n</sup> additions &times; about n per addition gives <code>O(n &middot; b<sup>n</sup>)</code>.</p>
+    <table>
+      <thead><tr><th>Digits n</th><th>Largest value &asymp; 10&#8319;</th><th>Additions needed</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>9</td><td>up to 9</td></tr>
+        <tr><td>3</td><td>999</td><td>up to ~1 000</td></tr>
+        <tr><td>6</td><td>999 999</td><td>up to ~1 000 000</td></tr>
+        <tr><td>10</td><td>~10&sup1;&#8304;</td><td>up to ~10 billion</td></tr>
+        <tr><td>20</td><td>~10&sup2;&#8304;</td><td>hopelessly many</td></tr>
+      </tbody>
+    </table>
+    <p>That b<sup>n</sup> is exponential in n &mdash; runaway growth. Fine for 5 &times; 4, hopeless for real numbers.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> O(n &middot; b<sup>n</sup>) &mdash; exponential in the number of digits.</p>
+  <p class="why"><span class="lab">Why it matters</span> A method can be perfectly correct and still far too slow to ever use.</p>
+</article>
+
+<article class="prob" id="p2-38">
+  <h3>Problem 2-38 <span class="tag">long multiplication</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> The grade-school way: multiply digit by digit, line up the partial rows, and add. How long does it take to multiply two n-digit numbers (fixed base)?</p>
+  <div class="body">
+    <p>Long multiplication pairs every digit of one number with every digit of the other. With n digits each, that is n &times; n = n&sup2; single-digit multiplications. Then we line up those partial rows and add them &mdash; that is another n&sup2;-ish of work (about n rows, each up to about n digits wide).</p>
+    <p>So: n&sup2; single-digit products + about n&sup2; additions to combine gives <code>O(n&sup2;)</code>.</p>
+    <p>Stand the two methods side by side:</p>
+    <table>
+      <thead><tr><th>Method</th><th>Class</th><th>Two 20-digit numbers</th></tr></thead>
+      <tbody>
+        <tr><td>2-37 repeated addition</td><td>O(n &middot; b<sup>n</sup>)</td><td>about 10&sup2;&#8304; steps &mdash; impossible</td></tr>
+        <tr><td>2-38 long multiplication</td><td>O(n&sup2;)</td><td>about 400 steps &mdash; instant</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> O(n&sup2;).</p>
+  <p class="why"><span class="lab">Why it matters</span> Picking a smarter method turns an impossible calculation into an instant one.</p>
+</article>
+
+<h2 class="cat-head" id="cat-logarithms">Logarithms</h2>
+
+<article class="prob" id="p2-39">
+  <h3>Problem 2-39 <span class="tag">logarithms</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Prove four rules about logs. Sounds scary, but there is one idea behind all of them: a log is just an exponent. If log₂ 8 = 3, that only means 2³ = 8. Read every log as "the power you raise the base to."</p>
+  <div class="body">
+    <p>Keep flipping between the two ways of saying the same thing: "log<sub>a</sub> x = p" and "x = a<sup>p</sup>". That single trick unlocks all four rules.</p>
+    <p><strong>(a) log(x·y) = log x + log y.</strong> Say x = a<sup>p</sup> and y = a<sup>q</sup>. When you multiply two powers you add the exponents: x·y = a<sup>p+q</sup>. So the exponent for x·y is p + q, which is log x + log y. (This is the old trick that turned multiplication into addition on slide rules.)</p>
+    <p><strong>(b) log(x<sup>y</sup>) = y · log x.</strong> With x = a<sup>p</sup>, raising to the power y multiplies the exponent: x<sup>y</sup> = a<sup>p·y</sup>. So the exponent is p·y, which is y · log x.</p>
+    <p><strong>(c) change of base: log<sub>a</sub> x = log<sub>b</sub> x / log<sub>b</sub> a.</strong> Start from x = a<sup>p</sup> where p = log<sub>a</sub> x. Take log base b of both sides and use rule (b): log<sub>b</sub> x = p · log<sub>b</sub> a. Divide across and p = log<sub>b</sub> x / log<sub>b</sub> a.</p>
+    <p><strong>(d) x<sup>log<sub>b</sub> y</sup> = y<sup>log<sub>b</sub> x</sup>.</strong> Two things are equal if their logs match. Take log base b of each side using rule (b): the left gives log<sub>b</sub> y · log<sub>b</sub> x, the right gives log<sub>b</sub> x · log<sub>b</sub> y. Same product, so the two sides are equal.</p>
+    <p>Rule (c) is the important one for this course. It says any two bases differ only by a fixed number (1 / log<sub>b</sub> a). Big-O throws away fixed multipliers, so <em>the base of a log never matters for Big-O</em>. That is why we happily write O(log n) without ever saying which base.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> All four rules hold. Each is just an exponent rule read through the "log = the exponent" lens. Rule (c) is why the log's base makes no difference in Big-O.</p>
+  <p class="why"><span class="lab">Why it matters</span> It lets us drop the base and write O(log n) for binary search and every other halving algorithm without fuss.</p>
+</article>
+
+<article class="prob" id="p2-40">
+  <h3>Problem 2-40 <span class="tag">logarithms</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that ⌈lg(n+1)⌉ = ⌊lg n⌋ + 1 for every whole number n ≥ 1. Here "lg" means log base 2, and the fancy brackets just mean "round up" (⌈ ⌉) or "round down" (⌊ ⌋).</p>
+  <div class="body">
+    <p>Both sides are secretly counting the same thing: how many bits n needs to be written in binary, which is the same as how many times you halve n before you reach 1. Let us just make a small table and watch the two columns agree.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>n</th><th>lg n</th><th>⌊lg n⌋ + 1</th><th>lg(n+1)</th><th>⌈lg(n+1)⌉</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>0.00</td><td>1</td><td>1.00</td><td>1</td></tr>
+          <tr><td>2</td><td>1.00</td><td>2</td><td>1.58</td><td>2</td></tr>
+          <tr><td>3</td><td>1.58</td><td>2</td><td>2.00</td><td>2</td></tr>
+          <tr><td>4</td><td>2.00</td><td>3</td><td>2.32</td><td>3</td></tr>
+          <tr><td>5</td><td>2.32</td><td>3</td><td>2.58</td><td>3</td></tr>
+          <tr><td>6</td><td>2.58</td><td>3</td><td>2.81</td><td>3</td></tr>
+          <tr><td>7</td><td>2.81</td><td>3</td><td>3.00</td><td>3</td></tr>
+          <tr><td>8</td><td>3.00</td><td>4</td><td>3.17</td><td>4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The third column and the last column match on every row. Nice and simple.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Both sides count the number of bits of n, so ⌈lg(n+1)⌉ = ⌊lg n⌋ + 1 for all n ≥ 1.</p>
+  <p class="why"><span class="lab">Why it matters</span> Two different-looking formulas turn out to be the same "how many halvings" count that shows up all over searching.</p>
+</article>
+
+<article class="prob" id="p2-41">
+  <h3>Problem 2-41 <span class="tag">logarithms</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Show that writing a whole number n ≥ 1 in binary takes exactly ⌊lg n⌋ + 1 bits (⌊ ⌋ means round down).</p>
+  <div class="body">
+    <p>The biggest number you can write with b bits is all ones: 1 bit reaches 1, 2 bits reach 3, 3 bits reach 7, 8 bits reach 255. So a number n needs exactly b bits when it fits in b bits but not in b−1. In symbols, n sits between 2<sup>b−1</sup> and 2<sup>b</sup> (that is, 2<sup>b−1</sup> ≤ n &lt; 2<sup>b</sup>). Taking lg of that, b−1 ≤ lg n &lt; b, so rounding lg n down gives b−1, and b = ⌊lg n⌋ + 1. A tiny table shows it:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>n</th><th>binary</th><th>bits</th><th>⌊lg n⌋ + 1</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1</td><td>1</td><td>0 + 1 = 1</td></tr>
+          <tr><td>2</td><td>10</td><td>2</td><td>1 + 1 = 2</td></tr>
+          <tr><td>4</td><td>100</td><td>3</td><td>2 + 1 = 3</td></tr>
+          <tr><td>255</td><td>11111111</td><td>8</td><td>7 + 1 = 8</td></tr>
+          <tr><td>256</td><td>100000000</td><td>9</td><td>8 + 1 = 9</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> A whole number n needs ⌊lg n⌋ + 1 bits in binary. This is the same count as problem 2-40.</p>
+  <p class="why"><span class="lab">Why it matters</span> It is exactly why binary search takes about lg n steps: each comparison learns one bit about where your target is.</p>
+</article>
+
+<article class="prob" id="p2-42">
+  <h3>Problem 2-42 <span class="tag">logarithms</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Someone shows you a sort that runs in O(n log √n). But everyone says sorting needs at least about n log n comparisons. Is the person cheating?</p>
+  <div class="body">
+    <p>No cheating, just a disguise. Simplify the log with rule (b) from problem 2-39. Since √n = n<sup>1/2</sup>:</p>
+    <p style="font-family:monospace">log √n = log(n<sup>1/2</sup>) = ½ · log n</p>
+    <p>So O(n log √n) = O(n · ½ log n) = O(½ · n log n). The ½ is just a fixed multiplier, and Big-O throws fixed multipliers away. So this is O(n log n) — the very same class.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Nothing is broken. O(n log √n) is exactly the same class as O(n log n), only written in disguise. It does not beat the lower bound; it sits right on it.</p>
+  <p class="why"><span class="lab">Why it matters</span> A good reminder that "log √n" and "½ log n" are the same thing, and constant factors never change the Big-O class.</p>
+</article>
+
+<h2 class="cat-head" id="cat-interview">Interview &amp; Puzzle Problems</h2>
+
+<article class="prob" id="p2-43">
+  <h3>Problem 2-43 <span class="tag">interview</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Numbers arrive one at a time, like cars passing a window. You want to keep a fair random handful of k of them, giving every number the same chance of being kept — and you only get one look at each, and you do not even know how many will pass in the end.</p>
+  <div class="body">
+    <p>This is called <strong>reservoir sampling</strong>. Start with the easiest version, keeping just k = 1.</p>
+    <p><strong>The rule:</strong> when the i-th number arrives (counting 1, 2, 3, …), keep it with probability 1/i; otherwise stick with the one you already hold. So you always keep the 1st. You swap to the 2nd with chance 1/2. You swap to the 3rd with chance 1/3. And so on.</p>
+    <p><strong>Why is that fair?</strong> The very last number, number n, is kept with chance 1/n straight away — good. An earlier number j was kept when it arrived (chance 1/j) and then had to survive every later number choosing not to replace it. Those survival chances multiply out to j/n. Put together, everyone ends up with the same 1/n. Fair.</p>
+    <p><strong>For a handful of k:</strong> keep the first k as your starting "reservoir". When the i-th number arrives (with i bigger than k), keep it with chance k/i; if you keep it, randomly throw out one of the k you were holding to make room. The same argument gives every number the final chance k/n.</p>
+    <div class="body">
+      <pre><code>import random
+
+def reservoir(stream, k):
+    keep = []
+    for i, item in enumerate(stream):   # i counts from 0; n never needed
+        if i &lt; k:
+            keep.append(item)           # fill the reservoir first
+        else:
+            j = random.randint(0, i)    # keep with probability k/(i+1)
+            if j &lt; k:
+                keep[j] = item          # evict a random held item, insert the new one
+    return keep</code></pre>
+    </div>
+    <p>It reads the stream once, stores only k items, and never needs to know the total ahead of time — perfect for a stream too big to hold or of unknown length.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Reservoir sampling: hold the first k items; for each later item i, keep it with probability k/i and evict a random current member. One pass, stores only k, and n need not be known in advance.</p>
+  <p class="why"><span class="lab">Why it matters</span> It is the standard way to sample fairly from a stream you cannot store or measure — a real interview favourite.</p>
+</article>
+
+<article class="prob" id="p2-44">
+  <h3>Problem 2-44 <span class="tag">interview</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> You have 1000 items spread over 1000 computers (nodes), and each node holds 3 items. Nodes sometimes die. How should you place things so you lose as little as possible, and roughly how much do you expect to lose if 3 random nodes fail at once?</p>
+  <div class="body">
+    <p>The core idea is simple: <strong>keep three copies of every item, on three well-spread-out nodes</strong>, and never let two items live on the exact same trio of nodes. An easy way: put item i on nodes i, i+1 and i+2 (wrapping around at the end). Now every item has three homes, every node still holds three items, and each item's trio of homes is different.</p>
+    <p>An item is only lost if <em>all three</em> of its nodes die. If 3 random nodes fail, one item is lost only if those 3 dead nodes are exactly its 3 homes. The chance of that for one item is 1 divided by the number of ways to pick 3 nodes out of 1000 — a huge number, about 166 million. So one item's chance of loss is tiny. Add it up over all 1000 items:</p>
+    <p style="font-family:monospace">expected items lost ≈ 1000 × 1 / C(1000, 3) ≈ 6 × 10⁻⁶</p>
+    <p>That is essentially zero. Almost always you lose nothing at all; in the rare unlucky case you lose about one item.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Three copies per item, spread over well-separated nodes so no two items share a trio. With 3 random node failures the expected loss is essentially zero (about 6 in a million items).</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows how a little replication plus spreading copies out makes data survive hardware failures almost for free.</p>
+</article>
+
+<article class="prob" id="p2-45">
+  <h3>Problem 2-45 <span class="tag">interview</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> To find the smallest number in a list, you keep a "best so far" and replace it every time you see something smaller. If the list is shuffled, how many times, on average, do you actually swap in a new best?</p>
+  <div class="body">
+    <p><strong>When do we swap at position i?</strong> Only when the i-th number is smaller than everything before it — that is, when it is the smallest of the first i numbers seen so far. A new "record low".</p>
+    <p><strong>What is the chance of that?</strong> Here is the pretty part. Among the first i numbers, in random order each one is equally likely to be the smallest — the last spot is nothing special. So the chance the i-th one is the smallest of those i is exactly 1/i. As i grows, a new record gets rarer: the first few set records easily, but by the thousandth item you would have to beat 999 earlier values, which almost never happens.</p>
+    <p><strong>Add up the chances</strong> across all positions:</p>
+    <p style="font-family:monospace">expected swaps = 1/1 + 1/2 + 1/3 + … + 1/n</p>
+    <p>That sum is called the <strong>harmonic number</strong>, and it grows about like ln n (the natural log, roughly 0.69 × lg n). It grows painfully slowly — look:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>List length n</th><th>Expected swaps ≈ ln n</th></tr></thead>
+        <tbody>
+          <tr><td>10</td><td>about 2.3</td></tr>
+          <tr><td>100</td><td>about 4.6</td></tr>
+          <tr><td>1 000</td><td>about 6.9</td></tr>
+          <tr><td>1 000 000</td><td>about 13.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>A million items and the smallest changes hands only about fourteen times on average.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> The swap fires at position i with probability 1/i, so the expected number of swaps is 1 + 1/2 + … + 1/n ≈ ln n — that is O(log n), growing extremely slowly.</p>
+  <p class="why"><span class="lab">Why it matters</span> It is a lovely example of very slow, logarithmic growth hiding inside a plain little loop.</p>
+</article>
+
+<article class="prob" id="p2-46">
+  <h3>Problem 2-46 <span class="tag">puzzle</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> A 100-floor building. Dropped from some floor and above, a marble breaks; below it, the marble is fine. You want the lowest breaking floor. How few drops do you need (a) with lots of marbles, and (b) with only two?</p>
+  <div class="body">
+    <p><strong>(a) Lots of marbles → binary search.</strong> A broken marble costs you nothing, so you can gamble on the middle floor every time. Drop from 50. If it breaks, the answer is below 50; if not, above. Each drop halves the range, so you need ⌈lg 100⌉ = <strong>7 drops</strong> — the same halving trick as binary search.</p>
+    <p><strong>(b) Only two marbles → you cannot halve.</strong> If your first marble breaks at floor 50, you only have one marble left, and you dare not gamble with it — you must walk up one floor at a time from the last safe floor. So a big first jump risks up to 49 more drops. The fix: make the first marble take <em>shrinking</em> steps, so that whichever gap it breaks in, the walk-up with the second marble is short.</p>
+    <p>Drop the first marble at floors 14, 27, 39, 50, 60, 69, 77, 84, 90, 95, 99, 100 — gaps of 14, then 13, then 12, shrinking by one each time.</p>
+    <p><strong>Why start at 14?</strong> If the first marble breaks on drop number d, you have already spent d drops and the gap left to walk is 14 − d floors — always about 14 total. You want the first step k big enough that k + (k−1) + … + 1 = k(k+1)/2 covers all 100 floors. The smallest k that works is 14, because 14 × 15 / 2 = 105 ≥ 100, while 13 × 14 / 2 = 91 falls short.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> 7 drops with plenty of marbles (binary search); about 14 drops in the worst case with only two, using shrinking gaps. Two marbles cost you the logarithm — you go from lg n up to roughly √n.</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows how few resources (only 2 marbles) forces a slower strategy than clean halving.</p>
+</article>
+
+<article class="prob" id="p2-47">
+  <h3>Problem 2-47 <span class="tag">puzzle</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Ten bags of coins. Nine bags have real 10-gram coins; one bag has fake 9-gram coins. Your scale shows exact grams. Find the fake bag with just <strong>one</strong> weighing.</p>
+  <div class="body">
+    <p>The trick is to make each bag leave a different, recognisable fingerprint on one pile. Number the bags 1 to 10. Take 1 coin from bag 1, 2 coins from bag 2, 3 from bag 3, …, 10 from bag 10 — that is 55 coins in all.</p>
+    <p>If every coin were real, the pile would weigh 55 × 10 = 550 grams. Each fake coin is 1 gram light, and bag k put in exactly k coins. So if bag k is the fake one, the pile reads 550 − k grams. <strong>The number of grams missing is the guilty bag's number.</strong></p>
+    <div class="body">
+      <pre><code>weights = [10] * 10       # ten bags, all 10-gram coins to start
+weights[6] = 9            # bag number 7 secretly holds 9-gram coins
+
+# take (i+1) coins from bag i and weigh them all together
+total = sum((i + 1) * weights[i] for i in range(10))
+print(550 - total)        # 7  -> the light bag is number 7</code></pre>
+    </div>
+    <p>Weigh 5 grams missing? Bag 5. Weigh 7 missing? Bag 7. One weighing tells you everything.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Take k coins from bag k, weigh all 55 together, and read off 550 − (scale reading). That difference is the light bag's number. One weighing, no searching.</p>
+  <p class="why"><span class="lab">Why it matters</span> A neat counting trick: you can pack ten possible answers into a single number.</p>
+</article>
+
+<article class="prob" id="p2-48">
+  <h3>Problem 2-48 <span class="tag">puzzle</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Eight balls look identical, but one is slightly heavier. Using a balance scale only <strong>twice</strong>, find the heavy one.</p>
+  <div class="body">
+    <p>A balance scale gives three possible answers each time: left heavier, right heavier, or level. So two weighings can tell apart up to 3 × 3 = 9 things, and 9 ≥ 8. That count tells you it must be possible. Here is how. Split the 8 balls into groups of <strong>3, 3 and 2</strong>.</p>
+    <ol>
+      <li><strong>Weighing 1:</strong> put the two groups of 3 on the pans.
+        <ul>
+          <li>If they <em>balance</em>, the heavy ball is one of the 2 set aside. Weigh those two against each other — the heavier pan shows it. Done in two.</li>
+          <li>If one side is <em>heavier</em>, the heavy ball is among those 3.</li>
+        </ul>
+      </li>
+      <li><strong>Weighing 2</strong> (heavy ball is in a group of 3): take that group and weigh 1 ball against another 1. If one is heavier, that is it; if they balance, it is the third ball you left off.</li>
+    </ol>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Split the balls 3 / 3 / 2 and you always finish in two weighings. It works because each weighing has 3 outcomes, so two weighings carry 3² = 9 results — more than the 8 balls to tell apart.</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows how counting outcomes ahead of time tells you a puzzle is solvable before you find the exact moves.</p>
+</article>
+
+<article class="prob" id="p2-49">
+  <h3>Problem 2-49 <span class="tag">interview</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> n companies keep merging, two at a time, until only one is left. How many merges does that take, and how many different orders can the merges happen in?</p>
+  <div class="body">
+    <p>The easy half first: each merge turns two companies into one, so it shrinks the count by exactly one. Going from n down to 1 always takes <strong>n − 1 merges</strong>, whatever the order.</p>
+    <p>The harder half is: how many different <em>orders</em> can the merges play out in? Do the small cases by hand:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>n</th><th>ways</th><th>why</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>1</td><td>only one pair to merge</td></tr>
+          <tr><td>3</td><td>3</td><td>first merge is one of the 3 pairs (AB, AC, BC); then only one pair is left</td></tr>
+          <tr><td>4</td><td>18</td><td>more choices at each of the 3 merges</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The formula that produces 1, 3, 18, … is:</p>
+    <p style="font-family:monospace">number of merge orders = n! · (n−1)! / 2<sup>n−1</sup></p>
+    <p>Check it: n = 2 gives 2 · 1 / 2 = 1; n = 3 gives 6 · 2 / 4 = 3; n = 4 gives 24 · 6 / 8 = 18. All match.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Always n − 1 merges, and the number of distinct merge orders is n!(n−1)! / 2<sup>n−1</sup>, matching 1, 3, 18 for n = 2, 3, 4.</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows that the same number of steps can happen in a huge number of different orders — counting them is its own skill.</p>
+</article>
+
+<article class="prob" id="p2-51">
+  <h3>Problems 2-51 &amp; 2-52 <span class="tag">puzzle</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Pirates split treasure by rank. The top pirate proposes a split; everyone (including him) votes; if at least half agree it passes, otherwise he is thrown overboard and the next pirate proposes. Pirates are perfectly logical and care most about staying alive, then about money. With $300 and 6 pirates, who gets what (2-51)? And what if there is only <strong>one</strong> indivisible dollar (2-52)?</p>
+  <div class="body">
+    <p>The trick for every puzzle like this is to <strong>reason backwards</strong> from the smallest case, because when a pirate votes he compares "what I get now" against "what I would get if this proposer is thrown overboard". Call the pirates P1 (most junior) up to P6 (most senior); the senior proposes first. "At least half" means a tie is enough to pass.</p>
+    <p><strong>Part 2-51, splitting $300.</strong> Build it up one pirate at a time:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>pirates left</th><th>votes needed</th><th>proposer keeps</th><th>who gets $1 (to buy the vote)</th></tr></thead>
+        <tbody>
+          <tr><td>2 (P2, P1)</td><td>1</td><td>$300</td><td>nobody — P2's own vote is half of 2</td></tr>
+          <tr><td>3</td><td>2</td><td>$299</td><td>P1 (who would get $0 if it fell to 2 pirates)</td></tr>
+          <tr><td>4</td><td>2</td><td>$299</td><td>P2 (who gets $0 in the 3-pirate outcome)</td></tr>
+          <tr><td>5</td><td>3</td><td>$298</td><td>P3 and P1 (the two who get $0 with 4 pirates)</td></tr>
+          <tr><td>6</td><td>3</td><td>$298</td><td>P4 and P2 (the two who get $0 with 5 pirates)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Each proposer only bribes the <em>cheapest</em> pirates — the ones who would get nothing in the next round — and only just enough of them to reach half the votes. So with 6 pirates, the senior P6 needs 3 votes (his own plus two), and he gets them by handing $1 each to P4 and P2, keeping $298.</p>
+    <p><strong>Part 2-52, a single indivisible dollar.</strong> Now the proposer has almost nothing to bribe with, so <em>survival</em> votes do the work. Reason down the chain: with 5 pirates the proposer P5 would need 3 votes but can only bribe one pirate with the single dollar — so a 5-pirate proposal fails and P5 would be thrown overboard. That fact is the key: P5 is desperate to never reach a 5-pirate game.</p>
+    <p>So when 6 pirates face the single dollar, the senior P6 needs 3 votes and gets them like this: his own vote; P5's vote for free (because if P6 goes overboard the game drops to 5 pirates where P5 dies, so P5 backs almost anything that keeps P6 afloat); and one more vote bought by giving the single dollar to one pirate who would otherwise get nothing (P4, P3, or P1). That is three votes — it passes.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> (2-51) The top pirate keeps $298 and gives $1 each to P4 and P2, passing 3-to-3; P5, P3, P1 get nothing. (2-52) The top pirate survives and no one need die: he gives the one dollar to a single pirate whose vote he needs, and relies on P5's free vote (P5 votes yes just to avoid dying next round).</p>
+  <p class="why"><span class="lab">Why it matters</span> It shows the power of working backwards from the simplest case — the same habit behind many algorithms.</p>
+</article>
+
+<h2 class="cat-head" id="cat-programming">Programming Challenges</h2>
+
+<article class="prob" id="p-programming">
+  <h3>Programming Challenges <span class="tag">practice</span></h3>
+  <p class="ask"><span class="lab">In plain words</span> Three short online-judge (UVA) problems that go with this chapter. Each needs one clever observation, not heavy machinery. Here is a plain approach for each.</p>
+  <div class="body">
+    <p><strong>Primary Arithmetic</strong> — count the carries when you add two numbers. Add them the grade-school way, digit by digit from the right, keeping a running carry. Every column where the two digits plus the incoming carry reach 10 makes a carry into the next column. Count those events. It is O(number of digits) — really just "do primary-school addition and watch the carries", then report none, one, or the count.</p>
+    <p><strong>A Multiplication Game</strong> — two players start from a product of 1 and take turns multiplying it by any number from 2 to 9; the first to reach or pass n wins, and Stan goes first. This is a small game you solve by <em>reasoning backwards</em> from n about which running totals are winning. With best play the winner depends only on which "band" n falls in: Stan wins for n up to 9, the second player for 10 to 18, Stan again for 19 to 162, and so on — each band nine times wider than the last (best rush multiplies by 9, best stall multiplies by 2). Find the band by comparing n against powers of nine; no search needed.</p>
+    <p><strong>Light, More Light</strong> — lamps 1..N start off; person i flips every lamp whose number is a multiple of i, so lamp k is flipped once for each of its divisors. A lamp ends <em>on</em> only if it was flipped an odd number of times, i.e. if k has an odd number of divisors. Divisors normally come in pairs (d and k/d), <em>except</em> when k is a perfect square (the square root pairs with itself). So the only lamps left on are the perfect squares. The whole problem becomes: is k a perfect square? Check with an integer square root, O(1) per query.</p>
+  </div>
+  <p class="answer"><span class="lab">Answer</span> Primary Arithmetic: count carries during digit-by-digit addition. A Multiplication Game: the winner is decided by which power-of-nine band n falls in. Light, More Light: the lamps left on are exactly the perfect squares.</p>
+  <p class="why"><span class="lab">Why it matters</span> Each shows that the right observation turns a scary-looking problem into a few lines of code.</p>
+</article>
+
+
+  <footer class="foot">
+    <p>Companion to <a href="../">Algorithm Analysis with Python</a>. Problems from Steven Skiena,
+    <em>The Algorithm Design Manual</em> (Chapter 2). Explanations written for this course at a
+    beginner level; any errors are the course's, not the book's.</p>
+  </footer>
+</div>
+<script>
+  (function(){
+    var K="skiena_theme",b=document.getElementById("themeBtn");
+    function ap(t){document.documentElement.setAttribute("data-theme",t);b.textContent=t==="dark"?"Light":"Dark";try{localStorage.setItem(K,t)}catch(e){}}
+    var s=null;try{s=localStorage.getItem(K)}catch(e){}
+    if(!s)s=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+    ap(s); b.addEventListener("click",function(){ap(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark")});
+    document.getElementById("printBtn").addEventListener("click",function(){window.print()});
+  })();
+</script>
+</body>
+</html>
