@@ -243,6 +243,15 @@
     border-left: 2px solid var(--accent-green);
   }
   .nb-card.solutions .nb-btn { background: var(--accent-green); }
+  .nb-btn.locked,
+  .nb-card.solutions .nb-btn.locked {
+    background: #c8d0dc; color: #56606e; cursor: not-allowed;
+  }
+  .sol-lock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--text-muted);
+    margin-top: 0.55rem; line-height: 1.5;
+  }
   @media (max-width: 640px) {
     .sol-row { grid-template-columns: 68px 46px 1fr; gap: 0.5rem; }
   }
@@ -464,7 +473,7 @@
             <li>Vector addition &amp; projection visualizer <span class="interactive-badge">Interactive</span></li>
             <li>Unit vector and dot product</li>
           </ul>
-          <a class="nb-btn" href="#">▶ Open in Colab</a>
+          <a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_01.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
         </div>
       </div>
       <div id="sollab-1"></div>
@@ -502,6 +511,24 @@
 </div>
 
 <script>
+// ─── Solution release schedule ────────────────────────────
+// Week N's worked solutions open at the Week N+1 session - one week after
+// that problem set is handed out. Term begins Mon 21 Sep 2026 and PHY101
+// meets on Tuesdays, so Week 01 is Tue 22 Sep 2026. Changing WEEK01 below
+// reshuffles all 14 unlock dates at once.
+const WEEK01 = '2026-09-22';   // Tuesday of Week 01
+
+function solutionsUnlock(n) {
+  const d = new Date(WEEK01 + 'T00:00:00');   // local midnight
+  d.setDate(d.getDate() + n * 7);             // week n meets on day (n-1)*7
+  return d;
+}
+function solutionsReleased(n) { return new Date() >= solutionsUnlock(n); }
+function unlockLabel(n) {
+  return solutionsUnlock(n).toLocaleDateString('en-GB',
+    { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 // ─── Python Solution Lab (solutions/Week_XX_Python_Solutions.ipynb) ───
 // One fully worked, self-verifying Python solution per difficulty level, every week.
 const solutionLab = {"1": [{"level": "L1","p": "P4","title": "Vector Magnitude and Direction","tech": "<code>arctan2</code>, quadrant safety"},{"level": "L2","p": "P5","title": "Multi-Vector Addition","tech": "vectorised component sums, path plot"},{"level": "L3","p": "P9","title": "3D Cross Product and Torque Preview","tech": "<code>np.cross</code>, 360° direction sweep"}],"2": [{"level": "L1","p": "P3","title": "Free Fall Drop","tech": "3 routes: kinematics / energy / simulation"},{"level": "L2","p": "P7","title": "Braking Distance Analysis","tech": "parameter sweep to a critical value"},{"level": "L3","p": "P9","title": "Position Function Analysis","tech": "<strong>SymPy</strong> symbolic differentiation"}],"3": [{"level": "L1","p": "P2","title": "Horizontal Launch","tech": "strobe plot proving axis independence"},{"level": "L2","p": "P6","title": "Complementary Angles","tech": "intermediate-point constraint + sensitivity"},{"level": "L3","p": "P9","title": "Projectile on an Incline","tech": "<code>np.roots</code>, <code>brentq</code>, angle optimisation"}],"4": [{"level": "L1","p": "P4","title": "Static Friction Threshold","tech": "friction modelled as a capped function"},{"level": "L2","p": "P5","title": "Inclined Plane with Friction","tech": "critical-angle sweep, mass independence"},{"level": "L3","p": "P9","title": "Three-Block System on an Incline","tech": "<strong>linear system</strong> <code>np.linalg.solve</code> for FBDs"}],"5": [{"level": "L1","p": "P3","title": "Flat Curve Friction","tech": "design chart across surface conditions"},{"level": "L2","p": "P5","title": "Banked Curve Design","tech": "safe-speed band vs available friction"},{"level": "L3","p": "P9","title": "Loop-the-Loop with Friction","tech": "<strong><code>solve_ivp</code> + <code>brentq</code></strong> (no closed form)"}],"6": [{"level": "L1","p": "P4","title": "Power","tech": "peak vs average power from a duty cycle"},{"level": "L2","p": "P8","title": "Work-Energy with a Variable Force","tech": "4 integration routes: sympy/quad/trapz/geometry"},{"level": "L3","p": "P9","title": "Bungee Jump Analysis","tech": "root-finding + full ODE simulation"}],"7": [{"level": "L1","p": "P4","title": "Perfectly Inelastic Collision","tech": "energy-loss audit, reduced mass"},{"level": "L2","p": "P5","title": "Elastic Collision","tech": "mass-ratio sweep, three classic limits"},{"level": "L3","p": "P9","title": "Multi-Body Collision Chain","tech": "<strong>collision engine</strong> with a termination proof"}],"8": [{"level": "L1","p": "P1","title": "Centre of Mass of Three Point Masses","tech": "<code>np.average</code> weighted, defining property"},{"level": "L2","p": "P6","title": "Ladder Against a Smooth Wall","tech": "3×3 equilibrium solve, pivot-independence check"},{"level": "L3","p": "P9","title": "Two-Segment Robot Arm Joint Torques","tech": "forward kinematics + motor-sizing sweep"}],"9": [{"level": "L1","p": "P3","title": "Torque, Angular Acceleration, and a Disk","tech": "linear↔rotational analogy table"},{"level": "L2","p": "P7","title": "Solid vs Hollow Sphere Rolling Down a Ramp","tech": "shape-factor ranking, the rolling race"},{"level": "L3","p": "P9","title": "Atwood Machine with a Massive Pulley","tech": "3×3 coupled FBDs, ideal-pulley limit"}],"10": [{"level": "L1","p": "P4","title": "The Figure Skater","tech": "why KE rises while L is conserved"},{"level": "L2","p": "P6","title": "Two Coaxial Disks Coupling","tech": "rotational inelastic collision, total-loss tuning"},{"level": "L3","p": "P9","title": "Turntable, Putty, and a Restoring Motor","tech": "two-phase analysis, two conservation rules"}],"11": [{"level": "L1","p": "P1","title": "Spring-Mass SHM Basics","tech": "phase relationships + energy exchange plot"},{"level": "L2","p": "P6","title": "Damped Oscillation Over Five Cycles","tech": "envelope approximation vs exact ODE"},{"level": "L3","p": "P10","title": "Robot Joint as a Torsional Oscillator","tech": "<strong>damping design</strong>: overshoot &amp; settling time"}],"12": [{"level": "L1","p": "P3","title": "Phase Lag of a Driven Oscillator","tech": "<code>arctan2</code> branch handling above resonance"},{"level": "L2","p": "P8","title": "Steady-State Amplitude at Three Drive Frequencies","tech": "formula validated against a driven simulation"},{"level": "L3","p": "P9","title": "Vibration Isolation for an Optical Table","tech": "transmissibility trade-off study"}],"13": [{"level": "L1","p": "P1","title": "Reading a Travelling Wave Equation","tech": "crest tracking to *measure* wave speed"},{"level": "L2","p": "P6","title": "Open and Closed Organ Pipes","tech": "harmonic series, missing even harmonics"},{"level": "L3","p": "P10","title": "Fourier Decomposition of a Plucked String","tech": "<strong>Fourier synthesis</strong> + projection integrals"}],"14": [{"level": "L1","p": "P2","title": "Energy Conservation on a Frictionless Incline","tech": "one system, three principles, one answer"},{"level": "L2","p": "P7","title": "Counting Oscillations of a Damped Block","tech": "peak-counting vs envelope formula"},{"level": "L3","p": "P9","title": "Rolling Bodies Climbing an Incline","tech": "energy closure + simulation, course synthesis"}]};
@@ -532,7 +559,10 @@ function renderSolutionLab(n) {
           <code>assert</code>. <strong>Release only after the problem set closes.</strong>
         </div>
         <ul class="sol-list">${items}</ul>
-        <a class="nb-btn" href="#">▶ Open in Colab</a>
+        ${solutionsReleased(n)
+          ? `<a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/solutions/${file}" target="_blank" rel="noopener">▶ Open in Colab</a>`
+          : `<span class="nb-btn locked">🔒 Opens ${unlockLabel(n)}</span>
+        <div class="sol-lock">Week ${String(n).padStart(2,'0')} solutions open at the Week ${n+1} session, after the problem set closes.</div>`}
       </div>
     </div>
   `;
@@ -926,7 +956,7 @@ for (let i = 2; i <= 14; i++) {
         <div class="nb-heading">${w.heading}</div>
         <div class="nb-duration">⏱ ~3 hours &middot; lecture + interactive demos</div>
         <ul class="nb-topics">${topicsHtml}</ul>
-        <a class="nb-btn" href="#">▶ Open in Colab</a>
+        <a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/${w.filename}" target="_blank" rel="noopener">▶ Open in Colab</a>
       </div>
     </div>
     ${renderSolutionLab(i)}
