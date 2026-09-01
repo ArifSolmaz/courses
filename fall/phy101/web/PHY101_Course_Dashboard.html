@@ -516,12 +516,16 @@
 // that problem set is handed out. Term begins Mon 21 Sep 2026 and PHY101
 // meets on Tuesdays, so Week 01 is Tue 22 Sep 2026. Changing WEEK01 below
 // reshuffles all 14 unlock dates at once.
-const WEEK01 = '2026-09-22';   // Tuesday of Week 01
+const WEEK01    = '2026-09-22';   // Tuesday of Week 01
+const TERM_ENDS = '2026-12-18';   // last day of the fall term (Friday)
 
 function solutionsUnlock(n) {
   const d = new Date(WEEK01 + 'T00:00:00');   // local midnight
   d.setDate(d.getDate() + n * 7);             // week n meets on day (n-1)*7
-  return d;
+  // Only 13 Tuesdays fit before the term ends, so the last weeks would
+  // otherwise open after the students have gone. Never release past term end.
+  const last = new Date(TERM_ENDS + 'T00:00:00');
+  return d > last ? last : d;
 }
 function solutionsReleased(n) { return new Date() >= solutionsUnlock(n); }
 function unlockLabel(n) {
