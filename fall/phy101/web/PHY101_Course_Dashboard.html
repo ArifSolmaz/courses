@@ -511,20 +511,25 @@
 </div>
 
 <script>
-// ─── Solution release schedule ────────────────────────────
-// Week N's worked solutions open at the Week N+1 session - one week after
-// that problem set is handed out. Term begins Mon 21 Sep 2026 and PHY101
-// meets on Tuesdays, so Week 01 is Tue 22 Sep 2026. Changing WEEK01 below
-// reshuffles all 14 unlock dates at once.
-const WEEK01    = '2026-09-22';   // Tuesday of Week 01
-const TERM_ENDS = '2026-12-18';   // last day of the fall term (Friday)
+// --- Solution release schedule ------------------------------------
+// Session dates come from the university academic calendar. PHY101 meets on
+// TUESDAYS. Note the week of Mon 02 Nov 2026 is Vize Haftasi with no numbered
+// teaching week, so Week 06 -> Week 07 skips a calendar week.
+// A week's worked solutions open one week after its own session, i.e. when
+// that problem set closes - never after the term ends.
+const SESSIONS = {                       // Tuesday of each teaching week
+   1: '2026-09-22',  2: '2026-09-29',  3: '2026-10-06',  4: '2026-10-13',
+   5: '2026-10-20',  6: '2026-10-27',  7: '2026-11-10',  8: '2026-11-17',
+   9: '2026-11-24', 10: '2026-12-01', 11: '2026-12-08', 12: '2026-12-15'
+};
+const TERM_ENDS = '2026-12-18';   // Derslerin Son Haftasi ends (Friday)
 
 function solutionsUnlock(n) {
-  const d = new Date(WEEK01 + 'T00:00:00');   // local midnight
-  d.setDate(d.getDate() + n * 7);             // week n meets on day (n-1)*7
-  // Only 13 Tuesdays fit before the term ends, so the last weeks would
-  // otherwise open after the students have gone. Never release past term end.
   const last = new Date(TERM_ENDS + 'T00:00:00');
+  const sess = SESSIONS[n];
+  if (!sess) return last;                 // weeks with no scheduled session
+  const d = new Date(sess + 'T00:00:00'); // local midnight
+  d.setDate(d.getDate() + 7);             // one week after that session
   return d > last ? last : d;
 }
 function solutionsReleased(n) { return new Date() >= solutionsUnlock(n); }
@@ -566,7 +571,7 @@ function renderSolutionLab(n) {
         ${solutionsReleased(n)
           ? `<a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/solutions/${file}" target="_blank" rel="noopener">▶ Open in Colab</a>`
           : `<span class="nb-btn locked">🔒 Opens ${unlockLabel(n)}</span>
-        <div class="sol-lock">Week ${String(n).padStart(2,'0')} solutions open at the Week ${n+1} session, after the problem set closes.</div>`}
+        <div class="sol-lock">Worked solutions open once the Week ${String(n).padStart(2,'0')} problem set closes.</div>`}
       </div>
     </div>
   `;
