@@ -14,7 +14,7 @@
 
 ## Weekly Deliverable (standard)
 Each week: **1 comprehensive notebook**
-- `Week_XX.ipynb` (≈5 hours): lecture notes + worked examples + 12-15 exercises + auto-submission
+- `Week_XX.ipynb` (≈5 hours): lecture notes + worked examples + 12-15 exercises
 
 ## Notebook Template (same structure each week)
 1. **Title & Learning Objectives** — always linked back to core mastery
@@ -22,13 +22,10 @@ Each week: **1 comprehensive notebook**
 3. **Content Parts** (6-10 parts per week with explanations + code examples)
 4. **Exercises** (Easy / Medium / Challenge levels) — each framed as a *problem to solve*, not syntax drill
 5. **Bridge Exercise** (preview of next week's topic)
-6. **Auto-submission** (student info + code collection + POST to grading server)
 
-## Distribution & Submission
+## Distribution
 - GitHub repo + "Open in Colab" links
 - Students work in Colab
-- Submission: auto-submit cell sends exercise code to grading server
-- Grading: exercise code collected per `# ✏️ [EXn]` markers
 
 ---
 
