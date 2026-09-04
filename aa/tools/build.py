@@ -172,6 +172,20 @@ FOOT = """</main>
 </html>
 """
 
+STUDIO = """
+<section class="studio-contract">
+  <div class="note blue">
+    <span class="label">Three-hour interactive studio</span>
+    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
+    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
+    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
+    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
+    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
+    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
+  </div>
+</section>
+"""
+
 
 def week_page(meta, body):
     num, title, summary, phase, question, chips = meta
@@ -193,7 +207,9 @@ def week_page(meta, body):
 </div>
 """ if bridge else ""
     )
-    chip_html = "".join(f'<span class="chip">{c}</span>' for c in chips)
+    weekly_chips = [c for c in chips if "hour" not in c]
+    weekly_chips.append("3-hour studio")
+    chip_html = "".join(f'<span class="chip">{c}</span>' for c in weekly_chips)
     out = [
         HEAD.format(
             title=f"Week {num}: {title} — {SHORT}",
@@ -207,6 +223,7 @@ def week_page(meta, body):
   <div class="hero-meta"><span class="chip gold">Big question: {question}</span>{chip_html}</div>
 </div>
 """,
+        STUDIO,
         body.strip(),
         bridge_html,
         f"""
@@ -291,12 +308,12 @@ def main():
             continue
         target = ROOT / f"w{num}" / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(week_page(meta, frag.read_text()), encoding="utf-8")
+        target.write_bytes(week_page(meta, frag.read_text(encoding="utf-8")).encode("utf-8"))
         print(f"  wrote {target.relative_to(ROOT.parent)}")
 
     home_frag = ROOT / "tools" / "home.html"
     if home_frag.exists():
-        (ROOT / "index.html").write_text(home_page(home_frag.read_text()), encoding="utf-8")
+        (ROOT / "index.html").write_bytes(home_page(home_frag.read_text(encoding="utf-8")).encode("utf-8"))
         print(f"  wrote {(ROOT / 'index.html').relative_to(ROOT.parent)}")
     else:
         missing.append("home.html")
@@ -305,7 +322,7 @@ def main():
     if cap_frag.exists():
         target = ROOT / CAP_SLUG / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(capstone_page(cap_frag.read_text()), encoding="utf-8")
+        target.write_bytes(capstone_page(cap_frag.read_text(encoding="utf-8")).encode("utf-8"))
         print(f"  wrote {target.relative_to(ROOT.parent)}")
     else:
         missing.append(f"{CAP_SLUG}.html")
