@@ -1,0 +1,412 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap');
+
+/* Shared editorial design system for course dashboards and syllabi. */
+:root {
+  --bg: #081018;
+  --surface: rgba(15, 27, 34, .88);
+  --surface2: rgba(22, 38, 46, .88);
+  --border: rgba(220, 235, 231, .12);
+  --text: #eef3f1;
+  --text-muted: #8e9c9a;
+  --text-dim: #53615f;
+  --course: #c7f56a;
+  --course-soft: rgba(199, 245, 106, .11);
+  --py-yellow: var(--course);
+  --py-blue: #70cfff;
+  --py-blue-light: #93dcff;
+  --accent-green: #75d99b;
+  --primary-light: var(--course);
+  --lecture-bg: rgba(112, 207, 255, .09);
+  --lecture-border: rgba(112, 207, 255, .46);
+  --lab-bg: rgba(117, 217, 155, .08);
+  --lab-border: rgba(117, 217, 155, .46);
+  --check-bg: var(--course-soft);
+  --check-border: color-mix(in srgb, var(--course) 52%, transparent);
+  --design-serif: "Newsreader", Georgia, serif;
+  --design-sans: "Manrope", system-ui, sans-serif;
+  --design-mono: "DM Mono", ui-monospace, monospace;
+}
+
+body[data-course="aa"] { --course: #ff9e80; --course-soft: rgba(255, 158, 128, .11); }
+body[data-course="oop"] { --course: #ffb45f; --course-soft: rgba(255, 180, 95, .11); }
+body[data-course="dsa"] { --course: #c5a7ff; --course-soft: rgba(197, 167, 255, .11); }
+body[data-course="phy101"], body[data-course="phy102"] {
+  --course: #70cfff;
+  --course-soft: rgba(112, 207, 255, .11);
+  --py-yellow: var(--course);
+  --py-blue: #70cfff;
+  --py-blue-light: #a5e5ff;
+}
+
+body.light {
+  --bg: #f2f1eb;
+  --surface: rgba(252, 252, 247, .88);
+  --surface2: rgba(232, 232, 223, .78);
+  --border: rgba(19, 33, 31, .13);
+  --text: #13211f;
+  --text-muted: #5d6b68;
+  --text-dim: #899491;
+  --py-blue: #176b8e;
+  --py-blue-light: #176b8e;
+  --accent-green: #287146;
+  --lecture-bg: rgba(23, 107, 142, .08);
+  --lecture-border: rgba(23, 107, 142, .35);
+  --lab-bg: rgba(40, 113, 70, .08);
+  --lab-border: rgba(40, 113, 70, .34);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--design-sans);
+  font-weight: 400;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 88% 7%, rgba(82, 195, 255, .08), transparent 28rem),
+    radial-gradient(circle at 7% 35%, var(--course-soft), transparent 25rem),
+    var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .38;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 75%);
+  mask-image: linear-gradient(to bottom, #000, transparent 75%);
+}
+
+button, input, select, textarea { font: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--course); outline-offset: 3px; }
+
+/* Navigation */
+.topbar {
+  min-height: 68px;
+  height: auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  gap: 1rem;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  border-bottom-color: var(--border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.topbar-logo, .topbar-brand {
+  color: var(--text);
+  font-family: var(--design-sans);
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-decoration: none;
+}
+
+.topbar-logo::before, .topbar-brand::before {
+  content: "A";
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--course) 60%, var(--border));
+  border-radius: 50%;
+  color: var(--course);
+  font-family: var(--design-serif);
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.topbar-logo span, .topbar-brand span { color: var(--text-muted); }
+.topbar-pills, .topbar-nav, .topbar-actions { align-items: center; }
+
+.pill, .topbar-nav a, .dark-toggle {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: transparent;
+  font-family: var(--design-mono);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pill.green, .pill.blue, .topbar-nav a.active {
+  border-color: color-mix(in srgb, var(--course) 55%, var(--border));
+  color: var(--course);
+  background: var(--course-soft);
+}
+
+.dark-toggle:hover, .topbar-nav a:hover { color: var(--text); border-color: var(--course); }
+
+/* Dashboard shell */
+.layout { height: calc(100vh - 68px); }
+.sidebar {
+  width: 270px;
+  min-width: 270px;
+  padding: 1.25rem 0;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-right-color: var(--border);
+}
+
+.sidebar-label, .sidebar-phase {
+  color: var(--text-dim);
+  font-family: var(--design-mono);
+  font-size: .61rem;
+  font-weight: 500;
+  letter-spacing: .13em;
+}
+
+.week-btn {
+  min-height: 48px;
+  padding: .62rem 1.2rem;
+  border-left-width: 3px;
+  transition: color .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.week-btn:hover, .week-btn.active { background: var(--course-soft); }
+.week-btn.active { border-left-color: var(--course); }
+.week-num { color: var(--course); font-family: var(--design-mono); }
+.week-title { color: var(--text); font-family: var(--design-sans); font-size: .78rem; }
+.week-btn.active .week-title { color: var(--text); font-weight: 600; }
+
+.main, .main-content {
+  padding: clamp(1.6rem, 4vw, 3.6rem);
+  background: transparent;
+}
+
+.week-panel { max-width: 1080px; margin: 0 auto; }
+.week-header { margin-bottom: 2.4rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.week-tag {
+  color: var(--course);
+  font-family: var(--design-mono);
+  font-size: .65rem;
+  letter-spacing: .14em;
+}
+.week-heading {
+  color: var(--text);
+  font-family: var(--design-serif);
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: -.045em;
+}
+.week-heading em { color: var(--course); }
+.week-desc { max-width: 68ch; color: var(--text-muted); font-size: .95rem; line-height: 1.75; }
+
+.section-title, .panel-title {
+  color: var(--course);
+  font-family: var(--design-mono);
+  font-size: .66rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+}
+.section-title::after { background: var(--border); }
+
+/* Cards and learning objects */
+.obj-card, .nb-card, .ex-card, .info-card, .info-panel, .policy-block,
+.concept-block, .progress-container, .progress-section, .quick-links,
+.phase-tag-card, .sol-row {
+  border-color: var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.obj-card, .info-card, .phase-tag-card { padding: 1rem 1.1rem; }
+.obj-card:hover, .info-card:hover, .ex-card:hover { border-color: color-mix(in srgb, var(--course) 56%, var(--border)); }
+.obj-icon, .week-icon, .link-icon { color: var(--course); }
+.obj-text, .value, .ex-title, .nb-heading, .topic-title { color: var(--text); font-family: var(--design-sans); }
+.nb-filename, .nb-duration, .nb-type, .ex-num, .ex-badge, .label, .lvl-badge {
+  font-family: var(--design-mono);
+}
+.nb-card { overflow: hidden; padding: 1.25rem; }
+.nb-card:hover { transform: translateY(-3px); box-shadow: 0 18px 45px rgba(0,0,0,.12); }
+.nb-card.lecture { background: var(--lecture-bg); border-color: var(--lecture-border); }
+.nb-card.lab { background: var(--lab-bg); border-color: var(--lab-border); }
+.nb-card.check { background: var(--check-bg); border-color: var(--check-border); }
+
+.nb-btn, .week-link, .quick-links-list a, .scroll-top {
+  border: 1px solid var(--course);
+  border-radius: 7px;
+  color: #071012;
+  background: var(--course);
+  font-family: var(--design-mono);
+  font-size: .66rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.nb-btn:hover, .week-link:hover, .quick-links-list a:hover, .scroll-top:hover {
+  color: #071012;
+  background: color-mix(in srgb, var(--course) 86%, #fff);
+  border-color: var(--course);
+  transform: translateY(-2px);
+}
+
+.code-snippet, pre {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 82%, #000);
+  font-family: var(--design-mono);
+}
+code { font-family: var(--design-mono); }
+
+/* Syllabus editorial header */
+body[data-page="syllabus"] .hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(4rem, 8vw, 7rem) 2rem clamp(3.2rem, 6vw, 5.5rem);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+}
+
+body[data-page="syllabus"] .hero::before {
+  content: "";
+  position: absolute;
+  right: max(4vw, 1rem);
+  bottom: -1.4rem;
+  color: var(--course-soft);
+  font: 500 clamp(7rem, 20vw, 16rem)/.8 var(--design-serif);
+  letter-spacing: -.08em;
+  pointer-events: none;
+}
+body[data-page="syllabus"][data-course="cp1"] .hero::before { content: "CP1"; }
+body[data-page="syllabus"][data-course="cp2"] .hero::before { content: "CP2"; }
+body[data-page="syllabus"][data-course="oop"] .hero::before { content: "OOP"; }
+body[data-page="syllabus"][data-course="dsa"] .hero::before { content: "DSA"; }
+body[data-page="syllabus"][data-course="phy101"] .hero::before { content: "101"; }
+body[data-page="syllabus"][data-course="phy102"] .hero::before { content: "102"; }
+
+body[data-page="syllabus"] .hero h1 {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto .7rem;
+  color: var(--text);
+  font-family: var(--design-serif);
+  font-size: clamp(2.8rem, 7vw, 6.4rem);
+  font-weight: 400;
+  line-height: .9;
+  letter-spacing: -.055em;
+}
+
+body[data-page="syllabus"] .hero .subtitle,
+body[data-page="syllabus"] .hero-meta,
+body[data-page="syllabus"] .core-mastery-hero {
+  position: relative;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body[data-page="syllabus"] .hero .subtitle {
+  color: var(--course);
+  font: 500 .68rem/1.5 var(--design-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+body[data-page="syllabus"] .hero-meta { justify-content: flex-start; gap: .7rem 1.5rem; }
+body[data-page="syllabus"] .hero-meta-item { color: var(--text-muted); font-family: var(--design-mono); }
+body[data-page="syllabus"] .hero-meta-item strong { color: var(--text); }
+body[data-page="syllabus"] .core-mastery-hero {
+  border-left-color: var(--course);
+  border-radius: 0 12px 12px 0;
+  color: var(--text);
+  background: var(--course-soft);
+  font-family: var(--design-sans);
+}
+
+.content { max-width: 980px; padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem); }
+.section { margin-bottom: 3.4rem; }
+.info-grid { gap: .8rem; }
+.schedule-table, .grade-table { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+table { color: var(--text); }
+th { color: var(--text-muted); background: var(--surface2); font-family: var(--design-mono); letter-spacing: .08em; }
+td { border-color: var(--border); }
+tbody tr:hover { background: var(--course-soft); }
+
+/* PHY102's card dashboard uses a different DOM but the same visual language. */
+.main-content { max-width: 1180px; margin: 0 auto; }
+body[data-course="phy102"][data-page="dashboard"] > .hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(4.5rem, 8vw, 7rem) max(2rem, calc((100vw - 900px) / 2)) clamp(3.5rem, 7vw, 5.5rem);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+}
+body[data-course="phy102"][data-page="dashboard"] > .hero::after {
+  content: "102";
+  position: absolute;
+  right: max(2rem, calc((100vw - 1000px) / 2));
+  bottom: -1.2rem;
+  z-index: -1;
+  color: var(--course-soft);
+  font: 500 clamp(8rem, 20vw, 16rem)/.8 var(--design-serif);
+  letter-spacing: -.08em;
+}
+body[data-course="phy102"][data-page="dashboard"] > .hero h1 {
+  color: var(--text);
+  font: 400 clamp(3.2rem, 7vw, 6.2rem)/.88 var(--design-serif);
+  letter-spacing: -.055em;
+}
+body[data-course="phy102"][data-page="dashboard"] > .hero .subtitle {
+  color: var(--course);
+  font: 500 .68rem/1.5 var(--design-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+body[data-course="phy102"][data-page="dashboard"] > .hero .hero-meta { justify-content: flex-start; }
+body[data-course="phy102"][data-page="dashboard"] > .hero .hero-meta-item { color: var(--text-muted); }
+body[data-course="phy102"][data-page="dashboard"] > .hero .hero-meta-item strong { color: var(--text); }
+body[data-course="phy102"][data-page="dashboard"] > .hero .core-mastery-hero {
+  margin-left: 0;
+  margin-right: 0;
+  border-left-color: var(--course);
+  color: var(--text);
+  background: var(--course-soft);
+}
+.weeks-grid, .panels-grid { gap: 1rem; }
+.week-link { text-decoration: none; }
+.week-card-header { border-color: var(--border); }
+.week-number { color: var(--course); font-family: var(--design-mono); }
+.week-check { color: var(--course); }
+.week-topics, .topic-items, .ex-desc, .nb-topics, .info-banner-text { color: var(--text-muted); }
+.progress-bar-fill { background: var(--course); }
+.info-banner { border-color: var(--course); background: var(--course-soft); }
+
+@media (max-width: 760px) {
+  .topbar { min-height: 60px; padding: .65rem 1rem; flex-wrap: wrap; }
+  .topbar-pills .pill:not(:last-child) { display: none; }
+  .topbar-nav a:not(.active), .topbar-actions a { display: none; }
+  .layout { height: calc(100vh - 60px); }
+  .sidebar { width: 72px; min-width: 72px; }
+  .sidebar-label, .sidebar-phase, .week-title, .lock-icon { display: none; }
+  .week-btn { justify-content: center; padding: .7rem .35rem; }
+  .week-num { min-width: 0; }
+  .main, .main-content { padding: 1.3rem 1rem 3rem; }
+  .week-header { display: block; }
+  .progress-ring-wrap { margin-top: 1.2rem; text-align: left; }
+  body[data-page="syllabus"] .hero { padding-left: 1rem; padding-right: 1rem; }
+  body[data-course="phy102"][data-page="dashboard"] > .hero { padding: 3.5rem 1rem 3rem; }
+  .content { padding-left: 1rem; padding-right: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@media print {
+  .topbar { position: static; background: #fff; }
+  body { color: #111; background: #fff; }
+  body::before { display: none; }
+}
