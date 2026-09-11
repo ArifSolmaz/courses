@@ -4,6 +4,20 @@ Updated 11 September 2026. All actionable recommendations from the course audit 
 
 **Türkçe:** İncelemedeki içerik ve kullanım sorunları giderildi. On dört haftalık konu sırası, molalar ve tekrar süreleri korundu. Her alıştırma için açıklamalı çözüm eklendi. Resmî CP1 tarihleri verilmediği için takvim tarihleri tahmin edilmedi.
 
+## Light and dark theme correction — 11 September 2026
+
+Code examples now pair their text and surface colors in both themes, with a larger
+reading size. Syllabus labels, table headings, ordinary links and button focus use
+readable theme colors. On screens up to 600px wide, syllabus schedule and grading
+rows stack into labelled cards. Updated asset versions make browsers fetch the
+corrected styles.
+
+Browser checks cover all 14 weekly dashboard panels and the full syllabus in light
+and dark mode at 1440, 390 and 320 px: **90 states**, with no detected text-contrast
+failures or horizontal page overflow. Code-block contrast is at least **13.66:1 in
+light mode** and **16.02:1 in dark mode**. The existing course structure/coverage check
+also passes. Notebook content and execution records are unchanged.
+
 ## Start here
 
 - [Course dashboard](web/CP1_Course_Dashboard.html)
