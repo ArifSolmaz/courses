@@ -27,10 +27,13 @@ def main():
         nbformat.validate(book)
         source_cells = len(book.cells)
         code_digest = hashlib.sha256("\n".join(c.source for c in book.cells if c.cell_type == "code").encode("utf-8")).hexdigest()
-        if any(c.get("id") == "phy101-widget-layout" for c in book.cells):
+        if any("class _PhysicsStableInteractive(" in c.source for c in book.cells if c.cell_type == "code"):
             book.cells.append(nbformat.v4.new_code_cell(
                 "assert not _physics_callback_errors, _physics_callback_errors\n"
                 "for _panel in _physics_panels:\n"
+                "    assert _panel.layout.flex_flow == 'column'\n"
+                "    assert _panel.out.layout.height == 'auto' and _panel.out.layout.overflow == 'visible'\n"
+                "    assert _panel.children[0].layout.flex_flow == 'row wrap'\n"
                 "    assert _panel.out.outputs, ('Empty demonstration', _panel.f.__name__)\n"
                 "    assert not any('Traceback (most recent call last)' in o.get('text', '') for o in _panel.out.outputs), _panel.f.__name__\n"
                 "print('Widget callbacks checked:', len(_physics_panels))"))

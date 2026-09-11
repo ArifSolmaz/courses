@@ -2,7 +2,41 @@
 
 Reviewed 11 September 2026 against the local course notes, the lecture column of the supplied schedule image, and the separate `phy101-solutions` repository.
 
-## Lecture scope and Colab links — current revision
+## Colab table and demonstration layout — current revision
+
+The three reported Colab issues are addressed in both the fourteen source modules
+and the thirteen dated lessons. Self-referential “Open in Colab” links and badges
+are removed from notebooks; the course dashboard and syllabus retain their launch
+buttons. Notebook navigation still links to other lessons and the course page.
+
+Table blocks now use full-width HTML with explicit column widths. This is necessary
+because Colab strips inline CSS and typesets mathematics against the narrow initial
+columns of its Markdown tables. Equations retain their LaTeX source. Absolute-value
+bars inside mathematics no longer accidentally split table columns.
+
+The shared widget layout places a wrapping control toolbar above the complete
+output. It has no fixed-height inner scrolling pane. All three vector demonstrations
+combine the graph, legend and numerical table in one 840 × 360 pixel image.
+Kinematics, centre-of-mass, inertia and oscillation displays are also shorter, with
+related values kept in the same graphic. Repeated callbacks still replace complete
+MIME records in one persistent output widget.
+
+In actual Colab rendering, eight representative tables with 43 mathematical
+expressions produced no MathJax errors. The SI-prefix table expanded from about
+212 × 456 pixels to 1000 × 231 pixels, with all seven conversions on single lines.
+Long prose rows use horizontal scrolling when their content cannot fit the screen.
+Local browser checks at 1366 × 768 and 1440 × 900 show each Week 1 widget's controls,
+plot, numerical table and legend together in a 413–445 pixel-high panel. Thirteen
+actual slider/dropdown changes kept the output visible.
+
+All 27 final notebooks passed fresh-kernel execution, with callback-output checks
+and matching final code hashes. The source modules retain all 140 numbered problems;
+all 13 dated lessons reproduce, and the maintenance pipeline is idempotent.
+Current verification is recorded in `notebook_review_verification.json`. Hosted
+Colab table rendering and local live widget execution are distinct checks: a local
+kernel does not establish that a signed-in Colab runtime has executed successfully.
+
+## Lecture scope and Colab links — prior verification
 
 The course materials now use only the lecture topics and dates. Preparation and
 administrative information for the separate practical course have been removed.
@@ -19,7 +53,7 @@ are records of the earlier textbook edition, not newly executed checks for this
 revision. The published Week 1 mathematics was previously inspected in Colab;
 execution of hosted Colab runtimes and widget callbacks was not tested.
 
-Current checks validate all 27 notebooks and their opening Colab links, confirm
+The checks for that revision validated all 27 notebooks and their opening Colab links, confirmed
 that all 13 dated lessons reproduce, and pass both public and full calendar
 synchronization. The unchanged code in 26 notebooks and Module 08’s comment-only edit
 have identical executable syntax to the earlier tested edition. Browser checks
@@ -64,9 +98,9 @@ The separate solutions repository contains **all 140 numbered problems, includin
 
 ## Demonstrations and controls
 
-- Parameter controls sit beside a bounded, separately scrolling output area on desktop. On narrow screens they stack above a shorter output area.
+- Parameter controls form a wrapping toolbar directly above the full-width result, which uses its natural height without a nested vertical scroller.
 - Sliders redraw after release, reducing repeated calculation while dragging.
-- Animation playback controls appear above the image and remain visible while its pane scrolls.
+- Animation playback controls appear above the image in the same output.
 - Animations use at most 60 displayed frames, retaining the original calculation data, first/last frames, and first-to-last playback duration.
 - Inline plotting is selected explicitly to prevent local kernels from waiting on a separate desktop plot window.
 

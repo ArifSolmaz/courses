@@ -19,6 +19,7 @@ from datetime import date
 from pathlib import Path
 
 import nbformat
+from notebook_tables import format_markdown_tables
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -418,12 +419,11 @@ def build_lesson(row, modules, calendar):
     session=readable_date(row['session_date']) if row['session_date'] else 'Exact exam date follows the instructor announcement / Kesin sınav günü ders duyurusunda'
     add(f"# Calendar Week {week:02} — {row['title_en']}\n\n## {row['title_tr']}\n\n**Date range:** {readable_date(row['start'])} – {readable_date(row['end'])}  \n**Class / exam:** {session}\n\n**This week's scope:** {row['scope']}.\n\nThese are the actual notes selected for this dated lesson. Read the physics and do the algebra on paper; the optional demonstrations are grouped at the end. Existing numbered source notebooks are a **topic library**, so a label such as **Module 06 P2** stays the same even when taught in Calendar Week 05. **TR:** Takvim haftası ile kaynak modül numarası farklıdır; bu dosyadaki sıra o haftanın gerçek ders sırasıdır.","title")
     colab_base = 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/'
-    add(f'[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)]({colab_base}{row["notebook"]})\n\n[Open this lesson in Colab / Bu dersi Colab’da aç]({colab_base}{row["notebook"]}) · [Course page / Ders sayfası](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html)\n\nRead the explanations first. For interactive figures, open Colab and run Setup, then the demonstration. **Türkçe:** Etkileşimli grafikler için önce hazırlık hücrelerini, ardından ilgili gösterimi çalıştır.','colab')
     navigation=['[1. Read and work through the examples](#lesson-concepts)']
     if lesson['practice']:navigation.append('[2. Practise on paper](#lesson-practice)')
     navigation.append('[3. Check your understanding](#lesson-exit)')
     if lesson['demos']:navigation.append('[4. Optional visual checks](#lesson-demos)')
-    add('## Find your place / Nereden devam etmeli?\n\n**Notes edition: 11 September 2026 — typeset equations and worked explanations.**\n\n'+' · '.join(navigation)+'\n\nEnglish carries the main explanation; Turkish notes unpack the difficult step. Keep the model answers closed until you have tried the example or question.','navigation')
+    add('## Find your place / Nereden devam etmeli?\n\n**Notes edition: 11 September 2026 — readable tables and compact demonstrations.**\n\n'+' · '.join(navigation)+'\n\nEnglish carries the main explanation; Turkish notes unpack the difficult step. Keep the model answers closed until you have tried the example or question.\n\n[Course page / Ders sayfası](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html)','navigation')
     if row['kind']!='midterm':
         focus=lesson['focus']
         add(f"## A three-hour route with review space / Üç saatlik ders akışı\n\n| Minutes | Activity |\n|---|---|\n| 0–10 | Retrieval: {lesson['recap']} |\n| 10–50 | {focus[0]} |\n| 50–60 | Break / Ara |\n| 60–100 | {focus[1]} |\n| 100–110 | Break / Ara |\n| 110–150 | Guided paper practice: core problems below |\n| 150–170 | Review difficult steps, one optional visual check, and questions |\n| 170–180 | Explain the result and exit check |\n\nThe core route is enough for the lesson. Extra problems and visual demonstrations are optional; use the review space to slow down when a sign or algebra step is unclear.","route")
@@ -444,7 +444,7 @@ def build_lesson(row, modules, calendar):
         add('## Optional preview: dot product and projection / İzdüşüme hazırlık\n\nReturn to these tools when studying work. Finish components and addition first; this preview does not add another required topic to today’s calendar.','support')
         for index,spec in enumerate(lesson['support_sections']):cells.append(copy_source(spec,modules,f'support{index}'))
     if lesson['demos']:
-        add('<a id="lesson-demos"></a>\n\n## Optional visual demonstration / İsteğe bağlı görselleştirme\n\n'+lesson['demo_prompt']+'\n\nRun the setup cells once, then the selected demo. Controls stay beside a scrolling result pane. Predict first, change one input, and explain the observation; coding is not a learning requirement. **TR:** Kod ayrıntılarını öğrenmek zorunda değilsin. Önce tahmin et, sonra tek değişkeni değiştir ve sonucu açıkla.','demos')
+        add('<a id="lesson-demos"></a>\n\n## Optional visual demonstration / İsteğe bağlı görselleştirme\n\n'+lesson['demo_prompt']+'\n\nRun the setup cells once, then the selected demo. Controls sit directly above the complete result. Predict first, change one input, and explain the observation; coding is not a learning requirement. **TR:** Kod ayrıntılarını öğrenmek zorunda değilsin. Kontroller sonucun hemen üstündedir. Önce tahmin et, sonra tek değişkeni değiştir ve sonucu açıkla.','demos')
         demo_modules=list(dict.fromkeys(s['module'] for s in lesson['demos']))
         for module in demo_modules:cells.append(copy_source(source(module,SETUP_IDS[module]),modules,f'setup{module}'))
         cells.append(copy_source(source(demo_modules[0],'phy101-widget-layout'),modules,'interface'))
@@ -459,6 +459,9 @@ def build_lesson(row, modules, calendar):
     links='; '.join(f'[Module {m:02} — Open in Colab]({colab_base}notebooks/Week_{m:02}.ipynb)' for m in used)
     dates='; '.join(f'Module {m:02}: {calendar["release_dates"][str(m)]}' for m in used)
     add('## Sources and solution references / Kaynaklar\n\n'+(links if links else f'[Review lesson — Open in Colab]({colab_base}calendar/Week_06.ipynb)')+'\n\n'+('Solution release dates from the course calendar: '+dates+'.\n\n' if dates else '')+'The module library keeps all original problem IDs and full topic coverage. Complete solutions stay in the separate solutions collection and follow the dashboard release dates. The selected notes above are the teaching sequence for this calendar week.','sources')
+    for cell in cells:
+        if cell.cell_type == 'markdown':
+            cell.source = format_markdown_tables(cell.source)
     nb=nbformat.v4.new_notebook(cells=cells,metadata={'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},'language_info':{'name':'python'},'phy101_calendar':{'week':week,'kind':row['kind'],'start':row['start'],'end':row['end'],'session_date':row['session_date'],'title_en':row['title_en'],'title_tr':row['title_tr'],'modules':row['modules'],'support_modules':row['support_modules'],'source_modules_used':used,'generated_by':'tools/build_calendar_notebooks.py','calendar_source':'../calendar.json'}})
     nb.nbformat_minor=5
     nbformat.validate(nb)

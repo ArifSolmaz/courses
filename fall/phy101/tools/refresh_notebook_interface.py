@@ -9,13 +9,14 @@ import ast
 import json
 import re
 import sys
+from notebook_tables import format_markdown_tables
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER_ID = "phy101-widget-layout"
 GUIDE_ID = "phy101-reading-guide"
 GUIDE = """## How to use these physics notes / Bu notları nasıl kullanmalı?
 
-**Notes edition: 11 September 2026 — typeset equations and worked explanations.**
+**Notes edition: 11 September 2026 — readable tables and compact demonstrations.**
 
 **Read the physics and the worked algebra first.** Draw the system, choose a law,
 rearrange the equation, substitute values with units, and check the answer.
@@ -23,19 +24,19 @@ You can solve the problems on paper; writing Python is not a learning requiremen
 
 **Use a demonstration as a check:** run Setup and the layout cell once, then run
 the demo you want. Predict what will change before moving a slider. Release the
-slider to update; controls stay beside the result while the plot area scrolls.
-On a narrow screen the controls stack above a shorter plot pane.
+slider to update. The controls sit directly above the result and wrap onto
+another line on a narrow screen. Vector diagrams and their values share one figure.
 
 Long plotting code is collapsed. In Colab it appears as a labelled run cell;
 open its source only if you want to inspect the implementation. Animations have
 their own play/pause buttons and use sampled display frames; calculations keep the
 original data. An exported or GitHub preview cannot run Python
-sliders: open the notebook in Colab/Jupyter and run the cells for live controls.
+sliders; run the cells in a notebook runtime for live controls.
 
 **Türkçe:** Önce şekil → fizik ilkesi → denklem → cebirsel işlem → birimli sonuç.
 Python yazmak zorunda değilsin. Grafikte ne değişeceğini tahmin et, kaydırıcıyı
-değiştirip bırak ve sonucu yorumla. Bir şekil büyükse sonuç alanını kaydır;
-kontroller aynı panelde kalır.
+değiştirip bırak ve sonucu yorumla. Kontroller sonucun hemen üstündedir;
+vektör şekli ve değerleri aynı görselde yer alır.
 """
 
 
@@ -129,18 +130,18 @@ def refresh(path):
                 cell["outputs"] = []
                 cell.setdefault("metadata", {}).update({"cellView": "form", "jupyter": {"source_hidden": True}})
                 cell["metadata"]["tags"] = list(dict.fromkeys(cell["metadata"].get("tags", []) + ["hide-input"]))
+        if cell["cell_type"] == "markdown":
+            cell["source"] = lines(format_markdown_tables("".join(cell["source"])))
         rebuilt.append(cell)
         if cell["cell_type"] == "code" and not added_helper and re.search(r"(?:import ipywidgets|from ipywidgets import)", source):
             rebuilt.append({"cell_type": "code", "id": HELPER_ID,
                 "metadata": {"cellView": "form", "jupyter": {"source_hidden": True}, "tags": ["hide-input"]},
-                "source": lines("#@title Run once — keep controls beside figures\n" + helper),
+                "source": lines("#@title Run once — prepare compact demonstration controls\n" + helper),
                 "execution_count": None, "outputs": []})
             added_helper = True
     if not added_helper:
         raise ValueError(f"No widget import/setup found in {path}")
-    colab_url = "https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/" + path.resolve().relative_to(ROOT).as_posix()
-    opening = f"[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)]({colab_url})\n\n[Open this notebook in Colab / Bu notu Colab’da aç]({colab_url})\n\n"
-    rebuilt.insert(1, {"cell_type": "markdown", "id": GUIDE_ID, "metadata": {}, "source": lines(opening + GUIDE)})
+    rebuilt.insert(1, {"cell_type": "markdown", "id": GUIDE_ID, "metadata": {}, "source": lines(GUIDE)})
     # v4.5 is the first notebook schema with stable cell IDs. Some original
     # notebooks are v4.2, so adding IDs also needs this explicit minor upgrade.
     notebook["nbformat_minor"] = max(5, notebook.get("nbformat_minor", 0))

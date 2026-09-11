@@ -44,24 +44,20 @@ def physics_interval(frame_count, interval_ms):
 
 PHYSICS_STYLE = """<style>
 .phy101-panel { border: 1px solid #a9b9c9; border-radius: 8px; padding: 8px; }
-.phy101-controls { padding: 4px 8px 4px 0; box-sizing: border-box; overflow-x: hidden; }
+.phy101-controls { padding: 0 0 4px; box-sizing: border-box; }
 .phy101-plot-output img { max-width: 100%; height: auto; object-fit: contain; }
 .phy101-plot-output .output_area { overflow: visible; }
 .phy101-plot-output table { font-size: 13px; width: 100%; }
 .phy101-plot-output .animation { max-width: 100%; }
-.phy101-plot-output .animation img { max-height: 390px; width: auto; object-fit: contain; }
-.phy101-animation-panel { max-height: 470px; overflow: auto; }
+.phy101-plot-output .animation img { max-width: 100%; height: auto; object-fit: contain; }
+.phy101-animation-panel { max-width: 100%; }
 .phy101-animation-panel .animation { display: flex; flex-direction: column; }
 .phy101-animation-panel .animation img { order: 2; max-width: 100%; height: auto; }
-.phy101-animation-panel .anim-controls { order: 1; position: sticky; top: 0;
-  z-index: 2; background: white; color: #172433; padding: 4px; }
-.phy101-plot-output .phy101-animation-panel { max-height: 410px; }
+.phy101-animation-panel .anim-controls { order: 1;
+  background: white; color: #172433; padding: 4px; }
 @media (max-width: 650px) {
   .phy101-panel { flex-direction: column !important; }
-  .phy101-controls { width: 100% !important; flex-basis: auto !important;
-                     max-height: 170px; overflow-y: auto; }
-  .phy101-plot-output { width: 100% !important; flex-basis: auto !important;
-                       max-height: 350px !important; }
+  .phy101-controls, .phy101-plot-output { width: 100% !important; }
 }
 </style>"""
 display(HTML(PHYSICS_STYLE))
@@ -86,29 +82,36 @@ def _physics_controls(items):
             control.continuous_update = False
         if hasattr(control, "style") and "description_width" in control.style.traits():
             control.style.description_width = "initial"
-        control.layout.width = "calc(100% - 8px)"
+        control.layout.width = "310px"
+        control.layout.flex = "0 1 310px"
+        control.layout.max_width = "100%"
         control.layout.min_width = "0"
+        control.layout.margin = "2px 6px 2px 0"
+        if isinstance(control, widgets.Button):
+            control.layout.width = "auto"
+            control.layout.flex = "0 0 auto"
     # Include the style in each output: Colab may isolate output frames.
     style = widgets.HTML(value=PHYSICS_STYLE, layout=widgets.Layout(display="none"))
-    box = widgets.VBox([style] + flat, layout=widgets.Layout(
-        flex="0 0 245px", width="245px", min_width="0", max_width="100%"))
+    box = widgets.Box([style] + flat, layout=widgets.Layout(
+        display="flex", flex_flow="row wrap", align_items="center",
+        width="100%", min_width="0", max_width="100%"))
     box.add_class("phy101-controls")
     return box
 
 
 def _physics_output(output):
     output.layout = widgets.Layout(
-        flex="1 1 320px", min_width="0", max_width="100%",
-        height="480px", overflow="auto", margin="0")
+        width="100%", min_width="0", max_width="100%",
+        height="auto", overflow="visible", margin="0")
     output.add_class("phy101-plot-output")
     return output
 
 
 def physics_panel(controls, output):
-    """Keep custom button controls beside a separately scrolling result pane."""
+    """Keep a compact control toolbar directly above the complete result."""
     panel = widgets.Box([_physics_controls(controls), _physics_output(output)],
-        layout=widgets.Layout(display="flex", flex_flow="row wrap",
-                              align_items="flex-start", width="100%"))
+        layout=widgets.Layout(display="flex", flex_flow="column",
+                              align_items="stretch", width="100%"))
     panel.add_class("phy101-panel")
     return panel
 
@@ -183,8 +186,8 @@ def physics_interactive(function, **controls):
     panel = _PhysicsStableInteractive(checked, {"auto_display": True}, **controls)
     inputs = [child for child in panel.children if child is not panel.out]
     panel.children = (_physics_controls(inputs), _physics_output(panel.out))
-    panel.layout = widgets.Layout(display="flex", flex_flow="row wrap",
-                                  align_items="flex-start", width="100%")
+    panel.layout = widgets.Layout(display="flex", flex_flow="column",
+                                  align_items="stretch", width="100%")
     panel.add_class("phy101-panel")
     _physics_panels.append(panel)
     return panel
