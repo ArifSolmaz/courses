@@ -9,7 +9,7 @@ fragment aa/tools/home.html, wraps them in the shared page template and writes:
 
     aa/index.html          course home + syllabus
     aa/w1/index.html ...   one folder per week, so the published URL is
-    aa/w14/index.html      https://arifsolmaz.github.io/aa/w1 ... /w14
+    aa/w14/index.html      https://arifsolmaz.github.io/courses/aa/w1/ ... /w14/
 
 Only the fragments and this file are edited by hand; everything under
 aa/w*/ is generated.
@@ -114,10 +114,11 @@ BRIDGES = {
        "ways, landing in four completely different classes.",
     9: "You saw that changing <em>strategy</em> — not language or hardware — buys orders of "
        "magnitude. Week 10 hunts those costs inside everyday Python list operations.",
-    10: "You learned that searching a list and inserting at its front are both O(n). Week 11 "
-        "introduces the structures that make lookup O(1): dictionaries and sets.",
-    11: "Hashing bought O(1) lookup but threw away order. Week 12 is for when you need order "
-        "back — searching sorted data in O(log n) with binary search.",
+    10: "You learned that a full list search and a front insertion cost O(n). Week 11 "
+        "introduces average O(1) lookup with dictionaries and sets, under the usual hashing assumptions.",
+    11: "Hashing gives fast average lookup, with preparation and memory costs. Dictionaries "
+        "preserve insertion order; sets do not provide sorted order. Week 12 explores another "
+        "choice — searching sorted data in O(log n) with binary search.",
     12: "Binary search only works on sorted data. Week 13 asks what sorting itself costs, and "
         "why the sort you invent is so much slower than the built-in one.",
     13: "You now have the whole toolkit — measuring, naming, choosing, and the cost of the "
@@ -155,6 +156,7 @@ HEAD = """<!DOCTYPE html>
   <nav class="header-nav">
     <a class="hlink" href="{base}index.html">Course home</a>
     <a class="hlink" href="{base}index.html#weeks">All weeks</a>
+    <a class="hlink" href="{base}guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -190,6 +192,14 @@ STUDIO = """
 def week_page(meta, body):
     num, title, summary, phase, question, chips = meta
     base = "../"
+    from build_guide import slug
+    guide_source = ROOT / "tools" / "guide" / "weeks" / f"w{num:02d}.md"
+    guide_heading = guide_source.read_text(encoding="utf-8").splitlines()[0].removeprefix("# ")
+    guide_link = (
+        f'<div class="note green"><p><strong>Need a slower walkthrough?</strong> '
+        f'<a href="../guide/#{slug(guide_heading)}">Open Week {num} in the detailed learning guide</a> '
+        'for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>'
+    )
     prev_link = (
         f'<a href="../w{num-1}/">&larr; Week {num-1}</a>' if num > 1
         else '<a href="../index.html">&larr; Course home</a>'
@@ -224,6 +234,7 @@ def week_page(meta, body):
 </div>
 """,
         STUDIO,
+        guide_link,
         body.strip(),
         bridge_html,
         f"""
@@ -330,7 +341,9 @@ def main():
     if missing:
         print("\nMISSING FRAGMENTS: " + ", ".join(missing), file=sys.stderr)
         return 1
-    print("\nOK — 14 weeks + capstone + home built.")
+    from build_guide import build as build_guide
+    build_guide()
+    print("\nOK — 14 weeks + capstone + home + detailed guide built.")
     return 0
 
 

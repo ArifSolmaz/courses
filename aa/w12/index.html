@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,6 +43,7 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-12--binary-search-boundaries-and-preparation">Open Week 12 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
@@ -124,11 +126,10 @@
   <div class="code"><div class="code-head"><span class="dot"></span>see the steps for yourself</div><pre><code>data = list(range(1000000))          <span class="c"># already sorted</span>
 
 print(binary_search(data, 999999))   <span class="c"># (999999, 20)</span>
-print(binary_search(data, 0))        <span class="c"># (0, 20)</span>
-print(binary_search(data, -5))       <span class="c"># (-1, 20)</span></code></pre></div>
+print(binary_search(data, 0))        <span class="c"># (0, 19)</span>
+print(binary_search(data, -5))       <span class="c"># (-1, 19)</span></code></pre></div>
   <p>
-    Twenty steps in a million-item list — for a hit at the far end, a hit at the near end,
-    and a miss alike. Compare with linear search, which needs up to a million.
+    At most twenty middle inspections in this million-item list. These exact calls use twenty for the far-end hit and nineteen for the near-end hit and the miss. Compare with linear search, which needs up to a million.
   </p>
   <div class="note red">
     <span class="label">The two ways to get this wrong</span>
@@ -192,10 +193,7 @@ print(binary_search(data, -5))       <span class="c"># (-1, 20)</span></code></p
   <div class="note blue">
     <span class="label">Counting the halvings</span>
     <p>
-      Each step at most halves the window, so the number of steps is about how many times you
-      can halve n before reaching one — which is <code>log₂ n</code>, rounded up. For n = 10
-      that is 4; for n = 1 000 000 it is 20. The <code>steps</code> counter the function returns
-      is <code>log₂ n</code> made visible.
+      Each mismatch at least halves the remaining candidate count. For this inclusive-boundary implementation, the maximum number of middle inspections is <code>floor(log₂ n) + 1</code> for n &gt; 0, and zero for n = 0. This is 4 at n = 8 or 10 and 20 at n = 1 000 000. Actual hits and misses can use fewer steps; reaching one candidate is not the same as checking it.
     </p>
   </div>
 </section>
@@ -239,8 +237,7 @@ print(binary_search(data, -5))       <span class="c"># (-1, 20)</span></code></p
   <p>
     The defence is not cleverness, it is a fixed set of tests. Any binary search you write
     should be tried on: an empty list, a one-item list, a two-item list, the very first
-    element, the very last element, and a value that is absent. If all six pass, the function
-    is almost certainly correct.
+    element, the very last element, and a value that is absent. Passing these tests is useful evidence, not proof. Justify correctness by showing that all possible answers stay inside the window and that every mismatch strictly shrinks it.
   </p>
   <p>
     A useful cousin returns not "is it here?" but "where would it go?" — the
@@ -288,12 +285,12 @@ print(insertion_point(data, 99))      <span class="c"># 5  — past the end</spa
         <tr><td>Many searches, data stays put</td><td>Sort once, then binary search</td><td>O(n log n) once + O(log n) each</td></tr>
         <tr><td>Many searches, you only ask "is it there?"</td><td>Build a set</td><td>O(n) once + O(1) each</td></tr>
         <tr><td>Data already sorted for other reasons</td><td>Binary search</td><td>O(log n) each</td></tr>
-        <tr><td>You need neighbours, ranges, "next larger"</td><td>Sorted list + <code>bisect</code></td><td>O(log n) each — a set cannot do this</td></tr>
+        <tr><td>You need neighbours, ranges, "next larger"</td><td>Sorted list + <code>bisect</code></td><td>O(log n) to locate boundaries or a neighbour; returning k range items adds O(k)</td></tr>
       </tbody>
     </table>
   </div>
   <p>
-    Notice row three: for plain membership, a set beats binary search. Binary search earns
+    Notice row three: for repeated plain membership, a set offers average O(1) query time, while binary search offers O(log n); measured constants and preparation still matter. Binary search earns
     its place when you need <em>order</em> — the nearest value, everything between two
     dates, the next larger measurement. That is a question a hash table cannot answer at
     all.
@@ -319,7 +316,7 @@ print(insertion_point(data, 99))      <span class="c"># 5  — past the end</spa
 data = [10, 20, 30, 40, 50]
 
 i = bisect.bisect_left(data, 30)
-print(i, data[i] == 30)          <span class="c"># 2 True  — found at position 2</span>
+print(i, i &lt; len(data) and data[i] == 30)   <span class="c"># 2 True; boundary check also handles empty/missing inputs</span>
 
 print(bisect.bisect_left(data, 35))   <span class="c"># 3 — where 35 would go</span>
 bisect.insort(data, 35)               <span class="c"># insert and keep sorted</span>
@@ -391,7 +388,7 @@ n= 1000000  linear  42.0517s   binary 0.00119s   set 0.00007s</div>
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        About 10, 14, 17, 20, 24. Each ten-fold increase in data adds roughly three or four
+        For a missing target larger than every item: 10, 14, 17, 20, 24. Other missing targets can take fewer steps. Each ten-fold increase in data adds roughly three or four
         steps. That is what "logarithmic" feels like from the inside.
       </p>
     </details>
@@ -415,7 +412,7 @@ n= 1000000  linear  42.0517s   binary 0.00119s   set 0.00007s</div>
     </p>
     <details class="solution"><summary>What you should find</summary>
       <p>
-        For a single search, plain linear wins — the preparation costs more than the scan.
+        For a single search, linear scanning avoids preparation and is often preferable; the actual winner depends on the input and implementation.
         The set overtakes very quickly (usually within a handful of queries) because building
         it is only one pass. Sorting pays off later than the set for pure membership, but it
         is the only one of the three that also answers range questions.

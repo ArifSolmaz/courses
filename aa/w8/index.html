@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,6 +43,7 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-08--big-o-precise-bounds-cases-and-space">Open Week 8 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
@@ -67,10 +69,10 @@
     T(n) = 5n² + 200n + 3000 &nbsp;&rarr;&nbsp; O(n²)
   </p>
   <p>
-    Read it aloud as "oh of n squared" or "order n squared". It means: <em>as the input
-    grows, the work grows in proportion to n²</em>. It is a statement about shape, not
-    about speed. O(n²) code can be quick on ten items and hopeless on ten thousand;
-    Big-O tells you which of those two facts will still be true next year.
+    Read it aloud as "oh of n squared" or "order n squared". It means an <em>eventual upper bound</em>: for some fixed c &gt; 0 and n₀, the
+    cost is at most c n² for every n ≥ n₀. It need not grow exactly in proportion to n²;
+    linear cost is also O(n²). Use Θ(n²) for matching quadratic upper and lower bounds.
+    A bound describes growth under a stated cost model, not a duration in seconds.
   </p>
   <div class="note blue">
     <span class="label">What Big-O deliberately ignores</span>
@@ -98,15 +100,16 @@
     </table>
   </div>
   <p>
-    The order above is from best to worst, and the gaps between the rows are enormous.
-    Drag the slider and read the right-hand column as clock time, on a computer doing ten
-    million steps a second:
+    The rows illustrate growth models such as T(n) = c n and T(n) = c n². Their
+    doubling responses describe those models, not every function satisfying the listed
+    upper bound. Drag the slider to explore hypothetical durations at ten million
+    unit-cost steps per second; these are model calculations, not benchmarks:
   </p>
   <div class="widget" id="growth8" data-growth="time"></div>
   <p>
-    At n = 1 000 000 the difference between O(n) and O(n²) is the difference between "a
-    tenth of a second" and "the rest of the week". No hardware purchase closes that gap.
-    Choosing the right approach does.
+    At n = 1 000 000 in this model, n steps take 0.1 s, while n² steps take
+    100 000 s, about 27.8 hours. That million-fold difference shows why the algorithmic
+    strategy can matter much more than a modest hardware speedup.
   </p>
 </section>
 
@@ -197,7 +200,8 @@ def halvings(n):
     <p>
       A is <code>O(1)</code>: one shelf lookup, whatever the length. B is <code>O(n)</code>:
       one visit each. C is <code>O(n²)</code>: every pair, in the worst case — note that
-      "return True early" helps only when duplicates exist, and Big-O quotes the worst case.
+      "return True early" helps only when duplicates exist. We are explicitly bounding
+      worst-case time here; Big-O itself does not choose an input case.
       D is <code>O(log n)</code>: the value halves every round.
     </p>
   </details>
@@ -262,7 +266,8 @@ def halvings(n):
   </div>
   <details class="solution"><summary>What if the inner loop were <code>for j in range(10):</code>?</summary>
     <p>
-      Then the inner loop is a fixed ten steps, not n, so the double loop is
+      Assuming n ≥ 10 so those indices exist (or using <code>range(min(10, n))</code>),
+      the inner loop has at most ten steps, so the double loop is
       <code>O(n) × O(10) = O(10n) = O(n)</code>. The whole function would drop to
       <code>O(n log n)</code>, decided by the sort. A loop bound that does not grow with the
       data is a constant, and constants leave.
@@ -279,9 +284,10 @@ def halvings(n):
     <li><strong>Average case</strong> — roughly n/2 steps, which is still <code>O(n)</code> once constants go.</li>
   </ul>
   <p>
-    Unqualified Big-O means <strong>worst case</strong>. That is the honest default: it is
-    the promise you can make to a user without knowing their data. Quote a best case only
-    when you say the words "best case", or you are selling something.
+    In this course, an unqualified running-time statement uses the <strong>worst case</strong>
+    by convention. Big-O itself means an upper bound, and can be applied to best-case,
+    worst-case or expected cost. State the case; for an average, also state the input
+    distribution, such as a successful target uniformly distributed over the positions.
   </p>
   <div class="code"><div class="code-head"><span class="dot"></span>the three cases, on one function</div><pre><code>def find(data, target):
     for i, x in enumerate(data):
@@ -331,14 +337,14 @@ print(find(nums, -1))         <span class="c"># worst case: 1000 comparisons, ab
 def reverse_copy(data):
     result = []
     for x in data:
-        result = [x] + result      <span class="c"># builds a brand-new list of n items</span>
+        result = [x] + result      <span class="c"># copies the growing result and adds one item</span>
     return result                  <span class="c"># → O(n) extra space</span></code></pre></div>
   <p>
-    Both return a reversed sequence. The first rearranges the list you gave it and borrows
-    only two counters, so its extra space is <strong>O(1)</strong>. The second grows a
-    second list the size of the first, so its extra space is <strong>O(n)</strong>. Neither
-    is "wrong" — an in-place reverse is leaner, a copy leaves the original untouched — but
-    you should be able to say which you are paying for.
+    The first reverses the supplied list in place and returns <code>None</code>; its extra
+    space is <strong>O(1)</strong> and its time is O(n). The second returns a new reversed
+    list, leaving the input unchanged, with <strong>O(n)</strong> peak extra space. Its
+    repeated prepending copies 1 + 2 + … + n references, so this particular copying
+    implementation takes Θ(n²) time. Time and peak memory are different accounts.
   </p>
   <div class="note">
     <span class="label">A cheap watch for space</span>
@@ -413,8 +419,8 @@ def first_three(data):
       <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
       <tbody>
         <tr><td>"O(2n) is worse than O(n)"</td><td>They are the same class. Constants are dropped.</td></tr>
-        <tr><td>"O(n²) is always slower than O(n)"</td><td>Only beyond the crossover point. For small n a fat constant on the O(n) side can lose.</td></tr>
-        <tr><td>"Nested loops are always O(n²)"</td><td>Only if both loops grow with n. An inner loop of fixed length 10 is a constant factor.</td></tr>
+        <tr><td>"O(n²) is always slower than O(n)"</td><td>Upper bounds alone do not guarantee a crossover. Under tight linear versus quadratic models, constants determine where eventual growth dominates.</td></tr>
+        <tr><td>"Nested loops are always O(n²)"</td><td>Two full n-iteration loops with constant-cost bodies give n² work. Other nested bounds require counting; a fixed inner length 10 contributes a constant factor.</td></tr>
         <tr><td>"Two loops in a row is O(n²)"</td><td>Sequential loops add, not multiply: O(n) + O(n) = O(n). Only nested loops multiply.</td></tr>
         <tr><td>"Big-O tells me how many seconds"</td><td>It tells you the shape of the curve, not a point on it. You still need the stopwatch.</td></tr>
         <tr><td>"My code has no loops, so it is O(1)"</td><td>Check the built-in calls: <code>in</code>, <code>sorted</code>, <code>max</code>, <code>sum</code>, slicing and copying all walk the data.</td></tr>
@@ -458,8 +464,8 @@ f = [(x, y) for x in data for y in data]</code></pre></div>
   <div class="task">
     <span class="label">Task 3 — predict in seconds</span>
     <p>
-      An O(n²) function takes 1.0 second at n = 10 000. Predict its time at n = 40 000,
-      then write and run it to check. Do the same for an O(n) function.
+      Assume a quadratic time model T(n) = c n² takes 1.0 second at n = 10 000. Predict its time at n = 40 000,
+      then test the prediction on a bounded implementation. Do the same for a linear model T(n) = c n. Big-O upper bounds alone do not determine these ratios.
     </p>
     <details class="solution"><summary>Answers</summary>
       <p>
@@ -509,7 +515,7 @@ def two(data):
     <details class="solution"><summary>Answers</summary>
       <p>
         Best: 1 comparison, O(1). Worst: 1 000 comparisons, O(n). Average: the target is at
-        position 1 to 1 000 with equal chance, so the mean is (1 + 1 000) / 2 ≈ 500
+        position 1 to 1 000 with equal chance, so the exact mean is (1 + 1 000) / 2 = 500.5
         comparisons — still O(n) once the ½ constant is dropped.
       </p>
     </details>
@@ -520,7 +526,7 @@ def two(data):
   <h2><span class="num">8.11</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="2">
-      <p>T(n) = 7n + 300. In Big-O this is:</p>
+      <p>T(n) = 7n + 300. Which is the conventional simplified notation after removing constants and lower-order terms?</p>
       <button class="opt">O(7n)</button>
       <button class="opt">O(300)</button>
       <button class="opt">O(n)</button>
@@ -544,15 +550,15 @@ def two(data):
       <div class="why">This is the hidden-loop trap. One visible loop plus one hidden loop is still nesting, and week 11 shows the one-line fix.</div>
     </div>
     <div class="q" data-answer="0">
-      <p>Unqualified, "this search is O(n)" refers to which case?</p>
+      <p>Under this course’s default convention, "this search is O(n)" refers to which case?</p>
       <button class="opt">The worst case</button>
       <button class="opt">The best case</button>
       <button class="opt">The average case</button>
       <button class="opt">Whichever the author prefers</button>
-      <div class="why">Worst case is the professional default because it is the only promise that holds for data you have not seen.</div>
+      <div class="why">We use worst-case time as a course convention. Big-O is an upper bound and does not inherently specify an input case.</div>
     </div>
     <div class="q" data-answer="2">
-      <p>A function does one O(n) loop, then a separate O(n²) double loop, then returns. Its class is:</p>
+      <p>A function does one O(n) loop, then a separate O(n²) double loop, then returns. Its conventional simplified upper bound is:</p>
       <button class="opt">O(n³) — you multiply the two</button>
       <button class="opt">O(n) — the smaller one wins</button>
       <button class="opt">O(n²) — sequential parts add, so keep the biggest</button>
@@ -703,10 +709,11 @@ def two(data):
     These are the Big-O exercises from Chapter 2 of Steven Skiena's <em>The Algorithm
     Design Manual</em>, worked here at first-year level. Skiena writes <code>lg</code> for
     the base-2 logarithm and <code>ln</code> for the natural one; for Big-O purposes the
-    base does not matter, because changing base only multiplies by a constant — so we will
-    just write "log" and lean on the growth ladder from &sect;8.15. Where a problem asks
-    for a formal proof we give an honest but light argument: pick a constant, show a few
-    values, and name the reason. Cover each answer and try it first.
+    base changes a logarithm by a constant multiplier. This preserves its own growth
+    class, but a logarithm inside an exponent requires more care; use base 2 for
+    unspecified logs in these exercises. A formal proof must justify its inequality
+    for every input beyond a fixed threshold. Numerical examples illustrate that
+    argument but cannot replace it. Cover each answer and try it first.
   </p>
 
   <div class="task challenge">
@@ -773,10 +780,9 @@ for i in range(1, n + 1):
     <details class="solution"><summary>Worked solution</summary>
       <p>
         Again, ignore the awkward starting points and count the loops: <strong>three</strong>,
-        nested, each ranging over a stretch that is at worst about n long. Three nested loops
-        over roughly n give about n&sup3;. The inner bounds depending on <code>i</code> and
-        <code>j</code> only shrink the count by a constant fraction &mdash; they cannot change
-        the power of n. If it is cubic, doubling n should multiply the count by about
+        nested, each ranging over a stretch that is at worst about n long. Three full n-sized loops would give n³ work, but dependent bounds can change
+        the growth rate. Here the sum derived below establishes a cubic leading term.
+        That predicts doubling n will eventually multiply the count by about
         2&sup3; = 8:
       </p>
       <div class="code"><div class="code-head"><span class="dot"></span>step_counter_2_4.py</div><pre><code>def conundrum(n):
@@ -883,9 +889,10 @@ n=160  r=   344,520  ratio=7.93x</div>
         Each of the trailing fractions heads to 0 as n grows, so the whole ratio heads to
         <strong>1</strong>. That means for large enough n the expression is close to n&sup3;
         &mdash; certainly between, say, <code>0.5 n&sup3;</code> and <code>1 &middot; n&sup3;</code>.
-        A quick check: at n = 10 the value is 1000 &minus; 300 &minus; 10 + 1 = 691, and
-        indeed 0.5(1000) = 500 &le; 691 &le; 1000. Two constant multiples of n&sup3; trap it,
-        which is exactly the definition of &Theta;(n&sup3;).
+        For every n ≥ 10, 3/n ≤ 0.3 and 1/n² ≤ 0.01, so the ratio is at least
+        1 − 0.3 − 0.01 = 0.69 ≥ 0.5. Also −3n² − n + 1 ≤ 0 for n ≥ 1, giving
+        the upper bound n³. Thus c₁ = 0.5, c₂ = 1 and n₀ = 10 work for all later n.
+        At n = 10 the value 691 lies between 500 and 1000; this is a check, not the proof.
       </p>
       <p><strong>Answer:</strong> <code>&Theta;(n&sup3;)</code>.</p>
     </details>
@@ -912,11 +919,11 @@ n=160  r=   344,520  ratio=7.93x</div>
         </table>
       </div>
       <p>
-        At n = 3 the polynomial is briefly ahead (9 &gt; 8), but from <strong>n = 4</strong>
-        onward <code>2&#8319;</code> catches up and then pulls away for good &mdash; at n = 10
-        it is already ten times larger, and the gap only widens. So with <code>c = 1</code>
-        and <code>n&#8320; = 4</code> we have <code>n&sup2; &le; 2&#8319;</code> for all
-        <code>n &ge; 4</code>, which is exactly what O demands.
+        At n = 4, n² = 2ⁿ = 16. Suppose n² ≤ 2ⁿ for an integer n ≥ 4.
+        Then (n+1)² ≤ 2n² because n² − 2n − 1 ≥ 0, and hence
+        (n+1)² ≤ 2n² ≤ 2 · 2ⁿ = 2ⁿ⁺¹. Induction establishes the inequality
+        for every integer n ≥ 4. Thus c = 1 and n₀ = 4 are valid witnesses;
+        the displayed table is a check on this argument.
       </p>
       <p><strong>Answer:</strong> <code>n&sup2; = O(2&#8319;)</code>, witnessed by c = 1, n&#8320; = 4.</p>
     </details>

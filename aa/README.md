@@ -4,8 +4,14 @@ A 14-week introduction to algorithm analysis with Python that builds the needed
 programming from the basics,
 published at:
 
-- Course home: <https://arifsolmaz.github.io/aa/>
-- Weeks: <https://arifsolmaz.github.io/aa/w1> … `/aa/w14`
+- Course home: <https://arifsolmaz.github.io/courses/aa/>
+- Detailed guide: <https://arifsolmaz.github.io/courses/aa/guide/>
+- Weeks: <https://arifsolmaz.github.io/courses/aa/w1/> … `/courses/aa/w14/`
+
+Start with the [Detailed Learning Guide — English with Turkish explanations](guide/index.html)
+or its [complete Markdown edition](COURSE_GUIDE.md). Every week includes slow explanations,
+traces, worked calculations, fully solved practice, misconceptions, and readiness checks.
+Nine arithmetic bridges and four review sessions support the existing 14-week sequence.
 
 ## Design
 
@@ -29,12 +35,18 @@ rewritten for a beginner audience with step counters and benchmarks added throug
 
 ```
 aa/
+  COURSE_GUIDE.md      generated — complete bilingual guide, all 14 weeks
+  guide/index.html    generated — navigable, printable guide with mobile chapter selector
   index.html          generated — course home + syllabus
   w1/ … w14/          generated — one folder per week (URL: /aa/w7)
   assets/style.css    hand-written — shared styles, dark + light themes
   assets/app.js       hand-written — theme, copy buttons, quizzes, growth widget,
                                      per-week "done" tracking (localStorage)
   tools/build.py      the generator: page template + week metadata
+  tools/build_guide.py  dependency-free guide generator (called by build.py)
+  tools/guide/        guide sources: start.md, math.md, reviews.md, weeks/wNN.md
+  assets/guide.css    guide reading, mobile, dark/light and print styles
+  assets/guide.js     guide chapter navigation, theme and printing
   tools/home.html     source fragment for the course home
   tools/weeks/wNN.html  source fragment for each week's lesson
 ```
@@ -47,9 +59,21 @@ Edit only `tools/` and `assets/`, then rebuild:
 python3 aa/tools/build.py
 ```
 
-That rewrites `aa/index.html` and `aa/w1/…/w14/index.html`. Week titles, summaries,
+That rewrites `aa/index.html`, `aa/w1/…/w14/index.html`, the capstone, and both guide editions. Week titles, summaries,
 phases, "big questions" and chips live in the `WEEKS` list in `tools/build.py`;
 lesson bodies live in `tools/weeks/`.
+
+Edit guide content in `tools/guide/`. Its small Markdown grammar supports headings,
+paragraphs, flat lists, pipe tables, fenced code, emphasis, inline code, and links.
+Links in those fragments are relative to `aa/`; the HTML generator adjusts them for
+`aa/guide/`. Keep Python fences independently runnable with bounded example inputs;
+use `text` fences for pseudocode, calculations, and illustrative output. The guide can
+also be rebuilt alone with `python3 aa/tools/build_guide.py`.
+
+Run `python3 aa/tools/verify_guide.py` to execute every guide Python example in a
+fresh process and check the generated HTML's local links and anchors. It records
+source/artifact hashes and results in `tools/guide/verification.json`.
+Hashes normalize text to UTF-8 with LF line endings, so Windows and GitHub checkouts agree.
 
 ### Conventions used in the fragments
 

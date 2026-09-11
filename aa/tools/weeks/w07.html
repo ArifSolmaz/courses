@@ -34,9 +34,9 @@
   <div class="note blue">
     <span class="label">Both, not either</span>
     <p>
-      Step counting predicts; timing verifies. A theory that disagrees with the stopwatch
-      is wrong, and a stopwatch reading you cannot explain is a mystery worth chasing.
-      Every serious report in this course carries both.
+      Step counting establishes a result under a cost model; timing tests how that model
+      relates to an implementation. A disagreement calls for checking the model, input
+      scope and measurement conditions. Every serious report in this course carries both.
     </p>
   </div>
 </section>
@@ -88,16 +88,16 @@
     </table>
   </div>
   <p>
-    For small inputs the constant 3 000 rules. But we are never interested in small inputs
-    — small inputs are fast under any method. As n grows, the <strong>n² term takes over
-    completely</strong> and everything else becomes rounding error.
+    For small inputs the constant 3 000 can dominate, and such inputs may matter in practice.
+    As n grows, the <strong>n² term dominates this polynomial</strong>: the relative shares
+    of the linear and constant terms approach zero.
   </p>
   <p>So we throw away the small stuff and keep the shape:</p>
   <div class="note">
     <span class="label">Two rules of simplification</span>
     <ol>
       <li><strong>Keep only the fastest-growing term.</strong> 5n² + 200n + 3000 → 5n².</li>
-      <li><strong>Drop the constant multiplier.</strong> 5n² → n². The 5 is a property of your machine and your coding style, not of the method.</li>
+      <li><strong>Drop the constant multiplier.</strong> 5n² → n². A fixed multiplier can reflect the method and counting convention (or machine costs for timings), but does not change the growth class.</li>
     </ol>
   </div>
 </section>
@@ -170,8 +170,9 @@ print(contains(haystack, -1))    <span class="c"># missing: full pass</span></co
     <p>
       Counting comparisons might give T(n) = n; counting every basic operation in the loop
       body might give T(n) = 4n. Different constant, identical growth. Since we throw the
-      constant away anyway (§7.3), the choice of operation cannot change the class. Pick the
-      operation that is easiest to see, and say which one you counted.
+      constant away anyway (§7.3), these representative counts have the same class. This
+      requires the chosen operation to track total work within constant factors; counting
+      only a rare operation can miss the dominant work. State your counting convention.
     </p>
   </div>
   <p>
@@ -279,7 +280,7 @@ for i in range(n):
     </p>
     <p>
       <strong>C:</strong> nested, but the inner loop runs a fixed 10 times regardless of n:
-      T(n) = 1 + 10n → keep n. This is the trap. A nested loop is only quadratic when
+      T(n) = 1 + 10n for counter initialization and updates → keep n. This is the trap. A nested loop is only quadratic when
       <em>both</em> loops grow with the input.
     </p>
   </details>
@@ -305,9 +306,9 @@ for i in range(n):
     </p>
     <details class="solution"><summary>What to look for</summary>
       <p>
-        The counter should match to within the one or two setup assignments you may have
-        counted differently. That "off by one or two" is precisely the constant term the
-        simplification rules tell you to discard.
+        Using the same counting convention should give an exact match. Including only setup
+        adds a constant; including loop-variable assignments or more operations per iteration
+        may add input-dependent terms. Reconcile those choices before simplifying the count.
       </p>
     </details>
   </div>
@@ -640,7 +641,7 @@ n= 20   r= 3080   n(n+1)(n+2)/3= 3080</div>
         (70 → 440 → 3080, about 6.3× then 7.0×) are still climbing towards 8 rather than sitting
         on it, because at these small sizes the lower-order <code>+n²</code> and <code>+n</code>
         parts of the cubic have not yet faded — push <code>n</code> higher and the ratio settles
-        on 8, exactly the "small inputs are noisy, the trend is cubic" story of §7.3.
+        toward 8. These exact-count deviations are lower-order terms, not measurement noise.
       </p>
       <p><strong>Answer:</strong> The inner loop always runs <code>(i+j)−j+1 = i+1</code> times,
         so <code>pesky(n)</code> returns Σ<sub>i=1</sub><sup>n</sup> i(i+1) = n(n+1)(n+2)/3, a

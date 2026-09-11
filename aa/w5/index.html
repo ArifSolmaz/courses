@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,6 +43,7 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-05--functions-and-trustworthy-timing">Open Week 5 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
@@ -55,6 +57,7 @@
       <li>choose between <code>perf_counter</code> and the <code>timeit</code> module for a given job.</li>
     </ul>
   </div>
+  <p><strong>Reading the timing examples:</strong> displayed seconds and fitted slopes are illustrative output, not measurements from your machine. Run the experiment, retain the actual samples, and report the input and measurement conditions. Exact operation-count formulas are separate mathematical claims.</p>
 </section>
 
 <section>
@@ -151,16 +154,17 @@ print(f"{time_it(sum_to, 1000000):.4f} s")</code></pre></div>
     is worth understanding line by line now.
   </p>
   <p>
-    Why the <em>fastest</em> run and not the average? Because interference only ever makes
-    code slower. The quickest run is the one that got the least interrupted — the closest
-    thing to the true cost. (Averages are fine too, as long as you say which you used.)
+    Why the <em>fastest</em> run? Interruptions often add delay, so the minimum can estimate a
+    lightly interrupted run. It is not a guaranteed true cost: cache state, CPU frequency,
+    measurement overhead and the chosen input also matter. Report the individual samples
+    and say whether you used a minimum, median or mean.
   </p>
   <div class="note blue">
     <span class="label">The three ways a benchmark lies</span>
     <ol>
-      <li><strong>Too small.</strong> Anything under a millisecond is mostly noise. Increase n until the run takes at least 0.05 s.</li>
+      <li><strong>Too small.</strong> Very short individual runs can be dominated by measurement overhead and variation. For this classroom harness, aim for roughly 0.05 s or batch repeated calls; inspect the spread rather than treating a fixed threshold as a guarantee.</li>
       <li><strong>Something else was running.</strong> Close the video tab. On Colab, other people's load can bleed in — repeat and take the best.</li>
-      <li><strong>You measured the wrong thing.</strong> Building a million-item test list inside the timed block measures list-building, not your algorithm. Build the data <em>before</em> <code>start</code>.</li>
+      <li><strong>You measured the wrong thing.</strong> Building a million-item test list inside the timed block measures list-building plus your algorithm. Build the data <em>before</em> <code>start</code>.</li>
     </ol>
   </div>
 </section>
@@ -186,10 +190,10 @@ for n in sizes:
     400000      0.02064     2.00
     800000      0.04119     2.00</div>
   <p>
-    Read the <em>ratio</em> column, not the seconds column. The seconds depend on your
-    laptop; the ratio is a property of the algorithm. Double the input, double the time:
-    this function's cost grows in a straight line. Next week you will use that column to
-    identify every growth pattern in the course.
+    Read both the <em>ratio</em> and seconds columns. Ratios can reveal a growth pattern when
+    machine effects approximately cancel, but they still depend on the measured conditions.
+    Near-doubling times support the linear model here; the loop count explains it for all n.
+    Next week you will use ratios as evidence when distinguishing growth patterns.
   </p>
 </section>
 
@@ -211,7 +215,8 @@ n=   100000  loop 0.004900s   formula 0.000000170s   x28824 faster
 n= 10000000  loop 0.512000s   formula 0.000000180s   x2844444 faster</div>
   <p>
     Look at the formula column: it barely moves. The loop's time grows with n; the
-    formula's does not grow at all. And notice the last column growing too — the gap
+    formula performs a fixed number of arithmetic operations in the unit-cost model.
+    Python's arbitrarily large integers make individual arithmetic costs grow with bit length. And notice the last column growing too — the gap
     between the two methods widens with the data. <em>That</em> is the thing this course
     teaches you to see coming, before you write the slow one.
   </p>
@@ -242,18 +247,18 @@ run 2: 0.00773 s
 run 3: 0.00772 s
 run 4: 0.00774 s</div>
   <p>
-    The first run is reliably slower. It pays one-off costs the others do not: the CPU's
-    cache is cold, memory is allocated fresh, and Python may still be settling. That first
-    run is called a <strong>warm-up</strong>, and serious benchmarks throw it away.
+    The first run may be slower because of one-off setup, cold caches or runtime warm-up.
+    This is not guaranteed. A deliberately untimed first call is a <strong>warm-up</strong>;
+    use and report it when the intended measurement is steady-state performance.
   </p>
   <div class="note green">
     <span class="label">Why our harness already survives this</span>
     <p>
       Look again at <code>time_it</code>: it takes the <em>fastest</em> of the repeats. The
-      cold first run is the slowest, so it is never the minimum — taking the best quietly
-      discards the warm-up for you. If you switch to averaging instead, add an explicit
-      warm-up call before the loop (<code>func(n)</code> on its own, result ignored),
-      otherwise the cold run drags the average up.
+      first run may be slow, but taking the minimum does not guarantee that warm-up effects
+      have disappeared. For steady-state measurements, add an explicit untimed warm-up call
+      before the loop (<code>func(n)</code> on its own, result ignored), then repeat and
+      report your summary policy. Keep setup costs when they are part of the real task.
     </p>
   </div>
 
@@ -308,7 +313,7 @@ print(f"{per_call * 1e6:.2f} microseconds per call")</code></pre></div>
   <p>
     When the operating system steals the CPU to service the network card, it takes a
     roughly <em>fixed</em> slice of time — say a quarter of a millisecond. On a 0.5 ms run
-    that is a 50% error; on a 2-second run it is 0.0000125%. The interruption is the same
+    that is a 50% error; on a 2-second run it is 0.0125% (0.25 ms / 2 000 ms × 100). The interruption is the same
     size; what changes is its share of your measurement. That is the deep reason we grow
     <code>n</code>: not to make the algorithm slower for its own sake, but to make every
     fixed disturbance shrink to a rounding error <em>relative</em> to the signal.
@@ -363,14 +368,14 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     <span class="label">Task 3 — a deliberately dishonest benchmark</span>
     <p>
       Move the line that builds the test list <em>inside</em> the timed region and re-run
-      Task 2. What happens to the numbers, and why is the result meaningless?
+      Task 2. What happens to the numbers, and why does this no longer isolate search time?
     </p>
     <details class="solution"><summary>Answer</summary>
       <p>
-        Times jump several-fold and the ratios still look roughly linear — which is exactly
-        what makes it dangerous. You are now measuring "build a list of n items" plus your
-        search, and you can no longer tell which part dominates. Always ask: what exactly is
-        inside my stopwatch?
+        Times may increase while the ratios still look roughly linear. You are now measuring
+        "build a list of n items" plus search. That is a valid end-to-end measurement if
+        labelled accordingly, but it cannot isolate search cost. State exactly what is
+        inside the timed region.
       </p>
     </details>
   </div>
@@ -385,10 +390,9 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     </p>
     <details class="solution"><summary>What to look for</summary>
       <p>
-        The <em>mean</em> moves noticeably when you drop the cold first run; the
-        <em>fastest</em> barely moves, because the first run was never the minimum in the
-        first place. This is the point of §5.6: taking the best is a free warm-up, but an
-        average needs the first run removed by hand.
+        If the first run is unusually slow, removing it lowers the mean and leaves the minimum
+        unchanged. If it is the fastest, the minimum changes too. Report what your samples
+        actually show; a minimum is not a substitute for an explicit warm-up policy.
       </p>
     </details>
   </div>
@@ -405,7 +409,7 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       <p>
         The single <code>perf_counter</code> reading jumps around — a 41-microsecond call is
         only a few hundred times the measurement overhead, so a single interruption swamps
-        it. The <code>timeit</code> figure is steady, because averaging over 10 000 runs
+        it. The <code>timeit</code> batch can be steadier because repeating 10 000 runs
         turns each fixed disturbance into a tiny percentage (§5.6, "noise is a percentage").
         For calls this fast, <code>timeit</code> is the correct instrument.
       </p>
@@ -421,10 +425,10 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        The small n shows a large spread (tens of percent or more); the large n shows a
-        small one (a few percent or less). The interruptions are the same size in
-        milliseconds either way — but as a <em>share</em> of a longer run they shrink. This
-        is why we grow n until the run is well clear of the noise before trusting a ratio.
+        A disturbance of a fixed duration is a smaller percentage of a longer run. Your
+        measured spreads need not decrease monotonically: background work and cache or
+        frequency changes may differ between runs. Report the actual percentages and use
+        repetition to judge whether a ratio is stable.
       </p>
     </details>
   </div>
@@ -444,10 +448,10 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     <div class="q" data-answer="1">
       <p>Why take the fastest of several runs rather than the slowest?</p>
       <button class="opt">The fastest run is the only correct one</button>
-      <button class="opt">Interference can only add time, so the fastest run is closest to the true cost</button>
+      <button class="opt">Interruptions often add delay, so the minimum estimates a lightly interrupted run</button>
       <button class="opt">Because Python speeds up as it warms</button>
       <button class="opt">It makes the numbers look better in reports</button>
-      <div class="why">Other processes, disk activity and garbage collection add time; nothing subtracts it.</div>
+      <div class="why">Interruptions can add delay, but changing machine state and measurement overhead still matter. The minimum is a summary, not a guaranteed intrinsic cost.</div>
     </div>
     <div class="q" data-answer="3">
       <p>Your benchmark reports 0.00002 s for n = 10 and 0.00003 s for n = 20. What should you do?</p>
@@ -463,7 +467,7 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       <button class="opt">One-off warm-up costs — cold cache and fresh allocation — which is why the first run is discarded, or why we take the fastest</button>
       <button class="opt">perf_counter is broken until it is called twice</button>
       <button class="opt">Python runs faster later in the day</button>
-      <div class="why">The first call pays start-up costs the rest do not. Taking the minimum already ignores it; an average would need it removed by hand.</div>
+      <div class="why">A slow first call may include start-up costs. An explicit untimed warm-up is appropriate for steady-state studies; the minimum alone is not a guarantee.</div>
     </div>
     <div class="q" data-answer="2">
       <p>You want to measure one call to a snippet that takes about 40 microseconds. The best tool is:</p>
@@ -504,7 +508,7 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
         <tr><td>perf_counter</td><td>Python's high-resolution stopwatch; only differences are meaningful.</td></tr>
         <tr><td>warm-up run</td><td>A first, discarded run that pays one-off costs so the timed runs are fair.</td></tr>
         <tr><td>resolution</td><td>The smallest interval a clock can distinguish; times near it are untrustworthy.</td></tr>
-        <tr><td>timeit</td><td>A standard-library tool that repeats a tiny snippet many times for a steady figure.</td></tr>
+        <tr><td>timeit</td><td>A standard-library tool that batches repeated snippets to reduce relative measurement overhead; results can still vary.</td></tr>
         <tr><td>noise</td><td>Variation in timings caused by everything else the machine is doing.</td></tr>
       </tbody>
     </table>

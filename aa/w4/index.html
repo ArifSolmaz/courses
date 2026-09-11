@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,6 +43,7 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-04--lists-holding-many-things-at-once">Open Week 4 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
@@ -80,14 +82,15 @@ print(students[-1])    <span class="c"># Dilek   — the last</span>
 print(students[1:3])   <span class="c"># ['Bilal', 'Cem'] — a slice, stops before 3</span></code></pre></div>
   <p>
     Asking for <code>students[9]</code> in a four-item list gives
-    <code>IndexError: list index out of range</code> — "there is no ninth shelf".
+    <code>IndexError: list index out of range</code> — "there is no tenth shelf" (index 9).
   </p>
   <div class="note blue">
     <span class="label">Worth knowing already</span>
     <p>
-      Reading <code>students[0]</code> and reading <code>students[999999]</code> cost the
-      computer exactly the same: it computes where the shelf is and goes straight there.
-      Position access does not care how long the list is. Remember this in week 10, where
+      For a list long enough that both indices are valid, reading <code>students[0]</code>
+      and <code>students[999999]</code> has the same constant-growth cost model: Python can
+      go straight to a known position. This describes how access cost depends on list length,
+      not a guarantee of exactly identical measured times. Remember this in week 10, where
       it becomes the first row of an important table.
     </p>
   </div>
@@ -178,7 +181,7 @@ print("Zeynep" in names)    <span class="c"># False</span></code></pre></div>
       <thead><tr><th>Situation</th><th>Looks needed</th><th>Name for it</th></tr></thead>
       <tbody>
         <tr><td>The item is first</td><td>1</td><td>best case</td></tr>
-        <tr><td>The item is somewhere in the middle</td><td>about n / 2</td><td>average case</td></tr>
+        <tr><td>Successful target equally likely at each of n positions</td><td>(n + 1) / 2</td><td>average under this assumption</td></tr>
         <tr><td>The item is last, or missing entirely</td><td>n</td><td>worst case</td></tr>
       </tbody>
     </table>
@@ -316,7 +319,9 @@ a: [1, 2, 3, 4] c: [1, 2, 3, 4, 99]
 </div>
   <p>
     When you genuinely want a separate list, copy it with <code>a[:]</code> (or
-    <code>list(a)</code>). Otherwise the two names move together forever.
+    <code>list(a)</code>). Otherwise mutations are shared while the names refer to the
+    same list; rebinding one name to another object does not change the other binding. A
+    slice copies the outer list, so nested mutable objects can still be shared.
   </p>
   <p>
     <strong>2. <code>append</code> changes the list and returns nothing.</strong> A very
@@ -331,9 +336,10 @@ nums.append(5)        <span class="c"># RIGHT: just call it; the list is already
 print(nums)</code></pre></div>
   <div class="out">[3, 1, 2, 5]</div>
   <p>
-    The rule: methods that <em>change</em> a list (<code>append</code>, <code>sort</code>,
-    <code>pop</code> when you ignore its result) do their work in place. Do not reassign the
-    variable from them.
+    Methods such as <code>append</code> and <code>sort</code> change the list in place
+    and return <code>None</code>; do not replace the list name with that result.
+    <code>pop</code> also changes the list, but returns the removed item, so
+    <code>last = queue.pop()</code> is a valid way to save that item.
   </p>
   <div class="table-wrap">
     <table>
@@ -474,8 +480,8 @@ print(f"position {position}, {looks} looks")</code></pre></div>
     <span class="label">Task 6 — spot the aliasing bug</span>
     <p>
       This code should leave <code>original</code> untouched while building a doubled copy,
-      but it corrupts <code>original</code>. Explain why, then fix it with a one-character
-      change.
+      but it corrupts <code>original</code>. Explain why, then fix the assignment by
+      making a full-slice copy.
     </p>
     <div class="code"><div class="code-head"><span class="dot"></span>buggy.py</div><pre><code>original = [1, 2, 3]
 copy = original
@@ -487,7 +493,14 @@ print("original:", original)   <span class="c"># [2, 4, 6] — wrong!</span></co
         <code>copy = original</code> makes a second name for the same list, so editing
         <code>copy</code> edits <code>original</code>. Take a real copy with a slice:
       </p>
-      <div class="code"><div class="code-head"><span class="dot"></span>fixed.py</div><pre><code>copy = original[:]      <span class="c"># the [:] makes a separate list</span></code></pre></div>
+      <div class="code"><div class="code-head"><span class="dot"></span>fixed.py</div><pre><code>original = [1, 2, 3]     <span class="c"># restore the starting data after the buggy run</span>
+copy = original[:]      <span class="c"># the [:] makes a separate outer list</span>
+for i in range(len(copy)):
+    copy[i] = copy[i] * 2
+print("original:", original)
+print("copy:", copy)</code></pre></div>
+      <div class="out">original: [1, 2, 3]
+copy: [2, 4, 6]</div>
       <p>Now the loop changes only <code>copy</code>, and <code>original</code> stays <code>[1, 2, 3]</code>.</p>
     </details>
   </div>
@@ -584,7 +597,8 @@ print("original:", original)   <span class="c"># [2, 4, 6] — wrong!</span></co
     <p>
       Here is the standard way to find the largest value in a list <code>A</code>: remember the
       first item, then walk through the rest, keeping whatever is bigger. Argue that this really
-      does return the maximum, for any list.
+      does return the maximum, for any nonempty list. The first-item initialization
+      requires at least one item; an empty input needs separately specified behavior.
     </p>
     <div class="code"><div class="code-head"><span class="dot"></span>max_of_list.py</div><pre><code>m = A[0]                       <span class="c"># current champion</span>
 for i in range(1, len(A)):
@@ -621,8 +635,9 @@ print(m)                       <span class="c"># claim: this is the maximum</spa
         </li>
         <li>
           <code>A[k]</code> is not bigger — we leave <code>m</code> alone, and it is still the
-          biggest of the first <code>k</code>, which are all at least as big as the newcomer,
-          so it is the biggest of all <code>k + 1</code> too.
+          biggest of the first <code>k</code>. This maximum is at least as big as the newcomer,
+          so it is the biggest of all <code>k + 1</code> too. The earlier items need not
+          individually exceed the newcomer; only their maximum must do so.
         </li>
       </ul>
       <p>
@@ -644,8 +659,9 @@ print(m)                       <span class="c"># claim: this is the maximum</spa
     <p>
       To find the minimum of a list, set <code>tmp = A[0]</code>, then compare
       <code>tmp</code> against <code>A[1], A[2], &hellip;, A[n]</code> in order, doing
-      <code>tmp = A[i]</code> whenever <code>A[i]</code> is smaller. If the list is in a random
-      order, how many times, on average, does that assignment <code>tmp = A[i]</code> run?
+      <code>tmp = A[i]</code> whenever <code>A[i]</code> is smaller. Assume the values are
+      distinct and every ordering is equally likely. How many times, on average, does
+      that assignment <code>tmp = A[i]</code> run?
     </p>
     <div class="code"><div class="code-head"><span class="dot"></span>min_of_list.py</div><pre><code>tmp = A[0]
 assignments = 0

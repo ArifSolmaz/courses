@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,12 +43,13 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-14--from-a-correct-algorithm-to-a-convincing-report">Open Week 14 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
       <li>work through a checklist for choosing an approach to a new problem;</li>
-      <li>recognise the five patterns that quietly make beginner code quadratic, and fix each;</li>
+      <li>recognise five patterns that quietly add repeated work, and fix each;</li>
       <li>follow one realistic problem from a slow first attempt to a measured, linear solution;</li>
       <li>find the slow part of a program instead of guessing at it;</li>
       <li>write a short, honest performance report and mark one against a rubric;</li>
@@ -98,7 +100,7 @@
 </section>
 
 <section>
-  <h2><span class="num">14.3</span>The five ways beginners go quadratic</h2>
+  <h2><span class="num">14.3</span>Five patterns that hide repeated work</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Pattern</th><th>Looks like</th><th>Fix</th></tr></thead>
@@ -114,23 +116,20 @@
   <p>
     Every one of these is two lines of code that look innocent. If you remember only this
     table from the whole course, you will still write faster programs than most people who
-    have never taken it. Two of them hide their O(n) so well that they deserve a closer look.
+    have never taken it. The exact class depends on the repeated operation: sorting n items n times can cost O(n² log n), while string concatenation depends on total character count and interpreter optimisations. Two common patterns deserve a closer look.
   </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>the string trap — predict which is faster</div><pre><code><span class="c"># SLOW: each += builds a brand-new string by copying the whole thing so far</span>
+  <div class="code"><div class="code-head"><span class="dot"></span>the string trap — predict which is faster</div><pre><code><span class="c"># Repeated concatenation can rebuild the growing text; interpreter optimisations may apply</span>
 text = ""
 for word in words:              <span class="c"># n words ...</span>
-    text += word + " "          <span class="c"># ... copying a growing string each time → O(n²)</span>
+    text += word + " "             <span class="c"># trailing space is part of this output contract</span>
 
 <span class="c"># FAST: collect the pieces, join once at the end</span>
 parts = []
 for word in words:
     parts.append(word)          <span class="c"># O(1) each</span>
-text = " ".join(parts)          <span class="c"># one pass → O(n) total</span></code></pre></div>
+text = " ".join(parts) + (" " if parts else "")   <span class="c"># same trailing-space policy, including empty input</span></code></pre></div>
   <p>
-    Strings in Python cannot be changed in place, so <code>text += word</code> quietly copies
-    every character it has accumulated so far. Do that n times and you have copied roughly
-    n²/2 characters. <code>"".join</code> touches each character once. The two produce the same
-    text; only one of them scales.
+    In the repeated-copy model, equal-length pieces lead to a triangular total of copied characters. Some Python contexts optimise repeated concatenation, so a quadratic timing curve is not guaranteed. Joining once costs O(L) in the total output length L; both snippets now preserve the same trailing-space policy. Measure rather than assuming the illustrative growth pattern.
   </p>
   <div class="code"><div class="code-head"><span class="dot"></span>the front-of-the-list trap</div><pre><code>from collections import deque
 
@@ -213,7 +212,7 @@ n= 40000  slow   3.9901s   fast 0.00560s   712x</div>
     <p>
       One change of container (list → set for the membership test) turned O(n·m) into O(n + m).
       One dictionary did the tallying in O(n) rather than a list-search per order. One
-      <code>assert</code> proved the fast version still gives the right answer. That is the
+      <code>assert</code> checked agreement on this input. That is correctness evidence; a general argument must also explain why each eligible order contributes exactly once. That is the
       entire course in three lines — and it is exactly what your final-project report should
       show.
     </p>
@@ -243,7 +242,7 @@ print(f"saving:    {time.perf_counter() - start:.3f}s")</code></pre></div>
 
 cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first</span></code></pre></div>
   <p>
-    Then apply the 90/10 rule: nearly all the time is in a small part of the code.
+    The 90/10 rule is a heuristic: a small part of the code may dominate the runtime, but measure whether that is true here. <code>cProfile</code> reports function-level costs, not individual source-line timings.
     Optimising anything else is wasted effort, however satisfying it feels.
   </p>
   <div class="note red">
@@ -312,7 +311,7 @@ cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first<
     text = ", ".join(o["id"] for o in lines)               <span class="c"># O(n)</span>
     total = sum(o["value"] for o in lines)                 <span class="c"># O(n)</span>
     return lines, text, total</code></pre></div>
-      <p>From O(n²) to O(n + m) — and the bug in the total is gone as a side effect of writing it clearly.</p>
+      <p>With n orders, m watched names and L output characters, the repaired version costs O(n + m + L) on average. It also fixes the multiplied total and deliberately specifies comma-space separators without a trailing separator; that formatting differs from the original buggy text.</p>
     </details>
   </div>
 
@@ -351,15 +350,11 @@ cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first<
   <div class="task">
     <span class="label">Task 4 — the traps gallery</span>
     <p>
-      Write a tiny quadratic offender for each of the five patterns in §14.3 (five short
-      functions), benchmark each against its linear fix at n = 1 000, 2 000, 4 000, 8 000, and
-      confirm the ratio column sits near 4 for the slow one and near 2 for the fast one.
+      Write a small offender for each pattern in §14.3 and compare it with a version that avoids repeated work at n = 1 000, 2 000, 4 000, 8 000. Count the actual work before predicting ratios: repeated sorting may be O(n² log n) versus O(n log n), and interpreter-optimised strings may not display a quadratic curve.
     </p>
     <details class="solution"><summary>Hint on the string trap</summary>
       <p>
-        For the concatenation trap, build a string of n words with <code>text += w</code> versus
-        <code>" ".join(parts)</code>. The <code>+=</code> version quadruples each time n doubles;
-        <code>join</code> merely doubles. Same output — verify with <code>assert a == b</code>.
+        Compare <code>text += piece</code> with <code>"".join(pieces)</code> using identical pieces and separators. Verify exact equality, including empty input and trailing spaces. The repeated-copy model predicts quadratic growth, but interpreter optimisations can change the measured result; report what you observe.
       </p>
     </details>
   </div>
@@ -368,16 +363,11 @@ cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first<
     <span class="label">Task 5 — profile before you cut</span>
     <p>
       Take the §14.4 <code>summarise_slow</code> and run it under
-      <code>cProfile.run(...)</code> at n = 40 000. Which single line accounts for almost all
-      the cumulative time? Confirm that it is the membership test, not the dictionary update,
-      and write two sentences relating that to the 90/10 rule.
+      <code>cProfile.run(...)</code> at n = 40 000. Which function dominates cumulative time? Then use a focused benchmark with identical orders and list versus set membership to investigate the suspected bottleneck. Write two sentences distinguishing the function-level profile from the source-line hypothesis.
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        The profile attributes nearly all the time to the <code>in watch</code> test, because
-        it alone is O(m) and runs n times; the dictionary work is O(1) per order and barely
-        registers. This is the 90/10 rule in miniature: fix the one hot line and the whole
-        function drops a class, and touching anything else would have been wasted effort.
+        <code>cProfile</code> can identify <code>summarise_slow</code> as expensive, but cannot assign a separate line timing to <code>in watch</code>. The operation analysis predicts O(nm) membership work versus average O(n) dictionary updates; the controlled list/set comparison supplies additional evidence for that hypothesis.
       </p>
     </details>
   </div>
@@ -419,12 +409,12 @@ cProfile.run("analyse(data)", sort="cumtime")   <span class="c"># slowest first<
       <div class="why">A constant-factor 40× stays 40×; a change of class grows without limit. Only the ratio-versus-size curve tells you which you bought.</div>
     </div>
     <div class="q" data-answer="2">
-      <p>Why is <code>text += word</code> in a loop over n words a quadratic trap?</p>
+      <p>In the repeated-copy model, why can concatenating n fixed-length words be quadratic?</p>
       <button class="opt">Because <code>+=</code> is slower than <code>+</code></button>
       <button class="opt">Because strings cannot hold more than n characters</button>
       <button class="opt">Because each <code>+=</code> copies the whole growing string, so the copies add up to about n²/2 characters</button>
       <button class="opt">It is not a trap — it is O(n)</button>
-      <div class="why">Strings are immutable, so every concatenation rebuilds the string so far. Collect the pieces in a list and <code>"".join</code> them once instead.</div>
+      <div class="why">When each step copies the growing prefix, the copied lengths form a triangular sum. Some interpreters optimise particular loops; collecting pieces and joining once avoids relying on that optimisation.</div>
     </div>
     <div class="q" data-answer="1">
       <p>You need to add and remove items at the <em>front</em> of a collection millions of times. The right tool is:</p>
@@ -600,10 +590,11 @@ def reservoir(stream, k):
       <p>
         <strong>Answer:</strong> three copies per item, spread across distinct nodes so no
         two items share a trio. With 3 random node failures the expected loss is essentially zero
-        — almost always no item is lost at all, and even in the rare case the 3 failures happen to
-        be one item's exact trio, you lose at most about one item. The whole win comes from
-        replication plus <em>spreading the copies out</em>: three copies packed onto overlapping
-        node sets would lose far more.
+        — almost always no item is lost at all. With distinct trios, exactly three failed nodes
+        can destroy at most one item's three copies. The expected loss above is the same for
+        any placement with three distinct nodes per item under uniformly random three-node
+        failures; overlapping trios change the distribution and severity of losses, not this
+        expectation. Correlated physical failures require a separate placement model.
       </p>
     </details>
   </div>
@@ -649,12 +640,12 @@ def reservoir(stream, k):
       <div class="note">
         <span class="label">Optional challenge — where the formula comes from</span>
         <p>
-          Think of building the merge history as a rooted binary tree with the n companies as
-          leaves and each internal node a merge. There are (n−1)! orders in which to perform the
-          n−1 merges, and counting the distinct labelled shapes contributes the extra n! / 2<sup>n−1</sup>
-          factor — the 2<sup>n−1</sup> divides out because swapping the two companies in a single
-          merge does not make a new sequence. Deriving it fully is a combinatorics exercise; the
-          formula and the small-case checks are what you need here.
+          With k current companies, choose an unordered pair in k(k−1)/2 ways. There are then
+          k−1 companies, regardless of which pair merged. Multiply the choices for k = n, n−1,
+          …, 2: the first factors give n!, the second give (n−1)!, and the n−1 denominators give
+          2<sup>n−1</sup>. Thus the number of ordered merge sequences is n!(n−1)! / 2<sup>n−1</sup>.
+          For n = 4, this is 6 × 3 × 1 = 18. Companies are distinguished by their original members,
+          and choosing A with B is the same single merge as choosing B with A.
         </p>
       </div>
     </details>
@@ -673,8 +664,8 @@ def reservoir(stream, k):
     return {s: p for s, p in seen.items() if len(p) &gt;= 2}
 
 print(sorted(ramanujan(20)))</code></pre></div>
-      <div class="out">[(1729, [(1, 12), (9, 10)])]</div>
-      <p>The smallest is the famous <strong>1729 = 1&sup3; + 12&sup3; = 9&sup3; + 10&sup3;</strong> (the Hardy&ndash;Ramanujan taxicab number). One pass over the <code>&asymp; n&sup2;/2</code> pairs, O(1) per insert on average.</p>
+      <div class="out">[1729, 4104]</div>
+      <p>The smallest is <strong>1729 = 1&sup3; + 12&sup3; = 9&sup3; + 10&sup3;</strong>. The input bound n = 20 also includes <strong>4104 = 2&sup3; + 16&sup3; = 9&sup3; + 15&sup3;</strong>. The printed expression sorts the dictionary's sum keys, not its key/value pairs. The algorithm visits approximately n&sup2;/2 pairs with O(1) average dictionary work per pair under the usual fixed-size arithmetic model.</p>
       <p><strong>Answer:</strong> hash every <code>a&sup3; + b&sup3;</code> and keep the sums reachable two ways &mdash; <strong>O(n&sup2;)</strong> time and space, versus brute-force O(n&#8308;). Smallest Ramanujan number: 1729.</p>
     </details>
   </div>

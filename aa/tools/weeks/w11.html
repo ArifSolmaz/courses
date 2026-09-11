@@ -35,7 +35,7 @@ for address in new_signups:            <span class="c"># 10 000 times ...</span>
 </section>
 
 <section>
-  <h2><span class="num">11.2</span>Sets: a bag with instant membership</h2>
+  <h2><span class="num">11.2</span>Sets: a bag with fast average membership</h2>
   <p>
     A <strong>set</strong> is an unordered collection with no duplicates, written with
     curly braces.
@@ -78,8 +78,7 @@ for name, score in grades.items():
     print(f"{name}: {score}")</code></pre></div>
   <p>
     A dictionary maps <strong>keys</strong> to <strong>values</strong>. Keys must be
-    unchangeable things — text, numbers, tuples — and each appears once. Looking one up
-    costs the same whether the dictionary holds ten entries or ten million.
+    hashable values — ordinary text and numbers, or tuples whose components are all hashable — and each key appears once. Lookup is O(1) on average in the number of stored keys, assuming bounded-cost hashing and equality; a worst-case lookup can be O(n).
   </p>
   <div class="note">
     <span class="label">Bracket vs get</span>
@@ -107,7 +106,7 @@ for word in text.split():
 print(counts["the"])       <span class="c"># 3</span></code></pre></div>
   <p>
     One pass over n words, constant work each: <strong>O(n)</strong> for the whole tally.
-    The list-based equivalent — searching a list of seen words each time — is O(n²).
+    The list-based equivalent costs O(nu), where u is the number of distinct words: quadratic when u grows with n, but linear in n if u stays fixed.
   </p>
   <p>
     <code>get(word, 0)</code> is the idiom to remember: "the current count, or nought if we
@@ -140,7 +139,7 @@ print(counts.most_common(2))       <span class="c"># [('the', 3), ('quick', 1)]<
 [('the', 3), ('quick', 1)]</div>
   <p>
     Same class as the hand-written loop — O(n) — but a smaller constant, because the
-    counting happens in C, and <code>most_common</code> saves you a sort. This is the same
+    counting happens in C, while ranking with <code>most_common</code> has its own cost; requesting all ranks may require sorting the distinct counts. This is the same
     space-for-time trade you met with the anagram counter in week 9.
   </p>
 </section>
@@ -154,22 +153,19 @@ print(counts.most_common(2))       <span class="c"># [('the', 3), ('quick', 1)]<
     Imagine a cloakroom with 1 000 numbered hooks. Instead of searching for a free hook,
     the attendant computes one from your name: add up the letters, divide by 1 000, take
     the remainder. "Bilal" always gives the same number — say 417 — so your coat goes on
-    hook 417 and is <em>found</em> on hook 417 later. No searching, ever. The computation is
-    called a <strong>hash</strong>, and it takes the same time regardless of how many coats
-    are already hanging.
+    hook 417 and is <em>found</em> on hook 417 later. The computation is called a <strong>hash</strong>. It chooses where to begin checking, avoiding a scan of unrelated keys. Computing a hash can depend on key length, even when it does not depend on the number of stored keys.
   </p>
   <p>
     Two names can compute to the same hook — a <strong>collision</strong>. The structure
-    keeps a small chain there and checks it, which is why the honest statement is "O(1) on
-    average". With a good hash function, collisions are rare enough that this holds up in
+    resolves collisions and checks key equality, which is why the honest statement is "O(1) on average" under ordinary hashing assumptions. The chained buckets below are a teaching model; Python dictionaries and sets use a different probing layout internally. With a good hash function, collisions are rare enough that this holds up in
     practice, and Python's is very good.
   </p>
   <div class="note">
     <span class="label">What it costs you</span>
     <ul>
-      <li><strong>Memory.</strong> Hash tables keep spare room to stay fast — expect roughly two to three times the memory of the equivalent list.</li>
+      <li><strong>Memory.</strong> Hash tables keep spare room to stay fast — the overhead depends on implementation, capacity and key/value sizes; a fixed two-to-three-times ratio is not guaranteed.</li>
       <li><strong>Order.</strong> Sets have none. (Dictionaries do keep insertion order in modern Python, but never rely on sets for ordering.)</li>
-      <li><strong>Hashable keys only.</strong> Text, numbers and tuples work; lists cannot be dictionary keys or set members, because they can change.</li>
+      <li><strong>Hashable keys only.</strong> Ordinary text and numbers work; tuples work only when every component is hashable. Lists cannot be dictionary keys or set members.</li>
       <li><strong>No range queries.</strong> "All names starting with B" still means walking everything.</li>
     </ul>
   </div>
@@ -180,8 +176,8 @@ print(counts.most_common(2))       <span class="c"># [('the', 3), ('quick', 1)]<
   <p>
     Let us make the cloakroom concrete and small enough to trace by hand. Build a tiny table
     of eight buckets and drop five integers into it, sending each number <code>key</code> to
-    bucket <code>key % 8</code>. Integers are perfect for a trace because in Python
-    <code>hash(n) == n</code> for a small integer, so the arithmetic is reproducible.
+    bucket <code>key % 8</code>. For these small nonnegative integer examples,
+    <code>hash(n) == n</code>, so the arithmetic is reproducible. This is not a rule for every integer.
   </p>
   <div class="code"><div class="code-head"><span class="dot"></span>a hash table you can see</div><pre><code>size = 8
 buckets = [[] for _ in range(size)]     <span class="c"># eight empty chains</span>
@@ -224,8 +220,8 @@ print(buckets)</code></pre></div>
       Try the same trace with <code>hash("Ada")</code> and you will get a huge number that
       <em>changes between program runs</em>. Python deliberately randomises string hashing so
       that an attacker cannot feed your server keys engineered to collide (which would drag
-      every lookup down to O(n)). The integer trace above is stable only because integers hash
-      to themselves.
+      every lookup down to O(n)). The specific small-integer trace above is reproducible; the
+      teaching bucket rule does not require using Python's string hashes.
     </p>
   </div>
 </section>
@@ -252,9 +248,7 @@ print(buckets)</code></pre></div>
     </table>
   </div>
   <p>
-    Read the first row downwards: it is the entire reason this week exists. Everything a set
-    and dictionary give you is bought with the memory and the lost order in the bottom rows —
-    a trade that is almost always worth it once you are searching inside a loop.
+    Read the first row downwards: it is the entire reason this week exists. The trade includes additional memory and unique keys. Dictionaries preserve insertion order, including when a key's value is updated; sets provide no insertion-order or sorted-order guarantee. Choose according to the required output.
   </p>
 </section>
 
@@ -340,7 +334,7 @@ duplicates = [a for a in new_signups if a in known_set]   <span class="c"># O(m)
     </li>
     <li>
       <strong>You only look once or twice.</strong> Building a set is a full O(n) pass. For a
-      single membership test, <code>x in my_list</code> is simpler and no slower. The set only
+      single membership test, <code>x in my_list</code> avoids preparation and may be faster; both complete strategies have O(n) worst-case work in the usual model. The set only
       pays off when the build cost is spread over many lookups.
     </li>
     <li>
@@ -357,7 +351,7 @@ scores["Ada"] = 91          <span class="c"># not a new entry — it overwrites 
 print(len(scores))          <span class="c"># 1, not 2: keys are unique</span></code></pre></div>
   <p>
     A list cannot go into a set or be a dictionary key, because it can change and so its hash
-    would move — Python refuses outright with <code>TypeError</code>. Use a <code>tuple</code>
+    would move — Python refuses outright with <code>TypeError</code>. Use a <code>tuple</code> of hashable components
     when you need a compound key. And assigning to an existing key <em>replaces</em> its value;
     it does not add a second entry. Both of these surprise people exactly once.
   </p>
@@ -383,9 +377,7 @@ print(len(scores))          <span class="c"># 1, not 2: keys are unique</span></
     </p>
     <details class="solution"><summary>What to expect</summary>
       <p>
-        The list version is O(n × unique words) and the dictionary version O(n). The gap
-        widens with the vocabulary size, so a bigger text makes it worse — the opposite of
-        what most people expect from "it worked on the small file".
+        The list version is O(n × unique words) and the dictionary version O(n). The gap widens with vocabulary size. Repeating a fixed paragraph increases n but may keep the vocabulary fixed, so that experiment alone need not produce quadratic growth in n.
       </p>
     </details>
   </div>
@@ -393,20 +385,23 @@ print(len(scores))          <span class="c"># 1, not 2: keys are unique</span></
   <div class="task">
     <span class="label">Task 3 — find the common elements</span>
     <p>
-      Given two lists of 50 000 random numbers, find the values present in both, first with
+      Given two lists of 50 000 random numbers, find the distinct values present in both, first with
       nested loops, then with <code>set(a) &amp; set(b)</code>. Time both and confirm they
       agree on the answer.
     </p>
     <details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>both ways</div><pre><code>common_slow = []
-for x in a:                       <span class="c"># O(n × m)</span>
-    if x in b:
-        common_slow.append(x)
+      <div class="code"><div class="code-head"><span class="dot"></span>both ways</div><pre><code>common_slow = set()
+for x in a:                       <span class="c"># up to n × m comparisons</span>
+    for y in b:
+        if x == y:
+            common_slow.add(x)    <span class="c"># output stores distinct matches</span>
+            break
 
-common_fast = list(set(a) &amp; set(b))    <span class="c"># O(n + m)</span>
+common_fast = set(a) &amp; set(b)    <span class="c"># O(n + m) average, including construction</span>
 
-print(sorted(common_slow) == sorted(common_fast))</code></pre></div>
-      <p>Expect a factor of thousands, and identical results. Always check that the fast version is still correct.</p>
+assert common_slow == common_fast
+print(common_slow == common_fast)</code></pre></div>
+      <p>Both now answer the same distinct-values question, including when inputs contain duplicates. If the required output preserves every matching occurrence from a, instead build set(b) once and filter the original a in order. Measure the speedup; no fixed factor is guaranteed.</p>
     </details>
   </div>
 
@@ -491,7 +486,7 @@ print(Counter(rolls).most_common(1))      <span class="c"># e.g. [(4, 167012)]</
       <div class="why">That is precisely what does <em>not</em> happen. The other three are genuine trade-offs you should state when you recommend one.</div>
     </div>
     <div class="q" data-answer="2">
-      <p>Three keys hash to the same bucket. This is called a collision, and the table handles it by:</p>
+      <p>In the chained teaching model, three keys map to the same bucket. The model handles this collision by:</p>
       <button class="opt">Raising an error and refusing the third key</button>
       <button class="opt">Overwriting the first two keys</button>
       <button class="opt">Keeping a short chain in that bucket and checking it on lookup</button>
@@ -515,7 +510,7 @@ print(Counter(rolls).most_common(1))      <span class="c"># e.g. [(4, 167012)]</
     <span class="label">Due before week 12 — about three hours</span>
     <ol>
       <li>Create <code>AA_Week11.ipynb</code> and complete Tasks 1–6.</li>
-      <li>Take any O(n²) function you wrote in weeks 4, 9 or 10 and rewrite it using a set or dictionary. Benchmark both at three sizes and prove the class changed with a ratio column.</li>
+      <li>Take any O(n²) function you wrote in weeks 4, 9 or 10 and rewrite it using a set or dictionary. Benchmark both at three sizes and compare the ratio evidence with an operation-count justification for the changed class.</li>
       <li>Produce one labelled log–log figure showing the flat set line against the rising list line from Task 1.</li>
       <li>Extend the §11.6 hash-table demo to <em>report</em> the longest chain for 1 000 random integers at three table sizes (say 128, 256, 1024). Write two sentences on what the longest chain tells you about lookup cost.</li>
       <li>Write five sentences for a non-technical manager explaining why the report that "took 3 hours" now takes 4 seconds, without using the words "hash" or "complexity".</li>
@@ -529,14 +524,14 @@ print(Counter(rolls).most_common(1))      <span class="c"># e.g. [(4, 167012)]</
     <table>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
       <tbody>
-        <tr><td>set</td><td>Unordered collection, no duplicates, instant membership test.</td></tr>
-        <tr><td>dictionary</td><td>Key → value store with instant lookup by key.</td></tr>
+        <tr><td>set</td><td>Distinct hashable values; no sorted-order guarantee; O(1) average membership.</td></tr>
+        <tr><td>dictionary</td><td>Unique keys map to values; insertion order is preserved; O(1) average lookup.</td></tr>
         <tr><td>key / value</td><td>The label you look things up by / the thing stored under it.</td></tr>
         <tr><td>hash</td><td>A computed number that says where an item belongs — no searching required.</td></tr>
         <tr><td>bucket</td><td>One slot of the table, holding all keys whose hash points there.</td></tr>
         <tr><td>collision</td><td>Two keys landing in the same bucket; handled by a short chain, and why we say "O(1) on average".</td></tr>
         <tr><td>resizing</td><td>Building a bigger table and re-filing everything when it starts to fill — the source of the spare memory.</td></tr>
-        <tr><td>hashable</td><td>A value stable enough to be used as a key: text, numbers, tuples — not lists.</td></tr>
+        <tr><td>hashable</td><td>A value satisfying stable hash/equality rules; tuples require hashable components, and lists do not qualify.</td></tr>
         <tr><td>Counter</td><td>A ready-made dictionary from <code>collections</code> that tallies occurrences.</td></tr>
       </tbody>
     </table>

@@ -16,6 +16,7 @@
   <nav class="header-nav">
     <a class="hlink" href="../index.html">Course home</a>
     <a class="hlink" href="../index.html#weeks">All weeks</a>
+    <a class="hlink" href="../guide/">Learning guide</a>
     <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -42,12 +43,13 @@
   </div>
 </section>
 
+<div class="note green"><p><strong>Need a slower walkthrough?</strong> <a href="../guide/#week-06--doubling-experiments-plots-and-noisy-evidence">Open Week 6 in the detailed learning guide</a> for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>
 <section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
       <li>run a doubling experiment on any function;</li>
-      <li>read the ratio column and name the growth pattern from it alone;</li>
+      <li>read the ratio column and identify plausible growth models, then check them against the code;</li>
       <li>draw a labelled plot of time against input size with matplotlib;</li>
       <li>use a log–log plot when the numbers span several orders of magnitude;</li>
       <li>read a growth pattern off the <em>slope</em> of a log–log line, and fit that slope with one line of code;</li>
@@ -55,6 +57,7 @@
       <li>write a short, honest paragraph interpreting your own measurements.</li>
     </ul>
   </div>
+  <p><strong>Reading the timing examples:</strong> displayed seconds and fitted slopes are illustrative output, not measurements from your machine. Run the experiment, retain the actual samples, and report the input and measurement conditions. Exact operation-count formulas are separate mathematical claims.</p>
 </section>
 
 <section>
@@ -212,9 +215,9 @@ plt.yscale("log")</code></pre></div>
 <section>
   <h2><span class="num">6.4</span>Reading — and measuring — the slope</h2>
   <p>
-    Why does a log–log plot turn every growth pattern into a straight line? A little algebra
-    makes it click. Almost every function here has the shape "some constant times n to a
-    power":
+    Why does a log–log plot turn a power law into a straight line? The following algebra
+    applies to a fixed constant times n to a fixed power. Other models, including n log n,
+    need not become exactly straight:
   </p>
   <p style="font-family:var(--font-mono);font-size:1rem;color:var(--accent)">T = c · n<sup>k</sup></p>
   <p>
@@ -247,17 +250,17 @@ print(f"quadratic slope = {loglog_slope(sizes_q, times_q):.2f}")</code></pre></d
 quadratic slope = 2.00</div>
   <p>
     This is the ratio column's more grown-up cousin. The ratio reads growth from two points
-    at a time; the fitted slope uses <em>all</em> your points at once, so a single noisy
-    measurement cannot swing the verdict. When a ratio column is bouncing around, fit the
-    slope and see the pattern the individual ratios were hiding.
+    at a time; a fitted slope summarizes <em>all</em> your points. Outliers and systematic
+    effects can still bias it. Inspect the samples and residual pattern as well as the
+    slope; a straight-line fit is evidence about the measured range, not a complexity proof.
   </p>
   <div class="note green">
     <span class="label">Slope and ratio say the same thing</span>
     <p>
-      A slope of <code>k</code> means doubling n multiplies the time by
+      For the model T = c n<sup>k</sup>, a slope of <code>k</code> means doubling n multiplies time by
       <code>2<sup>k</sup></code>. Slope 1 → ratio 2. Slope 2 → ratio 4. Slope 3 → ratio 8.
       Slope 0 → ratio 1. They are two readings of one truth: the ratio is local and quick,
-      the slope is global and steady.
+      the fitted slope summarizes a range and is still sensitive to measurement conditions.
     </p>
   </div>
 </section>
@@ -298,8 +301,9 @@ quadratic slope = 2.00</div>
     factor adds only a sliver more each time — a sliver that shrinks as n grows, because the
     logarithm grows ever more slowly. Read too high a starting size and you might call it
     linear; read too low and you might call it quadratic. The honest verdict is "just above
-    2 and falling slowly", the fingerprint of n log n — confirm it by fitting a slope
-    (§6.4), which lands near 1.05–1.1.
+    2 and falling slowly", which is consistent with an n log n model. A fitted slope
+    (§6.4) depends on the input range and is not a fixed class identifier. For exact
+    T(n) = n log₂ n, T(2n)/T(n) = 2 + 2/log₂ n.
   </p>
 
   <h3>3. Memory effects can inflate a linear ratio</h3>
@@ -315,7 +319,7 @@ quadratic slope = 2.00</div>
     <p>
       When a ratio surprises you, do not immediately believe it. Ask the three questions in
       order: is the run long enough, could this be n log n drifting, and has the data
-      outgrown the cache? Then fit a slope across all your points as a tie-breaker.
+      outgrown the cache? A fitted slope can summarize the evidence, but inspect the model and samples before deciding.
     </p>
   </div>
 </section>
@@ -416,9 +420,10 @@ quadratic slope = 2.00</div>
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        (a) and (b) fit near 1.0, (c) near 2.0, (d) near 1.05–1.1. The slope is steadier
-        because it uses every point at once; a lone noisy ratio cannot tilt it. When a single
-        ratio looks odd but the slope is clean, trust the slope.
+        If the intended models dominate, (a) and (b) should fit near 1.0 and (c) near 2.0.
+        For (d), the fitted slope depends on the interval, input ordering and implementation.
+        Outliers can affect a fit. Compare raw samples, ratios and the code-derived model
+        rather than automatically trusting one statistic.
       </p>
     </details>
   </div>
@@ -427,16 +432,18 @@ quadratic slope = 2.00</div>
     <span class="label">Task 5 — watch n log n drift</span>
     <p>
       Run <code>doubling(sorted_wrapper, start_n=10000, doublings=7)</code> where
-      <code>sorted_wrapper(n)</code> shuffles a list of n items and sorts it. Read the ratio
+      <code>sorted_wrapper(n)</code> shuffles a list of n items and sorts it. This wrapper
+      measures preparation plus sorting; label that scope. To isolate sorting, adapt the
+      harness to prepare equivalent shuffled lists outside each timed interval. Read the ratio
       column top to bottom. Does it settle on a single number, or drift? Explain what you see
       using §6.5, and give the fitted slope.
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        The ratio hovers a little above 2 and drifts slowly downward as n grows — never
-        landing on a clean value — because the log factor adds an ever-smaller sliver each
-        doubling. The fitted slope comes out near 1.05–1.1, which is the honest label:
-        n log n, distinctly worse than linear but far better than quadratic.
+        For the ideal n log n model, the ratio is 2 + 2/log₂ n and approaches 2 from above.
+        Actual ratios and fitted slopes may differ because the wrapper includes other work
+        and sorting adapts to its input. State whether your observations support the model;
+        neither a particular slope nor a crossover is guaranteed.
       </p>
     </details>
   </div>
@@ -487,7 +494,7 @@ quadratic slope = 2.00</div>
       <div class="why">Ratios only mean something once the signal is well above the timer noise. Grow n first, interpret second.</div>
     </div>
     <div class="q" data-answer="2">
-      <p>On a log–log plot your measurements form a straight line of slope 2. The algorithm is:</p>
+      <p>On a log–log plot your measurements form a straight line of slope 2. Which model is supported over that range?</p>
       <button class="opt">Constant</button>
       <button class="opt">Linear</button>
       <button class="opt">Quadratic</button>
@@ -500,7 +507,7 @@ quadratic slope = 2.00</div>
       <button class="opt">n log n — just above 2 and drifting slowly towards it, because the log factor grows ever more slowly</button>
       <button class="opt">Linear — the numbers are basically 2</button>
       <button class="opt">Broken measurement — a real ratio never changes</button>
-      <div class="why">A slowly drifting ratio a little above 2 is the fingerprint of n log n. A fitted slope near 1.05–1.1 confirms it.</div>
+      <div class="why">A slowly drifting ratio above 2 is consistent with n log n. Fitted slopes depend on the interval; derive a general bound from the code rather than treating finite measurements as proof.</div>
     </div>
   </div>
 </section>
@@ -526,10 +533,10 @@ quadratic slope = 2.00</div>
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
       <tbody>
         <tr><td>doubling experiment</td><td>Measuring at n, 2n, 4n… and watching the ratio of times.</td></tr>
-        <tr><td>ratio column</td><td>Each time divided by the previous one — the machine-independent part of the result.</td></tr>
-        <tr><td>log–log plot</td><td>Both axes logarithmic; growth patterns become straight lines with distinct slopes.</td></tr>
+        <tr><td>ratio column</td><td>Each time divided by the previous one; some machine factors may cancel, but ratios remain empirical.</td></tr>
+        <tr><td>log–log plot</td><td>Both axes logarithmic; exact power laws become straight lines, while other models may curve.</td></tr>
         <tr><td>slope (log–log)</td><td>The power in T = c·nᵏ; slope 1 is linear, 2 is quadratic, 0 is constant.</td></tr>
-        <tr><td>line fitting</td><td>Using every point at once (e.g. <code>numpy.polyfit</code>) to read a steady slope.</td></tr>
+        <tr><td>line fitting</td><td>Using points together (e.g. <code>numpy.polyfit</code>) to estimate a slope; outliers and model mismatch can bias it.</td></tr>
         <tr><td>cache effect</td><td>Data outgrowing fast memory, which can push a linear ratio above 2.</td></tr>
         <tr><td>extrapolation</td><td>Using a measured pattern to predict a size you have not run.</td></tr>
         <tr><td>harness</td><td>Reusable code that runs and times an experiment for you.</td></tr>

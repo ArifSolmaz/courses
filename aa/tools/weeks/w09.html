@@ -6,7 +6,7 @@
       <li>see how a change of strategy — not a change of language — buys orders of magnitude;</li>
       <li>recognise the counting trick that turns comparison into arithmetic;</li>
       <li>confirm a complexity class by counting operations, not just by timing;</li>
-      <li>explain why an O(n!) solution is not "slow" but impossible;</li>
+      <li>explain why factorial candidate enumeration becomes impractical, and include the work per candidate;</li>
       <li>weigh readability, memory and speed to say which solution you would actually ship;</li>
       <li>write a comparison report with a table, a plot and a recommendation.</li>
     </ul>
@@ -33,11 +33,14 @@
     It sounds trivial, and it is — the answer is easy to get right. What makes it the
     perfect teaching example is that four natural, correct approaches land in four
     <em>different complexity classes</em>. Same problem, same computer, same programmer:
-    O(n²), O(n log n), O(n!) and O(n).
+    O(n²), O(n log n), O(n · n!) for the full brute-force code, and O(n).
   </p>
   <p>
     For all four we will use the length of the words as <code>n</code>, and to keep the
-    focus on the idea we will assume lower-case letters only.
+    focus on the idea we assume only ASCII letters <code>a</code>–<code>z</code>. The
+    26-slot implementation does not support arbitrary Unicode lowercase characters, spaces
+    or punctuation. It requires validation or an explicit normalization policy at a real
+    interface. Unequal lengths return False; two empty strings are anagrams.
   </p>
 </section>
 
@@ -70,11 +73,13 @@ print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span>
     positions of <code>letters</code>. That is a loop inside a loop, both over n:
   </p>
   <p style="font-family:var(--font-mono);color:var(--accent)">
-    T(n) ≈ n + (n−1) + (n−2) + … + 1 = n(n+1)/2 &nbsp;&rarr;&nbsp; O(n²)
+    For a genuine anagram: comparisons = 1 + 2 + … + n = n(n+1)/2 &nbsp;&rarr;&nbsp; Θ(n²)
   </p>
   <p>
-    Correct, readable, and the shape you should now recognise instantly — a nested loop
-    over the same data.
+    The list does not shrink: crossed-off entries are still inspected. On a genuine
+    anagram, each original position is matched once, so the successful search lengths are
+    exactly 1 through n in some order, even with repeated letters. Rejections may stop
+    earlier. Worst-case time is Θ(n²); the list copy uses Θ(n) extra space.
   </p>
 </section>
 
@@ -91,7 +96,8 @@ print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span>
   <p>
     Three lines, obviously correct, and it looks free — which is the trap. The work has not
     disappeared, it has moved inside <code>sorted()</code>, which is
-    <strong>O(n log n)</strong>. The final comparison is O(n). Adding them and keeping the
+    <strong>O(n log n)</strong> in a usual worst-case comparison-sort bound. Python’s
+    adaptive sorting can do less work on particular inputs. The final comparison is O(n). Adding them and keeping the
     dominant term:
   </p>
   <p style="font-family:var(--font-mono);color:var(--accent)">O(n log n) + O(n) &rarr; O(n log n)</p>
@@ -103,7 +109,7 @@ print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span>
     <span class="label">The habit to build</span>
     <p>
       Short code is not cheap code. Whenever a built-in does the heavy lifting, look up
-      what it costs. You wrote three lines; the computer did n log n comparisons.
+      what it costs. The n log n expression is a growth bound, not an exact comparison count.
     </p>
   </div>
 </section>
@@ -124,8 +130,10 @@ def anagram_brute_force(s1, s2):
             return True
     return False</code></pre></div>
   <p>
-    It is correct. It is also useless, and the reason is arithmetic rather than
-    programming. A word of n letters has <strong>n!</strong> (n factorial) arrangements:
+    It is correct, but exhaustive enumeration becomes impractical quickly. A word of n
+    positions has <strong>n!</strong> positional permutations. Repeated characters create
+    duplicate strings that <code>permutations</code> still emits. The table assumes an
+    illustrative ten million candidates per second, not a measured rate:
   </p>
   <div class="table-wrap">
     <table>
@@ -140,10 +148,12 @@ def anagram_brute_force(s1, s2):
     </table>
   </div>
   <p>
-    A twenty-letter word would outlast your career, your institution, and — at n = 25 —
-    the age of the universe. This is what people mean when they say a problem is
-    <em>intractable</em>: not "we need a faster machine", but "no machine that could ever
-    exist would finish". Try it at n = 8 to feel it move, and never again.
+    At that hypothetical rate, exhaustive enumeration becomes impractical for large n.
+    The anagram <em>problem</em> is tractable because efficient alternatives exist. For
+    this code, joining each candidate costs Θ(n), making exhaustive worst-case time
+    Θ(n · n!), not O(n!) under a full character-operation count. Early success may stop
+    much sooner. The generator avoids storing every result, but its state and current
+    candidate use O(n) auxiliary space. Keep experimental runs at very small n.
   </p>
 </section>
 
@@ -165,19 +175,20 @@ def anagram_brute_force(s1, s2):
     for letter in s2:                          <span class="c"># n steps</span>
         counts2[ord(letter) - ord('a')] += 1
 
-    for i in range(26):                        <span class="c"># always 26 steps</span>
+    for i in range(26):                        <span class="c"># up to 26 checks; all 26 for anagrams</span>
         if counts1[i] != counts2[i]:
             return False
     return True</code></pre></div>
   <p>
     <code>ord('a')</code> is 97, <code>ord('c')</code> is 99, so
     <code>ord(letter) - ord('a')</code> turns a letter into a slot number 0–25. Two passes
-    over the words, then a fixed 26 comparisons:
+    over the words, then up to 26 comparisons. For a genuine pair, counting only tally
+    updates and final comparisons gives exactly:
   </p>
   <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = 2n + 26 &nbsp;&rarr;&nbsp; O(n)</p>
   <p>
-    Linear — the best possible, since any correct method must at least look at every
-    letter. Notice what paid for it: <strong>extra memory</strong> (two lists of 26) and a
+    Linear in the worst case — optimal in this character-access model, because a correct
+    method must inspect all characters on some inputs. This need not happen on an early rejection. Notice what paid for it: <strong>extra memory</strong> (two lists of 26) and a
     cleverer question ("how many of each?" instead of "does this one match?"). That
     trade — spend a little space to save a lot of time — is one of the most reliable moves
     in all of computing, and week 11 is built entirely on it.
@@ -190,10 +201,10 @@ def anagram_brute_force(s1, s2):
     <table>
       <thead><tr><th>Solution</th><th>Class</th><th>Steps at n = 1 000</th><th>Extra memory</th><th>Verdict</th></tr></thead>
       <tbody>
-        <tr><td>1. Checking off</td><td>O(n²)</td><td>~500 000</td><td>a copy of the word</td><td>Fine for words, hopeless for large data</td></tr>
-        <tr><td>2. Sort and compare</td><td>O(n log n)</td><td>~10 000</td><td>two sorted copies</td><td>Excellent default: short and fast enough</td></tr>
-        <tr><td>3. Brute force</td><td>O(n!)</td><td>more than atoms in the galaxy</td><td>tiny</td><td>Never</td></tr>
-        <tr><td>4. Count and compare</td><td>O(n)</td><td>~2 026</td><td>two 26-slot lists</td><td>Fastest; slightly more code</td></tr>
+        <tr><td>1. Checking off</td><td>Θ(n²) worst case</td><td>500 500 comparisons for anagrams</td><td>a copy of the word</td><td>Fine for words, hopeless for large data</td></tr>
+        <tr><td>2. Sort and compare</td><td>O(n log n) upper bound</td><td>n log₂ n ≈ 10 000 is a scale estimate, not an exact count</td><td>two sorted copies</td><td>Excellent default: short and fast enough</td></tr>
+        <tr><td>3. Brute force</td><td>Θ(n · n!) worst case</td><td>n! candidates, Θ(n) work each</td><td>O(n) generator state and current candidate</td><td>Only tiny demonstrations</td></tr>
+        <tr><td>4. Count and compare</td><td>Θ(n) worst case</td><td>2 026 selected operations for anagrams</td><td>two 26-slot lists</td><td>Linear model; measure implementation performance</td></tr>
       </tbody>
     </table>
   </div>
@@ -204,7 +215,7 @@ def anagram_brute_force(s1, s2):
   <div class="code"><div class="code-head"><span class="dot"></span>benchmark_anagrams.py</div><pre><code>import random, string, time
 
 def make_pair(n):
-    """Two strings of length n that really are anagrams — the worst case."""
+    """Genuine anagrams; full checks for checking-off/counting, not every method’s worst case."""
     letters = [random.choice(string.ascii_lowercase) for _ in range(n)]
     shuffled = letters[:]
     random.shuffle(shuffled)
@@ -231,19 +242,19 @@ n= 1000  checking-off 0.03310s   sort 0.00013s   count 0.00022s   speedup 150x
 n= 2000  checking-off 0.13245s   sort 0.00028s   count 0.00044s   speedup 301x
 n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</div>
   <p>
-    Two things to notice. First, the speedup column <em>grows</em> — at n = 4 000 the naive
-    method is already 600 times worse, and it will be 6 000 times worse at n = 40 000.
-    Second, the sort version beats the counting version in wall-clock time even though its
-    class is worse, because <code>sorted()</code> runs in optimised C while your counting
-    loop runs in Python. That is a constant factor at work — and it is exactly why we
-    measure as well as classify.
+    The displayed timings illustrate possible output; run the code for measurements on
+    your machine. A quadratic-versus-linear model predicts a growing speedup, but the
+    particular factor at n = 40 000 must be measured or labelled as an extrapolation.
+    Built-in sorting may outperform Python-level counting over a measured range because
+    implementation constants and input structure matter. Record those conditions.
   </p>
   <div class="note green">
     <span class="label">The lesson of the last paragraph</span>
     <p>
-      Big-O predicts who wins <em>eventually</em>; the stopwatch tells you who wins
-      <em>today, at this size, in this language</em>. Push n high enough and the O(n)
-      version pulls ahead of the O(n log n) one — find that crossover in the optional extension.
+      Tight growth models explain eventual trends under their assumptions; upper bounds
+      alone do not guarantee which implementation wins. Python sorting is adaptive, and
+      the fixed alphabet and input distribution matter. Look for a crossover in the
+      optional extension, but report honestly if none is observed in the tested range.
     </p>
   </div>
 </section>
@@ -252,14 +263,15 @@ n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</
   <h2><span class="num">9.7</span>Counting operations to confirm the class</h2>
   <p>
     Timing is honest but noisy — it mixes in your CPU, the language and whatever else the
-    machine is doing. There is a cleaner way to <em>prove</em> a class: count the
-    fundamental operations the algorithm performs and watch how the count grows. If the
-    theory says O(n²), then doubling n should roughly quadruple the count; if it says O(n),
-    doubling should roughly double it. No stopwatch required.
+    machine is doing. A code-derived general operation formula can <em>prove</em> a bound under its model.
+    Instrumented counts test that derivation at selected sizes. A tight quadratic model
+    has ratios approaching four; a tight linear model has ratios approaching two.
+    Finite ratio tables by themselves do not prove an asymptotic class.
   </p>
   <p>
-    We add a counter to each method — for the two loop-based ones we count letter
-    comparisons; for the counting method we count tally updates plus the 26 final checks.
+    For checking off we count letter comparisons; for counting we count tally updates
+    plus the final checks (all 26 on genuine anagrams). These selected operations exclude
+    initialization and indexing arithmetic; they are not full Python instruction counts.
     Because <code>anagram_sort</code> hides its work inside C, we time it separately in the
     benchmark; here we compare the two we can instrument.
   </p>
@@ -272,17 +284,25 @@ def make_pair(n):
     return "".join(letters), "".join(shuffled)
 
 def checking_off_ops(s1, s2):
+    if len(s1) != len(s2):
+        return 0
     ops = 0
     letters = list(s2)
     for letter in s1:
+        found = False
         for i in range(len(letters)):
             ops += 1                         <span class="c"># one comparison</span>
             if letters[i] == letter:
                 letters[i] = None
+                found = True
                 break
+        if not found:
+            return ops
     return ops
 
 def count_ops(s1, s2):
+    if len(s1) != len(s2):
+        return 0
     ops = 0
     c1 = [0] * 26
     c2 = [0] * 26
@@ -292,6 +312,8 @@ def count_ops(s1, s2):
         c2[ord(letter) - ord('a')] += 1; ops += 1
     for i in range(26):
         ops += 1
+        if c1[i] != c2[i]:
+            return ops
     return ops
 
 print(f"{'n':&gt;6}  {'checking-off':&gt;14}  {'ratio':&gt;6}   {'count':&gt;8}  {'ratio':&gt;6}")
@@ -305,25 +327,24 @@ for n in [250, 500, 1000, 2000]:
     print(f"{n:&gt;6}  {a:&gt;14,}  {ra:&gt;6}   {c:&gt;8,}  {rc:&gt;6}")
     prev_a, prev_c = a, c</code></pre></div>
   <div class="out">     n    checking-off   ratio      count   ratio
-   250          31,653       -        526       -
-   500         125,910    4.0x      1,026    2.0x
-  1000         503,110    4.0x      2,026    2.0x
-  2000       2,006,214    4.0x      4,026    2.0x</div>
+   250          31,375       -        526       -
+   500         125,250    4.0x      1,026    2.0x
+  1000         500,500    4.0x      2,026    2.0x
+  2000       2,001,000    4.0x      4,026    2.0x</div>
   <p>
-    Read the two ratio columns and the classes fall straight out. Checking-off quadruples
-    with every doubling — the unmistakable fingerprint of <strong>O(n²)</strong>, and the
-    raw counts sit right on the predicted n²/2. Counting doubles with every doubling —
-    <strong>O(n)</strong>, sitting on the predicted 2n + 26. This is the same ratio-column
-    reasoning you used with the doubling harness in weeks 5–7, applied to operation counts
-    instead of seconds, and it is immune to a noisy laptop.
+    For these genuine anagrams, the counts are exactly n(n+1)/2 and 2n+26. The first
+    doubling ratio approaches four and the second approaches two; neither is exactly its
+    limiting value at every n. The formulas justify Θ(n²) and Θ(n), and the table checks
+    the implementation. These counts are deterministic for this input family and do not
+    depend on stopwatch noise.
   </p>
   <div class="note blue">
     <span class="label">Two tools, one verdict</span>
     <p>
-      When the operation-count ratio and the timing ratio agree, you have a strong claim:
-      the shape is confirmed by arithmetic <em>and</em> by the clock. When they disagree,
-      you have found a constant factor — usually a chunk of work happening in C — and that
-      is exactly what §9.6 showed for <code>sorted()</code>.
+      A derived operation formula and compatible measurements support the model’s
+      relevance. If ratios disagree, investigate noise, input cases, hidden work,
+      lower-order terms and memory effects. A constant multiplier by itself cancels
+      from a doubling ratio; it does not explain every disagreement.
     </p>
   </div>
 </section>
@@ -339,27 +360,29 @@ for n in [250, 500, 1000, 2000]:
     <table>
       <thead><tr><th>Solution</th><th>Reads clearly?</th><th>Extra memory</th><th>Wins when…</th></tr></thead>
       <tbody>
-        <tr><td>1. Checking off</td><td>yes, mirrors the spoken idea</td><td>O(n)</td><td>never — the O(n²) is a liability with no upside</td></tr>
+        <tr><td>1. Checking off</td><td>yes, mirrors the spoken idea</td><td>O(n)</td><td>useful for tracing a simple matching strategy; usually avoid for large inputs</td></tr>
         <tr><td>2. Sort and compare</td><td>yes, one obvious line</td><td>O(n)</td><td>ordinary word-sized inputs; you value short, clear code</td></tr>
-        <tr><td>3. Brute force</td><td>yes, but pointless</td><td>O(1)</td><td>never — correct yet unusable past a handful of letters</td></tr>
+        <tr><td>3. Brute force</td><td>simple exhaustive strategy</td><td>O(n)</td><td>tiny demonstrations; factorial work quickly becomes impractical</td></tr>
         <tr><td>4. Count and compare</td><td>a little more code</td><td>O(1)*</td><td>huge inputs, or the same check run millions of times</td></tr>
       </tbody>
     </table>
   </div>
   <p style="font-size:.9rem;color:var(--muted)">
-    * Two fixed 26-slot lists — the memory does not grow with n, so this is O(1) extra
-    space, unlike the sorted copies solution 2 must build.
+    * Two fixed 26-slot lists give O(1) slots under the word model. If alphabet size k
+    varies, initialization and comparison cost O(k), total time is O(n+k), and extra
+    space is O(k). Bit-level storage also depends on the size of the integer counters.
   </p>
   <p>
     So which do you ship? For a word game where inputs are a dozen letters and the check
     runs occasionally, <strong>solution 2</strong> is the right call: one line, obviously
     correct, fast enough that its worse class never bites. For a bioinformatics tool
     comparing million-character sequences, or a service that runs the check millions of
-    times a second, <strong>solution 4</strong> is the only responsible choice — its linear
-    time and constant extra space are the difference between "instant" and "times out".
+    times a second, <strong>solution 4</strong> is a strong candidate when its alphabet contract applies: it has
+    linear worst-case time and constant extra slots. Validate its implementation and
+    measure representative inputs against the actual latency and memory requirements.
     The professional answer is not a single winner; it is "solution 2 by default, solution
-    4 when the numbers say so, and here is the number that flips it" — the crossover you
-    will find in the optional extension.
+    4 when the requirements and evidence support it". A crossover may or may not appear
+    in the optional extension’s tested range.
   </p>
   <div class="note">
     <span class="label">Say the trade out loud</span>
@@ -383,7 +406,7 @@ for n in [250, 500, 1000, 2000]:
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        About 5 050, 20 100 and 80 200 — close to n²/2 and quadrupling with each doubling,
+        Exactly 5 050, 20 100 and 80 200 — with doubling ratios approaching four,
         just as predicted.
       </p>
     </details>
@@ -392,14 +415,18 @@ for n in [250, 500, 1000, 2000]:
   <div class="task">
     <span class="label">Task 2 — how far can brute force go?</span>
     <p>
-      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there). Then predict
+      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there, or earlier if slow).
+      Use equal-length non-anagrams to force exhaustion, for example <code>"a" * n</code>
+      and <code>"a" * (n-1) + "b"</code>. Then predict
       n = 12 from the pattern, and say whether you would wait for it.
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        Each extra letter multiplies the time by roughly n. From n = 9 to n = 12 is a factor
-        of about 10 × 11 × 12 ≈ 1 320. If n = 9 took a second, n = 12 takes about 22 minutes
-        — and n = 15 about a fortnight.
+        Under a constant-cost-per-candidate model, 12!/9! = 10 × 11 × 12 = 1 320.
+        An illustrative one-second run at n = 9 predicts 22 minutes at n = 12 and
+        15!/9! = 3 603 600 seconds, about 41.7 days, at n = 15. The full n · n!
+        model adds factors 12/9 and 15/9, giving about 29.3 minutes and 69.5 days.
+        These are extrapolations for exhaustive searches, not guaranteed durations.
       </p>
     </details>
   </div>
@@ -407,9 +434,9 @@ for n in [250, 500, 1000, 2000]:
   <div class="task">
     <span class="label">Task 3 — find the crossover</span>
     <p>
-      The sorting solution beats the counting one at small n because of constant factors.
-      Push n up (10 000, 100 000, 1 000 000 — build the strings outside the timer) and find
-      where the O(n) version overtakes.
+      Sorting may beat counting at the sizes you test. Increase n within a practical
+      limit (build inputs outside the timer) and look for a crossover. If none occurs,
+      report the tested range and input family rather than inventing a crossover.
     </p>
   </div>
 
@@ -426,8 +453,10 @@ for n in [250, 500, 1000, 2000]:
 def anagram_counter(s1, s2):
     return Counter(s1) == Counter(s2)</code></pre></div>
       <p>
-        Still O(n) — Counter walks each string once. It is usually faster than the hand-written
-        loop because the counting happens in C, not in Python. Same class, smaller constant.
+        Expected O(n) time under ordinary hash-table assumptions: Counter visits each
+        character and stores counts for the k distinct characters, using O(k) space.
+        It also supports a broader alphabet than the 26-slot function. Implementation
+        constants can differ; benchmark rather than assume it is faster.
       </p>
     </details>
   </div>
@@ -464,14 +493,14 @@ def anagram_counter(s1, s2):
     <p>
       Run the operation-counter from §9.7 for the checking-off and counting methods at
       n = 100, 200, 400, 800. Put the two ratio columns side by side and state, in one
-      sentence each, what class each column proves — without ever calling
+      sentence each, what class the underlying count formula proves and whether the column agrees — without calling
       <code>time.perf_counter</code>.
     </p>
     <details class="solution"><summary>Expected</summary>
       <p>
-        The checking-off ratio hovers around 4.0×, proving O(n²); the counting ratio hovers
-        around 2.0×, proving O(n). A quadrupling means the exponent is 2; a doubling means
-        the exponent is 1.
+        The checking-off ratios approach 4 and counting ratios approach 2. Deriving
+        n(n+1)/2 and 2n+26 for every genuine length-n anagram establishes Θ(n²)
+        and Θ(n); the finite table checks those formulas rather than proving them alone.
       </p>
     </details>
   </div>
@@ -481,7 +510,7 @@ def anagram_counter(s1, s2):
   <h2><span class="num">9.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
     <div class="q" data-answer="1">
-      <p>Why is <code>sorted(s1) == sorted(s2)</code> not O(n)?</p>
+      <p>Why do we use an O(n log n) worst-case sorting upper bound for <code>sorted(s1) == sorted(s2)</code>?</p>
       <button class="opt">Because comparing two lists is O(n²)</button>
       <button class="opt">Because sorting itself costs O(n log n), and that dominates the comparison</button>
       <button class="opt">Because it uses extra memory</button>
@@ -497,8 +526,8 @@ def anagram_counter(s1, s2):
       <div class="why">Trading a little space for a lot of time is one of the most reliable moves in computing — and the whole idea behind week 11.</div>
     </div>
     <div class="q" data-answer="0">
-      <p>An O(n!) method on a 20-letter word is best described as:</p>
-      <button class="opt">Impossible in practice, no matter what hardware you buy</button>
+      <p>Exhaustively checking all 20! positional permutations at ten million candidates per second is:</p>
+      <button class="opt">Impractical at that stated rate: thousands of years</button>
       <button class="opt">Slow but usable overnight</button>
       <button class="opt">Fine, since 20 is a small number</button>
       <button class="opt">Faster than O(n²) for small n, so acceptable</button>
@@ -508,17 +537,17 @@ def anagram_counter(s1, s2):
       <p>In the benchmark, the O(n log n) version beat the O(n) version at n = 1 000. Does that disprove the analysis?</p>
       <button class="opt">Yes — measurements always beat theory</button>
       <button class="opt">Yes — the classes must be wrong</button>
-      <button class="opt">No — constant factors dominate at small n; the classes describe the trend, and the O(n) version wins once n is large enough</button>
+      <button class="opt">No — implementation and inputs affect measured times; these upper bounds alone do not guarantee a crossover</button>
       <button class="opt">No — the measurement must have been faulty</button>
-      <div class="why">Both are right about different questions. Report the class <em>and</em> the crossover, and you have told the whole truth.</div>
+      <div class="why">Report the bound, input family and observed times, including whether any crossover was actually observed.</div>
     </div>
     <div class="q" data-answer="1">
-      <p>When you double n, the checking-off operation count roughly quadruples. That confirms:</p>
+      <p>The checking-off formula n(n+1)/2 produces ratios approaching four when n doubles. Its tight growth is:</p>
       <button class="opt">O(n) — the count grew</button>
-      <button class="opt">O(n²) — quadrupling on a doubling means the exponent is 2</button>
+      <button class="opt">Θ(n²) — the exact formula has a quadratic dominant term</button>
       <button class="opt">O(log n) — the count is small</button>
       <button class="opt">Nothing — only timing can prove a class</button>
-      <div class="why">A ×4 response to a ×2 input is the fingerprint of quadratic growth, just as it was in the doubling harness of weeks 5–7 — counts work as well as seconds.</div>
+      <div class="why">The formula derived for all valid anagram sizes proves the bound. A finite ratio table provides a check rather than a proof by itself.</div>
     </div>
     <div class="q" data-answer="2">
       <p>Inputs are a dozen letters and the check runs a handful of times. Which do you ship, and why?</p>
@@ -537,9 +566,9 @@ def anagram_counter(s1, s2):
     <span class="label">Due before week 10</span>
     <ol>
       <li>Create <code>AA_Week09.ipynb</code> with all five solutions and complete Tasks 1–6.</li>
-      <li>Run the operation-counter from §9.7 and produce a table with the two ratio columns; write one sentence under it naming the class each column proves.</li>
+      <li>Run the operation-counter from §9.7 and produce a table with the two ratio columns; write one sentence under it naming the class justified by the count formula and checked by that column.</li>
       <li>Produce one figure with the three usable solutions plotted against n (log–log axes, labelled).</li>
-      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, the crossover you found, and a recommendation for (a) words in a game and (b) million-character biological sequences — say explicitly what each recommendation is optimising for.</li>
+      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, any crossover observed (or the range in which none was found), and a recommendation for (a) words in a game and (b) million-character biological sequences — say explicitly what each recommendation is optimising for.</li>
       <li>Answer in five sentences: solution 3 is correct and yet worthless. What does that tell you about "correct" as a standard for software?</li>
     </ol>
   </div>
@@ -552,10 +581,10 @@ def anagram_counter(s1, s2):
       <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
       <tbody>
         <tr><td>anagram</td><td>A word made of exactly the same letters as another.</td></tr>
-        <tr><td>brute force</td><td>Try every possibility. Always correct, usually unusable.</td></tr>
-        <tr><td>factorial n!</td><td>n × (n−1) × … × 1 — the number of arrangements; grows faster than any exponential.</td></tr>
-        <tr><td>intractable</td><td>So expensive that no realistic machine can finish it.</td></tr>
-        <tr><td>operation count</td><td>The number of fundamental steps an algorithm performs; its ratio confirms a class without a stopwatch.</td></tr>
+        <tr><td>brute force</td><td>Try every candidate systematically; correctness requires complete coverage and a correct test.</td></tr>
+        <tr><td>factorial n!</td><td>n × (n−1) × … × 1 — the number of positional permutations; grows faster than cⁿ for every fixed c.</td></tr>
+        <tr><td>intractable</td><td>Informally, too expensive for the intended input sizes and resources; a poor algorithm does not make its problem intractable.</td></tr>
+        <tr><td>operation count</td><td>The number of selected steps; a general derived formula proves a bound, while finite measurements check it.</td></tr>
         <tr><td>space–time trade-off</td><td>Using extra memory to save time, or the reverse.</td></tr>
         <tr><td>crossover</td><td>The input size at which the better-scaling method overtakes the one with a smaller constant.</td></tr>
       </tbody>
@@ -588,7 +617,7 @@ def anagram_counter(s1, s2):
         b<sup>n</sup> additions.
       </p>
       <p>
-        Each of those additions is of two n-digit numbers, which costs O(n) — you add digit by
+        The running product may need up to 2n digits; each digit-by-digit addition still costs O(n) — you add digit by
         digit, carrying as you go. Multiply the two together:
       </p>
       <p style="font-family:var(--font-mono);color:var(--accent)">
@@ -612,10 +641,10 @@ def anagram_counter(s1, s2):
       </div>
       <p>
         <strong>Answer:</strong> O(n · b<sup>n</sup>) — exponential in the number of digits.
-        Repeated addition is perfectly fine for 5 × 4, but hopeless for real numbers: multiplying
-        two 20-digit numbers would need something like 10²⁰ additions, which no machine will ever
-        finish. The moral is week 9's exactly — a method can be entirely correct and still
-        unusable.
+        Repeated addition is fine for 5 × 4, but an n-digit multiplier can require nearly
+        bⁿ additions. At twenty decimal digits the worst case approaches 10²⁰ additions,
+        making this method impractical at ordinary processing rates. Correctness alone
+        does not establish suitability for the intended input sizes.
       </p>
     </details>
   </div>
@@ -644,15 +673,15 @@ def anagram_counter(s1, s2):
         <table>
           <thead><tr><th>Method</th><th>Class</th><th>Multiplying two 20-digit numbers</th></tr></thead>
           <tbody>
-            <tr><td>2-37 repeated addition</td><td>O(n · b<sup>n</sup>)</td><td>about 10²⁰ steps — impossible</td></tr>
-            <tr><td>2-38 long multiplication</td><td>O(n²)</td><td>about 400 steps — instant</td></tr>
+            <tr><td>2-37 repeated addition</td><td>O(n · b<sup>n</sup>)</td><td>up to nearly 10²⁰ additions, each with O(n) digit work</td></tr>
+            <tr><td>2-38 long multiplication</td><td>O(n²)</td><td>400 single-digit products plus carrying and row addition</td></tr>
           </tbody>
         </table>
       </div>
       <p>
         <strong>Answer:</strong> O(n²). Long multiplication is astronomically better than
-        repeated addition: for 20-digit numbers it is roughly 400 steps against 10²⁰ — the
-        difference between "instant" and "never". And notice what bought that gap — a smarter
+        repeated addition: for 20-digit inputs compare 400 single-digit products plus
+        combining work against up to nearly 10²⁰ multi-digit additions. And notice what bought that gap — a smarter
         <em>method</em>, on the same machine, not faster hardware.
       </p>
       <div class="note">
