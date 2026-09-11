@@ -1,23 +1,38 @@
 # Maintaining the PHY101 notebooks
 
 Students start from the thirteen dated lessons in `calendar/`. Their schedule comes
-from `calendar.json`, including review, midterm, and laboratory topics. The fourteen
+from `calendar.json`, including lecture topics, review and the midterm. The fourteen
 files in `notebooks/` are the source-module library, with stable problem identifiers.
+The course dashboard uses **Open in Colab** as the primary notebook action and
+provides **Download notebook** separately. Check that each action targets the same
+week or source module whenever notebook paths change.
 
-After a teaching-calendar or source-content change, run from the courses repository:
+For lecture-content or notebook-link changes that keep solution release dates the
+same, run from the courses repository:
 
 ```powershell
-python fall/phy101/tools/build_calendar_notebooks.py
-python fall/phy101/tools/sync_calendar.py --write
-python fall/phy101/tools/sync_calendar.py --check
+python -B fall/phy101/tools/sync_calendar.py --write --public-only
+python -B fall/phy101/tools/build_calendar_notebooks.py
+python -B fall/phy101/tools/sync_calendar.py --check --public-only
 ```
 
-The builder selects the material for each dated week; it does not assign every source
-module its own calendar week. The sync command updates `web/phy101-calendar.js` and
-the private `phy101-solutions/schedule.json` together. Use `--solutions-root PATH` if
-that repository is not beside `courses`. The sync also refreshes the calendar labels
-inside private solutions and source-module notebooks, so old links point readers
-to the appropriate dated lesson. Neither command publishes files.
+The `--public-only` mode updates or checks the browser calendar and source-notebook
+routes without reading or writing the private solutions repository. The builder
+selects the material for each dated week; source-module numbers remain stable.
+
+When teaching assignments or release dates change, synchronize the private solution
+schedule as well:
+
+```powershell
+python -B fall/phy101/tools/sync_calendar.py --write
+python -B fall/phy101/tools/build_calendar_notebooks.py
+python -B fall/phy101/tools/sync_calendar.py --check
+```
+
+Full synchronization updates `web/phy101-calendar.js`, source-notebook routes, the
+private `phy101-solutions/schedule.json`, and calendar labels inside private solution
+notebooks. Use `--solutions-root PATH` if that repository is not beside `courses`.
+Neither synchronization mode nor the builder publishes files.
 
 Edit physics explanations and problems in the source notebooks. The private
 `phy101-solutions` repository holds the complete worked solutions until release.
@@ -26,7 +41,7 @@ Edit physics explanations and problems in the source notebooks. The private
 in every notebook so Colab needs no extra repository download. After changing it:
 
 ```powershell
-python fall/phy101/tools/refresh_notebook_interface.py
+python -B fall/phy101/tools/refresh_notebook_interface.py
 ```
 
 This maintains the labelled reading guide, collapsed code metadata, controls beside
@@ -55,7 +70,7 @@ them. New optional demos need a deliberate entry in the builder's `LESSONS` map.
 Execute edited notebooks in fresh kernels and store QA outputs outside source:
 
 ```powershell
-python fall/phy101/tools/validate_notebooks.py fall/phy101/calendar/Week_03.ipynb --output-dir "$env:TEMP/phy101-checks"
+python -B fall/phy101/tools/validate_notebooks.py fall/phy101/calendar/Week_03.ipynb --output-dir "$env:TEMP/phy101-checks"
 ```
 
 Dependencies: `nbformat`, `nbclient`, `ipykernel`, `numpy`, `matplotlib`, `scipy`,
@@ -63,8 +78,8 @@ Dependencies: `nbformat`, `nbclient`, `ipykernel`, `numpy`, `matplotlib`, `scipy
 change controls, and check both desktop and narrow-screen layouts. Execution alone
 does not check whether controls are visible beside figures.
 
-The screenshot-driven revision's final hashes and verification scope are recorded
-in `../notebook_review_verification.json`. Refresh the interface, rebuild lessons,
+The earlier screenshot-driven edition's execution hashes and verification scope are
+recorded in `../notebook_review_verification.json`; they describe that tested edition. Refresh the interface, rebuild lessons,
 check calendar synchronization, and execute the affected notebooks before updating
 that record. Also exercise repeated live slider updates; an initial visible plot
 alone does not establish that subsequent updates work.

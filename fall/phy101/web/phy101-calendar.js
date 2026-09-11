@@ -4,8 +4,8 @@ window.PHY101_CALENDAR = {
   "term": "Fall 2026–27",
   "timezone": "Europe/Istanbul",
   "term_end": "2026-12-18",
-  "source": "Supplied Haftalara Göre Ders ve Laboratuvar Programı image",
-  "source_note": "The image specifies date ranges and topics. Existing Tuesday class dates are retained within those ranges; it does not specify an exact midterm date. Blank/red laboratory cells mean no experiment named.",
+  "source": "Lecture topics and date ranges from the supplied weekly schedule image",
+  "source_note": "The lecture column specifies date ranges and topics. Existing Tuesday class dates are retained within those ranges; the image does not specify an exact midterm date.",
   "weeks": [
     {
       "week": 1,
@@ -15,8 +15,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Measurement, units, physical quantities and vectors",
       "title_tr": "Ölçme ve birim sistemleri, fiziksel nicelikler ve vektörler",
-      "lab_en": null,
-      "lab_tr": null,
       "modules": [
         1
       ],
@@ -32,8 +30,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Motion in one dimension",
       "title_tr": "Bir boyutta hareket",
-      "lab_en": "INTRO",
-      "lab_tr": "INTRO",
       "modules": [
         2
       ],
@@ -49,8 +45,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Motion in two dimensions and Newton’s laws",
       "title_tr": "İki boyutta hareket ve Newton yasaları",
-      "lab_en": "Measuring instruments",
-      "lab_tr": "Ölçme cihazları",
       "modules": [
         3,
         4
@@ -67,14 +61,10 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Friction and applications of Newton’s laws",
       "title_tr": "Sürtünme kuvveti ve Newton hareket yasaları uygulamaları",
-      "lab_en": "1D motion — free fall",
-      "lab_tr": "Bir boyutta hareket — serbest düşme",
       "modules": [
         4
       ],
-      "support_modules": [
-        2
-      ],
+      "support_modules": [],
       "scope": "Force diagrams, static/kinetic friction, inclines and connected bodies",
       "notebook": "calendar/Week_04.ipynb"
     },
@@ -86,15 +76,10 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Work and kinetic energy",
       "title_tr": "İş ve kinetik enerji",
-      "lab_en": "Projectile motion — friction",
-      "lab_tr": "Eğik atış — sürtünme",
       "modules": [
         6
       ],
-      "support_modules": [
-        3,
-        4
-      ],
+      "support_modules": [],
       "scope": "Work, kinetic energy, net-work theorem and power; potential/conservation energy begins in week08",
       "notebook": "calendar/Week_05.ipynb"
     },
@@ -106,8 +91,6 @@ window.PHY101_CALENDAR = {
       "kind": "review",
       "title_en": "Problem solving and review",
       "title_tr": "Soru çözümü ve özet",
-      "lab_en": null,
-      "lab_tr": null,
       "modules": [
         1,
         2,
@@ -127,8 +110,6 @@ window.PHY101_CALENDAR = {
       "kind": "midterm",
       "title_en": "Midterm",
       "title_tr": "Vize",
-      "lab_en": null,
-      "lab_tr": null,
       "modules": [],
       "support_modules": [],
       "scope": "No new topic; use the review notebook and the announced examination arrangements",
@@ -142,8 +123,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Potential energy and conservation of energy",
       "title_tr": "Potansiyel enerji ve enerjinin korunumu",
-      "lab_en": null,
-      "lab_tr": null,
       "modules": [
         6
       ],
@@ -159,8 +138,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Linear momentum, impulse and collisions",
       "title_tr": "Doğrusal momentum, itme ve çarpışmalar",
-      "lab_en": "One-dimensional collision",
-      "lab_tr": "Bir boyutta çarpışma",
       "modules": [
         7
       ],
@@ -176,8 +153,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Rotation of rigid bodies",
       "title_tr": "Katı cisimlerin dönme hareketi",
-      "lab_en": "Rotation of rigid bodies",
-      "lab_tr": "Katı cisimlerin dönmesi",
       "modules": [
         9
       ],
@@ -195,16 +170,13 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Dynamics of rotational motion",
       "title_tr": "Dönme hareketi dinamiği",
-      "lab_en": "Moment of inertia — simple pendulum",
-      "lab_tr": "Eylemsizlik momenti — basit sarkaç",
       "modules": [
         9
       ],
       "support_modules": [
-        10,
-        11
+        10
       ],
-      "scope": "Torque, angular acceleration, rotational energy and rolling; short small-angle pendulum preparation before the lab",
+      "scope": "Torque, angular acceleration, rotational energy and rolling",
       "notebook": "calendar/Week_11.ipynb"
     },
     {
@@ -215,8 +187,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Equilibrium and centre of mass",
       "title_tr": "Denge ve kütle merkezi",
-      "lab_en": "Make-up laboratory",
-      "lab_tr": "Telafi",
       "modules": [
         8
       ],
@@ -232,8 +202,6 @@ window.PHY101_CALENDAR = {
       "kind": "teaching",
       "title_en": "Periodic motion",
       "title_tr": "Periyodik hareket",
-      "lab_en": null,
-      "lab_tr": null,
       "modules": [
         11
       ],
@@ -251,7 +219,7 @@ window.PHY101_CALENDAR = {
     13,
     14
   ],
-  "release_policy": "Core module solutions open seven days after the last main teaching session using that module, capped at term end. Review and laboratory preparation do not reopen an already assigned problem set. Full extension-module solutions open at term end.",
+  "release_policy": "Core module solutions open seven days after the last main teaching session using that module, capped at term end. Review and supporting reading do not reopen an already assigned problem set. Full extension-module solutions open at term end.",
   "release_dates": {
     "1": "2026-09-29",
     "2": "2026-10-06",

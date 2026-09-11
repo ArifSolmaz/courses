@@ -2,11 +2,11 @@
 
 Complete solutions cover **all 140 numbered source-module problems and their subparts**, plus all three capstone projects. Read the principle, algebra, substitution with units and physical check before opening optional code.
 
-The main teaching sequence is the **13 dated weekly lessons** in the [course dashboard](../web/PHY101_Course_Dashboard.html). Existing `Week_XX_Python_Solutions.ipynb` filenames identify the fourteen **source modules**, so their numbers do not identify calendar weeks. Weekly notebooks label practice using “Module XX, Pn” to keep each solution easy to find.
+The main teaching sequence is the **13 dated weekly lessons** in the [course dashboard](../web/PHY101_Course_Dashboard.html). Existing `Week_XX_Python_Solutions.ipynb` filenames identify the fourteen **source modules**, so their numbers do not identify calendar weeks. Weekly notebooks label practice using “Module XX, Pn” to keep each solution easy to find. Choose **Open in Colab** on the dashboard to open a notebook in the browser; **Download notebook** saves a local copy.
 
 ## Release dates aligned with the teaching calendar
 
-Core-module solutions open one week after that module’s final main teaching session, capped at 18 December 2026. Review and short laboratory preparation do not reopen an already assigned problem set. Full extension-module solutions open at term end. Dates use Europe/Istanbul.
+Core-module solutions open one week after that module’s final main teaching session, capped at 18 December 2026. Review does not reopen an already assigned problem set. Full extension-module solutions open at term end. Dates use Europe/Istanbul.
 
 Module 06 is split between calendar weeks 05 (work/kinetic energy) and 08 (potential/conservation energy); its complete solution file opens after the second part. Module 09 is split between calendar weeks 10 and 11. This keeps answers for later material within their scheduled release.
 

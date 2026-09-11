@@ -138,7 +138,9 @@ def refresh(path):
             added_helper = True
     if not added_helper:
         raise ValueError(f"No widget import/setup found in {path}")
-    rebuilt.insert(1, {"cell_type": "markdown", "id": GUIDE_ID, "metadata": {}, "source": lines(GUIDE)})
+    colab_url = "https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/" + path.resolve().relative_to(ROOT).as_posix()
+    opening = f"[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)]({colab_url})\n\n[Open this notebook in Colab / Bu notu Colab’da aç]({colab_url})\n\n"
+    rebuilt.insert(1, {"cell_type": "markdown", "id": GUIDE_ID, "metadata": {}, "source": lines(opening + GUIDE)})
     # v4.5 is the first notebook schema with stable cell IDs. Some original
     # notebooks are v4.2, so adding IDs also needs this explicit minor upgrade.
     notebook["nbformat_minor"] = max(5, notebook.get("nbformat_minor", 0))

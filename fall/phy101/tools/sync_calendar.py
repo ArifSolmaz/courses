@@ -71,7 +71,7 @@ def source_calendar_note(calendar, module):
     main = [w for w in calendar["weeks"] if w["kind"] == "teaching" and module in w["modules"]]
     supporting = [w for w in calendar["weeks"] if module in w["support_modules"]]
     links = lambda rows: "; ".join(
-        f'[Calendar week {w["week"]:02d}: {w["title_en"]}](../{w["notebook"]})'
+        f'[Calendar week {w["week"]:02d}: {w["title_en"]} — Open in Colab](https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/{w["notebook"]})'
         for w in rows)
     use = "Main teaching lessons: " + links(main) if main else "This is supporting / extension material, with no separate calendar week."
     if supporting:
@@ -82,7 +82,7 @@ This is **source module {module:02d}**. Its legacy filename keeps problem and so
 
 {use}
 
-Start with the [course calendar](../web/PHY101_Course_Dashboard.html) for the scheduled lesson. Problems here keep the identifier **Module {module:02d}, Pn**, matching the complete solution collection.
+Start with the [course calendar](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html) for the scheduled lesson. Problems here keep the identifier **Module {module:02d}, Pn**, matching the complete solution collection.
 
 **Türkçe:** Bu dosya konu kaynağıdır. Dersin tarihe göre düzenlenmiş akışı için yukarıdaki haftalık not bağlantısını kullan; çözüm ararken modül ve problem numarasını koru.
 '''
@@ -94,6 +94,7 @@ def main():
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
     parser.add_argument("--solutions-root", type=Path, default=DEFAULT_SOLUTIONS_ROOT)
+    parser.add_argument("--public-only", action="store_true", help="Update/check course files without opening the private solutions repository.")
     args = parser.parse_args()
     calendar = json.loads((COURSE_ROOT / "calendar.json").read_text(encoding="utf-8"))
     validate_calendar(calendar)
@@ -101,26 +102,29 @@ def main():
     javascript += "window.PHY101_CALENDAR = " + json.dumps(calendar, ensure_ascii=False, indent=2) + ";\n"
     js_path = COURSE_ROOT / "web/phy101-calendar.js"
     release_path = args.solutions_root / "schedule.json"
-    private = json.loads(release_path.read_text(encoding="utf-8"))
+    private = None if args.public_only else json.loads(release_path.read_text(encoding="utf-8"))
     if args.write:
-        private["releases"] = calendar["release_dates"]
-        private["_note"] = [
-            "Derived from courses/fall/phy101/calendar.json; change that calendar first.",
-            calendar["release_policy"],
-            "The 13 dated weekly lessons include a review week and a midterm week.",
-            "Legacy Week_XX_Python_Solutions filenames identify source modules, not calendar weeks.",
-            "Module 06 spans calendar weeks 05 and 08; module 09 spans 10 and 11.",
-            "Run courses/fall/phy101/tools/sync_calendar.py --write, then --check.",
-        ]
+        if private is not None:
+            private["releases"] = calendar["release_dates"]
+            private["_note"] = [
+                "Derived from courses/fall/phy101/calendar.json; change that calendar first.",
+                calendar["release_policy"],
+                "The 13 dated weekly lessons include a review week and a midterm week.",
+                "Legacy Week_XX_Python_Solutions filenames identify source modules, not calendar weeks.",
+                "Module 06 spans calendar weeks 05 and 08; module 09 spans 10 and 11.",
+                "Run courses/fall/phy101/tools/sync_calendar.py --write, then --check.",
+            ]
         write_preserving_newlines(js_path, javascript)
-        write_preserving_newlines(release_path, json.dumps(private, ensure_ascii=False, indent=2) + "\n")
+        if private is not None:
+            write_preserving_newlines(release_path, json.dumps(private, ensure_ascii=False, indent=2) + "\n")
         for module in range(1, 15):
-            path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
-            book = json.loads(path.read_text(encoding="utf-8"))
-            book["cells"] = [c for c in book["cells"] if c.get("id") != "solution-calendar-alignment"]
-            book["cells"].insert(1, {"cell_type": "markdown", "id": "solution-calendar-alignment",
-                "metadata": {}, "source": solution_calendar_note(calendar, module).splitlines(keepends=True)})
-            write_preserving_newlines(path, json.dumps(book, ensure_ascii=False, indent=1) + "\n")
+            if private is not None:
+                path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
+                book = json.loads(path.read_text(encoding="utf-8"))
+                book["cells"] = [c for c in book["cells"] if c.get("id") != "solution-calendar-alignment"]
+                book["cells"].insert(1, {"cell_type": "markdown", "id": "solution-calendar-alignment",
+                    "metadata": {}, "source": solution_calendar_note(calendar, module).splitlines(keepends=True)})
+                write_preserving_newlines(path, json.dumps(book, ensure_ascii=False, indent=1) + "\n")
             source_path = COURSE_ROOT / f"notebooks/Week_{module:02d}.ipynb"
             source_book = json.loads(source_path.read_text(encoding="utf-8"))
             source_book["cells"] = [c for c in source_book["cells"] if c.get("id") != "source-calendar-route"]
@@ -133,22 +137,24 @@ def main():
             source_book["cells"].insert(route_index, {"cell_type": "markdown", "id": "source-calendar-route",
                 "metadata": {}, "source": source_calendar_note(calendar, module).splitlines(keepends=True)})
             write_preserving_newlines(source_path, json.dumps(source_book, ensure_ascii=False, indent=1) + "\n")
-        print("Updated browser calendar, release dates, and source/solution calendar labels. Nothing published.")
+        print("Updated public calendar and source labels." if args.public_only else "Updated browser calendar, release dates, and source/solution calendar labels. Nothing published.")
     else:
         assert js_path.read_text(encoding="utf-8") == javascript, "Browser calendar needs --write"
-        assert private["releases"] == calendar["release_dates"], "Private releases need --write"
+        if private is not None:
+            assert private["releases"] == calendar["release_dates"], "Private releases need --write"
         for week in calendar["weeks"]:
             assert (COURSE_ROOT / week["notebook"]).is_file(), week["notebook"]
         for module in range(1, 15):
-            path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
-            book = json.loads(path.read_text(encoding="utf-8"))
-            notes = [c for c in book["cells"] if c.get("id") == "solution-calendar-alignment"]
-            assert len(notes) == 1 and "".join(notes[0]["source"]) == solution_calendar_note(calendar, module), path
+            if private is not None:
+                path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
+                book = json.loads(path.read_text(encoding="utf-8"))
+                notes = [c for c in book["cells"] if c.get("id") == "solution-calendar-alignment"]
+                assert len(notes) == 1 and "".join(notes[0]["source"]) == solution_calendar_note(calendar, module), path
             source_path = COURSE_ROOT / f"notebooks/Week_{module:02d}.ipynb"
             source_book = json.loads(source_path.read_text(encoding="utf-8"))
             routes = [c for c in source_book["cells"] if c.get("id") == "source-calendar-route"]
             assert len(routes) == 1 and "".join(routes[0]["source"]) == source_calendar_note(calendar, module), source_path
-        print("13 weekly lessons, review/midterm dates, browser data, and 14 release dates agree.")
+        print("13 weekly lessons, browser data, and source labels agree." if args.public_only else "13 weekly lessons, review/midterm dates, browser data, and 14 release dates agree.")
 
 
 if __name__ == "__main__":

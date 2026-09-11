@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build 13 dated, scoped PHY101 lessons from the enriched topic-module library.
 
-The calendar JSON controls dates/titles/labs; the explicit selections below control
+The calendar JSON controls lecture dates and titles; the explicit selections below control
 what is actually taught. Source cell IDs are checked rather than guessed from cell
 positions. Original module notebooks and the private solution repository are read
 only. Run --check to detect stale generated lessons, or --execute for fresh-kernel
@@ -134,23 +134,6 @@ From rest, after 2.0 s, $\omega=\alpha t=30.0$ rad/s and $\theta=\alpha t^2/2=30
 $$W=\tau\theta=0.600(30.0)=18.0\,\mathrm J
 =\tfrac12I\omega^2.$$
 **TR:** Önce toplam torku bul, sonra $I$'ya böl. Kuvveti doğrudan $I\alpha$'ya eşitlemek birim bakımından yanlıştır.''',
-"pendulum_lab": r'''## 20-minute lab preparation: a simple pendulum / Basit sarkaç hazırlığı
-
-This week's laboratory names **moment of inertia and simple pendulum**. The full periodic-motion lesson is in Calendar Week 13. For this lab preparation, use only length, repeated timing, and the small-angle period formula.
-
-For small swings (for example about 5°), a light string of length $L$ with a small bob has
-$$T=2\pi\sqrt{L/g}.$$
-Measure $L$ from the pivot to the bob's centre. One period is a complete return to the same position **and the same direction**. Time $n$ complete periods and calculate $T=t_n/n$.
-
-**Worked algebra with illustrative data:** Let $L=1.00$ m and 10 periods take 20.1 s. Then $T=20.1/10=2.01$ s. To estimate $g$, divide the formula by $2\pi$, square both sides, then rearrange:
-$$\frac{T}{2\pi}=\sqrt{L/g}\Rightarrow\frac{T^2}{4\pi^2}=\frac Lg
-\Rightarrow gT^2=4\pi^2L\Rightarrow g=\frac{4\pi^2L}{T^2}.$$
-$$g=\frac{4\pi^2(1.00\,\mathrm m)}{(2.01\,\mathrm s)^2}=9.772\,\mathrm{m/s^2}.$$
-These numbers illustrate the calculation; they are not supplied experimental measurements. Repeat timing, record units, and discuss reaction time. A 4-times-longer pendulum has a 2-times-longer period under the same assumptions.
-
-**Link to rotation:** For a point bob $I=mL^2$ and gravitational torque is $-mgL\sin\theta$. At small angles, $I\ddot\theta\approx-mgL\theta$, so $\ddot\theta\approx-(g/L)\theta$. This motivates the period formula; no numerical differential-equation solver is required.
-
-**TR:** Kütle formülden sadeleşir. Uzunluğu bobun merkezine kadar ölç; tek geçişi tam periyot sanma. Deney yönergesindeki düzeneği ve ölçüm sayısını ayrıca takip et.''',
 "review_start": r'''## Review week: reconnect the first five teaching weeks
 
 No new topic is introduced this week. Use the 29 October holiday week for question solving and repair of the foundations already taught: units/vectors, 1D/2D motion, Newton's laws/friction, work and kinetic energy. Potential energy and its conservation account begin after the midterm.
@@ -210,11 +193,11 @@ $$32=\tfrac12(4)v_f^2\Rightarrow64=4v_f^2\Rightarrow v_f^2=16\Rightarrow v_f=4.0
 For one question, record the **first** uncertain step: units, diagram, signs, law choice, algebra, or interpretation. Redo that step before looking at a numerical answer. Compare with the worked examples and the relevant Module XX problem solution when released.
 
 Next teaching week begins potential energy and conservation. First bring back one established statement: **net work equals the change in kinetic energy**. **TR:** Yanlış soruyu tamamen kopyalamak yerine ilk hata yaptığın adımı bul ve düzelt.''',
-"periodic_entry": r'''## Return to the pendulum lab: what makes motion periodic?
+"periodic_entry": r'''## What makes motion periodic? / Hareket ne zaman periyodiktir?
 
 Periodic motion repeats after a period $T$. Frequency is $f=1/T$. Simple harmonic motion is a special periodic motion: the restoring acceleration is proportional to displacement and opposite in direction, $a=-\omega^2x$.
 
-The December laboratory preparation introduced $T=2\pi\sqrt{L/g}$ for a small-angle pendulum. Today we connect that result to spring–mass motion, velocity, acceleration and energy. Damping/resonance are optional extensions after the core examples; they do not add another dated teaching week.
+Today we introduce spring–mass motion and the small-angle pendulum, then connect their displacement, velocity, acceleration and energy. The pendulum period $T=2\pi\sqrt{L/g}$ will follow from the restoring torque and the small-angle assumption. Damping/resonance are optional extensions after the core examples; they do not add another dated teaching week.
 
 **TR:** Periyodik olan her hareket basit harmonik değildir. Burada ayırt edici özellik, ivmenin denge noktasına yönelmesi ve uzaklıkla orantılı olmasıdır.'''
 }
@@ -243,40 +226,24 @@ LESSONS = {
     "sections": [source(2,"physics-algebra-bridge-w02"),source(2,"cell-5",before="### Analogy"),source(2,"cell-6"),source(2,"cell-21"),source(2,"cell-23"),source(2,"cell-25")],
     "practice": [(2,1),(2,2),(2,3)],"optional_practice": [(2,4),(2,7)],
     "demos": [source(2,"cell-11")],"demo_prompt": r"Use $v_0=5\,\mathrm{m/s}$ and $a=-1\,\mathrm{m/s^2}$. Predict the turning time and distinguish signed displacement from distance.",
-    "lab": "INTRO: prepare a table with quantity, symbol, measured value and unit. Identify the reference position and clock start in any motion measurement. The laboratory team supplies the apparatus and procedural instructions.",
     "exit": "Explain why a thrown ball has zero velocity but nonzero acceleration at its highest point."},
 3: {"focus": ["Two-dimensional motion: components share one time", "Newton’s three laws and a first force diagram"],
     "recap": r"Resolve a velocity into horizontal and vertical components; recall $a_y=-g$ when upward is positive.",
     "sections": [source(3,"physics-algebra-bridge-w03"),source(3,"cell-4"),source(3,"cell-16"),source(3,"cell-18"),source(4,"cell-4",start="### 2.1 The Three Laws",before="### 2.2 Common Forces"),prose("newton_intro")],
     "practice": [(3,2),(3,3),(4,1)],"optional_practice": [(3,1)],
     "demos": [source(3,"cell-8")],"demo_prompt": "The range graph assumes equal launch/landing heights and no air resistance. Explain why it cannot directly answer the cliff example.",
-    "lab": r"Measuring instruments: identify the measured quantity, unit and smallest scale division before recording a result. A $0.1\,\mathrm{mm}$ scale division is $(0.1)(10^{-3})\,\mathrm m=1\times10^{-4}\,\mathrm m$. Keep measurement resolution separate from calculation digits.",
     "exit": "Draw one object's forces and explain why action–reaction partners do not cancel on its diagram."},
 4: {"focus": ["Static and kinetic friction; force diagrams", "Inclines and connected bodies"],
     "recap": r"Apply $\sum\mathbf F=m\mathbf a$ to one object. Review vector components from Weeks 1–3.",
     "sections": [source(4,"physics-algebra-bridge-w04"),source(4,"cell-4",start="### 2.2 Common Forces"),source(4,"cell-15"),source(4,"cell-17"),source(4,"cell-19")],
     "practice": [(4,2),(4,4),(4,5)],"optional_practice": [(4,6),(4,7)],
     "demos": [source(4,"cell-12")],"demo_prompt": "Predict the static threshold before changing mass. Explain why static friction equals the needed force only up to its limit.",
-    "lab": r"""1D motion — free fall: reuse Week 2. Choose downward positive and release from rest. Solve for gravitational acceleration in two steps:
-
-$$h=\frac12gt^2\quad\Rightarrow\quad2h=gt^2\quad\Rightarrow\quad g=\frac{2h}{t^2}.$$
-
-For an illustrative height $h=1.25\,\mathrm m$, the ideal fall time is
-
-$$t=\sqrt{\frac{2h}{g}}=\sqrt{\frac{2(1.25\,\mathrm m)}{9.81\,\mathrm{m/s^2}}}=0.5048\,\mathrm s.$$
-
-Record the release condition and timing uncertainty; these are illustrative values, not experimental data. **Türkçe:** İki tarafı önce 2 ile çarp, sonra $t^2$ ile böl. Süreyi bulurken pozitif karekökü seç.""",
     "exit": "Explain which coefficient decides whether sliding starts and which coefficient predicts acceleration after sliding."},
 5: {"focus": ["Work by a force and its sign", "Kinetic energy, work–energy and power"],
     "recap": r"Find net force first. Review $F\cos\theta$ as the force component along a displacement.",
     "sections": [source(6,"cell-4",start="### 2.1 Work by a constant force",before="### 2.3 Key energy definitions"),prose("kinetic_bridge"),prose("work_example"),source(6,"cell-13"),prose("power_example")],
     "practice": [(6,1),(6,2),(6,4)],"optional_practice": [(6,8)],
     "demos": [source(6,"cell-12",adapt="constant_work_only")],"demo_prompt": "The selected graph uses a constant 15 N force. Predict the rectangular area at 2 m and 4 m before moving the endpoint.",
-    "lab": r"""Projectile motion — friction: reuse the two-axis model from Week 3 and the friction decision from Week 4. For an equal-height projectile with no air resistance,
-
-$$R=\frac{v_0^2\sin(2\theta)}{g}.$$
-
-For a sliding block, first obtain the normal force $N$ from its force diagram; then calculate $f_k=\mu_kN$. **Türkçe:** Menzil formülünü kullanmadan başlangıç ve bitiş yüksekliğinin eşit olduğunu kontrol et. Sürtünmede normal kuvveti otomatik olarak $mg$ alma.""",
     "exit": "Show algebraically why doubling speed quadruples kinetic energy, and explain the sign of friction work."},
 6: {"focus": ["Repair units, signs and force diagrams", "Solve motion/work questions and explain errors"],
     "recap": "Choose two foundations that need practice; no new formulas are introduced.",
@@ -296,26 +263,16 @@ For a sliding block, first obtain the normal force $N$ from its force diagram; t
     "sections": [source(7,"95fd070f"),source(7,"cell-2"),source(7,"cell-3"),source(7,"cell-7"),prose("inelastic_example"),source(7,"cell-14")],
     "practice": [(7,1),(7,2),(7,4)],"optional_practice": [(7,5)],
     "demos": [source(7,"cell-9")],"demo_prompt": "Predict the signs of final velocities. Compare momentum and kinetic energy when switching between elastic and sticking collisions.",
-    "lab": r"""One-dimensional collision: choose one positive direction for both carts. Record mass and signed velocity before and after. Make two separate comparisons:
-
-$$p_{\rm total}=\sum_i m_i v_i,\qquad K_{\rm total}=\sum_i\frac12m_i v_i^2.$$
-
-Conservation of momentum does not by itself prove the collision is elastic: kinetic energy must also be unchanged. **Türkçe:** Momentumda hızın işareti korunur; enerjide hızın karesi alınır. İki toplamı ayrı kontrol et.""",
     "exit": "State the condition for momentum conservation and explain why a sticking collision loses kinetic energy."},
 10: {"focus": ["Radians and angular kinematics", "Moment of inertia and axis choice"],
     "recap": "Review the constant-acceleration equation pattern from Week 2; replace position by angle only after identifying the axis.",
     "sections": [prose("rotation_intro"),source(9,"week_09-007"),source(9,"week_09-028"),source(9,"week_09-013"),prose("inertia_example")],
     "practice": [(9,1),(9,2)],"optional_practice": [],
     "demos": [source(9,"week_09-017")],"demo_prompt": "Predict which has larger inertia: ring or disk at equal mass and radius. Explain why rod comparisons also require its length and axis.",
-    "lab": r"""Rotation of rigid bodies: define the rotation axis and convert revolutions to radians. In one revolution, $\theta=2\pi\,\mathrm{rad}$. A point at radius $r=0.20\,\mathrm m$ travels an arc length
-
-$$s=r\theta=(0.20\,\mathrm m)(2\pi)=1.257\,\mathrm m.$$
-
-Record angular and linear quantities with distinct units. **Türkçe:** $s=r\theta$ bağıntısında açıyı radyan cinsinden kullan; derece değerini doğrudan yerine yazma.""",
     "exit": "Convert RPM to rad/s and explain how moving mass away from the axis changes I."},
 11: {"focus": ["Torque, angular acceleration and work", "Rotational energy and rolling"],
-    "recap": r"Calculate $I$ about the actual axis and recall $\omega=\omega_0+\alpha t$. The pendulum lab preparation is a short application, not the full oscillation unit.",
-    "sections": [prose("torque_dynamics"),source(9,"week_09-018"),source(9,"week_09-030"),prose("pendulum_lab")],
+    "recap": r"Calculate $I$ about the actual axis and recall $\omega=\omega_0+\alpha t$.",
+    "sections": [prose("torque_dynamics"),source(9,"week_09-018"),source(9,"week_09-030")],
     "practice": [(9,3),(9,5),(9,7)],"optional_practice": [(9,8),(9,9)],
     "demos": [source(9,"week_09-020")],"demo_prompt": r"Predict the rolling order from $\dfrac{I}{MR^2}$ before running the comparison. State the no-slip condition and explain the two kinetic-energy terms.",
     "extension": "If core work is secure, Module 10 explains angular momentum and its conservation. It is supporting reading here, not a second complete lecture. The full periodic-motion lesson follows in Calendar Week 13.",
@@ -325,10 +282,9 @@ Record angular and linear quantities with distinct units. **Türkçe:** $s=r\the
     "sections": [source(8,"week_08-004"),source(8,"week_08-006"),source(8,"week_08-023"),source(8,"week_08-016"),source(8,"week_08-025")],
     "practice": [(8,1),(8,3),(8,5)],"optional_practice": [(8,6)],
     "demos": [source(8,"week_08-010"),source(8,"week_08-020")],"demo_prompt": "Predict the shift of centre of mass when one mass increases. For the seesaw, balance the moments before moving a control.",
-    "lab": "Make-up laboratory / Telafi: identify the missed experiment and follow the laboratory team's allocation. Review that experiment's assumptions, units and data table; no new experiment is named in this calendar row.",
     "exit": "Choose a pivot that removes one unknown, then verify the reaction forces add to the total load."},
 13: {"focus": ["Periodic motion and spring–mass SHM", "Pendulum period, energy and initial conditions"],
-    "recap": "Recall the small-angle pendulum measurement from Week 11 and the energy account from Week 8.",
+    "recap": "Recall restoring forces, the energy account from Week 8, and torque from Week 11. A full cycle returns to the same position and direction.",
     "sections": [prose("periodic_entry"),source(11,"week_11-009"),source(11,"week_11-032"),source(11,"week_11-014"),source(11,"week_11-034"),source(11,"week_11-020")],
     "practice": [(11,1),(11,2),(11,4)],"optional_practice": [(11,5)],
     "demos": [source(11,"week_11-013"),source(11,"week_11-019")],"demo_prompt": "Identify where speed is zero and acceleration is largest. Compare the small-angle pendulum curve with the full model without deriving its code.",
@@ -388,13 +344,13 @@ CHECKS = {
 
 **Visual prediction:** Smaller $I/(MR^2)$ gives greater speed and acceleration for the same height and ramp. In the animation, a solid sphere (2/5) beats a solid cylinder (1/2), which beats a ring (1). No slip requires the contact point to be instantaneously at rest relative to the fixed ramp.
 
-**Lab priority:** Reserve the 150–170 minute block for the complete pendulum preparation above. Skip the optional rolling animation during class if it would remove lab preparation or questions; it can be observed later.''',
+**Review priority:** Use the 150–170 minute block to revisit torque signs, the no-slip condition and the two kinetic-energy terms. Show the optional rolling animation only when the paper calculation is understood.''',
 12: r'''**Entry:** Static equilibrium needs both $\sum\vec F=0$ and $\sum\tau=0$. Pick a pivot, measure perpendicular lever arms and assign torque signs consistently.
 
 **Exit:** In a beam supported at A and B, choosing A as pivot removes A's unknown reaction from the torque equation. Solve for B, then use $R_A+R_B=W_{\rm total}$ to find A. Substitute both values back into force and torque sums; the worked beam example supplies all numerical steps.
 
 **Visual prediction:** Increasing one positive mass shifts $x_{\rm cm}=\sum m_ix_i/\sum m_i$ toward that mass's position. A seesaw with 20 kg at 2 m to the left needs 40 kg at 1 m to the right: $20g(2)=40g(1)$, so the torques cancel. The pivot support supplies the total upward force $(20+40)g=588.6$ N for a light beam.''',
-13: r'''**Entry:** For small-angle pendulum motion, $T=2\pi\sqrt{L/g}$. In energy bookkeeping, choose one zero of potential energy for all compared states.
+13: r'''**Entry:** A restoring force points toward equilibrium: for a spring, $F=-kx$. In energy bookkeeping, choose one zero of potential energy for all compared states. A full cycle returns to the same position and direction; its duration is the period.
 
 **Exit:** Period is seconds per cycle, frequency is cycles per second: $f=1/T$. At a spring oscillator endpoint $x=\pm A$, speed and kinetic energy are zero; $|F|=kA$ and $|a|=kA/m=\omega^2A$ are greatest and directed toward equilibrium. Potential energy is $kA^2/2$ there.
 
@@ -459,9 +415,10 @@ def readable_date(value):
 def build_lesson(row, modules, calendar):
     week=row['week'];lesson=LESSONS[week];cells=[]
     def add(text,key):cells.append(md(text,f'calendar-w{week:02}-{key}'))
-    labs=f"{row['lab_en']} / {row['lab_tr']}" if row['lab_en'] else 'No experiment named in the supplied calendar / Takvimde deney adı verilmemiş'
     session=readable_date(row['session_date']) if row['session_date'] else 'Exact exam date follows the instructor announcement / Kesin sınav günü ders duyurusunda'
-    add(f"# Calendar Week {week:02} — {row['title_en']}\n\n## {row['title_tr']}\n\n**Date range:** {readable_date(row['start'])} – {readable_date(row['end'])}  \n**Class / exam:** {session}  \n**Laboratory:** {labs}\n\n**This week's scope:** {row['scope']}.\n\nThese are the actual notes selected for this dated lesson. Read the physics and do the algebra on paper; the optional demonstrations are grouped at the end. Existing numbered source notebooks are a **topic library**, so a label such as **Module 06 P2** stays the same even when taught in Calendar Week 05. **TR:** Takvim haftası ile kaynak modül numarası farklıdır; bu dosyadaki sıra o haftanın gerçek ders sırasıdır.","title")
+    add(f"# Calendar Week {week:02} — {row['title_en']}\n\n## {row['title_tr']}\n\n**Date range:** {readable_date(row['start'])} – {readable_date(row['end'])}  \n**Class / exam:** {session}\n\n**This week's scope:** {row['scope']}.\n\nThese are the actual notes selected for this dated lesson. Read the physics and do the algebra on paper; the optional demonstrations are grouped at the end. Existing numbered source notebooks are a **topic library**, so a label such as **Module 06 P2** stays the same even when taught in Calendar Week 05. **TR:** Takvim haftası ile kaynak modül numarası farklıdır; bu dosyadaki sıra o haftanın gerçek ders sırasıdır.","title")
+    colab_base = 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/'
+    add(f'[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)]({colab_base}{row["notebook"]})\n\n[Open this lesson in Colab / Bu dersi Colab’da aç]({colab_base}{row["notebook"]}) · [Course page / Ders sayfası](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html)\n\nRead the explanations first. For interactive figures, open Colab and run Setup, then the demonstration. **Türkçe:** Etkileşimli grafikler için önce hazırlık hücrelerini, ardından ilgili gösterimi çalıştır.','colab')
     navigation=['[1. Read and work through the examples](#lesson-concepts)']
     if lesson['practice']:navigation.append('[2. Practise on paper](#lesson-practice)')
     navigation.append('[3. Check your understanding](#lesson-exit)')
@@ -469,7 +426,7 @@ def build_lesson(row, modules, calendar):
     add('## Find your place / Nereden devam etmeli?\n\n**Notes edition: 11 September 2026 — typeset equations and worked explanations.**\n\n'+' · '.join(navigation)+'\n\nEnglish carries the main explanation; Turkish notes unpack the difficult step. Keep the model answers closed until you have tried the example or question.','navigation')
     if row['kind']!='midterm':
         focus=lesson['focus']
-        add(f"## A three-hour route with review space / Üç saatlik ders akışı\n\n| Minutes | Activity |\n|---|---|\n| 0–10 | Retrieval: {lesson['recap']} |\n| 10–50 | {focus[0]} |\n| 50–60 | Break / Ara |\n| 60–100 | {focus[1]} |\n| 100–110 | Break / Ara |\n| 110–150 | Guided paper practice: core problems below |\n| 150–170 | Laboratory connection, one optional visual check, and questions |\n| 170–180 | Explain the result and exit check |\n\nThe core route is enough for the lesson. Extra problems and visual experiments are optional; use the review space to slow down when a sign or algebra step is unclear.","route")
+        add(f"## A three-hour route with review space / Üç saatlik ders akışı\n\n| Minutes | Activity |\n|---|---|\n| 0–10 | Retrieval: {lesson['recap']} |\n| 10–50 | {focus[0]} |\n| 50–60 | Break / Ara |\n| 60–100 | {focus[1]} |\n| 100–110 | Break / Ara |\n| 110–150 | Guided paper practice: core problems below |\n| 150–170 | Review difficult steps, one optional visual check, and questions |\n| 170–180 | Explain the result and exit check |\n\nThe core route is enough for the lesson. Extra problems and visual demonstrations are optional; use the review space to slow down when a sign or algebra step is unclear.","route")
     add('<a id="lesson-concepts"></a>\n\n## Read and work through the examples / Konu ve çözümlü örnekler','concepts')
     for index,spec in enumerate(lesson['sections']):
         if spec['type']=='source':cells.append(copy_source(spec,modules,f's{index}'))
@@ -477,7 +434,6 @@ def build_lesson(row, modules, calendar):
     if lesson['practice']:
         add('<a id="lesson-practice"></a>\n\n## Core paper practice / Temel alıştırmalar\n\nTry the diagram and symbolic equation before opening an answer. These are selected problems from the full module sets, not renamed problems. Each has a stable Module XX Pn reference for the complete solution.', 'practice')
         for index,(module,number) in enumerate(lesson['practice']):cells.append(problem(module,number,modules,f'p{index}'))
-    if lesson.get('lab'):add('## Laboratory connection / Laboratuvar bağlantısı\n\n'+lesson['lab'],'lab')
     add('<a id="lesson-exit"></a>\n\n## Exit check / Çıkış kontrolü\n\n'+lesson['exit']+'\n\nWrite one sentence naming the physical principle and one line of algebra you can now explain. **TR:** Sonuca nasıl ulaştığını bir cümleyle anlat; emin olmadığın ilk adımı işaretle.','exit')
     add('## Check your explanations / Açıklamalarını kontrol et\n\n<details>\n<summary>Worked model responses — open after trying</summary>\n\n'+CHECKS[week]+'\n\n**TR:** Bu yanıtları kopyalamadan önce kendi işlemini dene; sonra birim, işaret ve kullanılan ilkeyi karşılaştır.\n\n</details>','model-checks')
     if lesson['optional_practice']:
@@ -488,7 +444,7 @@ def build_lesson(row, modules, calendar):
         add('## Optional preview: dot product and projection / İzdüşüme hazırlık\n\nReturn to these tools when studying work. Finish components and addition first; this preview does not add another required topic to today’s calendar.','support')
         for index,spec in enumerate(lesson['support_sections']):cells.append(copy_source(spec,modules,f'support{index}'))
     if lesson['demos']:
-        add('<a id="lesson-demos"></a>\n\n## Optional visual experiment / İsteğe bağlı görsel deney\n\n'+lesson['demo_prompt']+'\n\nRun the setup cells once, then the selected demo. Controls stay beside a scrolling result pane. Predict first, change one input, and explain the observation; coding is not a learning requirement. **TR:** Kod ayrıntılarını öğrenmek zorunda değilsin. Önce tahmin et, sonra tek değişkeni değiştir ve sonucu açıkla.','demos')
+        add('<a id="lesson-demos"></a>\n\n## Optional visual demonstration / İsteğe bağlı görselleştirme\n\n'+lesson['demo_prompt']+'\n\nRun the setup cells once, then the selected demo. Controls stay beside a scrolling result pane. Predict first, change one input, and explain the observation; coding is not a learning requirement. **TR:** Kod ayrıntılarını öğrenmek zorunda değilsin. Önce tahmin et, sonra tek değişkeni değiştir ve sonucu açıkla.','demos')
         demo_modules=list(dict.fromkeys(s['module'] for s in lesson['demos']))
         for module in demo_modules:cells.append(copy_source(source(module,SETUP_IDS[module]),modules,f'setup{module}'))
         cells.append(copy_source(source(demo_modules[0],'phy101-widget-layout'),modules,'interface'))
@@ -500,9 +456,9 @@ def build_lesson(row, modules, calendar):
             add(f'### Visual check {index+1}: {title}\n\nUse the controls below. Predict → adjust one value → explain the result. / Tahmin et → tek değeri değiştir → sonucu açıkla.',f'demo-title-{index}')
             cells.append(copy_source(spec,modules,f'demo{index}'))
     used=sorted({c.metadata['phy101_source']['module'] for c in cells if 'phy101_source' in c.metadata})
-    links='; '.join(f'[Module {m:02}](../notebooks/Week_{m:02}.ipynb)' for m in used)
+    links='; '.join(f'[Module {m:02} — Open in Colab]({colab_base}notebooks/Week_{m:02}.ipynb)' for m in used)
     dates='; '.join(f'Module {m:02}: {calendar["release_dates"][str(m)]}' for m in used)
-    add('## Sources and solution references / Kaynaklar\n\n'+(links if links else '[Review lesson](Week_06.ipynb)')+'\n\n'+('Solution release dates from the course calendar: '+dates+'.\n\n' if dates else '')+'The module library keeps all original problem IDs and full topic coverage. Complete solutions stay in the separate solutions collection and follow the dashboard release dates. The selected notes above are the teaching sequence for this calendar week.','sources')
+    add('## Sources and solution references / Kaynaklar\n\n'+(links if links else f'[Review lesson — Open in Colab]({colab_base}calendar/Week_06.ipynb)')+'\n\n'+('Solution release dates from the course calendar: '+dates+'.\n\n' if dates else '')+'The module library keeps all original problem IDs and full topic coverage. Complete solutions stay in the separate solutions collection and follow the dashboard release dates. The selected notes above are the teaching sequence for this calendar week.','sources')
     nb=nbformat.v4.new_notebook(cells=cells,metadata={'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},'language_info':{'name':'python'},'phy101_calendar':{'week':week,'kind':row['kind'],'start':row['start'],'end':row['end'],'session_date':row['session_date'],'title_en':row['title_en'],'title_tr':row['title_tr'],'modules':row['modules'],'support_modules':row['support_modules'],'source_modules_used':used,'generated_by':'tools/build_calendar_notebooks.py','calendar_source':'../calendar.json'}})
     nb.nbformat_minor=5
     nbformat.validate(nb)
