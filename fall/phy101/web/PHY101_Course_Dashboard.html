@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PHY101 — Physics I Course Dashboard</title>
+<link rel="icon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -383,220 +384,92 @@
     .week-header { flex-direction: column; }
     .objectives-grid { grid-template-columns: 1fr; }
   }
+
+  /* Calendar lessons and the separate topic-resource library */
+  .main { min-width: 0; }
+  .week-date { display: block; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.22rem; }
+  .calendar-kind { color: var(--phy-blue); }
+  .calendar-intro { max-width: 900px; margin-bottom: 1.5rem; padding: 1rem 1.2rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; line-height: 1.6; font-size: 0.85rem; }
+  .calendar-intro p + p { margin-top: 0.45rem; }
+  .weekly-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; max-width: 980px; margin-bottom: 1.5rem; }
+  .lab-card { background: var(--surface); border: 1px solid var(--phy-blue); }
+  .lab-card .nb-type { color: var(--phy-blue); }
+  .card-copy { font-size: 0.85rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1rem; }
+  .card-copy p + p { margin-top: 0.5rem; }
+  .button-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+  .nb-btn.secondary { background: var(--surface2); color: var(--phy-blue); border: 1px solid var(--border); }
+  .calendar-note { max-width: 980px; font-size: 0.85rem; line-height: 1.65; margin: 0.8rem 0 1.4rem; padding: 0.9rem 1rem;
+    background: var(--surface2); border-left: 3px solid var(--phy-blue); border-radius: 5px; }
+  .resource-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0 1.5rem; }
+  .resource-links a { font-size: 0.78rem; text-decoration: none; color: var(--phy-blue); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 7px; padding: 0.45rem 0.65rem; }
+  .resource-section { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem; max-width: 1100px; scroll-margin-top: 1rem; }
+  .resource-section h2 { font-size: 1.15rem; margin-bottom: 0.8rem; line-height: 1.4; }
+  .resource-section > .weekly-grid { max-width: none; }
+  .resource-section details { font-size: 0.85rem; margin: 0.6rem 0; }
+  .resource-section summary { cursor: pointer; line-height: 1.6; }
+  .resource-section .code-snippet { margin-top: 0.75rem; }
+  .nb-filename { overflow-wrap: anywhere; }
+  .timeline-mini { flex-wrap: wrap; }
+  button.tm-dot { font: inherit; cursor: pointer; }
+  .week-btn:focus-visible, .tm-dot:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--phy-blue); outline-offset: 2px; }
+  .overview-wrap { overflow-x: auto; max-width: 1100px; margin-bottom: 2rem; }
+  .calendar-overview { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: var(--surface); }
+  .calendar-overview th, .calendar-overview td { padding: 0.75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; line-height: 1.5; }
+  .calendar-overview th { color: var(--text-muted); font-size: 0.72rem; }
+  .calendar-overview a, .resource-links a, .nb-btn.secondary { color: var(--py-blue, var(--phy-blue)); }
+  .lab-card .nb-type { color: var(--py-blue, var(--phy-blue)); }
+  .calendar-overview td:first-child { white-space: nowrap; }
+  @media (max-width: 900px) {
+    .sidebar-label, .sidebar-phase { font-size: 0; padding: 0.3rem; }
+    .weekly-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .topbar { padding: 0 1rem; }
+    .calendar-overview { min-width: 600px; }
+    .sol-row { grid-template-columns: 44px 35px minmax(0, 1fr); gap: 0.4rem; }
+    .week-heading { font-size: 1.45rem; }
+  }
+
 </style>
 <link rel="stylesheet" href="../../../assets/course-design.css">
 </head>
 <body data-course="phy101" data-page="dashboard">
 
 <header class="topbar">
-  <div class="topbar-logo">PHY<span>101</span>.py</div>
+  <div class="topbar-logo">PHY<span>101</span></div>
   <div class="topbar-pills">
-    <span class="pill orange">12 Sessions &middot; 14 Notebooks</span>
-    <span class="pill">Google Colab</span>
-    <span class="pill green">Python 3 &middot; numpy &middot; matplotlib</span>
+    <span class="pill orange">13 Calendar Weeks &middot; Lecture + Lab</span>
+    <span class="pill">Paper &middot; Calculator &middot; Optional plots</span>
+    <span class="pill green">Physics &middot; Algebra &middot; Visual checks</span>
+    <span class="pill blue">Notes updated &middot; 11 September 2026</span>
     <span class="pill blue">Calculus-Based Physics I</span>
     <span class="pill green">Core: Model &rarr; Predict &rarr; Verify</span>
-    <span class="pill green">42 Worked Python Solutions &middot; L1/L2/L3</span>
+    <span class="pill green">140 Worked Physics Solutions &middot; L1/L2/L3</span>
     <a href="PHY101_Syllabus.html" class="pill" style="text-decoration:none;cursor:pointer;">Syllabus</a>
   </div>
 </header>
 
-<div class="core-mastery-hero">"I can model any mechanical system and predict its motion"</div>
+<div class="core-mastery-hero">Draw &middot; Understand &middot; Calculate &middot; Check</div>
 
 <div class="layout">
 
-  <nav class="sidebar">
-    <div class="sidebar-label">Course Weeks</div>
-    <div class="sidebar-phase">Phase 1 &middot; Language of Motion</div>
-    <button class="week-btn active" onclick="showWeek(1)"><span class="week-num">S01</span><span class="week-title">Units &amp; Vectors</span></button>
-    <button class="week-btn" onclick="showWeek(2)"><span class="week-num">S02</span><span class="week-title">1D Kinematics</span></button>
-    <button class="week-btn" onclick="showWeek(3)"><span class="week-num">S03</span><span class="week-title">Projectile Motion</span></button>
-    <div class="sidebar-phase">Phase 2 &middot; Forces Predict</div>
-    <button class="week-btn" onclick="showWeek(4)"><span class="week-num">S04</span><span class="week-title">Newton's Laws I</span></button>
-    <button class="week-btn" onclick="showWeek(5)"><span class="week-num">S05</span><span class="week-title">Circular Motion</span></button>
-    <div class="sidebar-phase">Phase 3 &middot; Conservation</div>
-    <button class="week-btn" onclick="showWeek(6)"><span class="week-num">S06</span><span class="week-title">Work &amp; Energy</span></button>
-    <button class="week-btn" onclick="showWeek(7)"><span class="week-num">S07</span><span class="week-title">Momentum</span></button>
-    <div class="sidebar-phase">Phase 4 &middot; Rotation</div>
-    <button class="week-btn" onclick="showWeek(8)"><span class="week-num">S08</span><span class="week-title">Center of Mass</span></button>
-    <button class="week-btn" onclick="showWeek(9)"><span class="week-num">S09</span><span class="week-title">Rotation I</span></button>
-    <button class="week-btn" onclick="showWeek(10)"><span class="week-num">S10</span><span class="week-title">Angular Momentum</span></button>
-    <div class="sidebar-phase">Phase 5 &middot; Oscillations</div>
-    <button class="week-btn" onclick="showWeek(11)"><span class="week-num">S11</span><span class="week-title">SHM + Resonance</span></button>
-    <div class="sidebar-phase">Phase 6 &middot; Waves &amp; Capstone</div>
-    <button class="week-btn" onclick="showWeek(12)"><span class="week-num">S12</span><span class="week-title">Waves + Capstone</span></button>
-  </nav>
-
-  <main class="main">
-
-    <!-- ===== WEEK 01 ===== -->
-    <div class="week-panel active" id="week-1">
-      <div class="week-header">
-        <div class="week-header-left">
-          <div class="week-tag">Session 01 &middot; 3 hours</div>
-          <h1 class="week-heading">Measurements, Units &amp; Vectors<br><em>The Language of Physics</em></h1>
-          <p class="week-desc">Master the foundational tools of physics: SI units, dimensional analysis, significant figures, and vectors. Learn to decompose, add, and project vectors using Python simulations.</p>
-        </div>
-        <div class="progress-ring-wrap">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#d4dae4" stroke-width="5"/>
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#e65100" stroke-width="5"
-              stroke-dasharray="175.9" stroke-dashoffset="163.3"
-              stroke-linecap="round" transform="rotate(-90 36 36)"/>
-            <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="#e65100">S01</text>
-          </svg>
-          <div class="progress-label">Session 1 / 12</div>
-        </div>
-      </div>
-      <div class="phase-tag-card">Phase 1 &middot; The Toolbox &mdash; Units and vectors: the foundation for every prediction.</div>
-      <div class="timeline-mini" id="tl-1"></div>
-      <div class="section-title">Learning Objectives</div>
-      <div class="objectives-grid">
-        <div class="obj-card"><span class="obj-icon">📏</span><span class="obj-text">Understand SI units and dimensional analysis</span></div>
-        <div class="obj-card"><span class="obj-icon">🔢</span><span class="obj-text">Apply significant figures in calculations</span></div>
-        <div class="obj-card"><span class="obj-icon">➡️</span><span class="obj-text">Decompose vectors into x and y components</span></div>
-        <div class="obj-card"><span class="obj-icon">🎯</span><span class="obj-text">Add vectors graphically and analytically with Python</span></div>
-      </div>
-      <div class="section-title">This Week's Notebook</div>
-      <div class="notebooks-grid">
-        <div class="nb-card lecture">
-          <div class="nb-type">📓 Lecture + Lab Notebook</div>
-          <div class="nb-filename">Week_01.ipynb</div>
-          <div class="nb-heading">Measurements, Units &amp; Vectors</div>
-          <div class="nb-duration">⏱ ~3 hours &middot; lecture + interactive demos</div>
-          <ul class="nb-topics">
-            <li>SI units and unit conversions</li>
-            <li>Dimensional analysis with Python</li>
-            <li>Significant figures</li>
-            <li>Vectors: magnitude, direction, components <span class="interactive-badge">Interactive</span></li>
-            <li>Vector addition &amp; projection visualizer <span class="interactive-badge">Interactive</span></li>
-            <li>Unit vector and dot product</li>
-          </ul>
-          <a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_01.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
-        </div>
-      </div>
-      <div id="sollab-1"></div>
-      <div class="section-title">Key Formulas</div>
-      <div class="concepts-row">
-        <div class="concept-block">
-          <div class="concept-block-title">Vector Components</div>
-          <pre class="code-snippet"><span class="cm"># Decompose vector into components</span>
-<span class="kw">import</span> <span class="nm">numpy</span> <span class="kw">as</span> <span class="nm">np</span>
-
-<span class="nm">magnitude</span> <span class="op">=</span> <span class="nm">10</span>    <span class="cm"># N</span>
-<span class="nm">angle</span>     <span class="op">=</span> <span class="nm">30</span>    <span class="cm"># degrees</span>
-<span class="nm">theta</span>     <span class="op">=</span> <span class="nm">np</span>.<span class="fn">radians</span>(<span class="nm">angle</span>)
-
-<span class="nm">Fx</span> <span class="op">=</span> <span class="nm">magnitude</span> <span class="op">*</span> <span class="nm">np</span>.<span class="fn">cos</span>(<span class="nm">theta</span>)
-<span class="nm">Fy</span> <span class="op">=</span> <span class="nm">magnitude</span> <span class="op">*</span> <span class="nm">np</span>.<span class="fn">sin</span>(<span class="nm">theta</span>)</pre>
-        </div>
-        <div class="concept-block">
-          <div class="concept-block-title">Vector Addition</div>
-          <pre class="code-snippet"><span class="cm"># Add two vectors</span>
-<span class="nm">A</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">array</span>([<span class="nm">3</span>, <span class="nm">4</span>])
-<span class="nm">B</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>])
-<span class="nm">R</span> <span class="op">=</span> <span class="nm">A</span> <span class="op">+</span> <span class="nm">B</span>
-
-<span class="cm"># Magnitude of resultant</span>
-<span class="nm">mag</span> <span class="op">=</span> <span class="nm">np</span>.<span class="fn">linalg.norm</span>(<span class="nm">R</span>)
-<span class="bi">print</span>(<span class="st">f"|R| = </span>{<span class="nm">mag</span>:<span class="st">.2f</span>}<span class="st">"</span>)</pre>
-        </div>
-      </div>
-    </div>
-
-    <div id="weeks-placeholder"></div>
-
+  <nav class="sidebar" id="calendar-navigation" aria-label="Weekly course navigation"></nav>
+  <main class="main" id="course-content">
+    <noscript><p>This dashboard needs JavaScript to show the calendar. <a href="../calendar/Week_01.ipynb">Open the first weekly notebook</a> or read the <a href="PHY101_Syllabus.html">syllabus</a>.</p></noscript>
   </main>
 </div>
 
+<script src="phy101-calendar.js"></script>
 <script>
-// --- Solution release schedule ------------------------------------
-// Session dates come from the university academic calendar. PHY101 meets on
-// TUESDAYS. Note the week of Mon 02 Nov 2026 is Vize Haftasi with no numbered
-// teaching week, so Week 06 -> Week 07 skips a calendar week.
-// A week's worked solutions open one week after its own session, i.e. when
-// that problem set closes - never after the term ends.
-const SESSIONS = {                       // Tuesday of each teaching week
-   1: '2026-09-22',  2: '2026-09-29',  3: '2026-10-06',  4: '2026-10-13',
-   5: '2026-10-20',  6: '2026-10-27',  7: '2026-11-10',  8: '2026-11-17',
-   9: '2026-11-24', 10: '2026-12-01', 11: '2026-12-08', 12: '2026-12-15'
-};
-const TERM_ENDS = '2026-12-18';   // Derslerin Son Haftasi ends (Friday)
+// The canonical calendar defines lessons, laboratory topics and solution-release dates.
+const CALENDAR = window.PHY101_CALENDAR;
+const solutionLab = {"1": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "2": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "3": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "4": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "5": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "6": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "7": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "8": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "9": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "10": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "11": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "12": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "13": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}], "14": [{"level": "L1", "p": "P1", "title": "P1", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P2", "title": "P2", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P3", "title": "P3", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L1", "p": "P4", "title": "P4", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P5", "title": "P5", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P6", "title": "P6", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P7", "title": "P7", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L2", "p": "P8", "title": "P8", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P9", "title": "P9", "tech": "Principle → algebra → values with units → physical check"}, {"level": "L3", "p": "P10", "title": "P10", "tech": "Principle → algebra → values with units → physical check"}]};
 
-// The calendar has 12 teaching sessions but the course has 14 notebooks, so the
-// last two sessions carry two notebooks each. A notebook's solutions open one
-// week after the session in which it is taught.
-const SESSION_NOTEBOOKS = {
-   1: [1],  2: [2],  3: [3],  4: [4],  5: [5],  6: [6],
-   7: [7],  8: [8],  9: [9], 10: [10], 11: [11, 12], 12: [13, 14]
-};
-const NOTEBOOK_SESSION = {};
-Object.entries(SESSION_NOTEBOOKS).forEach(([sess, nbs]) =>
-  nbs.forEach(nb => { NOTEBOOK_SESSION[nb] = Number(sess); }));
-
-function solutionsUnlock(n) {
-  const last = new Date(TERM_ENDS + 'T00:00:00');
-  const sess = SESSIONS[NOTEBOOK_SESSION[n]];
-  if (!sess) return last;                 // notebook with no scheduled session
-  const d = new Date(sess + 'T00:00:00'); // local midnight
-  d.setDate(d.getDate() + 7);             // one week after that session
-  return d > last ? last : d;
-}
-function solutionsReleased(n) { return new Date() >= solutionsUnlock(n); }
-function unlockLabel(n) {
-  return solutionsUnlock(n).toLocaleDateString('en-GB',
-    { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-// ─── Python Solution Lab (solutions/Week_XX_Python_Solutions.ipynb) ───
-// One fully worked, self-verifying Python solution per difficulty level, every week.
-const solutionLab = {"1": [{"level": "L1","p": "P4","title": "Vector Magnitude and Direction","tech": "<code>arctan2</code>, quadrant safety"},{"level": "L2","p": "P5","title": "Multi-Vector Addition","tech": "vectorised component sums, path plot"},{"level": "L3","p": "P9","title": "3D Cross Product and Torque Preview","tech": "<code>np.cross</code>, 360° direction sweep"}],"2": [{"level": "L1","p": "P3","title": "Free Fall Drop","tech": "3 routes: kinematics / energy / simulation"},{"level": "L2","p": "P7","title": "Braking Distance Analysis","tech": "parameter sweep to a critical value"},{"level": "L3","p": "P9","title": "Position Function Analysis","tech": "<strong>SymPy</strong> symbolic differentiation"}],"3": [{"level": "L1","p": "P2","title": "Horizontal Launch","tech": "strobe plot proving axis independence"},{"level": "L2","p": "P6","title": "Complementary Angles","tech": "intermediate-point constraint + sensitivity"},{"level": "L3","p": "P9","title": "Projectile on an Incline","tech": "<code>np.roots</code>, <code>brentq</code>, angle optimisation"}],"4": [{"level": "L1","p": "P4","title": "Static Friction Threshold","tech": "friction modelled as a capped function"},{"level": "L2","p": "P5","title": "Inclined Plane with Friction","tech": "critical-angle sweep, mass independence"},{"level": "L3","p": "P9","title": "Three-Block System on an Incline","tech": "<strong>linear system</strong> <code>np.linalg.solve</code> for FBDs"}],"5": [{"level": "L1","p": "P3","title": "Flat Curve Friction","tech": "design chart across surface conditions"},{"level": "L2","p": "P5","title": "Banked Curve Design","tech": "safe-speed band vs available friction"},{"level": "L3","p": "P9","title": "Loop-the-Loop with Friction","tech": "<strong><code>solve_ivp</code> + <code>brentq</code></strong> (no closed form)"}],"6": [{"level": "L1","p": "P4","title": "Power","tech": "peak vs average power from a duty cycle"},{"level": "L2","p": "P8","title": "Work-Energy with a Variable Force","tech": "4 integration routes: sympy/quad/trapz/geometry"},{"level": "L3","p": "P9","title": "Bungee Jump Analysis","tech": "root-finding + full ODE simulation"}],"7": [{"level": "L1","p": "P4","title": "Perfectly Inelastic Collision","tech": "energy-loss audit, reduced mass"},{"level": "L2","p": "P5","title": "Elastic Collision","tech": "mass-ratio sweep, three classic limits"},{"level": "L3","p": "P9","title": "Multi-Body Collision Chain","tech": "<strong>collision engine</strong> with a termination proof"}],"8": [{"level": "L1","p": "P1","title": "Centre of Mass of Three Point Masses","tech": "<code>np.average</code> weighted, defining property"},{"level": "L2","p": "P6","title": "Ladder Against a Smooth Wall","tech": "3×3 equilibrium solve, pivot-independence check"},{"level": "L3","p": "P9","title": "Two-Segment Robot Arm Joint Torques","tech": "forward kinematics + motor-sizing sweep"}],"9": [{"level": "L1","p": "P3","title": "Torque, Angular Acceleration, and a Disk","tech": "linear↔rotational analogy table"},{"level": "L2","p": "P7","title": "Solid vs Hollow Sphere Rolling Down a Ramp","tech": "shape-factor ranking, the rolling race"},{"level": "L3","p": "P9","title": "Atwood Machine with a Massive Pulley","tech": "3×3 coupled FBDs, ideal-pulley limit"}],"10": [{"level": "L1","p": "P4","title": "The Figure Skater","tech": "why KE rises while L is conserved"},{"level": "L2","p": "P6","title": "Two Coaxial Disks Coupling","tech": "rotational inelastic collision, total-loss tuning"},{"level": "L3","p": "P9","title": "Turntable, Putty, and a Restoring Motor","tech": "two-phase analysis, two conservation rules"}],"11": [{"level": "L1","p": "P1","title": "Spring-Mass SHM Basics","tech": "phase relationships + energy exchange plot"},{"level": "L2","p": "P6","title": "Damped Oscillation Over Five Cycles","tech": "envelope approximation vs exact ODE"},{"level": "L3","p": "P10","title": "Robot Joint as a Torsional Oscillator","tech": "<strong>damping design</strong>: overshoot &amp; settling time"}],"12": [{"level": "L1","p": "P3","title": "Phase Lag of a Driven Oscillator","tech": "<code>arctan2</code> branch handling above resonance"},{"level": "L2","p": "P8","title": "Steady-State Amplitude at Three Drive Frequencies","tech": "formula validated against a driven simulation"},{"level": "L3","p": "P9","title": "Vibration Isolation for an Optical Table","tech": "transmissibility trade-off study"}],"13": [{"level": "L1","p": "P1","title": "Reading a Travelling Wave Equation","tech": "crest tracking to *measure* wave speed"},{"level": "L2","p": "P6","title": "Open and Closed Organ Pipes","tech": "harmonic series, missing even harmonics"},{"level": "L3","p": "P10","title": "Fourier Decomposition of a Plucked String","tech": "<strong>Fourier synthesis</strong> + projection integrals"}],"14": [{"level": "L1","p": "P2","title": "Energy Conservation on a Frictionless Incline","tech": "one system, three principles, one answer"},{"level": "L2","p": "P7","title": "Counting Oscillations of a Damped Block","tech": "peak-counting vs envelope formula"},{"level": "L3","p": "P9","title": "Rolling Bodies Climbing an Incline","tech": "energy closure + simulation, course synthesis"}]};
-
-function solutionCard(n) {
-  const rows = solutionLab[n];
-  if (!rows) return '';
-  const file = `Week_${String(n).padStart(2,'0')}_Python_Solutions.ipynb`;
-  let items = '';
-  rows.forEach(r => {
-    items += `<li class="sol-row">
-      <span class="lvl-badge ${r.level.toLowerCase()}">${r.level}</span>
-      <span class="sol-pnum">${r.p}</span>
-      <span class="sol-title">${r.title}<span class="sol-tech">${r.tech}</span></span>
-    </li>`;
-  });
-  return `
-      <div class="nb-card solutions">
-        <div class="nb-type">🐍 Worked Solutions &middot; one per level</div>
-        <div class="nb-filename">solutions/${file}</div>
-        <div class="nb-heading">Model &rarr; Predict &rarr; Verify, in code</div>
-        <div class="sol-note">
-          Each solution states the problem, names the governing principle, and gives the
-          hand prediction to make <em>before</em> running anything &mdash; then computes the
-          result and checks it by a second independent route. Every cell ends in an
-          <code>assert</code>. <strong>Release only after the problem set closes.</strong>
-        </div>
-        <ul class="sol-list">${items}</ul>
-        ${solutionsReleased(n)
-          ? `<a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/solutions/${file}" target="_blank" rel="noopener">▶ Open in Colab</a>`
-          : `<span class="nb-btn locked">🔒 Opens ${unlockLabel(n)}</span>
-        <div class="sol-lock">Worked solutions open once the Week ${String(n).padStart(2,'0')} problem set closes.</div>`}
-      </div>`;
-}
-
-function renderSolutionLab(nums) {
-  const cards = nums.map(solutionCard).filter(Boolean).join('');
-  if (!cards) return '';
-  return `
-    <div class="section-title">Python Solution Lab</div>
-    <div class="notebooks-grid">${cards}
-    </div>
-  `;
-}
-
-// ─── Week Data ───
-const weeks = [
+const moduleResources = [
   null, // index 0 unused
-  null, // week 1 is static HTML above
+  {"num": 1, "title": "Measurements, Units &amp; Vectors", "subtitle": "The language of physics", "desc": "SI units, dimensions, significant figures and vector components. Draw and calculate before using a visual check.", "color": "#e65100", "filename": "Week_01.ipynb", "heading": "Measurements, Units &amp; Vectors", "topics": ["SI units and conversions", "Dimensions and significant figures", "Vector components and vector addition"], "codeLeft": {"title": "Vector components", "code": "<span class=\"cm\"># Decompose vector into components</span>\n<span class=\"kw\">import</span> <span class=\"nm\">numpy</span> <span class=\"kw\">as</span> <span class=\"nm\">np</span>\n\n<span class=\"nm\">magnitude</span> <span class=\"op\">=</span> <span class=\"nm\">10</span>    <span class=\"cm\"># N</span>\n<span class=\"nm\">angle</span>     <span class=\"op\">=</span> <span class=\"nm\">30</span>    <span class=\"cm\"># degrees</span>\n<span class=\"nm\">theta</span>     <span class=\"op\">=</span> <span class=\"nm\">np</span>.<span class=\"fn\">radians</span>(<span class=\"nm\">angle</span>)\n\n<span class=\"nm\">Fx</span> <span class=\"op\">=</span> <span class=\"nm\">magnitude</span> <span class=\"op\">*</span> <span class=\"nm\">np</span>.<span class=\"fn\">cos</span>(<span class=\"nm\">theta</span>)\n<span class=\"nm\">Fy</span> <span class=\"op\">=</span> <span class=\"nm\">magnitude</span> <span class=\"op\">*</span> <span class=\"nm\">np</span>.<span class=\"fn\">sin</span>(<span class=\"nm\">theta</span>)"}, "codeRight": {"title": "Vector addition", "code": "<span class=\"cm\"># Add two vectors</span>\n<span class=\"nm\">A</span> <span class=\"op\">=</span> <span class=\"nm\">np</span>.<span class=\"fn\">array</span>([<span class=\"nm\">3</span>, <span class=\"nm\">4</span>])\n<span class=\"nm\">B</span> <span class=\"op\">=</span> <span class=\"nm\">np</span>.<span class=\"fn\">array</span>([<span class=\"nm\">1</span>, <span class=\"nm\">2</span>])\n<span class=\"nm\">R</span> <span class=\"op\">=</span> <span class=\"nm\">A</span> <span class=\"op\">+</span> <span class=\"nm\">B</span>\n\n<span class=\"cm\"># Magnitude of resultant</span>\n<span class=\"nm\">mag</span> <span class=\"op\">=</span> <span class=\"nm\">np</span>.<span class=\"fn\">linalg.norm</span>(<span class=\"nm\">R</span>)\n<span class=\"bi\">print</span>(<span class=\"st\">f\"|R| = </span>{<span class=\"nm\">mag</span>:<span class=\"st\">.2f</span>}<span class=\"st\">\"</span>)"}}, // topic resource 1
   {
     num: 2, title: "1D Kinematics", subtitle: "Position, Velocity &amp; Acceleration",
     desc: "Explore one-dimensional motion through position-velocity-acceleration relationships. Build interactive simulations of constant acceleration, free fall, and braking distance.",
@@ -604,7 +477,7 @@ const weeks = [
     objectives: [
       ["📐","Relate position, velocity, and acceleration mathematically"],
       ["📊","Read and interpret x-t, v-t, a-t graphs"],
-      ["🚀","Simulate constant acceleration motion with Python"],
+      ["🚀","Predict constant-acceleration motion and check the graphs"],
       ["🎯","Solve free fall and braking distance problems"]
     ],
     filename: "Week_02.ipynb",
@@ -810,7 +683,7 @@ const weeks = [
       ["Angular momentum conservation visualizer","Interactive"]
     ],
     codeLeft: { title: "Angular Momentum", code: `<span class="cm"># L = I * omega</span>\n<span class="nm">I</span> <span class="op">=</span> <span class="nm">0.5</span>    <span class="cm"># kg m&sup2;</span>\n<span class="nm">omega</span> <span class="op">=</span> <span class="nm">10</span>  <span class="cm"># rad/s</span>\n\n<span class="nm">L</span> <span class="op">=</span> <span class="nm">I</span> <span class="op">*</span> <span class="nm">omega</span>\n<span class="bi">print</span>(<span class="st">f"L = </span>{<span class="nm">L</span>}<span class="st"> kg m&sup2;/s"</span>)` },
-    codeRight: { title: "Conservation", code: `<span class="cm"># Ice skater pulls arms in</span>\n<span class="nm">I1</span> <span class="op">=</span> <span class="nm">4.0</span>   <span class="cm"># arms out</span>\n<span class="nm">w1</span> <span class="op">=</span> <span class="nm">2.0</span>   <span class="cm"># rad/s</span>\n<span class="nm">I2</span> <span class="op">=</span> <span class="nm">1.5</span>   <span class="cm"># arms in</span>\n\n<span class="cm"># L1 = L2</span>\n<span class="nm">w2</span> <span class="op">=</span> <span class="nm">I1</span><span class="op">*</span><span class="nm">w1</span> <span class="op">/</span> <span class="nm">I2</span>\n<span class="bi">print</span>(<span class="st">f"&omega;2 = </span>{<span class="nm">w2</span>:<span class="st">.1f</span>}<span class="st"> rad/s"</span>)</pre>` },
+    codeRight: { title: "Conservation", code: `<span class="cm"># Ice skater pulls arms in</span>\n<span class="nm">I1</span> <span class="op">=</span> <span class="nm">4.0</span>   <span class="cm"># arms out</span>\n<span class="nm">w1</span> <span class="op">=</span> <span class="nm">2.0</span>   <span class="cm"># rad/s</span>\n<span class="nm">I2</span> <span class="op">=</span> <span class="nm">1.5</span>   <span class="cm"># arms in</span>\n\n<span class="cm"># L1 = L2</span>\n<span class="nm">w2</span> <span class="op">=</span> <span class="nm">I1</span><span class="op">*</span><span class="nm">w1</span> <span class="op">/</span> <span class="nm">I2</span>\n<span class="bi">print</span>(<span class="st">f"&omega;2 = </span>{<span class="nm">w2</span>:<span class="st">.1f</span>}<span class="st"> rad/s"</span>)` },
     mastery: "Phase 4 &middot; Angular Momentum &mdash; L = I&omega; conserved: predict spinning behavior."
   },
   {
@@ -891,7 +764,7 @@ const weeks = [
     color: "#1565c0",
     objectives: [
       ["📋","Review key formulas and concepts from all weeks"],
-      ["🔬","Complete a physics mini-project with Python"],
+      ["🔬","Explain a mechanical system using equations and evidence"],
       ["📊","Generate plots and analyze results"],
       ["📝","Write a brief conclusion with units and error analysis"]
     ],
@@ -911,116 +784,207 @@ const weeks = [
   }
 ];
 
-// ─── Generate week panels ───
-function generateTimeline(currentWeek) {
-  let html = '';
-  for (let i = 1; i <= 12; i++) {
-    html += `<div class="tm-dot${i===currentWeek?' current':''}" onclick="showWeek(${i})">${i}</div>`;
-  }
-  return html;
+
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+function dateLabel(iso, includeYear = false) {
+  return new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/Istanbul',day:'numeric',month:'short',...(includeYear?{year:'numeric'}:{})})
+    .format(new Date(iso+'T12:00:00+03:00'));
+}
+function dateRange(w) { return `${dateLabel(w.start)} – ${dateLabel(w.end, true)}`; }
+function todayInIstanbul() {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Istanbul',year:'numeric',month:'2-digit',day:'2-digit'})
+    .formatToParts(new Date()).filter(p => p.type !== 'literal').map(p => [p.type,p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+function solutionsUnlock(n) { return CALENDAR.release_dates[String(n)] ?? null; }
+function solutionsReleased(n) { const date=solutionsUnlock(n); return Boolean(date && todayInIstanbul() >= date); }
+function unlockLabel(n) { const date=solutionsUnlock(n); return date ? dateLabel(date,true) : 'Date to be announced'; }
+function colabLink(relativePath) { return 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/'+relativePath; }
+
+function solutionCard(n) {
+  const rows=solutionLab[n];
+  const file=`Week_${pad(n)}_Python_Solutions.ipynb`;
+  const items=rows.map(r=>`<li class="sol-row"><span class="lvl-badge ${r.level.toLowerCase()}">${escapeHTML(r.level)}</span>
+    <span class="sol-pnum">${escapeHTML(r.p)}</span><span class="sol-title">${r.title===r.p?'Complete worked solution':escapeHTML(r.title)}
+    <span class="sol-tech">${escapeHTML(r.tech)}</span></span></li>`).join('');
+  return `<div class="nb-card solutions" data-solution-module="${n}">
+    <div class="nb-type">📐 Module ${pad(n)} · all ${rows.length} worked problems</div>
+    <div class="nb-heading">Physics → Algebra → Answer with units</div>
+    <div class="sol-note">Every numbered problem and subpart includes the principle, equation, calculation and physical check.
+      Python is optional. ${n===14?'All three capstone projects also have worked walkthroughs.':''}</div>
+    <details><summary>Browse P1–P10</summary><ul class="sol-list">${items}</ul></details>
+    <div class="nb-filename">solutions/${file}</div>
+    ${solutionsReleased(n)
+      ? `<a class="nb-btn" href="${colabLink('solutions/'+file)}" target="_blank" rel="noopener">Open released solutions in Colab</a>`
+      : `<span class="nb-btn locked">🔒 Opens ${unlockLabel(n)}</span>`}
+    <div class="sol-lock">Release date: ${unlockLabel(n)} · Istanbul time</div>
+  </div>`;
 }
 
-// Fill week 1 timeline
-document.getElementById('tl-1').innerHTML = generateTimeline(1);
-document.getElementById('sollab-1').innerHTML = renderSolutionLab([1]);
+const learningGoals = {
+  1:['Convert quantities to consistent SI units.','Resolve and combine vector components.','Check dimensions before calculating.'],
+  2:['Read position, velocity and acceleration graphs.','Rearrange constant-acceleration equations.','Choose signs consistently in free fall.'],
+  3:['Separate horizontal and vertical motion.','State Newton’s three laws in a simple example.','Draw one free-body diagram before writing F = ma.'],
+  4:['Distinguish static and kinetic friction.','Resolve forces parallel and normal to an incline.','Check a connected-body calculation with a diagram.'],
+  5:['Calculate work from a force and displacement.','Apply net work = change in kinetic energy.','Rearrange for speed and explain the sign of work.'],
+  6:['Rebuild one motion solution without looking at the answer.','Explain a force diagram and each algebraic step.','Use units and limiting cases to repair mistakes.'],
+  7:['Use the announced examination arrangements.','Review only the material taught before the midterm.','Return to the review notebook for a concise checklist.'],
+  8:['Choose a reference height for gravitational energy.','Account for kinetic, gravitational and spring energy.','Include dissipative work once, with the correct sign.'],
+  9:['Use signs and components in momentum.','Separate a collision from any later motion.','Check both momentum and the change in kinetic energy.'],
+  10:['Convert revolutions and RPM to radians and rad/s.','Use angular kinematics only when its assumptions hold.','Calculate inertia for the stated shape and axis.'],
+  11:['Use net torque = inertia × angular acceleration.','Include translation and rotation in rolling energy.','Prepare the small-angle pendulum model before the lab.'],
+  12:['Calculate a mass-weighted centre of mass.','Balance forces and torques about a chosen pivot.','Interpret the direction and feasibility of reaction forces.'],
+  13:['Connect restoring force with periodic motion.','Calculate a spring or small-angle pendulum period.','Use initial position and velocity to describe the motion.']
+};
+const weekNotes = {
+  3:'One weekly lesson combines 2D motion with a short introduction to Newton’s laws. Detailed friction applications belong to week 4.',
+  5:'This lesson stops at work and kinetic energy. Potential energy and energy conservation begin in week 8, after review and the midterm.',
+  6:'A built-in review week: revisit earlier calculations and questions. Use the holiday-adjusted class time; no new chapter or additional full problem set is assigned here.',
+  7:'The supplied schedule names a midterm week, not an exact exam date or time. Follow the separately announced examination arrangements. No new teaching topic is added.',
+  10:'Begin with angular motion and inertia. Torque-driven dynamics follows in week 11; supporting circular-motion material is available in the resource library.',
+  11:'The laboratory includes a simple pendulum before the periodic-motion lecture. Start with its short preparation in this week’s notebook; the full periodic-motion lesson follows in week 13.',
+  12:'Joining for the final lessons? The weekly notebook includes a prerequisite recap and applications shared across Computer, Software, Mechanical and Mechatronics Engineering.',
+  13:'Periodic motion is the final scheduled topic. Damping, resonance, waves and capstone projects remain available as extensions; they are not additional calendar weeks.'
+};
+const laboratoryPrep = {
+  2:'Use the lab introduction for procedures, equipment and recording conventions.',
+  3:'Review SI units, reading a scale and reporting a measurement. Follow the laboratory’s instrument procedure.',
+  4:'Before the free-fall lab, recall the sign convention and the constant-acceleration equations from week 2.',
+  5:'Revisit projectile components and the friction force diagram before comparing measurements with predictions.',
+  9:'Draw before/after velocity arrows and compare total momentum. Keep any change in kinetic energy separate.',
+  10:'Check the chosen rotation axis and convert angular measurements to consistent units.',
+  11:'Prepare the small-angle relation T = 2π√(ℓ/g), state its assumptions, and relate the measured period to the model.',
+  12:'Use the laboratory’s make-up arrangements for the experiment to complete; no new experiment is named here.'
+};
 
-// Generate panels for weeks 2-14
-const placeholder = document.getElementById('weeks-placeholder');
-for (let i = 2; i <= 12; i++) {
-  const nbs = (SESSION_NOTEBOOKS[i] || []).map(n => weeks[n]).filter(Boolean);
-  if (!nbs.length) continue;
-  const w = nbs[0];                       // lead notebook drives the panel styling
+function moduleChips(numbers) {
+  return numbers.map(n=>`<a href="#module-${n}" data-resource="${n}">Module ${pad(n)} · ${moduleResources[n].title}</a>`).join('');
+}
+function timeline(current) {
+  return CALENDAR.weeks.map(w=>`<button type="button" class="tm-dot${w.week===current?' current':''}" data-panel="week-${w.week}"
+    title="Week ${w.week}: ${escapeHTML(w.title_en)} · ${escapeHTML(dateRange(w))}" aria-label="Week ${w.week}: ${escapeHTML(w.title_en)}">${w.week}</button>`).join('');
+}
+function weeklyPanel(w) {
+  const kind=w.kind==='review'?'Review / Tekrar':w.kind==='midterm'?'Midterm / Vize':'Weekly lesson / Haftalık ders';
+  const lessonLabel=w.kind==='midterm'?'Open midterm-week guide':w.kind==='review'?'Open review notebook':'Open weekly notebook';
+  const goals=(learningGoals[w.week]||[]).map((g,i)=>`<div class="obj-card"><span class="obj-icon">${['①','②','③'][i]}</span><span class="obj-text">${escapeHTML(g)}</span></div>`).join('');
+  const lab=w.lab_en ? `${escapeHTML(w.lab_en)}${w.lab_tr!==w.lab_en?'<br><span lang="tr">'+escapeHTML(w.lab_tr)+'</span>':''}` : 'No experiment named in the supplied schedule<br><span lang="tr">Programda deney adı belirtilmemiş.</span>';
+  return `<section class="week-panel" id="week-${w.week}" data-calendar-week="${w.week}">
+    <header class="week-header"><div class="week-header-left">
+      <div class="week-tag">Calendar week ${pad(w.week)} / ${CALENDAR.weeks.length} · ${escapeHTML(dateRange(w))}</div>
+      <h1 class="week-heading" tabindex="-1">${escapeHTML(w.title_en)}<br><em lang="tr">${escapeHTML(w.title_tr)}</em></h1>
+      <p class="week-desc">${escapeHTML(w.scope)}</p>
+    </div></header>
+    <div class="phase-tag-card">${kind}${w.session_date?' · Lecture date '+dateLabel(w.session_date,true):' · Exact exam date announced separately'}</div>
+    <div class="timeline-mini" aria-label="Calendar weeks">${timeline(w.week)}</div>
+    ${weekNotes[w.week]?`<div class="calendar-note">${escapeHTML(weekNotes[w.week])}</div>`:''}
+    <div class="section-title">${w.kind==='midterm'?'For this examination week':'What to understand this week'}</div>
+    <div class="objectives-grid">${goals}</div>
+    <div class="weekly-grid">
+      <div class="nb-card lecture" data-weekly-notebook="${w.week}">
+        <div class="nb-type">📓 ${w.kind==='midterm'?'Midterm-week guide':w.kind==='review'?'Review notebook':'One weekly physics lesson'}</div>
+        <div class="nb-heading">${escapeHTML(w.title_en)}</div>
+        <div class="card-copy">${w.kind==='midterm'?'Examination-week scope and preparation; no new topic.':'Explanations, hand-worked algebra, examples and practice selected for this calendar week. Paper and a calculator are enough.'}</div>
+        <div class="nb-filename">${escapeHTML(w.notebook)}</div>
+        <div class="button-row"><a class="nb-btn weekly-notebook-link" href="../${escapeHTML(w.notebook)}">${lessonLabel}</a>
+          <a class="nb-btn secondary" href="${colabLink(w.notebook)}" target="_blank" rel="noopener">Colab · online copy</a></div>
+      </div>
+      <div class="nb-card lab-card" data-laboratory-week="${w.week}">
+        <div class="nb-type">🧪 Laboratory / Deney</div>
+        <div class="nb-heading">${lab}</div>
+        <div class="card-copy">${escapeHTML(laboratoryPrep[w.week]||'A blank laboratory cell does not specify a separate experiment or laboratory date. Follow any arrangements announced for your group.')}</div>
+      </div>
+    </div>
+    ${w.modules.length?`<div class="section-title">${w.kind==='review'?'Earlier topic resources for review':'Topic resources and complete solutions'}</div>
+      <p class="card-copy">The weekly notebook above sets this lesson’s scope. Open a source module below for further examples and its complete problem solutions.</p>
+      <div class="resource-links">${moduleChips(w.modules)}</div>`:''}
+    ${w.support_modules.length?`<div class="section-title">Supporting reading / Yardımcı okuma</div><div class="resource-links">${moduleChips(w.support_modules)}</div>`:''}
+    ${w.kind==='midterm'?'<div class="resource-links"><a href="#week-6" data-panel-link="week-6">Return to week 6 review</a></div>':''}
+    <div class="calendar-note" lang="tr">Önce bu haftanın notunu aç: şekli çiz, denklemi kur, cebir adımlarını göster ve birimi kontrol et. Kaynak modüller ek açıklama içindir; her biri ayrı bir takvim haftası değildir.</div>
+  </section>`;
+}
 
-  const offset = 175.9 * (1 - i/12);
-  const title    = nbs.map(x => x.title).join(' + ');
-  const subtitle = nbs.map(x => x.subtitle).join(' &middot; ');
-  const desc     = nbs.map(x => x.desc).join(' ');
+function resourcesPanel() {
+  const cards=moduleResources.slice(1).map(m=>{
+    const extension=CALENDAR.extension_modules.includes(m.num);
+    const uses=CALENDAR.weeks.filter(w=>w.kind==='teaching'&&w.modules.includes(m.num)).map(w=>w.week);
+    const where=extension?'Supporting / extension material':`Used in calendar ${uses.length===1?'week':'weeks'} ${uses.join(', ')}`;
+    const topics=m.topics.map(t=>`<li>${Array.isArray(t)?t[0]:t}</li>`).join('');
+    const code=[m.codeLeft,m.codeRight].filter(Boolean).map(c=>`<details><summary>Optional Python check: ${c.title}</summary><pre class="code-snippet">${c.code.replace(/<\/pre>\s*(<\/details>)?\s*$/,'')}</pre></details>`).join('');
+    return `<section class="resource-section" id="module-${m.num}" data-resource-module="${m.num}">
+      <h2>Module ${pad(m.num)} · ${m.title}</h2><div class="nb-duration">${where}</div>
+      <div class="weekly-grid"><div class="nb-card lecture">
+        <div class="nb-type">📚 Topic resource</div><div class="nb-heading">${m.heading}</div>
+        <div class="nb-filename">notebooks/${m.filename}</div>
+        <ul class="nb-topics">${topics}</ul>
+        <div class="button-row"><a class="nb-btn" href="../notebooks/${m.filename}">Open topic notebook</a>
+          <a class="nb-btn secondary" href="${colabLink('notebooks/'+m.filename)}" target="_blank" rel="noopener">Colab · online copy</a></div>
+      </div>${solutionCard(m.num)}</div>
+      <details class="module-code"><summary>Optional computational examples for this topic</summary>${code}</details>
+    </section>`;
+  }).join('');
+  return `<section class="week-panel" id="resources"><header class="week-header"><div class="week-header-left">
+    <div class="week-tag">Topic library · 14 modules · 140 worked problems</div>
+    <h1 class="week-heading" tabindex="-1">Resources and complete solutions<br><em lang="tr">Kaynaklar ve tam çözümler</em></h1>
+    <p class="week-desc">Use the 13 calendar lessons for the teaching sequence. These original topic notebooks provide deeper explanations, practice and optional extensions.</p>
+    </div></header>
+    <div class="calendar-intro"><p>Each module includes solutions to all ten numbered problems and every subpart. Module 14 also includes three capstone project walkthroughs.</p>
+      <p>Solution release dates follow the last scheduled use of a core topic; full extension sets open at term end. Dates use Istanbul time.</p>
+      <p lang="tr">Takvim haftası ile kaynak modül numarası farklıdır. Örneğin iş–enerji modülü, takvimin 5. ve 8. haftalarında bölünerek kullanılır.</p></div>
+    <div class="resource-links">${moduleChips(moduleResources.slice(1).map(m=>m.num))}</div>${cards}</section>`;
+}
+function overviewPanel() {
+  const rows=CALENDAR.weeks.map(w=>`<tr><td>${pad(w.week)}<br>${escapeHTML(dateRange(w))}</td>
+    <td><a href="#week-${w.week}" data-panel-link="week-${w.week}">${escapeHTML(w.title_en)}</a><br><span lang="tr">${escapeHTML(w.title_tr)}</span></td>
+    <td>${w.lab_en?escapeHTML(w.lab_en)+(w.lab_tr!==w.lab_en?'<br>'+escapeHTML(w.lab_tr):''):'No experiment named'}</td></tr>`).join('');
+  return `<section class="week-panel" id="overview"><header class="week-header"><div class="week-header-left">
+    <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 calendar weeks</div>
+    <h1 class="week-heading" tabindex="-1">Lecture and laboratory calendar<br><em lang="tr">Ders ve laboratuvar takvimi</em></h1>
+    <p class="week-desc">The supplied weekly schedule sets the teaching order, including review and the midterm. Open a row for its actual weekly notebook.</p></div></header>
+    <div class="overview-wrap"><table class="calendar-overview"><thead><tr><th>Week / Dates</th><th>Lecture / Ders</th><th>Laboratory / Deney</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="calendar-note">Blank laboratory cells are shown as “No experiment named.” The supplied image does not give an exact midterm date or the laboratory time.</div>
+    </section>`;
+}
 
-  // objectives and key-concept blocks come from every notebook in the session
-  let objHtml = '';
-  nbs.forEach(x => x.objectives.forEach(o => {
-    objHtml += `<div class="obj-card"><span class="obj-icon">${o[0]}</span><span class="obj-text">${o[1]}</span></div>`;
-  }));
-
-  let cardsHtml = '';
-  nbs.forEach(x => {
-    let topicsHtml = '';
-    x.topics.forEach(t => {
-      topicsHtml += Array.isArray(t)
-        ? `<li>${t[0]} <span class="interactive-badge">${t[1]}</span></li>`
-        : `<li>${t}</li>`;
-    });
-    cardsHtml += `
-      <div class="nb-card lecture">
-        <div class="nb-type">📓 Lecture + Lab Notebook</div>
-        <div class="nb-filename">${x.filename}</div>
-        <div class="nb-heading">${x.heading}</div>
-        <div class="nb-duration">&#9201; ~3 hours &middot; lecture + interactive demos</div>
-        <ul class="nb-topics">${topicsHtml}</ul>
-        <a class="nb-btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/${x.filename}" target="_blank" rel="noopener">▶ Open in Colab</a>
-      </div>`;
+function showPanel(key, updateHash=true) {
+  const moduleMatch=/^module-(\d+)$/.exec(key);
+  const panelKey=moduleMatch?'resources':key;
+  const panel=document.getElementById(panelKey);
+  if(!panel||!panel.classList.contains('week-panel'))return;
+  document.querySelectorAll('.week-panel').forEach(p=>p.classList.toggle('active',p===panel));
+  document.querySelectorAll('#calendar-navigation .week-btn').forEach(b=>{
+    const selected=b.dataset.panel===panelKey;
+    b.classList.toggle('active',selected);
+    if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-
-  let conceptsHtml = '';
-  nbs.forEach(x => [x.codeLeft, x.codeRight].forEach(c => {
-    if (!c) return;
-    conceptsHtml += `
-      <div class="concept-block">
-        <div class="concept-block-title">${c.title}</div>
-        <pre class="code-snippet">${c.code}</pre>
-      </div>`;
-  }));
-
-  const panel = document.createElement('div');
-  panel.className = 'week-panel';
-  panel.id = `week-${i}`;
-  panel.innerHTML = `
-    <div class="week-header">
-      <div class="week-header-left">
-        <div class="week-tag">Session ${String(i).padStart(2,'0')} &middot; 3 hours${nbs.length > 1 ? ' &middot; two notebooks' : ''}</div>
-        <h1 class="week-heading">${title}<br><em>${subtitle}</em></h1>
-        <p class="week-desc">${desc}</p>
-      </div>
-      <div class="progress-ring-wrap">
-        <svg width="72" height="72" viewBox="0 0 72 72">
-          <circle cx="36" cy="36" r="28" fill="none" stroke="#d4dae4" stroke-width="5"/>
-          <circle cx="36" cy="36" r="28" fill="none" stroke="${w.color}" stroke-width="5"
-            stroke-dasharray="175.9" stroke-dashoffset="${offset.toFixed(1)}"
-            stroke-linecap="round" transform="rotate(-90 36 36)"/>
-          <text x="36" y="41" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="700" fill="${w.color}">S${String(i).padStart(2,'0')}</text>
-        </svg>
-        <div class="progress-label">Session ${i} / 12</div>
-      </div>
-    </div>
-    <div class="phase-tag-card">${w.mastery}</div>
-    <div class="timeline-mini">${generateTimeline(i)}</div>
-    <div class="section-title">Learning Objectives</div>
-    <div class="objectives-grid">${objHtml}</div>
-    <div class="section-title">${nbs.length > 1 ? "This Session's Notebooks" : "This Week's Notebook"}</div>
-    <div class="notebooks-grid">${cardsHtml}
-    </div>
-    ${renderSolutionLab(SESSION_NOTEBOOKS[i])}
-    <div class="section-title">Key Concepts: Quick Reference</div>
-    <div class="concepts-row">${conceptsHtml}
-    </div>
-
-  `;
-  placeholder.appendChild(panel);
+  if(updateHash&&window.location.hash!=='#'+key)window.history.replaceState(null,'','#'+key);
+  const main=document.getElementById('course-content');
+  main.scrollTop=0;
+  if(moduleMatch)document.getElementById(key)?.scrollIntoView({block:'start'});
+  else panel.querySelector('h1')?.focus({preventScroll:true});
 }
-
-// ─── Navigation ───
-function showWeek(n) {
-  document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-
-  const panel = document.getElementById(`week-${n}`);
-  if (panel) panel.classList.add('active');
-
-  const btns = document.querySelectorAll('.week-btn');
-  if (btns[n-1]) btns[n-1].classList.add('active');
+function showWeek(n) { showPanel('week-'+n); }
+function buildDashboard() {
+  if(!CALENDAR||!Array.isArray(CALENDAR.weeks)||CALENDAR.weeks.length!==13){
+    document.getElementById('course-content').innerHTML='<p>The course calendar could not load. Refresh this page or open the syllabus.</p>';
+    throw new Error('Expected the canonical 13-week PHY101 calendar');
+  }
+  document.getElementById('calendar-navigation').innerHTML=`<div class="sidebar-label">Lecture + Laboratory</div>
+    <button class="week-btn" type="button" data-panel="overview" title="Complete calendar" aria-label="Complete lecture and laboratory calendar"><span class="week-num">All</span><span class="week-title">Calendar overview</span></button>
+    <div class="sidebar-phase">Scheduled weeks / Takvim</div>
+    ${CALENDAR.weeks.map(w=>`<button type="button" class="week-btn" data-panel="week-${w.week}" title="Week ${w.week}: ${escapeHTML(w.title_en)} · ${escapeHTML(dateRange(w))}" aria-label="Week ${w.week}: ${escapeHTML(w.title_en)}">
+      <span class="week-num">W${pad(w.week)}</span><span class="week-title">${escapeHTML(w.title_en)}<small class="week-date">${escapeHTML(dateRange(w))}</small></span></button>`).join('')}
+    <div class="sidebar-phase">Practice + Extensions</div>
+    <button class="week-btn" type="button" data-panel="resources" title="Topic library and all 140 solutions" aria-label="Resources and all 140 worked solutions"><span class="week-num">📚</span><span class="week-title">Resources + all solutions<small class="week-date">14 topic modules · P1–P10 each</small></span></button>`;
+  document.getElementById('course-content').innerHTML=overviewPanel()+CALENDAR.weeks.map(weeklyPanel).join('')+resourcesPanel();
+  document.querySelectorAll('[data-panel]').forEach(b=>b.addEventListener('click',()=>showPanel(b.dataset.panel)));
+  document.querySelectorAll('[data-resource]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();showPanel('module-'+a.dataset.resource);}));
+  document.querySelectorAll('[data-panel-link]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();showPanel(a.dataset.panelLink);}));
+  window.addEventListener('hashchange',()=>showPanel(window.location.hash.slice(1)||'overview',false));
+  showPanel(window.location.hash.slice(1)||'overview',false);
 }
+buildDashboard();
 </script>
-
 </body>
 </html>
-

@@ -1,150 +1,77 @@
-# PHY101.md
-# PHYSICS 101 (Calculus-based, Colab-temelli)
-**Süre:** 14 hafta — *(haftalık saat: bölüm programına göre uyarlanır; Colab formatı 3–5 saat arası derslerde çalışır)*
-**Format:** Google Colab notebook'ları üzerinden: kavram + türetim + simülasyon + problem çözümü + otomatik kontrol
+# PHY101 — Physics I / Fizik I
 
-## 🎯 CORE MASTERY: "I can model any mechanical system and predict its motion"
-> **Diagram → Principle → Equation → Prediction → Verify.**
-> Given any mechanical system (falling, sliding, rotating, oscillating), the student
-> can draw the diagram, identify the right principle (Newton's laws, energy
-> conservation, momentum conservation), write the equation, predict the outcome,
-> and verify with simulation.
->
-> Every week teaches a new *context* (linear, circular, rotational, oscillatory)
-> but always in service of this ONE skill. The weekly question is always:
-> **"What principle governs this system, and what does it predict?"**
+**Teaching calendar:** 13 weeks, 21 September–18 December 2026. The supplied lecture/laboratory schedule is the adopted course sequence: 11 topic weeks, one review week and one midterm week.
 
-## Haftalık teslim seti (standart)
-Her hafta 2–3 notebook (ders saati durumuna göre):
-- `Wxx_PHY101_Lecture.ipynb` (≈1.5–2 saat): teori + türetim + görsel/simülasyon demo
-- `Wxx_PHY101_ProblemLab.ipynb` (≈1–2 saat): çözülmüş örnekler + alıştırmalar (L1–L2–L3)
-- `Wxx_PHY101_Check.ipynb` (≈0.5–1 saat): kısa quiz + sayısal cevap doğrulama + mini görev
+**Main course materials:** the 13 weekly notebooks in [calendar/](calendar/), each assembled around its actual dated lecture topic. The fourteen original notebooks in [notebooks/](notebooks/) remain a source and extension library. Start with the calendar notebook for the teaching week.
 
-> 3 saat/hafta ise: Lecture + ProblemLab
-> 5 saat/hafta ise: Lecture + ProblemLab + Check
+**Audience:** Computer Engineering and Mechatronics Engineering. The final four calendar weeks also support colleagues teaching Software Engineering and Mechanical Engineering. The physical laws, algebra and standards of explanation are shared across all four groups.
 
-## Colab Notebook Şablonu (PHY101)
-1. **Goal / Öğrenme çıktıları** — always linked back to core mastery
-2. **Core Mastery Connection** — "This week's principle helps you predict ___ type of motion"
-3. **Ön bilgi / Hızlı hatırlatma (matematik & vektörler)**
-4. **Teori + kritik türetimler (çok uzun değil, "kullanılabilir")**
-5. **Interactive demo** (grafik/animasyon/parametre slider)
-6. **Worked examples** (en az 2 adet)
-7. **Problem set (L1–L2–L3)** — each framed as "Model → Predict → Verify"
-8. **Self-check** (sayısal testler: toleranslı kontrol + birim kontrolü)
-9. **Teslim** (çıktı: kısa rapor hücresi + plot + hesap özeti)
+**Learning sequence:** draw → choose a physical principle → write the equation → rearrange → substitute with units → interpret and check. English explanations include short Turkish support. Students can solve on paper; Python and interactive plots are optional ways to check a prediction.
 
-## Python araç seti (öneri)
-- `numpy`, `matplotlib`
-- (opsiyonel) `scipy` (ODE çözümleri), `sympy` (sembolik türetim)
-- (opsiyonel) `ipywidgets` (slider ile parametre tarama)
+**Türkçe:** Ders akışı artık ekteki takvimi izler. Çalışmaya o tarihe ait `calendar/Week_XX.ipynb` dosyasından başlayın. Kod yazmak öğrenme hedefi değildir; hesabın neden ve nasıl yapıldığını açıklamak önemlidir.
 
----
+## Adopted weekly sequence
 
-## 14 Haftalık Konu Planı (PHY101)
+| Week | Dates (2026) | Lecture | Laboratory | Weekly notes |
+| --- | --- | --- | --- | --- |
+| 01 | 21–25 September | Measurement, units, physical quantities and vectors / Ölçme ve birim sistemleri, fiziksel nicelikler ve vektörler | No experiment named | [Week 01](calendar/Week_01.ipynb) |
+| 02 | 28 September–2 October | Motion in one dimension / Bir boyutta hareket | INTRO | [Week 02](calendar/Week_02.ipynb) |
+| 03 | 5–9 October | Motion in two dimensions and Newton’s laws / İki boyutta hareket ve Newton yasaları | Measuring instruments / Ölçme cihazları | [Week 03](calendar/Week_03.ipynb) |
+| 04 | 12–16 October | Friction and applications of Newton’s laws / Sürtünme kuvveti ve Newton hareket yasaları uygulamaları | 1D motion — free fall / Bir boyutta hareket — serbest düşme | [Week 04](calendar/Week_04.ipynb) |
+| 05 | 19–23 October | Work and kinetic energy / İş ve kinetik enerji | Projectile motion — friction / Eğik atış — sürtünme | [Week 05](calendar/Week_05.ipynb) |
+| 06 | 26–30 October | Problem solving and review / Soru çözümü ve özet | No experiment named | [Week 06](calendar/Week_06.ipynb) |
+| 07 | 2–6 November | Midterm / Vize | No experiment named | [Week 07](calendar/Week_07.ipynb) |
+| 08 | 9–13 November | Potential energy and conservation of energy / Potansiyel enerji ve enerjinin korunumu | No experiment named | [Week 08](calendar/Week_08.ipynb) |
+| 09 | 16–20 November | Linear momentum, impulse and collisions / Doğrusal momentum, itme ve çarpışmalar | One-dimensional collision / Bir boyutta çarpışma | [Week 09](calendar/Week_09.ipynb) |
+| 10 | 23–27 November | Rotation of rigid bodies / Katı cisimlerin dönme hareketi | Rotation of rigid bodies / Katı cisimlerin dönmesi | [Week 10](calendar/Week_10.ipynb) |
+| 11 | 30 November–4 December | Dynamics of rotational motion / Dönme hareketi dinamiği | Moment of inertia — simple pendulum / Eylemsizlik momenti — basit sarkaç | [Week 11](calendar/Week_11.ipynb) |
+| 12 | 7–11 December | Equilibrium and centre of mass / Denge ve kütle merkezi | Make-up laboratory / Telafi | [Week 12](calendar/Week_12.ipynb) |
+| 13 | 14–18 December | Periodic motion / Periyodik hareket | No experiment named | [Week 13](calendar/Week_13.ipynb) |
 
-### PHASE 1: The Language of Motion (Weeks 1-3)
-*"Before you can predict motion, you need the vocabulary to describe it"*
+“No experiment named” transcribes the blank/red cells in the image. It does not infer a cancelled lesson or a laboratory date. The supplied image gives date ranges; the existing Tuesday lecture times and grading policy remain in force.
 
-### Week 01 — The Toolbox: Units, Vectors & Colab
-**Core mastery link:** Every prediction starts with the right units and the right vector decomposition. This is your measurement and mathematical foundation.
-- SI birimler, boyut analizi, anlamlı basamak
-- Vektörler, bileşenler, birim vektörler
-- Demo: vektör toplamı ve projeksiyon
-- Lab: boyut analizi + vektör parçalama
+## What each teaching block builds
 
-### Week 02 — Describing Motion: 1D Kinematics
-**Core mastery link:** Before predicting WHY things move, you must describe HOW they move. Position, velocity, acceleration — the kinematic equations are your first prediction tools.
-- konum–hız–ivme ilişkileri, grafik okuma
-- Demo: sabit ivmeli hareket simülasyonu
-- ProblemLab: düşey atış, fren mesafesi
+- **Weeks 01–02:** units, vector components and motion graphs. Explain slope, sign and units before using constant-acceleration equations.
+- **Week 03:** resolve two-dimensional motion into components, then introduce force diagrams and Newton’s laws in the same week. Projectile calculations use the stated no-drag, constant-gravity model.
+- **Week 04:** apply Newton’s laws to friction and connected bodies. Distinguish static friction’s bound from kinetic friction’s model.
+- **Week 05:** calculate work, kinetic-energy change and power. Start from work–energy; the potential-energy/conservation treatment belongs to Week 08.
+- **Week 06:** protected problem solving and summary. Repair algebra, vector and force-diagram errors using already taught material; introduce no new topic before the midterm. Use the official holiday-adjusted meeting arrangement during the 29 October week.
+- **Week 07:** midterm. Its notebook provides preparation and navigation, not a replacement lecture or a claim about the exact exam time.
+- **Week 08:** introduce potential energy and conservation, following the review and midterm. Account for gravitational, spring and nonconservative work with clearly chosen initial/final states.
+- **Week 09:** momentum, impulse and collisions. Define the system, signs and the external-impulse condition before applying conservation.
+- **Week 10:** describe rigid-body rotation with angular kinematics and moment of inertia. Connect radians and angular quantities to familiar linear motion.
+- **Week 11:** predict rotational motion with torque, inertia, rotational energy and rolling. A short simple-pendulum preparation supports this week’s laboratory; the full periodic-motion lecture remains in Week 13.
+- **Week 12:** equilibrium and centre of mass, after rotation. Require both force and torque balance, using perpendicular lever arms.
+- **Week 13:** periodic motion. Derive the spring–mass model from Newton’s law and use the small-angle pendulum model with its assumptions.
 
-### Week 03 — Motion in 2D: Projectile Motion
-**Core mastery link:** Real motion happens in 2D/3D. Decomposing into independent axes is the key insight — predict each axis separately, combine for the full trajectory.
-- eğik atış, menzil, maksimum yükseklik
-- Demo: atış + (opsiyonel) hava direnci karşılaştırması
-- Mini görev: hedef vurma (menzil optimizasyonu)
+## Review and transition time inside the calendar
 
-### PHASE 2: Forces Predict Motion (Weeks 4-5)
-*"Newton's laws: given forces, predict the motion"*
+Reserve 10–15 minutes at the start of Weeks 03, 08 and 10 for prerequisite recall, followed by a short worked example. Keep the scheduled Week 06 for review. In Weeks 10–13, begin with the relevant “Joining this lesson / Derse buradan başlayanlar” recap so colleagues’ classes can enter without prior notebook experience. Short checks after examples ask students to explain a sign, unit or limiting case; they do not add teaching weeks.
 
-### Week 04 — The Prediction Engine: Newton's Laws & FBD
-**Core mastery link:** THIS IS THE CORE WEEK. F = ma is the prediction engine. Draw the Free Body Diagram → write ΣF = ma → solve for motion. Every mechanics problem starts here.
-- kuvvetler, sürtünme, ip gerilmesi
-- Demo: eğik düzlem + sürtünme parametre tarama
-- Check: FBD doğrulama + sayısal çözüm
+Before the Week 11 moment-of-inertia/simple-pendulum laboratory, recall $T=2\pi\sqrt{L/g}$, SI units and the small-angle assumption. Before the measuring-instruments laboratory, revisit units and significant figures; the course notebook does not replace the laboratory’s instrument instructions.
 
-### Week 05 — Circular Prediction: Newton + Curves
-**Core mastery link:** Same F = ma, new geometry. For circular motion, the net force points inward. Predict speeds, forces, and limits on curved paths.
-- merkezcil ivme, banked curve, loop
-- Demo: dairesel hareket ve hız limitleri
-- Lab: dönel platform / robot dönüş senaryosu
+## Source and extension library
 
-### PHASE 3: Conservation Shortcuts (Weeks 6-7)
-*"Energy and momentum bypass complex force analysis — powerful prediction tools"*
+These module numbers are retained for problem identifiers and solution links. They are not another calendar.
 
-### Week 06 — Energy: The Shortcut Principle
-**Core mastery link:** When forces are complex, energy conservation predicts outcomes without solving F = ma step by step. "Energy in = Energy out" is a powerful shortcut.
-- iş, güç, kinetik enerji, potansiyel enerji
-- Demo: enerji diyagramları
-- ProblemLab: yay–blok, eğik düzlem enerji yaklaşımı
+| Source module | Role in the adopted course |
+| --- | --- |
+| [01 — Units and vectors](notebooks/Week_01.ipynb) | Week 01 foundation and later reference |
+| [02 — 1D kinematics](notebooks/Week_02.ipynb) | Week 02 and free-fall laboratory preparation |
+| [03 — 2D motion](notebooks/Week_03.ipynb) | Week 03 and projectile laboratory preparation |
+| [04 — Newton’s laws and friction](notebooks/Week_04.ipynb) | Introductory laws in Week 03; applications in Week 04 |
+| [05 — Circular motion](notebooks/Week_05.ipynb) | Supporting force/rotation examples; no separate dated topic week |
+| [06 — Work and energy](notebooks/Week_06.ipynb) | Split between Week 05 work/kinetic energy and Week 08 potential/conservation |
+| [07 — Momentum](notebooks/Week_07.ipynb) | Week 09 |
+| [08 — Equilibrium and centre of mass](notebooks/Week_08.ipynb) | Week 12, after rotational dynamics |
+| [09 — Rotation](notebooks/Week_09.ipynb) | Split between Weeks 10 and 11 |
+| [10 — Angular momentum](notebooks/Week_10.ipynb) | Selected supporting rotational-conservation examples |
+| [11 — Periodic motion](notebooks/Week_11.ipynb) | Week 13 core; short pendulum preparation before the Week 11 lab |
+| [12 — Resonance](notebooks/Week_12.ipynb) | Optional oscillation extension |
+| [13 — Waves and sound](notebooks/Week_13.ipynb) | Optional wave/acoustics extension |
+| [14 — Review and projects](notebooks/Week_14.ipynb) | Optional synthesis examples and three project choices |
 
-### Week 07 — Momentum: Predicting Collisions
-**Core mastery link:** When objects interact, momentum conservation predicts the outcome. Before/after analysis — no need to know the details of the collision force.
-- momentum korunumu, esnek/esnek olmayan çarpışma
-- Demo: 1D çarpışma simülasyonu
-- Mini görev: tampon tasarımı (enerji/momentum yorumlu)
+Complete worked solutions cover all 140 source-module problems and all three source projects in the separate `phy101-solutions` repository. A calendar problem retains its source module and problem identifier so its solution is unambiguous. Public availability follows the configured release schedule; optional source modules do not create additional scheduled lessons.
 
-### PHASE 4: Rotation — Same Laws, New Geometry (Weeks 8-10)
-*"Everything you learned about linear motion applies to rotation — with angular versions"*
-
-### Week 08 — Balance: Center of Mass & Static Equilibrium
-**Core mastery link:** Before things rotate, they must balance. ΣF = 0 and Στ = 0 predict whether a system stays still or starts to move.
-- kütle merkezi, tork, denge koşulları
-- Demo: kirişte yük dağılımı (basit)
-- Lab: denge problemleri (robot kolu moment)
-
-### Week 09 — Spinning Up: Rotational Dynamics I
-**Core mastery link:** τ = Iα is the rotational version of F = ma. Same prediction method: diagram → torques → angular acceleration → motion.
-- açısal kinematik, eylemsizlik momenti
-- Demo: farklı cisimlerin I hesabı + enerji
-- ProblemLab: makara–ip sistemleri
-
-### Week 10 — Angular Momentum: Rotational Conservation
-**Core mastery link:** L = Iω is conserved when no external torque acts. Predict spinning behavior: ice skater speeds up, gyroscope precesses.
-- açısal momentum korunumu
-- Demo: dönme + tork etkileşimi
-- Check: birim ve ölçek kontrol testleri
-
-### PHASE 5: Oscillations & Waves (Weeks 11-13)
-*"Periodic motion — the same principles in rhythmic, repeating contexts"*
-
-### Week 11 — Back and Forth: Simple Harmonic Motion
-**Core mastery link:** SHM is F = -kx applied through F = ma. The restoring force predicts sinusoidal motion. Same principle, periodic result.
-- yay–kütle, sarkaç, enerji
-- Demo: SHM + sönüm (opsiyonel)
-- Lab: ODE çözümü (Euler/odeint)
-
-### Week 12 — Resonance: When Frequency Matches
-**Core mastery link:** Drive a system at its natural frequency → amplitude explodes. Predict resonance conditions and design dampers to control it. Critical for mechatronics.
-- rezonans, faz, genlik frekans cevabı
-- Demo: rezonans eğrisi, Q faktörü
-- Mini görev: "titreşim sönümleyici" parametre seçimi
-
-### Week 13 — Waves: Motion That Travels
-**Core mastery link:** Waves carry energy through space. Predict wave speed, interference patterns, and standing wave frequencies using the same force/energy principles.
-- dalga denklemi sezgisi, hız, girişim
-- Demo: iki kaynak girişimi (2D heatmap)
-- Lab: titreşim/akustik örnekleri
-
-### PHASE 6: Proving Mastery (Week 14)
-*"Model a complete mechanical system, predict its behavior, verify with simulation"*
-
-### Week 14 — Capstone: Model → Predict → Verify
-**Core mastery link:** This is the proof. Choose a mechanical system, model it with the right principles, predict its behavior, and verify with data/simulation.
-**Mini Proje (örnek seçenekler):**
-1. **Hava dirençli atış**: veriyle kalibrasyon (parametre tarama)
-2. **Sönümlü yay–kütle**: ölçüm verisinden (sentetik/gerçek) sönüm bulma
-3. **Dönme sistemi**: atalet momenti + enerji kayıpları analizi
-
-**Çıktılar:** 1 notebook raporu + 2–3 plot + kısa sonuç paragrafı
+See [schedule implementation](SCHEDULE_ALIGNMENT.md), [the final-four-week teaching handoff](TEACHING_HANDOFF.md), and [the review and verification record](REVIEW_REPORT.md).
