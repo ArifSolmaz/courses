@@ -39,6 +39,12 @@ Neither synchronization mode nor the builder publishes files.
 Edit physics explanations and problems in the source notebooks. The private
 `phy101-solutions` repository holds the complete worked solutions until release.
 
+Additional fully solved examples are authored in `../examples/worked_examples_*.json`.
+Run `sync_worked_examples.py` before rebuilding the dated lessons when changing them.
+Each example retains its bank chapter/section/question reference, and its
+`calendar_week` selects the relevant teaching week. The original question-bank
+Word files are not needed for rebuilding. See `../examples/README.md`.
+
 `physics_widgets.py` supplies the shared control/plot layout. Its code is embedded
 in every notebook so Colab needs no extra repository download. After changing it:
 

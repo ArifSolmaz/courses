@@ -420,10 +420,14 @@ def build_lesson(row, modules, calendar):
     add(f"# Calendar Week {week:02} — {row['title_en']}\n\n## {row['title_tr']}\n\n**Date range:** {readable_date(row['start'])} – {readable_date(row['end'])}  \n**Class / exam:** {session}\n\n**This week's scope:** {row['scope']}.\n\nThese are the actual notes selected for this dated lesson. Read the physics and do the algebra on paper; the optional demonstrations are grouped at the end. Existing numbered source notebooks are a **topic library**, so a label such as **Module 06 P2** stays the same even when taught in Calendar Week 05. **TR:** Takvim haftası ile kaynak modül numarası farklıdır; bu dosyadaki sıra o haftanın gerçek ders sırasıdır.","title")
     colab_base = 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/'
     navigation=['[1. Read and work through the examples](#lesson-concepts)']
+    bank_cells = [(module, cell) for module, notebook in modules.items()
+                  for cell in notebook.cells
+                  if cell.metadata.get('phy101_worked_example', {}).get('calendar_week') == week]
+    if bank_cells:navigation.append('[More worked examples / Ek çözümlü örnekler](#lesson-worked-examples)')
     if lesson['practice']:navigation.append('[2. Practise on paper](#lesson-practice)')
     navigation.append('[3. Check your understanding](#lesson-exit)')
     if lesson['demos']:navigation.append('[4. Optional visual checks](#lesson-demos)')
-    add('## Find your place / Nereden devam etmeli?\n\n**Notes edition: 11 September 2026 — readable tables and compact demonstrations.**\n\n'+' · '.join(navigation)+'\n\nEnglish carries the main explanation; Turkish notes unpack the difficult step. Keep the model answers closed until you have tried the example or question.\n\n[Course page / Ders sayfası](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html)','navigation')
+    add('## Find your place / Nereden devam etmeli?\n\n**Notes edition: 11 September 2026 — additional worked examples, readable tables and compact demonstrations.**\n\n'+' · '.join(navigation)+'\n\nEnglish carries the main explanation; Turkish notes unpack the difficult step. Follow the worked examples first. When you reach paper practice, try the question before opening its worked key.\n\n[Course page / Ders sayfası](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html)','navigation')
     if row['kind']!='midterm':
         focus=lesson['focus']
         add(f"## A three-hour route with review space / Üç saatlik ders akışı\n\n| Minutes | Activity |\n|---|---|\n| 0–10 | Retrieval: {lesson['recap']} |\n| 10–50 | {focus[0]} |\n| 50–60 | Break / Ara |\n| 60–100 | {focus[1]} |\n| 100–110 | Break / Ara |\n| 110–150 | Guided paper practice: core problems below |\n| 150–170 | Review difficult steps, one optional visual check, and questions |\n| 170–180 | Explain the result and exit check |\n\nThe core route is enough for the lesson. Extra problems and visual demonstrations are optional; use the review space to slow down when a sign or algebra step is unclear.","route")
@@ -431,6 +435,15 @@ def build_lesson(row, modules, calendar):
     for index,spec in enumerate(lesson['sections']):
         if spec['type']=='source':cells.append(copy_source(spec,modules,f's{index}'))
         else:add(CONTENT[spec['key']],spec['key'])
+    if bank_cells:
+        add('<a id="lesson-worked-examples"></a>\n\n## More worked examples / Ek çözümlü örnekler\n\n'
+            'Each example gives the complete reasoning and calculation. Follow the algebra slowly, '
+            'including the signs and units, and use the Turkish note to clarify the difficult step. '
+            'You can return to these examples during the review sessions.\n\n'
+            '**Türkçe:** Çözümler baştan sona açıktır. Her eşitlikte hangi işlemin yapıldığını '
+            've fiziksel ilkenin neden seçildiğini takip et.', 'worked-examples')
+        for index,(module,cell) in enumerate(bank_cells):
+            cells.append(copy_source(source(module,cell.id),modules,f'worked{index}'))
     if lesson['practice']:
         add('<a id="lesson-practice"></a>\n\n## Core paper practice / Temel alıştırmalar\n\nTry the diagram and symbolic equation before opening an answer. These are selected problems from the full module sets, not renamed problems. Each has a stable Module XX Pn reference for the complete solution.', 'practice')
         for index,(module,number) in enumerate(lesson['practice']):cells.append(problem(module,number,modules,f'p{index}'))

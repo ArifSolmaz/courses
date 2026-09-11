@@ -16,7 +16,7 @@ HELPER_ID = "phy101-widget-layout"
 GUIDE_ID = "phy101-reading-guide"
 GUIDE = """## How to use these physics notes / Bu notları nasıl kullanmalı?
 
-**Notes edition: 11 September 2026 — readable tables and compact demonstrations.**
+**Notes edition: 11 September 2026 — additional worked examples, readable tables and compact demonstrations.**
 
 **Read the physics and the worked algebra first.** Draw the system, choose a law,
 rearrange the equation, substitute values with units, and check the answer.

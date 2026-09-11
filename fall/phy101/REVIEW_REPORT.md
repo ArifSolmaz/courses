@@ -2,7 +2,31 @@
 
 Reviewed 11 September 2026 against the local course notes, the lecture column of the supplied schedule image, and the separate `phy101-solutions` repository.
 
-## Colab table and demonstration layout — current revision
+## Additional fully worked examples — current revision
+
+Sixty additional examples are now embedded in the source notes and the relevant
+dated lessons, before the existing practice sections. Fifty-five are based on
+the supplied mechanics question bank; five explicitly labelled instructor
+extensions connect its spring and swing models to periodic motion. Each has a
+complete open solution, LaTeX algebra, units, physical interpretation, a check,
+Turkish support, and a chapter/section/question reference.
+
+Independent reviews checked every example against its source and physical model.
+One collision is an explicitly adapted variant: the bank's rebound speed would
+require an unmentioned kinetic-energy gain, so the worked example uses a passive
+collision with a stated 6.00 m/s rebound and verifies the 8.10 J energy loss.
+The angular-speed example and the combined inertia/rotational-energy example
+were placed in Weeks 10 and 11 respectively to match their prerequisites.
+
+Verification covers 148 numerical checks, all 60 source anchors, and browser
+typesetting of 963 mathematical expressions with no math errors or display
+overflow at 1440 × 1000. All 27 notebook schemas validate. Each new example occurs
+once in its source module and once in its assigned dated lesson; all 140 original
+source problem IDs remain present. Executable code is unchanged from the
+successfully executed Colab-layout revision. See `worked_examples_verification.json`
+and `examples/README.md` for the current example data and maintenance procedure.
+
+## Colab table and demonstration layout — prior verification
 
 The three reported Colab issues are addressed in both the fourteen source modules
 and the thirteen dated lessons. Self-referential “Open in Colab” links and badges
