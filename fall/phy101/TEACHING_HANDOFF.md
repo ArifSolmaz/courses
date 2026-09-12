@@ -1,19 +1,19 @@
 # PHY101 — Teaching handoff for calendar Weeks 10–13
 
-The primary course serves **Computer Engineering and Mechatronics Engineering**. During the final three or four teaching weeks, the same material also supports colleagues’ **Software Engineering and Mechanical Engineering** classes. Use the dated weekly notebooks below; their content follows the adopted lecture schedule.
+The course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students in one class. Use the weekly notebooks below; each one is complete for its week and follows the adopted lecture schedule. The final four weeks pose each physical model as an application question from all three departments.
 
 The shared learning standard is **draw → choose a law → rearrange → substitute with units → interpret and check**. A physical explanation and a paper calculation come before any optional simulation. Students may use either discipline’s application context.
 
-**Türkçe:** Bölümler için farklı fizik öğretmiyoruz; ortak fizik yasasını farklı mühendislik örnekleriyle açıklıyoruz. Derse bu blokta katılan öğrencilerin önceki notebook’ları kullandığını varsaymayın.
+**Türkçe:** Mekatronik, Bilgisayar ve Kimya Mühendisliği öğrencileri için farklı fizik öğretmiyoruz; ortak fizik yasasını üç bölümün kendi örnekleriyle açıklıyoruz. Derse bu blokta katılan öğrencilerin önceki notebook’ları kullandığını varsaymayın.
 
 ## The actual final four calendar weeks
 
-| Week / dates (2026) | Main notebook and lecture | Opening recap / assumption |
+| Week / dates (2026) | Notebook and lecture | Opening recap / assumption |
 | --- | --- | --- |
-| 10 · 23–27 November | [Week 10 — Rotation of rigid bodies](calendar/Week_10.ipynb) | Convert degrees to radians; connect $v=R\omega$ and constant angular acceleration; define the rotation axis before choosing $I$. |
-| 11 · 30 November–4 December | [Week 11 — Dynamics of rotational motion](calendar/Week_11.ipynb) | Draw torques, use $\sum\tau=I\alpha$, include rotational energy, and state the no-slip condition. |
-| 12 · 7–11 December | [Week 12 — Equilibrium and centre of mass](calendar/Week_12.ipynb) | Resolve forces into components; use perpendicular lever arms; require both $\sum\vec F=0$ and $\sum\tau=0$. |
-| 13 · 14–18 December | [Week 13 — Periodic motion](calendar/Week_13.ipynb) | Recall $F=-kx$, $\sum F=ma$, $\omega_0=\sqrt{k/m}$ and $T=2\pi/\omega_0$; explain equilibrium, amplitude and period. |
+| 10 · 23–27 November | [Week 10 — Rotation of rigid bodies](notebooks/Week_10.ipynb) | Convert degrees to radians; connect $v=R\omega$ and constant angular acceleration; define the rotation axis before choosing $I$. |
+| 11 · 30 November–4 December | [Week 11 — Dynamics of rotational motion](notebooks/Week_11.ipynb) | Draw torques, use $\sum\tau=I\alpha$, include rotational energy, and state the no-slip condition. |
+| 12 · 7–11 December | [Week 12 — Equilibrium and centre of mass](notebooks/Week_12.ipynb) | Resolve forces into components; use perpendicular lever arms; require both $\sum\vec F=0$ and $\sum\tau=0$. |
+| 13 · 14–18 December | [Week 13 — Periodic motion](notebooks/Week_13.ipynb) | Recall $F=-kx$, $\sum F=ma$, $\omega_0=\sqrt{k/m}$ and $T=2\pi/\omega_0$; explain equilibrium, amplitude and period. |
 
 The exact Tuesday lecture hours remain those already published. There is no additional compulsory resonance, waves or capstone week after Week 13.
 
@@ -24,23 +24,23 @@ The exact Tuesday lecture hours remain those already published. There is no addi
 3. Work through one small calculation with SI units.
 4. Predict what changes if one parameter doubles, then inspect a prepared graph or check the calculation.
 
-Use each calendar notebook’s prerequisite recap and the relevant source notebook’s “Joining this lesson / Derse buradan başlayanlar” explanation. If a prerequisite is unfamiliar, repair it with the small example before the main practice. The buffer is inside the existing lesson; it is not a programming lesson or an extra week.
+Use each weekly notebook’s “Before you start” section, which includes the “Joining this lesson / Derse buradan başlayanlar” recap. If a prerequisite is unfamiliar, repair it with the small example before the main practice. The buffer is inside the existing lesson; it is not a programming lesson or an extra week.
 
 ## Shared physical applications
 
-| Physics | Computer / Software Engineering context | Mechatronics / Mechanical Engineering context |
-| --- | --- | --- |
-| Rotation and inertia | Check a supplied motion trace for radian/degree or time-unit errors; compare its angular acceleration with $\tau/I$. | Predict the acceleration of a flywheel or robot joint for a known torque. |
-| Rotational energy | Compare a model’s energy before and after a no-slip rolling motion; explain any mismatch. | Include both translation and rotation when predicting speed or required work. |
-| Equilibrium | Verify reported support loads with a hand force-and-torque balance. | Balance a beam, bracket or robot arm using the same calculation. |
-| Periodic motion | Read period from a displacement trace and compare it with a physical model. | Predict vibration of a suspended mass or a compliant mechanism. |
+| Physics | Mechatronics Engineering context | Computer Engineering context | Chemical Engineering context |
+| --- | --- | --- | --- |
+| Rotation and inertia | Predict the acceleration of a flywheel or robot joint for a known torque. | Check a supplied motion trace for radian/degree or time-unit errors; compare its angular acceleration with $\tau/I$. | Estimate the motor torque needed to bring a stirrer or centrifuge rotor to working speed. |
+| Rotational energy | Include both translation and rotation when predicting speed or required work. | Compare a model’s energy before and after a no-slip rolling motion; explain any mismatch. | Account for the kinetic energy stored in a spinning rotor when sizing a drive or a brake. |
+| Equilibrium | Balance a beam, bracket or robot arm using the same calculation. | Verify reported support loads with a hand force-and-torque balance. | Find the support reactions of a pipe run or vessel whose load is not centred. |
+| Periodic motion | Predict vibration of a suspended mass or a compliant mechanism. | Read period from a displacement trace and compare it with a physical model. | Keep a pump or pipe mount’s natural period away from the pump cycle time. |
 
 These contexts change the setting, not the expected physics. No student needs to write Python to explain a discrepancy between the equation, units and observed graph.
 
 ## Materials to share
 
-Share the relevant **calendar notebook**, its entry recap, two worked examples and a small practice set suited to the available class time. Use its **Open in Colab** link on the [course dashboard](web/PHY101_Course_Dashboard.html) for browser access; use **Download notebook** when a colleague needs a local `.ipynb` file. Source module 09 supplies rotation, source 10 offers selected angular-momentum extensions, source 08 supplies equilibrium, and source 11 supplies periodic motion. These source numbers differ from calendar week numbers; the weekly notebook identifies its source problem IDs for solution lookup.
+Share the relevant **weekly notebook**: its “Before you start” recap, two worked examples and a small practice set suited to the available class time. Use its **Open in Colab** link on the [course dashboard](web/PHY101_Course_Dashboard.html) for browser access; use **Download notebook** when a colleague needs a local `.ipynb` file. Problems are labelled `Module XX Pn`; the number names the complete solution file (09 for rotation, 08 for equilibrium, 11 for periodic motion), not a calendar week.
 
-Source modules [12](notebooks/Week_12.ipynb), [13](notebooks/Week_13.ipynb) and [14](notebooks/Week_14.ipynb) remain optional resonance, waves and synthesis resources. Complete solutions for all 140 source problems and three projects stay in the separate solutions repository under its release process.
+The optional notebooks [Angular_Momentum](extensions/Angular_Momentum.ipynb), [Resonance](extensions/Resonance.ipynb), [Waves_and_Sound](extensions/Waves_and_Sound.ipynb) and [Review_and_Projects](extensions/Review_and_Projects.ipynb) remain available as extension resources. Complete solutions for all 140 problems and three projects stay in the separate solutions repository under its release process.
 
 See [the adopted calendar](SCHEDULE_ALIGNMENT.md) and [the complete course outline](content.md).

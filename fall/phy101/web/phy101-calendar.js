@@ -20,7 +20,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Units, dimensions, physical quantities and vector components",
-      "notebook": "calendar/Week_01.ipynb"
+      "notebook": "notebooks/Week_01.ipynb"
     },
     {
       "week": 2,
@@ -35,7 +35,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Position, velocity, acceleration and free fall",
-      "notebook": "calendar/Week_02.ipynb"
+      "notebook": "notebooks/Week_02.ipynb"
     },
     {
       "week": 3,
@@ -51,7 +51,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Projectile components, Newton’s three laws and a first free-body diagram; friction applications follow next week",
-      "notebook": "calendar/Week_03.ipynb"
+      "notebook": "notebooks/Week_03.ipynb"
     },
     {
       "week": 4,
@@ -66,7 +66,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Force diagrams, static/kinetic friction, inclines and connected bodies",
-      "notebook": "calendar/Week_04.ipynb"
+      "notebook": "notebooks/Week_04.ipynb"
     },
     {
       "week": 5,
@@ -81,7 +81,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Work, kinetic energy, net-work theorem and power; potential/conservation energy begins in week08",
-      "notebook": "calendar/Week_05.ipynb"
+      "notebook": "notebooks/Week_05.ipynb"
     },
     {
       "week": 6,
@@ -100,7 +100,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Review only the units, motion, forces and work/kinetic-energy material already taught; 29 October holiday week",
-      "notebook": "calendar/Week_06.ipynb"
+      "notebook": "notebooks/Week_06.ipynb"
     },
     {
       "week": 7,
@@ -113,7 +113,7 @@ window.PHY101_CALENDAR = {
       "modules": [],
       "support_modules": [],
       "scope": "No new topic; use the review notebook and the announced examination arrangements",
-      "notebook": "calendar/Week_07.ipynb"
+      "notebook": "notebooks/Week_07.ipynb"
     },
     {
       "week": 8,
@@ -128,7 +128,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Gravitational/spring potential, conservative forces and energy accounting, including dissipative work",
-      "notebook": "calendar/Week_08.ipynb"
+      "notebook": "notebooks/Week_08.ipynb"
     },
     {
       "week": 9,
@@ -143,7 +143,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Impulse, momentum conservation and elastic/inelastic collisions",
-      "notebook": "calendar/Week_09.ipynb"
+      "notebook": "notebooks/Week_09.ipynb"
     },
     {
       "week": 10,
@@ -160,7 +160,7 @@ window.PHY101_CALENDAR = {
         5
       ],
       "scope": "Angular kinematics, radian conversion and moment of inertia; torque-driven dynamics follows in week11",
-      "notebook": "calendar/Week_10.ipynb"
+      "notebook": "notebooks/Week_10.ipynb"
     },
     {
       "week": 11,
@@ -177,7 +177,7 @@ window.PHY101_CALENDAR = {
         10
       ],
       "scope": "Torque, angular acceleration, rotational energy and rolling",
-      "notebook": "calendar/Week_11.ipynb"
+      "notebook": "notebooks/Week_11.ipynb"
     },
     {
       "week": 12,
@@ -192,7 +192,7 @@ window.PHY101_CALENDAR = {
       ],
       "support_modules": [],
       "scope": "Centre of mass, force balance, torque balance and choosing a pivot",
-      "notebook": "calendar/Week_12.ipynb"
+      "notebook": "notebooks/Week_12.ipynb"
     },
     {
       "week": 13,
@@ -209,7 +209,7 @@ window.PHY101_CALENDAR = {
         12
       ],
       "scope": "Spring-mass motion, pendulum period, energy and initial conditions; damping as an optional extension",
-      "notebook": "calendar/Week_13.ipynb"
+      "notebook": "notebooks/Week_13.ipynb"
     }
   ],
   "extension_modules": [
@@ -235,5 +235,38 @@ window.PHY101_CALENDAR = {
     "12": "2026-12-18",
     "13": "2026-12-18",
     "14": "2026-12-18"
-  }
+  },
+  "extensions": {
+    "5": {
+      "notebook": "extensions/Circular_Motion.ipynb",
+      "title_en": "Circular motion",
+      "title_tr": "Dairesel hareket",
+      "supports_week": 10
+    },
+    "10": {
+      "notebook": "extensions/Angular_Momentum.ipynb",
+      "title_en": "Angular momentum",
+      "title_tr": "Açısal momentum",
+      "supports_week": 11
+    },
+    "12": {
+      "notebook": "extensions/Resonance.ipynb",
+      "title_en": "Forced oscillations and resonance",
+      "title_tr": "Zorlanmış salınımlar ve rezonans",
+      "supports_week": 13
+    },
+    "13": {
+      "notebook": "extensions/Waves_and_Sound.ipynb",
+      "title_en": "Mechanical waves and sound",
+      "title_tr": "Mekanik dalgalar ve ses",
+      "supports_week": null
+    },
+    "14": {
+      "notebook": "extensions/Review_and_Projects.ipynb",
+      "title_en": "Course review and mini-projects",
+      "title_tr": "Genel tekrar ve mini projeler",
+      "supports_week": null
+    }
+  },
+  "edition": "2026-09-12 — one notebook per week; source modules merged"
 };

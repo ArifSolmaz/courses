@@ -385,7 +385,7 @@
     .objectives-grid { grid-template-columns: 1fr; }
   }
 
-  /* Calendar lessons and the separate topic-resource library */
+  /* Weekly notebooks and the optional extension notebooks */
   .main { min-width: 0; }
   .week-date { display: block; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.22rem; }
   .calendar-kind { color: var(--phy-blue); }
@@ -449,10 +449,10 @@
 <header class="topbar">
   <div class="topbar-logo">PHY<span>101</span></div>
   <div class="topbar-pills">
-    <span class="pill orange">13 Calendar Weeks &middot; Physics Lectures</span>
+    <span class="pill orange">13 Weeks &middot; One notebook per week</span>
     <span class="pill">Paper &middot; Calculator &middot; Optional plots</span>
-    <span class="pill green">60 additional worked examples</span>
-    <span class="pill blue" title="Worked examples, full-width tables and compact figures with numerical readouts">Notes updated &middot; 11 September 2026</span>
+    <span class="pill green">Every week: worked examples + 10-problem set with answers</span>
+    <span class="pill blue" title="Source modules merged into the weekly notebooks; responsive demonstration controls">Notes updated &middot; 12 September 2026</span>
     <span class="pill blue">Calculus-Based Physics I</span>
     <span class="pill green">Core: Model &rarr; Predict &rarr; Verify</span>
     <span class="pill green">140 Worked Physics Solutions &middot; L1/L2/L3</span>
@@ -466,7 +466,7 @@
 
   <nav class="sidebar" id="calendar-navigation" aria-label="Weekly course navigation"></nav>
   <main class="main" id="course-content">
-    <noscript><p>This dashboard needs JavaScript to show the calendar. <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/calendar/Week_01.ipynb" target="_blank" rel="noopener">Open Week 01 in Colab</a> or read the <a href="PHY101_Syllabus.html">syllabus</a>.</p></noscript>
+    <noscript><p>This dashboard needs JavaScript to show the calendar. <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_01.ipynb" target="_blank" rel="noopener">Open Week 01 in Colab</a> or read the <a href="PHY101_Syllabus.html">syllabus</a>.</p></noscript>
   </main>
 </div>
 
@@ -818,10 +818,10 @@ function solutionCard(n) {
     <span class="sol-pnum">${escapeHTML(r.p)}</span><span class="sol-title">${r.title===r.p?'Complete worked solution':escapeHTML(r.title)}
     <span class="sol-tech">${escapeHTML(r.tech)}</span></span></li>`).join('');
   return `<div class="nb-card solutions" data-solution-module="${n}">
-    <div class="nb-type">📐 Module ${pad(n)} · all ${rows.length} worked problems</div>
+    <div class="nb-type">📐 Solution file ${pad(n)} · all ${rows.length} problems, every subpart</div>
     <div class="nb-heading">Physics → Algebra → Answer with units</div>
-    <div class="sol-note">Every numbered problem and subpart includes the principle, equation, calculation and physical check.
-      Python is optional. ${n===14?'All three capstone projects also have worked walkthroughs.':''}</div>
+    <div class="sol-note">The weekly notebook labels each problem <em>Module ${pad(n)} Pn</em>; this is the matching complete solution file. Every numbered problem and subpart includes the principle, equation, calculation and physical check.
+      Python is optional. ${n===14?'All three mini-projects also have worked walkthroughs.':''}</div>
     <details><summary>Browse P1–P10</summary><ul class="sol-list">${items}</ul></details>
     <div class="nb-filename">solutions/${file}</div>
     ${solutionsReleased(n)
@@ -851,14 +851,15 @@ const weekNotes = {
   5:'This lesson stops at work and kinetic energy. Potential energy and energy conservation begin in week 8, after review and the midterm.',
   6:'A built-in review week: revisit earlier calculations and questions. Use the holiday-adjusted class time; no new chapter or additional full problem set is assigned here.',
   7:'The supplied schedule names a midterm week, not an exact exam date or time. Follow the separately announced examination arrangements. No new teaching topic is added.',
-  10:'Begin with angular motion and inertia. Torque-driven dynamics follows in week 11; supporting circular-motion material is available in the resource library.',
+  10:'Begin with angular motion and inertia. Torque-driven dynamics follows in week 11; the optional circular-motion notebook supports this week.',
   11:'Connect torque, angular acceleration and rotational energy. Use a force diagram and the rolling constraint to connect translation with rotation. Periodic motion follows in week 13.',
-  12:'Joining for the final lessons? The weekly notebook includes a prerequisite recap and applications shared across Computer, Software, Mechanical and Mechatronics Engineering.',
+  12:'Joining for the final lessons? The weekly notebook includes a prerequisite recap and application questions for Mechatronics, Computer and Chemical Engineering.',
   13:'Periodic motion is the final scheduled topic. Damping, resonance, waves and capstone projects remain available as extensions; they are not additional calendar weeks.'
 };
 
-function moduleChips(numbers) {
-  return numbers.map(n=>`<a href="#module-${n}" data-resource="${n}">Module ${pad(n)} · ${moduleResources[n].title}</a>`).join('');
+function extensionLinks(numbers) {
+  return numbers.filter(n=>CALENDAR.extensions[String(n)]).map(n=>{const x=CALENDAR.extensions[String(n)];
+    return `<a href="#extensions" data-panel-link="extensions">Optional: ${escapeHTML(x.title_en)} / ${escapeHTML(x.title_tr)}</a>`;}).join('');
 }
 function timeline(current) {
   return CALENDAR.weeks.map(w=>`<button type="button" class="tm-dot${w.week===current?' current':''}" data-panel="week-${w.week}"
@@ -880,51 +881,45 @@ function weeklyPanel(w) {
     <div class="objectives-grid">${goals}</div>
     <div class="notebooks-grid">
       <div class="nb-card lecture" data-weekly-notebook="${w.week}">
-        <div class="nb-type">📓 ${w.kind==='midterm'?'Midterm-week guide':w.kind==='review'?'Review notebook':'One weekly physics lesson'}</div>
+        <div class="nb-type">📓 ${w.kind==='midterm'?'Midterm-week guide':w.kind==='review'?'Review notebook':'The one notebook for this week'}</div>
         <div class="nb-heading">${escapeHTML(w.title_en)}</div>
-        <div class="card-copy">${w.kind==='midterm'?'Examination-week scope and preparation; no new topic.':'Explanations, hand-worked algebra, examples and practice selected for this calendar week. Paper and a calculator are enough.'}</div>
+        <div class="card-copy">${w.kind==='midterm'?'Examination-week scope and preparation; no new topic.':w.kind==='review'?'Three fully solved review routes and five review problems with step-by-step answers.':'Everything for the week in one file: concepts with worked algebra, interactive checks, worked examples from the question bank, and the full problem set with step-by-step answers. Paper and a calculator are enough.'}</div>
         <div class="nb-filename">${escapeHTML(w.notebook)}</div>
         <div class="button-row"><a class="nb-btn weekly-notebook-link" href="${colabLink(w.notebook)}" target="_blank" rel="noopener" aria-label="Open Week ${pad(w.week)} in Colab">Open in Colab</a>
           <a class="nb-btn secondary" href="../${escapeHTML(w.notebook)}" download aria-label="Download Week ${pad(w.week)} notebook">Download notebook</a></div>
       </div>
     </div>
-    ${w.modules.length?`<div class="section-title">${w.kind==='review'?'Earlier topic resources for review':'Topic resources and complete solutions'}</div>
-      <p class="card-copy">The weekly notebook above sets this lesson’s scope. Open a source module below for further examples and its complete problem solutions.</p>
-      <div class="resource-links">${moduleChips(w.modules)}</div>`:''}
-    ${w.support_modules.length?`<div class="section-title">Supporting reading / Yardımcı okuma</div><div class="resource-links">${moduleChips(w.support_modules)}</div>`:''}
+    ${w.modules.length&&w.kind==='teaching'?`<div class="section-title">Complete solution files for this week’s problems / Tam çözüm dosyaları</div>
+      <p class="card-copy">Each problem in the notebook already has a step-by-step answer. The full solution files (all subparts, optional Python) open on the dates below.</p>
+      <div class="weekly-grid">${w.modules.map(solutionCard).join('')}</div>`:''}
+    ${extensionLinks(w.support_modules)?`<div class="section-title">Optional extension notebook / İsteğe bağlı ek not</div><div class="resource-links">${extensionLinks(w.support_modules)}</div>`:''}
     ${w.kind==='midterm'?'<div class="resource-links"><a href="#week-6" data-panel-link="week-6">Return to week 6 review</a></div>':''}
-    <div class="calendar-note" lang="tr">Önce bu haftanın notunu aç: şekli çiz, denklemi kur, cebir adımlarını göster ve birimi kontrol et. Kaynak modüller ek açıklama içindir; her biri ayrı bir takvim haftası değildir.</div>
+    <div class="calendar-note" lang="tr">Bu haftanın tek notu yukarıdadır: şekli çiz, denklemi kur, cebir adımlarını göster ve birimi kontrol et. Her problemin adım adım yanıtı notun içindedir.</div>
   </section>`;
 }
 
-function resourcesPanel() {
-  const cards=moduleResources.slice(1).map(m=>{
-    const extension=CALENDAR.extension_modules.includes(m.num);
-    const uses=CALENDAR.weeks.filter(w=>w.kind==='teaching'&&w.modules.includes(m.num)).map(w=>w.week);
-    const where=extension?'Supporting / extension material':`Used in calendar ${uses.length===1?'week':'weeks'} ${uses.join(', ')}`;
-    const topics=m.topics.map(t=>`<li>${Array.isArray(t)?t[0]:t}</li>`).join('');
-    const code=[m.codeLeft,m.codeRight].filter(Boolean).map(c=>`<details><summary>Optional Python check: ${c.title}</summary><pre class="code-snippet">${c.code.replace(/<\/pre>\s*(<\/details>)?\s*$/,'')}</pre></details>`).join('');
-    return `<section class="resource-section" id="module-${m.num}" data-resource-module="${m.num}">
-      <h2>Module ${pad(m.num)} · ${m.title}</h2><div class="nb-duration">${where}</div>
+function extensionsPanel() {
+  const cards=Object.entries(CALENDAR.extensions).map(([key,x])=>{
+    const n=Number(key);
+    const where=x.supports_week?`Supports week ${pad(x.supports_week)}`:'Beyond the scheduled calendar';
+    return `<section class="resource-section" id="extension-${n}">
+      <h2>${escapeHTML(x.title_en)}<br><em lang="tr">${escapeHTML(x.title_tr)}</em></h2><div class="nb-duration">${where} · problems labelled Module ${pad(n)}</div>
       <div class="weekly-grid"><div class="nb-card lecture">
-        <div class="nb-type">📚 Topic resource</div><div class="nb-heading">${m.heading}</div>
-        <div class="nb-filename">notebooks/${m.filename}</div>
-        <ul class="nb-topics">${topics}</ul>
-        <div class="button-row"><a class="nb-btn" href="${colabLink('notebooks/'+m.filename)}" target="_blank" rel="noopener" aria-label="Open Module ${pad(m.num)} in Colab">Open in Colab</a>
-          <a class="nb-btn secondary" href="../notebooks/${m.filename}" download aria-label="Download Module ${pad(m.num)} notebook">Download notebook</a></div>
-      </div>${solutionCard(m.num)}</div>
-      <details class="module-code"><summary>Optional computational examples for this topic</summary>${code}</details>
+        <div class="nb-type">📚 Optional extension notebook</div><div class="nb-heading">${escapeHTML(x.title_en)}</div>
+        <div class="card-copy">Concepts, interactive checks, worked examples and a 10-problem set with step-by-step answers. Not a scheduled week.</div>
+        <div class="nb-filename">${escapeHTML(x.notebook)}</div>
+        <div class="button-row"><a class="nb-btn" href="${colabLink(x.notebook)}" target="_blank" rel="noopener" aria-label="Open ${escapeHTML(x.title_en)} in Colab">Open in Colab</a>
+          <a class="nb-btn secondary" href="../${escapeHTML(x.notebook)}" download aria-label="Download ${escapeHTML(x.title_en)} notebook">Download notebook</a></div>
+      </div>${solutionCard(n)}</div>
     </section>`;
   }).join('');
-  return `<section class="week-panel" id="resources"><header class="week-header"><div class="week-header-left">
-    <div class="week-tag">Topic library · 14 modules · 140 worked problems</div>
-    <h1 class="week-heading" tabindex="-1">Resources and complete solutions<br><em lang="tr">Kaynaklar ve tam çözümler</em></h1>
-    <p class="week-desc">Use the 13 calendar lessons for the teaching sequence. These original topic notebooks provide deeper explanations, practice and optional extensions.</p>
+  return `<section class="week-panel" id="extensions"><header class="week-header"><div class="week-header-left">
+    <div class="week-tag">Optional · ${Object.keys(CALENDAR.extensions).length} extension notebooks</div>
+    <h1 class="week-heading" tabindex="-1">Optional extension notebooks<br><em lang="tr">İsteğe bağlı ek notlar</em></h1>
+    <p class="week-desc">The 13 weekly notebooks are the course. These five notebooks add circular motion, angular momentum, resonance, waves and sound, and a course review with mini-projects for students who want more.</p>
     </div></header>
-    <div class="calendar-intro"><p>Each module includes solutions to all ten numbered problems and every subpart. Module 14 also includes three capstone project walkthroughs.</p>
-      <p>Solution release dates follow the last scheduled use of a core topic; full extension sets open at term end. Dates use Istanbul time.</p>
-      <p lang="tr">Takvim haftası ile kaynak modül numarası farklıdır. Örneğin iş–enerji modülü, takvimin 5. ve 8. haftalarında bölünerek kullanılır.</p></div>
-    <div class="resource-links">${moduleChips(moduleResources.slice(1).map(m=>m.num))}</div>${cards}</section>`;
+    <div class="calendar-intro"><p>Each extension has the same structure as a weekly notebook. Its solution file opens at term end.</p>
+      <p lang="tr">Bu notlar takvimde ayrı bir hafta değildir; ilgili haftadan sonra ek okuma ve alıştırma için kullanılır.</p></div>${cards}</section>`;
 }
 function overviewPanel() {
   const rows=CALENDAR.weeks.map(w=>`<tr><td>${pad(w.week)}<br>${escapeHTML(dateRange(w))}</td>
@@ -932,17 +927,17 @@ function overviewPanel() {
     <td><div class="button-row"><a class="nb-btn" href="${colabLink(w.notebook)}" target="_blank" rel="noopener" aria-label="Open Week ${pad(w.week)} in Colab">Open in Colab</a>
       <a class="nb-btn secondary" href="../${escapeHTML(w.notebook)}" download aria-label="Download Week ${pad(w.week)} notebook">Download notebook</a></div></td></tr>`).join('');
   return `<section class="week-panel" id="overview"><header class="week-header"><div class="week-header-left">
-    <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 calendar weeks</div>
+    <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 weeks · one notebook each</div>
     <h1 class="week-heading" tabindex="-1">Physics lecture calendar<br><em lang="tr">Fizik ders takvimi</em></h1>
-    <p class="week-desc">Follow the weekly lecture sequence, including review and the midterm. Choose Open in Colab to read a notebook online; Download notebook saves a copy for Jupyter.</p></div></header>
+    <p class="week-desc">One notebook per week covers that week completely: concepts, interactive checks, worked examples and the problem set with step-by-step answers. Choose Open in Colab to read it online; Download notebook saves a copy for Jupyter.</p></div></header>
     <div class="overview-wrap"><table class="calendar-overview"><thead><tr><th>Week / Dates</th><th>Lecture / Ders</th><th>Weekly notebook / Haftalık not</th></tr></thead><tbody>${rows}</tbody></table></div>
     <div class="calendar-note" lang="tr">Haftalık notu tarayıcıda okumak için “Open in Colab” bağlantısını kullan. “Download notebook” dosyayı bilgisayarına indirir. Notları okumak için Python yazman gerekmez.</div>
     </section>`;
 }
 
 function showPanel(key, updateHash=true) {
-  const moduleMatch=/^module-(\d+)$/.exec(key);
-  const panelKey=moduleMatch?'resources':key;
+  const moduleMatch=/^(?:module|extension)-(\d+)$/.exec(key);
+  const panelKey=moduleMatch?'extensions':key;
   const panel=document.getElementById(panelKey);
   if(!panel||!panel.classList.contains('week-panel'))return;
   document.querySelectorAll('.week-panel').forEach(p=>p.classList.toggle('active',p===panel));
@@ -968,11 +963,10 @@ function buildDashboard() {
     <div class="sidebar-phase">Scheduled weeks / Takvim</div>
     ${CALENDAR.weeks.map(w=>`<button type="button" class="week-btn" data-panel="week-${w.week}" title="Week ${w.week}: ${escapeHTML(w.title_en)} · ${escapeHTML(dateRange(w))}" aria-label="Week ${w.week}: ${escapeHTML(w.title_en)}">
       <span class="week-num">W${pad(w.week)}</span><span class="week-title">${escapeHTML(w.title_en)}<small class="week-date">${escapeHTML(dateRange(w))}</small></span></button>`).join('')}
-    <div class="sidebar-phase">Practice + Extensions</div>
-    <button class="week-btn" type="button" data-panel="resources" title="Topic library and all 140 solutions" aria-label="Resources and all 140 worked solutions"><span class="week-num">📚</span><span class="week-title">Resources + all solutions<small class="week-date">14 topic modules · P1–P10 each</small></span></button>`;
-  document.getElementById('course-content').innerHTML=overviewPanel()+CALENDAR.weeks.map(weeklyPanel).join('')+resourcesPanel();
+    <div class="sidebar-phase">Optional</div>
+    <button class="week-btn" type="button" data-panel="extensions" title="Optional extension notebooks" aria-label="Optional extension notebooks"><span class="week-num">📚</span><span class="week-title">Extension notebooks<small class="week-date">5 optional topics · not scheduled weeks</small></span></button>`;
+  document.getElementById('course-content').innerHTML=overviewPanel()+CALENDAR.weeks.map(weeklyPanel).join('')+extensionsPanel();
   document.querySelectorAll('[data-panel]').forEach(b=>b.addEventListener('click',()=>showPanel(b.dataset.panel)));
-  document.querySelectorAll('[data-resource]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();showPanel('module-'+a.dataset.resource);}));
   document.querySelectorAll('[data-panel-link]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();showPanel(a.dataset.panelLink);}));
   window.addEventListener('hashchange',()=>showPanel(window.location.hash.slice(1)||'overview',false));
   showPanel(window.location.hash.slice(1)||'overview',false);

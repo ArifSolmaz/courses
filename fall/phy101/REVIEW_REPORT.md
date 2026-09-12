@@ -1,5 +1,19 @@
 # PHY101 notebook and solutions review
 
+## Single-notebook edition — 12 September 2026
+
+**What changed.** The course had two notebooks per week: a 14-file source-module library in `notebooks/` and 13 generated dated lessons in `calendar/`, both linked from the dashboard. They are merged into **one complete notebook per week** (`notebooks/Week_01.ipynb` … `Week_13.ipynb`) and five optional `extensions/` notebooks (circular motion, angular momentum, resonance, waves and sound, review and projects). The builder, the question-bank JSON and the two verification records of the old pipeline are removed; everything lives in the notebooks and in git history (commit `2ad4750`).
+
+**Coverage.** An automated audit during the merge confirmed that every teaching cell of the 14 modules (theory, demonstrations, checkpoints, worked examples, the 60 question-bank examples) appears exactly once across the 18 notebooks, and that all 90 problems of the nine core modules appear exactly once in the weekly notebooks (weeks 06 and 07 reuse five review problems). Split modules are assigned by topic: Module 04 P1/P3 with the Newton introduction in Week 03 and P2, P4–P10 in Week 04; Module 06 P1, P2, P4, P8 in Week 05 and P3, P5–P7, P9, P10 in Week 08; Module 09 P1–P2 in Week 10 (with two supporting circular-motion problems) and P3–P10 in Week 11.
+
+**Structure.** Every notebook follows the same numbered sections with a linked table of contents: before you start → setup → concepts with demonstrations and worked examples → question-bank examples → problem set (L1/L2/L3, answers under *Answer and steps*) → exit check → solutions and next week. Checkpoints keep their model answers, now collapsed; separate model-answer and “your working” cells were folded into the question cells.
+
+**Demonstration controls.** The shared interface was rewritten. Root cause of the earlier “sometimes unresponsive” sliders: the old interface drew inside `IPython.utils.capture.capture_output`, which swaps the kernel’s display publisher; ipykernel 7 dispatches widget messages concurrently, so a slider message arriving during a draw raised `AttributeError: 'CapturingDisplayPublisher' object has no attribute 'set_parent'` inside the kernel’s shell loop, after which no further widget message was processed. The new interface draws through the standard Output-widget route (`clear_output(wait=True)` then display), shows an **Updating…** status immediately, reports the draw time, and switches each demonstration between live-drag updates and update-on-release from measured draw times. Sliders no longer default to release-only. The Colab custom widget manager is no longer enabled (core ipywidgets work natively in Colab).
+
+**Verification.** All 18 notebooks validate against the notebook schema and execute in fresh kernels (`tools/validate_notebooks.py`); after execution one control of every demonstration panel (53 panels) was moved and every panel redrew without error. Typical draw times are 0.07–0.25 s; the seven animation-rebuilding demonstrations take 2–5 s and run in release mode. A live JupyterLab check confirmed a front-end control change reaching the kernel and triggering a redraw with no kernel error; the browser pane could not be displayed during that session, so the repaint itself was verified through the kernel record rather than visually. Google Colab execution was not exercised. Dashboard and syllabus links point only at the 13 weekly notebooks and the 5 extension notebooks; `tools/sync_calendar.py --check --public-only` passes.
+
+The sections below describe the earlier two-notebook editions and are kept as a record.
+
 Reviewed 11 September 2026 against the local course notes, the lecture column of the supplied schedule image, and the separate `phy101-solutions` repository.
 
 ## Additional fully worked examples — current revision

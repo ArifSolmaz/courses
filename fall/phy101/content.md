@@ -2,31 +2,40 @@
 
 **Teaching calendar:** 13 weeks, 21 September–18 December 2026. The lecture column of the supplied schedule defines the course sequence: 11 topic weeks, one review week and one midterm week.
 
-**Main course materials:** the 13 weekly notebooks in [calendar/](calendar/), each assembled around its actual dated lecture topic. The fourteen original notebooks in [notebooks/](notebooks/) remain a source and extension library. Start with the calendar notebook for the teaching week. On the [course dashboard](web/PHY101_Course_Dashboard.html), choose **Open in Colab** to read and run it in the browser. **Download notebook** saves the `.ipynb` file for local use; it is a separate action.
+**Course materials: one notebook per week.** The 13 files in [notebooks/](notebooks/) are the complete course. Each weekly notebook contains, in the same order every week:
 
-**Audience:** Computer Engineering and Mechatronics Engineering. The final four calendar weeks also support colleagues teaching Software Engineering and Mechanical Engineering. The physical laws, algebra and standards of explanation are shared across all four groups.
+1. **Before you start** — retrieval question, learning objectives and the algebra bridge for the topic.
+2. **Setup for the interactive graphs** — two cells to run once per session.
+3. **Concepts, demonstrations and worked examples** — the theory with hand-worked algebra, the interactive checks placed next to the idea they illustrate, Think·Pair·Explain checkpoints with model answers, and the worked examples.
+4. **More worked examples from the question bank** — fully solved examples with units, checks and Turkish notes.
+5. **Problem set with step-by-step answers** — the complete set for the week, grouped as core (L1), intermediate (L2) and challenge (L3); every problem has its answer and steps hidden under *Answer and steps*.
+6. **Exit check and model responses**, then the solution-file release dates and next week’s topic.
+
+On the [course dashboard](web/PHY101_Course_Dashboard.html), choose **Open in Colab** to read and run a notebook in the browser. **Download notebook** saves the `.ipynb` file for local Jupyter.
+
+**Türkçe:** Her hafta için tek bir not vardır ve o haftanın tamamını kapsar: konu anlatımı, etkileşimli grafikler, çözümlü örnekler ve adım adım yanıtlı problem seti aynı dosyadadır. Ders sayfasındaki **Open in Colab** bağlantısı notu tarayıcıda açar; **Download notebook** dosyayı bilgisayarınıza indirir. Kod yazmak öğrenme hedefi değildir.
+
+**Audience:** the course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students together. The physical laws, algebra and standards of explanation are the same for all three departments; the application questions in Weeks 10–13 are posed from each department’s perspective.
 
 **Learning sequence:** draw → choose a physical principle → write the equation → rearrange → substitute with units → interpret and check. English explanations include short Turkish support. Students can solve on paper; Python and interactive plots are optional ways to check a prediction.
 
-**Türkçe:** Ders akışı artık ekteki takvimi izler. Çalışmaya o tarihe ait haftalık nottan başlayın. Ders sayfasındaki **Open in Colab** bağlantısı notu tarayıcıda açar; **Download notebook** ise dosyayı bilgisayarınıza indirir. Kod yazmak öğrenme hedefi değildir; hesabın neden ve nasıl yapıldığını açıklamak önemlidir.
+## Weekly sequence
 
-## Adopted weekly sequence
-
-| Week | Dates (2026) | Lecture | Weekly notes |
+| Week | Dates (2026) | Lecture | Notebook |
 | --- | --- | --- | --- |
-| 01 | 21–25 September | Measurement, units, physical quantities and vectors / Ölçme ve birim sistemleri, fiziksel nicelikler ve vektörler | [Week 01](calendar/Week_01.ipynb) |
-| 02 | 28 September–2 October | Motion in one dimension / Bir boyutta hareket | [Week 02](calendar/Week_02.ipynb) |
-| 03 | 5–9 October | Motion in two dimensions and Newton’s laws / İki boyutta hareket ve Newton yasaları | [Week 03](calendar/Week_03.ipynb) |
-| 04 | 12–16 October | Friction and applications of Newton’s laws / Sürtünme kuvveti ve Newton hareket yasaları uygulamaları | [Week 04](calendar/Week_04.ipynb) |
-| 05 | 19–23 October | Work and kinetic energy / İş ve kinetik enerji | [Week 05](calendar/Week_05.ipynb) |
-| 06 | 26–30 October | Problem solving and review / Soru çözümü ve özet | [Week 06](calendar/Week_06.ipynb) |
-| 07 | 2–6 November | Midterm / Vize | [Week 07](calendar/Week_07.ipynb) |
-| 08 | 9–13 November | Potential energy and conservation of energy / Potansiyel enerji ve enerjinin korunumu | [Week 08](calendar/Week_08.ipynb) |
-| 09 | 16–20 November | Linear momentum, impulse and collisions / Doğrusal momentum, itme ve çarpışmalar | [Week 09](calendar/Week_09.ipynb) |
-| 10 | 23–27 November | Rotation of rigid bodies / Katı cisimlerin dönme hareketi | [Week 10](calendar/Week_10.ipynb) |
-| 11 | 30 November–4 December | Dynamics of rotational motion / Dönme hareketi dinamiği | [Week 11](calendar/Week_11.ipynb) |
-| 12 | 7–11 December | Equilibrium and centre of mass / Denge ve kütle merkezi | [Week 12](calendar/Week_12.ipynb) |
-| 13 | 14–18 December | Periodic motion / Periyodik hareket | [Week 13](calendar/Week_13.ipynb) |
+| 01 | 21–25 September | Measurement, units, physical quantities and vectors / Ölçme ve birim sistemleri, fiziksel nicelikler ve vektörler | [Week 01](notebooks/Week_01.ipynb) |
+| 02 | 28 September–2 October | Motion in one dimension / Bir boyutta hareket | [Week 02](notebooks/Week_02.ipynb) |
+| 03 | 5–9 October | Motion in two dimensions and Newton’s laws / İki boyutta hareket ve Newton yasaları | [Week 03](notebooks/Week_03.ipynb) |
+| 04 | 12–16 October | Friction and applications of Newton’s laws / Sürtünme kuvveti ve Newton hareket yasaları uygulamaları | [Week 04](notebooks/Week_04.ipynb) |
+| 05 | 19–23 October | Work and kinetic energy / İş ve kinetik enerji | [Week 05](notebooks/Week_05.ipynb) |
+| 06 | 26–30 October | Problem solving and review / Soru çözümü ve özet | [Week 06](notebooks/Week_06.ipynb) |
+| 07 | 2–6 November | Midterm / Vize | [Week 07](notebooks/Week_07.ipynb) |
+| 08 | 9–13 November | Potential energy and conservation of energy / Potansiyel enerji ve enerjinin korunumu | [Week 08](notebooks/Week_08.ipynb) |
+| 09 | 16–20 November | Linear momentum, impulse and collisions / Doğrusal momentum, itme ve çarpışmalar | [Week 09](notebooks/Week_09.ipynb) |
+| 10 | 23–27 November | Rotation of rigid bodies / Katı cisimlerin dönme hareketi | [Week 10](notebooks/Week_10.ipynb) |
+| 11 | 30 November–4 December | Dynamics of rotational motion / Dönme hareketi dinamiği | [Week 11](notebooks/Week_11.ipynb) |
+| 12 | 7–11 December | Equilibrium and centre of mass / Denge ve kütle merkezi | [Week 12](notebooks/Week_12.ipynb) |
+| 13 | 14–18 December | Periodic motion / Periyodik hareket | [Week 13](notebooks/Week_13.ipynb) |
 
 The supplied image gives lecture date ranges; the existing Tuesday lecture times and grading policy remain in force.
 
@@ -43,33 +52,26 @@ The supplied image gives lecture date ranges; the existing Tuesday lecture times
 - **Week 10:** describe rigid-body rotation with angular kinematics and moment of inertia. Connect radians and angular quantities to familiar linear motion.
 - **Week 11:** predict rotational motion with torque, inertia, rotational energy and rolling. Periodic motion, including the simple-pendulum model, is taught in Week 13.
 - **Week 12:** equilibrium and centre of mass, after rotation. Require both force and torque balance, using perpendicular lever arms.
-- **Week 13:** periodic motion. Derive the spring–mass model from Newton’s law and use the small-angle pendulum model with its assumptions.
+- **Week 13:** periodic motion. Derive the spring–mass model from Newton’s law and use the small-angle pendulum model with its assumptions. Damping is an optional section at the end of the notebook.
 
 ## Review and transition time inside the calendar
 
-Reserve 10–15 minutes at the start of Weeks 03, 08 and 10 for prerequisite recall, followed by a short worked example. Keep the scheduled Week 06 for review. In Weeks 10–13, begin with the relevant “Joining this lesson / Derse buradan başlayanlar” recap so colleagues’ classes can enter without prior notebook experience. Short checks after examples ask students to explain a sign, unit or limiting case; they do not add teaching weeks.
+Reserve 10–15 minutes at the start of Weeks 03, 08 and 10 for prerequisite recall, followed by a short worked example. Keep the scheduled Week 06 for review. In Weeks 10–13, begin with the “Joining this lesson / Derse buradan başlayanlar” recap in the notebook so students from any of the three departments can enter without prior notebook experience. Short checks after examples ask students to explain a sign, unit or limiting case; they do not add teaching weeks.
 
-## Source and extension library
+## Optional extension notebooks
 
-These module numbers are retained for problem identifiers and solution links. They are not another calendar.
+Five notebooks in [extensions/](extensions/) go beyond the scheduled weeks. They have the same structure as a weekly notebook and are listed on the dashboard under **Extension notebooks**. They are not additional calendar weeks.
 
-| Source module | Role in the adopted course |
-| --- | --- |
-| [01 — Units and vectors](notebooks/Week_01.ipynb) | Week 01 foundation and later reference |
-| [02 — 1D kinematics](notebooks/Week_02.ipynb) | Week 02, including free-fall calculations |
-| [03 — 2D motion](notebooks/Week_03.ipynb) | Week 03, including projectile calculations |
-| [04 — Newton’s laws and friction](notebooks/Week_04.ipynb) | Introductory laws in Week 03; applications in Week 04 |
-| [05 — Circular motion](notebooks/Week_05.ipynb) | Supporting force/rotation examples; no separate dated topic week |
-| [06 — Work and energy](notebooks/Week_06.ipynb) | Split between Week 05 work/kinetic energy and Week 08 potential/conservation |
-| [07 — Momentum](notebooks/Week_07.ipynb) | Week 09 |
-| [08 — Equilibrium and centre of mass](notebooks/Week_08.ipynb) | Week 12, after rotational dynamics |
-| [09 — Rotation](notebooks/Week_09.ipynb) | Split between Weeks 10 and 11 |
-| [10 — Angular momentum](notebooks/Week_10.ipynb) | Selected supporting rotational-conservation examples |
-| [11 — Periodic motion](notebooks/Week_11.ipynb) | Week 13: spring–mass and small-angle pendulum models |
-| [12 — Resonance](notebooks/Week_12.ipynb) | Optional oscillation extension |
-| [13 — Waves and sound](notebooks/Week_13.ipynb) | Optional wave/acoustics extension |
-| [14 — Review and projects](notebooks/Week_14.ipynb) | Optional synthesis examples and three project choices |
+| Notebook | Topic | Relation to the calendar |
+| --- | --- | --- |
+| [Circular_Motion](extensions/Circular_Motion.ipynb) | Centripetal acceleration, banked curves, loops, conical pendulum | Supports Week 10 |
+| [Angular_Momentum](extensions/Angular_Momentum.ipynb) | Angular momentum, gyroscopes, rotational collisions | Supports Week 11 |
+| [Resonance](extensions/Resonance.ipynb) | Driven damped oscillators, resonance curves, quality factor | Supports Week 13 |
+| [Waves_and_Sound](extensions/Waves_and_Sound.ipynb) | Travelling waves, superposition, standing waves, sound | Beyond the calendar |
+| [Review_and_Projects](extensions/Review_and_Projects.ipynb) | Formula review and three mini-projects | Beyond the calendar |
 
-Complete worked solutions cover all 140 source-module problems and all three source projects in the separate `phy101-solutions` repository. A calendar problem retains its source module and problem identifier so its solution is unambiguous. Public availability follows the configured release schedule; optional source modules do not create additional scheduled lessons.
+## Problem identifiers and complete solution files
 
-See [schedule implementation](SCHEDULE_ALIGNMENT.md), [the final-four-week teaching handoff](TEACHING_HANDOFF.md), and [the review and verification record](REVIEW_REPORT.md).
+Every problem keeps a stable identifier of the form **Module XX Pn** (for example *Module 06 P2* in Week 05). The number names the complete solution file `Week_XX_Python_Solutions.ipynb` in the separate `phy101-solutions` repository, not a calendar week. Module 04 is taught in Weeks 03–04, Module 06 in Weeks 05 and 08, and Module 09 in Weeks 10–11. Each solution file opens on the dashboard one week after the last lecture that uses it, capped at term end; the release dates come from [calendar.json](calendar.json). Until then the notebooks’ own *Answer and steps* blocks give the answer and the main steps.
+
+See [schedule implementation](SCHEDULE_ALIGNMENT.md), [the final-four-week teaching handoff](TEACHING_HANDOFF.md), [the maintenance guide](tools/README.md) and [the review and verification record](REVIEW_REPORT.md).

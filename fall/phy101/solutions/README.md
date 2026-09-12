@@ -2,15 +2,15 @@
 
 Complete solutions cover **all 140 numbered source-module problems and their subparts**, plus all three capstone projects. Read the principle, algebra, substitution with units and physical check before opening optional code.
 
-The main teaching sequence is the **13 dated weekly lessons** in the [course dashboard](../web/PHY101_Course_Dashboard.html). Existing `Week_XX_Python_Solutions.ipynb` filenames identify the fourteen **source modules**, so their numbers do not identify calendar weeks. Weekly notebooks label practice using “Module XX, Pn” to keep each solution easy to find. Choose **Open in Colab** on the dashboard to open a notebook in the browser; **Download notebook** saves a local copy.
+The course is the **13 weekly notebooks** on the [course dashboard](../web/PHY101_Course_Dashboard.html); each already contains a step-by-step answer for every problem. The `Week_XX_Python_Solutions.ipynb` filenames identify the fourteen **solution files** (the former source modules), so their numbers do not identify calendar weeks. Weekly notebooks label every problem “Module XX Pn” to keep each complete solution easy to find. Choose **Open in Colab** on the dashboard to open a notebook in the browser; **Download notebook** saves a local copy.
 
 ## Release dates aligned with the teaching calendar
 
 Core-module solutions open one week after that module’s final main teaching session, capped at 18 December 2026. Review does not reopen an already assigned problem set. Full extension-module solutions open at term end. Dates use Europe/Istanbul.
 
-Module 06 is split between calendar weeks 05 (work/kinetic energy) and 08 (potential/conservation energy); its complete solution file opens after the second part. Module 09 is split between calendar weeks 10 and 11. This keeps answers for later material within their scheduled release.
+Module 04 is split between weeks 03 and 04, Module 06 between weeks 05 (work/kinetic energy) and 08 (potential/conservation energy), and Module 09 between weeks 10 and 11; each complete solution file opens after its last part. The optional extension notebooks use files 05, 10, 12, 13 and 14.
 
-| Source module | Topic | Opens |
+| Solution file | Topic | Opens |
 | --- | --- | --- |
 | 01 | Units and vectors | 2026-09-29 |
 | 02 | One-dimensional motion | 2026-10-06 |
@@ -33,4 +33,4 @@ Before release the solution file is kept in the separate solutions repository an
 
 Use **diagram → principle → equation → algebra → values with units → check**. Cover the next algebra step and try it yourself. Then change one physical quantity and predict the effect. Python is an optional numerical or visual check.
 
-**Türkçe:** Takvim haftası ile kaynak modül numarası farklıdır. Haftalık notta “Module 06, P2” yazıyorsa, çözümü 06 numaralı çözüm dosyasında ara. Önce denklemin neden seçildiğini ve cebir adımlarını anlamaya çalış; kod yazmak gerekmez.
+**Türkçe:** Takvim haftası ile çözüm dosyası numarası farklıdır. Haftalık notta “Module 06 P2” yazıyorsa, tam çözümü 06 numaralı çözüm dosyasında ara; kısa yanıt ve adımlar zaten notun içindedir. Önce denklemin neden seçildiğini ve cebir adımlarını anlamaya çalış; kod yazmak gerekmez.

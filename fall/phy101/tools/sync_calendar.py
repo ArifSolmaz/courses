@@ -1,12 +1,11 @@
 """Keep the PHY101 browser calendar and private solution releases in agreement.
 
-Run with --write after editing calendar.json; run with --check to verify all
-derived files and dated weekly notebooks. Neither mode publishes anything.
+Run with --write after editing calendar.json; run with --check to verify the
+derived files and the weekly notebooks. Neither mode publishes anything.
 """
 import argparse
 from datetime import date, timedelta
 import json
-import re
 from pathlib import Path
 
 COURSE_ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +31,7 @@ def validate_calendar(calendar):
         start, end = date.fromisoformat(week["start"]), date.fromisoformat(week["end"])
         assert start.weekday() == 0 and end == start + timedelta(days=4)
         assert start == date(2026, 9, 21) + timedelta(weeks=index)
-        assert week["notebook"] == f"calendar/Week_{index + 1:02d}.ipynb"
+        assert week["notebook"] == f"notebooks/Week_{index + 1:02d}.ipynb"
         if week["kind"] == "midterm":
             assert week["session_date"] is None, "Do not invent an exact examination date"
         else:
@@ -50,41 +49,21 @@ def validate_calendar(calendar):
     }
     assert calendar["release_dates"] == expected, "Releases must follow final core teaching use"
     assert set(calendar["extension_modules"]) == set(range(1, 15)) - set(last_class)
+    for module, info in calendar["extensions"].items():
+        assert int(module) in calendar["extension_modules"], module
+        assert (COURSE_ROOT / info["notebook"]).is_file(), info["notebook"]
 
 
 def solution_calendar_note(calendar, module):
     main = [w for w in calendar["weeks"] if w["kind"] == "teaching" and module in w["modules"]]
     assignments = "; ".join(
-        f'calendar week {w["week"]:02d} ({w["start"]}–{w["end"]})' for w in main
-    ) if main else "supporting / extension material; no separate scheduled teaching week"
-    return f'''## Source module {module:02d} and the teaching calendar
+        f'week {w["week"]:02d} ({w["start"]}–{w["end"]})' for w in main
+    ) if main else "optional extension material; no scheduled teaching week"
+    return f'''## Solution file {module:02d} and the teaching calendar
 
-This file solves **Module {module:02d}, P1–P10**. Its legacy filename is kept for stable links; the module number is not a calendar-week number. Main teaching use: **{assignments}**. Full-file public release: **{calendar['release_dates'][str(module)]}** (Europe/Istanbul).
+This file solves **Module {module:02d}, P1–P10**. Its filename is kept for stable links; the number identifies the solution file, not a calendar week. The weekly notebooks label every problem with this module number. Taught in: **{assignments}**. Public release: **{calendar['release_dates'][str(module)]}** (Europe/Istanbul).
 
-Use the dated weekly notebooks in `courses/fall/phy101/calendar/` for teaching order. They label each source problem by its module and number.
-
-**Türkçe:** Bu dosyanın numarası kaynak modülü gösterir. Takvim haftasındaki “Module {module:02d}, Pn” etiketini bu dosyadaki aynı problem numarasıyla eşleştir.
-'''
-
-
-def source_calendar_note(calendar, module):
-    main = [w for w in calendar["weeks"] if w["kind"] == "teaching" and module in w["modules"]]
-    supporting = [w for w in calendar["weeks"] if module in w["support_modules"]]
-    links = lambda rows: "; ".join(
-        f'[Calendar week {w["week"]:02d}: {w["title_en"]} — Open in Colab](https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/{w["notebook"]})'
-        for w in rows)
-    use = "Main teaching lessons: " + links(main) if main else "This is supporting / extension material, with no separate calendar week."
-    if supporting:
-        use += "\n\nSupporting reading for: " + links(supporting)
-    return f'''## Use the dated weekly lesson / Tarihli haftalık notu kullan
-
-This is **source module {module:02d}**. Its legacy filename keeps problem and solution links stable. The number identifies the source module; use the dated lessons for teaching order.
-
-{use}
-
-Start with the [course calendar](https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html) for the scheduled lesson. Problems here keep the identifier **Module {module:02d}, Pn**, matching the complete solution collection.
-
-**Türkçe:** Bu dosya konu kaynağıdır. Dersin tarihe göre düzenlenmiş akışı için yukarıdaki haftalık not bağlantısını kullan; çözüm ararken modül ve problem numarasını koru.
+**Türkçe:** Bu dosyanın numarası çözüm dosyasını gösterir. Haftalık nottaki “Module {module:02d} Pn” etiketini bu dosyadaki aynı problem numarasıyla eşleştir.
 '''
 
 
@@ -109,52 +88,35 @@ def main():
             private["_note"] = [
                 "Derived from courses/fall/phy101/calendar.json; change that calendar first.",
                 calendar["release_policy"],
-                "The 13 dated weekly lessons include a review week and a midterm week.",
-                "Legacy Week_XX_Python_Solutions filenames identify source modules, not calendar weeks.",
-                "Module 06 spans calendar weeks 05 and 08; module 09 spans 10 and 11.",
+                "The 13 weekly notebooks include a review week and a midterm week.",
+                "Week_XX_Python_Solutions filenames identify solution files (source modules), not calendar weeks.",
+                "Module 06 spans weeks 05 and 08; module 09 spans 10 and 11; module 04 spans 03 and 04.",
                 "Run courses/fall/phy101/tools/sync_calendar.py --write, then --check.",
             ]
         write_preserving_newlines(js_path, javascript)
         if private is not None:
             write_preserving_newlines(release_path, json.dumps(private, ensure_ascii=False, indent=2) + "\n")
-        for module in range(1, 15):
-            if private is not None:
+            for module in range(1, 15):
                 path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
                 book = json.loads(path.read_text(encoding="utf-8"))
                 book["cells"] = [c for c in book["cells"] if c.get("id") != "solution-calendar-alignment"]
                 book["cells"].insert(1, {"cell_type": "markdown", "id": "solution-calendar-alignment",
                     "metadata": {}, "source": solution_calendar_note(calendar, module).splitlines(keepends=True)})
                 write_preserving_newlines(path, json.dumps(book, ensure_ascii=False, indent=1) + "\n")
-            source_path = COURSE_ROOT / f"notebooks/Week_{module:02d}.ipynb"
-            source_book = json.loads(source_path.read_text(encoding="utf-8"))
-            source_book["cells"] = [c for c in source_book["cells"] if c.get("id") != "source-calendar-route"]
-            first = source_book["cells"][0]
-            if first["cell_type"] == "markdown":
-                title = "".join(first["source"])
-                title = re.sub(rf"^(#\s*)Week\s+0*{module}\b", rf"\1Source module {module:02d}", title)
-                first["source"] = title.splitlines(keepends=True)
-            route_index = 2 if len(source_book["cells"]) > 1 and source_book["cells"][1].get("id") == "phy101-reading-guide" else 1
-            source_book["cells"].insert(route_index, {"cell_type": "markdown", "id": "source-calendar-route",
-                "metadata": {}, "source": source_calendar_note(calendar, module).splitlines(keepends=True)})
-            write_preserving_newlines(source_path, json.dumps(source_book, ensure_ascii=False, indent=1) + "\n")
-        print("Updated public calendar and source labels." if args.public_only else "Updated browser calendar, release dates, and source/solution calendar labels. Nothing published.")
+        print("Updated the browser calendar." if args.public_only else "Updated browser calendar, release dates and solution labels. Nothing published.")
     else:
         assert js_path.read_text(encoding="utf-8") == javascript, "Browser calendar needs --write"
-        if private is not None:
-            assert private["releases"] == calendar["release_dates"], "Private releases need --write"
         for week in calendar["weeks"]:
             assert (COURSE_ROOT / week["notebook"]).is_file(), week["notebook"]
-        for module in range(1, 15):
-            if private is not None:
+        if private is not None:
+            assert private["releases"] == calendar["release_dates"], "Private releases need --write"
+            for module in range(1, 15):
                 path = args.solutions_root / private["source_dir"] / private["filename"].format(n=module)
                 book = json.loads(path.read_text(encoding="utf-8"))
                 notes = [c for c in book["cells"] if c.get("id") == "solution-calendar-alignment"]
                 assert len(notes) == 1 and "".join(notes[0]["source"]) == solution_calendar_note(calendar, module), path
-            source_path = COURSE_ROOT / f"notebooks/Week_{module:02d}.ipynb"
-            source_book = json.loads(source_path.read_text(encoding="utf-8"))
-            routes = [c for c in source_book["cells"] if c.get("id") == "source-calendar-route"]
-            assert len(routes) == 1 and "".join(routes[0]["source"]) == source_calendar_note(calendar, module), source_path
-        print("13 weekly lessons, browser data, and source labels agree." if args.public_only else "13 weekly lessons, review/midterm dates, browser data, and 14 release dates agree.")
+        print("13 weekly notebooks, extension notebooks and browser data agree." if args.public_only
+              else "13 weekly notebooks, browser data and 14 release dates agree.")
 
 
 if __name__ == "__main__":

@@ -1,99 +1,98 @@
 # Maintaining the PHY101 notebooks
 
-Students start from the thirteen dated lessons in `calendar/`. Their schedule comes
-from `calendar.json`, including lecture topics, review and the midterm. The fourteen
-files in `notebooks/` are the source-module library, with stable problem identifiers.
-The course dashboard uses **Open in Colab** as the primary notebook action and
-provides **Download notebook** separately. Check that each action targets the same
-week or source module whenever notebook paths change.
-Inside notebooks, keep course navigation and links to other lessons, but do not
-add an “Open in Colab” badge or link back to the notebook already being read.
+There is **one notebook per week**: `notebooks/Week_01.ipynb` … `Week_13.ipynb`, plus five optional
+`extensions/*.ipynb`. Edit the physics, examples and problems **directly in those files**; there is
+no separate source library and no build step. The course dashboard and syllabus read their calendar
+from `calendar.json` through the generated `web/phy101-calendar.js`.
 
-For lecture-content or notebook-link changes that keep solution release dates the
-same, run from the courses repository:
+Since 12 September 2026 the former fourteen source modules and the generated “calendar” lessons are
+merged into the weekly notebooks. The old files, the builder and the question-bank JSON remain in git
+history (commit `2ad4750` and earlier) if a past version is ever needed.
 
-```powershell
-python -B fall/phy101/tools/sync_calendar.py --write --public-only
-python -B fall/phy101/tools/build_calendar_notebooks.py
-python -B fall/phy101/tools/sync_calendar.py --check --public-only
-```
+## Weekly notebook structure
 
-The `--public-only` mode updates or checks the browser calendar and source-notebook
-routes without reading or writing the private solutions repository. The builder
-selects the material for each dated week; source-module numbers remain stable.
+Keep the section order the same in every week so students can navigate by the table of contents:
 
-When teaching assignments or release dates change, synchronize the private solution
-schedule as well:
+1. Title, dates, scope and “How to use this notebook”; a **Contents** cell with anchor links.
+2. Lesson plan (3 hours).
+3. **Before you start** — retrieval question, learning objectives, algebra bridge.
+4. **Setup for the interactive graphs (run once)** — the module setup cell(s) and the shared
+   interface cell (id `phy101-widget-layout`).
+5. **Concepts, demonstrations and worked examples** — theory, demos beside their concept,
+   checkpoints (model answers in `<details>`), worked examples.
+6. **More worked examples from the question bank**.
+7. **Problem set with step-by-step answers** — core (L1), intermediate (L2), challenge (L3); each
+   problem keeps its `Module XX Pn` identifier for the solution collection and hides its answer in
+   `<details><summary>Answer and steps …</summary>`.
+8. **Exit check** with model responses, optional extension link, solutions and next week.
 
-```powershell
-python -B fall/phy101/tools/sync_calendar.py --write
-python -B fall/phy101/tools/build_calendar_notebooks.py
-python -B fall/phy101/tools/sync_calendar.py --check
-```
+Headings: weekly sections are `##`, topics inside a section are `###`, sub-topics and problems `####`.
+Code cells stay collapsed (`#@title …`, Colab form view) so a reader sees a one-line run button.
 
-Full synchronization updates `web/phy101-calendar.js`, source-notebook routes, the
-private `phy101-solutions/schedule.json`, and calendar labels inside private solution
-notebooks. Use `--solutions-root PATH` if that repository is not beside `courses`.
-Neither synchronization mode nor the builder publishes files.
+## Interactive demonstrations
 
-Edit physics explanations and problems in the source notebooks. The private
-`phy101-solutions` repository holds the complete worked solutions until release.
+`physics_widgets.py` is the shared interface and is embedded verbatim in every notebook that has
+code. A demonstration is written as an ordinary plotting function plus `physics_interact(...)`
+with ipywidgets controls (the same arguments as `ipywidgets.interact`). Button-driven demos use
+`physics_panel(controls, output)`.
 
-Additional fully solved examples are authored in `../examples/worked_examples_*.json`.
-Run `sync_worked_examples.py` before rebuilding the dated lessons when changing them.
-Each example retains its bank chapter/section/question reference, and its
-`calendar_week` selects the relevant teaching week. The original question-bank
-Word files are not needed for rebuilding. See `../examples/README.md`.
+How it behaves:
 
-`physics_widgets.py` supplies the shared control/plot layout. Its code is embedded
-in every notebook so Colab needs no extra repository download. After changing it:
+* Every control change first shows **Updating…** in the status line under the controls, then the
+  graph is replaced through the same Output-widget route that `ipywidgets.interact` uses
+  (`clear_output(wait=True)` followed by the new figure). The old figure stays until the new one
+  arrives, so nothing disappears.
+* The status line reports the draw time. Graphs that draw in under about 0.12 s update **live while
+  dragging**; graphs that need more than about 0.25 s switch to **update on release**, so a fast
+  slider can never leave the kernel behind. The mode is decided per demonstration from measured
+  draw times, so it adapts to Colab and to slower laptops.
+* Do not wrap drawing in `IPython.utils.capture.capture_output` or replace `shell.display_pub`:
+  ipykernel 7 dispatches widget messages concurrently and the earlier capture-based interface
+  raised `AttributeError: 'CapturingDisplayPublisher' object has no attribute 'set_parent'`,
+  after which the kernel’s shell loop stopped and every slider went dead. That was the cause of
+  demonstrations that “sometimes did not respond”.
+* Keep figures small (about 8–12 inches wide at 100 dpi). Demonstrations that rebuild an animation
+  on every change (the 1-D collision, Newton’s cradle, spring–block energy, rolling and wave
+  animations) take 2–5 s per draw; they work, but they always run in release mode. Reducing their
+  frame count (`physics_frames(..., maximum=...)`) is the way to make them faster.
 
-```powershell
+After editing `physics_widgets.py`, re-embed it everywhere:
+
+```bash
 python -B fall/phy101/tools/refresh_notebook_interface.py
 ```
 
-This maintains the labelled reading guide, collapsed code metadata, a wrapping
-control toolbar above a full-width result, and text-based student working spaces. It preserves the lesson
-explanations and problem statements. It also clears old outputs and upgrades old
-notebook schemas to v4.5 for stable cell IDs. Rebuild the dated lessons afterward.
+This also clears stale outputs, keeps code collapsed, and converts plain pipe tables in Markdown
+cells to full-width HTML tables (Colab strips inline CSS and lays Markdown tables out with narrow
+columns, which breaks equations). Write new tables as pipe tables and run the script; existing
+HTML tables are left alone.
 
-The layout uses the documented [ipywidgets Layout](https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Layout.html)
-and [Interact](https://ipywidgets.readthedocs.io/en/stable/examples/Using%20Interact.html)
-APIs. Sliders update on release. Results use their natural height, with no nested
-vertical scrolling pane. Static GitHub previews cannot execute Python callbacks.
+## Calendar and solution release dates
 
-Slider results are captured as complete MIME records and assigned to a persistent
-Output widget after each callback completes. Avoid clearing the surrounding panel
-or replacing its controls during a redraw. When adding a demo, use ordinary inline
-figures, `display(HTML(...))`, or printed results; asynchronous displays and
-`display_id` updates need separate handling. Close displayed figures after use.
+`calendar.json` is the single source for dates, titles, the module numbers used in each week, the
+extension notebooks and the solution release dates. After changing it:
 
-For vector diagrams, put the plot and numeric table side by side in **one figure**,
-use a legend instead of labels at intersecting arrows, and calculate limits from all endpoints. Check
-zero, parallel, perpendicular, opposite, and maximum-length vectors. Preserve
-source cell IDs and subsection headings: the calendar builder selects by them.
-Add worked explanations inside the selected source cells so dated lessons inherit
-them. New optional demos need a deliberate entry in the builder's `LESSONS` map.
-
-`notebook_tables.py` formats Markdown table blocks as full-width HTML tables in both
-source modules and generated lessons. Colab strips inline CSS and lays ordinary
-Markdown tables out with narrow fixed columns; its math renderer can then split
-equations across lines. Preserve the tested table/column width attributes and math
-markup. Check representative tables in Colab itself after changing this formatter.
-
-Execute edited notebooks in fresh kernels and store QA outputs outside source:
-
-```powershell
-python -B fall/phy101/tools/validate_notebooks.py fall/phy101/calendar/Week_03.ipynb --output-dir "$env:TEMP/phy101-checks"
+```bash
+python -B fall/phy101/tools/sync_calendar.py --write --public-only
+python -B fall/phy101/tools/sync_calendar.py --check --public-only
 ```
 
-Dependencies: `nbformat`, `nbclient`, `ipykernel`, `numpy`, `matplotlib`, `scipy`,
-`sympy`, and `ipywidgets`. Also open representative notebooks in Jupyter/Colab,
-change controls, and check both desktop and narrow-screen layouts. Execution alone
-does not check whether controls, figures and numerical readouts fit together.
+Drop `--public-only` to also update the private `phy101-solutions` repository (its `schedule.json`
+and the calendar note in each solution file); use `--solutions-root PATH` if that repository is not
+beside `courses`. Nothing is published by these commands.
 
-The earlier screenshot-driven edition's execution hashes and verification scope are
-recorded in `../notebook_review_verification.json`; they describe that tested edition. Refresh the interface, rebuild lessons,
-check calendar synchronization, and execute the affected notebooks before updating
-that record. Also exercise repeated live slider updates; an initial visible plot
-alone does not establish that subsequent updates work.
+## Executing the notebooks for QA
+
+```bash
+python -B fall/phy101/tools/validate_notebooks.py fall/phy101/notebooks/Week_03.ipynb --output-dir /tmp/phy101-checks
+```
+
+Each notebook runs in a fresh kernel; afterwards one control of every demonstration is moved and the
+panel must redraw without an error. Results and executed copies go to the output directory; never
+store executed outputs in the source notebooks. The runner ignores nbclient’s Output-widget
+front-end emulation, which otherwise races with the kernel’s shell socket and stalls for the whole
+cell timeout.
+
+Dependencies: `nbformat`, `nbclient`, `ipykernel`, `numpy`, `matplotlib`, `scipy`, `sympy`,
+`ipywidgets`. Also open a notebook in Jupyter or Colab and move a few sliders: execution alone does
+not show whether controls, figures and readouts fit together on screen.
