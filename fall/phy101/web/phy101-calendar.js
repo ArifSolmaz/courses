@@ -80,7 +80,7 @@ window.PHY101_CALENDAR = {
         6
       ],
       "support_modules": [],
-      "scope": "Work, kinetic energy, net-work theorem and power; potential/conservation energy begins in week08",
+      "scope": "Work, kinetic energy, net-work theorem and power; potential/conservation energy begins in Week 08",
       "notebook": "notebooks/Week_05.ipynb"
     },
     {
@@ -159,7 +159,7 @@ window.PHY101_CALENDAR = {
       "support_modules": [
         5
       ],
-      "scope": "Angular kinematics, radian conversion and moment of inertia; torque-driven dynamics follows in week11",
+      "scope": "Angular kinematics, radian conversion and moment of inertia; torque-driven dynamics follows in Week 11",
       "notebook": "notebooks/Week_10.ipynb"
     },
     {
