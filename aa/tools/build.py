@@ -192,12 +192,9 @@ STUDIO = """
 def week_page(meta, body):
     num, title, summary, phase, question, chips = meta
     base = "../"
-    from build_guide import slug
-    guide_source = ROOT / "tools" / "guide" / "weeks" / f"w{num:02d}.md"
-    guide_heading = guide_source.read_text(encoding="utf-8").splitlines()[0].removeprefix("# ")
     guide_link = (
         f'<div class="note green"><p><strong>Need a slower walkthrough?</strong> '
-        f'<a href="../guide/#{slug(guide_heading)}">Open Week {num} in the detailed learning guide</a> '
+        f'<a href="../guide/w{num:02d}/">Open Week {num} in the detailed learning guide</a> '
         'for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>'
     )
     prev_link = (
@@ -343,7 +340,7 @@ def main():
         return 1
     from build_guide import build as build_guide
     build_guide()
-    print("\nOK — 14 weeks + capstone + home + detailed guide built.")
+    print("\nOK - 14 weeks + capstone + home + detailed guide built.")
     return 0
 
 

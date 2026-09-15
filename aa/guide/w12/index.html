@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Week 12 — Binary search, boundaries, and preparation | Algorithm Analysis Guide</title>
+  <link rel="stylesheet" href="../../assets/guide.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2325665c'/%3E%3Ctext x='32' y='41' font-size='28' text-anchor='middle' fill='white' font-family='Arial'%3EAA%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to guide content</a>
+  <header class="guide-header">
+    <a class="brand" href="../../">Algorithm Analysis <span>course guide</span></a>
+    <nav class="header-actions">
+      <a href="../../index.html">Course Home</a>
+      <a href="../">Guide</a>
+      <button id="theme" type="button">Dark theme</button>
+      <button id="print" type="button">Print</button>
+    </nav>
+  </header>
+  <div class="mobile-jump">
+    <label for="chapter">Guide page</label>
+    <select id="chapter" data-guide-select>
+      <option value="../">Guide Hub</option>
+<option value="../toolkit/">Toolkit</option>
+<option value="../bridges/">Bridge Notes</option>
+<option value="../w01/">Week 01</option>
+<option value="../w02/">Week 02</option>
+<option value="../w03/">Week 03</option>
+<option value="../w04/">Week 04</option>
+<option value="../w05/">Week 05</option>
+<option value="../w06/">Week 06</option>
+<option value="../w07/">Week 07</option>
+<option value="../w08/">Week 08</option>
+<option value="../w09/">Week 09</option>
+<option value="../w10/">Week 10</option>
+<option value="../w11/">Week 11</option>
+<option value="./" selected>Week 12</option>
+<option value="../w13/">Week 13</option>
+<option value="../w14/">Week 14</option>
+<option value="../reviews/">Reviews</option>
+    </select>
+  </div>
+  <main class="guide-layout" id="content">
+    <aside class="sidebar" aria-label="Guide pages">
+      <div class="eyebrow">Guide pages</div>
+      <h2>Algorithm Analysis</h2>
+      <label for="chapterSide">Guide page</label>
+      <select id="chapterSide" data-guide-select>
+        <option value="../">Guide Hub</option>
+<option value="../toolkit/">Toolkit</option>
+<option value="../bridges/">Bridge Notes</option>
+<option value="../w01/">Week 01</option>
+<option value="../w02/">Week 02</option>
+<option value="../w03/">Week 03</option>
+<option value="../w04/">Week 04</option>
+<option value="../w05/">Week 05</option>
+<option value="../w06/">Week 06</option>
+<option value="../w07/">Week 07</option>
+<option value="../w08/">Week 08</option>
+<option value="../w09/">Week 09</option>
+<option value="../w10/">Week 10</option>
+<option value="../w11/">Week 11</option>
+<option value="./" selected>Week 12</option>
+<option value="../w13/">Week 13</option>
+<option value="../w14/">Week 14</option>
+<option value="../reviews/">Reviews</option>
+      </select>
+      <nav>
+        <div class="nav-group-title">Start</div>
+<a href="../">Guide Hub</a>
+<a href="../toolkit/">Toolkit</a>
+<a href="../bridges/">Bridge Notes</a>
+<div class="nav-group-title">Weekly Guide Pages</div>
+<a href="../w01/">Week 01</a>
+<a href="../w02/">Week 02</a>
+<a href="../w03/">Week 03</a>
+<a href="../w04/">Week 04</a>
+<a href="../w05/">Week 05</a>
+<a href="../w06/">Week 06</a>
+<a href="../w07/">Week 07</a>
+<a href="../w08/">Week 08</a>
+<a href="../w09/">Week 09</a>
+<a href="../w10/">Week 10</a>
+<a href="../w11/">Week 11</a>
+<a href="./" aria-current="page">Week 12</a>
+<a href="../w13/">Week 13</a>
+<a href="../w14/">Week 14</a>
+<div class="nav-group-title">Review</div>
+<a href="../reviews/">Reviews</a>
+      </nav>
+    </aside>
+    <article class="reading">
+      <section class="guide-intro">
+        <span>Week 12</span>
+        <h1 id="week-12-binary-search-boundaries-and-preparation">Week 12 — Binary search, boundaries, and preparation</h1>
+        <p>Detailed teacher notes, original lesson link, analysis prompts, model solutions, and added timed-practice material.</p>
+      </section>
+      <div class="page-toc"><strong>On this page</strong><nav><a href="#the-big-question">The big question</a>
+<a href="#prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</a>
+<a href="#slow-concept-define-the-search-window-first">Slow concept — Define the search window first</a>
+<a href="#worked-example-1-a-hit-a-miss-and-an-empty-list">Worked example 1 — A hit, a miss, and an empty list</a>
+<a href="#halving-and-logarithms-one-arithmetic-step-at-a-time">Halving and logarithms, one arithmetic step at a time</a>
+<a href="#worked-example-2-does-sorting-first-pay">Worked example 2 — Does sorting first pay?</a>
+<a href="#a-second-boundary-convention-insertion-positions">A second boundary convention: insertion positions</a>
+<a href="#three-graduated-practice-problems">Three graduated practice problems</a>
+<a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div>
+      <section class="guide-chapter">
+        <p><a href="../../w12/index.html">Original lesson</a></p>
+<h2 id="the-big-question">The big question</h2>
+<p><strong>When is it safe to discard half the possible answers?</strong> Binary search works because sorted order lets a comparison rule out an entire region. The difficult part is not the middle calculation. It is knowing exactly what remains possible after each comparison.</p>
+<p>By the end, trace a successful search and an unsuccessful one, handle empty and one-item lists, explain logarithmic growth using powers of two, and compare complete strategies that include preparation. Use binary search for ordered questions without forgetting that inserting into a list still shifts items.</p>
+<p class="turkish"><strong>Türkçe:</strong> İkili arama “ortadakine bak” kuralından ibaret değildir. Asıl soru şudur: Bir karşılaştırmadan sonra hangi elemanların cevap olamayacağını kesin olarak biliyoruz? Liste sıralı değilse bir yarıyı güvenle silemeyiz. Hızın kaynağı bu mantıksal güvencedir.</p>
+<h2 id="prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
+<p>For <code>[10, 20, 30, 40, 50]</code>, write the first and last indices. Calculate <code>(0 + 4) // 2</code>. How many items remain if indices zero through two have been ruled out?</p>
+<p><strong>Answers:</strong> The first index is zero and the last is four. Integer division gives <code>4 // 2 = 2</code>, so the middle value is 30. The remaining indices are three and four: two candidates. Do not confuse the middle index 2 with the middle value 30.</p>
+<p>Now halve 16 repeatedly: <code>16 → 8 → 4 → 2 → 1</code>. Four halvings reach one. But reaching one candidate is different from checking that final candidate. This distinction explains several off-by-one counting mistakes.</p>
+<h2 id="slow-concept-define-the-search-window-first">Slow concept — Define the search window first</h2>
+<p>The lesson&#x27;s first binary search uses <strong>inclusive boundaries</strong>. Every possible answer is between indices low and high, including both ends. The initial window is <code>[0, n − 1]</code>, where n is list length. Its number of candidates is <code>high − low + 1</code> when low is no larger than high.</p>
+<p>Choose <code>middle = (low + high) // 2</code>. If the target equals the middle value, return that index. If it is smaller, all values at middle and to its right are too large, so set <code>high = middle − 1</code>. If it is larger, set <code>low = middle + 1</code>.</p>
+<p><strong>The tested middle is excluded after a mismatch.</strong> Otherwise, a one-item window might remain unchanged forever. Continue while <code>low &amp;lt;= high</code>; equality means one candidate remains and still deserves inspection. When low becomes greater than high, no candidate remains.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def binary_search(data, target):
+    low, high = 0, len(data) - 1
+    steps = 0
+    while low &lt;= high:
+        middle = (low + high) // 2
+        steps += 1
+        if data[middle] == target:
+            return middle, steps
+        if target &lt; data[middle]:
+            high = middle - 1
+        else:
+            low = middle + 1
+    return -1, steps
+
+assert binary_search([], 8) == (-1, 0)
+assert binary_search([8], 8) == (0, 1)
+assert binary_search([8], 7) == (-1, 1)
+print(binary_search([2, 5, 8, 12, 16, 23, 38, 56, 72, 91], 23))</code></pre></div>
+<p>The printed result is <code>(5, 3)</code>: index five, after three iterations. Here steps counts <strong>middle inspections</strong>, not every Boolean comparison executed by Python. Keep the counted operation consistent when comparing theory and measurements.</p>
+<p class="turkish"><strong>Türkçe:</strong> <code>low == high</code> olduğunda aralık boş değildir; tek aday vardır. Boş aralık <code>low &amp;gt; high</code> durumudur. Bir elemanı kontrol edip eşleşmediğini gördükten sonra aynı elemanı yeniden aday bırakmıyoruz. <code>+1</code> ve <code>−1</code> işlemlerinin mantığı budur.</p>
+<h2 id="worked-example-1-a-hit-a-miss-and-an-empty-list">Worked example 1 — A hit, a miss, and an empty list</h2>
+<p>Use the lesson&#x27;s sorted values <code>[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]</code>. Search for 23.</p>
+<div class="table-scroll"><table><thead><tr><th>Iteration</th><th>low</th><th>high</th><th>middle calculation</th><th>Middle value</th><th>Update</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>9</td><td>9 // 2 = 4</td><td>16</td><td>23 &gt; 16, so low = 5</td></tr><tr><td>2</td><td>5</td><td>9</td><td>14 // 2 = 7</td><td>56</td><td>23 &lt; 56, so high = 6</td></tr><tr><td>3</td><td>5</td><td>6</td><td>11 // 2 = 5</td><td>23</td><td>Found at index 5</td></tr></tbody></table></div>
+<p>The candidate counts are ten, five, then two. A match ends the search immediately; it does not have to use the maximum allowed number of steps.</p>
+<p>Now search for missing value 40 on exactly the same data.</p>
+<div class="table-scroll"><table><thead><tr><th>Iteration</th><th>low</th><th>high</th><th>middle</th><th>Middle value</th><th>Update</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>9</td><td>4</td><td>16</td><td>low = 5</td></tr><tr><td>2</td><td>5</td><td>9</td><td>7</td><td>56</td><td>high = 6</td></tr><tr><td>3</td><td>5</td><td>6</td><td>5</td><td>23</td><td>low = 6</td></tr><tr><td>4</td><td>6</td><td>6</td><td>6</td><td>38</td><td>low = 7</td></tr></tbody></table></div>
+<p>Now low is seven and high is six. The loop condition fails, so return <code>(-1, 4)</code>. This final condition check is not a fifth middle inspection. The number 40 would belong between 38 and 56, but this function returns only an existing position or the absent marker −1.</p>
+<p>For an empty list, low begins at zero and high begins at −1. The loop never runs. There is no attempt to read <code>data[0]</code>, and the result is <code>(-1, 0)</code>. Empty data is handled by the same boundary logic, not an accidental exception.</p>
+<h2 id="halving-and-logarithms-one-arithmetic-step-at-a-time">Halving and logarithms, one arithmetic step at a time</h2>
+<p>The statement <code>log₂ n = k</code> means <code>2ᵏ = n</code>. Thus <code>log₂ 8 = 3</code> because <code>2 × 2 × 2 = 8</code>. Doubling n adds one to its base-two logarithm. This is why going from roughly one million candidates to two million adds approximately one search iteration instead of one million.</p>
+<p>For this inclusive search, the maximum number of middle inspections is <strong>floor(log₂ n) + 1 for n &gt; 0</strong>, and zero for n = 0. “Floor” means round down. At n = 8, that maximum is <code>3 + 1 = 4</code>; a far-right target can take four inspections. The commonly used “round log₂ n up” shortcut misses this detail at powers of two.</p>
+<div class="table-scroll"><table><thead><tr><th>n</th><th>Nearby powers of two</th><th>Maximum inspections</th></tr></thead><tbody><tr><td>1</td><td>2⁰ = 1</td><td>1</td></tr><tr><td>8</td><td>2³ = 8</td><td>4</td></tr><tr><td>10</td><td>2³ &lt; 10 &lt; 2⁴</td><td>4</td></tr><tr><td>1,000</td><td>2⁹ &lt; 1,000 &lt; 2¹⁰</td><td>10</td></tr><tr><td>1,000,000</td><td>2¹⁹ &lt; 1,000,000 &lt; 2²⁰</td><td>20</td></tr></tbody></table></div>
+<p>Maximum does not mean every search uses that many steps. On <code>list(range(1_000_000))</code>, the exact lesson algorithm takes 20 inspections for 999,999, but 19 for 0 and for −5. A missing target can follow a shorter unsuccessful path.</p>
+<p class="turkish"><strong>Türkçe:</strong> Logaritma burada yeni bir gizemli işlem değildir; “ikiyle kaç kez çarparsam bu büyüklüğe ulaşırım?” sorusudur. En fazla 20 adım demek, her aramanın 20 adım süreceği demek değildir. Ayrıca bir aday kalması ile o adayın kontrol edilmesi iki ayrı durumdur.</p>
+<h2 id="worked-example-2-does-sorting-first-pay">Worked example 2 — Does sorting first pay?</h2>
+<p>Suppose n = 1,024 unsorted values will answer q membership queries. Use a deliberately simplified model: one full scan costs n units, sorting costs <code>n log₂ n</code> units, and each later binary search costs 11 units, its maximum middle-inspection count for this n.</p>
+<p>Because <code>log₂ 1,024 = 10</code>, preparation costs <code>1,024 × 10 = 10,240</code> model units. Scanning costs <code>1,024q</code>. Preparing and searching costs <code>10,240 + 11q</code>. To make preparation cheaper, solve:</p>
+<div class="guide-code"><div class="code-label">text</div><pre><code class="language-text">10,240 + 11q &lt; 1,024q
+10,240 &lt; 1,013q
+q &gt; 10,240 / 1,013
+q &gt; 10.1085...</code></pre></div>
+<p>The first integer satisfying the inequality is 11. At ten queries, scanning costs 10,240 and preparation plus search costs 10,350. At eleven, the costs are 11,264 and 10,361. Preparation now wins in this model.</p>
+<p>This is not a universal eleven-query rule. Real sorting comparisons, Python loop overhead, input order, successful search locations, and memory costs affect measured constants. The calculation teaches <strong>how to include preparation</strong>, not how to predict every machine.</p>
+<p>For pure membership, a set offers average O(n + q) total time with extra storage. For ordered questions, sorting may supply something a set cannot: boundaries, neighbors, and retained duplicate counts. If the list is already sorted for another valid reason, there is no new sorting cost to charge to each query.</p>
+<h2 id="a-second-boundary-convention-insertion-positions">A second boundary convention: insertion positions</h2>
+<p><code>bisect_left(data, x)</code> finds the first position where x could be inserted while preserving order. Everything before it is smaller than x; everything from it onward is at least x. This is useful even when x is absent. The insertion position can equal n, beyond the last element.</p>
+<p>A common implementation uses a half-open interval <code>[low, high)</code>, initially <code>[0, n)</code>. Its condition is <code>low &amp;lt; high</code>, and one branch uses <code>high = middle</code>. Those choices are correct together. Do not mix them with the earlier inclusive algorithm and then declare either convention wrong.</p>
+<p>For a membership test, check the boundary before indexing: <code>i &amp;lt; len(data) and data[i] == target</code>. For a range containing its endpoints, use the first position at least the lower bound and the first position greater than the upper bound. Their difference counts entries, including repeated values.</p>
+<p>Finding an insertion position is O(log n); physically inserting into a list is O(n) because elements may shift. Returning k actual range items also costs O(k), even if finding the range boundaries takes O(log n). <a href="https://docs.python.org/3/library/bisect.html#performance-notes">Python&#x27;s bisect documentation</a> separates the search and insertion costs.</p>
+<h2 id="three-graduated-practice-problems">Three graduated practice problems</h2>
+<h3 id="problem-1-check-both-ends">Problem 1 — Check both ends</h3>
+<p>Trace the inclusive algorithm on <code>[10, 20]</code> for target 20 and for missing target 5. State every window and the return value.</p>
+<h4 id="solution-1-do-not-skip-the-final-candidate">Solution 1 — Do not skip the final candidate</h4>
+<p>For 20, start low zero, high one, middle zero: value 10 is too small, so low becomes one. The next window is <code>[1, 1]</code>, middle one, value 20. Return <code>(1, 2)</code>.</p>
+<p>For 5, the initial middle is again zero and value 10 is too large. Set high to <code>0 − 1 = −1</code>. Low zero exceeds high −1, so return <code>(-1, 1)</code>. Using <code>high = middle</code> in this inclusive version would leave <code>[0, 0]</code> unchanged on later iterations and fail to terminate.</p>
+<h3 id="problem-2-count-a-range-with-duplicates">Problem 2 — Count a range with duplicates</h3>
+<p>Given sorted readings <code>[10, 20, 20, 25, 30, 30, 40]</code>, count readings between 20 and 30 inclusive. Explain the boundary subtraction and handle an empty input safely.</p>
+<h4 id="solution-2-subtract-positions-not-values">Solution 2 — Subtract positions, not values</h4>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from bisect import bisect_left, bisect_right
+
+readings = [10, 20, 20, 25, 30, 30, 40]
+left = bisect_left(readings, 20)
+right = bisect_right(readings, 30)
+count = right - left
+assert (left, right, count) == (1, 6, 5)
+assert bisect_right([], 30) - bisect_left([], 20) == 0
+print(count)</code></pre></div>
+<p>Indices one through five contain the five readings. The right boundary is six and is excluded, so <code>6 − 1 = 5</code>. Two searches plus subtraction cost O(log n) for nonempty data. A set would erase repeated 20 and 30 readings and therefore change this counting problem.</p>
+<h3 id="problem-3-choose-the-complete-strategy">Problem 3 — Choose the complete strategy</h3>
+<p>You receive an unsorted log once. Scenario A asks one membership question. Scenario B asks 10,000 membership questions. Scenario C repeatedly counts timestamps in inclusive ranges. Recommend a method and explain its preparation, query cost, and information requirements.</p>
+<h4 id="solution-3-let-the-question-determine-the-structure">Solution 3 — Let the question determine the structure</h4>
+<p>For A, a scan is a simple O(n) worst-case solution with O(1) extra space. Sorting solely for that query adds unnecessary O(n log n) worst-case preparation. For B, construct a set once: O(n) average preparation, O(1) average per query, and O(n) extra space in the distinct case. Retain the original log if its events still matter elsewhere.</p>
+<p>For C, sort the timestamps once, preserving duplicates. Preparation costs O(n log n) worst case; each range count takes two O(log n) boundary searches. If timestamps change, include maintenance or rebuilding costs. State that all compared timestamps use a consistent representation and that the lower bound does not exceed the upper bound.</p>
+<h2 id="misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</h2>
+<p>Successful tests provide evidence, not a proof covering every list. The reason binary search is correct is that sorted order keeps every possible answer inside the maintained window, and every mismatch shrinks that window. A sorted-position result also need not be the element&#x27;s original position before sorting. With duplicates, the first algorithm can return any matching position; use a boundary search for the first occurrence.</p>
+<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Precondition</td><td>Önkoşul: fact required before the algorithm begins</td></tr><tr><td>Boundary</td><td>Sınır: edge of the remaining candidate interval</td></tr><tr><td>Inclusive</td><td>Dahil: an endpoint belongs to the interval</td></tr><tr><td>Insertion point</td><td>Ekleme konumu: where a value could fit in sorted order</td></tr><tr><td>Logarithm</td><td>Logaritma: exponent answering a repeated-multiplication question</td></tr><tr><td>Break-even</td><td>Başabaş noktası: where competing total costs meet</td></tr></tbody></table></div>
+<p>You are ready when you can complete both traces without guessing, explain the empty-list result, and charge preparation once. If boundaries confuse you, draw two boxes and repeat Problem 1. If logarithms confuse you, rebuild the powers-of-two table. If strategy choice feels arbitrary, write the exact output requirement before choosing a container.</p>
+<p>Next week explains the sorting cost used here. You will count real comparisons, distinguish best from worst inputs, and see why preparation is often O(n log n) instead of O(n²).</p>
+<h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
+<p>Binary search is a boundary discipline. Most wrong versions lose the answer by updating bounds carelessly or by forgetting that sortedness is a prerequisite.</p>
+<div class="table-scroll"><table><thead><tr><th>Boundary convention</th><th>Meaning</th><th>Common repair</th></tr></thead><tbody><tr><td>inclusive low and high</td><td>both endpoints may still contain the answer</td><td>loop while low &lt;= high</td></tr><tr><td>half-open low and high</td><td>low may contain answer, high is excluded</td><td>loop while low &lt; high</td></tr><tr><td>insertion position</td><td>return where target would be placed</td><td>do not require equality to report a useful boundary</td></tr></tbody></table></div>
+<p>Extra exam-style prompt: You have one membership query on an unsorted list. A classmate says to sort and binary search because log n is smaller than n. What is missing?</p>
+<p>Solution: Sorting must be paid for unless the list is already sorted. For one query, sort plus binary search is O(n log n) + O(log n), while direct scan is O(n). If many later ordered queries are needed, or if sorted order is already available, the conclusion can change.</p>
+<p class="turkish"><strong>Turkce:</strong> Ikili arama yalnizca sirali veri uzerinde guvenlidir. Siralama maliyeti baska yerde odenmediyse analizden silinemez.</p>
+      </section>
+      <nav class="page-pager" aria-label="Guide pagination"><a class="pager-link" href="../w11/"><span>Previous</span><strong>Week 11</strong></a><a class="pager-link next" href="../w13/"><span>Next</span><strong>Week 13</strong></a></nav>
+    </article>
+  </main>
+  <script src="../../assets/guide.js"></script>
+</body>
+</html>

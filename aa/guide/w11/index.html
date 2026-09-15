@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Week 11 — Sets, dictionaries, and preparing once | Algorithm Analysis Guide</title>
+  <link rel="stylesheet" href="../../assets/guide.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2325665c'/%3E%3Ctext x='32' y='41' font-size='28' text-anchor='middle' fill='white' font-family='Arial'%3EAA%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to guide content</a>
+  <header class="guide-header">
+    <a class="brand" href="../../">Algorithm Analysis <span>course guide</span></a>
+    <nav class="header-actions">
+      <a href="../../index.html">Course Home</a>
+      <a href="../">Guide</a>
+      <button id="theme" type="button">Dark theme</button>
+      <button id="print" type="button">Print</button>
+    </nav>
+  </header>
+  <div class="mobile-jump">
+    <label for="chapter">Guide page</label>
+    <select id="chapter" data-guide-select>
+      <option value="../">Guide Hub</option>
+<option value="../toolkit/">Toolkit</option>
+<option value="../bridges/">Bridge Notes</option>
+<option value="../w01/">Week 01</option>
+<option value="../w02/">Week 02</option>
+<option value="../w03/">Week 03</option>
+<option value="../w04/">Week 04</option>
+<option value="../w05/">Week 05</option>
+<option value="../w06/">Week 06</option>
+<option value="../w07/">Week 07</option>
+<option value="../w08/">Week 08</option>
+<option value="../w09/">Week 09</option>
+<option value="../w10/">Week 10</option>
+<option value="./" selected>Week 11</option>
+<option value="../w12/">Week 12</option>
+<option value="../w13/">Week 13</option>
+<option value="../w14/">Week 14</option>
+<option value="../reviews/">Reviews</option>
+    </select>
+  </div>
+  <main class="guide-layout" id="content">
+    <aside class="sidebar" aria-label="Guide pages">
+      <div class="eyebrow">Guide pages</div>
+      <h2>Algorithm Analysis</h2>
+      <label for="chapterSide">Guide page</label>
+      <select id="chapterSide" data-guide-select>
+        <option value="../">Guide Hub</option>
+<option value="../toolkit/">Toolkit</option>
+<option value="../bridges/">Bridge Notes</option>
+<option value="../w01/">Week 01</option>
+<option value="../w02/">Week 02</option>
+<option value="../w03/">Week 03</option>
+<option value="../w04/">Week 04</option>
+<option value="../w05/">Week 05</option>
+<option value="../w06/">Week 06</option>
+<option value="../w07/">Week 07</option>
+<option value="../w08/">Week 08</option>
+<option value="../w09/">Week 09</option>
+<option value="../w10/">Week 10</option>
+<option value="./" selected>Week 11</option>
+<option value="../w12/">Week 12</option>
+<option value="../w13/">Week 13</option>
+<option value="../w14/">Week 14</option>
+<option value="../reviews/">Reviews</option>
+      </select>
+      <nav>
+        <div class="nav-group-title">Start</div>
+<a href="../">Guide Hub</a>
+<a href="../toolkit/">Toolkit</a>
+<a href="../bridges/">Bridge Notes</a>
+<div class="nav-group-title">Weekly Guide Pages</div>
+<a href="../w01/">Week 01</a>
+<a href="../w02/">Week 02</a>
+<a href="../w03/">Week 03</a>
+<a href="../w04/">Week 04</a>
+<a href="../w05/">Week 05</a>
+<a href="../w06/">Week 06</a>
+<a href="../w07/">Week 07</a>
+<a href="../w08/">Week 08</a>
+<a href="../w09/">Week 09</a>
+<a href="../w10/">Week 10</a>
+<a href="./" aria-current="page">Week 11</a>
+<a href="../w12/">Week 12</a>
+<a href="../w13/">Week 13</a>
+<a href="../w14/">Week 14</a>
+<div class="nav-group-title">Review</div>
+<a href="../reviews/">Reviews</a>
+      </nav>
+    </aside>
+    <article class="reading">
+      <section class="guide-intro">
+        <span>Week 11</span>
+        <h1 id="week-11-sets-dictionaries-and-preparing-once">Week 11 — Sets, dictionaries, and preparing once</h1>
+        <p>Detailed teacher notes, original lesson link, analysis prompts, model solutions, and added timed-practice material.</p>
+      </section>
+      <div class="page-toc"><strong>On this page</strong><nav><a href="#the-big-question">The big question</a>
+<a href="#prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</a>
+<a href="#slow-concept-three-containers-three-kinds-of-question">Slow concept — Three containers, three kinds of question</a>
+<a href="#worked-example-1-count-visits-slowly-enough-to-see-each-update">Worked example 1 — Count visits slowly enough to see each update</a>
+<a href="#slow-concept-hashing-narrows-the-search">Slow concept — Hashing narrows the search</a>
+<a href="#worked-example-2-trace-collisions-with-remainder-arithmetic">Worked example 2 — Trace collisions with remainder arithmetic</a>
+<a href="#prepare-once-then-count-the-whole-job">Prepare once, then count the whole job</a>
+<a href="#three-graduated-practice-problems">Three graduated practice problems</a>
+<a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div>
+      <section class="guide-chapter">
+        <p><a href="../../w11/index.html">Original lesson</a></p>
+<h2 id="the-big-question">The big question</h2>
+<p><strong>How can we answer many membership questions without scanning the same list every time?</strong> A set organizes values for membership. A dictionary organizes values under keys. The important decision is whether either structure preserves the meaning of your data.</p>
+<p>This week, learn to distinguish membership from counting, keys from values, and insertion order from sorted order. Trace a small hash-table model, include the cost of building an index, and explain average-case O(1) without promising constant time in every possible situation.</p>
+<p class="turkish"><strong>Türkçe:</strong> Amaç yalnızca <code>list</code> yerine <code>set</code> yazmak değildir. Önce soruyu belirleriz: “Bu değer var mı?”, “Kaç defa var?” veya “Bu kimliğe ait bilgi nedir?” Bu üç soru aynı değildir. Veri yapısı seçimi hem süreyi hem de cevabın anlamını etkiler.</p>
+<h2 id="prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
+<p>Suppose <code>visits = [&amp;quot;Ada&amp;quot;, &amp;quot;Cem&amp;quot;, &amp;quot;Ada&amp;quot;]</code>. How many visits occurred? How many different people visited? If you search this list for missing name “Ece”, how many entries must be checked?</p>
+<p><strong>Answers:</strong> There are three visits, two different people, and three checks for the missing name. Converting to a set keeps information about the two people but loses the fact that Ada visited twice. The duplicates are useful data when counting visits.</p>
+<p>Now suppose there are n = 100 known addresses and q = 20 missing query addresses. A scan for every query performs <code>100 × 20 = 2,000</code> equality checks. Here n describes stored data and q describes the number of questions. Keep both symbols until you know how they relate.</p>
+<h2 id="slow-concept-three-containers-three-kinds-of-question">Slow concept — Three containers, three kinds of question</h2>
+<p>A <strong>list</strong> preserves sequence and allows duplicates. Its index answers “what is at position i?” A <strong>set</strong> keeps distinct hashable values and answers “is x present?” It supplies no index-based or sorted ordering guarantee. A <strong>dictionary</strong> associates each unique key with a value: “what is the score for this name?” Different keys may have equal values.</p>
+<div class="table-scroll"><table><thead><tr><th>Need</th><th>Suitable structure</th><th>What must be preserved?</th></tr></thead><tbody><tr><td>Arrival order and repeated events</td><td>List</td><td>Every event in its position</td></tr><tr><td>Repeated yes/no membership</td><td>Set</td><td>Distinct values only</td></tr><tr><td>One current score per student</td><td>Dictionary</td><td>Name-to-score association</td></tr><tr><td>Number of visits per person</td><td>Dictionary or Counter</td><td>Counts, including repeats</td></tr><tr><td>Ordered report plus membership index</td><td>List together with a set</td><td>Output order in the list</td></tr></tbody></table></div>
+<p>Creating <code>{}</code> makes an empty dictionary. Creating <code>set()</code> makes an empty set. In <code>name in grades</code>, Python checks the dictionary&#x27;s keys, not its scores. <code>grades[name]</code> raises <code>KeyError</code> if the key is absent; <code>grades.get(name, 0)</code> returns zero in that case without adding the key.</p>
+<p><strong>Dictionary insertion order is preserved. It is not automatic sorting.</strong> Updating a key&#x27;s value does not create a second key or move it to the end. Deleting and reinserting a key adds it at the end. A set should not be used to request insertion or sorted order. These are language-level distinctions in <a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">Python&#x27;s container documentation</a>.</p>
+<h2 id="worked-example-1-count-visits-slowly-enough-to-see-each-update">Worked example 1 — Count visits slowly enough to see each update</h2>
+<p>Process <code>Ada, Cem, Ada, Ece, Ada, Cem</code>. Begin with no stored counts. For each name, read its current count, using zero if it has not appeared, then add one.</p>
+<div class="table-scroll"><table><thead><tr><th>Incoming name</th><th>Previous count</th><th>Arithmetic</th><th>Counts afterwards</th></tr></thead><tbody><tr><td>Ada</td><td>0</td><td>0 + 1 = 1</td><td>Ada: 1</td></tr><tr><td>Cem</td><td>0</td><td>0 + 1 = 1</td><td>Ada: 1, Cem: 1</td></tr><tr><td>Ada</td><td>1</td><td>1 + 1 = 2</td><td>Ada: 2, Cem: 1</td></tr><tr><td>Ece</td><td>0</td><td>0 + 1 = 1</td><td>Ada: 2, Cem: 1, Ece: 1</td></tr><tr><td>Ada</td><td>2</td><td>2 + 1 = 3</td><td>Ada: 3, Cem: 1, Ece: 1</td></tr><tr><td>Cem</td><td>1</td><td>1 + 1 = 2</td><td>Ada: 3, Cem: 2, Ece: 1</td></tr></tbody></table></div>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">visits = [&quot;Ada&quot;, &quot;Cem&quot;, &quot;Ada&quot;, &quot;Ece&quot;, &quot;Ada&quot;, &quot;Cem&quot;]
+counts = {}
+for name in visits:
+    counts[name] = counts.get(name, 0) + 1
+assert counts == {&quot;Ada&quot;: 3, &quot;Cem&quot;: 2, &quot;Ece&quot;: 1}
+assert sum(counts.values()) == len(visits)
+print(counts)</code></pre></div>
+<p>The sum check gives <code>3 + 2 + 1 = 6</code>, agreeing with six input visits. This is a useful conservation check: every visit contributes to exactly one count. There are n updates for n visits. Under ordinary hashing assumptions, time is O(n) on average. If u is the number of different names, the dictionary stores u entries: O(u) extra space.</p>
+<p><code>Counter(visits)</code> expresses the same counting job. <code>setdefault</code> is useful for grouping: “obtain the existing group, or create its initial empty list.” Neither changes the need to understand what the output represents. Also, <code>Counter(...).most_common()</code> may perform additional ordering work; tallying and ranking all counts are separate tasks.</p>
+<p class="turkish"><strong>Türkçe:</strong> <code>get(name, 0)</code> sayacı sıfırlamaz. İsim varsa mevcut sayıyı, yoksa sıfırı verir. Sonra bir eklenir. <code>set</code> kullansaydık Ada&#x27;nın üç ziyaretini tek değere indirirdik. Daha az veri saklamak her zaman doğru bir iyileştirme değildir; bazen gerekli bilgiyi silmektir.</p>
+<h2 id="slow-concept-hashing-narrows-the-search">Slow concept — Hashing narrows the search</h2>
+<p>A hash function computes a number from a key. The table uses this number to choose where to begin looking. It then checks key equality, because different keys can have the same hash location. Such a meeting is a <strong>collision</strong>, not proof that the keys are equal.</p>
+<p>The lesson&#x27;s bucket-and-chain picture is a teaching model. Real Python sets and dictionaries use a different internal collision-resolution layout. You need the model&#x27;s lesson: a calculated starting location avoids scanning unrelated entries, while collisions can cause extra work.</p>
+<p>Keys must be <strong>hashable</strong>: their hash must stay consistent while used as keys, and equal keys must have equal hashes. Ordinary numbers and strings qualify. Lists do not. A tuple qualifies only if all its components are hashable; a tuple containing a list does not become safe merely because its outer container is a tuple.</p>
+<p class="turkish"><strong>Türkçe:</strong> Hash değeri bir “başlangıç adresi” gibidir, kimlik belgesi değildir. İki farklı anahtar aynı yere yönlendirilebilir. Bu durumda eşitlik kontrolü hâlâ gerekir. Çakışma gerçekleşince eski verinin üzerine yazılması gerekmez; veri yapısı farklı anahtarları ayırt ederek saklar.</p>
+<h2 id="worked-example-2-trace-collisions-with-remainder-arithmetic">Worked example 2 — Trace collisions with remainder arithmetic</h2>
+<p>Use eight buckets numbered 0 through 7 and the teaching rule <code>bucket = key % 8</code>. Insert <code>[10, 18, 3, 26, 7]</code>.</p>
+<div class="table-scroll"><table><thead><tr><th>Key</th><th>Division into whole groups and remainder</th><th>Bucket</th></tr></thead><tbody><tr><td>10</td><td>10 = 1 × 8 + 2</td><td>2</td></tr><tr><td>18</td><td>18 = 2 × 8 + 2</td><td>2</td></tr><tr><td>3</td><td>3 = 0 × 8 + 3</td><td>3</td></tr><tr><td>26</td><td>26 = 3 × 8 + 2</td><td>2</td></tr><tr><td>7</td><td>7 = 0 × 8 + 7</td><td>7</td></tr></tbody></table></div>
+<p>Bucket 2 now holds <code>[10, 18, 26]</code>. Finding 26 computes remainder two and checks three keys in that chain. Searching for 99 computes <code>99 = 12 × 8 + 3</code>, visits bucket 3, checks its sole value 3, and concludes “absent.” It does not inspect the other chains.</p>
+<p>If all n keys landed in one chain, a missing lookup could inspect n keys. This explains the difference between <strong>O(1) average lookup</strong> and <strong>O(n) worst-case lookup</strong>. Resizing maintains space for ordinary workloads but does not turn the worst case into a universal constant-time guarantee.</p>
+<p>The simple cost model also assumes bounded-size keys and cheap hashing/equality. Hashing a newly created long string depends on its character count. “Independent of the number of stored keys” does not mean independent of everything.</p>
+<h2 id="prepare-once-then-count-the-whole-job">Prepare once, then count the whole job</h2>
+<p>Let n be known addresses and q be incoming queries. Scanning the list for every missing query costs n × q checks. Building a set once and performing q lookups has average cost O(n + q), with O(n) additional storage in the all-distinct case.</p>
+<p>For the lesson&#x27;s values n = 100,000 and q = 10,000, the scan model gives <code>100,000 × 10,000 = 1,000,000,000</code>. A simplified unit-cost build-and-query model gives <code>100,000 + 10,000 = 110,000</code>. Their ratio is about 9,091. This is a comparison of model work units, <strong>not a predicted measured speedup</strong>: hashing and equality have different constants.</p>
+<p>If the set is rebuilt inside the query loop, construction alone becomes O(nq). Moving preparation outside the loop is part of the algorithm, not a minor formatting change.</p>
+<p>For one query, both a list scan and set construction followed by lookup are O(n). Neither Big-O nor a slogan determines the winner on a particular small input. A list may find the target immediately, and the set needs extra memory. A build cost becomes useful when enough later work can reuse it.</p>
+<p class="turkish"><strong>Türkçe:</strong> Toplam maliyet “hazırlık + sorgular” şeklindedir. Yalnızca hazır kümedeki aramayı ölçüp kümenin kurulmasını unutmamalıyız. Hazırlığı her soruda yeniden yaparsak kazancı kaybederiz. Bir kez sorulan soruyla binlerce kez sorulan soru için aynı tercih zorunlu değildir.</p>
+<h2 id="three-graduated-practice-problems">Three graduated practice problems</h2>
+<h3 id="problem-1-keys-values-and-order">Problem 1 — Keys, values, and order</h3>
+<p>Start with <code>scores = {&amp;quot;Ada&amp;quot;: 88, &amp;quot;Cem&amp;quot;: 72}</code>. Assign Ada&#x27;s score to 91, then add Ece with score 91. What are the dictionary length, key order, and result of <code>91 in scores</code>?</p>
+<h4 id="solution-1-updating-a-key-is-not-adding-a-duplicate">Solution 1 — Updating a key is not adding a duplicate</h4>
+<p>There are <strong>three keys</strong>, in order Ada, Cem, Ece. Ada&#x27;s old value is replaced, so there is no fourth entry. Both Ada and Ece can have value 91. <code>91 in scores</code> is <strong>False</strong>, because 91 is not a key. Checking <code>91 in scores.values()</code> would be True but requires a value search, O(n) in the worst case.</p>
+<h3 id="problem-2-preserve-the-meaning-of-common">Problem 2 — Preserve the meaning of “common”</h3>
+<p>For <code>a = [2, 2, 3, 4]</code> and <code>b = [2, 4, 4]</code>, find every entry from a whose value appears in b, preserving a&#x27;s order and repeats. Explain why <code>set(a) &amp;amp; set(b)</code> is a different answer.</p>
+<h4 id="solution-2-index-the-second-list-retain-the-first-list">Solution 2 — Index the second list, retain the first list</h4>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">a = [2, 2, 3, 4]
+b = [2, 4, 4]
+lookup = set(b)
+answer = [value for value in a if value in lookup]
+assert answer == [2, 2, 4]
+assert sorted(set(a) &amp; set(b)) == [2, 4]
+print(answer)</code></pre></div>
+<p>The required answer is <code>[2, 2, 4]</code>. The intersection returns distinct common values, losing one required 2. Sorting that intersection cannot restore a removed duplicate. Build cost is O(m) average for m entries in b; scanning a costs O(n) average, giving O(n + m) average time. Output storage is O(r), where r is the number of retained entries. Set storage depends on the distinct values in b.</p>
+<h3 id="problem-3-calculate-a-preparation-break-even-point">Problem 3 — Calculate a preparation break-even point</h3>
+<p>A measured workload needs 0.08 ms for each list query. Building its set takes 3 ms; each set query takes 0.002 ms. Assuming these averages remain applicable, how many queries make set preparation worthwhile?</p>
+<h4 id="solution-3-solve-the-inequality-including-units">Solution 3 — Solve the inequality, including units</h4>
+<p>Let q count queries. List time is <code>0.08q ms</code>; set time is <code>(3 + 0.002q) ms</code>. We want <code>3 + 0.002q &amp;lt; 0.08q</code>. Subtract <code>0.002q</code> to obtain <code>3 &amp;lt; 0.078q</code>. Divide by 0.078: <code>q &amp;gt; 38.4615...</code>. The first integer meeting the condition is <strong>39 queries</strong>.</p>
+<p>At q = 38, list time is 3.04 ms and set time is 3.076 ms, so preparation loses narrowly. At q = 39, the times are 3.12 ms and 3.078 ms, so it wins narrowly. Real measurement noise may exceed that difference; repeat measurements before making a precise operational decision. This threshold belongs to these measured constants, not every Python program.</p>
+<h2 id="misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</h2>
+<p>“Sets are sorted” is false. “Dictionaries lose insertion order” is false. “Hash lookup is always O(1)” omits worst cases and key costs. “A larger text always makes list-based counting quadratic” also needs a qualifier: if the vocabulary stays fixed at u words, that method costs O(nu), which is linear in n for fixed u.</p>
+<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Membership</td><td>Üyelik: whether a value is present</td></tr><tr><td>Key / value</td><td>Anahtar / değer: lookup label and associated information</td></tr><tr><td>Collision</td><td>Çakışma: different keys directed to the same initial location</td></tr><tr><td>Hashable</td><td>Hashlenebilir: a key satisfies stable hashing/equality rules</td></tr><tr><td>Frequency</td><td>Sıklık: how many occurrences were observed</td></tr><tr><td>Preparation cost</td><td>Hazırlık maliyeti: work paid before queries begin</td></tr></tbody></table></div>
+<p>You are ready when you can trace a count update, explain why duplicate removal can be incorrect, state hash lookup&#x27;s average and worst cases, and include construction in a total cost. Repair a gap by rebuilding the six-visit table, drawing the eight buckets, or repeating the break-even calculation with twice the build cost.</p>
+<p>The next bridge is an order question: “How many observations lie between these two limits?” A set alone does not preserve the ordering or multiplicities needed for that answer. Week 12 uses sorted sequences and carefully maintained search boundaries.</p>
+<h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
+<p>Sets and dictionaries are not magic speed buttons. They are prepared structures with assumptions and trade-offs.</p>
+<div class="table-scroll"><table><thead><tr><th>Choice</th><th>Good for</th><th>Cost to remember</th></tr></thead><tbody><tr><td>list scan</td><td>one small query, preserve order naturally</td><td>O(n) worst-case membership</td></tr><tr><td>set</td><td>many membership questions on hashable values</td><td>build cost, memory, duplicates collapse</td></tr><tr><td>dictionary</td><td>lookup associated values by key</td><td>key uniqueness; updating a key replaces a value</td></tr><tr><td>list plus set</td><td>preserve list order while using fast membership</td><td>maintain two structures consistently</td></tr></tbody></table></div>
+<p>Extra exam-style prompt: For <code>left = [2, 2, 5]</code> and <code>right = [2, 9]</code>, the required output is values from <code>left</code> that appear in <code>right</code>, preserving order and repeats. Why is set intersection incomplete?</p>
+<p>Solution: <code>set(left) &amp;amp; set(right)</code> gives <code>{2}</code>, which loses the second 2 and the list order. Build <code>right_lookup = set(right)</code>, then scan <code>left</code> and append each value that appears in the lookup. The output is <code>[2, 2]</code>.</p>
+<p class="turkish"><strong>Turkce:</strong> Kume tekrar sayisini saklamaz. Hiz kazanirken cevabin anlamini degistiriyorsan algoritma daha iyi degil, farkli bir sorunun cevabidir.</p>
+      </section>
+      <nav class="page-pager" aria-label="Guide pagination"><a class="pager-link" href="../w10/"><span>Previous</span><strong>Week 10</strong></a><a class="pager-link next" href="../w12/"><span>Next</span><strong>Week 12</strong></a></nav>
+    </article>
+  </main>
+  <script src="../../assets/guide.js"></script>
+</body>
+</html>

@@ -1,24 +1,25 @@
 # AA — The Detailed Learning Guide
 
-## Contents
+## Web guide pages
 
-- [Arithmetic and notation bridges](#arithmetic-and-notation-bridges)
-- [Week 01 — What Is an Algorithm?](#week-01--what-is-an-algorithm)
-- [Week 02 — Your First Python: Values, Names, and Output](#week-02--your-first-python-values-names-and-output)
-- [Week 03 — Repeating Work: Loops and a Step Counter](#week-03--repeating-work-loops-and-a-step-counter)
-- [Week 04 — Lists: Holding Many Things at Once](#week-04--lists-holding-many-things-at-once)
-- [Week 05 — Functions and trustworthy timing](#week-05--functions-and-trustworthy-timing)
-- [Week 06 — Doubling experiments, plots, and noisy evidence](#week-06--doubling-experiments-plots-and-noisy-evidence)
-- [Week 07 — Exact operation counts and dominant growth](#week-07--exact-operation-counts-and-dominant-growth)
-- [Week 08 — Big-O, precise bounds, cases, and space](#week-08--big-o-precise-bounds-cases-and-space)
-- [Week 09 — One problem, four strategies](#week-09--one-problem-four-strategies)
-- [Week 10 — The real cost of list operations](#week-10--the-real-cost-of-list-operations)
-- [Week 11 — Sets, dictionaries, and preparing once](#week-11--sets-dictionaries-and-preparing-once)
-- [Week 12 — Binary search, boundaries, and preparation](#week-12--binary-search-boundaries-and-preparation)
-- [Week 13 — Sorting: count the work and preserve the meaning](#week-13--sorting-count-the-work-and-preserve-the-meaning)
-- [Week 14 — From a correct algorithm to a convincing report](#week-14--from-a-correct-algorithm-to-a-convincing-report)
-- [Four review sessions inside the 14 weeks](#four-review-sessions-inside-the-14-weeks)
-- [Cumulative revision and the final explanation](#cumulative-revision-and-the-final-explanation)
+- [Guide Hub: Course guide hub](guide/)
+- [Toolkit: Algorithm-analysis toolkit](guide/toolkit/)
+- [Bridge Notes: Discrete math bridge notes](guide/bridges/)
+- [Week 01: Week 01 — What Is an Algorithm?](guide/w01/)
+- [Week 02: Week 02 — Your First Python: Values, Names, and Output](guide/w02/)
+- [Week 03: Week 03 — Repeating Work: Loops and a Step Counter](guide/w03/)
+- [Week 04: Week 04 — Lists: Holding Many Things at Once](guide/w04/)
+- [Week 05: Week 05 — Functions and trustworthy timing](guide/w05/)
+- [Week 06: Week 06 — Doubling experiments, plots, and noisy evidence](guide/w06/)
+- [Week 07: Week 07 — Exact operation counts and dominant growth](guide/w07/)
+- [Week 08: Week 08 — Big-O, precise bounds, cases, and space](guide/w08/)
+- [Week 09: Week 09 — One problem, four strategies](guide/w09/)
+- [Week 10: Week 10 — The real cost of list operations](guide/w10/)
+- [Week 11: Week 11 — Sets, dictionaries, and preparing once](guide/w11/)
+- [Week 12: Week 12 — Binary search, boundaries, and preparation](guide/w12/)
+- [Week 13: Week 13 — Sorting: count the work and preserve the meaning](guide/w13/)
+- [Week 14: Week 14 — From a correct algorithm to a convincing report](guide/w14/)
+- [Reviews: Review blocks and timed practice](guide/reviews/)
 
 **Algorithm Analysis with Python · 14 weeks · English explanations with Turkish support**
 
@@ -127,6 +128,123 @@ The final project follows [Week 14](w14/index.html): two correct methods for the
 The primary sources for every chapter are linked in that chapter. Added micro-examples and review exercises are teaching examples built around those source concepts. Harder proof-style and interview-style chapter problems remain available in the original notes and the Skiena companion. Their optional status is preserved.
 
 **Türkçe:** Rehberdeki ek açıklamalar konu sırasını ve ölçme-değerlendirme düzenini değiştirmez. Amaç, mevcut notları gerçekten anlayabilmen için aradaki düşünme adımlarını görünür kılmaktır.
+
+# Algorithm-analysis toolkit
+
+This toolkit is the spine of the course. Weekly pages teach the ideas in context; this page collects the habits students should carry from one week to the next. Use it when a student can run code but cannot yet explain what the run proves, or when a solution gives a Big-O label without showing where the repeated work comes from.
+
+The toolkit has one rule: write the claim in a way another person can check. "This is fast" is not checkable. "For a missing target in a list of length n, this loop performs n equality checks and stores O(1) extra variables" is checkable. It names the input size, the case, the counted operation, and the storage convention.
+
+**Turkce:** Bu sayfa haftalik notlarin yerine gecmez. Her hafta o haftanin ornegini cozer; bu sayfa ise ayni dusunme kalibini tekrar kullanman icindir. Bir sembol yazmadan once neyi saydigini ve hangi girdi icin saydigini soyle.
+
+## The analysis contract
+
+Every complete algorithm-analysis answer starts by fixing the contract. The contract says what input is allowed, what output is required, and which differences matter. Without it, two programs can look comparable while answering different questions.
+
+| Contract question | Weak answer | Strong answer |
+| --- | --- | --- |
+| What is the input? | a list | a list of n integer sensor readings |
+| What is the output? | the value | whether at least one reading exceeds the threshold |
+| Are duplicates meaningful? | maybe | duplicates are separate readings and must not be collapsed |
+| Is order meaningful? | not sure | the output must preserve first occurrence order |
+| What cases matter? | normal data | empty input, missing target, repeated values, first and last position hits |
+
+Do this before timing. A set may answer a membership question quickly, but it does not preserve duplicates or sorted order. Sorting may help binary search, but it changes order and must be paid for unless the data was already sorted for a separate reason. A benchmark is useful only after both methods satisfy the same contract.
+
+## Cost models used in this course
+
+A cost model decides what one counted operation means. It is a simplified lens, not the physical truth of a laptop. In this course, the model is usually chosen to reveal the main repeated work:
+
+| Situation | Useful counted operation | Usual reason |
+| --- | --- | --- |
+| Linear search | equality comparisons | each inspected item is compared with the target |
+| Largest-value scan | comparisons after initialization | first item initializes, later items challenge the current best |
+| Nested pair checks | pair visits or comparisons | every selected pair is examined |
+| Front insertion or removal | shifted references | existing list slots move to make or close a gap |
+| List concatenation or slicing | copied references | a new list is built |
+| Dictionary or set lookup | hash-table probes in an average model | expected constant lookup under ordinary hashing assumptions |
+| Binary search | middle-item inspections | the remaining interval is reduced after each inspection |
+
+If comparing long strings, large records, or expensive function calls, the "one comparison" model may hide another size. Then define a second variable. For example, searching n strings of length at most L can require O(nL) character work in a worst case, even though the list-level scan has n comparisons.
+
+**Turkce:** Model secmek gercegi saklamak degil, hangi soruyu cevapladigini soylemektir. "Karsilastirma sayiyorum" dediginde her karsilastirmanin sabit kabul edildigini de soylemis olursun. Bu kabul uygun degilse ikinci bir buyukluk tanimla.
+
+## Trace tables that actually diagnose mistakes
+
+A trace is not a decorative table after the answer. It is a debugging tool. A useful trace shows the state before and after the repeated action. Keep the input tiny enough that every row can be checked by eye.
+
+| Column | Why it helps |
+| --- | --- |
+| iteration or visit number | separates human counting from zero-based indexes |
+| index or bounds | exposes off-by-one errors and missing final candidates |
+| current value | shows what data the algorithm actually inspected |
+| decision | records the condition result, not only the action |
+| stored state afterward | checks the invariant after this step |
+| count so far | prevents adding skipped work after a break |
+
+For a loop with `break`, stop the table immediately when the break occurs. For binary search, write the low and high bounds before choosing the midpoint, then write the new bounds after the comparison. For list building, record the length of the answer after each update. If a trace table is too large, the input is too large for learning.
+
+## From exact counts to growth
+
+Exact counts and growth classes answer different questions. Exact counts are useful at a stated n. Growth classes describe what eventually dominates as n grows. A strong answer often gives both:
+
+```text
+C(n) = 0 + 1 + 2 + ... + (n - 1)
+     = n(n - 1)/2
+     = (n^2 - n)/2
+Therefore C(n) is Theta(n^2).
+```
+
+The equality belongs to the exact model. The Theta statement belongs to the growth summary. Do not replace the exact expression with n squared when a problem asks for the exact count. Do not use a small numerical table as a proof of the asymptotic statement. Three rows can suggest a pattern; the loop structure or inequality justifies it.
+
+## Proof recipes students can reuse
+
+For a polynomial upper bound, make lower powers no bigger than the highest power once n is at least one. Example: if T(n) = 4n^2 + 7n + 9, then for n >= 1, n <= n^2 and 1 <= n^2. Therefore T(n) <= 4n^2 + 7n^2 + 9n^2 = 20n^2. One valid constant is enough.
+
+For a triangular loop, draw the first few row lengths. If the lengths are 0, 1, 2, ..., n - 1, the total is n(n - 1)/2. If they are n, n - 1, ..., 1, the total is n(n + 1)/2. Check whether the first row is zero or n before choosing the formula.
+
+For a halving loop, write the remaining size after k reductions. If it is roughly n / 2^k, solve n / 2^k <= 1. That gives k at least log2 n. Then decide whether the algorithm also inspects a final candidate. Halving rounds and comparisons are related, but not always the same exact count.
+
+For preparation, separate the build phase from the query phase. A set built once for q membership questions has a different total from a set rebuilt inside every query. The phrase "lookup is O(1)" is incomplete until preparation, memory, and the output contract are named.
+
+## Benchmark protocol
+
+Measurements should support an explanation, not replace it. A fair benchmark states the timed boundary, the input generator, the sizes, the repeats, and the summary statistic. It also checks that both methods return the same required output.
+
+Use at least four input sizes when the purpose is growth. Doubling sizes make ratios easy to read. If timings are too small, time a batch of calls or increase n carefully. Do not divide by a rounded zero. If setup is part of the algorithm, include it in the timed function; if you intentionally exclude setup, label the result as query-only and report setup separately.
+
+| Report item | What to write |
+| --- | --- |
+| Environment | Python version or Colab/local, and any relevant hardware note |
+| Input sizes | the exact n values and any second size such as m or q |
+| Data pattern | random, sorted, reverse sorted, repeated, missing target, or generated rule |
+| Repeats | how many timings and whether you used min, median, or mean |
+| Correctness check | the expected answer or assertion used before comparing speed |
+| Limit | what the benchmark does not establish |
+
+The fastest method in a table is not automatically the best method for every task. Memory, update cost, sortedness, duplicate preservation, and readability can change the recommendation.
+
+## Common traps
+
+The most common mistakes are predictable, which is good news: they can be checked systematically.
+
+| Trap | Repair question |
+| --- | --- |
+| Big-O label with no n | What does n count in this problem? |
+| Two loops automatically called quadratic | Are the loops sequential or nested? What are their bounds? |
+| Hidden operation ignored | Does `in`, slicing, sorting, concatenation, or front insertion do input-sized work? |
+| Average case asserted casually | What distribution or hashing assumption is being used? |
+| Preparation omitted | Is data structure construction outside or inside the repeated task? |
+| Faster but different output | Were order, duplicates, formatting, and edge cases preserved? |
+| Timing treated as proof | What operation-count argument supports the measurement? |
+
+**Turkce:** Cevabi guclendiren sey uzunluk degil, eksik halka birakmamaktir. Girdi buyuklugunu tanimla, sayilan islemi soyle, durumunu belirt, toplam maliyeti yaz, sonra buyume sinifini ver. Olcum varsa neyi kapsadigini ve neyi kapsamadigini acikla.
+
+## Instructor use
+
+Use this page as the repair station. If a student is lost in syntax, return to Weeks 2-4. If they can run code but cannot count work, use the trace-table section. If they can count examples but not generalize, use the proof recipes. If they trust a timing table too much, use the benchmark protocol.
+
+The course should feel slower than a typical algorithms course at the beginning and more demanding by the end. That is intentional. The early weeks remove programming fog; the later weeks insist on precise contracts, cost models, and evidence. The final goal is not to recite asymptotic labels. It is to defend a correct choice under stated assumptions.
 
 # Arithmetic and notation bridges
 
@@ -443,6 +561,22 @@ You are ready when you can explain why four cards needed three comparisons, why 
 
 **Bridge to Week 2:** A remembered largest value will become a variable; “report the answer” will become an output command. The reasoning remains the same. You can also use the original lesson's optional Colab setup to prepare the workspace, without treating programming knowledge as a prerequisite for this week.
 
+## Additional analysis laboratory
+
+Use this extra laboratory after the Week 1 core trace. It turns the informal idea of a method into the first analysis habit: never compare methods until the allowed information is clear.
+
+| Mini-task | Analysis focus | Strong answer |
+| --- | --- | --- |
+| Find the largest in five unsorted cards | guarantee from inspected evidence | every card must be inspected in the worst case |
+| Find a word in a sorted dictionary page range | information gained from order | each comparison can remove a side of the range |
+| Follow a recipe with "add enough" | ambiguity | the quantity or stopping test must be made explicit |
+
+Extra exam-style prompt: A student says, "I checked the first and last cards, so I know the largest." Give a counterexample for an unsorted row of six cards and explain what changes if the row is trusted to be increasing.
+
+Solution: Keep the first and last cards the same, then place a larger hidden value in the middle. The student has identical evidence but would be wrong. If the row is known to be increasing, the last card is sufficient; the ordering assumption supplies information that was absent before.
+
+**Turkce:** Bu haftanin asil dersi sudur: hizli bir yolun dogru olmasi icin kullandigi bilgi belirtilmelidir. Siralama, bir varsayimdir; yoksa yarilama ya da son karta bakma guvenilir olmaz.
+
 # Week 02 — Your First Python: Values, Names, and Output
 
 [Original lesson](w2/index.html)
@@ -638,6 +772,22 @@ The temporary name preserves `"left"`. The next line changes `a` to `"right"`; t
 Explain `score = score + 2` when the old score is 8. **Answer:** retrieve 8, calculate 10, store 10. Explain `"8" + "2"`. **Answer:** it joins text to make `"82"`. Explain why a four-statement calculation does not repeat more statements when its ordinary input changes from 10 to 100. **Answer:** there is no repetition instruction; its chosen statement count stays four. Very large integers or longer output can still change lower-level costs.
 
 If assignment is unclear, draw an “old value / calculation / new value” table. If types are unclear, label every literal as number or text before calculating. Week 3 adds decisions and repetition to this same tracing habit: one written line may then execute many times.
+
+## Additional analysis laboratory
+
+Week 2 is still programming-light, but it already contains analysis: each assignment has an old state and a new state. Students should read code from right to left first, then store the new value.
+
+| Code shape | Counted action | Common mistake |
+| --- | --- | --- |
+| `x = x + 1` | one read, one addition, one write in the teaching model | treating it like algebra |
+| `total = price * count` | multiplication before assignment | overwriting one quantity too early |
+| `print(answer)` | output event | confusing displayed text with stored data |
+
+Extra exam-style prompt: Start with `a = 3` and `b = 5`. Execute `a = b`, then `b = a + 2`. What are the final values? How could we swap the old values safely?
+
+Solution: After `a = b`, both names refer to the value 5. Then `b = a + 2` stores 7. The old value 3 has been lost. To swap safely, save one old value first: `temp = a`, then `a = b`, then `b = temp`.
+
+**Turkce:** Degisken ismi kutu etiketi gibi dusunulebilir. Eski degeri korumak istiyorsan, ustune yazmadan once baska bir etikete tasimalisin.
 
 # Week 03 — Repeating Work: Loops and a Step Counter
 
@@ -862,6 +1012,23 @@ For readiness, explain why a four-by-four grid makes 16 visits and why five even
 
 If uncertain, use `n = 3`, write each visited value, and mark the counted line before increasing the input. Week 4 applies these counters to stored lists, scans, searches and pair comparisons.
 
+## Additional analysis laboratory
+
+This week is where students often start saying "the loop runs n times" too quickly. Make them name the values visited by the loop before they name n.
+
+| Loop description | Values visited | Count |
+| --- | --- | --- |
+| `range(5)` | 0, 1, 2, 3, 4 | 5 |
+| `range(2, 7)` | 2, 3, 4, 5, 6 | 5 |
+| `range(1, 8, 2)` | 1, 3, 5, 7 | 4 |
+| while value halves from 32 until 1 | 32, 16, 8, 4, 2 | five tests before reaching 1 if the loop stops after the update |
+
+Extra exam-style prompt: A loop processes rows of lengths 2, 4, and 6. Is the total work 3, 6, 12, or something else?
+
+Solution: It is 2 + 4 + 6 = 12 item visits. The outer loop has three rows, but the inner work depends on row length. If row lengths follow 2, 4, ..., 2n, the total is 2(1 + 2 + ... + n) = n(n + 1), which grows quadratically.
+
+**Turkce:** Dongu kelimesini gormek yetmez. Hangi degerler ziyaret ediliyor? Ic dongu her satirda kac kez calisiyor? Once bu listeyi yaz, sonra formulu sec.
+
 # Week 04 — Lists: Holding Many Things at Once
 
 [Original lesson](w4/index.html)
@@ -1061,6 +1228,23 @@ For four items: `1/2 + 1/3 + 1/4 = 6/12 + 4/12 + 3/12 = 13/12`, about 1.083 upda
 Explain why a missing search over six values needs six comparisons, why two names can display the same appended item, and why a four-item all-pairs scan needs six comparisons. **Answers:** every candidate must be rejected; the names may share one list; the row counts are `3 + 2 + 1 + 0`.
 
 If any answer is uncertain, draw the list with indices, draw arrows from names to the list, or enumerate pairs on paper. Then change one input and predict the outcome again. Complete [Review A — Weeks 1–4](#review-a) before moving on: this is the built-in consolidation point for instructions, types, loops and lists. Week 5 packages a process into a function and measures it with a stopwatch. Clear inputs, correct outputs and meaningful counts come first.
+
+## Additional analysis laboratory
+
+Lists introduce the difference between known position and unknown value. This distinction is the bridge from basic Python to algorithm analysis.
+
+| Question | Operation | Cost idea |
+| --- | --- | --- |
+| What is `data[3]`? | direct indexed access | reach one known slot |
+| Is 3 somewhere in `data`? | membership search | inspect values until found or exhausted |
+| How many times does 3 occur? | full count | inspect every item; early stopping would be wrong |
+| What is the largest item? | scan with remembered best | one pass and an invariant |
+
+Extra exam-style prompt: For `[4, 1, 4, 9, 4]`, compare "does 4 appear?" with "how many 4s appear?" Give the output and the necessary inspections.
+
+Solution: Membership can stop after the first item and return True after one comparison. Counting occurrences must inspect all five items and returns 3. The same input and target produce different work because the output contract is different.
+
+**Turkce:** "Aramak" ve "saymak" ayni is degildir. Ilk eslesmede durmak, var mi sorusu icin dogru olabilir; kac tane sorusu icin yanlistir.
 
 # Week 05 — Functions and trustworthy timing
 
@@ -1279,6 +1463,23 @@ Both methods satisfy these checks. Returning zero immediately would be extremely
 You are ready when you can trace `sum_to(4)`, explain `None`, put a timer around search alone, and compute a repeat statistic with correct units. If returns are unclear, repair Practice 1 before timing. If percentages are unclear, redo the 0.25 ms example entirely in milliseconds. If measurements fluctuate, keep the samples and inspect scope before making a claim.
 
 **Bridge to Week 6:** one timing answers “how long here?” Several input sizes answer “how does it change?” Bring the same function, correctness checks and measurement policy to the doubling experiment.
+
+## Additional analysis laboratory
+
+Functions let us put a boundary around the work being measured. The boundary must match the claim. If the claim is about a complete method, setup belongs inside the function; if the claim is query-only, setup must be reported separately.
+
+| Boundary choice | What it can support | What it cannot support |
+| --- | --- | --- |
+| time one expression once | a rough observation | a growth conclusion |
+| repeat a function on fixed data | a more stable estimate for that data | behavior at larger n |
+| generate data outside, time the function | function cost on supplied input | data-generation cost |
+| prepare a set outside, time lookup only | query cost after preparation | end-to-end method cost |
+
+Extra exam-style prompt: A report says a lookup method takes O(1) because the timer starts after the set is built. What wording repairs the claim?
+
+Solution: Say "After a set has already been built, each ordinary membership query is expected O(1) under the hash model." For the complete method, add the O(n) build cost and memory cost. If there are q queries, the total average model is O(n + q).
+
+**Turkce:** Kronometrenin nerede baslayip bittigi iddianin siniridir. Hazirlik isini disarida biraktiysan, bunu acikca soylemeden tum algoritmayi olcmus sayilmazsin.
 
 # Week 06 — Doubling experiments, plots, and noisy evidence
 
@@ -1506,6 +1707,23 @@ Core readiness means deriving ratios 2 and 4, labelling an ordinary plot with in
 Optional second-pass readiness means explaining how doubling affects logarithmic work and reading a log–log slope. If logs are unclear, rebuild the powers-of-two warm-up when you return to these sections in Weeks 7–8; this does not block your Week 7 core work.
 
 **Bridge to Week 7:** the stopwatch suggests a pattern. A line-by-line operation count explains why it arises, even when a shared computer gives noisy times.
+
+## Additional analysis laboratory
+
+The doubling experiment is a pattern detector. It should train caution, not overconfidence. Ratios near 2 or 4 suggest a model over the tested range, but the explanation comes from the code and count.
+
+| Observed doubling ratio | Candidate explanation | Needed check |
+| --- | --- | --- |
+| near 1 | constant or setup-dominated range | increase n or isolate setup |
+| near 2 | linear dominant work | identify one pass through n items |
+| near 4 | quadratic dominant work | identify pair work or repeated growing work |
+| changing from 8 toward 4 | lower-order or cache effects may still matter | add larger sizes and explain the loop |
+
+Extra exam-style prompt: Timings are 0.003, 0.006, 0.013, and 0.026 seconds for n = 500, 1000, 2000, 4000. What should the report say?
+
+Solution: Ratios are about 2, 2.17, and 2. The measurements support roughly linear scaling over these sizes. The report should also state repeat policy, timer boundary, variability, and the code reason for one pass. It should not claim a proof from timings alone.
+
+**Turkce:** Oranlar ipucu verir. Kanit yerine gecmez. Bir tablo yazdiktan sonra mutlaka "hangi is tekrar ediyor?" sorusuna don.
 
 # Week 07 — Exact operation counts and dominant growth
 
@@ -1775,6 +1993,24 @@ You are ready when you can derive 2n, n², 10n and n(n−1)/2 without guessing f
 
 **Bridge to Week 8:** now that you can justify a cost formula, you are ready to express an upper bound precisely and distinguish it from a tight description of growth.
 
+## Additional analysis laboratory
+
+Exact counting is where students learn to slow down. The safest method is to write the loop shape before simplifying.
+
+| Shape | Exact count | Growth |
+| --- | --- | --- |
+| one loop over n items | n | linear |
+| two consecutive full loops | n + n = 2n | linear |
+| full nested loops | n * n = n^2 | quadratic |
+| triangular nested loop | 0 + 1 + ... + (n - 1) | quadratic |
+| loop that halves the remaining candidates | about log2 n rounds | logarithmic |
+
+Extra exam-style prompt: A program first scans n readings to compute a maximum, then compares every pair of readings. Give the exact pair-comparison count and the total growth.
+
+Solution: The first scan contributes n visits or n - 1 comparisons depending on the chosen count. The pair phase has n(n - 1)/2 unordered comparisons if each distinct pair is checked once. The total is linear plus quadratic, so the dominant growth is quadratic.
+
+**Turkce:** Ard arda gelen isleri topluyoruz. Ic ice ve her kombinasyonu deneyen islerde carpma veya toplam cikiyor. Son adimda en buyuk terim buyume davranisini belirler.
+
 # Week 08 — Big-O, precise bounds, cases, and space
 
 [Original lesson](w8/index.html)
@@ -2028,6 +2264,23 @@ There are no ties among these four growth rates. The reasoning uses identities a
 You are ready when you can exhibit c and n₀, explain why O(n²) can be loose, calculate the successful-search mean, and give separate time and space accounts. If a bound feels like a guess, redo Practice 1 using inequalities. If you mix cases, write three separate rows for search. Use [Review C](#review-c) to repair those core gaps. Strict small-o/omega, oscillation examples, and extended function ordering are optional: when returning to them, simplify powers, logs, and sums before comparing. They need not be mastered before Week 9.
 
 **Bridge to Week 9:** four correct anagram methods will apply these distinctions. You will compare strategy, operation counts, input contracts, hidden built-in work and memory rather than choosing a winner from a complexity label alone.
+
+## Additional analysis laboratory
+
+Big-O should not arrive as a magic label. Require a witness or a reason. For beginner work, a plain-language witness is often enough: give a constant multiplier and a starting size, or point to a known operation with stated assumptions.
+
+| Claim | Missing piece | Stronger version |
+| --- | --- | --- |
+| this is O(n) | counted operation | missing-target scan makes n equality checks |
+| this is O(n^2) | loop relationship | for each of n items, the inner scan can inspect n items |
+| this is O(1) | model and case | list indexing is O(1) in the usual array-list model |
+| this is average O(1) | assumption | hash lookup is expected constant under ordinary hashing assumptions |
+
+Extra exam-style prompt: Show that 8n + 50 = O(n). Give valid constants.
+
+Solution: For n >= 1, 50 <= 50n. Therefore 8n + 50 <= 58n. So c = 58 and n0 = 1 work. A tighter choice is possible, but unnecessary. The expression is also O(n^2), but O(n) is the closer useful bound.
+
+**Turkce:** Big-O cikarimi "bence" ile bitmez. Bir esitsizlik, bir dongu sayimi veya belgelenmis bir veri yapisi modeli gerekir.
 
 # Week 09 — One problem, four strategies
 
@@ -2321,6 +2574,23 @@ If matching is unclear, redraw Practice 1 and physically cross out each used pos
 
 Week 10 compares data structures and the costs of their operations. Carry forward this week's main habit: a representation is useful because it makes the operations your problem needs cheaper or clearer. The array of counts worked because the question was about frequency, not order.
 
+## Additional analysis laboratory
+
+The anagram case study is valuable because all methods can be correct while their costs differ dramatically. Protect the output contract before naming a winner.
+
+| Strategy | Main repeated work | Risk to explain |
+| --- | --- | --- |
+| check off matched letters | repeated search in the remaining letters | duplicate handling and marking used positions |
+| sort both strings | sorting work | sorting cost and character normalization |
+| generate all permutations | factorial candidate explosion | impossible growth for modest n |
+| count characters | one pass plus table comparison | alphabet size, case, spaces, and memory |
+
+Extra exam-style prompt: Are `"Dormitory"` and `"dirty room"` anagrams? Give two possible contracts and explain why the answer changes.
+
+Solution: Under a literal character contract including case and spaces, they are not the same multiset. Under a normalized phrase contract that ignores spaces and case, both become the same letters, so they are anagrams. Analysis must state the contract before comparing strategies.
+
+**Turkce:** Ayni kelime oyunu farkli kurallarla farkli cevap verir. Bosluk, buyuk harf ve noktalama davranisi belirtilmeden hiz karsilastirmasi eksiktir.
+
 # Week 10 — The real cost of list operations
 
 [Original lesson](w10/index.html)
@@ -2479,6 +2749,24 @@ For text, collecting pieces and joining once avoids relying on repeated reconstr
 You are ready when you can derive the triangular sum, explain an expensive append without contradicting amortized O(1), and preserve a queue's order while improving its cost. If the sum feels mysterious, rebuild the four-row insertion table with six values. If space and time blur together, draw which copies are alive simultaneously. If timing feels decisive, state the operation count before looking at seconds.
 
 Next week keeps the same question but changes the dominant operation: instead of shifting a list repeatedly, you will search it repeatedly. A set can help, provided its missing order and duplicate information do not change the answer.
+
+## Additional analysis laboratory
+
+This week is about hidden work inside familiar operations. Students should annotate one Python statement with the work it causes.
+
+| Statement | Hidden work to notice |
+| --- | --- |
+| `data.insert(0, x)` | existing references shift right |
+| `data.pop(0)` | remaining references shift left |
+| `data = data + [x]` | a new list copies old references and the new reference |
+| `data[:k]` | k references are copied |
+| `x in data` | values are inspected until match or exhaustion |
+
+Extra exam-style prompt: A queue implementation repeatedly uses `pop(0)` on n jobs. Give the total shift count and a better container.
+
+Solution: The shifts are n - 1, n - 2, ..., 0, totaling n(n - 1)/2. That is quadratic total shifting. A `deque` supports left removals efficiently for queue behavior, while preserving arrival order. It is not a drop-in replacement for every list use, especially random middle indexing.
+
+**Turkce:** Tek satir kod tek is demek degildir. Listenin basindan silmek, kalan elemanlari kaydirir. Kuyruk davranisi istiyorsan veri yapisi secimi algoritmanin parcasidir.
 
 # Week 11 — Sets, dictionaries, and preparing once
 
@@ -2639,6 +2927,23 @@ At q = 38, list time is 3.04 ms and set time is 3.076 ms, so preparation loses n
 You are ready when you can trace a count update, explain why duplicate removal can be incorrect, state hash lookup's average and worst cases, and include construction in a total cost. Repair a gap by rebuilding the six-visit table, drawing the eight buckets, or repeating the break-even calculation with twice the build cost.
 
 The next bridge is an order question: “How many observations lie between these two limits?” A set alone does not preserve the ordering or multiplicities needed for that answer. Week 12 uses sorted sequences and carefully maintained search boundaries.
+
+## Additional analysis laboratory
+
+Sets and dictionaries are not magic speed buttons. They are prepared structures with assumptions and trade-offs.
+
+| Choice | Good for | Cost to remember |
+| --- | --- | --- |
+| list scan | one small query, preserve order naturally | O(n) worst-case membership |
+| set | many membership questions on hashable values | build cost, memory, duplicates collapse |
+| dictionary | lookup associated values by key | key uniqueness; updating a key replaces a value |
+| list plus set | preserve list order while using fast membership | maintain two structures consistently |
+
+Extra exam-style prompt: For `left = [2, 2, 5]` and `right = [2, 9]`, the required output is values from `left` that appear in `right`, preserving order and repeats. Why is set intersection incomplete?
+
+Solution: `set(left) & set(right)` gives `{2}`, which loses the second 2 and the list order. Build `right_lookup = set(right)`, then scan `left` and append each value that appears in the lookup. The output is `[2, 2]`.
+
+**Turkce:** Kume tekrar sayisini saklamaz. Hiz kazanirken cevabin anlamini degistiriyorsan algoritma daha iyi degil, farkli bir sorunun cevabidir.
 
 # Week 12 — Binary search, boundaries, and preparation
 
@@ -2824,6 +3129,22 @@ You are ready when you can complete both traces without guessing, explain the em
 
 Next week explains the sorting cost used here. You will count real comparisons, distinguish best from worst inputs, and see why preparation is often O(n log n) instead of O(n²).
 
+## Additional analysis laboratory
+
+Binary search is a boundary discipline. Most wrong versions lose the answer by updating bounds carelessly or by forgetting that sortedness is a prerequisite.
+
+| Boundary convention | Meaning | Common repair |
+| --- | --- | --- |
+| inclusive low and high | both endpoints may still contain the answer | loop while low <= high |
+| half-open low and high | low may contain answer, high is excluded | loop while low < high |
+| insertion position | return where target would be placed | do not require equality to report a useful boundary |
+
+Extra exam-style prompt: You have one membership query on an unsorted list. A classmate says to sort and binary search because log n is smaller than n. What is missing?
+
+Solution: Sorting must be paid for unless the list is already sorted. For one query, sort plus binary search is O(n log n) + O(log n), while direct scan is O(n). If many later ordered queries are needed, or if sorted order is already available, the conclusion can change.
+
+**Turkce:** Ikili arama yalnizca sirali veri uzerinde guvenlidir. Siralama maliyeti baska yerde odenmediyse analizden silinemez.
+
 # Week 13 — Sorting: count the work and preserve the meaning
 
 [Original lesson](w13/index.html)
@@ -2998,6 +3319,23 @@ The optional triangle puzzle uses the same “count contributions” habit. Row 
 | Auxiliary space | Yardımcı bellek: extra workspace beyond input/output |
 
 You are ready when you can reproduce 9/4 for bubble and 10/2 for selection, derive the triangular count, and explain a stable tie. Repair counting gaps with three items before returning to five. Repair complexity gaps by naming the input case explicitly. Bring these habits to Week 14, where two correct approaches become a complete, evidence-based recommendation.
+
+## Additional analysis laboratory
+
+Sorting connects correctness, stability, and cost. A sort is not only "put items in order"; it must say which key defines order and what happens to ties.
+
+| Method | What to trace | Cost idea |
+| --- | --- | --- |
+| bubble sort | adjacent swaps and passes | repeated comparisons, quadratic worst case |
+| selection sort | minimum selection for each suffix | quadratic comparisons even if few swaps |
+| insertion sort | shifts until each item reaches its place | fast on nearly sorted data, quadratic worst case |
+| Python `sorted` | key function and stability | O(n log n) worst-case guarantee for comparisons in the documented model |
+
+Extra exam-style prompt: Sort student records by grade descending, preserving original order among equal grades. What must the contract say?
+
+Solution: The key is grade, the direction is descending, and ties must keep input order. A stable sort with key `grade` and reverse order satisfies the tie requirement. If ties may be reordered, the output contract is different. Analysis should include key computation cost if it is expensive.
+
+**Turkce:** Siralama kuralini tam soyle: hangi alana gore, artan mi azalan mi, esitlikte ne olacak? Bu ayrinti hem dogrulugu hem maliyeti etkileyebilir.
 
 # Week 14 — From a correct algorithm to a convincing report
 
@@ -3212,6 +3550,25 @@ Repeatedly sorting n items n times can be O(n² log n), so not every hidden expe
 You are ready to finish when another person can reproduce your table, understand why both methods answer the same question, follow your prediction arithmetic, and identify the scope of your recommendation. Repair missing correctness with a hand-traced example. Repair unclear growth by exposing the repeated operation and its bound. Repair a weak report by replacing “much faster” with a size, a ratio, an explanation, and a limitation.
 
 **Türkçe:** Son kontrol şudur: Arkadaşınız sonuçları sizin yardımınız olmadan anlayabiliyor mu? Hangi sayı ölçüldü, hangisi hesaplandı, hangi varsayım kullanıldı açık mı? Bu açıklık, sonraki Veri Yapıları ve Algoritmalar dersine taşıyacağınız temel beceridir.
+
+## Additional analysis laboratory
+
+The final report should read like an engineering decision, not a speed contest. It must connect correctness, model, measurement, and limitation.
+
+| Report sentence | Purpose |
+| --- | --- |
+| The input is ... and the required output is ... | fixes the contract |
+| I define n as ... and m as ... | fixes the size variables |
+| Method A repeats ... while Method B prepares ... | exposes the cost difference |
+| The benchmark includes ... and excludes ... | defines the evidence boundary |
+| I recommend ... when ... because ... | makes a conditional engineering choice |
+| A limitation is ... | prevents overclaiming |
+
+Extra exam-style prompt: Method B is faster at four sizes but uses extra memory and changes output order. Can the report recommend it?
+
+Solution: Only if the output contract permits the changed order and the memory cost is acceptable. If order must be preserved, Method B must be repaired or rejected despite the timing. If order is irrelevant, the report can recommend B for the tested workload while stating the memory trade-off and the tested size range.
+
+**Turkce:** Final proje "en hizli kodu buldum" demek degildir. Dogru cevap, maliyet modeli, olcum siniri ve hangi kosulda onerildigi ayni paragrafta gorunmelidir.
 
 # Four review sessions inside the 14 weeks
 
