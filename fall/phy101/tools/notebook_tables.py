@@ -121,7 +121,7 @@ def format_markdown_tables(source: str) -> str:
                 widths = [_column_width([headers[c]] + [row[c] for row in rows])
                           for c in range(len(headers))]
                 output = ['<table width="100%">', '<thead>', '<tr>']
-                output += [f'<th width="{width}" scope="col">{_inline(header)}</th>'
+                output += [f'<th align="left" width="{width}" scope="col">{_inline(header)}</th>'
                            for header, width in zip(headers, widths)]
                 output += ['</tr>', '</thead>', '<tbody>']
                 for row in rows:
