@@ -118,6 +118,38 @@ registered animation or an honest pointer to Colab, decided by the `ANIMS` table
 `build_site.py`, which matches on the interactive cell's heading text. If a heading is reworded in the
 notebook, the build fails loudly rather than silently dropping the animation.
 
+### What the page makes of a notebook cell
+
+The builder classifies each cell from the notebook's own conventions, so the page gets typed furniture
+instead of a wall of prose. This means **the notebook's headings and markup are load-bearing**:
+
+| In the notebook | On the page |
+| --- | --- |
+| `### Worked example: ...` or `### Worked Example 1: ...` | numbered worked-example box |
+| `### Worked Examples` (plural, alone) | an ordinary section heading, not an example |
+| `#### Checkpoint 1 of 3 ...` | "Check yourself" box |
+| `### Learning Objectives` + numbered list | numbered objective cards |
+| `### Interactive ...` | the week's animation, or a Colab pointer |
+| a display equation wrapped in `\boxed{...}` | numbered **key-equation card** + an entry in the end-of-page summary |
+| a paragraph opening `**Not this week.**`, `**Not yet.**`, `**Caution**` | caution callout |
+| a paragraph opening `**TR:**` / `**Türkçe:**` | margin note in the gutter (its `TR:` prefix stripped) |
+| `## Heading / Türkçe başlık` | numbered section with the Turkish as a subtitle |
+
+Two editorial rules follow from that table:
+
+1. **Box the equations you want highlighted.** A `\boxed{}` display equation becomes a key-equation card
+   and appears in the week's summary; an unboxed one is just prose. Week 02 originally boxed nothing, so
+   its page had no key equations at all until the four constant-acceleration equations were boxed in the
+   notebook. Boxing them improved the Colab notebook too, which is the point of keeping one source.
+2. **Do not box a final numerical answer outside a worked example.** Inside a worked example, boxed
+   answers are left alone — the builder ignores `\boxed` there, and a numeric-looking box anywhere else
+   is filtered by `looks_like_an_answer()`. Otherwise "Q = 0.283 m³/s" gets advertised as a law.
+
+Figures come from `tools/figures.py`, are numbered per week, anchored to a heading substring, and carry
+their Turkish caption as a margin note. A figure whose anchor stops matching fails the build rather than
+silently disappearing. Every colour in them is a CSS custom property, so they follow the theme with no
+second drawing.
+
 Animations live in `assets/anim-wN.js` and register into the shared harness in `assets/anim.js`
 (`PhyAnim.register(name, fn)`, with `PhyAnim.ui` providing `Scene`/`plot`, `Player`, `predict`,
 `seg`, `slider`, `stat`). The harness follows the same conventions as `aa/assets/anim.js` — no

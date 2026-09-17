@@ -52,11 +52,28 @@ def main():
         nb = json.loads((ROOT / wk["notebook"]).read_text(encoding="utf-8"))
 
         # 1. regenerable, byte for byte
-        fresh, _, missing = B.week_page(wk, nb, B.published_weeks())
+        fresh, _, missing_anim, missing_fig, meta = B.week_page(wk, nb, B.published_weeks())
         check(fresh == html_text,
               f"{rel}: differs from a fresh build - it was hand-edited, or the notebook "
               f"changed and build_site.py was not re-run")
-        check(not missing, f"{rel}: animation host never placed: {', '.join(missing)}")
+        check(not missing_anim, f"{rel}: animation host never placed: {', '.join(missing_anim)}")
+        check(not missing_fig, f"{rel}: figure never placed: {', '.join(missing_fig)}")
+
+        # 1b. the typed furniture actually came out
+        check(meta["sections"], f"{rel}: no numbered sections were produced")
+        check(len(meta["sections"]) <= 9,
+              f"{rel}: {len(meta['sections'])} sections - the heading hierarchy has flattened again")
+        n_fig = len(re.findall(r'<figure class="figure"', html_text))
+        check(n_fig == meta["figures"], f"{rel}: figure count disagrees with the build")
+        for label in ("Key equation", "Worked example", "Figure"):
+            if label == "Figure" and not n_fig:
+                continue
+            check(label in html_text, f"{rel}: no {label!r} furniture on the page")
+
+        # 1c. margin notes must not repeat the label the aside already carries
+        dupes = re.findall(r'<span class="mn-label"[^>]*>T[^<]*</span>\s*<p>\s*'
+                           r'(?:<strong>)?\s*(?:TR|T\u00fcrk\u00e7e|Turkish)\s*[:.]', html_text)
+        check(not dupes, f"{rel}: {len(dupes)} margin note(s) still print their own TR: prefix")
 
         # 2. local assets exist
         for href in set(re.findall(r'(?:href|src)="(\.\./[^"]+)"', html_text)):
@@ -78,6 +95,7 @@ def main():
 
         # 5. no raw markdown left in the output
         body = html_text.split('<main', 1)[-1]
+        body = re.sub(r"<svg.*?</svg>", "", body, flags=re.S)      # figures are hand-written SVG
         for pattern, label in [(r"\*\*[^*\n]{2,60}\*\*", "bold markdown"),
                                (r"@@(?:MATH|CODE)\d+@@", "a protected-token placeholder"),
                                (r"\]\((?:\.\./|#)[^)]*\)", "an unconverted markdown link")]:

@@ -2,7 +2,7 @@
 """
 Static week-notes generator for PHY101.
 
-    python3 fall/phy101/tools/build_site.py            # every week that has an animation set
+    python3 fall/phy101/tools/build_site.py            # every week with an animation set
     python3 fall/phy101/tools/build_site.py 1 2        # only these weeks
     python3 fall/phy101/tools/build_site.py all        # all 13
 
@@ -10,6 +10,7 @@ Reads the CANONICAL sources and writes generated pages:
 
     calendar.json            dates, titles, lab column, scope   (never edited here)
     notebooks/Week_NN.ipynb  the teaching content
+    tools/figures.py         the inline SVG figure library
         |
         v
     w1/index.html ... w13/index.html      published as
@@ -20,15 +21,35 @@ is the only way the web notes change, which is what stops them drifting away
 from the notebooks the way a second hand-written copy would. PUBLIC_URLS.md
 records the routing rule this preserves.
 
-What a page carries (decided 17 September 2026): the concepts, worked examples,
-the method/standards block, the lab box and the animations. Problem sets stay
-in the notebook, because inline answers at a clean public URL would reach the
-parallel sections sitting the same common exam.
+WHAT THIS DOES BEYOND CONVERTING MARKDOWN
+-----------------------------------------
+A notebook cell is an undifferentiated block of prose. A textbook page is not:
+it has typed furniture, and the reader navigates by recognising the shape of a
+thing before reading it. So the notebook's own conventions are used to classify
+each block, and the classes are given that shape:
+
+    heading "Worked example ..."   -> numbered worked-example box
+    heading "Checkpoint ..."       -> "check yourself" box
+    heading "Learning Objectives"  -> numbered objective cards
+    heading "Interactive ..."      -> the week's animation, or a Colab pointer
+    display maths with \\boxed      -> numbered key-equation card, and an entry
+                                      in the end-of-page equation summary
+    paragraph opening "Not this
+    week" / "Not yet"              -> caution callout
+    paragraph marked TR / Turkce   -> margin note in the gutter, beside the
+                                      English rather than interrupting it
+
+Section headings are numbered (2.1, 2.2, ...) and collected into a contents
+card. Figures come from tools/figures.py, are numbered per week, and carry
+their Turkish caption as a margin note.
 
 The notebook's ipywidgets demonstrations cannot survive as static HTML, so each
 becomes either a registered animation (assets/anim-wN.js) or an honest pointer
 to Colab. The animation keeps the notebook's prediction prompt, because
 COURSE_POLICY.md 6 requires the prediction before the demonstration.
+
+Problem sets stay in the notebook: inline answers at a clean public URL would
+reach the parallel sections sitting the same common exam.
 """
 
 import html
@@ -36,6 +57,9 @@ import json
 import pathlib
 import re
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import figures as FIGLIB
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]          # .../fall/phy101
 REPO_SUBPATH = "fall/phy101"
@@ -49,8 +73,11 @@ SRI_CSS = "sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l
 SRI_JS = "sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
 SRI_AUTO = "sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
 
-# Which interactive notebook cell each animation replaces, matched on the cell's
-# heading text. Weeks with no entry fall back to a Colab pointer.
+FONTS = ("https://fonts.googleapis.com/css2"
+         "?family=JetBrains+Mono:wght@400;600;700"
+         "&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400"
+         "&family=Syne:wght@400;600;700&display=swap")
+
 ANIMS = {
     1: [("Vector Components Visualizer", {
         "name": "w1-vectors",
@@ -68,7 +95,7 @@ ANIMS = {
                 "shaded area under the velocity graph is the displacement.",
         "foot": "Velocity is the slope of the position graph; displacement is the area under the "
                 "velocity graph. Both are visible here before either is written as calculus. "
-                "Area below the axis is shaded red because it counts as negative displacement \u2014 "
+                "Area below the axis is shaded red because it counts as negative displacement — "
                 "which is why the throw comes back to where it started.",
         "foot_tr": "Hız, konum grafiğinin eğimi; yer değiştirme ise hız "
                    "grafiğinin altındaki alandır.",
@@ -78,6 +105,8 @@ ANIMS = {
 MATH_TOKEN = "@@MATH%d@@"
 CODE_TOKEN = "@@CODE%d@@"
 
+
+# ---------------------------------------------------------------- markdown
 
 def protect(text, pattern, token, store, flags=0):
     def sub(m):
@@ -240,14 +269,164 @@ def md_to_html(text, heading_shift=0):
     return result
 
 
-# ---------------------------------------------------------------- notebook walk
+# ---------------------------------------------------------------- components
 
-def heading_of(md_text):
-    for line in md_text.split("\n"):
-        m = re.match(r"^#{1,6}\s+(.*)$", line.strip())
-        if m:
-            return m.group(1)
-    return ""
+CAUTION_LEADS = ("Not this week", "Not yet", "Caution", "A caution", "The catch")
+
+
+def is_examples_header(head_l):
+    """"Worked Examples" alone is a section divider, not an example itself."""
+    return bool(re.match(r"^(?:\W*\s*)?worked examples\s*$", head_l))
+
+
+TR_PREFIX = re.compile(
+    r"^\s*(?:<strong>\s*)?(?:TR|Türkçe(?:\s+destek)?|Turkish)\s*[:.]?\s*"
+    r"(?:</strong>)?\s*[:.]?\s*", re.I)
+
+
+def to_margin_notes(body):
+    """Move Turkish paragraphs out of the reading column and into the gutter.
+
+    The aside carries its own "Türkçe" label, so the paragraph's own "TR:"
+    prefix is stripped instead of being printed twice.
+    """
+    def repl(m):
+        text = TR_PREFIX.sub("", m.group(1)).strip()
+        return ('<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span>'
+                f"<p>{text}</p></aside>")
+    return re.sub(r'<p lang="tr">(.*?)</p>', repl, body, flags=re.S)
+
+
+def unbox(tex):
+    r"""Remove \boxed{...} but keep its contents.
+
+    The key-equation card is already a box, so letting KaTeX draw another one
+    inside it gives a box inside a box. Brace counting rather than a regex,
+    because the contents contain braces of their own.
+    """
+    out, i = [], 0
+    needle = r"\boxed{"
+    while True:
+        j = tex.find(needle, i)
+        if j < 0:
+            out.append(tex[i:])
+            return "".join(out)
+        out.append(tex[i:j])
+        depth, k = 1, j + len(needle)
+        while k < len(tex) and depth:
+            if tex[k] == "{":
+                depth += 1
+            elif tex[k] == "}":
+                depth -= 1
+            k += 1
+        out.append(tex[j + len(needle):k - 1] if depth == 0 else tex[j + len(needle):k])
+        i = k
+
+
+def looks_like_an_answer(tex):
+    """True when the boxed thing is a number with a unit, not a relation.
+
+    Worked examples box their final answers, so treating every \boxed as a key
+    equation ended up advertising "Q = 0.283 m^3/s" as a law of physics. A key
+    equation relates symbols to each other; an answer is arithmetic.
+    """
+    inner = re.findall(r"\\boxed\{(.+?)\}", tex, re.S)
+    if not inner:
+        return False
+    body = inner[-1]
+    stripped = re.sub(r"\\mathrm\{[^}]*\}", "", body)          # units are not symbols
+    stripped = re.sub(r"\\[a-zA-Z]+", "", stripped)            # nor are macro names
+    letters = set(re.findall(r"[A-Za-z]", stripped))
+    digits = re.findall(r"\d", stripped)
+    return len(letters) <= 2 and len(digits) >= 2
+
+
+def to_key_equations(body, week, counter, collected, allow=True):
+    """A display equation the notebook marked with \boxed is a key equation."""
+    def repl(m):
+        tex = m.group(1)
+        if not allow or "\\boxed" not in tex or looks_like_an_answer(tex):
+            return m.group(0)
+        counter[0] += 1
+        num = f"{week}.{counter[0]}"
+        shown = unbox(tex)
+        collected.append((num, shown))
+        return (f'<div class="keyeq" id="eq-{week}-{counter[0]}">'
+                f'<div class="keyeq-head"><span>Key equation {num}</span></div>'
+                f'<div class="keyeq-body">{shown}</div></div>')
+    return re.sub(r"<p>\s*(\$\$.*?\$\$)\s*</p>", repl, body, flags=re.S)
+
+
+def to_cautions(body):
+    def repl(m):
+        lead = m.group(1)
+        if not any(lead.startswith(x) for x in CAUTION_LEADS):
+            return m.group(0)
+        return ('<div class="callout caution"><span class="callout-label">Watch out</span>'
+                f"<p><strong>{lead}</strong>{m.group(2)}</p></div>")
+    return re.sub(r"<p><strong>([^<]{3,40})</strong>(.*?)</p>", repl, body, flags=re.S)
+
+
+def split_heading(body):
+    """Pull the first heading off a block so it can be re-framed as a box header."""
+    m = re.search(r"<(h[2-6])>(.*?)</\1>", body, re.S)
+    if not m:
+        return None, body
+    return m.group(2), (body[:m.start()] + body[m.end():]).strip()
+
+
+NON_ASCII = re.compile(r"[^\x00-\x7f]")
+
+
+def split_bilingual(title):
+    """"Before you start / Baslamadan once" -> (English, Turkish).
+
+    Only splits when the right-hand side actually looks Turkish, so an
+    English heading that happens to contain a slash is left alone.
+    """
+    if " / " not in title:
+        return title, ""
+    left, right = title.rsplit(" / ", 1)
+    if NON_ASCII.search(right) and not NON_ASCII.search(left):
+        return left.strip(), right.strip()
+    return title, ""
+
+
+def number_sections(body, week, sections):
+    """Number h2 headings, give them ids, and record them for the contents card."""
+    def repl(m):
+        title = m.group(1)
+        # the notebook already numbers its sections ("2. Concepts ..."); drop it
+        # so the page does not print two numbers for one heading
+        title = re.sub(r"^\s*\d+\.\s+", "", title)
+        en, tr = split_bilingual(title)
+        plain = re.sub(r"<[^>]+>", "", en).strip()
+        slug = re.sub(r"[^a-z0-9]+", "-", plain.lower()).strip("-")[:48] or f"s{len(sections) + 1}"
+        num = f"{week}.{len(sections) + 1}"
+        sections.append((num, plain, slug))
+        sub = f'<em lang="tr">{tr}</em>' if tr else ""
+        return f'<h2 id="{slug}"><span class="num">{num}</span>{en}{sub}</h2>'
+    return re.sub(r"<h2>(.*?)</h2>", repl, body, flags=re.S)
+
+
+def tidy_subheadings(body):
+    """Give h3 topics the same bilingual treatment, without numbering them."""
+    def repl(m):
+        en, tr = split_bilingual(m.group(2))
+        sub = f'<em lang="tr">{tr}</em>' if tr else ""
+        return f"<{m.group(1)}>{en}{sub}</{m.group(1)}>"
+    return re.sub(r"<(h3|h4)>(.*?)</\1>", repl, body, flags=re.S)
+
+
+def figure_block(fig, week, index):
+    num = f"{week}.{index}"
+    tr = ""
+    if fig.get("caption_tr"):
+        tr = ('<aside class="mn fig-ref"><span class="mn-label">'
+              f'ŞEKİL {num}</span><p>{fig["caption_tr"]}</p></aside>')
+    return (f'{tr}<figure class="figure" id="{fig["slug"]}">{fig["svg"]}'
+            f'<figcaption><span class="fig-num">Figure {num}</span>{fig["caption"]}'
+            "</figcaption></figure>")
 
 
 def anim_block(cfg, prose_html):
@@ -270,25 +449,26 @@ def anim_block(cfg, prose_html):
 
 def colab_pointer(title, prose_html, week):
     return f"""{prose_html}
-<div class="note grey">
-  <span class="label">Interactive in the notebook</span>
+<div class="callout grey">
+  <span class="callout-label">Interactive in the notebook</span>
   <p><strong>{html.escape(title)}</strong> is a live demonstration with sliders. It needs a running
   Python kernel, so it cannot run on this page &mdash;
   <a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">open Week {week:02d} in Colab</a>, run the setup
   cell once, then run this demonstration.</p>
-  <p lang="tr">Bu g&ouml;sterim &ccedil;al&#305;&#351;an bir Python &ccedil;ekirde&#287;i gerektirir;
-  not defterini Colab'da a&ccedil;&#305;p kurulum h&uuml;cresini bir kez &ccedil;al&#305;&#351;t&#305;r.</p>
 </div>"""
 
 
 def notebook_body(week, nb):
-    """Walk the notebook and emit the web body, section by section."""
+    """Walk the notebook and emit a typeset body plus the page's structure."""
     anims = ANIMS.get(week, [])
-    used = set()
+    figs = list(FIGLIB.for_week(week))
+    used_anims, used_figs = set(), set()
     pre = f"w{week:02d}"
     out = []
     section = "front"
     skipped = {"code": 0, "setup": 0, "problems": 0, "contents": 0}
+    sections, equations = [], []
+    eq_counter, fig_counter, wex_counter, chk_counter = [0], [0], [0], [0]
 
     for cell in nb["cells"]:
         src = "".join(cell["source"])
@@ -312,33 +492,99 @@ def notebook_body(week, nb):
         if re.match(r"^#\s+Week\s", src.strip()):
             continue                                   # the hero replaces the title cell
 
-        head = heading_of(src)
-        body = md_to_html(src, heading_shift=-1)
+        raw_head = ""
+        m = re.match(r"^#{1,6}\s+(.*)$", src.strip().split("\n")[0])
+        if m:
+            raw_head = m.group(1)
 
-        if "nteractive" in head:
+        head_probe = raw_head.lower()
+        in_example = (
+            (re.match(r"^(?:\W*\s*)?worked example", head_probe)
+             or re.match(r"^example \d", head_probe))
+            and not is_examples_header(head_probe)
+        ) or "checkpoint" in head_probe
+
+        body = md_to_html(src, heading_shift=0)
+        body = to_key_equations(body, week, eq_counter, equations, allow=not in_example)
+        body = to_cautions(body)
+        body = to_margin_notes(body)
+
+        head_l = raw_head.lower()
+
+        # --- interactive demonstrations -------------------------------------
+        if "nteractive" in head_l:
             cfg = None
             for needle, candidate in anims:
-                if needle.lower() in head.lower() and candidate["name"] not in used:
+                if needle.lower() in head_l and candidate["name"] not in used_anims:
                     cfg = candidate
                     break
             if cfg:
-                used.add(cfg["name"])
+                used_anims.add(cfg["name"])
                 out.append(anim_block(cfg, body))
             else:
-                out.append(colab_pointer(head, body, week))
-            continue
+                out.append(colab_pointer(raw_head, body, week))
 
-        if src.lstrip().startswith("## Lesson plan"):
-            out.append('<div class="note blue">' + body + "</div>")
-            continue
+        # --- worked examples -------------------------------------------------
+        elif (re.match(r"^(?:\W*\s*)?worked example", head_l)
+              or re.match(r"^example \d", head_l)) and not is_examples_header(head_l):
+            title, rest = split_heading(body)
+            if title is None:
+                out.append(body)
+            else:
+                wex_counter[0] += 1
+                num = f"{week}.{wex_counter[0]}"
+                title = re.sub(r"^\s*(?:Worked [Ee]xample\s*\d*\s*[:—-]?\s*)", "", title).strip()
+                title = title or "Worked example"
+                out.append(f'<section class="wex" id="wex-{week}-{wex_counter[0]}">'
+                           f'<div class="wex-head"><span class="wex-num">Worked example {num}</span>'
+                           f"<h3>{title}</h3></div>"
+                           f'<div class="wex-body">{rest}</div></section>')
 
-        out.append(body)
+        # --- checkpoints -----------------------------------------------------
+        elif "checkpoint" in head_l:
+            title, rest = split_heading(body)
+            chk_counter[0] += 1
+            label = f"Check yourself {week}.{chk_counter[0]}"
+            clean = re.sub(r"^[^A-Za-z]*", "", title or "").strip()
+            clean = re.sub(r"^Checkpoint\s*\d+\s*of\s*\d+\s*[—-]?\s*", "", clean).strip()
+            out.append(f'<div class="checkpoint"><span class="checkpoint-label">{label}'
+                       f"{' · ' + clean if clean else ''}</span>{rest}</div>")
 
-    missing = [c["name"] for _, c in anims if c["name"] not in used]
-    return "\n\n".join(out), skipped, missing
+        # --- learning objectives --------------------------------------------
+        elif "learning objectives" in head_l:
+            body = body.replace("<ol>", '<ol class="objectives">', 1)
+            out.append(body)
+
+        # --- the lesson plan -------------------------------------------------
+        elif src.lstrip().startswith("## Lesson plan"):
+            title, rest = split_heading(body)
+            out.append('<div class="callout blue"><span class="callout-label">'
+                       f"How the three hours run</span>{rest}</div>")
+
+        else:
+            out.append(body)
+
+        # --- figures that follow this block ----------------------------------
+        for i, fig in enumerate(figs):
+            if fig["slug"] in used_figs:
+                continue
+            if fig["after"].lower() in head_l:
+                used_figs.add(fig["slug"])
+                fig_counter[0] += 1
+                out.append(figure_block(fig, week, fig_counter[0]))
+
+    body = "\n\n".join(out)
+    body = number_sections(body, week, sections)
+    body = tidy_subheadings(body)
+
+    missing_anim = [c["name"] for _, c in anims if c["name"] not in used_anims]
+    missing_fig = [f["slug"] for f in figs if f["slug"] not in used_figs]
+    meta = {"sections": sections, "equations": equations,
+            "figures": fig_counter[0], "examples": wex_counter[0]}
+    return body, skipped, missing_anim, missing_fig, meta
 
 
-# ---------------------------------------------------------------- page assembly
+# ---------------------------------------------------------------- page
 
 def head_html(title, desc, week, has_anim):
     animcss = '<link rel="stylesheet" href="../assets/anim.css">\n' if has_anim else ""
@@ -366,7 +612,7 @@ def head_html(title, desc, week, has_anim):
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ctext y=%2724%27 x=%273%27 font-size=%2722%27 font-family=%27monospace%27 font-weight=%27700%27 fill=%27%23e65100%27%3EF%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Syne:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="{FONTS}" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
@@ -386,10 +632,12 @@ def head_html(title, desc, week, has_anim):
   </nav>
 </header>
 <main class="wrap" id="main">
+<article class="col">
 """
 
 
-FOOT = f"""</main>
+FOOT = f"""</article>
+</main>
 <footer class="site-footer">
   <span>{SITE} &middot; Dr. Arif Solmaz &middot; &#304;ST&#220;N</span>
   <span><a href="../web/PHY101_Course_Dashboard.html">Dashboard</a> &middot;
@@ -403,6 +651,11 @@ MONTHS = ["January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"]
 
 
+def month_day(iso):
+    _, m, d = (int(x) for x in iso.split("-"))
+    return f"{d} {MONTHS[m - 1]}"
+
+
 def published_weeks():
     """Weeks that currently have a generated page on disk."""
     out = set()
@@ -413,15 +666,39 @@ def published_weeks():
     return out
 
 
-def month_day(iso):
-    _, m, d = (int(x) for x in iso.split("-"))
-    return f"{d} {MONTHS[m - 1]}"
+def contents_card(sections):
+    if len(sections) < 3:
+        return ""
+    items = "".join(
+        f'<li><span class="num">{num}</span><a href="#{slug}">{html.escape(title)}</a></li>'
+        for num, title, slug in sections)
+    return ('<nav class="toc" aria-label="On this page">'
+            '<span class="toc-label">On this page</span>'
+            f"<ol>{items}</ol></nav>")
+
+
+def summary_card(week, equations):
+    if not equations:
+        return ""
+    items = "".join(
+        f'<div class="summary-item"><span class="tag">Equation {num}</span>{tex}</div>'
+        for num, tex in equations)
+    return (f'<section class="summary"><h2 id="key-equations">'
+            '<span class="num">∑</span>Key equations of this week</h2>'
+            '<p>Every equation the notebook boxed, in the order it appeared. If you can say what each '
+            'symbol is and when the equation does <em>not</em> apply, you are ready for the problem '
+            'set.</p>'
+            '<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Bu haftanın '
+            'çerçeveli denklemleri. Her sembolün ne olduğunu ve denklemin ne zaman '
+            'geçerli <em>olmadığını</em> söyleyebiliyorsan problem setine '
+            'hazırsın.</p></aside>'
+            f'<div class="summary-grid">{items}</div></section>')
 
 
 def week_page(wk, nb, known=None):
     num = wk["week"]
-    body, skipped, missing = notebook_body(num, nb)
-    has_anim = bool(ANIMS.get(num)) and not missing
+    body, skipped, missing_anim, missing_fig, meta = notebook_body(num, nb)
+    has_anim = bool(ANIMS.get(num)) and not missing_anim
     lab = wk.get("lab")
 
     chips = ['<span class="chip gold">3-hour session</span>']
@@ -429,10 +706,12 @@ def week_page(wk, nb, known=None):
         chips.append(f'<span class="chip">class {month_day(wk["session_date"])}</span>')
     if lab:
         chips.append(f'<span class="chip green">lab: {html.escape(lab["title_tr"])}</span>')
+    if meta["examples"]:
+        chips.append(f'<span class="chip">{meta["examples"]} worked examples</span>')
+    if meta["figures"]:
+        chips.append(f'<span class="chip">{meta["figures"]} figures</span>')
     chips.append('<span class="chip blue">departmental schedule &middot; common exams</span>')
 
-    # Only offer a neighbour that is actually published: linking to a week whose
-    # page has not been generated yet would hand students a 404.
     published = known if known is not None else published_weeks()
     prev_link = (f'<a href="../w{num - 1}/">&larr; Week {num - 1:02d}</a>'
                  if (num - 1) in published
@@ -444,14 +723,15 @@ def week_page(wk, nb, known=None):
     else:
         next_link = '<a href="../web/PHY101_Course_Dashboard.html">All weeks &rarr;</a>'
 
-    intro = f"""<div class="note orange">
-  <span class="label">How to use this page</span>
+    intro = f"""<div class="callout orange">
+  <span class="callout-label">How to use this page</span>
   <p>These notes are generated from the <strong>Week {num:02d} notebook</strong>, so they always say the
   same thing it does. Read here; do the problems in the notebook, where every problem shows its answer
   and the full worked solution opens later.</p>
-  <p lang="tr">Bu sayfa Week {num:02d} not defterinden &uuml;retilir, yani her zaman onunla
-  ayn&#305; &#351;eyi s&ouml;yler. Konuyu burada oku; problemleri not defterinde &ccedil;&ouml;z.</p>
-  <div class="btn-row" style="margin-top:.8rem">
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Bu sayfa Week {num:02d} not
+  defterinden &uuml;retilir, yani her zaman onunla ayn&#305; &#351;eyi s&ouml;yler. Konuyu burada oku;
+  problemleri not defterinde &ccedil;&ouml;z.</p></aside>
+  <div class="btn-row">
     <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Open Week {num:02d} in Colab</a>
     <a class="btn secondary" href="../notebooks/Week_{num:02d}.ipynb" download>Download notebook</a>
   </div>
@@ -464,30 +744,32 @@ def week_page(wk, nb, known=None):
         covers = ""
         if lab.get("covers_week") and lab["covers_week"] != num:
             covers = f' It measures the physics of <strong>Week {lab["covers_week"]:02d}</strong>.'
-        lab_box = f"""<div class="note green">
-  <span class="label">This week in the laboratory</span>
+        lab_box = f"""<div class="callout green">
+  <span class="callout-label">This week in the laboratory</span>
   <p><strong>{html.escape(lab["title_tr"])} / {html.escape(lab["title_en"])}</strong> &mdash;
   {html.escape(lab["focus"])}.{covers}</p>
   <p>Do the prediction in &sect;1 of the brief <strong>before</strong> you arrive; you will be asked for
   your predicted number at the bench. Laboratory analysis technique is not examined in the common
   midterm or final &mdash; the physics being measured is.</p>
-  <p lang="tr">Deneye gelmeden &ouml;nce brifingin &sect;1'indeki tahmini yap.</p>
-  <div class="btn-row" style="margin-top:.8rem">{brief}
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Deneye gelmeden &ouml;nce
+  brifingin &sect;1'indeki tahmini yap.</p></aside>
+  <div class="btn-row">{brief}
     <a class="btn secondary" href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Uncertainty toolkit</a>
   </div>
 </div>"""
 
-    problems = f"""<h2>Problem set</h2>
-<div class="note grey">
+    problems = f"""<h2 id="problem-set"><span class="num">{num}.P</span>Problem set</h2>
+<div class="callout grey">
   <p>The problem set for this week &mdash; core (L1), intermediate (L2) and challenge (L3) &mdash; is in
   the notebook, not on this page. Each problem shows its <strong>answer</strong> so you can check
   yourself; the full worked solution opens on the date printed under it.</p>
   <p><strong>Write your own attempt first:</strong> symbolic answer, one limiting-case check, then
   numbers. Opening the answer first turns a problem into a worked example, and worked examples do not
   build the skill the exam tests.</p>
-  <p lang="tr">Problem seti bu sayfada de&#287;il, not defterinde. &Ouml;nce kendi denemeni yaz &mdash;
-  sembolik sonu&ccedil;, s&#305;n&#305;r kontrol&uuml;, sonra say&#305;lar.</p>
-  <div class="btn-row" style="margin-top:.8rem">
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Problem seti bu sayfada
+  de&#287;il, not defterinde. &Ouml;nce kendi denemeni yaz &mdash; sembolik sonu&ccedil;,
+  s&#305;n&#305;r kontrol&uuml;, sonra say&#305;lar.</p></aside>
+  <div class="btn-row">
     <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Problem set in Colab</a>
   </div>
 </div>"""
@@ -502,7 +784,9 @@ def week_page(wk, nb, known=None):
 </div>""",
         intro,
         lab_box,
+        contents_card(meta["sections"]),
         body,
+        summary_card(num, meta["equations"]),
         problems,
         f"""<nav class="week-nav">
   {prev_link}
@@ -511,7 +795,7 @@ def week_page(wk, nb, known=None):
 </nav>""",
         FOOT,
     ])
-    return page, skipped, missing
+    return page, skipped, missing_anim, missing_fig, meta
 
 
 def main(argv):
@@ -523,29 +807,30 @@ def main(argv):
     else:
         wanted = sorted(ANIMS)
 
-    # What will exist once this run finishes: already-published pages plus the
-    # ones about to be written. Neighbour links are drawn from this.
     known = published_weeks() | set(wanted)
-
     failures = []
     for wk in calendar["weeks"]:
         if wk["week"] not in wanted:
             continue
         nb = json.loads((ROOT / wk["notebook"]).read_text(encoding="utf-8"))
-        page, skipped, missing = week_page(wk, nb, known)
+        page, skipped, missing_anim, missing_fig, meta = week_page(wk, nb, known)
         target = ROOT / f"w{wk['week']}" / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(page, encoding="utf-8")
-        note = ""
-        if missing:
-            note = "   !! animation host never placed: " + ", ".join(missing)
-            failures.append((wk["week"], missing))
-        print(f"  wrote {target.relative_to(ROOT)}  ({len(page):,} bytes; skipped "
-              f"{skipped['code']} code, {skipped['setup']} setup, {skipped['problems']} problem cells)"
-              f"{note}")
 
-    # A manifest of the weeks that actually have a page, so the dashboard can
-    # link only to pages that exist instead of a hand-kept list going stale.
+        notes = []
+        if missing_anim:
+            notes.append("animation host never placed: " + ", ".join(missing_anim))
+            failures.append(wk["week"])
+        if missing_fig:
+            notes.append("figure never placed: " + ", ".join(missing_fig))
+            failures.append(wk["week"])
+        print(f"  wrote {target.relative_to(ROOT)}  ({len(page):,} bytes; "
+              f"{len(meta['sections'])} sections, {meta['examples']} examples, "
+              f"{len(meta['equations'])} key equations, {meta['figures']} figures; "
+              f"skipped {skipped['code']} code, {skipped['problems']} problem cells)"
+              + ("   !! " + "; ".join(notes) if notes else ""))
+
     built = sorted(int(d.name[1:]) for d in ROOT.glob("w*") if (d / "index.html").is_file())
     manifest = ROOT / "web" / "phy101-notes.js"
     manifest.write_text(
@@ -554,8 +839,8 @@ def main(argv):
     print(f"  wrote {manifest.relative_to(ROOT)}  (weeks {built})")
 
     if failures:
-        print("\nFAILED: an ANIMS heading matched no interactive cell "
-              "(did the notebook heading change?).", file=sys.stderr)
+        print("\nFAILED: an ANIMS or FIGURES anchor matched no cell "
+              "(did a notebook heading change?).", file=sys.stderr)
         return 1
     print(f"\nOK - {len(wanted)} week page(s) built from calendar.json and the notebooks.")
     return 0
