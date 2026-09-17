@@ -2,7 +2,7 @@
 
 The course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students in one class. Use the weekly notebooks below; each one is complete for its week and follows the adopted lecture schedule. The final four weeks pose each physical model as an application question from all three departments.
 
-The shared learning standard is **draw → choose a law → rearrange → substitute with units → interpret and check**. A physical explanation and a paper calculation come before any optional simulation. Students may use either discipline’s application context.
+The shared learning standard is **draw → choose a law → rearrange to the symbolic answer → check a limiting case → substitute with units → interpret**. The limiting-case step was added on 17 September 2026 and is required in every worked example, problem and laboratory prediction; see [COURSE_POLICY.md](COURSE_POLICY.md) §3. A physical explanation and a paper calculation come before any optional simulation. Students may use either discipline’s application context.
 
 **Türkçe:** Mekatronik, Bilgisayar ve Kimya Mühendisliği öğrencileri için farklı fizik öğretmiyoruz; ortak fizik yasasını üç bölümün kendi örnekleriyle açıklıyoruz. Derse bu blokta katılan öğrencilerin önceki notebook’ları kullandığını varsaymayın.
 
@@ -11,11 +11,15 @@ The shared learning standard is **draw → choose a law → rearrange → substi
 | Week / dates (2026) | Notebook and lecture | Opening recap / assumption |
 | --- | --- | --- |
 | 10 · 23–27 November | [Week 10 — Rotation of rigid bodies](notebooks/Week_10.ipynb) | Convert degrees to radians; connect $v=R\omega$ and constant angular acceleration; define the rotation axis before choosing $I$. |
-| 11 · 30 November–4 December | [Week 11 — Dynamics of rotational motion](notebooks/Week_11.ipynb) | Draw torques, use $\sum\tau=I\alpha$, include rotational energy, and state the no-slip condition. |
+| 11 · 30 November–4 December | [Week 11 — Dynamics of rotational motion](notebooks/Week_11.ipynb) | Draw torques, use $\sum\tau=I\alpha$, include rotational energy, and state the no-slip condition. **Now also teaches angular momentum** ($L=I\omega$, $\sum\tau=dL/dt$, conservation), which the course's learning outcomes require, plus a non-examinable pendulum preview for that week's experiment. |
 | 12 · 7–11 December | [Week 12 — Equilibrium and centre of mass](notebooks/Week_12.ipynb) | Resolve forces into components; use perpendicular lever arms; require both $\sum\vec F=0$ and $\sum\tau=0$. |
 | 13 · 14–18 December | [Week 13 — Periodic motion](notebooks/Week_13.ipynb) | Recall $F=-kx$, $\sum F=ma$, $\omega_0=\sqrt{k/m}$ and $T=2\pi/\omega_0$; explain equilibrium, amplitude and period. |
 
-The exact Tuesday lecture hours remain those already published. There is no additional compulsory resonance, waves or capstone week after Week 13.
+The exact Tuesday lecture hours remain those already published. There is no additional compulsory resonance, waves or capstone week after Week 13; the [final-review notebook](notebooks/Final_Review.ipynb) serves the examination period and is not a fourteenth teaching week.
+
+**Laboratory in this block.** Week 10 runs *Katı Cisimlerin Dönmesi* ([Lab 10](labs/Lab_10_Rotation.ipynb)), Week 11 runs *Eylemsizlik Momenti – Basit Sarkaç* ([Lab 11](labs/Lab_11_Inertia_Pendulum.ipynb)) and Week 12 is the make-up session. The Week 11 experiment needs the simple pendulum two weeks before its lecture, so the brief carries a self-contained primer; do not assume students have met it. Laboratory analysis technique is not examined in the common final.
+
+**TR:** 11. hafta deneyi basit sarkacı, dersinden iki hafta önce gerektirir; brifing kendi hazırlığını içerir, öğrencilerin konuyu bildiğini varsaymayın.
 
 ## A 10–15-minute entry routine
 

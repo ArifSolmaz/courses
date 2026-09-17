@@ -52,6 +52,43 @@ def validate_calendar(calendar):
     for module, info in calendar["extensions"].items():
         assert int(module) in calendar["extension_modules"], module
         assert (COURSE_ROOT / info["notebook"]).is_file(), info["notebook"]
+    validate_lab_strand(calendar)
+    validate_supplements(calendar)
+
+
+def validate_lab_strand(calendar):
+    """The Deney column of the departmental schedule is fixed; check it stayed fixed."""
+    official = {
+        2: "Laboratuvar Tanitimi", 3: "Olcme Cihazlari",
+        4: "Bir Boyutta Hareket - Serbest Dusme", 5: "Egik Atis - Surtunme",
+        9: "Bir Boyutta Carpisma", 10: "Kati Cisimlerin Donmesi",
+        11: "Eylemsizlik Momenti - Basit Sarkac", 12: "Telafi",
+    }
+    fold = str.maketrans("ÇĞİÖŞÜçğıöşü", "CGIOSUcgiosu")
+    scheduled = {}
+    for week in calendar["weeks"]:
+        lab = week.get("lab")
+        if lab is None:
+            continue
+        scheduled[week["week"]] = lab["title_tr"].translate(fold)
+        if lab["brief"] is not None:
+            assert (COURSE_ROOT / lab["brief"]).is_file(), lab["brief"]
+        covers = lab["covers_week"]
+        assert covers is None or 1 <= covers <= week["week"], (
+            "An experiment cannot measure physics that has not been taught yet"
+        )
+    assert scheduled == official, "The lab column must match the departmental schedule"
+    assert calendar["lab_strand"]["sessions"] == len(official), "Session count out of step"
+    assert calendar["lab_strand"]["make_up_week"] == 12
+    assert (COURSE_ROOT / calendar["lab_strand"]["toolkit"]).is_file()
+    assert calendar["assessment_constraint"]["common_exams"] is True
+    assert calendar["assessment_constraint"]["fixed_sequence"] is True
+
+
+def validate_supplements(calendar):
+    for name, info in calendar["supplements"].items():
+        assert (COURSE_ROOT / info["notebook"]).is_file(), info["notebook"]
+        assert isinstance(info["examinable"], bool), name
 
 
 def solution_calendar_note(calendar, module):

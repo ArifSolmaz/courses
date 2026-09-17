@@ -193,3 +193,99 @@ These earlier checks covered the complete source library and solution collection
 Execution validates code and default parameter choices; it does not prove every possible slider combination or every physical assumption. Hosted Google Colab runtime execution and widget callbacks were not tested; published Week 1 typesetting was inspected in Colab. See [maintenance instructions](tools/README.md) for refreshing embedded controls and rerunning the notebook checks.
 
 The course website uses the revised calendar, source notebooks and course pages from the `courses` repository. The separate full-solution collection retains its scheduled release process.
+
+---
+
+# Revision and verification record — 17 September 2026
+
+## What changed
+
+**1. The departmental constraint is now recorded and machine-checked.** `calendar.json` carries an
+`assessment_constraint` block (fixed sequence, common midterm and final, examinable scope = Weeks 01–13
+only) and the `Deney` column as a `lab` entry per week. `tools/sync_calendar.py` asserts that the lab
+column still matches the departmental schedule, that no experiment measures a week that has not yet been
+taught, and that every lab brief and supplement file exists. This makes a well-meant "improvement" that
+reorders topics fail the check rather than reach a student.
+
+**2. Laboratory strand added (new `labs/`).** Eight briefs matching the official `Deney` column, plus
+`Lab_00_Uncertainty_Toolkit.ipynb` holding all shared technique — reading uncertainty, repeats and the
+standard error, propagation, significant figures, linearising to read a slope, and deciding agreement by
+counting σ. Each brief opens with a symbolic prediction plus a limiting check, made before the apparatus
+is switched on, and marking is explicitly on reasoning about the student's own data rather than proximity
+to the accepted value. The Week 11 session needs the simple pendulum two weeks before its lecture, so
+Lab 11 §3 is a self-contained derivation and Week 11 carries a matching non-examinable preview.
+
+**3. Numeric policy applied.** `g = 9.81 m/s²` (already consistent), three significant figures in
+reported values, one significant figure on uncertainties. **701 over-precise numbers were rounded** across
+the 13 weekly and 5 extension notebooks — values such as `96.175745`, `162,051` and `73.575` that came
+from calculator output on two- and three-digit data. Protected from the sweep: mathematical constants,
+**exact unit-conversion definitions** (rounding `1 ft = 0.3048 m` would be a factual error, not a
+precision policy), and the three Week 01 cells where a four-digit number *is* the lesson (`w01-019`,
+`w01-045`, `w01-047`). Every notebook now states the convention that displayed intermediate values are
+rounded for reading while the arithmetic carries full precision.
+
+**4. Rigour raised without raising the arithmetic load.** The course method gained a step —
+*draw → choose a law → rearrange to the symbolic answer → **check a limiting case** → substitute with
+units → interpret* — carried by a `wXX-standards` cell in every weekly notebook, which also lists that
+week's textbook chapters and laboratory session. Graph-first calculus bridges were added where the
+notation earns its place: velocity and acceleration as slopes and displacement as an area (Week 02), work
+as the area under `F`–`x` (Week 05), and why a restoring force proportional to displacement *forces* a
+sinusoid (Week 13). A `wXX-psrule` cell puts the predict-before-you-open rule at the head of every problem
+set, and every interactive demonstration now carries a prediction prompt above it.
+
+**5. Content gaps closed.** Angular momentum (`L = Iω`, `Στ = dL/dt`, conservation) is now taught inside
+Week 11, where it belongs to *Dönme Hareketi Dinamiği* — it was previously a stated learning outcome
+available only in an optional extension. Week 05's objectives and opening energy account, which had
+drifted into Week 08's potential-energy territory, were corrected to work and kinetic energy only. The two
+thin weeks gained a full L1–L3 ladder: four extra problems for Week 05 and three for Week 10, written for
+the notebooks, carrying no module identifier and keeping their complete reasoning inline.
+
+**6. The double-topic Week 03 is handled openly** rather than silently. Week 02 closes with a projectile
+preview and three ten-minute preparation tasks; Week 03 opens with a minute-by-minute plan for its two
+topics and says plainly which half to prioritise if only one lands; Week 04 opens with a fifteen-minute
+repair block on free-body diagrams, third-law pairs and incline components. No topic was moved.
+
+**7. New material.** `notebooks/Final_Review.ipynb` for the common final (choosing a principle, a
+twelve-question self-diagnosis, the formula map grouped by principle, six mixed worked routes, exam
+technique and an error-log routine). `extensions/Gravitation_and_Orbits.ipynb` — the biggest gap against
+every standard text — as clearly non-examinable enrichment, ending in a transit-light-curve capstone.
+A concept pre-check in Week 01 whose answered twin is Final_Review §3.
+
+**8. Documentation.** `COURSE_POLICY.md` (the constraint, the numeric rules, the symbolic-first
+requirement, laboratory marking, and the tensions accepted with their mitigations), `TEXTBOOK_MAP.md`
+(Young & Freedman / Serway & Jewett / Halliday, Resnick & Walker / OpenStax / MIT OCW per week, plus what
+is deliberately excluded and why), and `CONCEPT_INVENTORY.md` (FCI/FMCE pre-post protocol, Hake normalized
+gain, and the instruction never to reproduce controlled items in student-facing material).
+
+**9. Web.** The dashboard and syllabus gained a Laboratory column fed from `calendar.json`, a common-exam
+and examinable-scope notice, links to the labs, final review, textbook map and policy, and — new — a
+**complete static fallback inside `<noscript>`**, so the whole calendar, every lab and every notebook link
+work with JavaScript disabled. The syllabus footer named the wrong institution (*Istanbul University*); it
+now reads İstanbul Sağlık ve Teknoloji Üniversitesi, matching the `istun.edu.tr` contact address.
+
+## Verification performed
+
+| Check | Result |
+| --- | --- |
+| `sync_calendar.py --check --public-only` | passes, including the new lab-column and supplement assertions |
+| `nbformat.validate` on all 28 notebooks | 28 valid, 0 failed; no duplicate cell ids |
+| **Code cells unchanged in all 18 pre-existing notebooks** | confirmed by SHA-256 of concatenated code against pre-revision copies — every edit was to markdown, so the 12 September execution and panel-redraw QA still stands |
+| Fresh-kernel execution of the two new notebooks with code | `Lab_00_Uncertainty_Toolkit` and `Gravitation_and_Orbits` both pass |
+| `Final_Review.ipynb` | `paper-only`, as intended |
+| **Every authored figure recomputed programmatically** | found and fixed real drift: the Lab 00 five-times chain (sum of squares, `s`, standard error, and the propagated `δg` and σ-gap), Week 10 X1 `a_c` and X3 `t₁`, Final Review Route A's wrong-`N` variant and Route E's `v_max`/`a_max`, and the gravitation capstone's `R_p` and `a` |
+| 174 relative links across notebooks and docs | all resolve; two apparent failures are LaTeX, not links |
+| Inline JavaScript in both HTML pages | `node --check` passes; 4-column headers match 4-cell rows |
+| Residual wording | no remaining promise of inline "step-by-step answers"; historical mentions in this report left as the dated record they are |
+
+## Known and deliberately unresolved
+
+- **Week 03 still carries two topics** and Week 11's experiment still precedes its lecture. Both are fixed
+  by the departmental schedule; the mitigations above are the available remedy, and
+  `COURSE_POLICY.md` §1 records them as accepted tensions rather than oversights.
+- **`REVIEW_REPORT.md` references `notebook_review_verification.json`, which is not in the repository.**
+  Pre-existing; either restore the file or drop the reference.
+- The weekly notebooks were **not** re-executed in fresh kernels this round. Justified by the unchanged
+  code hashes above; run `validate_notebooks.py` over `notebooks/` and `extensions/` on a machine with
+  `ipywidgets` before the term starts if you want belt and braces.
+- The concept-inventory protocol is documented but **not yet run**; it needs ethics approval before the
+  Week 01 pre-test if the results are to be published.
