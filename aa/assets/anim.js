@@ -3,6 +3,8 @@
    Drop a host element anywhere:  <div class="widget anim" data-anim="NAME"></div>
    Names (week 1): max-scan, guess-race, letter-sort, hunt-assumption,
                    doublings, literal-robot
+   Weeks 2–14 live in anim-wN.js and register via AAAnim.register(name, fn),
+   using the shared helpers on AAAnim.ui (Player, CodeTrace, LineChart, …).
    No dependencies. Works with the light/dark tokens in style.css.
    ============================================================ */
 (function () {
@@ -849,6 +851,192 @@
     load();
   }
 
+
+  /* ============================================================
+     Shared building blocks for week files (exported on AAAnim.ui)
+     ============================================================ */
+
+  /* --- Python-ish syntax colouring (display only) --- */
+  var PY_KW = /\b(def|return|for|in|while|if|elif|else|break|continue|import|from|as|and|or|not|True|False|None|print|range|len|lambda|pass|with|class)\b/g;
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function pyLine(src) {
+    /* split off comment, colour strings/numbers/keywords in the rest */
+    var ci = -1, q = null;
+    for (var k = 0; k < src.length; k++) {
+      var c = src[k];
+      if (q) { if (c === q) q = null; }
+      else if (c === '"' || c === "'") q = c;
+      else if (c === "#") { ci = k; break; }
+    }
+    var code = ci >= 0 ? src.slice(0, ci) : src, com = ci >= 0 ? src.slice(ci) : "";
+    var parts = code.split(/("[^"]*"|'[^']*')/);
+    var outHtml = parts.map(function (p, j) {
+      if (j % 2) return '<span class="py-str">' + esc(p) + "</span>";
+      return esc(p).replace(PY_KW, '<span class="py-kw">$1</span>').replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="py-num">$1</span>');
+    }).join("");
+    return outHtml + (com ? '<span class="py-com">' + esc(com) + "</span>" : "");
+  }
+
+  /* --- CodeTrace: code panel + variables + console + counters, driven by frames ---
+     cfg.code     : string (or function returning string) — the program shown
+     cfg.build()  : frames [{ line: 1-based or 0, vars: {name: value}, out: [lines],
+                              note: html, counters: {label: value}, hl: [extra lines] }]
+     cfg.fps      : number or function(i, frames)
+     cfg.onFrame  : optional function(frame, i, frames) for extra visuals
+     cfg.varsTitle / cfg.outTitle : optional headings
+     returns { load(), stop(), el, extra }  — put custom visuals in .extra            */
+  function CodeTrace(host, cfg) {
+    var wrap = h("div", "ct");
+    var codeBox = h("div", "ct-code");
+    var side = h("div", "ct-side");
+    var varsBox = h("div", "ct-vars");
+    var outBox = h("pre", "ct-out");
+    side.appendChild(h("div", "ct-h", cfg.varsTitle || "variables"));
+    side.appendChild(varsBox);
+    side.appendChild(h("div", "ct-h", cfg.outTitle || "output"));
+    side.appendChild(outBox);
+    wrap.appendChild(codeBox); wrap.appendChild(side);
+    host.appendChild(wrap);
+    var extra = h("div", "ct-extra");
+    host.appendChild(extra);
+    var stats = h("div", "anim-stats");
+    host.appendChild(stats);
+    var m = msg(host);
+    var lastCode = null, lineEls = [], prevVars = {};
+
+    function paintCode() {
+      var src = typeof cfg.code === "function" ? cfg.code() : cfg.code;
+      if (src === lastCode) return;
+      lastCode = src;
+      codeBox.innerHTML = ""; lineEls = [];
+      src.replace(/\n$/, "").split("\n").forEach(function (ln, j) {
+        var row = h("div", "ct-line", '<span class="ct-no">' + (j + 1) + "</span><code>" + (pyLine(ln) || " ") + "</code>");
+        codeBox.appendChild(row); lineEls.push(row);
+      });
+    }
+    function show(v) {
+      if (typeof v === "string") return '"' + esc(v) + '"';
+      if (Array.isArray(v)) return "[" + v.map(show).join(", ") + "]";
+      if (v === true) return "True"; if (v === false) return "False"; if (v === null) return "None";
+      if (typeof v === "object") return esc(JSON.stringify(v));
+      return esc(String(v));
+    }
+    function render(fr, i, frames) {
+      paintCode();
+      lineEls.forEach(function (el, j) {
+        el.className = "ct-line" + (fr.line === j + 1 ? " on" : "") + (fr.hl && fr.hl.indexOf(j + 1) >= 0 ? " hl" : "") +
+          (fr.err === j + 1 ? " err" : "");
+      });
+      if (fr.line && lineEls[fr.line - 1] && codeBox.scrollHeight > codeBox.clientHeight) {
+        var el = lineEls[fr.line - 1];
+        var top = el.offsetTop - codeBox.clientHeight / 2;
+        codeBox.scrollTop = Math.max(0, top);
+      }
+      var vars = fr.vars || {};
+      var keys = Object.keys(vars);
+      varsBox.innerHTML = keys.length ? keys.map(function (k) {
+        var val = show(vars[k]);
+        var changed = i > 0 && prevVars[k] !== val;
+        return '<div class="ct-var' + (changed ? " chg" : "") + '"><span>' + esc(k) + "</span><b>" + val + "</b></div>";
+      }).join("") : '<div class="muted ct-empty">—</div>';
+      prevVars = {}; keys.forEach(function (k) { prevVars[k] = show(vars[k]); });
+      outBox.textContent = (fr.out || []).join("\n");
+      outBox.scrollTop = outBox.scrollHeight;
+      outBox.classList.toggle("err", !!fr.errOut);
+      var cs = fr.counters || {};
+      stats.innerHTML = Object.keys(cs).map(function (k) { return '<span class="anim-stat">' + esc(k) + "<b>" + esc(cs[k]) + "</b></span>"; }).join("");
+      m.innerHTML = fr.note || "";
+      if (cfg.onFrame) cfg.onFrame(fr, i, frames);
+    }
+    var fps = cfg.fps || 1.5;
+    var p = Player(host, { build: cfg.build, render: render, fps: typeof fps === "function" ? fps : function () { return fps; } });
+    return { load: function () { lastCode = null; p.load(); }, stop: p.stop, el: p.el, extra: extra, msg: m };
+  }
+
+  /* --- LineChart: small theme-aware canvas chart (log or linear axes) ---
+     var c = LineChart(parent, { logx, logy, xlabel, ylabel, height })
+     c.draw([{ name, color: "--blue", points: [[x, y], ...], dashed }], { upto: k })  */
+  function LineChart(parent, o) {
+    o = o || {};
+    var cv = h("canvas", "lc");
+    cv.width = 720; cv.height = o.height || 320;
+    cv.setAttribute("role", "img");
+    cv.setAttribute("aria-label", o.label || "chart");
+    parent.appendChild(cv);
+    var ctx = cv.getContext("2d"), last = null;
+    function tx(v, log) { return log ? Math.log10(Math.max(v, 1e-12)) : v; }
+    function nice(v) {
+      if (Math.abs(v) >= 1e6 || (Math.abs(v) < 1e-3 && v !== 0)) return v.toExponential(0);
+      return String(+v.toPrecision(3));
+    }
+    function draw(series, d) {
+      last = [series, d]; d = d || {};
+      var W = cv.width, H = cv.height, L = 84, R = 16, T = 16, B = 44;
+      var col = function (v) { return cssVar(parent, v) || v; };
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = "12px " + (cssVar(parent, "--font-mono") || "monospace");
+      var xs = [], ys = [];
+      series.forEach(function (s) { s.points.forEach(function (p) { xs.push(tx(p[0], o.logx)); ys.push(tx(p[1], o.logy)); }); });
+      if (d.xr) xs = xs.concat([tx(d.xr[0], o.logx), tx(d.xr[1], o.logx)]);
+      if (d.yr) ys = ys.concat([tx(d.yr[0], o.logy), tx(d.yr[1], o.logy)]);
+      if (!xs.length) return;
+      var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      if (!o.logy && y0 > 0) y0 = 0;
+      if (x1 === x0) x1 = x0 + 1; if (y1 === y0) y1 = y0 + 1;
+      var px = function (x) { return L + (tx(x, o.logx) - x0) / (x1 - x0) * (W - L - R); };
+      var py = function (y) { return H - B - (tx(y, o.logy) - y0) / (y1 - y0) * (H - T - B); };
+      ctx.strokeStyle = col("--border"); ctx.fillStyle = col("--muted"); ctx.lineWidth = 1;
+      for (var g = 0; g <= 4; g++) {
+        var gy = T + g * (H - T - B) / 4, vy = y1 - g * (y1 - y0) / 4;
+        ctx.beginPath(); ctx.moveTo(L, gy); ctx.lineTo(W - R, gy); ctx.stroke();
+        ctx.textAlign = "right"; ctx.fillText(nice(o.logy ? Math.pow(10, vy) : vy), L - 6, gy + 4);
+        var gx = L + g * (W - L - R) / 4, vx = x0 + g * (x1 - x0) / 4;
+        ctx.textAlign = "center"; ctx.fillText(nice(o.logx ? Math.pow(10, vx) : vx), gx, H - B + 16);
+      }
+      ctx.fillText((o.xlabel || "n") + (o.logx ? "  (log scale)" : ""), (L + W - R) / 2, H - 8);
+      ctx.save(); ctx.translate(12, (T + H - B) / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillText((o.ylabel || "") + (o.logy ? "  (log)" : ""), 0, 0); ctx.restore();
+      var ly = T + 4;
+      series.forEach(function (s) {
+        var c = col(s.color || "--accent"), pts = s.points.slice(0, d.upto == null ? s.points.length : d.upto);
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 2.5;
+        ctx.setLineDash(s.dashed ? [6, 5] : []);
+        ctx.beginPath();
+        pts.forEach(function (p, j) { var X = px(p[0]), Y = py(p[1]); if (j) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+        ctx.stroke(); ctx.setLineDash([]);
+        if (!s.noDots) pts.forEach(function (p) { ctx.beginPath(); ctx.arc(px(p[0]), py(p[1]), 4, 0, 7); ctx.fill(); });
+        if (s.name) {
+          ctx.fillRect(L + 10, ly, 14, 3); ctx.textAlign = "left";
+          ctx.fillStyle = col("--text"); ctx.fillText(s.name, L + 30, ly + 5); ly += 17;
+        }
+      });
+    }
+    new MutationObserver(function () { if (last) draw(last[0], last[1]); })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return { draw: draw, el: cv };
+  }
+
+  /* --- simple table --- */
+  function table(parent, headers) {
+    var t = h("table", "anim-table");
+    t.innerHTML = "<thead><tr>" + headers.map(function (x) { return "<th>" + x + "</th>"; }).join("") + "</tr></thead><tbody></tbody>";
+    parent.appendChild(t);
+    return {
+      el: t,
+      rows: function (rows, hiRow) {
+        t.tBodies[0].innerHTML = rows.map(function (r, j) {
+          return "<tr" + (j === hiRow ? ' class="on"' : "") + ">" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>";
+        }).join("");
+      }
+    };
+  }
+
+  /* --- seeded random (so "simulated" data is repeatable) --- */
+  function rng(seed) {
+    var a = seed >>> 0 || 1;
+    return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+
   /* ---------- boot ---------- */
   var REGISTRY = {
     "max-scan": maxScan,
@@ -867,7 +1055,13 @@
       try { fn(host); } catch (e) { host.textContent = "This animation could not start: " + e.message; }
     });
   }
-  window.AAAnim = { register: function (name, fn) { REGISTRY[name] = fn; }, boot: boot };
+  window.AAAnim = {
+    register: function (name, fn) { REGISTRY[name] = fn; if (document.readyState !== "loading") boot(); },
+    boot: boot,
+    ui: { h: h, btn: btn, seg: seg, fmt: fmt, shuffle: shuffle, sample: sample, cssVar: cssVar, stat: stat,
+          title: title, msg: msg, Player: Player, CodeTrace: CodeTrace, LineChart: LineChart, table: table,
+          rng: rng, esc: esc, pyLine: pyLine, REDUCED: REDUCED }
+  };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();
