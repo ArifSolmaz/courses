@@ -91,6 +91,40 @@ cells to full-width HTML tables (Colab strips inline CSS and lays Markdown table
 columns, which breaks equations). Write new tables as pipe tables and run the script; existing
 HTML tables are left alone.
 
+## The web week notes
+
+`fall/phy101/wN/index.html` is a **generated** page, published as
+`https://arifsolmaz.github.io/phy101/wN/`. It carries the concepts, worked examples, the standards
+block, the lab box and the animations; the problem sets stay in the notebook, because inline answers
+at a clean public URL would reach the parallel sections sitting the same common exam.
+
+```bash
+python3 fall/phy101/tools/build_site.py 1 2      # just these weeks
+python3 fall/phy101/tools/build_site.py all      # all thirteen
+python3 fall/phy101/tools/verify_site.py         # regenerate and compare, byte for byte
+python3 fall/phy101/tools/build_short_urls.py    # redirects for the short-URL repo
+```
+
+Edit the **notebook**, then rebuild. Never edit anything under `w*/`: `verify_site.py` fails if a
+published page differs from a fresh build, which catches a hand-edit and a stale build equally.
+
+Prev/next links only point at weeks that are actually published, so a half-released term never hands a
+student a 404. That makes the links depend on which pages exist, so **publish a new week with
+`build_site.py all`** rather than one week alone; otherwise the previous week still says "All weeks"
+where it should now say "Week NN". `verify_site.py` catches exactly this and names the stale page.
+
+The notebook's ipywidgets demonstrations cannot run in static HTML. Each one becomes either a
+registered animation or an honest pointer to Colab, decided by the `ANIMS` table at the top of
+`build_site.py`, which matches on the interactive cell's heading text. If a heading is reworded in the
+notebook, the build fails loudly rather than silently dropping the animation.
+
+Animations live in `assets/anim-wN.js` and register into the shared harness in `assets/anim.js`
+(`PhyAnim.register(name, fn)`, with `PhyAnim.ui` providing `Scene`/`plot`, `Player`, `predict`,
+`seg`, `slider`, `stat`). The harness follows the same conventions as `aa/assets/anim.js` — no
+dependencies, light/dark tokens read at draw time, `prefers-reduced-motion` honoured by stepping
+instead of animating, and ARIA state on every control. Every animation opens with a **predict gate**:
+the reader must commit to an answer before it will run, per COURSE_POLICY.md 6.
+
 ## Calendar and solution release dates
 
 `calendar.json` is the single source for dates, titles, the module numbers used in each week, the

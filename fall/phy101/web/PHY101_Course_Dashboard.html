@@ -56,7 +56,9 @@
   .calendar-overview th { font-size: .68rem; }
   .calendar-overview td:first-child { white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
   .calendar-overview a { color: var(--phy-blue); }
-  .calendar-overview .nb-btn:not(.secondary) { color: #fff; }
+  /* The overview table set white text with no background, so the primary
+     “Open in Colab” action was invisible. Give it the background it needs. */
+  .calendar-overview .nb-btn:not(.secondary) { background: var(--phy-orange); color: #fff; border: 1px solid var(--phy-orange); }
   .calendar-overview .button-row { min-width: 175px; }
   .ext-row { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; max-width: 900px; padding: 1rem 0; border-bottom: 1px solid var(--border); }
   .ext-row .what { flex: 1 1 320px; }
@@ -103,7 +105,9 @@
     <noscript>
     <h1>PHY101 · Physics I — Fall 2026–27</h1>
     <p>The interactive dashboard needs JavaScript, but the whole calendar is below and every link works
-    without it. <a href="PHY101_Syllabus.html">Syllabus</a> ·
+    without it. Readable week notes are published at
+    <a href="https://arifsolmaz.github.io/phy101/w1/">arifsolmaz.github.io/phy101/w<em>N</em>/</a>
+    for the weeks released so far. <a href="PHY101_Syllabus.html">Syllabus</a> ·
     <a href="../TEXTBOOK_MAP.md">Textbook &amp; laboratory map</a> ·
     <a href="../COURSE_POLICY.md">Course policy</a></p>
     <p><strong>Topic order and experiments are set by the departmental schedule; the midterm and final are
@@ -193,9 +197,11 @@
 </div>
 
 <script src="phy101-calendar.js"></script>
+<script src="phy101-notes.js"></script>
 <script>
 // All dates, titles, notebook paths and solution release dates come from ../calendar.json (via phy101-calendar.js).
 const CALENDAR = window.PHY101_CALENDAR;
+const NOTE_PAGES = Array.isArray(window.PHY101_NOTES) ? window.PHY101_NOTES : [];
 const COLAB = 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/';
 const SOLUTION_TOPICS = {1:'Units and vectors', 2:'One-dimensional motion', 3:'Two-dimensional motion', 4:'Newton’s laws and friction',
   5:'Circular motion', 6:'Work and energy', 7:'Momentum and collisions', 8:'Equilibrium and centre of mass', 9:'Rotation',
@@ -248,6 +254,7 @@ function overviewPanel() {
   const rows = CALENDAR.weeks.map(w => `<tr><td>${pad(w.week)}<br>${escapeHTML(dateRange(w))}</td>
     <td><a href="#week-${w.week}" data-panel-link="week-${w.week}">${escapeHTML(w.title_en)}</a><br><span lang="tr">${escapeHTML(w.title_tr)}</span></td>
     <td>${w.lab ? escapeHTML(w.lab.title_tr) + (w.lab.brief ? ` · <a href="../${escapeHTML(w.lab.brief)}">brief</a>` : '') : '—'}</td>
+    <td>${NOTE_PAGES.includes(w.week) ? `<a href="../w${w.week}/">Week ${pad(w.week)} notes</a>` : '<span style="opacity:.5">—</span>'}</td>
     <td>${notebookButtons(w.notebook, 'Week ' + pad(w.week))}</td></tr>`).join('');
   return `<section class="week-panel" id="overview"><header class="week-header">
     <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 weeks · Mechatronics, Computer and Chemical Engineering</div>
@@ -256,7 +263,7 @@ function overviewPanel() {
     <p class="week-desc" lang="tr">Her hafta için tek bir not vardır ve o haftanın tamamını kapsar. Notu tarayıcıda açmak için “Open in Colab”, indirmek için “Download notebook”.</p>
     <p class="week-desc"><strong>The topic order and the experiments are set by the departmental schedule, and the midterm and final are common examinations</strong> shared with the parallel sections. Examinable scope is the Week 01–13 topic list only: the extension notebooks, the gravitation supplement and the laboratory analysis technique are enrichment and are not examined. See the <a href="../COURSE_POLICY.md">course policy</a> and the <a href="../TEXTBOOK_MAP.md">textbook &amp; laboratory map</a>.</p>
     <p class="week-desc" lang="tr"><strong>Haftalık konu sırası ve deneyler bölüm izlencesine göredir; vize ve final ortak sınavdır.</strong> Sınav kapsamı yalnızca 01–13. hafta konularıdır; ek notlar ve laboratuvar analiz teknikleri kapsam dışıdır.</p></header>
-    <div class="overview-wrap"><table class="calendar-overview"><thead><tr><th>Week / Dates</th><th>Lecture / Ders</th><th>Laboratory / Deney</th><th>Notebook / Not</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="overview-wrap"><table class="calendar-overview"><thead><tr><th>Week / Dates</th><th>Lecture / Ders</th><th>Laboratory / Deney</th><th>Web notes</th><th>Notebook / Not</th></tr></thead><tbody>${rows}</tbody></table></div>
   </section>`;
 }
 
@@ -284,6 +291,7 @@ function weekPanel(w) {
     <div class="notebook-card">
       <div class="what"><strong>Week ${pad(w.week)} notebook</strong>${what}<br><span class="nb-filename">${escapeHTML(w.notebook)}</span></div>
       ${notebookButtons(w.notebook, 'Week ' + pad(w.week))}
+      ${NOTE_PAGES.includes(w.week) ? `<div class="button-row"><a class="nb-btn" href="../w${w.week}/">Read the week notes</a></div>` : ''}
     </div>
     <div class="section-title">${w.kind === 'midterm' ? 'This week' : 'By the end of this week you can'}</div>
     <ul class="goals">${goals}</ul>

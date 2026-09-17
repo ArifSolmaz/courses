@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""
+Check the generated PHY101 week pages.
+
+    python3 fall/phy101/tools/verify_site.py
+
+The important check is REGENERABILITY: each published page is rebuilt from
+calendar.json plus the notebook and compared byte for byte with what is on
+disk. If they differ, either someone hand-edited a generated page (which the
+next build would silently destroy) or the build was never re-run after a
+notebook changed. Both are the drift this pipeline exists to prevent.
+
+Also checked: assets referenced by each page exist, the KaTeX subresource
+hashes are still pinned, every declared animation has its module, no raw
+markdown survived the conversion, and no link points into a section that the
+web page deliberately leaves out.
+"""
+
+import json
+import pathlib
+import re
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import build_site as B
+
+ROOT = B.ROOT
+FAILS = []
+CHECKS = [0]
+
+
+def check(ok, message):
+    CHECKS[0] += 1
+    if not ok:
+        FAILS.append(message)
+    return ok
+
+
+def main():
+    calendar = json.loads((ROOT / "calendar.json").read_text(encoding="utf-8"))
+    pages = sorted(ROOT.glob("w*/index.html"))
+    check(bool(pages), "no generated week pages found - run build_site.py")
+
+    for page in pages:
+        week = int(re.match(r"w(\d+)$", page.parent.name).group(1))
+        rel = page.relative_to(ROOT)
+        wk = next((w for w in calendar["weeks"] if w["week"] == week), None)
+        if not check(wk is not None, f"{rel}: week {week} is not in calendar.json"):
+            continue
+
+        html_text = page.read_text(encoding="utf-8")
+        nb = json.loads((ROOT / wk["notebook"]).read_text(encoding="utf-8"))
+
+        # 1. regenerable, byte for byte
+        fresh, _, missing = B.week_page(wk, nb, B.published_weeks())
+        check(fresh == html_text,
+              f"{rel}: differs from a fresh build - it was hand-edited, or the notebook "
+              f"changed and build_site.py was not re-run")
+        check(not missing, f"{rel}: animation host never placed: {', '.join(missing)}")
+
+        # 2. local assets exist
+        for href in set(re.findall(r'(?:href|src)="(\.\./[^"]+)"', html_text)):
+            target = (page.parent / href).resolve()
+            if target.suffix in (".css", ".js"):
+                check(target.is_file(), f"{rel}: missing asset {href}")
+
+        # 3. KaTeX still pinned
+        check(B.SRI_CSS in html_text and B.SRI_JS in html_text and B.SRI_AUTO in html_text,
+              f"{rel}: KaTeX subresource-integrity hashes are not all present")
+
+        # 4. declared animations have a module
+        for name in set(re.findall(r'data-anim="([^"]+)"', html_text)):
+            mod = ROOT / "assets" / f"anim-w{week}.js"
+            check(mod.is_file(), f"{rel}: declares {name} but {mod.name} is missing")
+            if mod.is_file():
+                check(f'register("{name}"' in mod.read_text(encoding="utf-8"),
+                      f"{rel}: {mod.name} never registers {name}")
+
+        # 5. no raw markdown left in the output
+        body = html_text.split('<main', 1)[-1]
+        for pattern, label in [(r"\*\*[^*\n]{2,60}\*\*", "bold markdown"),
+                               (r"@@(?:MATH|CODE)\d+@@", "a protected-token placeholder"),
+                               (r"\]\((?:\.\./|#)[^)]*\)", "an unconverted markdown link")]:
+            hits = re.findall(pattern, body)
+            check(not hits, f"{rel}: {label} survived conversion, e.g. {hits[:2]}")
+
+        # 6. no links into sections the page omits
+        omitted = re.findall(r'href="#w\d+-(problems|setup)"', html_text)
+        check(not omitted, f"{rel}: links into an omitted section: {set(omitted)}")
+
+        print(f"  checked {rel}")
+
+    print(f"\n{CHECKS[0]} checks on {len(pages)} page(s)")
+    if FAILS:
+        print("\nFAILED:", file=sys.stderr)
+        for f in FAILS:
+            print("  - " + f, file=sys.stderr)
+        return 1
+    print("OK - every page regenerates byte for byte from calendar.json and its notebook.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
