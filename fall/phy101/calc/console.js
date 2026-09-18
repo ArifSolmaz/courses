@@ -168,6 +168,36 @@
     b.className = "banked" + (n === 0 ? " empty" : "");
   }
 
+  /* ------------------------------------------------------------- preferences
+     Two teaching decisions, both his to make, both changeable without
+     re-marking anything: what name goes on the projector, and which attempt
+     counts when a student submits more than once. */
+  var PREFS = { show: "id", attempt: "first" };
+  function loadPrefs() {
+    try {
+      var raw = window.localStorage.getItem("phy101-calc-prefs");
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d.show === "id" || d.show === "alias") PREFS.show = d.show;
+        if (d.attempt === "first" || d.attempt === "last" || d.attempt === "best") {
+          PREFS.attempt = d.attempt;
+        }
+      }
+    } catch (e) { /* defaults */ }
+  }
+  function savePrefs() {
+    try { window.localStorage.setItem("phy101-calc-prefs", JSON.stringify(PREFS)); return true; }
+    catch (e) { return false; }
+  }
+  /* What a row is CALLED on screen is decided at render time, never stored, so
+     flipping the setting relabels the whole term at once instead of leaving
+     old rounds under their old names. */
+  function label(sid) {
+    return PREFS.show === "id" ? String(sid) : alias(sid);
+  }
+  /* the name that goes on screen for one marked row */
+  function rowLabel(o) { return (o && o.handle) || label(o && (o.id || o.sid)); }
+
   /* ------------------------------------------------------------------ alias
      Only the student ID is collected, and a student ID must never reach the
      projector. So the screen name is DERIVED from the ID: the same ID always
@@ -315,6 +345,7 @@
   function startStop() {
     if (S.left <= 0) return;
     S.running = !S.running;
+    if (S.running) startPolling(); else stopPolling();
     if (S.running) {
       S.tick = window.setInterval(function () {
         S.left--;
@@ -330,8 +361,11 @@
   }
   function reset() {
     stop();
+    stopPolling();
     S.left = S.seconds; S.revealed = false;
-    renderQuestion(); paintClock();
+    LIVE.n = 0; LIVE.rows = null; LIVE.err = ""; LIVE.result = null;
+    var m = $("live-msg"); if (m) { m.hidden = true; m.textContent = ""; }
+    renderQuestion(); paintClock(); paintLive();
   }
   function fresh() { S.code = newCode(); reset(); }
 
@@ -380,6 +414,157 @@
     if (!h) return { ch: current(), code: S.code };
     var ch = CH.filter(function (c) { return c.id === h.id; })[0] || current();
     return { ch: ch, code: h.code };
+  }
+
+  /* ------------------------------------------------------------------- live
+     Submissions arrive by themselves: a small Apps Script attached to the
+     response sheet returns the rows for one code, and the console asks it
+     every few seconds while the clock runs.
+
+     JSONP rather than fetch(): a script tag is the one cross-origin request
+     that works unchanged from a file:// page, from GitHub Pages, and from a
+     podium PC, with no CORS configuration on the Google side to get wrong.
+
+     The endpoint URL is a secret - it is the key to that sheet - so it lives
+     in this browser's storage and never in the repo. */
+  var LIVE = { url: "", key: "", n: 0, rows: null, err: "", busy: false, timer: null, seq: 0 };
+
+  function liveConfigured() { return !!LIVE.url; }
+
+  function loadLive() {
+    try {
+      LIVE.url = window.localStorage.getItem("phy101-calc-endpoint") || "";
+      LIVE.key = window.localStorage.getItem("phy101-calc-key") || "";
+    } catch (e) { LIVE.url = ""; LIVE.key = ""; }
+  }
+  function saveLive(url, key) {
+    LIVE.url = url; LIVE.key = key;
+    try {
+      window.localStorage.setItem("phy101-calc-endpoint", url);
+      window.localStorage.setItem("phy101-calc-key", key);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* One request. Calls back with (err, data). Always cleans up its script tag
+     and always fires exactly once, including on timeout. */
+  function liveFetch(code, done) {
+    if (!LIVE.url) { done("no endpoint set"); return; }
+    var name = "__calcjsonp" + (++LIVE.seq);
+    var el = document.createElement("script");
+    var finished = false;
+    var timer = window.setTimeout(function () { finish("timed out after 15 s"); }, 15000);
+
+    function finish(err, data) {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timer);
+      try { delete window[name]; } catch (e) { window[name] = undefined; }
+      if (el.parentNode) el.parentNode.removeChild(el);
+      done(err, data);
+    }
+    window[name] = function (data) { finish(null, data); };
+    el.onerror = function () { finish("could not reach the endpoint"); };
+
+    var sep = LIVE.url.indexOf("?") >= 0 ? "&" : "?";
+    el.src = LIVE.url + sep + "code=" + encodeURIComponent(code)
+           + (LIVE.key ? "&key=" + encodeURIComponent(LIVE.key) : "")
+           + "&callback=" + name + "&t=" + Date.now();
+    document.body.appendChild(el);
+  }
+
+  /* Turn the endpoint's rows into the same shape a pasted sheet produces, so
+     exactly one marking path exists. Anything else would be a second rule. */
+  function rowsToSheet(rows) {
+    var out = ["Timestamp,Student ID,Code,Answer"];
+    rows.forEach(function (r) {
+      function q(v) {
+        v = String(v == null ? "" : v);
+        return /[,"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }
+      out.push([q(r.ts), q(r.id), q(LIVE.lastCode), q(r.ans)].join(","));
+    });
+    return out.join("\n");
+  }
+
+  function poll() {
+    if (!liveConfigured() || LIVE.busy) return;
+    LIVE.busy = true;
+    var code = S.code;
+    LIVE.lastCode = code;
+    liveFetch(code, function (err, data) {
+      LIVE.busy = false;
+      if (code !== S.code) return;                 /* the round moved on */
+      if (err) { LIVE.err = err; LIVE.rows = null; paintLive(); return; }
+      if (!data || data.ok !== true) {
+        LIVE.err = (data && data.error) || "the endpoint refused the request";
+        LIVE.rows = null; paintLive(); return;
+      }
+      LIVE.err = ""; LIVE.rows = data.rows || []; LIVE.n = LIVE.rows.length;
+      paintLive();
+    });
+  }
+  function startPolling() {
+    stopPolling();
+    if (!liveConfigured()) return;
+    poll();
+    LIVE.timer = window.setInterval(poll, 5000);
+  }
+  function stopPolling() {
+    if (LIVE.timer) { window.clearInterval(LIVE.timer); LIVE.timer = null; }
+  }
+  function paintLive() {
+    var el = $("live");
+    if (!el) return;
+    if (!liveConfigured()) { el.hidden = true; return; }
+    el.hidden = false;
+    if (LIVE.err) {
+      el.className = "live bad";
+      el.innerHTML = "<span class='live-n'>—</span> <span class='live-l'>"
+        + esc(LIVE.err) + "</span>";
+      return;
+    }
+    el.className = "live";
+    el.innerHTML = "<span class='live-n'>" + LIVE.n + "</span> <span class='live-l'>"
+      + (S.lang === "tr" ? (LIVE.n === 1 ? "cevap geldi" : "cevap geldi")
+                         : (LIVE.n === 1 ? "submission" : "submissions")) + "</span>";
+  }
+
+  /* When the answer is revealed the round is over, so mark it there and then. */
+  function autoMark() {
+    if (!liveConfigured()) return;
+    var ch = current(), code = S.code;
+    LIVE.lastCode = code;
+    liveFetch(code, function (err, data) {
+      if (err || !data || data.ok !== true) {
+        var m = $("live-msg");
+        if (m) {
+          m.hidden = false;
+          m.className = "live-msg bad";
+          m.textContent = "Could not fetch the answers ("
+            + (err || (data && data.error) || "refused")
+            + "). Paste the sheet on the Score tab instead.";
+        }
+        return;
+      }
+      LIVE.rows = data.rows || []; LIVE.n = LIVE.rows.length; LIVE.err = "";
+      paintLive();
+      var res = scoreRows(parseCSV(rowsToSheet(LIVE.rows)), { ch: ch, code: code });
+      LIVE.result = res;
+      var m2 = $("live-msg");
+      if (m2) {
+        m2.hidden = false;
+        if (res.err) {
+          m2.className = "live-msg bad";
+          m2.textContent = res.err;
+        } else {
+          m2.className = "live-msg";
+          m2.innerHTML = "<b>" + res.nOk + " of " + res.rows.length + "</b> correct — "
+            + "press <b>L</b> for the leaderboard";
+        }
+      }
+      if (!res.err) { renderScore(res); }
+    });
   }
 
   /* ---------------------------------------------------------------- scoring */
@@ -477,7 +662,10 @@
 
     var round = override || scoringRound();
     var ch = round.ch, wanted = round.code;
-    var out = [], seen = {};
+    /* Gather EVERY row for this code first, then decide which attempt counts.
+       That order is what makes "last" and "best" possible at all, and it is
+       also how the repeat count becomes visible instead of silently dropped. */
+    var all = [], p = paramsFor(ch, wanted);
     for (var r = 1; r < rows.length; r++) {
       var row = rows[r];
       var code = parseInt(String(row[ci.code] || "").replace(/\D/g, ""), 10);
@@ -485,10 +673,7 @@
       if (code !== wanted) continue;
       var id = String(row[ci.id] || "").trim();
       if (!id) continue;
-      if (seen[id]) continue;                                   /* first try only */
-      seen[id] = true;
 
-      var p = paramsFor(ch, code);
       var val = parseNum(row[ci.ans]);
       var ok = isFinite(val) && MARK(ch, p, val);
       var which = null;
@@ -498,15 +683,38 @@
           if (isFinite(tv) && Math.abs(val - tv) <= 0.01 * Math.abs(tv)) { which = k; break; }
         }
       }
-      out.push({
+      all.push({
         id: id,
-        /* a handle column still wins if the form ever has one again */
-        handle: (ci.handle >= 0 ? String(row[ci.handle] || "").trim() : "") || alias(id),
+        /* Empty unless the sheet actually has a handle column. The screen name
+           is worked out at render time from this plus the display setting, so
+           a supplied handle still wins and the setting governs the rest. */
+        handle: ci.handle >= 0 ? String(row[ci.handle] || "").trim() : "",
         ts: ci.ts >= 0 ? String(row[ci.ts] || "").trim() : "",
         raw: String(row[ci.ans] || "").trim(),
-        val: val, ok: ok, trap: which
+        val: val, ok: ok, trap: which,
+        seq: r                   /* sheet order: the tiebreak when times tie */
       });
     }
+
+    /* oldest first, so "first" and "last" mean what they say even when rows
+       arrive out of order */
+    all.sort(function (a, b) {
+      if (a.ts !== b.ts) return a.ts < b.ts ? -1 : 1;
+      return a.seq - b.seq;
+    });
+
+    var byId = {}, order = [], extra = 0, counts = {};
+    all.forEach(function (o) {
+      counts[o.id] = (counts[o.id] || 0) + 1;
+      var prev = byId[o.id];
+      if (!prev) { byId[o.id] = o; order.push(o.id); return; }
+      extra++;
+      if (PREFS.attempt === "last") byId[o.id] = o;
+      else if (PREFS.attempt === "best" && !prev.ok && o.ok) byId[o.id] = o;
+      /* "first": the earliest stands, whatever came after it */
+    });
+    var out = order.map(function (id) { return byId[id]; });
+    var nRepeat = Object.keys(counts).filter(function (id) { return counts[id] > 1; }).length;
     if (!out.length) {
       return { err: "No rows carried the code " + wanted
                  + ". Either the round has not been submitted yet, or the sheet is from "
@@ -529,14 +737,18 @@
        screen would show one name twice, so flag it rather than let a student
        discover it. */
     var seenAlias = {}, clash = [];
-    out.forEach(function (o) {
-      var prev = seenAlias[o.handle];
-      if (prev && prev !== o.id) clash.push(o.handle);
-      else seenAlias[o.handle] = o.id;
-    });
+    if (PREFS.show !== "id") {                 /* student numbers cannot clash */
+      out.forEach(function (o) {
+        var name = rowLabel(o);
+        var prev = seenAlias[name];
+        if (prev && prev !== o.id) clash.push(name);
+        else seenAlias[name] = o.id;
+      });
+    }
 
     var byPts = out.slice().sort(function (a, b) { return b.points - a.points; });
     return { rows: out, board: byPts, ch: ch, code: wanted, clash: clash,
+             repeats: extra, nRepeat: nRepeat, attempt: PREFS.attempt,
              rehearsal: !!(override && override.rehearsal),
              nOk: out.filter(function (o) { return o.ok; }).length };
   }
@@ -557,6 +769,16 @@
     box.appendChild(el("p", "s-sum", res.nOk + " of " + res.rows.length + " correct"
       + " &nbsp;·&nbsp; " + esc(res.ch.id) + " &nbsp;·&nbsp; code " + res.code));
 
+    if (res.repeats) {
+      var how = res.attempt === "last" ? "the last one counts"
+              : res.attempt === "best" ? "their first correct one counts"
+              : "only the first counts";
+      box.appendChild(el("p", "fine",
+        res.nRepeat + (res.nRepeat === 1 ? " student" : " students") + " submitted more than once ("
+        + res.repeats + " extra " + (res.repeats === 1 ? "row" : "rows") + ") — " + how
+        + ", as chosen on the Settings tab."));
+    }
+
     if (res.clash && res.clash.length) {
       box.appendChild(el("p", "warn",
         "Two students share the alias " + esc(res.clash.join(", ")) + ". Their points are "
@@ -565,8 +787,10 @@
     }
 
     var t = el("table", "board");
-    t.innerHTML = "<thead><tr><th>#</th><th>handle</th><th>answer</th><th></th>"
-                + "<th class='num'>pts</th></tr></thead>";
+    t.innerHTML = "<thead><tr><th>#</th><th>"
+                + (PREFS.show === "id" ? (tr ? "öğrenci no" : "student no") : (tr ? "rumuz" : "nickname"))
+                + "</th><th>" + (tr ? "cevap" : "answer") + "</th><th></th>"
+                + "<th class='num'>" + (tr ? "puan" : "pts") + "</th></tr></thead>";
     var tb = el("tbody");
     res.board.forEach(function (o, i) {
       var tag = o.ok
@@ -580,7 +804,7 @@
             : "<span class='bad'>" + (tr ? "cevap bu değil" : "not the answer") + "</span>");
       var tr = el("tr", o.ok ? "row-ok" : "");
       tr.innerHTML = "<td class='num'>" + (i + 1) + "</td>"
-        + "<td class='handle'>" + esc(o.handle) + "</td>"
+        + "<td class='handle'>" + esc(rowLabel(o)) + "</td>"
         + "<td class='ans'>" + esc(o.raw) + "</td>"
         + "<td>" + tag + "</td>"
         + "<td class='num'>" + o.points + "</td>";
@@ -605,9 +829,11 @@
       b.onclick = function () { commit(res); };
       box.appendChild(b);
     }
-    box.appendChild(el("p", "fine",
-      "Student IDs stay in this browser. Only handles appear in the table above, "
-      + "so the projector never shows an ID."));
+    box.appendChild(el("p", "fine", PREFS.show === "id"
+      ? "This table shows student numbers, as chosen on the Settings tab. Switch it to "
+        + "nicknames there if you would rather not project them."
+      : "Student numbers stay in this browser. Only nicknames appear in the table above, "
+        + "so the projector never shows one."));
   }
 
   function commit(res) {
@@ -804,6 +1030,14 @@
              + last.at + " (" + last.id + ")" };
     });
 
+    t("live results", function () {
+      if (!liveConfigured()) {
+        return { note: "no endpoint set — submissions are marked by pasting the sheet. "
+               + "Set one up on the Settings tab to have them arrive by themselves." };
+      }
+      return { note: "endpoint set; press Test on the Settings tab to confirm it answers" };
+    });
+
     t("the window is wide enough to project", function () {
       return window.innerWidth >= 1100 ? true
         : "only " + window.innerWidth + "px wide - full-screen the window before class";
@@ -838,7 +1072,9 @@
     box.appendChild(el("p", "s-sum",
       ids.length + " students · " + DB.results.length + " rounds"));
     var t = el("table", "board");
-    t.innerHTML = "<thead><tr><th>#</th><th>handle</th><th class='id-col'>student ID</th>"
+    t.innerHTML = "<thead><tr><th>#</th><th>"
+                + (PREFS.show === "id" ? "student no" : "nickname")
+                + "</th><th class='id-col'>student ID</th>"
                 + "<th class='num'>correct</th><th class='num'>of</th>"
                 + "<th class='num'>points</th></tr></thead>";
     var tb = el("tbody");
@@ -846,7 +1082,7 @@
       var r = T[id];
       var tr = el("tr");
       tr.innerHTML = "<td class='num'>" + (i + 1) + "</td>"
-        + "<td class='handle'>" + esc(r.handle) + "</td>"
+        + "<td class='handle'>" + esc(r.handle || label(id)) + "</td>"
         + "<td class='id-col'>" + esc(id) + "</td>"
         + "<td class='num'>" + r.correct + "</td>"
         + "<td class='num'>" + r.attempts + "</td>"
@@ -947,7 +1183,7 @@
 
   /* -------------------------------------------------------------------- tabs */
   function show(which) {
-    ["run", "score", "totals", "check"].forEach(function (k) {
+    ["run", "score", "totals", "check", "set"].forEach(function (k) {
       $("pane-" + k).hidden = k !== which;
       $("tab-" + k).classList.toggle("on", k === which);
     });
@@ -960,7 +1196,9 @@
     $("btn-new").onclick = fresh;
     $("btn-start").onclick = startStop;
     $("btn-reveal").onclick = function () {
-      stop(); S.revealed = true; remember(); renderQuestion(); paintClock();
+      stop(); stopPolling();
+      S.revealed = true; remember(); renderQuestion(); paintClock();
+      autoMark();                       /* no-op unless an endpoint is set */
     };
     $("btn-next").onclick = function () {
       var list = weekList(S.week);
@@ -980,6 +1218,85 @@
     $("tab-score").onclick = function () { show("score"); };
     $("tab-totals").onclick = function () { show("totals"); };
     $("tab-check").onclick = function () { show("check"); };
+    $("tab-set").onclick = function () { show("set"); };
+
+    $("ep-save").onclick = function () {
+      var url = $("ep-url").value.trim(), key = $("ep-key").value.trim();
+      var stored = saveLive(url, key);
+      var m = $("ep-msg"); m.innerHTML = "";
+      m.appendChild(el("p", stored ? "s-sum" : "warn",
+        !url ? "Endpoint cleared — the console is back to pasting the sheet."
+             : stored ? "Saved in this browser. Press <b>Test</b> to check it answers."
+                      : "This browser refused to store it, so it will be forgotten when you close the tab."));
+      paintLive();
+    };
+    $("ep-test").onclick = function () {
+      var m = $("ep-msg"); m.innerHTML = "";
+      if (!$("ep-url").value.trim()) {
+        m.appendChild(el("p", "warn", "Paste the deployment URL first.")); return;
+      }
+      saveLive($("ep-url").value.trim(), $("ep-key").value.trim());
+      m.appendChild(el("p", "fine", "Asking the endpoint for code " + S.code + "…"));
+      liveFetch(S.code, function (err, data) {
+        m.innerHTML = "";
+        if (err) {
+          m.appendChild(el("p", "warn", "No answer: " + esc(err)
+            + ". Check the URL, and that the deployment is set to \u201cAnyone\u201d."));
+          return;
+        }
+        if (!data || data.ok !== true) {
+          m.appendChild(el("p", "warn", "The endpoint answered, but refused: "
+            + esc((data && data.error) || "unknown")
+            + (data && data.headings ? " — headings it saw: " + esc(data.headings.join(" | ")) : "")));
+          return;
+        }
+        m.appendChild(el("p", "s-sum", "Connected. It returned " + (data.rows || []).length
+          + " submission(s) for the round currently on screen (code " + S.code + ")."
+          + ((data.rows || []).length ? "" : " Zero is correct if nobody has answered this round yet.")));
+      });
+    };
+
+    $("btn-live-board").onclick = function () { show("score"); };
+
+    function segRow(id, opts, get, set) {
+      var box = $(id);
+      if (!box) return;
+      function paint() {
+        box.innerHTML = "";
+        opts.forEach(function (o) {
+          var b = el("button", get() === o[0] ? "on" : "", esc(o[1]));
+          b.onclick = function () { set(o[0]); paint(); };
+          box.appendChild(b);
+        });
+      }
+      paint();
+    }
+    var WHY = {
+      first: "The earliest submission stands. This is the strictest and the one that keeps "
+           + "the speed bonus meaningful — a student cannot fire off guesses and keep the "
+           + "one that lands. Recommended.",
+      last:  "The newest submission stands, so a student can correct a typo — and can also "
+           + "keep guessing until the clock runs out. Kinder, and easier to game.",
+      best:  "Their first correct answer counts, wherever it falls. Kindest of the three, "
+           + "and the easiest to brute-force: with enough attempts everyone is right."
+    };
+    function paintWhy() {
+      var el2 = $("set-attempt-why");
+      if (el2) el2.textContent = WHY[PREFS.attempt] || "";
+    }
+    segRow("set-show",
+      [["id", "student numbers"], ["alias", "nicknames (Frekans-935)"]],
+      function () { return PREFS.show; },
+      function (v) {
+        PREFS.show = v; savePrefs();
+        if (LIVE.result && !LIVE.result.err) renderScore(LIVE.result);
+        renderTotals();
+      });
+    segRow("set-attempt",
+      [["first", "first counts"], ["last", "last counts"], ["best", "best counts"]],
+      function () { return PREFS.attempt; },
+      function (v) { PREFS.attempt = v; savePrefs(); paintWhy(); });
+    paintWhy();
     $("btn-check").onclick = selfCheck;
     $("btn-rehearse").onclick = rehearse;
     $("btn-score").onclick = function () {
@@ -1035,12 +1352,19 @@
       else if (k >= "2" && k <= "6") { S.week = +k; S.idx = 0; fresh(); }
       else if (k === "escape") show("run");
       else if (k === "d") rehearse();               /* d for dry run */
+      else if (k === "l") {                         /* l for leaderboard */
+        if (LIVE.result && !LIVE.result.err) { renderScore(LIVE.result); show("score"); }
+      }
     });
 
+    loadPrefs();
+    loadLive();
+    if ($("ep-url")) { $("ep-url").value = LIVE.url; $("ep-key").value = LIVE.key; }
     S.code = newCode();
     renderRoundPicker();
     paintBanked();
     reset();
+    paintLive();
     show("run");
   }
 
@@ -1052,7 +1376,15 @@
     paramsFor: paramsFor, seedFor: seedFor, parseCSV: parseCSV, parseNum: parseNum,
     scoreRows: scoreRows, state: S, rehearse: rehearse, selfCheck: selfCheck,
     sniffDelim: sniffDelim,
-    alias: alias, aliasWords: ALIAS_WORDS,
+    alias: alias, aliasWords: ALIAS_WORDS, prefs: PREFS, label: label,
+    rowLabel: rowLabel,
+    setPrefs: function (o) {
+      if (o.show) PREFS.show = o.show;
+      if (o.attempt) PREFS.attempt = o.attempt;
+      savePrefs();
+    },
+    liveFetch: liveFetch, rowsToSheet: rowsToSheet, live: LIVE,
+    saveLive: saveLive, poll: poll, autoMark: autoMark,
     importJSON: importJSON, totals: totals, codeUsed: codeUsed,
     setRound: function (w, i, code) { S.week = w; S.idx = i; S.code = code; reset(); },
     db: function () { return DB; }

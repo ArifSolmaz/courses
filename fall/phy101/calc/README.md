@@ -137,6 +137,20 @@ wrong, not just that it was. That is worth reading out.
 
 **Add this round to the term totals** banks it. The same round cannot be banked twice.
 
+### If a student submits twice
+
+The form cannot stop a second submission, so the console decides which one counts —
+**Settings → If a student submits twice**:
+
+| | |
+|---|---|
+| **first counts** (default) | The earliest stands. Strictest, and the only one that keeps the speed bonus meaningful: a student cannot fire off guesses and keep the one that lands. |
+| **last counts** | The newest stands, so a typo can be corrected — and so can a guess, repeatedly, until the clock stops. |
+| **best counts** | Their first correct answer counts wherever it falls. Kindest, and the easiest to brute-force. |
+
+Whichever you pick, the result says how many students resubmitted and how many extra rows
+there were, so you can see whether it is happening at all before deciding it matters.
+
 ### Points
 
 | | |
@@ -172,7 +186,11 @@ Student IDs are personal data under KVKK, and this is designed so they never rea
 wall:
 
 - The form collects **only the student number** — no name, no handle, no email.
-- The projector shows a **derived alias** instead, like `Frekans-935`. The same student
+- **What the projector shows is a setting** — **Settings → On the projector**. It ships
+  showing **student numbers**, which is what was asked for; switch it to nicknames if you
+  would rather not project them. It relabels the whole term at once, including rounds
+  already banked, because the name is worked out when the table is drawn and never stored.
+- The nickname option shows a **derived alias**, like `Frekans-935`. The same student
   number always gives the same alias, on any machine, in any week, so a term leaderboard
   still works. Nothing is stored to make this happen and the student chooses nothing.
 - The alias carries **no digits of the ID**, and consecutive student numbers give
@@ -203,7 +221,49 @@ let them spot themselves on the first round — they will recognise their own an
 
 ---
 
-## 7 · The fifteen challenges
+## 7 · Live results — no pasting (optional, 5 minutes, once)
+
+With this set up, submissions arrive by themselves: a live count while the clock runs, and
+the round marks itself the moment you press **REVEAL**. Without it nothing changes — you
+paste the sheet as before, and everything else works the same.
+
+**Setting it up**
+
+1. Open the response **sheet** (not the form) → **Extensions → Apps Script**.
+2. Delete whatever is in `Code.gs` and paste in the whole of **`apps-script.gs`** from
+   this folder. Save.
+3. **Deploy → New deployment** → gear icon → **Web app**.
+   - *Execute as*: **Me**
+   - *Who has access*: **Anyone**   ← required; the console is not signed in as you
+4. Deploy. Google will warn you that the script is unverified — it is your own script, in
+   your own account, reading only your own sheet. Click through
+   *Advanced → Go to (project name)*.
+5. Copy the **Web app URL** (it ends in `/exec`).
+6. In the console: **Settings**, paste the URL, **Save**, then **Test**. It should say
+   *Connected*.
+
+**What "Anyone" does and does not mean.** The script hands out only the rows whose code
+you ask for, and only the student number, code and answer. It refuses a request with no
+code, so the URL cannot be used to pull the whole term. But anyone holding that URL can
+read one round's student numbers, so **treat it as a password**: it lives in your
+browser's settings and nowhere else — not on a slide, not in this repository, not in an
+email. If it leaks: **Deploy → Manage deployments → Archive**, then deploy again for a
+fresh URL.
+
+If you want a second lock, set `SHARED_KEY` in the script to any word and put the same
+word in the console's Settings. Requests without it are refused.
+
+**In class it looks like this.** Press **Space** and a count appears under the clock,
+rising as answers come in — that alone is worth it, because you can see when to stop
+waiting. Press **R** and the answer and traps appear as usual, with a line underneath
+saying how many were correct. Press **L** for the leaderboard.
+
+**If it fails mid-lecture** the console says so and points at the paste box. Nothing is
+lost: the answers are in the sheet either way, and you can mark the round afterwards.
+
+---
+
+## 8 · The fifteen challenges
 
 | id | week | the keystroke it is about | formula |
 |----|------|---------------------------|---------|
@@ -227,7 +287,7 @@ Week 6 is the review class, so its three are mixed and a little longer.
 
 ---
 
-## 8 · Files
+## 9 · Files
 
 ```
 calc/

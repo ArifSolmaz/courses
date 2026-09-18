@@ -228,7 +228,20 @@ function section(s) { console.log("\n" + s); }
     g("tab-score").click();
     g("s-in").value = rows;
     g("s-round").value = ch.id + "-" + code;
+
+    /* the screen name is a setting now, so check BOTH settings rather than
+       whichever happens to be the default */
+    C.setPrefs({ show: "alias" });
     g("btn-score").click();
+    const aliasText = g("s-out").textContent;
+    document.body.classList.remove("sheet-folded");
+    C.setPrefs({ show: "id" });
+    g("btn-score").click();
+    const idText = g("s-out").textContent;
+    document.body.classList.remove("sheet-folded");
+    C.setPrefs({ show: "alias" });
+    g("btn-score").click();
+
     const res = C.scoreRows(C.parseCSV(rows), { ch: ch, code: code });
     const text = g("s-out").textContent;
 
@@ -237,10 +250,16 @@ function section(s) { console.log("\n" + s); }
       counted: (res.rows || []).length,
       /* the Turkish headings must be found without a handle column */
       aliases: (res.rows || []).map(r => r.handle),
-      matchesAliasFn: (res.rows || []).every(r => r.handle === C.alias(r.id)),
+      /* handle is empty when the sheet has no handle column; the screen name
+         comes from rowLabel(), which applies the display setting */
+      matchesAliasFn: (res.rows || []).every(r => !r.handle && C.rowLabel(r) === C.alias(r.id)),
       /* and NOTHING resembling a student number may reach the screen */
-      idOnScreen: /\b220[1-9]\b/.test(text),
-      screenShowsAlias: text.indexOf(C.alias("2201")) >= 0
+      idOnScreen: /\b220[1-9]\b/.test(aliasText),
+      screenShowsAlias: aliasText.indexOf(C.alias("2201")) >= 0,
+      /* textContent runs the cells together ("1"+"2201"+"3.04e+3"), so a word
+         boundary never matches there - use a plain substring search */
+      idModeShowsId: idText.indexOf("2201") >= 0,
+      idModeShowsAlias: idText.indexOf(C.alias("2201")) >= 0
     };
   });
   ok(!noHandle.err, "a three-column sheet with Turkish headings marks fine", noHandle.err);
@@ -249,8 +268,76 @@ function section(s) { console.log("\n" + s); }
      "each student is shown under their derived alias",
      JSON.stringify(noHandle.aliases));
   ok(noHandle.idOnScreen === false,
-     "no student ID reaches the projector, even with no handle column");
-  ok(noHandle.screenShowsAlias, "and the alias is what appears instead");
+     "with nicknames chosen, no student number reaches the projector");
+  ok(noHandle.screenShowsAlias, "and the nickname is what appears instead");
+  ok(noHandle.idModeShowsId && !noHandle.idModeShowsAlias,
+     "with student numbers chosen, the numbers are shown and the nickname is not",
+     JSON.stringify([noHandle.idModeShowsId, noHandle.idModeShowsAlias]));
+
+  /* --------------------- 2e. a student who submits more than once */
+  section("2e. repeat submissions - first / last / best");
+  const rep = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    const code = 7788;
+    C.setRound(2, 1, code);
+    const ch = CH.find(c => c.id === g("q-id").textContent);
+    g("btn-reveal").click();
+    const p = C.paramsFor(ch, code), a = ch.answer(p);
+
+    /* 4001 answers wrong then right; 4002 right then wrong; 4003 once, right.
+       Deliberately listed out of time order, because the endpoint does not
+       promise an order. */
+    const rows = [
+      "Timestamp,Ogrenci No,Kod,Cevap",
+      `2026/03/04 10:31:40,4002,${code},999`,          // second, wrong
+      `2026/03/04 10:31:05,4001,${code},111`,          // first, wrong
+      `2026/03/04 10:31:10,4002,${code},${SF3(a)}`,    // first, right
+      `2026/03/04 10:31:50,4001,${code},${SF3(a)}`,    // second, right
+      `2026/03/04 10:31:20,4003,${code},${SF3(a)}`     // only one
+    ].join("\n");
+
+    const out = {};
+    for (const mode of ["first", "last", "best"]) {
+      C.setPrefs({ attempt: mode });
+      const res = C.scoreRows(C.parseCSV(rows), { ch: ch, code: code });
+      const by = {}; (res.rows || []).forEach(r => { by[r.id] = r; });
+      out[mode] = {
+        counted: (res.rows || []).length,
+        nOk: res.nOk,
+        r4001: by["4001"] && by["4001"].ok,
+        r4002: by["4002"] && by["4002"].ok,
+        r4003: by["4003"] && by["4003"].ok,
+        repeats: res.repeats, nRepeat: res.nRepeat
+      };
+    }
+    /* and the screen must say it happened */
+    C.setPrefs({ attempt: "first" });
+    g("tab-score").click();
+    g("s-in").value = rows;
+    g("s-round").value = ch.id + "-" + code;
+    g("btn-score").click();
+    out.notice = g("s-out").textContent;
+    return out;
+  });
+  ok(rep.first.counted === 3 && rep.last.counted === 3 && rep.best.counted === 3,
+     "three students counted whichever rule applies, not five rows",
+     JSON.stringify([rep.first.counted, rep.last.counted, rep.best.counted]));
+  ok(rep.first.r4001 === false && rep.first.r4002 === true && rep.first.nOk === 2,
+     "FIRST: the earliest attempt stands, even when a better one follows",
+     JSON.stringify(rep.first));
+  ok(rep.last.r4001 === true && rep.last.r4002 === false && rep.last.nOk === 2,
+     "LAST: the newest attempt stands, even when it is worse",
+     JSON.stringify(rep.last));
+  ok(rep.best.r4001 === true && rep.best.r4002 === true && rep.best.nOk === 3,
+     "BEST: a correct answer anywhere in their attempts counts",
+     JSON.stringify(rep.best));
+  ok(rep.first.repeats === 2 && rep.first.nRepeat === 2,
+     "two students, two extra rows, reported either way",
+     JSON.stringify([rep.first.repeats, rep.first.nRepeat]));
+  ok(/submitted more than once/.test(rep.notice) && /only the first counts/.test(rep.notice),
+     "and the screen says how many resubmitted and which rule was used",
+     rep.notice.slice(0, 120));
 
   /* ----------------------------------------- 3. the messy-number parser */
   section("3. the answer parser copes with what students type");
@@ -368,6 +455,7 @@ function section(s) { console.log("\n" + s); }
     const idx = CH.findIndex(c => c.id === "W4-C2");
     const ch = CH[idx];
     const code = 7314;
+    C.setPrefs({ show: "alias", attempt: "first" });
     C.setRound(4, 1, code);
     if (document.getElementById("q-id").textContent !== "W4-C2") return { err: "wrong round selected" };
     /* reveal it so it enters the round history, then select it explicitly -
@@ -612,6 +700,7 @@ function section(s) { console.log("\n" + s); }
   const hist2 = await page.evaluate(() => {
     const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
     const g = id => document.getElementById(id);
+    C.setPrefs({ show: "alias" });      /* this section reads handle names */
 
     /* play W2-C2 with code 4400 and reveal it, which is what makes it a round */
     C.setRound(2, 1, 4400);
@@ -712,6 +801,10 @@ function section(s) { console.log("\n" + s); }
        rewrites the ledger, so it goes last. */
     const db = C.db();
     const spared = 4747;
+    /* clear the played rounds too: codeUsed() consults them as well, and a
+       spared code that an earlier round already burned makes this look like a
+       failure of newCode() when it is a failure of the setup */
+    db.history.length = 0; db.results.length = 0;
     db.codes.length = 0;
     for (let c = 1000; c <= 9999; c++) if (c !== spared) db.codes.push(c);
     g("btn-new").click();

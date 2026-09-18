@@ -19,6 +19,7 @@
     <button id="tab-score">Score a round</button>
     <button id="tab-totals">Totals</button>
     <button id="tab-check">Before class</button>
+    <button id="tab-set">Settings</button>
   </div>
   <span class="spacer"></span>
   <span class="banked" id="banked">no rounds banked</span>
@@ -50,6 +51,8 @@
     <div id="clock">2:00</div>
     <div class="track"><div id="bar"></div></div>
   </div>
+  <div class="live" id="live" hidden></div>
+  <p class="live-msg" id="live-msg" hidden></p>
 
   <div class="run-controls">
     <button id="btn-start" class="btn primary big">START</button>
@@ -64,6 +67,10 @@
       <option value="180">3 min</option>
       <option value="300">5 min</option>
     </select>
+  </div>
+
+  <div class="row-actions" id="live-actions">
+    <button id="btn-live-board" class="btn" title="show the marked leaderboard (L)">leaderboard →</button>
   </div>
 
   <section id="reveal" hidden>
@@ -148,6 +155,59 @@
     with the code on screen, then open the response sheet, copy it, and mark it here. That
     is the only part of the chain this page cannot check by itself.
   </p>
+</section>
+
+<!-- ====================================================== settings -->
+<section id="pane-set" hidden>
+  <h2>Settings — live results</h2>
+  <p class="fine">
+    With an endpoint set, submissions arrive by themselves: a live count while the clock
+    runs, and the round marks itself the moment you press <b>REVEAL</b>. Without one,
+    nothing changes — you paste the sheet as before. Setup is in
+    <b>README §7</b> and takes about five minutes, once.
+  </p>
+
+  <label class="ep-field">
+    <span>deployment URL</span>
+    <input type="url" id="ep-url" placeholder="https://script.google.com/macros/s/…/exec" spellcheck="false">
+  </label>
+  <label class="ep-field">
+    <span>shared key (optional)</span>
+    <input type="text" id="ep-key" placeholder="leave empty unless you set one in the script" spellcheck="false">
+  </label>
+
+  <div class="row-actions">
+    <button id="ep-save" class="btn primary">Save</button>
+    <button id="ep-test" class="btn">Test</button>
+  </div>
+  <div id="ep-msg"></div>
+
+  <p class="fine">
+    <b>Treat that URL as a password.</b> It is the key to your response sheet — anyone
+    holding it can read a round's student numbers. It is stored in this browser only,
+    never in the repository, and it is not on the projector unless you open this tab.
+    If it leaks: in the script editor, <b>Deploy → Manage deployments → Archive</b>, then
+    deploy again for a fresh URL.
+  </p>
+  <p class="fine">
+    The script hands out only the rows for the code it is asked about, and only the
+    student number, code and answer. It refuses a request with no code, so it cannot be
+    used to pull the whole term.
+  </p>
+
+  <h3>On the projector</h3>
+  <p class="fine">
+    What appears in the name column, on the round table and on the term totals.
+  </p>
+  <div class="seg-row" id="set-show"></div>
+
+  <h3>If a student submits twice</h3>
+  <p class="fine">
+    The form cannot stop a second submission, so the console decides which one counts.
+    Whichever you choose, it tells you afterwards how many students resubmitted.
+  </p>
+  <div class="seg-row" id="set-attempt"></div>
+  <p class="fine" id="set-attempt-why"></p>
 </section>
 
 <script src="challenges.js"></script>
