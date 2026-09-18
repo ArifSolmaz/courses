@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHY101 — Hesap Makinesi Yarışması / Calculator Challenge</title>
+<meta name="description" content="PHY101 hesap makinesi yarışması: öğrenciler için kurallar ve puanlama. Rules and scoring for the PHY101 in-class calculator challenge.">
+<style>
+/* Same tokens as console.css, inlined so this page stands alone. */
+:root{
+  --bg:#fbfaf8; --surface:#ffffff; --surface-2:#f4f3ef; --border:#ded9d0;
+  --text:#22201d; --muted:#605b53; --dim:#8b857a; --heading:#14120f;
+  --phy-orange:#c2410c; --phy-blue:#1d4ed8; --green:#15803d; --red:#b91c1c;
+  --accent-soft:#fdf1e7; --green-soft:#eefaf0;
+  --font-display:'Syne',system-ui,-apple-system,sans-serif;
+  --font-body:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#12130f; --surface:#191a15; --surface-2:#22241d; --border:#32352b;
+    --text:#e8e6df; --muted:#a8a49a; --dim:#837e73; --heading:#f4f2ec;
+    --phy-orange:#fb923c; --phy-blue:#7da2ff; --green:#4ade80; --red:#f87171;
+    --accent-soft:#2a1d12; --green-soft:#13251a;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:1.02rem; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+header{
+  display:flex; align-items:center; gap:.9rem; flex-wrap:wrap;
+  padding:.6rem 1.1rem; border-bottom:1px solid var(--border); background:var(--surface);
+  position:sticky; top:0; z-index:5;
+}
+header .brand{
+  font-family:var(--font-display); font-weight:700; font-size:.95rem;
+  color:var(--heading); letter-spacing:-.01em;
+}
+header .spacer{flex:1 1 auto}
+.btn{
+  font-family:var(--font-display); font-weight:600; font-size:.82rem;
+  padding:.4rem .8rem; border:1px solid var(--border); border-radius:var(--radius);
+  background:var(--surface-2); color:var(--text); cursor:pointer;
+}
+.btn:hover{border-color:var(--phy-orange)}
+main{max-width:46rem; margin:0 auto; padding:1.6rem 1.1rem 5rem}
+h1{
+  font-family:var(--font-display); font-weight:800; font-size:1.9rem;
+  line-height:1.15; letter-spacing:-.02em; color:var(--heading); margin:.4rem 0 .2rem;
+}
+h2{
+  font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+  color:var(--heading); letter-spacing:-.01em; margin:2.2rem 0 .5rem;
+  padding-top:1.1rem; border-top:1px solid var(--border);
+}
+h2:first-of-type{border-top:0; padding-top:0}
+.lede{font-size:1.1rem; color:var(--muted); margin:.2rem 0 1.4rem}
+p{margin:.7rem 0}
+ol,ul{margin:.7rem 0; padding-left:1.3rem}
+li{margin:.35rem 0}
+b{color:var(--heading)}
+code,.mono{font-family:var(--font-mono); font-size:.92em}
+.rules{
+  background:var(--accent-soft); border:1px solid var(--border);
+  border-left:4px solid var(--phy-orange); border-radius:var(--radius);
+  padding:.9rem 1.1rem; margin:1rem 0;
+}
+.rules ul{margin:.3rem 0; padding-left:1.2rem}
+.pts{
+  width:100%; border-collapse:collapse; margin:.8rem 0;
+  font-size:.96rem;
+}
+.pts td{border-top:1px solid var(--border); padding:.42rem .3rem}
+.pts td:last-child{
+  text-align:right; font-family:var(--font-mono); font-weight:700;
+  color:var(--phy-orange); white-space:nowrap;
+}
+.formbox{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1rem 1.1rem; margin:1.2rem 0; text-align:center;
+}
+.formbox a{
+  display:inline-block; font-family:var(--font-display); font-weight:700;
+  font-size:1rem; padding:.6rem 1.4rem; border-radius:var(--radius);
+  background:var(--phy-orange); color:#fff; text-decoration:none;
+}
+.formbox .note{font-size:.9rem; color:var(--muted); margin:.6rem 0 0}
+.fine{font-size:.9rem; color:var(--muted)}
+.chip{
+  display:inline-block; font-family:var(--font-mono); font-weight:700;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:6px;
+  padding:.05em .45em; letter-spacing:.06em;
+}
+footer{
+  max-width:46rem; margin:0 auto; padding:1.2rem 1.1rem 3rem;
+  border-top:1px solid var(--border); color:var(--dim); font-size:.86rem;
+}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">PHY101 · Hesap Makinesi Yarışması</span>
+  <span class="spacer"></span>
+  <button id="btn-lang" class="btn">English</button>
+</header>
+
+<!-- ==================================================== TURKISH ========= -->
+<main id="tr">
+
+  <h1>Hesap Makinesi Yarışması</h1>
+  <p class="lede">
+    2.–6. haftalar, her derste üç kısa soru. Amaç hızlı aritmetik değil: sınavda
+    puan kaybettiren <b>tuş hatalarını</b> derste, ucuza yapmak.
+  </p>
+
+  <div class="formbox" id="form-tr">
+    <a id="form-link-tr" href="#">Cevap formunu aç</a>
+    <p class="note">Bu bağlantıyı derse gelmeden telefonunda açık tut.</p>
+  </div>
+
+  <h2>Bir tur nasıl işler</h2>
+  <ol>
+    <li>Soru perdeye gelir. Sağ üstte <b>dört haneli bir kod</b> vardır — örneğin
+      <span class="chip">8471</span>. Kod her turda değişir.</li>
+    <li>Saat başlar. Genellikle <b>2 dakika</b>.</li>
+    <li>Hesap makinenle çözersin.</li>
+    <li>Formu açar, üç şeyi yazarsın: <b>öğrenci numaran</b>, <b>ekrandaki kod</b>,
+      <b>cevabın</b>. Gönder.</li>
+    <li>Saat dolunca doğru cevap açıklanır — <b>ve odanın ürettiği iki yanlış cevap</b>,
+      her birinin hangi tuş hatasından çıktığıyla birlikte. Asıl ders burada.</li>
+  </ol>
+  <p class="fine">
+    Kod, sorunun kendisidir: sayılar koddan türetilir. Yan sıradan alınan ya da
+    başka şubeden gelen bir cevap yanlış çıkar, çünkü onların kodu başkaydı.
+  </p>
+
+  <h2>Kurallar</h2>
+  <div class="rules">
+    <ul>
+      <li>Aksi yazmıyorsa cevabı <b>üç anlamlı rakamla</b> ver.</li>
+      <li><b>g = 9,81 m/s²</b></li>
+      <li>Koda dikkat: <b>o anda ekranda olan kodu</b> yaz. Yanlış kod
+        <b>değerlendirilmez</b> — cevabın doğru olsa bile.</li>
+      <li id="rule-attempt-tr">Bir turda <b>ilk gönderin</b> sayılır. İkinci bir deneme
+        değerlendirmeye alınmaz, o yüzden acele edip tahmin yollama.</li>
+      <li>Ondalık ayırıcı olarak <b>virgül de nokta da</b> kabul edilir:
+        <span class="chip">17,3</span> ve <span class="chip">17.3</span> aynıdır.</li>
+      <li><b>Birim yazma</b>, sadece sayı. Üstel gösterim serbest:
+        <span class="chip">6.2e-4</span> olur.</li>
+      <li>Gerçek değerin <b>%1</b> içindeyse doğru sayılır. (Tek istisna, konusu zaten
+        yuvarlama olan son haftanın sorusu: orada üç anlamlı rakam tutmalı.)</li>
+    </ul>
+  </div>
+
+  <h2>Puanlar</h2>
+  <table class="pts">
+    <tr><td>Süre içinde doğru cevap</td><td>10</td></tr>
+    <tr><td>Doğru cevap verenlerin <b>ilki</b></td><td>+3</td></tr>
+    <tr><td>İkincisi</td><td>+2</td></tr>
+    <tr><td>Üçüncüsü</td><td>+1</td></tr>
+    <tr><td>Hızlı ama yanlış cevap</td><td>0</td></tr>
+  </table>
+  <p class="fine">
+    Ağırlık doğrulukta; hız yalnızca beraberlik bozar. Yanlış bir cevap ne kadar
+    hızlı gelirse gelsin sıfırdır — kazandırılmak istenen alışkanlık tam olarak bu.
+  </p>
+
+  <h2>Ekranda ne görünür</h2>
+  <p id="show-tr"></p>
+
+  <h2>Hangi bilgi toplanıyor</h2>
+  <p>
+    Yalnızca <b>öğrenci numaran</b>. Ad yok, e-posta yok, takma ad yok. Numara
+    sadece bu turların puanını sana bağlamak için kullanılır ve dönem sonunda
+    toplam puan dışında bir yere gitmez.
+  </p>
+
+  <h2>Ters giderse</h2>
+  <ul>
+    <li><b>Yanlış kod yazdım.</b> O tur sayılmaz. Bir sonraki turda dikkat et; toplam on beş tur var.</li>
+    <li><b>Saati kaçırdım.</b> Yine de çöz ve açıklamayı dinle — puan gitti, ders gitmedi.</li>
+    <li><b>Telefonum çekmedi.</b> Hocana söyle; bağlantı sorunu olan turlar el kaldırarak
+      yürütülür, o turda kimseye puan verilmez.</li>
+    <li><b>Listede kendimi göremiyorum.</b> Neredeyse her zaman kod yanlıştır ya da
+      ikinci bir gönderi yapılmıştır.</li>
+  </ul>
+
+  <h2>Neden bu sorular</h2>
+  <p>
+    Her soru belirli bir hatayı hedefler: negatif sayının karesi, DEG–RAD karışıklığı,
+    <span class="chip">EXP</span> tuşu, payın parantezlenmemesi, erken yuvarlama.
+    Bunlar bilgi eksikliği değil, tuş hatası — ve sınavda tam puanlık soruları
+    götüren şey genelde bunlar.
+  </p>
+
+</main>
+
+<!-- ==================================================== ENGLISH ========= -->
+<main id="en" hidden>
+
+  <h1>Calculator Challenge</h1>
+  <p class="lede">
+    Three short questions each class, weeks 2 to 6. Not a speed-arithmetic contest:
+    each one targets a <b>keystroke mistake</b> that costs marks in the exam, so you
+    make it here, cheaply, instead of there.
+  </p>
+
+  <div class="formbox" id="form-en">
+    <a id="form-link-en" href="#">Open the answer form</a>
+    <p class="note">Have this open on your phone before the lecture starts.</p>
+  </div>
+
+  <h2>How a round runs</h2>
+  <ol>
+    <li>The question goes up on the projector. Top right is a <b>four-digit code</b> —
+      say <span class="chip">8471</span>. It changes every round.</li>
+    <li>The clock starts. Usually <b>2 minutes</b>.</li>
+    <li>You work it out on your calculator.</li>
+    <li>You open the form and type three things: your <b>student number</b>, the
+      <b>code on screen</b>, and your <b>answer</b>. Submit.</li>
+    <li>When the clock stops, the answer is revealed — <b>along with the two wrong
+      answers the room produced</b> and the keystroke behind each. That part is the
+      actual lesson.</li>
+  </ol>
+  <p class="fine">
+    The code <i>is</i> the question: the numbers are derived from it. An answer passed
+    along the row, or taken from the other section, comes out wrong, because their
+    code was a different one.
+  </p>
+
+  <h2>The rules</h2>
+  <div class="rules">
+    <ul>
+      <li>Answer to <b>three significant figures</b> unless the question says otherwise.</li>
+      <li><b>g = 9.81 m/s²</b></li>
+      <li>Type <b>the code that is on screen now</b>. A wrong code is <b>not marked</b>,
+        even if the answer is right.</li>
+      <li id="rule-attempt-en">Your <b>first submission</b> in a round is the one that
+        counts. A second attempt is not marked, so do not fire off a guess.</li>
+      <li>A decimal <b>comma or point</b> are both accepted:
+        <span class="chip">17,3</span> and <span class="chip">17.3</span> are the same.</li>
+      <li><b>No units</b> — just the number. Exponent notation is fine:
+        <span class="chip">6.2e-4</span>.</li>
+      <li>Correct means within <b>1 %</b> of the true value. (The one exception is the
+        week-6 question that is itself about rounding: there it must agree to three
+        significant figures.)</li>
+    </ul>
+  </div>
+
+  <h2>Points</h2>
+  <table class="pts">
+    <tr><td>Correct, inside the time</td><td>10</td></tr>
+    <tr><td><b>First</b> correct answer</td><td>+3</td></tr>
+    <tr><td>Second</td><td>+2</td></tr>
+    <tr><td>Third</td><td>+1</td></tr>
+    <tr><td>A fast wrong answer</td><td>0</td></tr>
+  </table>
+  <p class="fine">
+    Accuracy carries the weight; speed is only a tiebreak. A wrong answer scores
+    nothing however quickly it arrives — which is exactly the habit this is trying
+    to build.
+  </p>
+
+  <h2>What appears on screen</h2>
+  <p id="show-en"></p>
+
+  <h2>What is collected</h2>
+  <p>
+    Only your <b>student number</b>. No name, no email, no nickname. It is used to
+    attach these points to you and nothing else.
+  </p>
+
+  <h2>When something goes wrong</h2>
+  <ul>
+    <li><b>I typed the wrong code.</b> That round does not count. There are fifteen
+      rounds; watch for it next time.</li>
+    <li><b>I missed the clock.</b> Work it out anyway and listen to the reveal — the
+      points are gone, the lesson is not.</li>
+    <li><b>My phone had no signal.</b> Tell your instructor; a round with a network
+      problem is run by show of hands and nobody scores it.</li>
+    <li><b>I am not in the list.</b> Almost always a wrong code, or a second submission.</li>
+  </ul>
+
+  <h2>Why these questions</h2>
+  <p>
+    Each one targets a specific mistake: squaring a negative, DEG versus RAD, the
+    <span class="chip">EXP</span> key, forgetting to bracket a numerator, rounding too
+    early. None of these is a gap in your physics — they are keystrokes, and they are
+    what take full-mark questions away in an exam.
+  </p>
+
+</main>
+
+<footer>
+  <span id="foot-tr">PHY101 · Fizik I · Bu sayfa dönem boyunca geçerlidir.</span>
+  <span id="foot-en" hidden>PHY101 · Physics I · This page stands for the whole term.</span>
+</footer>
+
+<script>
+/* =======================================================================
+   The three things to set. Nothing else in this file needs touching.
+
+   formUrl  the shortened Google Form link. Left empty, the button is
+            replaced by a line telling students to use the link on the slide.
+   attempt  must match Settings → "If a student submits twice" on the console:
+            "first" | "last" | "best".
+   show     must match Settings → "On the projector":
+            "id"     student numbers go on the wall
+            "alias"  a fixed nickname does instead
+   ==================================================================== */
+var STUDENT_PAGE = {
+  formUrl: "https://forms.gle/MxGUR2aZhvWRgMdZ6",
+  attempt: "first",
+  show: "id"
+};
+
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------- the form link */
+  var boxes = [["form-tr", "form-link-tr"], ["form-en", "form-link-en"]];
+  var noLink = {
+    "form-tr": "Form bağlantısı dersin ilk slaytındadır.",
+    "form-en": "The form link is on the first slide of the lecture."
+  };
+  var url = String(STUDENT_PAGE.formUrl || "").trim();
+  var ok = /^https?:\/\//i.test(url);
+  boxes.forEach(function (pair) {
+    var box = document.getElementById(pair[0]);
+    var a = document.getElementById(pair[1]);
+    if (!box || !a) return;
+    if (ok) { a.href = url; return; }
+    box.innerHTML = '<p class="note">' + noLink[pair[0]] + "</p>";
+  });
+
+  /* -------------------------------------------- which attempt counts */
+  var ATTEMPT = {
+    first: {
+      tr: "Bir turda <b>ilk gönderin</b> sayılır. İkinci bir deneme değerlendirmeye " +
+          "alınmaz, o yüzden acele edip tahmin yollama.",
+      en: "Your <b>first submission</b> in a round is the one that counts. A second " +
+          "attempt is not marked, so do not fire off a guess."
+    },
+    last: {
+      tr: "Bir turda <b>son gönderin</b> sayılır. Yanlış yazdıysan süre dolmadan " +
+          "tekrar gönderebilirsin.",
+      en: "Your <b>last submission</b> in a round is the one that counts, so a typo " +
+          "can be corrected before the clock stops."
+    },
+    best: {
+      tr: "Bir turda <b>ilk doğru cevabın</b> sayılır; kaçıncı gönderide geldiği " +
+          "önemli değil.",
+      en: "Your <b>first correct answer</b> in a round counts, wherever in your " +
+          "submissions it falls."
+    }
+  };
+  var at = ATTEMPT[STUDENT_PAGE.attempt] || ATTEMPT.first;
+  set("rule-attempt-tr", at.tr);
+  set("rule-attempt-en", at.en);
+
+  /* ------------------------------------------- what goes on the wall */
+  var SHOW = {
+    id: {
+      tr: "Tur bittiğinde perdede doğru cevap verenlerin listesi çıkar ve orada " +
+          "<b>öğrenci numaraları</b> görünür. Numaranın perdeye yansımasını " +
+          "istemiyorsan hocana söyle.",
+      en: "After each round the correct answers go up on the projector, listed by " +
+          "<b>student number</b>. If you would rather your number were not projected, " +
+          "say so to your instructor."
+    },
+    alias: {
+      tr: "Tur bittiğinde perdede doğru cevap verenlerin listesi çıkar, ama " +
+          "<b>öğrenci numarası görünmez</b>: numaradan türetilen sabit bir takma ad " +
+          "çıkar — <span class=\"chip\">Frekans-935</span> gibi. Aynı numara dönem " +
+          "boyunca hep aynı takma adı verir, yani listede kendini takip edebilirsin. " +
+          "Takma adını ilk turda kendi cevabından tanırsın.",
+      en: "After each round the correct answers go up on the projector, but " +
+          "<b>no student number appears</b>: each number produces a fixed nickname " +
+          "instead, like <span class=\"chip\">Frekans-935</span>. The same number " +
+          "always gives the same nickname, all term, so you can follow yourself down " +
+          "the list. You will recognise yours on the first round from your own answer."
+    }
+  };
+  var sh = SHOW[STUDENT_PAGE.show] || SHOW.id;
+  set("show-tr", sh.tr);
+  set("show-en", sh.en);
+
+  function set(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  /* ---------------------------------------------------- the language */
+  var btn = document.getElementById("btn-lang");
+  var lang = "tr";
+  try { lang = localStorage.getItem("phy101-student-lang") || "tr"; } catch (e) {}
+  if (lang !== "en") lang = "tr";
+
+  function paint() {
+    var en = lang === "en";
+    document.getElementById("tr").hidden = en;
+    document.getElementById("en").hidden = !en;
+    document.getElementById("foot-tr").hidden = en;
+    document.getElementById("foot-en").hidden = !en;
+    document.documentElement.lang = lang;
+    btn.textContent = en ? "Türkçe" : "English";
+    try { localStorage.setItem("phy101-student-lang", lang); } catch (e) {}
+  }
+  btn.addEventListener("click", function () {
+    lang = lang === "en" ? "tr" : "en";
+    paint();
+  });
+  paint();
+})();
+</script>
+</body>
+</html>

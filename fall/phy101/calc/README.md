@@ -10,6 +10,9 @@ or found in last year's notes.
 
 Open `index.html` in a browser. No server, no accounts, no network, nothing to install.
 
+**On the day, you want [DAY-OF-CLASS.md](DAY-OF-CLASS.md)** — one page, in order. This
+file is the reference behind it.
+
 ---
 
 ## 1 · The one idea to understand
@@ -53,7 +56,11 @@ alias.)
 Shorten the form link once and put it on the first slide of every lecture. The students
 should have it open before the first round, not be hunting for it while the clock runs.
 
-**Tell them the rules once, in week 2:**
+**The rules are written out for them** in [students.html](students.html) — the same page
+in Turkish and English, with the form link on it. Put its link on slide 1 beside the form
+link. Three lines at the bottom of that file set the form link and the two rules that
+depend on your Settings; see [DAY-OF-CLASS.md](DAY-OF-CLASS.md). Say them out loud once in
+week 2 as well:
 
 - Answer to **three significant figures** unless the question says otherwise.
 - One submission per round counts — **the first**. A second guess is not marked.
@@ -292,11 +299,16 @@ Week 6 is the review class, so its three are mixed and a little longer.
 
 ```
 calc/
-  index.html      the console
-  console.css     projector styling, follows the site's tokens and dark mode
-  console.js      the console: seeding, clock, reveal, marking, totals, self check
-  challenges.js   the fifteen challenges and THE marking rule
-  README.md       this file
+  index.html        the console
+  students.html     the page the students read — rules, points, what a round is
+  console.css       projector styling, follows the site's tokens and dark mode
+  console.js        the console: seeding, clock, reveal, marking, totals, self check
+  challenges.js     the fifteen challenges and THE marking rule
+  apps-script.gs    the Google Apps Script for live results (§7)
+  DAY-OF-CLASS.md   one page: what to do, in order, on the day
+  TESTING.md        five levels of testing, and what "good" looks like for each
+  README.md         this file
+  test.js  test-live.js  test-gs.js  test-students.js
 ```
 
 `challenges.js` holds no DOM code and `console.js` holds no physics. A challenge is:
@@ -342,12 +354,14 @@ Wi-Fi off if you like.
 
 ### Tests
 
-`test.js` drives the page in headless Chromium — 89 checks, including a fabricated
+`test.js` drives the page in headless Chromium — 111 checks, including a fabricated
 Google Form sheet with traps, junk, a duplicate and a foreign round pasted in and
-marked end to end.
+marked end to end. `test-live.js` (16) covers the live-results path, `test-gs.js` (19)
+the Apps Script, and `test-students.js` (70) the student page — including that what it
+promises the students matches what the two Settings are set to.
 
 ```
-node test.js
+node test.js && node test-live.js && node test-gs.js && node test-students.js
 ```
 
 Every check in it has been confirmed to fail when the thing it tests is broken, by
