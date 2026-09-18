@@ -289,6 +289,77 @@ function section(s) { console.log("\n" + s); }
   ok(csv.quoted === "two, and a half", "a comma inside quotes stays in one cell", csv.quoted);
   ok(csv.escaped === 'say "hi"', "doubled quotes unescape", csv.escaped);
 
+  /* ------------- 4b. a paste that came straight out of Google Sheets (TABS) */
+  section("4b. pasting from Google Sheets, which puts TABS on the clipboard");
+  const tsv = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    const code = 9208;
+    C.setRound(2, 0, code);
+    const ch = CH.find(c => c.id === g("q-id").textContent);
+    g("btn-reveal").click();
+    const a = ch.answer(C.paramsFor(ch, code));
+
+    /* exactly the shape of a real Sheets copy: tab separated, Turkish headings */
+    const sheet = [
+      ["Timestamp", "Öğrenci No / Student ID", "Kod / Code", "Cevap / Answer"],
+      ["9/18/2026 14:52:16", "1111", String(code), SF3(a)],
+      ["9/18/2026 14:52:36", "2222", String(code), "999"],
+      ["9/18/2026 14:53:00", "3333", String(code), String(SF3(a)).replace(".", ",")]
+    ].map(r => r.join("\t")).join("\n");
+
+    const res = C.scoreRows(C.parseCSV(sheet), { ch: ch, code: code });
+
+    /* the same data downloaded as .csv instead */
+    const csv = [
+      ["Timestamp", "Öğrenci No / Student ID", "Kod / Code", "Cevap / Answer"],
+      ["9/18/2026 14:52:16", "1111", String(code), SF3(a)],
+      ["9/18/2026 14:52:36", "2222", String(code), "999"]
+    ].map(r => r.join(",")).join("\n");
+    const resCsv = C.scoreRows(C.parseCSV(csv), { ch: ch, code: code });
+
+    /* and a Turkish-locale export, which uses semicolons */
+    const ssv = [
+      ["Timestamp", "Ogrenci No", "Kod", "Cevap"],
+      ["9/18/2026 14:52:16", "1111", String(code), SF3(a)]
+    ].map(r => r.join(";")).join("\n");
+    const resSsv = C.scoreRows(C.parseCSV(ssv), { ch: ch, code: code });
+
+    /* a heading that itself contains a comma must not fool the sniffer when
+       the paste is tab separated */
+    const tricky = "Timestamp\tOgrenci No\tKod\tCevap, 3 anlamli rakam\n"
+      + "9/18/2026 14:52:16\t1111\t" + code + "\t" + SF3(a);
+    const resTricky = C.scoreRows(C.parseCSV(tricky), { ch: ch, code: code });
+
+    /* what he actually did: one column, no header row */
+    const oneCol = "999\nCorrect answer\n17,3";
+    const resOne = C.scoreRows(C.parseCSV(oneCol), { ch: ch, code: code });
+
+    return {
+      tsvErr: res.err || null,
+      tsvCounted: (res.rows || []).length,
+      tsvCorrect: res.nOk,
+      csvCounted: (resCsv.rows || []).length,
+      ssvCounted: (resSsv.rows || []).length,
+      trickyCounted: (resTricky.rows || []).length,
+      oneColErr: resOne.err || "",
+      delims: [C.sniffDelim(sheet), C.sniffDelim(csv), C.sniffDelim(ssv), C.sniffDelim(tricky)]
+    };
+  });
+  ok(!tsv.tsvErr, "a tab-separated Sheets paste is read at all", tsv.tsvErr);
+  ok(tsv.tsvCounted === 3, "all three rows found", tsv.tsvCounted);
+  ok(tsv.tsvCorrect === 2,
+     "two correct - including the one typed with a comma decimal", tsv.tsvCorrect);
+  ok(tsv.csvCounted === 2, "a downloaded .csv still works", tsv.csvCounted);
+  ok(tsv.ssvCounted === 1, "a semicolon export works too", tsv.ssvCounted);
+  ok(tsv.trickyCounted === 1,
+     "a heading containing a comma does not fool the tab detection", tsv.trickyCounted);
+  ok(JSON.stringify(tsv.delims) === JSON.stringify(["\t", ",", ";", "\t"]),
+     "each format is detected as itself", JSON.stringify(tsv.delims));
+  ok(/single column|WHOLE sheet/i.test(tsv.oneColErr),
+     "pasting one column says to select the whole sheet, not 'column not found'",
+     tsv.oneColErr.slice(0, 90));
+
   /* ------------------------------ 5. end to end: mark a fabricated round */
   section("5. end to end - paste a sheet and mark it");
   const e2e = await page.evaluate(() => {

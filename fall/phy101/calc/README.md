@@ -117,9 +117,16 @@ week 1, and you will never wonder again.
 
 ## 5 · After class — scoring
 
-Open the response sheet, select all, copy. On **Score a round**, pick the round from the
-dropdown (every round you revealed is remembered, with its code and the time it ran),
+Open the response sheet and select **the whole thing including the heading row** — the
+corner box above row 1, or ⌘A / Ctrl+A. The headings are how the columns are identified,
+so a paste without them cannot be marked. Copy. On **Score a round**, pick the round from
+the dropdown (every round you revealed is remembered, with its code and the time it ran),
 paste, and press **Mark this round**.
+
+Copying out of Google Sheets puts **tab**-separated text on the clipboard; a downloaded
+`.csv` is comma-separated; a Turkish-locale export uses semicolons. All three are read —
+the separator is detected from the heading row. (This was a real bug: every test fed it
+commas, so a genuine Sheets paste failed until it was tried for real.)
 
 You can paste the *whole term's* sheet every time — only rows carrying that round's code
 are marked. The paste box folds itself away as soon as the round is marked, because it
@@ -151,7 +158,7 @@ marked by one rule and checked by another.
 
 Kept in that browser's local storage, on that machine, and nowhere else. **Export the
 CSV regularly** — clearing site data, or switching laptops, loses them. The CSV is
-`student_id, handle, correct, attempts, points`, ready to drop into a gradebook if a
+`student_id, alias, correct, attempts, points`, ready to drop into a gradebook if a
 participation bonus is agreed with the other sections.
 
 Student IDs are hidden on the Totals tab until you press **show IDs**, so the tab is

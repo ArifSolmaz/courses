@@ -110,7 +110,10 @@ answer), and your phone.
    - `2222` with a deliberately wrong number,
    - `3333` with the correct answer typed with a comma for the decimal point (`17,3`) —
      a lot of phone keyboards do this, and it must still be marked correct.
-5. Open the Form's response sheet. Select all (⌘A / Ctrl+A), copy.
+5. Open the Form's response sheet. Select **all of it, including the heading row** —
+   click the empty corner box above row 1, or press ⌘A / Ctrl+A — then copy. Selecting
+   only the answer column is the commonest mistake; the headings are what identify the
+   columns.
 6. On the console: **Score a round** → pick this round from the dropdown → paste →
    **Mark this round**.
 
@@ -146,6 +149,7 @@ the README's wording exactly — it looks for `student`/`öğrenci`/`no`, `code`
 | The room has no network | The console itself needs none — it runs entirely offline. The **students** need it for the Form. Run the round anyway, reveal the answer, and score it as a show of hands; no points that round. |
 | No projector | Run it from the board: read the question aloud, write the numbers up, read the code. Everything else is unchanged. |
 | You marked a round against the wrong sheet | **Totals → Rounds banked → remove**, then mark it again. The points go with it. |
+| "Could not find a column" / "That looks like a single column" | You pasted part of the sheet. Select the whole thing including row 1 and paste again. |
 | A student says they submitted but is not listed | Almost always the wrong code, or a second submission — only the first counts. Both are visible in the sheet. |
 | A student asks which row is theirs | The alias is fixed for their student number all term. The `export points (CSV)` file has the `student_id, alias` pairs — post it once, or let them recognise their own answer on the first round. |
 | Two rows show the same alias | The console warns you when it happens (about 3 % of classes of 60). Their points are counted separately; just tell those two students. |

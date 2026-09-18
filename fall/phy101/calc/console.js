@@ -383,9 +383,31 @@
   }
 
   /* ---------------------------------------------------------------- scoring */
-  /* A real CSV reader: Google Forms quotes any field containing a comma, and
-     handles will contain commas sooner or later. */
-  function parseCSV(text) {
+  /* Work out what separates the columns before parsing.
+     Copying a selection out of Google Sheets puts TAB-separated text on the
+     clipboard, not commas - which is the normal way to get the data here, and
+     which every test fed it as commas, so it went unnoticed until a real paste
+     failed. Downloading the sheet as .csv gives commas. Both must work, and a
+     semicolon export (Turkish locale Excel) too. */
+  function sniffDelim(text) {
+    var line = String(text).replace(/\r\n/g, "\n").split("\n")[0] || "";
+    var n = { "\t": 0, ",": 0, ";": 0 }, q = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (c === '"') { q = !q; continue; }
+      if (!q && n[c] !== undefined) n[c]++;
+    }
+    /* tabs win outright when present: a header can contain a comma of its own
+       ("Cevap, 3 anlamli rakam") but never a tab */
+    if (n["\t"]) return "\t";
+    if (n[";"] > n[","]) return ";";
+    return ",";
+  }
+
+  /* A real reader: Google Forms quotes any field containing the delimiter, and
+     a doubled quote is an escaped one. */
+  function parseCSV(text, delim) {
+    var d = delim || sniffDelim(text);
     var rows = [], row = [], cell = "", q = false, i = 0;
     text = String(text).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
     for (; i < text.length; i++) {
@@ -394,7 +416,7 @@
         if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
         else cell += c;
       } else if (c === '"') q = true;
-      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === d) { row.push(cell); cell = ""; }
       else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
       else cell += c;
     }
@@ -439,8 +461,18 @@
     };
     var missing = ["id", "code", "ans"].filter(function (k) { return ci[k] < 0; });
     if (missing.length) {
+      /* The commonest mistake by far is pasting one column, or pasting the
+         rows without the header line. Say that plainly instead of listing
+         column names the person never chose. */
+      if (head.length < 3) {
+        return { err: "That looks like " + (head.length === 1 ? "a single column" : "only "
+          + head.length + " columns") + ". Select the WHOLE sheet including the top row "
+          + "of headings - click the empty corner box above row 1, or press Ctrl/Cmd+A - "
+          + "then copy and paste again. What arrived: " + head.join(" | ") };
+      }
       return { err: "Could not find a column for: " + missing.join(", ")
-                 + ". Headers seen: " + head.join(" | ") };
+                 + ". Headings seen: " + head.join(" | ")
+                 + ". They need to contain student/öğrenci/no, code/kod and answer/cevap." };
     }
 
     var round = override || scoringRound();
@@ -1019,6 +1051,7 @@
   window.CALC_CONSOLE = {
     paramsFor: paramsFor, seedFor: seedFor, parseCSV: parseCSV, parseNum: parseNum,
     scoreRows: scoreRows, state: S, rehearse: rehearse, selfCheck: selfCheck,
+    sniffDelim: sniffDelim,
     alias: alias, aliasWords: ALIAS_WORDS,
     importJSON: importJSON, totals: totals, codeUsed: codeUsed,
     setRound: function (w, i, code) { S.week = w; S.idx = i; S.code = code; reset(); },
