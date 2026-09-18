@@ -93,6 +93,34 @@ function section(s) { console.log("\n" + s); }
   ok(render.length === 0, "15 challenges x 40 codes x 2 languages are clean",
      render.slice(0, 4).join(" | "));
 
+  /* --------------------------------- 2b. every trap is unmistakably wrong */
+  section("2b. no trap sits close enough to the answer to be mistaken for it");
+  const margin = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES;
+    const bad = [];
+    for (const ch of CH) {
+      const want = ch.minMargin == null ? window.CALC_MIN_MARGIN : ch.minMargin;
+      let worst = Infinity, worstAt = null;
+      for (let code = 1000; code < 4000; code++) {
+        const p = C.paramsFor(ch, code);
+        const m = window.CALC_TRAP_MARGIN(ch, p);
+        if (m < worst) { worst = m; worstAt = { code, p }; }
+      }
+      if (want > 0 && worst < want) {
+        bad.push(ch.id + ": closest trap " + (worst * 100).toFixed(2) + "% away at code "
+          + worstAt.code + " " + JSON.stringify(worstAt.p));
+      }
+      /* and the exemption must be deliberate, not an accident of omission */
+      if (want === 0 && ch.mark !== "sf3") {
+        bad.push(ch.id + ": exempt from the margin rule but not marked by significant figures");
+      }
+    }
+    return bad;
+  });
+  ok(margin.length === 0,
+     "3000 draws each: every trap is a Math ERROR, opposite in sign, or >=15% away",
+     margin.slice(0, 3).join(" | "));
+
   /* ----------------------------------------- 3. the messy-number parser */
   section("3. the answer parser copes with what students type");
   const nums = await page.evaluate(() => {

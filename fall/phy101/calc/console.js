@@ -556,6 +556,21 @@
       return bad.length ? bad.slice(0, 3).join("; ") : true;
     });
 
+    t("no trap sits close enough to be mistaken for the answer", function () {
+      var bad = [];
+      for (var i = 0; i < CH.length; i++) {
+        var ch = CH[i];
+        var want = ch.minMargin == null ? window.CALC_MIN_MARGIN : ch.minMargin;
+        if (want <= 0) continue;
+        for (var k = 0; k < 60; k++) {
+          var p = paramsFor(ch, 1000 + Math.floor(Math.random() * 9000));
+          var m = window.CALC_TRAP_MARGIN(ch, p);
+          if (m < want) { bad.push(ch.id + " " + (m * 100).toFixed(1) + "%"); break; }
+        }
+      }
+      return bad.length ? bad.slice(0, 3).join("; ") : true;
+    });
+
     t("the answer reader copes with commas, units and powers of ten", function () {
       var cases = [["17,3", 17.3], ["17.3 m/s", 17.3], ["1.4e3", 1400], ["2x10^3", 2000]];
       for (var i = 0; i < cases.length; i++) {

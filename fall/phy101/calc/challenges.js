@@ -574,6 +574,11 @@
          be 0.4% off. Mark it the way the question asks instead — the submitted
          value must agree with the correct one at three significant figures. */
       mark: "sf3",
+      /* this challenge is ABOUT a small difference, so the margin rule that
+         governs the others would reject every draw; its gen() enforces the
+         right condition instead - that the early rounding changes the answer
+         at three significant figures */
+      minMargin: 0,
       traps: [
         { value: function (p) {
             var c = Math.round(Math.cos(p.th * D2R) * 100) / 100;   // rounded too early
@@ -596,7 +601,58 @@
     }
   ];
 
+  /* --------------------------------------------------------------------------
+     A trap is only worth showing the room if it is UNMISTAKABLY wrong. Three
+     things make it so: it is a Math ERROR, it comes out with the opposite
+     sign, or it is far enough from the answer that nobody could mistake one
+     for the other. Anything closer teaches nothing, and - worse - sits one
+     rounding away from being marked correct by the accept window.
+
+     A sweep of the finished bank found six traps that, on their worst draw,
+     landed inside 10%: the RAD-mode range trap came within 1.1% of the answer
+     at 48 degrees, purely because sin(96 rad) happens to be near sin(96 deg).
+     Rather than hand-write a guard into each gen(), the condition is enforced
+     here for every challenge, present and future.
+     ----------------------------------------------------------------------- */
+  var MIN_MARGIN = 0.15;
+
+  /* the margin of the closest trap, or Infinity if every trap is unmistakable */
+  function trapMargin(ch, p) {
+    var a = ch.answer(p);
+    if (!isFinite(a) || a === 0) return -1;              /* unusable draw */
+    var worst = Infinity;
+    for (var i = 0; i < ch.traps.length; i++) {
+      var tv = ch.traps[i].value(p);
+      if (!isFinite(tv)) continue;                       /* Math ERROR */
+      if (a * tv < 0) continue;                          /* opposite sign */
+      var rel = Math.abs(tv - a) / Math.abs(a);
+      if (rel < worst) worst = rel;
+    }
+    return worst;
+  }
+
+  /* Re-draw until every trap is unmistakable. Bounded, and deterministic
+     given the seed: if no draw clears the bar, keep the best one seen rather
+     than spinning or returning something arbitrary. */
+  function harden(ch) {
+    var want = ch.minMargin == null ? MIN_MARGIN : ch.minMargin;
+    if (want <= 0) return;                               /* W6-C3 opts out */
+    var raw = ch.gen;
+    ch.gen = function () {
+      var best = null, bestM = -Infinity;
+      for (var k = 0; k < 150; k++) {
+        var p = raw(), m = trapMargin(ch, p);
+        if (m >= want) return p;
+        if (m > bestM) { bestM = m; best = p; }
+      }
+      return best;
+    };
+  }
+  for (var ci = 0; ci < CHALLENGES.length; ci++) harden(CHALLENGES[ci]);
+
   window.CALC_CHALLENGES = CHALLENGES;
+  window.CALC_TRAP_MARGIN = trapMargin;
+  window.CALC_MIN_MARGIN = MIN_MARGIN;
   window.CALC_MARK = isCorrect;
   window.CALC_SF3 = sf3;
 })();

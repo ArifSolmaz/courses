@@ -63,11 +63,12 @@ should have it open before the first round, not be hunting for it while the cloc
 
 Open the **Before class** tab.
 
-1. **Run the checks.** Eight checks, on your machine, in your browser, against the files
+1. **Run the checks.** Nine checks, on your machine, in your browser, against the files
    as they sit on disk: the challenge bank, the marking rule, the answer reader, the
    sheet reader, whether this browser will store the totals, whether the stylesheet
-   loaded, and whether the window is wide enough to project. All green means the console
-   is ready.
+   loaded, whether every trap is still far enough from its answer to be unmistakable,
+   and whether the window is wide enough to project. All green means the console is
+   ready.
 2. **Rehearse a round.** Press `D` (or the **rehearse** button on the Run tab). The
    console invents a class of twelve — some right, some caught by each trap, one blank,
    one who typed a comma for the decimal point, one duplicate submission and one row
@@ -222,13 +223,27 @@ calc/
 
 Two rules if you add one:
 
-- **A trap must be wrong for every draw.** Several of the existing `gen()`s reject
-  parameters where a trap happens to coincide with the answer (at θ = 60°, `sin 2θ`
-  equals `sin θ`, so the DEG/RAD trap stops being a trap). The self-check and the test
-  suite both hunt for this.
+- **A trap must be unmistakably wrong**, on every draw: a Math ERROR, the opposite sign,
+  or at least **15 %** away from the answer. You do not have to enforce this yourself —
+  `harden()` at the bottom of `challenges.js` re-draws the parameters until it holds, and
+  both the self-check and the test suite police it. It matters more than it looks: a
+  sweep of the finished bank found the RAD-mode range trap landing **1.1 %** from the
+  answer at θ = 48°, purely because `sin(96 rad)` happens to sit near `sin(96°)`. A trap
+  that close teaches nothing and is one rounding away from being marked correct. Six
+  traps were in that state before the rule existed.
+  `W6-C3` is the deliberate exception (`minMargin: 0`): it is *about* rounding, so a
+  small difference is the lesson, and it is marked by significant figures instead.
 - **Never quote a number in the explanation unless it comes from `p`.** Write `why` as a
   function if it names a keystroke. An explanation reading "typing −12.5 x² gives
   −156.25" is wrong the moment the draw is −13.5, and the room will see it.
+
+### Does it open with no network?
+
+Yes — tested with every non-`file://` request blocked. The only outbound request is
+Google Fonts, and the page falls back to Georgia / system monospace with no layout
+change and no horizontal overflow. Nothing else is fetched, no module scripts, no
+`localStorage` dependency it cannot survive without. Run it from the folder with the
+Wi-Fi off if you like.
 
 ### Tests
 
