@@ -64,7 +64,8 @@ The console invents a class of twelve and marks them. What you should see:
 - **"5 of 10 correct"** — twelve rows submitted, ten marked. The two that vanish are a
   duplicate submission and a row carrying another round's code, both correctly ignored.
 - An orange **Rehearsal** banner.
-- A leaderboard of handles with points 13 / 12 / 11 / 10 / 10 for the correct ones.
+- A leaderboard of aliases (`Frekans-935` and the like) with points 13 / 12 / 11 / 10 / 10
+  for the correct ones.
 - The wrong answers each labelled with the mistake that produced them, not just marked
   wrong.
 - **No student IDs anywhere**, and no button offering to add it to the term totals.
@@ -96,18 +97,19 @@ This is the only test that touches the Google Form, and the Form is the one link
 console cannot check by itself. Do it properly once and you will not have to wonder
 again.
 
-**You need:** the Form built (README §2), and your phone.
+**You need:** the Form built (README §2 — three questions: student number, code,
+answer), and your phone.
 
 1. On the console, pick **W2 → 1**. Press **N** for fresh numbers. Note the code.
 2. Press **Space** to start the clock — you want the real thing, not a shortcut.
 3. On your **phone**, open the Form exactly as a student would, from the shortened link
    you will put on the slide. Do not use a bookmark on your laptop; the point is to test
    the path they will take.
-4. Submit **three times**, with different student IDs and handles:
-   - once with the correct answer,
-   - once with a deliberately wrong number,
-   - once with the answer typed with a comma for the decimal point (`17,3`) — a lot of
-     phone keyboards do this, and it must still be marked correct.
+4. Submit **three times**, with three different student numbers:
+   - `1111` with the correct answer,
+   - `2222` with a deliberately wrong number,
+   - `3333` with the correct answer typed with a comma for the decimal point (`17,3`) —
+     a lot of phone keyboards do this, and it must still be marked correct.
 5. Open the Form's response sheet. Select all (⌘A / Ctrl+A), copy.
 6. On the console: **Score a round** → pick this round from the dropdown → paste →
    **Mark this round**.
@@ -118,16 +120,19 @@ again.
 - The correct one and the comma one are both marked **correct**.
 - The wrong one is marked wrong — and if you happened to type one of the two trap
   values, it is named.
-- The paste box disappears the moment it is marked, taking the student IDs off screen.
-- Handles are shown; **no IDs anywhere**.
+- The paste box disappears the moment it is marked, taking the student numbers off
+  screen.
+- Each row shows an **alias** like `Frekans-935`; **no student number appears anywhere**.
+  The same number always produces the same alias, so these three stay consistent if you
+  submit again.
 
 **Then clean up.** Do *not* press *Add this round to the term totals* — or if you
 already did, go to **Totals → Rounds banked** and press **remove** on it. Your test
 students must not be in the term scores.
 
 If a column is not found, the console says which one. The headings do not have to match
-the README's wording exactly — it looks for `student`/`öğrenci`/`no`, `handle`/`takma`,
-`code`/`kod`, `answer`/`cevap`.
+the README's wording exactly — it looks for `student`/`öğrenci`/`no`, `code`/`kod`,
+`answer`/`cevap`.
 
 ---
 
@@ -142,6 +147,8 @@ the README's wording exactly — it looks for `student`/`öğrenci`/`no`, `handl
 | No projector | Run it from the board: read the question aloud, write the numbers up, read the code. Everything else is unchanged. |
 | You marked a round against the wrong sheet | **Totals → Rounds banked → remove**, then mark it again. The points go with it. |
 | A student says they submitted but is not listed | Almost always the wrong code, or a second submission — only the first counts. Both are visible in the sheet. |
+| A student asks which row is theirs | The alias is fixed for their student number all term. The `export points (CSV)` file has the `student_id, alias` pairs — post it once, or let them recognise their own answer on the first round. |
+| Two rows show the same alias | The console warns you when it happens (about 3 % of classes of 60). Their points are counted separately; just tell those two students. |
 
 ---
 

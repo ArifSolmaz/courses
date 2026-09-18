@@ -121,6 +121,137 @@ function section(s) { console.log("\n" + s); }
      "3000 draws each: every trap is a Math ERROR, opposite in sign, or >=15% away",
      margin.slice(0, 3).join(" | "));
 
+  /* ------------------------------- 2c. the alias that replaces the handle */
+  section("2c. the projector alias, derived from the student ID");
+  const al = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE;
+    const a = C.alias;
+    const bad = [];
+
+    /* stable: the same ID must give the same alias forever, on any machine */
+    if (a("2201") !== a("2201")) bad.push("not stable across calls");
+    if (a("2201") !== a(2201)) bad.push("string and number ids disagree");
+
+    /* it must not leak the ID - not the whole thing, not the last digits */
+    for (let i = 0; i < 500; i++) {
+      const id = String(2200 + i);
+      const al = a(id);
+      if (al.indexOf(id) >= 0) { bad.push(id + " appears in " + al); break; }
+      if (al.indexOf(id.slice(-3)) >= 0) {
+        /* a 3-digit tail CAN coincide by chance; only complain if it is
+           systematic, checked below */
+      }
+      if (!/^[A-Za-z]+-\d{3}$/.test(al)) { bad.push("shape: " + al); break; }
+    }
+    /* systematic leak check: if the number part were the ID's tail, this would
+       be 100%; by chance it is about 0.1% */
+    let tailMatches = 0;
+    for (let i = 0; i < 2000; i++) {
+      const id = String(20000 + i);
+      if (a(id).split("-")[1] === id.slice(-3)) tailMatches++;
+    }
+    if (tailMatches > 40) bad.push("number part tracks the ID tail: " + tailMatches + "/2000");
+
+    /* Consecutive student numbers must not march in step. Checking only that
+       the words DIFFER is not enough - the first version advanced the word by
+       exactly 45 and the number by 849 every single time, so two classmates
+       could have derived the whole register from their own two aliases. The
+       property is that the STEP varies, not that the aliases do. */
+    const W = C.aliasWords;
+    const idx = al => W.indexOf(al.split("-")[0]);
+    const num = al => parseInt(al.split("-")[1], 10);
+    const step = (x, y) => (((idx(y) - idx(x)) % W.length + W.length) % W.length)
+                    + ":" + (((num(y) - num(x)) % 1000 + 1000) % 1000);
+    const wstep = (x, y) => ((idx(y) - idx(x)) % W.length + W.length) % W.length;
+    const nstep = (x, y) => ((num(y) - num(x)) % 1000 + 1000) % 1000;
+    for (const base of [2201, 77310, 1000, 190455]) {
+      const both = new Set(), words = new Set(), nums = new Set();
+      for (let i = 0; i < 10; i++) {
+        const x = a(String(base + i)), y = a(String(base + i + 1));
+        both.add(step(x, y)); words.add(wstep(x, y)); nums.add(nstep(x, y));
+      }
+      if (both.size < 7) {
+        bad.push("ids from " + base + " advance in lockstep: only "
+          + both.size + " distinct steps in 10");
+      }
+      /* Check the two halves SEPARATELY. A regular word march hides behind a
+         varying number if you only look at the pair, which is how a version
+         with a perfectly predictable word survived this test once. */
+      if (words.size < 5) {
+        bad.push("word marches regularly from " + base + ": only "
+          + words.size + " distinct word-steps in 10");
+      }
+      if (nums.size < 5) {
+        bad.push("number marches regularly from " + base + ": only "
+          + nums.size + " distinct number-steps in 10");
+      }
+    }
+    /* and knowing two neighbours must not give away the third */
+    let predicted = 0;
+    for (let t = 0; t < 1500; t++) {
+      const base = 1000 + Math.floor(Math.random() * 900000);
+      if (step(a(String(base)), a(String(base + 1)))
+          === step(a(String(base + 1)), a(String(base + 2)))) predicted++;
+    }
+    if (predicted > 30) {
+      bad.push("the next alias is predictable from two samples: "
+        + predicted + "/1500");
+    }
+
+    const seq = [];
+    for (let i = 0; i < 12; i++) seq.push(a(String(2201 + i)));
+    return { bad, sample: seq.slice(0, 3) };
+  });
+  ok(al.bad.length === 0,
+     "stable, shaped Word-NNN, leaks no part of the student ID",
+     al.bad.join(" | ") + "  e.g. " + al.sample.join(", "));
+
+  /* ----------------- 2d. marking a sheet that has NO handle column at all */
+  section("2d. marking a sheet with only student IDs - no handle column");
+  const noHandle = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    const code = 6420;
+    C.setRound(3, 2, code);
+    const ch = CH.find(c => c.id === g("q-id").textContent);
+    g("btn-reveal").click();
+    const p = C.paramsFor(ch, code), a = ch.answer(p);
+
+    /* exactly the three columns the form now collects, plus the timestamp */
+    const rows = [
+      "Timestamp,Öğrenci No,Kod,Cevap",
+      `2026/03/04 10:31:02,2201,${code},${SF3(a)}`,
+      `2026/03/04 10:31:11,2202,${code},${SF3(a)}`,
+      `2026/03/04 10:31:20,2203,${code},999`
+    ].join("\n");
+
+    g("tab-score").click();
+    g("s-in").value = rows;
+    g("s-round").value = ch.id + "-" + code;
+    g("btn-score").click();
+    const res = C.scoreRows(C.parseCSV(rows), { ch: ch, code: code });
+    const text = g("s-out").textContent;
+
+    return {
+      err: res.err || null,
+      counted: (res.rows || []).length,
+      /* the Turkish headings must be found without a handle column */
+      aliases: (res.rows || []).map(r => r.handle),
+      matchesAliasFn: (res.rows || []).every(r => r.handle === C.alias(r.id)),
+      /* and NOTHING resembling a student number may reach the screen */
+      idOnScreen: /\b220[1-9]\b/.test(text),
+      screenShowsAlias: text.indexOf(C.alias("2201")) >= 0
+    };
+  });
+  ok(!noHandle.err, "a three-column sheet with Turkish headings marks fine", noHandle.err);
+  ok(noHandle.counted === 3, "all three rows counted", noHandle.counted);
+  ok(noHandle.matchesAliasFn,
+     "each student is shown under their derived alias",
+     JSON.stringify(noHandle.aliases));
+  ok(noHandle.idOnScreen === false,
+     "no student ID reaches the projector, even with no handle column");
+  ok(noHandle.screenShowsAlias, "and the alias is what appears instead");
+
   /* ----------------------------------------- 3. the messy-number parser */
   section("3. the answer parser copes with what students type");
   const nums = await page.evaluate(() => {
@@ -168,6 +299,10 @@ function section(s) { console.log("\n" + s); }
     const code = 7314;
     C.setRound(4, 1, code);
     if (document.getElementById("q-id").textContent !== "W4-C2") return { err: "wrong round selected" };
+    /* reveal it so it enters the round history, then select it explicitly -
+       an earlier section leaves its own round in the picker, and relying on
+       the fallback made this test depend on what ran before it */
+    document.getElementById("btn-reveal").click();
 
     const p = C.paramsFor(ch, code);
     const a = ch.answer(p);
@@ -198,9 +333,10 @@ function section(s) { console.log("\n" + s); }
 
     document.getElementById("s-in").value = rows;
     document.getElementById("tab-score").click();
+    document.getElementById("s-round").value = ch.id + "-" + code;
     document.getElementById("btn-score").click();
 
-    const res = C.scoreRows(C.parseCSV(rows));
+    const res = C.scoreRows(C.parseCSV(rows), { ch: ch, code: code });
     const by = {};
     (res.rows || []).forEach(r => { by[r.id] = r; });
     const html = document.getElementById("s-out").innerHTML;

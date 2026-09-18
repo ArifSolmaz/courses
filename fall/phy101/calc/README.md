@@ -37,15 +37,18 @@ they submit repeatedly, once per round.
 
 | # | Question | Type | Required | Notes |
 |---|----------|------|----------|-------|
-| 1 | Student ID / Öğrenci No | Short answer | yes | Response validation → Number → *is number*. This is how points are attributed. |
-| 2 | Handle / Takma ad | Short answer | yes | What appears on the projector. Tell them once: **pick one and keep it all term**. |
-| 3 | Code / Kod | Short answer | yes | Response validation → Number → *between 1000 and 9999*. |
-| 4 | Your answer / Cevabınız | Short answer | yes | Plain number. Units are stripped, and a comma decimal is accepted. |
+| 1 | Öğrenci No / Student ID | Short answer | yes | Response validation → Number → *is number*. The only thing collected that identifies anyone. |
+| 2 | Kod / Code | Short answer | yes | Response validation → Number → *between 1000 and 9999*. |
+| 3 | Cevap / Your answer | Short answer | yes | Plain number. Units are stripped, and a comma decimal is accepted. |
+
+Three questions, nothing else — **no name, no handle, no email**. The projector name is
+derived from the ID instead (see §6).
 
 The column *headings* do not have to match those words exactly — the console looks for
-any header containing `student`/`öğrenci`/`no`, `handle`/`takma`/`rumuz`, `code`/`kod`,
-`answer`/`cevap`. A `Timestamp` column is used for the speed bonus; without it everyone
-correct simply gets the flat 10.
+any header containing `student`/`öğrenci`/`no`, `code`/`kod`, `answer`/`cevap`. A
+`Timestamp` column is used for the speed bonus; without it everyone correct simply gets
+the flat 10. (If you ever do add a handle column, it is used in place of the derived
+alias.)
 
 Shorten the form link once and put it on the first slide of every lecture. The students
 should have it open before the first round, not be hunting for it while the clock runs.
@@ -55,7 +58,8 @@ should have it open before the first round, not be hunting for it while the cloc
 - Answer to **three significant figures** unless the question says otherwise.
 - One submission per round counts — **the first**. A second guess is not marked.
 - `g = 9.81 m/s²`.
-- The handle is public; the ID is not.
+- Your student number never appears on screen. You will appear under a nickname the
+  system gives you, the same one all term.
 
 ---
 
@@ -157,18 +161,38 @@ safe to project as a leaderboard.
 
 ## 6 · Personal data
 
-Student IDs are personal data under KVKK, and this is designed so they are never on the
+Student IDs are personal data under KVKK, and this is designed so they never reach the
 wall:
 
-- The projector shows **handles only** — on the round table and on the term totals.
+- The form collects **only the student number** — no name, no handle, no email.
+- The projector shows a **derived alias** instead, like `Frekans-935`. The same student
+  number always gives the same alias, on any machine, in any week, so a term leaderboard
+  still works. Nothing is stored to make this happen and the student chooses nothing.
+- The alias carries **no digits of the ID**, and consecutive student numbers give
+  unrelated aliases. That second part needed fixing: the first version advanced the word
+  by exactly 45 and the number by 849 for every consecutive ID, so two classmates could
+  have reconstructed the whole register from their own two aliases. A murmur3 avalanche
+  now breaks the pattern — measured, the next alias is predictable 0.00 % of the time.
 - IDs live in the response sheet (Google, your account) and in this browser's local
   storage. They are on the Totals tab but hidden behind a button.
 - The pasted sheet disappears from the screen the moment a round is marked.
 - The rehearsal invents its students, so a dry run in front of the class shows nothing
   real.
 
-Handles are self-chosen. Say in week 2 that the handle will be on the wall, so nobody
-puts their own name in and then regrets it.
+**What this is not.** The alias is a pseudonym, not a secret. `console.js` is public on
+GitHub Pages, so anyone who already knows a particular student's number can compute that
+student's alias. It keeps identifiers off a projected screen, which is the actual risk;
+it is not protection against someone who holds the register. If you want it to be
+unguessable, say so and I will add a one-time secret salt that lives only on your
+machine.
+
+**Two students, one alias.** About 0.7 % of classes of 30, and 2.9 % of 60 — the console
+detects it when marking and tells you. Their points stay separate, because the totals are
+keyed to the student number, not the alias; only the screen shows the name twice.
+
+**Telling students their alias.** The `export points (CSV)` file on the Totals tab has
+`student_id, alias` in it. Post it once where each student can find their own row, or
+let them spot themselves on the first round — they will recognise their own answer.
 
 ---
 
