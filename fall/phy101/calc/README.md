@@ -58,8 +58,9 @@ should have it open before the first round, not be hunting for it while the cloc
 - Answer to **three significant figures** unless the question says otherwise.
 - One submission per round counts — **the first**. A second guess is not marked.
 - `g = 9.81 m/s²`.
-- Your student number never appears on screen. You will appear under a nickname the
-  system gives you, the same one all term.
+- **Whether your number goes on screen depends on the Settings tab** — say whichever is
+  true for your room. Shipped as-is it shows student numbers; switched to nicknames, each
+  student appears under a fixed nickname all term and no number is ever projected.
 
 ---
 
@@ -70,12 +71,12 @@ for each, and what to do when something is wrong. The short version follows.
 
 Open the **Before class** tab.
 
-1. **Run the checks.** Nine checks, on your machine, in your browser, against the files
+1. **Run the checks.** Eleven checks, on your machine, in your browser, against the files
    as they sit on disk: the challenge bank, the marking rule, the answer reader, the
    sheet reader, whether this browser will store the totals, whether the stylesheet
    loaded, whether every trap is still far enough from its answer to be unmistakable,
-   and whether the window is wide enough to project. All green means the console is
-   ready.
+   how many rounds this browser holds, whether live results are configured, and whether
+   the window is wide enough to project. All green means the console is ready.
 2. **Rehearse a round.** Press `D` (or the **rehearse** button on the Run tab). The
    console invents a class of twelve — some right, some caught by each trap, one blank,
    one who typed a comma for the decimal point, one duplicate submission and one row

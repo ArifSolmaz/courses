@@ -39,7 +39,7 @@ If the page does not load at all, see §5.
 
 **Before class** tab → **Run the checks**.
 
-Ten lines. What you want is *"all 10 checks passed — the console is ready"*.
+Eleven lines. What you want is *"all 11 checks passed — the console is ready"*.
 
 - A **green ✓** is a pass.
 - A **blue ✓** is a remark, not a fault — it is information you asked for, such as how
@@ -64,11 +64,12 @@ The console invents a class of twelve and marks them. What you should see:
 - **"5 of 10 correct"** — twelve rows submitted, ten marked. The two that vanish are a
   duplicate submission and a row carrying another round's code, both correctly ignored.
 - An orange **Rehearsal** banner.
-- A leaderboard of aliases (`Frekans-935` and the like) with points 13 / 12 / 11 / 10 / 10
-  for the correct ones.
+- A leaderboard with points 13 / 12 / 11 / 10 / 10 for the correct ones — under student
+  numbers or nicknames, whichever the Settings tab is set to.
 - The wrong answers each labelled with the mistake that produced them, not just marked
   wrong.
-- **No student IDs anywhere**, and no button offering to add it to the term totals.
+- No button offering to add it to the term totals (the invented students are `90xx`, so
+  they are easy to recognise if you have numbers switched on).
 
 Then press **R** on the Run tab and read the reveal: the answer, and the two wrong
 answers with the keystroke that causes each. Press **T** and check the Turkish reads
