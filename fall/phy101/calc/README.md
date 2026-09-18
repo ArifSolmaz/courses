@@ -61,6 +61,9 @@ should have it open before the first round, not be hunting for it while the cloc
 
 ## 3 · Before class
 
+**[TESTING.md](TESTING.md) is the full procedure** — five checks, what "good" looks like
+for each, and what to do when something is wrong. The short version follows.
+
 Open the **Before class** tab.
 
 1. **Run the checks.** Nine checks, on your machine, in your browser, against the files
