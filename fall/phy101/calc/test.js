@@ -280,14 +280,14 @@ function section(s) { console.log("\n" + s); }
   /* --------------------------------------- 6. totals, and the duplicate guard */
   section("6. banking a round into the totals");
   const bank = await page.evaluate(() => {
-    localStorage.removeItem("phy101-calc-v1");
+    localStorage.removeItem("phy101-calc-v2");
     const C = window.CALC_CONSOLE;
     /* the score pane still holds the round from the previous step */
     document.getElementById("btn-score").click();
     const add = [...document.querySelectorAll("#s-out button")]
       .find(b => /term totals/i.test(b.textContent));
     add.click();
-    const first = JSON.parse(localStorage.getItem("phy101-calc-v1"));
+    const first = JSON.parse(localStorage.getItem("phy101-calc-v2"));
     /* a second click must be refused, not double-counted */
     const realAlert = window.alert; let alerted = false;
     window.alert = () => { alerted = true; };
@@ -295,22 +295,33 @@ function section(s) { console.log("\n" + s); }
     [...document.querySelectorAll("#s-out button")]
       .find(b => /term totals/i.test(b.textContent)).click();
     window.alert = realAlert;
-    const second = JSON.parse(localStorage.getItem("phy101-calc-v1"));
+    const second = JSON.parse(localStorage.getItem("phy101-calc-v2"));
 
     document.getElementById("tab-totals").click();
     const html = document.getElementById("t-out").innerHTML;
-    const idsHidden = getComputedStyle(document.querySelector("#t-out .id-col")).display === "none";
-    document.getElementById("btn-ids").click();
-    const idsShown = getComputedStyle(document.querySelector("#t-out .id-col")).display !== "none";
-    document.getElementById("btn-ids").click();
+    /* If the table is missing entirely something upstream broke; say which,
+       rather than throwing on a null element. */
+    const cell = () => document.querySelector("#t-out .id-col");
+    const noTable = !cell();
+    const idsHidden = noTable ? false : getComputedStyle(cell()).display === "none";
+    if (!noTable) document.getElementById("btn-ids").click();
+    const idsShown = noTable ? false : getComputedStyle(cell()).display !== "none";
+    if (!noTable) document.getElementById("btn-ids").click();
 
     return {
-      rounds: first.rounds.length,
-      students: Object.keys(first.totals).length,
-      nova: first.totals["2201"],
-      refused: alerted && JSON.stringify(first.totals) === JSON.stringify(second.totals),
+      rounds: first.results.length,
+      students: Object.keys(C.totals()).length,
+      nova: C.totals()["2201"],
+      refused: alerted && JSON.stringify(first.results) === JSON.stringify(second.results),
       idsHidden, idsShown,
-      totalsShowHandle: html.indexOf("Nova") >= 0
+      noTable,
+      totalsShowHandle: html.indexOf("Nova") >= 0,
+      /* the rows themselves must be kept, not just their sum - that is what
+         makes a backup restorable and a merge exact */
+      keepsRows: first.results[0].rows.length === 9
+                 && first.results[0].rows.every(r => "sid" in r && "points" in r),
+      /* and the header must say how many rounds are banked, all term */
+      headerSays: document.getElementById("banked").textContent
     };
   });
   ok(bank.rounds === 1 && bank.students === 9, "one round banked for nine students",
@@ -318,9 +329,13 @@ function section(s) { console.log("\n" + s); }
   ok(bank.nova && bank.nova.points === 13 && bank.nova.correct === 1 && bank.nova.attempts === 1,
      "the top scorer's record is right", JSON.stringify(bank.nova));
   ok(bank.refused, "banking the same round twice is refused, not double-counted");
+  ok(!bank.noTable, "the totals table rendered at all");
   ok(bank.idsHidden, "the totals tab hides student IDs until asked");
   ok(bank.idsShown, "and reveals them on request");
   ok(bank.totalsShowHandle, "the totals table is keyed to handles on screen");
+  ok(bank.keepsRows, "the round's individual rows are stored, not only their sum");
+  ok(/1 round banked/.test(bank.headerSays),
+     "the header reports how many rounds this browser holds", bank.headerSays);
 
   /* --------------------------------------------- 7. clock, reveal, shortcuts */
   section("7. the clock, the reveal and the keyboard");
@@ -383,7 +398,7 @@ function section(s) { console.log("\n" + s); }
   const hist = await page.evaluate(() => {
     const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
     const g = id => document.getElementById(id);
-    localStorage.removeItem("phy101-calc-v1");
+    localStorage.removeItem("phy101-calc-v2");
     location.reload();
   });
   await page.waitForFunction(() => window.CALC_CONSOLE && window.CALC_CONSOLE.db().history.length === 0);
@@ -448,6 +463,268 @@ function section(s) { console.log("\n" + s); }
   ok(hist2.secondMarked, "and so does the later one, from the same paste");
   ok(hist2.firstShowsRightId && hist2.secondShowsRightId,
      "each result is labelled with the challenge it actually belongs to");
+
+  /* ------------------- 7c. the term: unique codes, backup, restore, merge */
+  section("7c. surviving five weeks - unique codes, and a backup you can load back");
+  const term = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    localStorage.removeItem("phy101-calc-v2");
+    location.reload();
+  });
+  await page.waitForFunction(() => window.CALC_CONSOLE && window.CALC_CONSOLE.db().results.length === 0);
+  const term2 = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    const out = {};
+
+    /* --- a code must never repeat across the term. Play a lot of rounds and
+       check every code drawn is new, because marking filters by code alone. */
+    const codes = [];
+    for (let i = 0; i < 120; i++) {
+      g("btn-new").click();
+      g("btn-reveal").click();                 /* revealing is what records it */
+      codes.push(+g("q-code").textContent);
+    }
+    out.codesDrawn = codes.length;
+    out.codesDistinct = new Set(codes).size;
+
+    /* Every code ever drawn must stay recognised - including the first, long
+       after the played-round list (capped at 80) has forgotten it. That cap is
+       why the ledger is separate. Read these BEFORE the corner case below,
+       which deliberately rewrites the ledger: an earlier version of this test
+       measured them afterwards and so measured nothing. */
+    out.knowsUsed = C.codeUsed(codes[0]) === true;
+    out.knowsAll = codes.every(c => C.codeUsed(c) === true);
+    out.historyCapped = C.db().history.length <= 80;
+    out.ledgerKeepsAll = C.db().codes.length >= 120;
+
+    /* 120 random draws from 9000 collide only about half the time, so counting
+       distinct codes is not evidence on its own. Corner the mechanism instead:
+       mark all but one code as used and check the next draw is that one. This
+       rewrites the ledger, so it goes last. */
+    const db = C.db();
+    const spared = 4747;
+    db.codes.length = 0;
+    for (let c = 1000; c <= 9999; c++) if (c !== spared) db.codes.push(c);
+    g("btn-new").click();
+    out.forcedCode = +g("q-code").textContent;
+    out.pickedTheOnlyFreeCode = out.forcedCode === spared;
+
+    /* --- now bank two real rounds and round-trip them through a backup */
+    localStorage.removeItem("phy101-calc-v2");
+    location.reload();
+    return out;
+  });
+  await page.waitForFunction(() => window.CALC_CONSOLE && window.CALC_CONSOLE.db().results.length === 0);
+  const term3 = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    const out = {};
+
+    function bankRound(week, idx, code, ids) {
+      C.setRound(week, idx, code);
+      const ch = CH.find(c => c.id === g("q-id").textContent);
+      g("btn-reveal").click();
+      const a = ch.answer(C.paramsFor(ch, code));
+      const rows = ["Timestamp,Student ID,Handle,Variant code,Your answer"];
+      ids.forEach((sid, i) => rows.push(
+        `2026/03/0${week} 10:3${i}:00,${sid},H${sid},${code},${SF3(a)}`));
+      g("tab-score").click();
+      g("s-in").value = rows.join("\n");
+      g("s-round").value = ch.id + "-" + code;
+      g("btn-score").click();
+      [...document.querySelectorAll("#s-out button")]
+        .find(b => /term totals/i.test(b.textContent)).click();
+      document.body.classList.remove("sheet-folded");
+    }
+
+    bankRound(2, 0, 1111, ["7001", "7002"]);
+    bankRound(3, 0, 2222, ["7001", "7003"]);
+
+    const backup = JSON.stringify(C.db());
+    out.beforeRounds = C.db().results.length;
+    out.beforeTotals = C.totals();
+
+    /* (a) importing the very same backup must change nothing - the commonest
+       real mistake is loading a backup twice */
+    const again = C.importJSON(backup);
+    out.reimport = again;
+    out.afterReimportRounds = C.db().results.length;
+    out.totalsUnchanged = JSON.stringify(C.totals()) === JSON.stringify(out.beforeTotals);
+
+    /* (b) a wipe followed by a restore must give back exactly what was lost */
+    localStorage.removeItem("phy101-calc-v2");
+    location.reload();
+    window.__backup = backup;
+    return out;
+  });
+  await page.waitForFunction(() => window.CALC_CONSOLE && window.CALC_CONSOLE.db().results.length === 0);
+  const term4 = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE;
+    const backup = sessionStorage.getItem("bk") || window.__backup;
+    return { hasBackup: !!backup };
+  });
+
+  ok(term2.codesDrawn === 120 && term2.codesDistinct === 120,
+     "120 rounds in a row, no code repeated once",
+     term2.codesDistinct + " distinct of " + term2.codesDrawn);
+  ok(term2.pickedTheOnlyFreeCode,
+     "with 8999 of 9000 codes used, the next draw is the one that is free",
+     "drew " + term2.forcedCode);
+  ok(term2.knowsUsed && term2.knowsAll,
+     "every code ever drawn stays recognised, all 120 of them");
+  ok(term2.historyCapped && term2.ledgerKeepsAll,
+     "the round picker is capped but the code ledger is not",
+     JSON.stringify([term2.historyCapped, term2.ledgerKeepsAll]));
+  ok(term3.beforeRounds === 2, "two rounds banked", term3.beforeRounds);
+  ok(term3.reimport && term3.reimport.added === 0 && term3.reimport.skipped === 2,
+     "importing the same backup adds nothing and skips both rounds",
+     JSON.stringify(term3.reimport));
+  ok(term3.totalsUnchanged,
+     "so nobody's points are doubled by a second import");
+  ok(term3.beforeTotals["7001"] && term3.beforeTotals["7001"].attempts === 2,
+     "a student who played both rounds is counted once per round",
+     JSON.stringify(term3.beforeTotals["7001"]));
+
+  /* (c) the wipe-and-restore round trip, done in a fresh page */
+  section("7d. a wipe followed by a restore returns exactly what was lost");
+  const restore = await page.evaluate((backupJson) => {
+    const C = window.CALC_CONSOLE;
+    const before = { rounds: C.db().results.length, totals: C.totals() };
+    const r = C.importJSON(backupJson);
+    return {
+      startedEmpty: before.rounds === 0,
+      result: r,
+      rounds: C.db().results.length,
+      totals: C.totals(),
+      headerSays: document.getElementById("banked").textContent,
+      /* and the restored rounds are re-markable, not just countable */
+      pickerHas: [...document.getElementById("s-round").options].map(o => o.value)
+    };
+  }, await page.evaluate(() => null) || null);
+  /* the backup is gone with the reload, so rebuild it the same way and compare */
+  const rt = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    localStorage.removeItem("phy101-calc-v2");
+    location.reload();
+  });
+  await page.waitForFunction(() => window.CALC_CONSOLE && window.CALC_CONSOLE.db().results.length === 0);
+  const rt2 = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE, CH = window.CALC_CHALLENGES, SF3 = window.CALC_SF3;
+    const g = id => document.getElementById(id);
+    function bankRound(week, idx, code, ids) {
+      C.setRound(week, idx, code);
+      const ch = CH.find(c => c.id === g("q-id").textContent);
+      g("btn-reveal").click();
+      const a = ch.answer(C.paramsFor(ch, code));
+      const rows = ["Timestamp,Student ID,Handle,Variant code,Your answer"];
+      ids.forEach((sid, i) => rows.push(
+        `2026/03/0${week} 10:3${i}:00,${sid},H${sid},${code},${SF3(a)}`));
+      g("tab-score").click();
+      g("s-in").value = rows.join("\n");
+      g("s-round").value = ch.id + "-" + code;
+      g("btn-score").click();
+      [...document.querySelectorAll("#s-out button")]
+        .find(b => /term totals/i.test(b.textContent)).click();
+      document.body.classList.remove("sheet-folded");
+    }
+    bankRound(2, 0, 1111, ["7001", "7002"]);
+    bankRound(3, 0, 2222, ["7001", "7003"]);
+    const backup = JSON.stringify(C.db());
+    const wanted = { rounds: C.db().results.length, totals: C.totals() };
+
+    /* wipe it the way a cleared browser would */
+    document.getElementById("btn-wipe");
+    window.confirm = () => true;
+    document.getElementById("tab-totals").click();
+    document.getElementById("btn-wipe").click();
+    const emptied = { rounds: C.db().results.length, totals: C.totals(),
+                      header: document.getElementById("banked").textContent };
+
+    const r = C.importJSON(backup);
+    const got = { rounds: C.db().results.length, totals: C.totals(),
+                  header: document.getElementById("banked").textContent };
+    return {
+      wanted, emptied, r, got,
+      identical: JSON.stringify(got.totals) === JSON.stringify(wanted.totals)
+                 && got.rounds === wanted.rounds,
+      /* a v1-style backup must be refused rather than silently mismerged */
+      codesRestored: C.codeUsed(1111) && C.codeUsed(2222),
+      /* A code drawn but never banked exists only in the ledger. If the import
+         does not merge it, the other machine can draw it again - and only then
+         do two rounds share a code. */
+      orphanCodeRestored: (function () {
+        var r = C.importJSON(JSON.stringify({ v: 2, results: [{
+          key: "W5-C1-3939", id: "W5-C1", code: 3939, at: "2026-04-01 10:00",
+          rows: [{ sid: "8001", handle: "Z", points: 10, ok: true }] }],
+          history: [], codes: [3939, 8888] }));
+        var ok = r.added === 1 && C.codeUsed(8888) === true;
+        /* put the store back: the next section counts the rounds it can see */
+        var db = C.db();
+        db.results = db.results.filter(function (q) { return q.key !== "W5-C1-3939"; });
+        return ok;
+      })(),
+      /* and specifically in the ledger, not merely inferable from the restored
+         rounds - the ledger is what protects codes from rounds long since
+         dropped from the picker */
+      ledgerRestored: C.db().codes.indexOf(1111) >= 0 && C.db().codes.indexOf(2222) >= 0,
+      oldRefused: !!C.importJSON(JSON.stringify({ totals: { "1": { points: 99 } } })).err,
+      junkRefused: !!C.importJSON("not json at all").err,
+      emptyRefused: !!C.importJSON(JSON.stringify({ results: [] })).err
+    };
+  });
+  ok(rt2.emptied.rounds === 0 && /no rounds banked/.test(rt2.emptied.header),
+     "clearing really empties it, and the header says so", JSON.stringify(rt2.emptied));
+  ok(rt2.r.added === 2, "the backup restores both rounds", JSON.stringify(rt2.r));
+  ok(rt2.identical,
+     "and the totals come back byte for byte identical to what was lost",
+     JSON.stringify([rt2.wanted.totals, rt2.got.totals]));
+  ok(rt2.orphanCodeRestored,
+     "a code drawn on another machine but never banked is merged too");
+  ok(rt2.codesRestored && rt2.ledgerRestored,
+     "and the used-code ledger travels with it, so the codes cannot be re-drawn",
+     JSON.stringify([rt2.codesRestored, rt2.ledgerRestored]));
+  ok(rt2.oldRefused, "an older backup holding only summed totals is refused, not mismerged");
+  ok(rt2.junkRefused, "an unreadable file is refused with a message");
+  ok(rt2.emptyRefused, "a file with no rounds in it is refused");
+
+  /* --------------------- 7e. removing a round that was marked by mistake */
+  section("7e. removing one round takes its points with it");
+  const rm = await page.evaluate(() => {
+    const C = window.CALC_CONSOLE;
+    const g = id => document.getElementById(id);
+    window.confirm = () => true;
+    g("tab-totals").click();
+    const before = { rounds: C.db().results.length, totals: C.totals() };
+    const buttons = [...document.querySelectorAll("#t-out .roundlist button")];
+    const target = C.db().results[0];                 /* the older of the two */
+    /* the list is newest-first, so the last button is the oldest round */
+    buttons[buttons.length - 1].click();
+    const after = { rounds: C.db().results.length, totals: C.totals() };
+    /* and it must be gone from storage too, not just the screen */
+    const stored = JSON.parse(localStorage.getItem("phy101-calc-v2"));
+    return {
+      buttons: buttons.length,
+      removedId: target.id,
+      before, after,
+      stillStored: stored.results.some(r => r.key === target.key),
+      /* a student who only played the removed round must be gone entirely */
+      lostStudent: Object.keys(before.totals).filter(k => !(k in after.totals)),
+      /* one who played both keeps only the surviving round's points */
+      survivor: after.totals["7001"]
+    };
+  });
+  ok(rm.buttons === 2, "each banked round gets its own remove button", rm.buttons);
+  ok(rm.after.rounds === 1, "removing one leaves the other", JSON.stringify(rm.after.rounds));
+  ok(rm.stillStored === false, "and it is gone from storage, not only from the screen");
+  ok(rm.survivor && rm.survivor.attempts === 1 && rm.survivor.points === 13,
+     "a student who played both rounds keeps only the surviving round's points",
+     JSON.stringify(rm.survivor));
+  ok(rm.lostStudent.length === 1,
+     "and a student who only played the removed round drops off the table",
+     JSON.stringify(rm.lostStudent));
 
   /* --------------------------- 8. the Turkish reveal is actually Turkish */
   section("8. nothing on the reveal is left in English when TR is on");
@@ -547,7 +824,7 @@ function section(s) { console.log("\n" + s); }
   const dry = await page.evaluate(() => {
     const C = window.CALC_CONSOLE;
     const g = id => document.getElementById(id);
-    localStorage.removeItem("phy101-calc-v1");
+    localStorage.removeItem("phy101-calc-v2");
     C.setRound(4, 0, 6100);
     const before = JSON.stringify(C.db().totals);
     g("btn-rehearse").click();
@@ -631,7 +908,11 @@ function section(s) { console.log("\n" + s); }
     Storage.prototype.setItem = realSet;
 
     const after = C.selfCheck();
+    const totalsCheck = after.find(r => /term totals/.test(r.name));
     return { ...out, failed, healthyAgain: after.every(r => r.ok),
+             noteNotFailure: !!(totalsCheck && totalsCheck.ok && totalsCheck.note
+                                && totalsCheck.detail),
+             noteDetail: totalsCheck && totalsCheck.detail,
              stillFailing: after.filter(r => !r.ok).map(r => r.name + " :: " + r.detail),
              rendered: document.getElementById("c-out").textContent };
   });
@@ -644,6 +925,9 @@ function section(s) { console.log("\n" + s); }
   ok(chk.failed.badTrap, "it notices a trap that is no longer wrong");
   ok(chk.failed.noCss, "it notices a missing stylesheet");
   ok(chk.failed.noStorage, "it notices a browser that will not store the totals");
+  ok(chk.noteNotFailure,
+     "an informational check (no rounds banked yet) passes with a remark, not a cross",
+     JSON.stringify(chk.noteDetail));
   ok(chk.healthyAgain, "and goes green again once everything is put back",
      JSON.stringify(chk.stillFailing));
 

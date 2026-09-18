@@ -15,7 +15,11 @@
   "use strict";
 
   var CH = window.CALC_CHALLENGES, MARK = window.CALC_MARK, SF3 = window.CALC_SF3;
-  var STORE = "phy101-calc-v1";
+  /* v2 keeps each banked round's own rows instead of only the running totals.
+     That is what makes a backup restorable and a merge exact: totals are
+     derived, so importing a file from another machine can skip the rounds this
+     browser already has instead of double-counting them. */
+  var STORE = "phy101-calc-v2";
 
   /* ------------------------------------------------------------------ seeded
      mulberry32: small, fast, and good enough that consecutive codes do not
@@ -49,12 +53,59 @@
     finally { Math.random = real; }
   }
 
-  function newCode() { return 1000 + Math.floor(Math.random() * 9000); }
+  /* A code must be unique across the whole term. Marking filters the sheet by
+     code, so two rounds sharing one would silently mark one round's answers
+     against the other round's numbers. With fifteen rounds the birthday odds
+     of that are about 1.2% a term, and about 10% over three years - small, and
+     the failure is both invisible and unfair, so it is worth excluding
+     outright rather than living with. */
+  function newCode() {
+    var c, k;
+    /* the fast path, which is the only one that ever runs in practice */
+    for (k = 0; k < 200; k++) {
+      c = 1000 + Math.floor(Math.random() * 9000);
+      if (!codeUsed(c)) { burn(c); return c; }
+    }
+    /* Random probing gets slow long before the codes run out - with 8999 of
+       9000 taken it finds the free one about a fifth of the time - so fall
+       back to an exact scan rather than quietly handing back a used code. */
+    var free = [];
+    for (c = 1000; c <= 9999; c++) if (!codeUsed(c)) free.push(c);
+    if (free.length) {
+      c = free[Math.floor(Math.random() * free.length)];
+      burn(c);
+      return c;
+    }
+    /* genuinely exhausted: several hundred terms of use. Reuse the oldest
+       code rather than refusing to run a round, and say so. */
+    c = DB.codes.length ? DB.codes[0] : 1000;
+    window.alert("All 9000 variant codes have been used. Code " + c + " is being reused, so "
+      + "clear the old rounds (Totals tab) after exporting a backup.");
+    return c;
+  }
+  /* The ledger of codes ever drawn is never trimmed, unlike the played-round
+     history, which keeps only the last 80 so the picker stays usable. A code
+     falling off that list and being re-drawn would mismark a whole round in
+     silence, so uniqueness is tracked separately and exactly. */
+  function burn(c) {
+    if (DB.codes.indexOf(c) < 0) { DB.codes.push(c); save(DB); }
+  }
+  function codeUsed(c) {
+    if (DB.codes.indexOf(c) >= 0) return true;
+    var i;
+    for (i = 0; i < DB.history.length; i++) if (DB.history[i].code === c) return true;
+    for (i = 0; i < DB.results.length; i++) if (DB.results[i].code === c) return true;
+    return false;
+  }
 
   /* ------------------------------------------------------------------ state */
+  /* code is filled in by boot(), not here: newCode() has to consult the stored
+     round history to keep codes unique across the term, and the store is
+     loaded further down. `var` hoisting would make that read `undefined`
+     rather than complain. */
   var S = {
     week: 2, idx: 0,          /* idx = which of the week's three */
-    code: newCode(),
+    code: 0,
     lang: "en",
     seconds: 120, left: 120, running: false, revealed: false,
     tick: null
@@ -70,19 +121,52 @@
      localStorage can be absent, full, or throw outright (private windows, and
      file:// on some builds). Every touch is guarded and the console works
      without it - only the running totals are lost. */
+  function blank() { return { v: 2, results: [], history: [], codes: [] }; }
   function load() {
     try {
       var raw = window.localStorage.getItem(STORE);
-      if (!raw) return { totals: {}, rounds: [], history: [] };
+      if (!raw) return blank();
       var d = JSON.parse(raw);
-      return { totals: d.totals || {}, rounds: d.rounds || [], history: d.history || [] };
-    } catch (e) { return { totals: {}, rounds: [], history: [] }; }
+      return { v: 2, results: d.results || [], history: d.history || [],
+               codes: d.codes || [] };
+    } catch (e) { return blank(); }
   }
   function save(d) {
     try { window.localStorage.setItem(STORE, JSON.stringify(d)); return true; }
     catch (e) { return false; }
   }
   var DB = load();
+
+  /* Totals are never stored - they are added up from the banked rounds every
+     time they are shown. One source of truth, so an import cannot drift from
+     it and a removed round cannot leave its points behind. */
+  function totals() {
+    var out = {};
+    DB.results.forEach(function (r) {
+      r.rows.forEach(function (o) {
+        var rec = out[o.sid] || { handle: o.handle, points: 0, correct: 0, attempts: 0 };
+        if (o.handle) rec.handle = o.handle;          /* the most recent one wins */
+        rec.points += o.points;
+        rec.correct += o.ok ? 1 : 0;
+        rec.attempts += 1;
+        out[o.sid] = rec;
+      });
+    });
+    return out;
+  }
+  function hasRound(key) {
+    return DB.results.some(function (r) { return r.key === key; });
+  }
+  /* shown in the header all term, so a browser that has lost the totals - or a
+     different browser from the one used last week - is obvious at a glance
+     rather than in week 6 */
+  function paintBanked() {
+    var n = DB.results.length;
+    var b = $("banked");
+    if (!b) return;
+    b.textContent = n === 0 ? "no rounds banked" : n + (n === 1 ? " round" : " rounds") + " banked";
+    b.className = "banked" + (n === 0 ? " empty" : "");
+  }
 
   /* -------------------------------------------------------------------- dom */
   function $(id) { return document.getElementById(id); }
@@ -220,6 +304,7 @@
     if (DB.history.some(function (h) { return h.key === key; })) return;
     DB.history.unshift({ key: key, id: ch.id, week: S.week, idx: S.idx, code: S.code,
                          at: new Date().toISOString().slice(0, 16).replace("T", " ") });
+    if (DB.codes.indexOf(S.code) < 0) DB.codes.push(S.code);
     if (DB.history.length > 80) DB.history.length = 80;
     save(DB);
     renderRoundPicker();
@@ -238,7 +323,7 @@
     sel.disabled = false;
     DB.history.forEach(function (h) {
       var o = el("option", null, h.id + "  ·  code " + h.code + "  ·  " + h.at
-        + (DB.rounds.indexOf(h.key) >= 0 ? "   (already banked)" : ""));
+        + (hasRound(h.key) ? "   (already banked)" : ""));
       o.value = h.key;
       sel.appendChild(o);
     });
@@ -432,26 +517,25 @@
 
   function commit(res) {
     var key = res.ch.id + "-" + res.code;
-    if (DB.rounds.indexOf(key) >= 0) {
+    if (hasRound(key)) {
       window.alert("That round is already in the totals.");
       return;
     }
-    DB.rounds.push(key);
-    renderRoundPicker();
-    res.rows.forEach(function (o) {
-      var rec = DB.totals[o.id] || { handle: o.handle, points: 0, correct: 0, attempts: 0 };
-      rec.handle = o.handle || rec.handle;
-      rec.points += o.points;
-      rec.correct += o.ok ? 1 : 0;
-      rec.attempts += 1;
-      DB.totals[o.id] = rec;
+    DB.results.push({
+      key: key, id: res.ch.id, code: res.code,
+      at: new Date().toISOString().slice(0, 16).replace("T", " "),
+      rows: res.rows.map(function (o) {
+        return { sid: o.id, handle: o.handle, points: o.points, ok: o.ok };
+      })
     });
+    renderRoundPicker();
     if (!save(DB)) {
       window.alert("The totals could not be stored in this browser, so they will be lost when "
         + "you close the tab. Export them now from the Totals panel.");
     }
-    renderTotals();
-    $("s-out").appendChild(el("p", "s-sum", "Added. " + DB.rounds.length + " rounds banked."));
+    renderTotals(); paintBanked();
+    $("s-out").appendChild(el("p", "s-sum",
+      "Added. " + DB.results.length + " rounds banked."));
   }
 
   /* ---------------------------------------------------------------- rehearsal
@@ -512,7 +596,13 @@
     function t(name, fn) {
       try {
         var d = fn();
-        res.push({ name: name, ok: d === true || d == null, detail: d === true ? "" : String(d || "") });
+        if (d && typeof d === "object" && d.note != null) {
+          /* passed, but with something worth reading */
+          res.push({ name: name, ok: true, note: true, detail: String(d.note) });
+        } else {
+          res.push({ name: name, ok: d === true || d == null,
+                     detail: d === true ? "" : String(d || "") });
+        }
       } catch (e) { res.push({ name: name, ok: false, detail: String(e && e.message || e) }); }
     }
 
@@ -607,6 +697,18 @@
       return /mono/i.test(f) ? true : "the clock is not in a monospaced face: " + f;
     });
 
+    t("the term totals in this browser", function () {
+      var n = DB.results.length;
+      if (!n) {
+        return { note: "no rounds banked — right for week 2, but if you have already run "
+               + "rounds this term then this is the wrong browser or the storage was "
+               + "cleared: restore your backup on the Totals tab" };
+      }
+      var last = DB.results[n - 1];
+      return { note: n + (n === 1 ? " round" : " rounds") + " banked, the last on "
+             + last.at + " (" + last.id + ")" };
+    });
+
     t("the window is wide enough to project", function () {
       return window.innerWidth >= 1100 ? true
         : "only " + window.innerWidth + "px wide - full-screen the window before class";
@@ -620,7 +722,7 @@
       : "all " + res.length + " checks passed — the console is ready"));
     var ul = el("ul", "checklist");
     res.forEach(function (r) {
-      var li = el("li", r.ok ? "pass" : "fail");
+      var li = el("li", r.ok ? (r.note ? "pass note" : "pass") : "fail");
       li.innerHTML = "<span class='mark'>" + (r.ok ? "✓" : "✕") + "</span> " + esc(r.name)
         + (r.detail ? " <span class='detail'>" + esc(r.detail) + "</span>" : "");
       ul.appendChild(li);
@@ -633,18 +735,20 @@
   function renderTotals() {
     var box = $("t-out");
     box.innerHTML = "";
-    var ids = Object.keys(DB.totals);
+    var T = totals();
+    var ids = Object.keys(T);
     if (!ids.length) { box.appendChild(el("p", "fine", "No rounds banked yet.")); return; }
-    ids.sort(function (a, b) { return DB.totals[b].points - DB.totals[a].points; });
+    ids.sort(function (a, b) { return T[b].points - T[a].points; });
 
-    box.appendChild(el("p", "s-sum", ids.length + " students · " + DB.rounds.length + " rounds"));
+    box.appendChild(el("p", "s-sum",
+      ids.length + " students · " + DB.results.length + " rounds"));
     var t = el("table", "board");
     t.innerHTML = "<thead><tr><th>#</th><th>handle</th><th class='id-col'>student ID</th>"
                 + "<th class='num'>correct</th><th class='num'>of</th>"
                 + "<th class='num'>points</th></tr></thead>";
     var tb = el("tbody");
     ids.forEach(function (id, i) {
-      var r = DB.totals[id];
+      var r = T[id];
       var tr = el("tr");
       tr.innerHTML = "<td class='num'>" + (i + 1) + "</td>"
         + "<td class='handle'>" + esc(r.handle) + "</td>"
@@ -656,6 +760,25 @@
     });
     t.appendChild(tb);
     box.appendChild(t);
+
+    box.appendChild(el("h3", null, "Rounds banked"));
+    var ul = el("ul", "roundlist");
+    DB.results.slice().reverse().forEach(function (r) {
+      var nOk = r.rows.filter(function (o) { return o.ok; }).length;
+      var li = el("li", null,
+        "<b>" + esc(r.id) + "</b> · code " + r.code + " · " + esc(r.at)
+        + " · " + nOk + " of " + r.rows.length + " correct ");
+      var x = el("button", "btn tiny", "remove");
+      x.onclick = function () {
+        if (!window.confirm("Remove " + r.id + " (code " + r.code + ") from the totals?\n\n"
+          + "The points from that round go with it.")) return;
+        DB.results = DB.results.filter(function (q) { return q.key !== r.key; });
+        save(DB); renderTotals(); paintBanked(); renderRoundPicker();
+      };
+      li.appendChild(x);
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
   }
 
   function download(name, text, type) {
@@ -668,18 +791,63 @@
     window.setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
   }
   function exportCSV() {
-    var ids = Object.keys(DB.totals);
-    ids.sort(function (a, b) { return DB.totals[b].points - DB.totals[a].points; });
+    var T = totals();
+    var ids = Object.keys(T);
+    ids.sort(function (a, b) { return T[b].points - T[a].points; });
     var lines = ["student_id,handle,correct,attempts,points"];
     ids.forEach(function (id) {
-      var r = DB.totals[id];
+      var r = T[id];
       lines.push([id, '"' + String(r.handle).replace(/"/g, '""') + '"',
                   r.correct, r.attempts, r.points].join(","));
     });
     download("phy101-calc-points.csv", lines.join("\n") + "\n", "text/csv;charset=utf-8");
   }
   function exportJSON() {
-    download("phy101-calc-backup.json", JSON.stringify(DB, null, 2), "application/json");
+    var name = "phy101-calc-backup-"
+      + new Date().toISOString().slice(0, 10) + ".json";
+    download(name, JSON.stringify(DB, null, 2), "application/json");
+  }
+
+  /* Restoring a backup, and merging the totals from another machine. Rounds
+     are matched by (challenge, code), so a round this browser already holds is
+     skipped rather than counted twice - which means the same file can be
+     imported repeatedly without inflating anyone's score. */
+  function importJSON(text) {
+    var d;
+    try { d = JSON.parse(text); }
+    catch (e) { return { err: "That file is not readable JSON." }; }
+
+    var incoming = d && d.results;
+    if (!incoming || !incoming.length) {
+      /* a v1 backup held only aggregate totals, which cannot be merged safely */
+      if (d && d.totals) {
+        return { err: "That backup is from an older version and holds only the summed "
+                    + "totals, not the individual rounds, so it cannot be merged without "
+                    + "risking double counting." };
+      }
+      return { err: "No banked rounds in that file." };
+    }
+    var added = 0, skipped = 0, bad = 0;
+    incoming.forEach(function (r) {
+      if (!r || !r.key || !r.rows || !r.rows.length) { bad++; return; }
+      if (hasRound(r.key)) { skipped++; return; }
+      DB.results.push(r);
+      if (DB.codes.indexOf(r.code) < 0) DB.codes.push(r.code);
+      added++;
+    });
+    (d.codes || []).forEach(function (c) {
+      if (DB.codes.indexOf(c) < 0) DB.codes.push(c);
+    });
+    /* keep the played-round list in step, so an imported round can be re-marked */
+    (d.history || []).forEach(function (h) {
+      if (h && h.key && !DB.history.some(function (x) { return x.key === h.key; })) {
+        DB.history.push(h);
+      }
+    });
+    DB.results.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+    var stored = save(DB);
+    renderTotals(); paintBanked(); renderRoundPicker();
+    return { added: added, skipped: skipped, bad: bad, stored: stored };
   }
 
   /* -------------------------------------------------------------------- tabs */
@@ -730,9 +898,34 @@
         document.body.classList.contains("show-ids") ? "hide IDs" : "show IDs";
     };
     $("btn-wipe").onclick = function () {
-      if (!window.confirm("Delete all banked rounds and totals from this browser?")) return;
-      DB = { totals: {}, rounds: [], history: [] }; save(DB);
-      renderTotals(); renderRoundPicker();
+      if (!window.confirm("Delete all banked rounds and totals from this browser?\n\n"
+        + "Export a backup first if you have not.")) return;
+      DB = blank(); save(DB);
+      renderTotals(); renderRoundPicker(); paintBanked();
+    };
+
+    $("btn-import").onclick = function () { $("file-import").click(); };
+    $("file-import").onchange = function () {
+      var f = this.files && this.files[0];
+      if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        var r = importJSON(String(fr.result));
+        var box = $("t-msg");
+        box.innerHTML = "";
+        if (r.err) { box.appendChild(el("p", "warn", esc(r.err))); return; }
+        box.appendChild(el("p", "s-sum",
+          "Imported " + r.added + (r.added === 1 ? " round" : " rounds")
+          + (r.skipped ? ", skipped " + r.skipped + " already here" : "")
+          + (r.bad ? ", ignored " + r.bad + " unreadable" : "") + "."
+          + (r.stored ? "" : " NOTE: this browser refused to store them.")));
+      };
+      fr.onerror = function () {
+        $("t-msg").innerHTML = "";
+        $("t-msg").appendChild(el("p", "warn", "That file could not be read."));
+      };
+      fr.readAsText(f);
+      this.value = "";                    /* so the same file can be picked again */
     };
 
     document.addEventListener("keydown", function (e) {
@@ -749,7 +942,9 @@
       else if (k === "d") rehearse();               /* d for dry run */
     });
 
+    S.code = newCode();
     renderRoundPicker();
+    paintBanked();
     reset();
     show("run");
   }
@@ -761,6 +956,7 @@
   window.CALC_CONSOLE = {
     paramsFor: paramsFor, seedFor: seedFor, parseCSV: parseCSV, parseNum: parseNum,
     scoreRows: scoreRows, state: S, rehearse: rehearse, selfCheck: selfCheck,
+    importJSON: importJSON, totals: totals, codeUsed: codeUsed,
     setRound: function (w, i, code) { S.week = w; S.idx = i; S.code = code; reset(); },
     db: function () { return DB; }
   };

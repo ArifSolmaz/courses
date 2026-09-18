@@ -247,7 +247,7 @@ Wi-Fi off if you like.
 
 ### Tests
 
-`test.js` drives the page in headless Chromium — 64 checks, including a fabricated
+`test.js` drives the page in headless Chromium — 89 checks, including a fabricated
 Google Form sheet with traps, junk, a duplicate and a foreign round pasted in and
 marked end to end.
 
@@ -255,7 +255,14 @@ marked end to end.
 node test.js
 ```
 
-Every check in it has been confirmed to fail when the thing it tests is broken. Several
-of them exist because the first version passed while the console was wrong: the Turkish
-reveal was half English, the podium read "2st in", and the pasted sheet — every student
-ID in it — was sitting on the projector above the results.
+Every check in it has been confirmed to fail when the thing it tests is broken, by
+running 26 deliberate mutations of the console — one per invariant — and requiring each
+to be caught.
+
+Several checks exist only because the first version passed while the console was wrong:
+the Turkish reveal was half English, the podium read "2st in", the pasted sheet — every
+student ID in it — was sitting on the projector above the results, six traps landed
+within 10 % of their own answers, and the backup could not be restored. Two of the tests
+themselves were passing while measuring nothing: one read the code ledger *after* the
+corner case that rewrites it, and one relied on 120 random draws colliding, which they
+do only about half the time.
