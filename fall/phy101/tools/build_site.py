@@ -100,6 +100,161 @@ ANIMS = {
         "foot_tr": "Hız, konum grafiğinin eğimi; yer değiştirme ise hız "
                    "grafiğinin altındaki alandır.",
     })],
+    3: [("Animated Projectile Trajectory", {
+        "name": "w3-independence",
+        "label": "Predict, then watch",
+        "title": "Dropped and launched, falling together",
+        "desc": "Raise the launch speed and the two balls still fall level with each other: "
+                "horizontal speed changes where the second lands, never when.",
+        "foot": "The vertical equation does not contain the horizontal speed. That is the whole "
+                "of the independence of motion.",
+        "foot_tr": "Düşey denklemde yatay hız hiç geçmez.",
+    }), ("Range vs Launch Angle", {
+        "name": "w3-range",
+        "label": "Predict, then watch",
+        "title": "Why two angles share a range",
+        "desc": "Drag the launch angle and watch its complement keep exactly the same range, "
+                "reaching it by a taller, slower route.",
+        "foot": "Angles that add to 90° share a range, because sin 2θ is unchanged by θ → 90° − θ.",
+        "foot_tr": "Toplamı 90° olan açılar aynı menzili verir.",
+    })],
+    4: [("Inclined Plane Simulator", {
+        "name": "w4-incline",
+        "label": "Predict, then watch",
+        "title": "Does it slide? The two forces that decide",
+        "desc": "Compare the driving force mg sin θ with the friction available μs N, and change "
+                "the mass to watch the critical angle refuse to move.",
+        "foot": "The mass cancels: tan θc = μs. A heavy block is pulled harder and grips harder, "
+                "in exactly the same proportion.",
+        "foot_tr": "Kütle sadeleşir: tan θc = μs.",
+    }), ("Atwood Machine Simulator", {
+        "name": "w4-atwood",
+        "label": "Predict, then watch",
+        "title": "Tension trapped between two weights",
+        "desc": "Change either mass and watch the tension stay squeezed between the two weights, "
+                "never above the heavier or below the lighter.",
+        "foot": "T = 2m₁m₂g/(m₁+m₂) — the harmonic mean, which is always between the two.",
+        "foot_tr": "Gerilme her zaman iki ağırlığın arasındadır.",
+    })],
+    5: [("Work Done by a Variable Force", {
+        "name": "w5-area",
+        "label": "Predict, then watch",
+        "title": "Work is the signed area, and it accumulates",
+        "desc": "Watch the area under F(x) sweep out as the block advances, with the kinetic "
+                "energy below it following step for step.",
+        "foot": "Area above the axis adds energy, area below removes it. Equal areas cancel exactly.",
+        "foot_tr": "Eksenin üstündeki alan enerji verir, altındaki alır.",
+    })],
+    8: [("Roller Coaster Energy Simulator", {
+        "name": "w8-track",
+        "label": "Predict, then watch",
+        "title": "The energy account, kept live",
+        "desc": "K and U trade places as the cart runs the track, but their total is a flat line — "
+                "until you turn friction on.",
+        "foot": "The reachable-height line is E/mg: the cart can never climb above it.",
+        "foot_tr": "Ulaşılabilir yükseklik çizgisi E/mg'dir.",
+    }), ("Spring-Block Oscillation with Energy", {
+        "name": "w8-spring",
+        "label": "Predict, then watch",
+        "title": "Why the spring energy carries a square",
+        "desc": "Double the compression and the launch height goes up four times, not two — the "
+                "guides on the curve show the factor directly.",
+        "foot": "Us = ½kx². The square is why a small extra squeeze buys so much height.",
+        "foot_tr": "Us = ½kx²; kare, küçük bir ek sıkıştırmanın neden çok kazandırdığını açıklar.",
+    })],
+    9: [("Impulse-Momentum Theorem Visualizer", {
+        "name": "w9-impulse",
+        "label": "Predict, then watch",
+        "title": "Same area, gentler force",
+        "desc": "Stretch the stopping time and watch the area under the force–time curve hold "
+                "still while its peak collapses.",
+        "foot": "J = Δp is fixed by the momentum change. Only the shape of the pulse is yours to "
+                "choose — which is exactly what an airbag chooses.",
+        "foot_tr": "J = Δp sabittir; yalnızca darbenin biçimi değişir.",
+    }), ("Animated 1D Collision Simulator", {
+        "name": "w9-collisions",
+        "label": "Predict, then watch",
+        "title": "From perfectly elastic to perfectly stuck",
+        "desc": "One slider runs from a bouncy collision to a sticky one. Momentum never moves; "
+                "kinetic energy drains away.",
+        "foot": "Momentum is conserved in every case here. The energy lost is what distinguishes "
+                "the collisions from one another.",
+        "foot_tr": "Momentum her durumda korunur; çarpışmaları ayıran kayıp enerjidir.",
+    })],
+    10: [("Animated Rotating Disk", {
+        "name": "w10-omega",
+        "label": "Predict, then watch",
+        "title": "One ω, many speeds",
+        "desc": "Two points on one turning disc keep the same angular velocity while their linear "
+                "speeds differ in exact proportion to their radii.",
+        "foot": "v = ωr is the bridge between the angular column and the linear one.",
+        "foot_tr": "v = ωr, açısal ve doğrusal sütunlar arasındaki köprüdür.",
+    }), ("Moment of Inertia Comparison", {
+        "name": "w10-inertia",
+        "label": "Predict, then watch",
+        "title": "The same mass, four times as hard to spin",
+        "desc": "Two rigs of identical mass get identical torques; the one with its mass further "
+                "out turns a quarter as far in the same time.",
+        "foot": "I = Σmr². The square on r is why where the mass sits matters more than how much "
+                "of it there is.",
+        "foot_tr": "I = Σmr²; kütlenin nerede olduğu, ne kadar olduğundan çok şey belirler.",
+    })],
+    11: [("Rolling vs Sliding Down an Incline", {
+        "name": "w11-race",
+        "label": "Predict, then watch",
+        "title": "A race decided by shape alone",
+        "desc": "Hoop, disc and sphere roll down the same ramp. Change the angle, the mass, the "
+                "radius — the order never changes.",
+        "foot": "a = g sin θ/(1+c). Only the shape factor c survives; mass and radius cancel.",
+        "foot_tr": "a = g sin θ/(1+c); yalnızca biçim çarpanı kalır.",
+    }), ("Angular Momentum — Pulling the Masses In", {
+        "name": "w11-angmom",
+        "label": "Predict, then watch",
+        "title": "L holds still while everything else moves",
+        "desc": "Pull the masses inward and watch four bars respond: L pinned, I down, ω up, and "
+                "K up as well — because the pulling does work.",
+        "foot": "K = L²/2I, so halving I doubles the energy. Conservation of L does not mean "
+                "conservation of energy.",
+        "foot_tr": "K = L²/2I; L'nin korunması enerjinin korunması demek değildir.",
+    })],
+    12: [("Beam Balance Simulator", {
+        "name": "w12-balance",
+        "label": "Predict, then watch",
+        "title": "Both equilibrium conditions, running at once",
+        "desc": "Slide the load along the plank and watch the two support forces trade the weight "
+                "between them, with ΣF and Στ held at zero throughout.",
+        "foot": "Push the load past a support and a reaction goes negative — the plank would lift "
+                "off, and something would have to hold it down.",
+        "foot_tr": "Yükü desteğin ötesine itince tepki negatife döner.",
+    }), ("Seesaw/Lever Equilibrium", {
+        "name": "w12-tipping",
+        "label": "Predict, then watch",
+        "title": "Slide or tip — which threshold comes first",
+        "desc": "Two angles compete: tan θ = μs for sliding and tan θ = b/h for tipping. Change "
+                "the shape and watch them swap places.",
+        "foot": "Neither threshold contains the mass. A tall narrow box topples; a wide flat one "
+                "slides.",
+        "foot_tr": "İki eşikte de kütle yoktur.",
+    })],
+    13: [("Animated Spring-Mass Oscillation", {
+        "name": "w13-shm",
+        "label": "Predict, then watch",
+        "title": "One motion, read four ways",
+        "desc": "x, v and a share a time cursor while the phase-space loop beside them closes once "
+                "per cycle.",
+        "foot": "Each curve is the previous one a quarter period later, and a = −ω²x is the mirror "
+                "you can see.",
+        "foot_tr": "Her eğri bir öncekinin çeyrek periyot sonrasıdır.",
+    }), ("Energy Exchange Visualization", {
+        "name": "w13-energy",
+        "label": "Predict, then watch",
+        "title": "Two energies, one constant total",
+        "desc": "K and U swap back and forth against position and against time — and complete two "
+                "cycles for every one of the motion.",
+        "foot": "The mass passes the centre twice per cycle, so the energy curves run at twice the "
+                "frequency of x.",
+        "foot_tr": "Kütle her çevrimde merkezden iki kez geçer; enerji eğrileri iki kat frekanslıdır.",
+    })],
 }
 
 MATH_TOKEN = "@@MATH%d@@"
