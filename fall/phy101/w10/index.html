@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 10: Rotation of rigid bodies — PHY101 · Physics I</title>
+<meta name="description" content="Angular kinematics, radian conversion and moment of inertia; torque-driven dynamics follows in Week 11">
+<script>
+/* Set the theme before the first paint so the page never flashes the wrong one. */
+(function () {
+  try {
+    var t = localStorage.getItem("phy101_theme");
+    if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ctext y=%2724%27 x=%273%27 font-size=%2722%27 font-family=%27monospace%27 font-weight=%27700%27 fill=%27%23e65100%27%3EF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the notes</a>
+<header class="site-header">
+  <a class="brand" href="../web/PHY101_Course_Dashboard.html">PHY<span>101</span> / physics I</a>
+  <nav class="header-nav" aria-label="Course pages">
+    <a class="hlink" href="../web/PHY101_Course_Dashboard.html">Dashboard</a>
+    <a class="hlink" href="../web/PHY101_Course_Dashboard.html#overview">All weeks</a>
+    <a class="hlink" href="../web/PHY101_Syllabus.html">Syllabus</a>
+    <a class="hlink" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/labs/Lab_00_Uncertainty_Toolkit.ipynb">Lab toolkit</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+  </nav>
+</header>
+<main class="wrap" id="main">
+<article class="col">
+
+<div class="hero">
+  <div class="eyebrow">Week 10 &middot; 23 November&ndash;27 November 2026</div>
+  <h1>Rotation of rigid bodies<em lang="tr">Katı cisimlerin dönme hareketi</em></h1>
+  <p class="lede">Angular kinematics, radian conversion and moment of inertia; torque-driven dynamics follows in Week 11.</p>
+  <div class="hero-meta"><span class="chip gold">3-hour session</span><span class="chip">class 24 November</span><span class="chip green">lab: Katı Cisimlerin Dönmesi</span><span class="chip">3 worked examples</span><span class="chip">2 figures</span><span class="chip blue">departmental schedule &middot; common exams</span></div>
+</div>
+<div class="callout orange">
+  <span class="callout-label">How to use this page</span>
+  <p>These notes are generated from the <strong>Week 10 notebook</strong>, so they always say the
+  same thing it does. Read here; do the problems in the notebook, where every problem shows its answer
+  and the full worked solution opens later.</p>
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Bu sayfa Week 10 not
+  defterinden &uuml;retilir, yani her zaman onunla ayn&#305; &#351;eyi s&ouml;yler. Konuyu burada oku;
+  problemleri not defterinde &ccedil;&ouml;z.</p></aside>
+  <div class="btn-row">
+    <a class="btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_10.ipynb">Open Week 10 in Colab</a>
+    <a class="btn secondary" href="../notebooks/Week_10.ipynb" download>Download notebook</a>
+  </div>
+</div>
+<div class="callout green">
+  <span class="callout-label">This week in the laboratory</span>
+  <p><strong>Katı Cisimlerin Dönmesi / Rotation of rigid bodies</strong> &mdash;
+  Angular kinematics of a driven disc; verify v = Rω and constant angular acceleration.</p>
+  <p>Do the prediction in &sect;1 of the brief <strong>before</strong> you arrive; you will be asked for
+  your predicted number at the bench. Laboratory analysis technique is not examined in the common
+  midterm or final &mdash; the physics being measured is.</p>
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Deneye gelmeden &ouml;nce
+  brifingin &sect;1'indeki tahmini yap.</p></aside>
+  <div class="btn-row"><a class="btn secondary" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/labs/Lab_10_Rotation.ipynb">Open the lab brief</a>
+    <a class="btn secondary" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/labs/Lab_00_Uncertainty_Toolkit.ipynb">Uncertainty toolkit</a>
+  </div>
+</div>
+<nav class="toc" aria-label="On this page"><span class="toc-label">On this page</span><ol><li><span class="num">10.1</span><a href="#before-you-start">Before you start</a></li><li><span class="num">10.2</span><a href="#concepts-demonstrations-and-worked-examples">Concepts, demonstrations and worked examples</a></li><li><span class="num">10.3</span><a href="#more-worked-examples-from-the-question-bank">More worked examples from the question bank</a></li><li><span class="num">10.4</span><a href="#exit-check">Exit check</a></li><li><span class="num">10.5</span><a href="#solutions-and-next-week">Solutions and next week</a></li></ol></nav>
+<div class="callout blue"><span class="callout-label">How the three hours run</span><table width="100%">
+<thead>
+<tr>
+<th align="left" width="80" scope="col">Minutes</th>
+<th align="left" width="1080" scope="col">Activity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–10</td>
+<td>Retrieval: Review the constant-acceleration equation pattern from Week 2; replace position by angle only after identifying the axis.</td>
+</tr>
+<tr>
+<td>10–50</td>
+<td>Radians and angular kinematics</td>
+</tr>
+<tr>
+<td>50–60</td>
+<td>Break / Ara</td>
+</tr>
+<tr>
+<td>60–100</td>
+<td>Moment of inertia and axis choice</td>
+</tr>
+<tr>
+<td>100–110</td>
+<td>Break / Ara</td>
+</tr>
+<tr>
+<td>110–150</td>
+<td>Guided paper practice: core problems</td>
+</tr>
+<tr>
+<td>150–170</td>
+<td>Review difficult steps, one interactive check, questions</td>
+</tr>
+<tr>
+<td>170–180</td>
+<td>Exit check</td>
+</tr>
+</tbody>
+</table>
+<p>The core route is enough for the lesson; intermediate and challenge problems and the demonstrations are for practice and review.</p></div>
+
+<h2 id="before-you-start"><span class="num">10.1</span>Before you start<em lang="tr">Başlamadan önce</em></h2>
+<p><strong>Retrieval question:</strong> Review the constant-acceleration equation pattern from Week 2; replace position by angle only after identifying the axis.</p>
+
+<h3>🎯 Learning Objectives</h3>
+<p>By the end of this week, you will be able to:</p>
+<ol class="objectives"><li><strong>Define and relate</strong> angular position, velocity, and acceleration for rigid-body rotation</li><li><strong>Apply</strong> the rotational kinematic equations (constant angular acceleration) to solve problems</li><li><strong>Calculate</strong> the moment of inertia for simple shapes and composite bodies</li><li><strong>Use the parallel-axis theorem</strong> to find moments of inertia about arbitrary axes</li><li><strong>Analyze</strong> rolling motion and pulley-rope systems using rotational dynamics</li><li><strong>Compare</strong> rotational and translational kinetic energy for different geometries</li></ol>
+
+<h3>Joining this lesson<em lang="tr">Derse buradan başlayanlar</em></h3>
+<p><strong>Start from familiar motion and energy equations; no prior Python is required.</strong> For a rigid body rotating about a fixed axis:</p>
+<ul><li>$\tau_{\rm net}=I\alpha$: net torque changes angular speed. $I$ measures how mass is distributed about the chosen axis; a solid disk has $I=\tfrac12MR^2$.</li><li>With <strong>constant</strong> $\alpha$, $\omega=\omega_0+\alpha t$ and $\theta=\omega_0t+\tfrac12\alpha t^2$. Convert RPM using $\omega=\mathrm{RPM}\times2\pi/60$.</li><li>Rotational energy is $K_{\rm rot}=\tfrac12I\omega^2$. Rolling <strong>without slipping</strong> also requires $v=R\omega$ and includes translational energy $\tfrac12Mv^2$.</li></ul>
+<p><strong>Quick entry check:</strong> For $I=0.20\,\mathrm{kg\,m^2}$ and constant net torque $0.60\,\mathrm{N\,m}$, $\alpha=0.60/0.20=3.0\,\mathrm{rad/s^2}$. Starting from rest, two seconds gives $\omega=6.0\,\mathrm{rad/s}$. This result assumes the quoted torque is the net torque after any resistance.</p>
+<p><strong>The same physics, three application questions:</strong></p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="300" scope="col">Perspective</th>
+<th align="left" width="780" scope="col">Use the same torque–inertia model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mechatronics Engineering</td>
+<td>Compare wheel shapes or motor torques to reach the required speed in a given time.</td>
+</tr>
+<tr>
+<td>Computer Engineering</td>
+<td>Compare an angular-speed trace or model prediction with the expected slope $\alpha=\tau_{\rm net}/I$.</td>
+</tr>
+<tr>
+<td>Chemical Engineering</td>
+<td>Estimate the torque a motor must supply to bring a stirrer or centrifuge rotor to its working speed in a given time.</td>
+</tr>
+</tbody>
+</table>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Doğrusal hareketteki $F=ma$ fikri burada $\tau=I\alpha$ olur. Denklemi kullanmadan önce sabit ivme ve kaymama gibi koşulları kontrol et.</p></aside>
+
+<h3>Before the equations: rotation uses familiar algebra<em lang="tr">Dönmede tanıdık cebir</em></h3>
+<p>No programming is needed for the required calculations. Match the familiar linear quantity to its rotational partner:</p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="128" scope="col">Linear motion</th>
+<th align="left" width="120" scope="col">Rotation</th>
+<th align="left" width="264" scope="col">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$v=v_0+at$</td>
+<td>$\omega=\omega_0+\alpha t$</td>
+<td>Rate changes steadily</td>
+</tr>
+<tr>
+<td>$F=ma$</td>
+<td>$\tau=I\alpha$</td>
+<td>Net action causes acceleration</td>
+</tr>
+<tr>
+<td>$K=\tfrac12mv^2$</td>
+<td>$K_{\rm rot}=\tfrac12I\omega^2$</td>
+<td>Energy of motion</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Unit bridge:</strong> $120\,\mathrm{RPM}$ means 120 revolutions per minute, so $120\times(2\pi)/60=4\pi=12.6\,\mathrm{rad/s}$. Convert before calculating energy. Radians have no physical dimension, but writing rad helps identify an angle.</p>
+<p><strong>Rolling bridge:</strong> Without slipping, $v=R\omega$, so $\omega=v/R$. Substitute this into BOTH energy terms: $$Mgh=\tfrac12Mv^2+\tfrac12I(v/R)^2
+=\tfrac12\left(M+I/R^2\right)v^2.$$ Multiply by 2, divide by $M+I/R^2$, then take the square root. If $I=\beta MR^2$, the result is $v=\sqrt{\frac{2gh}{1+\beta}}$. Rotation uses some of the energy; the speed is smaller than the sliding value $\sqrt{2gh}$.</p>
+<p><strong>Pulley bridge:</strong> Translating masses obey $\sum F=ma$; the pulley obeys $\sum\tau=I\alpha$. The connection is $a=R\alpha$. A massive accelerating pulley generally needs unequal tensions to produce torque.</p>
+<p><strong>Pause:</strong> Doubling $R$ at fixed mass quadruples $I$ for the same shape. But in ideal rolling from the same height, $I/(MR^2)=\beta$ stays the same, so the final speed does not change.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Formülleri ezberlemek yerine benzerliği gör. Kaymadan yuvarlanmada hem öteleme hem dönme enerjisi vardır. Makara kütleliyse iki taraftaki gerilmeleri hemen eşit kabul etme.</p></aside>
+
+<h3>How this week is worked<em lang="tr">Bu hafta nasıl çalışılır</em></h3>
+<p><strong>Every problem, worked example and experiment in this course follows the same six steps.</strong> Step 4 is the one added in September 2026, and it is the one that separates a physicist from a calculator operator.</p>
+<blockquote><p><strong>draw → choose a law → rearrange to the symbolic answer → check a limiting case → substitute with units → interpret</strong></p></blockquote>
+<ol><li><strong>Symbolic answer first.</strong> Isolate the unknown in symbols, before any number appears.</li><li><strong>One limiting case.</strong> Push a parameter to a value whose answer you already know — a mass to zero, an angle to $90^\circ$, a friction coefficient to zero — and confirm the formula behaves sensibly. If it does not, the algebra is wrong and you have just caught it <strong>for free</strong>, before wasting arithmetic on it.</li><li><strong>Then numbers</strong>, with units carried through every line.</li></ol>
+<p>Why bother: the symbolic route is <em>less</em> arithmetic, not more, and it is where the marks are. A correct symbolic answer with a slip in the final multiplication is nearly full credit; a correct number with no derivation is not.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Her problemde önce sembolik sonuç, sonra bir sınır durumu kontrolü, sonra sayılar. Sınır kontrolü cebir hatasını aritmetiğe girmeden, bedavaya yakalar. Doğru sembolik çözüm artı son çarpımda sürçme neredeyse tam puandır; türetmesi olmayan doğru sayı değildir.</p></aside>
+<h3>Numbers in this course<em lang="tr">Sayı kuralları</em></h3>
+<ul><li>$g = 9.81\ \mathrm{m/s^2}$ throughout.</li><li>Report <strong>three significant figures</strong> unless the data justify fewer.</li><li><strong>Displayed intermediate values are rounded for reading; the arithmetic carries full precision.</strong> So if you recompute from a printed intermediate you may differ in the last digit — that is expected. Rounding early is the actual error being avoided.</li></ul>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Ara değerler okunabilirlik için yuvarlanmış gösterilir, hesap tam duyarlıkla yapılır; yazılı ara değerden yeniden hesaplarsan son hane farklı çıkabilir. Kaçınılan hata erken yuvarlamaktır.</p></aside>
+<hr>
+<h3>If you want a second explanation<em lang="tr">İkinci bir anlatım istersen</em></h3>
+<p>Young & Freedman ch. 9 (rotation of rigid bodies) · Serway & Jewett ch. 10 · Halliday, Resnick & Walker ch. 10 · <a href="https://openstax.org/details/books/university-physics-volume-1">OpenStax University Physics Vol. 1</a> ch. 10 · <a href="https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/">MIT OCW 8.01</a> — rotational kinematics and moment of inertia</p>
+<p>Free and complete: OpenStax. The full week-by-week table is in <a href="https://github.com/ArifSolmaz/courses/blob/main/fall/phy101/TEXTBOOK_MAP.md">TEXTBOOK_MAP.md</a>.</p>
+<hr>
+<h3>This week in the laboratory / Bu hafta laboratuvarda</h3>
+<p><strong>Katı Cisimlerin Dönmesi / Rotation of rigid bodies</strong> — <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/labs/Lab_10_Rotation.ipynb">open the brief</a></p>
+<p>It measures this week's physics. Angular kinematics of a driven disc; verify v = Rω and constant angular acceleration.</p>
+<p><strong>Do the prediction in §1 of the brief before you arrive.</strong> You will be asked for your predicted number at the bench, before the apparatus is switched on — and the prediction is symbolic with a limiting check, exactly as above. Shared technique (uncertainty, propagation, linearising a curve, counting $\sigma$) lives in the <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/labs/Lab_00_Uncertainty_Toolkit.ipynb">measurement and uncertainty toolkit</a>.</p>
+<p>Laboratory analysis technique is a <strong>laboratory</strong> requirement; it is not examined in the common midterm or final. The physics being measured is.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Deneye gelmeden önce brifingin §1'indeki tahmini yap. Laboratuvar analiz teknikleri ortak sınav kapsamında değildir; ölçülen fizik kapsamdadır.</p></aside>
+<hr>
+<p>See <a href="https://github.com/ArifSolmaz/courses/blob/main/fall/phy101/COURSE_POLICY.md">the course policy</a> for the full rules on scope, numbers and laboratory marking. <strong>Examinable scope is the departmental Week 01–13 topic list only</strong>; extension notebooks and supplements are enrichment.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Sınav kapsamı yalnızca bölüm izlencesindeki 01–13. hafta konularıdır; ek notlar zenginleştirmedir.</p></aside>
+
+<h2 id="concepts-demonstrations-and-worked-examples"><span class="num">10.2</span>Concepts, demonstrations and worked examples<em lang="tr">Konular, gösterimler ve çözümlü örnekler</em></h2>
+<p><strong>Before you move a slider:</strong> Predict which has larger inertia: ring or disk at equal mass and radius. Explain why rod comparisons also require its length and axis.</p>
+
+<h3>Rotation begins with angle, not torque</h3>
+<p>A rigid body keeps its shape. Every point shares the same angular displacement $\Delta\theta$, angular velocity $\omega$, and angular acceleration $\alpha$, although points farther from the axis move farther.</p>
+<p>One revolution is $2\pi$ radians. Convert 120 RPM: $$120\frac{\mathrm{rev}}{\mathrm{min}}\times\frac{2\pi\,\mathrm{rad}}{1\,\mathrm{rev}}\times\frac{1\,\mathrm{min}}{60\,\mathrm s}
+=4\pi=12.6\,\mathrm{rad/s}.$$ For a point 0.20 m from the axis, $v=r\omega=0.20(12.6)=2.51$ m/s. A point at half that radius has half the tangential speed but the same $\omega$.</p>
+<p><strong>Today's scope:</strong> describe rotation and calculate moment of inertia. Next week we use torque to explain how rotation changes. <strong>TR:</strong> Bu hafta dönmenin kinematiği ve kütlenin eksene göre dağılımını öğreniyoruz; torkla ivmelendirme sonraki haftada.</p>
+
+<h3>From Translation to Rotation — The Big Analogy</h3>
+<p>Everything you learned about linear motion has a rotational twin:</p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="152" scope="col">Linear Quantity</th>
+<th align="left" width="72" scope="col">Symbol</th>
+<th align="left" width="184" scope="col">Rotational Quantity</th>
+<th align="left" width="72" scope="col">Symbol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Position</td>
+<td>$x$</td>
+<td>Angular position</td>
+<td>$\theta$</td>
+</tr>
+<tr>
+<td>Velocity</td>
+<td>$v$</td>
+<td>Angular velocity</td>
+<td>$\omega$</td>
+</tr>
+<tr>
+<td>Acceleration</td>
+<td>$a$</td>
+<td>Angular acceleration</td>
+<td>$\alpha$</td>
+</tr>
+<tr>
+<td>Mass</td>
+<td>$m$</td>
+<td>Moment of inertia</td>
+<td>$I$</td>
+</tr>
+<tr>
+<td>Force</td>
+<td>$F$</td>
+<td>Torque</td>
+<td>$\tau$</td>
+</tr>
+<tr>
+<td>Momentum</td>
+<td>$p = mv$</td>
+<td>Angular momentum</td>
+<td>$L = I\omega$</td>
+</tr>
+<tr>
+<td>Kinetic energy</td>
+<td>$\frac{1}{2}mv^2$</td>
+<td>Rotational KE</td>
+<td>$\frac{1}{2}I\omega^2$</td>
+</tr>
+<tr>
+<td>Newton's 2nd law</td>
+<td>$F = ma$</td>
+<td>Rotational 2nd law</td>
+<td>$\tau = I\alpha$</td>
+</tr>
+</tbody>
+</table>
+<blockquote><p><strong>Think of it this way:</strong> Mass tells you how hard it is to change <em>linear</em> motion. Moment of inertia tells you how hard it is to change <em>rotational</em> motion. But unlike mass, $I$ depends on <strong>where</strong> the mass is relative to the axis.</p></blockquote>
+
+<h3>Angular Kinematics</h3>
+<h4>Definitions</h4>
+<p>For a rigid body rotating about a fixed axis:</p>
+<p>$$\omega = \frac{d\theta}{dt}, \quad \alpha = \frac{d\omega}{dt} = \frac{d^2\theta}{dt^2}$$</p>
+<h4>Constant Angular Acceleration Equations</h4>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="64" scope="col">#</th>
+<th align="left" width="168" scope="col">Equation</th>
+<th align="left" width="152" scope="col">Missing variable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>$\omega = \omega_0 + \alpha t$</td>
+<td>$\theta$</td>
+</tr>
+<tr>
+<td>2</td>
+<td>$\theta = \omega_0 t + \frac{1}{2}\alpha t^2$</td>
+<td>$\omega$ (final)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>$\omega^2 = \omega_0^2 + 2\alpha\theta$</td>
+<td>$t$</td>
+</tr>
+<tr>
+<td>4</td>
+<td>$\theta = \frac{1}{2}(\omega_0 + \omega)t$</td>
+<td>$\alpha$</td>
+</tr>
+</tbody>
+</table>
+<p>These are <strong>identical in structure</strong> to the linear equations — just replace $x \to \theta$, $v \to \omega$, $a \to \alpha$.</p>
+<h4>Connection Between Linear and Angular</h4>
+<p>For a point at distance $r$ from the rotation axis:</p>
+<p>$$s = r\theta, \quad v_{\text{tan}} = r\omega, \quad a_{\text{tan}} = r\alpha, \quad a_{\text{cent}} = \omega^2 r$$</p>
+<p><strong>Use a unit conversion before the kinematics.</strong> At $120\,\mathrm{rev/min}$:</p>
+<p>$$\omega_0=120\,\frac{\mathrm{rev}}{\mathrm{min}}\frac{2\pi\,\mathrm{rad}}{1\,\mathrm{rev}}\frac{1\,\mathrm{min}}{60\,\mathrm s}=4\pi\,\mathrm{rad/s}.$$</p>
+<p>If it then brakes uniformly to rest in $4.0\,\mathrm s$, $$\alpha=\frac{\omega_f-\omega_0}{t}=\frac{0-4\pi}{4}=-\pi\,\mathrm{rad/s^2},\qquad\Delta\theta=\frac{4\pi+0}{2}(4)=8\pi\,\mathrm{rad}=4\,\mathrm{rev}.$$</p>
+<p>Here $\theta$ in the table means angular displacement from the initial orientation; otherwise write $\theta-\theta_0$. <strong>TR:</strong> Negatif ivme burada frenlemeyi gösterir. Süre boyunca hız sıfıra yaklaşırken dönme açısı yine pozitif birikir.</p>
+
+<aside class="mn fig-ref"><span class="mn-label">ŞEKİL 10.1</span><p>Tek disk, tek açısal hız, iki farklı sürat. Her nokta aynı sürede aynı açıyı tarar; bu yüzden ω bütün diskin özelliğidir — ama eksene iki kat uzaktaki nokta iki kat yol alır: v = ωr. Açısal ve doğrusal sütunlar arasındaki köprü budur.</p></aside><figure class="figure" id="fig-w10-omega-r"><svg viewBox="0 0 380 248" role="img" aria-labelledby="t-wr d-wr">
+<title id="t-wr">Two points on a rotating disc at different radii</title>
+<desc id="d-wr">A disc turning with one angular velocity. A point halfway out has a velocity arrow
+of one length; a point on the rim, twice as far from the axis, has an arrow exactly twice as long.
+Dimension bars below mark the two radii as r and 2r.</desc>
+<defs><marker id="m10a-accent" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-accent"/></marker><marker id="m10a-blue" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-blue"/></marker><marker id="m10a-green" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-green"/></marker><marker id="m10a-muted" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-muted"/></marker><marker id="m10a-ink" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-ink"/></marker></defs>
+<circle cx="110" cy="110" r="80" class="fig-axis" fill="var(--bg-soft)"/>
+<line x1="110" y1="110" x2="190" y2="110" class="fig-thin"/>
+
+<path d="M 140 110 A 30 30 0 0 0 110 80" class="fig-thin fig-accent"
+      marker-end="url(#m10a-accent)"/>
+<text x="116" y="72" class="fig-lab fig-accent">ω</text>
+
+<line x1="150" y1="110" x2="150" y2="76" class="fig-vec fig-blue" marker-end="url(#m10a-blue)"/>
+<line x1="190" y1="110" x2="190" y2="42" class="fig-vec fig-green" marker-end="url(#m10a-green)"/>
+<text x="158" y="80" class="fig-lab fig-blue">v</text>
+<text x="198" y="48" class="fig-lab fig-green">2v</text>
+
+<circle cx="110" cy="110" r="4" class="fig-dot"/>
+<circle cx="150" cy="110" r="4.5" class="fig-dot fig-blue"/>
+<circle cx="190" cy="110" r="4.5" class="fig-dot fig-green"/>
+
+<g class="fig-thin">
+  <line x1="110" y1="200" x2="150" y2="200"/>
+  <line x1="110" y1="194" x2="110" y2="206"/><line x1="150" y1="194" x2="150" y2="206"/>
+  <line x1="110" y1="226" x2="190" y2="226"/>
+  <line x1="110" y1="220" x2="110" y2="232"/><line x1="190" y1="220" x2="190" y2="232"/>
+</g>
+<text x="104" y="204" class="fig-lab fig-blue" text-anchor="end">r</text>
+<text x="104" y="230" class="fig-lab fig-green" text-anchor="end">2r</text>
+
+<text x="300" y="104" class="fig-note" text-anchor="middle">same ω,</text>
+<text x="300" y="120" class="fig-note" text-anchor="middle">different v</text>
+</svg><figcaption><span class="fig-num">Figure 10.1</span>One disc, one angular velocity, two different speeds. Every point turns through the same angle in the same time, so ω is a property of the whole disc — but the point twice as far from the axis travels twice as far, so v = ωr. This is the bridge between the angular and linear columns.</figcaption></figure>
+
+<h3>🎮 Interactive: Animated Rotating Disk with Angular Velocity Display</h3>
+<p>Watch how a disk rotates under constant angular acceleration. The speedometer shows the instantaneous angular velocity, and the trail shows angular position history.</p>
+<p><strong>Predict before you touch the controls / Kaydırıcıya dokunmadan önce tahmin et.</strong> Write down what you expect to happen to the curve when you change the control, and why — one sentence and, if you can, a sign or a limiting case. Then move it and see whether you were right. Watching a graph move without having committed to a prediction teaches almost nothing; being wrong about a prediction you wrote down teaches a great deal.</p>
+<div class="callout grey">
+  <span class="callout-label">Interactive in the notebook</span>
+  <p><strong>🎮 Interactive: Animated Rotating Disk with Angular Velocity Display</strong> is a live demonstration with sliders. It needs a running
+  Python kernel, so it cannot run on this page &mdash;
+  <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_10.ipynb">open Week 10 in Colab</a>, run the setup
+  cell once, then run this demonstration.</p>
+</div>
+
+<p><strong>Explore:</strong> Change <code>omega0</code> and <code>alpha</code> in the function call above. What happens when $\alpha < 0$? With positive initial velocity the disk first slows, reaches zero, then reverses and speeds up if the same acceleration continues. <strong>TR:</strong> Negatif ivme her zaman yavaşlama demek değildir; hızın işaretiyle birlikte yorumlanır.</p>
+
+<h3>Moment of Inertia</h3>
+<h4>Definition</h4>
+<p>For a system of particles: $$I = \sum_i m_i r_i^2$$</p>
+<p>For a continuous body: $$I = \int r^2 \, dm$$</p>
+<p>where $r$ is the perpendicular distance from the rotation axis.</p>
+<h4>Standard Moments of Inertia</h4>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="248" scope="col">Shape</th>
+<th align="left" width="536" scope="col">Axis</th>
+<th align="left" width="80" scope="col">$I$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thin ring (mass $M$, radius $R$)</td>
+<td>Through center, perpendicular</td>
+<td>$MR^2$</td>
+</tr>
+<tr>
+<td>Solid disk / cylinder</td>
+<td>Symmetry axis through center, perpendicular to the circular face</td>
+<td>$\frac{1}{2}MR^2$</td>
+</tr>
+<tr>
+<td>Solid sphere</td>
+<td>Through center</td>
+<td>$\frac{2}{5}MR^2$</td>
+</tr>
+<tr>
+<td>Thin-walled hollow sphere</td>
+<td>Through center</td>
+<td>$\frac{2}{3}MR^2$</td>
+</tr>
+<tr>
+<td>Thin rod (length $L$)</td>
+<td>Through center, perpendicular</td>
+<td>$\frac{1}{12}ML^2$</td>
+</tr>
+<tr>
+<td>Thin rod (length $L$)</td>
+<td>Through end, perpendicular</td>
+<td>$\frac{1}{3}ML^2$</td>
+</tr>
+</tbody>
+</table>
+<h4>Parallel-Axis Theorem</h4>
+<p>$$I = I_{\text{cm}} + Md^2$$</p>
+<p>where $d$ is the distance between the center-of-mass axis and the new parallel axis.</p>
+<blockquote><p><strong>Physical insight:</strong> The further the mass is from the axis, the larger $I$ is. A ring has ALL its mass at distance $R$, so $I_{\text{ring}} = MR^2$. A disk spreads mass from 0 to $R$, so $I_{\text{disk}} = \frac{1}{2}MR^2$ — only half as much!</p></blockquote>
+<p><strong>Compare equal mass and size numerically.</strong> Let $M=2.0\,\mathrm{kg}$ and $R=0.50\,\mathrm m$, so $MR^2=0.50\,\mathrm{kg\,m^2}$:</p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="168" scope="col">Shape, center axis</th>
+<th align="left" width="120" scope="col">Substitution</th>
+<th align="left" width="96" scope="col">$I\ (\mathrm{kg\,m^2})$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thin ring</td>
+<td>$1(0.50)$</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>Solid disk</td>
+<td>$\frac12(0.50)$</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>Solid sphere</td>
+<td>$\frac25(0.50)$</td>
+<td>0.20</td>
+</tr>
+</tbody>
+</table>
+<p>Doubling every radial distance multiplies $r^2$ by four; doubling mass only doubles $I$. <strong>TR:</strong> Kütle eşitken eylemsizlik momenti farklı olabilir. Eksenin yeri ve kütlenin o eksene uzaklığı mutlaka belirtilmelidir. “Hollow sphere” satırı ince küresel kabuk modelidir.</p>
+
+<aside class="mn fig-ref"><span class="mn-label">ŞEKİL 10.2</span><p>Tam olarak aynı kütleye sahip iki cisim, aynı mil etrafında döndürülüyor. Kütleyi iki kat dışarı taşımak, döndürmeyi veya durdurmayı dört kat zorlaştırır; çünkü eylemsizlik her kütle parçasını uzaklığın karesiyle sayar. Kütle tek başına bir cismin ne kadar zor döneceğini söylemez.</p></aside><figure class="figure" id="fig-w10-inertia"><svg viewBox="0 0 420 244" role="img" aria-labelledby="t-mi d-mi">
+<title id="t-mi">The same two masses at two distances from the axis</title>
+<desc id="d-mi">Two dumbbells with identical masses on the same axle. In the first the masses sit
+at distance r from the axis; in the second at twice that distance. The moment of inertia is four
+times larger in the second, although the mass is unchanged.</desc>
+<defs><marker id="m10b-accent" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-accent"/></marker><marker id="m10b-blue" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-blue"/></marker><marker id="m10b-green" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-green"/></marker><marker id="m10b-muted" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-muted"/></marker><marker id="m10b-ink" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" class="fig-head-ink"/></marker></defs>
+<line x1="40" y1="110" x2="160" y2="110" class="fig-vec fig-muted"/>
+<circle cx="70" cy="110" r="15" class="fig-ball"/>
+<circle cx="130" cy="110" r="15" class="fig-ball"/>
+<circle cx="100" cy="110" r="5" class="fig-dot fig-accent"/>
+<g class="fig-thin">
+  <line x1="100" y1="140" x2="100" y2="166"/><line x1="130" y1="140" x2="130" y2="166"/>
+  <line x1="100" y1="160" x2="130" y2="160"/>
+</g>
+<text x="115" y="154" class="fig-lab" text-anchor="middle">r</text>
+<text x="100" y="196" class="fig-lab fig-blue" text-anchor="middle">I = 2mr²</text>
+
+<line x1="210" y1="110" x2="390" y2="110" class="fig-vec fig-muted"/>
+<circle cx="240" cy="110" r="15" class="fig-ball"/>
+<circle cx="360" cy="110" r="15" class="fig-ball"/>
+<circle cx="300" cy="110" r="5" class="fig-dot fig-accent"/>
+<g class="fig-thin">
+  <line x1="300" y1="140" x2="300" y2="166"/><line x1="360" y1="140" x2="360" y2="166"/>
+  <line x1="300" y1="160" x2="360" y2="160"/>
+</g>
+<text x="330" y="154" class="fig-lab" text-anchor="middle">2r</text>
+<text x="300" y="196" class="fig-lab fig-green" text-anchor="middle">I = 8mr² = 4I</text>
+
+<text x="210" y="228" class="fig-note" text-anchor="middle">same mass — four times the inertia, because r is squared</text>
+</svg><figcaption><span class="fig-num">Figure 10.2</span>Two objects of exactly the same mass, spun about the same axle. Moving the mass twice as far out makes it four times as hard to start or stop turning, because inertia counts each piece of mass by the square of its distance. Mass alone does not tell you how hard something is to spin.</figcaption></figure>
+
+<div class="checkpoint"><span class="checkpoint-label">Check yourself 10.1 · Think · Pair · Explain</span><p>A wheel has $\omega_0=4.0\,\mathrm{rad/s}$ and constant $\alpha=-2.0\,\mathrm{rad/s^2}$. <strong>Think:</strong> when does it stop? <strong>Pair:</strong> calculate $\omega$ and $\theta-\theta_0$ at 0, 1, 2 and $3\,\mathrm s$. <strong>Explain:</strong> why does negative acceleration cease to mean slowing down after $2\,\mathrm s$?</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>İvmenin işareti ile süratin artıp azaldığı bilgisi aynı değildir; hızın işaretine de bakın.</p></aside>
+<p>Write your prediction first, then compare with the model below. Include the governing law, units and one sense check; use the pause to raise any remaining question.</p>
+<details><summary>Model answer / Örnek yanıt — open after trying</summary>
+<p>$$\omega=4-2t,\qquad\Delta\theta=4t-t^2.$$</p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="72" scope="col">$t\ (\mathrm s)$</th>
+<th align="left" width="96" scope="col">$\omega\ (\mathrm{rad/s})$</th>
+<th align="left" width="88" scope="col">$\Delta\theta\ (\mathrm{rad})$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>−2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>From $0=4-2t$, stopping occurs at $t=2\,\mathrm s$. Thereafter it speeds up in the negative direction if the same torque continues. <strong>TR:</strong> Negatif ivme, pozitif hızı azaltır; hız negatife geçince süratin büyüklüğünü artırır.</p>
+<p><strong>Your explanation / Açıklaman:</strong> Compare your original prediction with this model and name one step you would change.</p>
+</details>
+<p><strong>Your explanation / Açıklaman:</strong> write or discuss your reasoning in words, with an equation or sketch where useful.</p></div>
+
+<h3>🎮 Interactive: Moment of Inertia Comparison — Disk vs Ring vs Rod</h3>
+<p>Use the sliders to change mass and size, and see how the moment of inertia changes for each shape. The bar chart updates in real time.</p>
+<p><strong>Predict before you touch the controls / Kaydırıcıya dokunmadan önce tahmin et.</strong> Write down what you expect to happen to the curve when you change the control, and why — one sentence and, if you can, a sign or a limiting case. Then move it and see whether you were right. Watching a graph move without having committed to a prediction teaches almost nothing; being wrong about a prediction you wrote down teaches a great deal.</p>
+<div class="callout grey">
+  <span class="callout-label">Interactive in the notebook</span>
+  <p><strong>🎮 Interactive: Moment of Inertia Comparison — Disk vs Ring vs Rod</strong> is a live demonstration with sliders. It needs a running
+  Python kernel, so it cannot run on this page &mdash;
+  <a href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_10.ipynb">open Week 10 in Colab</a>, run the setup
+  cell once, then run this demonstration.</p>
+</div>
+
+<section class="wex" id="wex-10-1"><div class="wex-head"><span class="wex-num">Worked example 10.1</span><h3>moving the same mass changes inertia</h3></div><div class="wex-body"><p>Two small masses, each 0.50 kg, are mounted on a light rod, each 0.20 m from its central rotation axis. Treat them as particles. $$I=\sum mr^2=0.50(0.20)^2+0.50(0.20)^2=0.0400\,\mathrm{kg\,m^2}.$$ Move both to 0.40 m without changing their masses: $$I_{\rm new}=2[0.50(0.40)^2]=0.160\,\mathrm{kg\,m^2}=4I.$$ The distance from the axis is squared, so doubling it quadruples the inertia. The total mass is still 1.00 kg.</p>
+<p><strong>Check:</strong> $\mathrm{kg}\times\mathrm{m^2}$ is the unit of inertia. The $r$ in the formula is distance from the <strong>specified rotation axis</strong>, not distance from an arbitrary end of the rod. <strong>TR:</strong> Eksenin yerini çizmeden eylemsizlik momenti hesaplama.</p></div></section>
+
+<section class="wex" id="wex-10-2"><div class="wex-head"><span class="wex-num">Worked example 10.2</span><h3>🔧 Worked Example 1: Angular Kinematics</h3></div><div class="wex-body"><p><strong>Problem:</strong> A grinding wheel starts from rest and accelerates uniformly at $\alpha = 3.0\,\mathrm{rad/s^2}$ for 8 seconds, then coasts at constant angular velocity for 10 seconds, then decelerates uniformly to rest in 20 seconds. Find: (a) The maximum angular velocity (b) The angular deceleration in phase 3 (c) The total angle turned through</p>
+<p><strong>Paper solution: one row per phase.</strong> Positive means the original direction of rotation. In phase 1, $\omega=0+3(8)=24\,\mathrm{rad/s}$ and $\theta_1=\tfrac12(3)(8^2)=96\,\mathrm{rad}$. In phase 2, $\alpha=0$, so $\theta_2=\omega t=24(10)=240\,\mathrm{rad}$.</p>
+<p>For phase 3, solve $\omega_f=\omega_i+\alpha_3t$: $0=24+20\alpha_3$. Subtract 24 and divide by 20: <strong>$\alpha_3=-1.20\,\mathrm{rad/s^2}$</strong>. Since acceleration is constant, the average angular speed is $(24+0)/2=12\,\mathrm{rad/s}$ and $\theta_3=12(20)=240\,\mathrm{rad}$.</p>
+<p>The total angle is <strong>$96+240+240=576\,\mathrm{rad}$</strong>, or $576/(2\pi)=91.7$ revolutions. The negative acceleration reduces positive speed; the angle during braking is still positive.</p>
+<p><strong>Organize the three phases numerically.</strong> Keep one unit per column:</p>
+<table width="100%">
+<thead>
+<tr>
+<th align="left" width="88" scope="col">Phase</th>
+<th align="left" width="120" scope="col">Duration $\mathrm{(s)}$</th>
+<th align="left" width="104" scope="col">$\omega_i\ \mathrm{(rad/s)}$</th>
+<th align="left" width="104" scope="col">$\alpha\ \mathrm{(rad/s^2)}$</th>
+<th align="left" width="104" scope="col">$\omega_f\ \mathrm{(rad/s)}$</th>
+<th align="left" width="88" scope="col">$\Delta\theta\ \mathrm{(rad)}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Speed up</td>
+<td>8</td>
+<td>0</td>
+<td>3.0</td>
+<td>24</td>
+<td>96</td>
+</tr>
+<tr>
+<td>Coast</td>
+<td>10</td>
+<td>24</td>
+<td>0</td>
+<td>24</td>
+<td>240</td>
+</tr>
+<tr>
+<td>Brake</td>
+<td>20</td>
+<td>24</td>
+<td>−1.2</td>
+<td>0</td>
+<td>240</td>
+</tr>
+</tbody>
+</table>
+<p>$$\alpha_3=\frac{\omega_f-\omega_i}{t_3}=\frac{0-24}{20}=-1.20\,\mathrm{rad/s^2},\qquad\theta_\mathrm{total}=96+240+240=576\,\mathrm{rad}.$$</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Her zaman aralığını ayrı hesapla. Yavaşlamanın eksi işaretli olması, cismin hemen ters yönde döndüğü anlamına gelmez.</p></aside></div></section>
+
+<h2 id="more-worked-examples-from-the-question-bank"><span class="num">10.3</span>More worked examples from the question bank<em lang="tr">Soru bankasından ek çözümlü örnekler</em></h2>
+<p>Each example gives the complete reasoning: the law, the rearrangement, the substitution with units, the physical check and a Turkish note on the difficult step. Cover the next line and try to produce it yourself.</p>
+
+<section class="wex" id="wex-10-3"><div class="wex-head"><span class="wex-num">Worked example 10.3</span><h3>Find a rotation rate from the required rim acceleration</h3></div><div class="wex-body"><p><strong>Problem.</strong> A disk-shaped space station has diameter $175\,\mathrm{m}$ and rotates uniformly about its central axis, perpendicular to the disk. Find the rotation rate in revolutions per minute that gives points on its rim a centripetal acceleration of $g/2$. Use $g=9.80\,\mathrm{m/s^2}$.</p>
+<p><strong>Picture and principle.</strong> View the station along its rotation axis. A rim point traces a circle of radius $r$, half the diameter. Its speed can remain constant while its velocity direction changes. That change requires an inward acceleration:</p>
+<p>$$a_c=\frac{v^2}{r}=\omega^2r,$$</p>
+<p>where $v=\omega r$ and $\omega$ is angular speed in radians per second. The required radius and acceleration are</p>
+<p>$$r=\frac{175}{2}\,\mathrm{m}=87.5\,\mathrm{m},\qquad a_c=\frac{9.80}{2}\,\mathrm{m/s^2}=4.90\,\mathrm{m/s^2}.$$</p>
+<p>First isolate the angular speed symbolically by dividing by radius and taking the positive square root:</p>
+<p>$$\omega^2=\frac{a_c}{r}\quad\Rightarrow\quad\omega=\sqrt{\frac{a_c}{r}}=\sqrt{\frac{4.90\,\mathrm{m/s^2}}{87.5\,\mathrm{m}}}=0.237\ldots\,\mathrm{rad/s}.$$</p>
+<p>One revolution corresponds to $2\pi$ radians. Therefore,</p>
+<p>$$n=\omega\left(\frac{1\,\mathrm{rev}}{2\pi\,\mathrm{rad}}\right)\left(\frac{60\,\mathrm{s}}{1\,\mathrm{min}}\right)=\boxed{2.26\,\mathrm{rev/min}}.$$</p>
+<p><strong>Meaning and check.</strong> This is about one revolution every $26.6\,\mathrm{s}$. Substituting the unrounded angular speed into $\omega^2r$ returns $4.90\,\mathrm{m/s^2}$. Doubling the required acceleration would increase angular speed by $\sqrt2$, not by two, because acceleration depends on the square of angular speed. The acceleration vector points toward the axis at every instant.</p>
+<p>The radius stays fixed during this comparison; changing it would change the required rotation rate.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Çap ile yarıçapı karıştırma: formülde $175$ değil $87.5\,\mathrm{m}$ kullanılır. Karekökle bulunan sonuç doğrudan “devir/dakika” değildir; önce radyan/saniyedir. Bir turdaki $2\pi$ radyana bölüp bir dakikadaki $60$ saniyeyle çarparak istenen birime geçeriz.</p></aside>
+<p><strong>Source:</strong> <code>03_testbank.doc</code>, §3.2 Problems, Question 37. Original givens preserved; worked explanation added.</p></div></section>
+
+<h4>Convert revolutions before calculating angular braking</h4>
+<p><strong>Problem.</strong> A grinding wheel of mass $1.15\,\mathrm{kg}$ and diameter $22.0\,\mathrm{cm}$ spins counterclockwise at $20.0\,\mathrm{rev/s}$. When switched off, it slows uniformly to rest in $80.0\,\mathrm{s}$. Find its signed angular acceleration and the number of revolutions completed while stopping. Take counterclockwise as positive.</p>
+<p><strong>Reasoning and algebra.</strong> A full revolution is $2\pi$ radians. Convert the initial angular speed before using the radian-based acceleration equation:</p>
+<p>$$
+\omega_i=(20.0\,\mathrm{rev/s})
+\frac{2\pi\,\mathrm{rad}}{1\,\mathrm{rev}}
+=40\pi\,\mathrm{rad/s}.
+$$</p>
+<p>Because the acceleration is constant, the change in angular speed is divided by the elapsed time:</p>
+<div class="keyeq" id="eq-10-1"><div class="keyeq-head"><span>Key equation 10.1</span></div><div class="keyeq-body">$$
+\begin{aligned}
+\alpha&=\frac{\omega_f-\omega_i}{t}
+=\frac{0-40\pi\,\mathrm{rad/s}}{80.0\,\mathrm{s}}
+=-\frac{\pi}{2}\,\mathrm{rad/s^2}\\
+&=-1.57\,\mathrm{rad/s^2}.
+\end{aligned}
+$$</div></div>
+<p>For the angle, use average angular speed. Uniform slowing makes that average the arithmetic mean of the endpoint speeds:</p>
+<div class="keyeq" id="eq-10-2"><div class="keyeq-head"><span>Key equation 10.2</span></div><div class="keyeq-body">$$
+\begin{aligned}
+\Delta\theta&=\frac{\omega_i+\omega_f}{2}t
+=\frac{40\pi+0}{2}(80.0)=1600\pi\,\mathrm{rad},\\
+N&=\frac{\Delta\theta}{2\pi\,\mathrm{rad/rev}}
+=800\text{ revolutions}.
+\end{aligned}
+$$</div></div>
+<p><strong>Check.</strong> The average rotation rate is $10.0\,\mathrm{rev/s}$, so $10.0\times80.0=800$. The acceleration is clockwise, opposite the still-counterclockwise rotation. The wheel's mass and diameter are unnecessary for this kinematics calculation; torque would require additional inertia information.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>açıklama.</strong> $20.0$ değerini doğrudan radyan/saniye sanmıyoruz; önce $2\pi$ ile çarpıyoruz. Negatif açısal ivme, bu örnekte dönmenin yavaşladığını gösterir. Tekerlek duruncaya kadar dönme yönü değişmez. Tur sayısını bulmak için toplam radyanı yeniden $2\pi$'ye böleriz.</p></aside>
+<p><strong>Source:</strong> Young/Freedman, <em>University Physics with Modern Physics</em>, 14th Global Edition, Chapter 9, §9.2 Problems, question 4 (<code>09_testbank.doc</code>). Original givens retained; wording and worked explanation expanded.</p>
+
+<h4>Use rim speed to find angular acceleration</h4>
+<p><strong>Problem.</strong> A $3.45\,\mathrm{kg}$ centrifuge starts from rest and accelerates uniformly for $100\,\mathrm{s}$. At full speed, a point $8.00\,\mathrm{cm}$ from its axis moves at $150\,\mathrm{m/s}$. Find the angular acceleration and the number of revolutions completed during the acceleration.</p>
+<p><strong>Reasoning and algebra.</strong> The given $150\,\mathrm{m/s}$ is a linear speed of one point, not the rotation rate. Convert the radius to metres and apply $v=r\omega$:</p>
+<p>$$
+\begin{aligned}
+r&=8.00\,\mathrm{cm}=0.0800\,\mathrm{m},\\
+\omega_f&=\frac{v_f}{r}
+=\frac{150\,\mathrm{m/s}}{0.0800\,\mathrm{m}}
+=1875\,\mathrm{rad/s}.
+\end{aligned}
+$$</p>
+<p>Since $\omega_i=0$, constant angular acceleration gives</p>
+<div class="keyeq" id="eq-10-3"><div class="keyeq-head"><span>Key equation 10.3</span></div><div class="keyeq-body">$$
+\alpha=\frac{\omega_f-\omega_i}{t}
+=\frac{1875\,\mathrm{rad/s}}{100\,\mathrm{s}}
+=18.8\,\mathrm{rad/s^2}.
+$$</div></div>
+<p>The angular displacement follows from the average angular speed:</p>
+<div class="keyeq" id="eq-10-4"><div class="keyeq-head"><span>Key equation 10.4</span></div><div class="keyeq-body">$$
+\begin{aligned}
+\Delta\theta&=\tfrac12(\omega_i+\omega_f)t
+=\tfrac12(1875)(100)=93750\,\mathrm{rad},\\
+N&=\frac{93750}{2\pi}=14900\,\mathrm{rev}
+\approx1.49\times10^4\text{ revolutions}.
+\end{aligned}
+$$</div></div>
+<p><strong>Interpretation and check.</strong> The final rate is about $298\,\mathrm{rev/s}$, while the average rate during the uniform increase is half that. Multiplying this average by $100\,\mathrm{s}$ reproduces the turn count. The large result is consistent with the unusually high stated rim speed; no extra factor of $100$ should survive the centimetre-to-metre conversion. The mass does not enter these kinematic relations.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>açıklama.</strong> Önce doğrusal hızdan açısal hıza geçiyoruz: aynı $v$ için yarıçap küçüldükçe $\omega$ büyür. $8\,\mathrm{cm}$ yerine $8\,\mathrm{m}$ yazmak sonucu yüz kat değiştirir. Başlangıçta durgun olduğu için ortalama açısal hız, son açısal hızın yarısıdır; toplam turu son hızla çarparak bulamayız.</p></aside>
+<p><strong>Source:</strong> Young/Freedman, <em>University Physics with Modern Physics</em>, 14th Global Edition, Chapter 9, §9.2 Problems, question 5 (<code>09_testbank.doc</code>). Original givens retained; wording and worked explanation expanded.</p>
+
+<h4>The second revolution takes less time</h4>
+<p><strong>Problem.</strong> A $1.25\,\mathrm{kg}$ ball begins rolling from rest with constant angular acceleration. Its first complete revolution takes $3.60\,\mathrm{s}$. Find the time required for its next complete revolution. Measure all elapsed times from the instant the ball is released.</p>
+<p><strong>Reasoning and algebra.</strong> Let $t_1$ be the time at which one revolution is complete and $t_2$ the time at which two revolutions are complete. The requested interval is $t_2-t_1$, not $t_2$. Starting from rest gives</p>
+<p>$$
+\theta=\tfrac12\alpha t^2.
+$$</p>
+<p>At the first milestone, $\theta_1=2\pi\,\mathrm{rad}$. Rearrange to identify the constant acceleration:</p>
+<p>$$
+\alpha=\frac{2\theta_1}{t_1^2}
+=\frac{4\pi}{(3.60)^2}\,\mathrm{rad/s^2}
+=0.970\,\mathrm{rad/s^2}.
+$$</p>
+<p>After two revolutions the total angle is $4\pi\,\mathrm{rad}$. Dividing the two displacement equations avoids unnecessary intermediate rounding:</p>
+<p>$$
+\frac{\theta_2}{\theta_1}
+=\frac{t_2^2}{t_1^2}=2
+\quad\Longrightarrow\quad t_2=\sqrt{2}\,t_1.
+$$</p>
+<p>Therefore</p>
+<p>$$
+\begin{aligned}
+\Delta t_{\text{second}}&=t_2-t_1
+=(\sqrt{2}-1)(3.60\,\mathrm{s})\\
+&=\boxed{1.49\,\mathrm{s}}.
+\end{aligned}
+$$</p>
+<p><strong>Interpretation and check.</strong> Two revolutions have finished at $t_2=5.09\,\mathrm{s}$, so the second occupies the interval from $3.60$ to $5.09\,\mathrm{s}$. It is shorter because the ball is already rotating when that interval begins and continues to speed up. The two intervals cover equal angles, but they do not have equal average angular speeds.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>açıklama.</strong> Zamanın sıfır noktasını ikinci tur başında değiştirmedik. $t_2$, toplam iki turun süresidir; istenen ikinci turun süresi için $t_1$'i çıkardık. Sabit ivmede yolun zamanın karesiyle artması, eşit yolların giderek daha kısa sürede alınmasını açıklar.</p></aside>
+<p><strong>Source:</strong> Young/Freedman, <em>University Physics with Modern Physics</em>, 14th Global Edition, Chapter 9, §9.2 Problems, question 11 (<code>09_testbank.doc</code>). Original givens retained; wording and worked explanation expanded.</p>
+
+<h4>Moving a rotation axis changes the moment of inertia</h4>
+<p><strong>Problem.</strong> A slender, uniform $100\,\mathrm{cm}$ rod serves as a metre stick. Compare two parallel axes perpendicular to the rod: one passes through the $50\,\mathrm{cm}$ mark and the other through the $30\,\mathrm{cm}$ mark. Find $I_{30}/I_{50}$, the ratio of their moments of inertia.</p>
+<p><strong>Reasoning and algebra.</strong> Picture the rod lying horizontally, with both rotation axes pointing perpendicular to the page. The first axis passes through the centre of mass. The distance separating the axes is</p>
+<p>$$
+d=50\,\mathrm{cm}-30\,\mathrm{cm}=20\,\mathrm{cm}=0.200\,\mathrm{m}.
+$$</p>
+<p>For a uniform slender rod, its central moment of inertia is $I_{50}=ML^2/12$. The parallel-axis theorem supplies the shifted value:</p>
+<p>$$
+I_{30}=I_{50}+Md^2.
+$$</p>
+<p>Form the requested ratio before inserting a mass. The common mass cancels:</p>
+<p>$$
+\begin{aligned}
+\frac{I_{30}}{I_{50}}
+&=\frac{ML^2/12+Md^2}{ML^2/12}\\
+&=1+\frac{Md^2}{ML^2/12}
+=1+\frac{12d^2}{L^2}\\
+&=1+\frac{12(0.200\,\mathrm{m})^2}{(1.00\,\mathrm{m})^2}
+=\boxed{1.48}.
+\end{aligned}
+$$</p>
+<p><strong>Interpretation and check.</strong> The shifted-axis inertia is $48\%$ larger, approximately $1.5$ times the central value. This must exceed one because $Md^2$ is positive. If the second axis moved back to the centre, $d$ would become zero and the ratio would become one. No numerical mass is needed for a ratio involving the same rod.</p>
+<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>açıklama.</strong> $d$, eksenin cetvel üzerindeki $30\,\mathrm{cm}$ konumu değildir; iki eksen arasındaki $20\,\mathrm{cm}$ uzaklıktır. Pay ve paydada bulunan kütleyi sadeleştiriyoruz. Kare alma işlemi hem uzaklığa hem birime uygulanır; bu nedenle son oran birimsizdir.</p></aside>
+<p><strong>Source:</strong> Young/Freedman, <em>University Physics with Modern Physics</em>, 14th Global Edition, Chapter 9, §9.2 Problems, question 13 (<code>09_testbank.doc</code>). Original givens retained; wording and worked explanation expanded.</p>
+
+<h2 id="exit-check"><span class="num">10.4</span>Exit check<em lang="tr">Çıkış kontrolü</em></h2>
+<p>Convert RPM to rad/s and explain how moving mass away from the axis changes I.</p>
+<p>Write one sentence naming the physical principle and one line of algebra you can now explain. <strong>TR:</strong> Sonuca nasıl ulaştığını bir cümleyle anlat; emin olmadığın ilk adımı işaretle.</p>
+<details>
+<summary>Model responses / Örnek yanıtlar — open after trying</summary>
+<p><strong>Entry:</strong> At constant angular acceleration, $\omega=\omega_0+\alpha t$ and $\Delta\theta=\omega_0t+\alpha t^2/2$ have the same algebraic form as the linear motion equations.</p>
+<p><strong>Exit:</strong> Multiply RPM by $2\pi/60$ to obtain rad/s; the 120 RPM example gives $4\pi$ rad/s. In $I=\sum mr^2$, moving every mass to twice its axis distance multiplies every contribution by four, so it multiplies $I$ by four.</p>
+<p><strong>Visual prediction:</strong> At equal $M,R$, a ring has $MR^2$ and a disk has $MR^2/2$: the ring's inertia is twice the disk's. A rod has $ML^2/12$ about its centre or $ML^2/3$ about its end. Its length and chosen axis are needed before comparing it to the ring.</p>
+</details>
+
+<h2 id="solutions-and-next-week"><span class="num">10.5</span>Solutions and next week<em lang="tr">Çözümler ve gelecek hafta</em></h2>
+<p>Complete worked solutions (all subparts, with optional Python) are released on the course page: Module 05 (Circular motion): <code>Week_05_Python_Solutions.ipynb</code>, opens 18 December 2026; Module 09 (Rotation): <code>Week_09_Python_Solutions.ipynb</code>, opens 8 December 2026. Until then, use the <strong>Answer</strong> blocks above to check yourself.</p>
+<p><strong>Next week:</strong> Week 11 — Dynamics of rotational motion / Dönme hareketi dinamiği (30 November 2026 – 4 December 2026).</p>
+<p><a href="https://arifsolmaz.github.io/courses/fall/phy101/web/PHY101_Course_Dashboard.html">Course page / Ders sayfası</a></p>
+<section class="summary"><h2 id="key-equations"><span class="num">∑</span>Key equations of this week</h2><p>Every equation the notebook boxed, in the order it appeared. If you can say what each symbol is and when the equation does <em>not</em> apply, you are ready for the problem set.</p><aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Bu haftanın çerçeveli denklemleri. Her sembolün ne olduğunu ve denklemin ne zaman geçerli <em>olmadığını</em> söyleyebiliyorsan problem setine hazırsın.</p></aside><div class="summary-grid"><div class="summary-item"><span class="tag">Equation 10.1</span>$$
+\begin{aligned}
+\alpha&=\frac{\omega_f-\omega_i}{t}
+=\frac{0-40\pi\,\mathrm{rad/s}}{80.0\,\mathrm{s}}
+=-\frac{\pi}{2}\,\mathrm{rad/s^2}\\
+&=-1.57\,\mathrm{rad/s^2}.
+\end{aligned}
+$$</div><div class="summary-item"><span class="tag">Equation 10.2</span>$$
+\begin{aligned}
+\Delta\theta&=\frac{\omega_i+\omega_f}{2}t
+=\frac{40\pi+0}{2}(80.0)=1600\pi\,\mathrm{rad},\\
+N&=\frac{\Delta\theta}{2\pi\,\mathrm{rad/rev}}
+=800\text{ revolutions}.
+\end{aligned}
+$$</div><div class="summary-item"><span class="tag">Equation 10.3</span>$$
+\alpha=\frac{\omega_f-\omega_i}{t}
+=\frac{1875\,\mathrm{rad/s}}{100\,\mathrm{s}}
+=18.8\,\mathrm{rad/s^2}.
+$$</div><div class="summary-item"><span class="tag">Equation 10.4</span>$$
+\begin{aligned}
+\Delta\theta&=\tfrac12(\omega_i+\omega_f)t
+=\tfrac12(1875)(100)=93750\,\mathrm{rad},\\
+N&=\frac{93750}{2\pi}=14900\,\mathrm{rev}
+\approx1.49\times10^4\text{ revolutions}.
+\end{aligned}
+$$</div></div></section>
+<h2 id="problem-set"><span class="num">10.P</span>Problem set</h2>
+<div class="callout grey">
+  <p>The problem set for this week &mdash; core (L1), intermediate (L2) and challenge (L3) &mdash; is in
+  the notebook, not on this page. Each problem shows its <strong>answer</strong> so you can check
+  yourself; the full worked solution opens on the date printed under it.</p>
+  <p><strong>Write your own attempt first:</strong> symbolic answer, one limiting-case check, then
+  numbers. Opening the answer first turns a problem into a worked example, and worked examples do not
+  build the skill the exam tests.</p>
+  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Problem seti bu sayfada
+  de&#287;il, not defterinde. &Ouml;nce kendi denemeni yaz &mdash; sembolik sonu&ccedil;,
+  s&#305;n&#305;r kontrol&uuml;, sonra say&#305;lar.</p></aside>
+  <div class="btn-row">
+    <a class="btn" href="https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/phy101/notebooks/Week_10.ipynb">Problem set in Colab</a>
+  </div>
+</div>
+<nav class="week-nav">
+  <a href="../w9/">&larr; Week 09</a>
+  <button class="done-btn" type="button" data-done="w10" aria-pressed="false">mark this week done</button>
+  <a href="../w11/">Week 11 &rarr;</a>
+</nav>
+</article>
+</main>
+<footer class="site-footer">
+  <span>PHY101 · Physics I &middot; Dr. Arif Solmaz &middot; &#304;ST&#220;N</span>
+  <span><a href="../web/PHY101_Course_Dashboard.html">Dashboard</a> &middot;
+        <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+</footer>
+</body>
+</html>

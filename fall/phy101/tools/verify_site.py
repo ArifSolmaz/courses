@@ -36,6 +36,11 @@ def check(ok, message):
     return ok
 
 
+# W06 is a review session and W07 is the midterm: neither introduces a new
+# equation, so neither is expected to produce a key-equation rail.
+TEACHING_EXEMPT = {6, 7}
+
+
 def main():
     calendar = json.loads((ROOT / "calendar.json").read_text(encoding="utf-8"))
     pages = sorted(ROOT.glob("w*/index.html"))
@@ -65,10 +70,24 @@ def main():
               f"{rel}: {len(meta['sections'])} sections - the heading hierarchy has flattened again")
         n_fig = len(re.findall(r'<figure class="figure"', html_text))
         check(n_fig == meta["figures"], f"{rel}: figure count disagrees with the build")
-        for label in ("Key equation", "Worked example", "Figure"):
-            if label == "Figure" and not n_fig:
+        # Furniture the build produced must actually reach the page. Weeks that
+        # legitimately carry none (W06 review, W07 midterm) are not failures; a
+        # component that was built and then silently vanished is.
+        for label, n in (("Key equation", len(meta["equations"])),
+                         ("Worked example", meta["examples"]),
+                         ("Figure", n_fig)):
+            if not n:
                 continue
-            check(label in html_text, f"{rel}: no {label!r} furniture on the page")
+            check(label in html_text,
+                  f"{rel}: {n} {label!r} built but none rendered on the page")
+
+        # Every teaching week must end up with at least one key equation. This is
+        # what boxing the central equations in the notebooks bought; without the
+        # check a future edit could quietly empty a week's summary card again.
+        if week not in TEACHING_EXEMPT:
+            check(meta["equations"],
+                  f"{rel}: no key equations - box the week's central equation with "
+                  f"\\boxed{{}} in the notebook")
 
         # 1c. margin notes must not repeat the label the aside already carries
         dupes = re.findall(r'<span class="mn-label"[^>]*>T[^<]*</span>\s*<p>\s*'

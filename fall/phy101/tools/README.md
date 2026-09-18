@@ -145,8 +145,39 @@ Two editorial rules follow from that table:
    answers are left alone — the builder ignores `\boxed` there, and a numeric-looking box anywhere else
    is filtered by `looks_like_an_answer()`. Otherwise "Q = 0.283 m³/s" gets advertised as a law.
 
+### Figures: never approve one you have not looked at large
+
 Figures come from `tools/figures.py`, are numbered per week, anchored to a heading substring, and carry
-their Turkish caption as a margin note. A figure whose anchor stops matching fails the build rather than
+their Turkish caption as a margin note.
+
+```bash
+python3 fall/phy101/tools/figcheck.py     # lint + write the proof sheets
+# then LOOK at tools/figproof-light.html and figproof-dark.html
+```
+
+`figcheck.py` writes `figproof-light.html`, `figproof-dark.html` and `figproof-grid.html` (the last with
+a 20-unit coordinate grid for checking alignment). Every figure appears there far larger than on a week
+page. **This exists because a figure judged inside a full-page screenshot is about 480 px wide, and at
+that size real faults are invisible.** The first version of this library shipped with black arrowheads,
+a "tangent" that was a chord, a dot that missed its curve, and a 3-4-5 triangle drawn at different
+scales on the two axes — all of which looked fine small.
+
+The linter catches the mechanical faults:
+
+- `fill="context-stroke"` — in the SVG spec, ignored by Chromium, renders the arrowhead **black**. Use
+  one marker per colour (`#pfx-accent`, `#pfx-blue`, …) with the `.fig-head-*` classes.
+- `marker-end` pointing at an undefined id, duplicate element ids across figures (the proof sheet shows
+  them all at once), coordinates outside the viewBox, missing `aria-labelledby`.
+
+The faults it cannot catch, which you have to look for:
+
+- a label overlapping a line it does not belong to, or crossing an axis;
+- an angle arc whose ends do not sit exactly on the two lines — it then reads as a tick through them;
+- a tangent that is really a secant, or a marker dot that is not on its curve (compute these, do not
+  eyeball them: the Bézier point and tangent direction for Figure 2.1 are worked out in a comment);
+- a tip dot under an arrowhead, or two arrowheads meeting at one point;
+- non-uniform axis scales where a length is the whole point;
+- mostly-empty drawings — tighten the viewBox rather than leaving a field of white. A figure whose anchor stops matching fails the build rather than
 silently disappearing. Every colour in them is a CSS custom property, so they follow the theme with no
 second drawing.
 
@@ -189,3 +220,24 @@ demonstration panels; the runner reports them as `paper-only` or runs them witho
 Dependencies: `nbformat`, `nbclient`, `ipykernel`, `numpy`, `matplotlib`, `scipy`, `sympy`,
 `ipywidgets`. Also open a notebook in Jupyter or Colab and move a few sliders: execution alone does
 not show whether controls, figures and readouts fit together on screen.
+
+### Checking a figure by measurement, not by eye
+
+Looking at the proof sheet catches most faults, but the eye is unreliable about
+two things in particular, and both have already produced wrong figures here:
+
+* **Does a shape actually sit where it should?** Figure 4.1's block *looked* as
+  though it floated off the slope. Probing the rendered DOM
+  (`svg.getScreenCTM().inverse().multiply(rect.getScreenCTM())`, then mapping the
+  rect's corners into user space) showed the bottom edge at a clearance of
+  exactly 0.00 along its whole length. The eye was wrong; measure before
+  redrawing.
+* **Does a label overflow or land on a curve?** `text.getBBox()` compared with
+  the viewBox catches overflow; substituting the label's x-range into the curve's
+  own equation catches collisions. Figure 8.2's note and Figure 13.1's three
+  annotations were both printed straight over their curves and neither the lint
+  nor a quick glance flagged them.
+
+**Direction is physics, not decoration.** Figure 11.1 shipped a first draft with
+the wheel rolling right and ω drawn counter-clockwise. A rotation arrow must be
+checked against every velocity arrow in the same figure.
