@@ -55,7 +55,9 @@
     var sGap = U.stat(m.stats, "difference in height", "—");
 
     sc.onDraw(function (s) {
-      var t = Math.min(pl.t(), T);
+      /* T changes with the drop-height slider but the Player duration cannot,
+         so drive the fall from the scrub fraction rather than from raw time. */
+      var t = (pl.t() / pl.duration) * T;
       var y = h0 - 0.5 * G * t * t;
       var x = v0 * t;
       var xmax = Math.max(v0 * T * 1.3, 10);

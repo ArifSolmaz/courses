@@ -59,13 +59,16 @@
       var dim = s.col("--dim", "#888");
 
       var om = Math.sqrt(k / mass), T = 2 * Math.PI / om;
-      var t = pl.t();
+      /* The period depends on the k and m sliders, but a Player's duration is
+         fixed when it is built. Map the scrub fraction onto the window the plots
+         actually show, so the cursor and the readouts can never disagree. */
+      var tspan = 2 * T;
+      var t = (pl.t() / pl.duration) * tspan;
       var x = A * Math.cos(om * t);
       var v = -A * om * Math.sin(om * t);
       var acc = -om * om * x;
 
       var vmax = A * om, amax = A * om * om;
-      var tspan = Math.max(2 * T, 1);
 
       /* ---- left: the three curves, stacked and sharing one time axis ---- */
       var LW = s.w * 0.60;
@@ -89,8 +92,8 @@
           pts.push([tt, row.f(tt)]);
         }
         P.line(pts, { color: row.col, width: 2.2 });
-        P.vline(Math.min(t, tspan), { color: dim });
-        P.dot(Math.min(t, tspan), row.f(Math.min(t, tspan)), { color: row.col, r: 5 });
+        P.vline(t, { color: dim });
+        P.dot(t, row.f(t), { color: row.col, r: 5 });
       });
 
       /* ---- right: phase space, where the whole motion is one closed loop ---- */
@@ -171,7 +174,8 @@
       var dim = s.col("--dim", "#888");
 
       var om = Math.sqrt(k / mass), T = 2 * Math.PI / om;
-      var t = pl.t();
+      var tspan = 2 * T;                          // same mapping as w13-shm
+      var t = (pl.t() / pl.duration) * tspan;
       var x = A * Math.cos(om * t);
       var E = 0.5 * k * A * A;
       var Upot = 0.5 * k * x * x;
@@ -201,11 +205,10 @@
       P.vline(x, { color: accent });
       P.dot(x, Upot, { color: blue, r: 5 });
       P.dot(x, K, { color: green, r: 5 });
-      P.text(A * 0.72, 0.5 * k * A * A * 0.72 * 0.72, "U", { color: blue, align: "left", dy: -4 });
-      P.text(0, E, "K", { color: green, align: "center", dy: 14 });
+      P.text(-A * 0.80, 0.5 * k * A * A * 0.80 * 0.80, "U", { color: blue, align: "right", dx: -4, dy: 4 });
+      P.text(0, E, "K", { color: green, align: "center", dy: -6 });
 
       /* ---- right: the same two against time — twice the frequency ---- */
-      var tspan = Math.max(2 * T, 1);
       var Q = s.plot({
         x: LW, w: s.w - LW, h: s.h, xlim: [0, tspan], ylim: [0, E * 1.25],
         pad: { l: 50, r: 14, t: 18, b: 34 },
@@ -224,14 +227,14 @@
         xt.push([tt, E * 0.5 + E * 0.42 * Math.cos(om * tt)]);
       }
       Q.line(xt, { color: dim, width: 1.2, dash: [4, 3] });
-      Q.text(tspan * 0.99, E * 0.5 + E * 0.42, "x, for comparison",
-             { color: dim, align: "right", dy: -4 });
+      Q.text(tspan * 0.5, E * 0.5, "x, for comparison",
+             { color: dim, align: "center", dy: 4 });
       Q.line(ku, { color: blue, width: 2.2 });
       Q.line(kk, { color: green, width: 2.2 });
       Q.line([[0, E], [tspan, E]], { color: dim, width: 1.3, dash: [5, 4] });
-      Q.vline(Math.min(t, tspan), { color: accent });
-      Q.dot(Math.min(t, tspan), Upot, { color: blue, r: 5 });
-      Q.dot(Math.min(t, tspan), K, { color: green, r: 5 });
+      Q.vline(t, { color: accent });
+      Q.dot(t, Upot, { color: blue, r: 5 });
+      Q.dot(t, K, { color: green, r: 5 });
 
       sE.set(fmt(E, 2) + " J");
       sK.set(fmt(K, 2) + " J");
