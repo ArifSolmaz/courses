@@ -2782,6 +2782,48 @@ function drawArrow(ctx, x1, y1, x2, y2, color, width = 1.5, head = 6) {
   ctx.closePath(); ctx.fill();
 }
 
+
+/* Canvas text with real subscripts, superscripts and hats — the stage fonts have
+   no subscript glyphs, and combining accents do not sit on the letter.
+   Markup: a_0 or a_{in} (subscript), n^2 (superscript), ~x or ~{x} (hat).
+   Uses the current ctx.font and fillStyle; `align` is left | center | right. */
+function mathText(ctx, text, x, y, align = 'left') {
+  const m = /^(.*?)(\d+(?:\.\d+)?)px\s+(.+)$/.exec(ctx.font);
+  const prefix = m ? m[1] : '', size = m ? parseFloat(m[2]) : 11, family = m ? m[3] : 'monospace';
+  // Sub/superscripts use Plex Sans: the mono face's dotted zero reads as θ at 8 px.
+  const normal = `${prefix}${size}px ${family}`, small = `${prefix}${Math.round(size * 0.74)}px "IBM Plex Sans", system-ui, sans-serif`;
+  const parts = [];
+  for (let i = 0; i < text.length;) {
+    const c = text[i];
+    if ((c === '_' || c === '^' || c === '~') && i + 1 < text.length) {
+      let body;
+      if (text[i + 1] === '{') { const j = text.indexOf('}', i + 2); body = text.slice(i + 2, j < 0 ? text.length : j); i = j < 0 ? text.length : j + 1; }
+      else { body = text[i + 1]; i += 2; }
+      parts.push({ t: body, k: c });
+    } else { parts.push({ t: c, k: '' }); i++; }
+  }
+  const widths = parts.map((q) => { const sub = q.k === '_' || q.k === '^'; ctx.font = sub ? small : normal; return ctx.measureText(q.t).width + (sub ? size * 0.16 : 0); });
+  const total = widths.reduce((a, b) => a + b, 0);
+  let cx = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x;
+  const prevAlign = ctx.textAlign; ctx.textAlign = 'left';
+  parts.forEach((q, i) => {
+    if (q.k === '_') { ctx.font = small; ctx.fillText(q.t, cx + size * 0.08, y + size * 0.3); }
+    else if (q.k === '^') { ctx.font = small; ctx.fillText(q.t, cx + size * 0.08, y - size * 0.42); }
+    else {
+      ctx.font = normal; ctx.fillText(q.t, cx, y);
+      if (q.k === '~') {
+        const w = widths[i], top = y - size * 0.78;
+        ctx.save(); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = Math.max(1, size / 11);
+        ctx.beginPath(); ctx.moveTo(cx + w * 0.18, top + size * 0.16); ctx.lineTo(cx + w * 0.5, top); ctx.lineTo(cx + w * 0.82, top + size * 0.16); ctx.stroke();
+        ctx.restore();
+      }
+    }
+    cx += widths[i];
+  });
+  ctx.font = normal; ctx.textAlign = prevAlign;
+  return total;
+}
+
 /* One requestAnimationFrame loop for all simulations: only the visible tab runs,
    and nothing runs while the labs section is off-screen. */
 const Sims = (() => {
@@ -3042,7 +3084,7 @@ const Sims = (() => {
     [x1, y1] = P(0, -B0 - 12, 0); [x2, y2] = P(0, B0 + 16, 0);
     drawArrow(ctx, x1, y1, x2, y2, '#5b6a8a', 1, 7);
     ctx.fillStyle = '#8f9cb8'; ctx.font = '12px "IBM Plex Mono", monospace';
-    ctx.fillText('z  (propagation, k)', ax - 150, ay + 38);
+    mathText(ctx, 'z  (propagation, k)', ax - 150, ay + 38);
     ctx.fillText('x  (E)', x2 - 60, P(E0 + 14, 0, 0)[1] - 8);
     ctx.fillText('y  (B)', x2 + 6, y2 + 4);
 
@@ -3080,9 +3122,9 @@ const Sims = (() => {
 
     // Legend
     ctx.font = '12px "IBM Plex Mono", monospace';
-    ctx.fillStyle = '#22d3ee'; ctx.fillText('E = E₀ x̂ cos(kz − ωt)', 16, 22);
-    ctx.fillStyle = '#fbbf24'; ctx.fillText('B = (E₀/v) ŷ cos(kz − ωt)', 16, 40);
-    ctx.fillStyle = '#34d399'; ctx.fillText('S = E×B/μ₀  ∥ +z', 16, 58);
+    ctx.fillStyle = '#22d3ee'; mathText(ctx, 'E = E_0 ~x cos(kz − ωt)', 16, 22);
+    ctx.fillStyle = '#fbbf24'; mathText(ctx, 'B = (E_0/v) ~y cos(kz − ωt)', 16, 40);
+    ctx.fillStyle = '#34d399'; mathText(ctx, 'S = E×B/μ_0  ∥ +z', 16, 58);
     ctx.fillStyle = '#8f9cb8'; ctx.textAlign = 'right';
     ctx.fillText(`λ = ${(lam0 / n).toFixed(0)} nm   v = c/${n.toFixed(2)}`, W - 14, H - 12); ctx.textAlign = 'left';
   }
@@ -3184,8 +3226,8 @@ function niceStep(max, target = 4) {
     ctx.fillText('1', X(s1.V) - 12, Y(s1.P) - 4); ctx.fillText('2', X(s2.V) + 6, Y(s2.P) - 6);
     ctx.fillText('3', X(s3.V) + 4, Y(s3.P) + 14); ctx.fillText('4', X(s4.V) - 12, Y(s4.P) + 12);
     ctx.font = '11px "IBM Plex Mono", monospace';
-    ctx.fillStyle = '#fb7185'; ctx.fillText(`T_H = ${cyc.Th} K`, X(s2.V) + 8, Y(s2.P) + 10);
-    ctx.fillStyle = '#38bdf8'; ctx.fillText(`T_C = ${cyc.Tc} K`, X(s3.V) - 96, Y(s3.P) - 12);
+    ctx.fillStyle = '#fb7185'; mathText(ctx, `T_H = ${cyc.Th} K`, X(s2.V) + 8, Y(s2.P) + 10);
+    ctx.fillStyle = '#38bdf8'; mathText(ctx, `T_C = ${cyc.Tc} K`, X(s3.V) - 96, Y(s3.P) - 12);
     ctx.beginPath(); ctx.arc(X(s.V), Y(s.P), 5.5, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
 
     // ---- TS diagram ----
@@ -3207,9 +3249,9 @@ function niceStep(max, target = 4) {
     ctx.strokeStyle = '#e9eef8'; ctx.lineWidth = 1.5; ctx.strokeRect(xa, TY(cyc.Th), xb - xa, TY(cyc.Tc) - TY(cyc.Th));
     ctx.fillStyle = '#e9eef8'; ctx.font = '600 11px "IBM Plex Sans", sans-serif';
     ctx.fillText('W', (xa + xb) / 2 - 5, (TY(cyc.Th) + TY(cyc.Tc)) / 2 + 4);
-    ctx.fillStyle = '#8fbfe0'; ctx.fillText('Q_out', (xa + xb) / 2 - 16, (TY(cyc.Tc) + TY(0)) / 2 + 4);
+    ctx.fillStyle = '#8fbfe0'; mathText(ctx, 'Q_{out}', (xa + xb) / 2, (TY(cyc.Tc) + TY(0)) / 2 + 4, 'center');
     ctx.font = '11px "IBM Plex Mono", monospace'; ctx.fillStyle = '#8f9cb8';
-    ctx.fillText(`η = W / Q_in = ${(cyc.eta * 100).toFixed(1)} %`, tx + 4, ty + th + 28);
+    mathText(ctx, `η = W / Q_{in} = ${(cyc.eta * 100).toFixed(1)} %`, tx + 4, ty + th + 28);
     const sPt = [SX(S0 + s.S), TY(s.T)];
     ctx.beginPath(); ctx.arc(sPt[0], sPt[1], 4.5, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
 
@@ -3235,9 +3277,9 @@ function niceStep(max, target = 4) {
     const plateY = cyT + chH + 18;
     const plate = phase === 0 ? ['#fb7185', `Hot reservoir  T_H = ${cyc.Th} K`] : phase === 2 ? ['#38bdf8', `Cold sink  T_C = ${cyc.Tc} K`] : ['#5b6a8a', 'Insulated (adiabatic stroke)'];
     ctx.fillStyle = plate[0]; ctx.globalAlpha = 0.85; ctx.fillRect(cxL, plateY, cw, 10); ctx.globalAlpha = 1;
-    ctx.fillStyle = '#c3cde0'; ctx.fillText(plate[1], cxL, plateY + 26);
-    if (phase === 0) { for (let i = 0; i < 4; i++) drawArrow(ctx, cxL + 30 + i * 50, plateY - 2, cxL + 30 + i * 50, cyT + chH + 2, '#fb7185', 2, 6); ctx.fillStyle = '#fb7185'; ctx.fillText('Q_in', cxL + cw - 34, plateY - 6); }
-    if (phase === 2) { for (let i = 0; i < 4; i++) drawArrow(ctx, cxL + 30 + i * 50, cyT + chH + 2, cxL + 30 + i * 50, plateY - 2, '#38bdf8', 2, 6); ctx.fillStyle = '#38bdf8'; ctx.fillText('Q_out', cxL + cw - 40, plateY - 6); }
+    ctx.fillStyle = '#c3cde0'; mathText(ctx, plate[1], cxL, plateY + 26);
+    if (phase === 0) { for (let i = 0; i < 4; i++) drawArrow(ctx, cxL + 30 + i * 50, plateY - 2, cxL + 30 + i * 50, cyT + chH + 2, '#fb7185', 2, 6); ctx.fillStyle = '#fb7185'; mathText(ctx, 'Q_{in}', cxL + cw - 34, plateY - 6); }
+    if (phase === 2) { for (let i = 0; i < 4; i++) drawArrow(ctx, cxL + 30 + i * 50, cyT + chH + 2, cxL + 30 + i * 50, plateY - 2, '#38bdf8', 2, 6); ctx.fillStyle = '#38bdf8'; mathText(ctx, 'Q_{out}', cxL + cw - 40, plateY - 6); }
     ctx.fillStyle = '#8f9cb8'; ctx.font = '11px "IBM Plex Mono", monospace';
     ctx.fillText('1 mol ideal gas, γ = 5/3', cxL, cyT - 10);
   }
@@ -3351,8 +3393,8 @@ function wavelengthToRGB(l) {
       if (k >= 2) ctx.fillText(`n=${k}`, ax + radius(k) * 0.71 + 3, ay - radius(k) * 0.71 - 3);
     }
     ctx.beginPath(); ctx.arc(ax, ay, 3.5, 0, Math.PI * 2); ctx.fillStyle = '#fbbf24'; ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
-    ctx.fillStyle = '#8f9cb8'; ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillText('p⁺', ax + 6, ay + 12);
-    ctx.fillText('r_n = n² a₀  (to scale)', 16, 22);
+    ctx.fillStyle = '#8f9cb8'; ctx.font = '10px "IBM Plex Mono", monospace'; mathText(ctx, 'p^+', ax + 6, ay + 12);
+    mathText(ctx, 'r_n = n^2 a_0  (to scale)', 16, 22);
 
     // ---- Electron (with animated transition) ----
     if (anim) {
@@ -3411,7 +3453,7 @@ function wavelengthToRGB(l) {
     ctx.textAlign = 'left';
     ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(ladder.x0, LY(0)); ctx.lineTo(ladder.x1, LY(0)); ctx.strokeStyle = '#8f9cb8'; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = '#8f9cb8'; ctx.fillText('n=∞  0 eV (ionized)', ladder.x1 + 6, LY(0) + 4);
-    ctx.fillText('E_n = −13.6 eV / n²', ladder.x0, ladder.yTop - 16);
+    mathText(ctx, 'E_n = −13.6 eV / n^2', ladder.x0, ladder.yTop - 16);
     if (current) {
       const yi = LY(En(current.ni)), yf = LY(En(current.nf)), xL = (ladder.x0 + ladder.x1) / 2;
       drawArrow(ctx, xL, yi, xL, yf + (yf > yi ? -2 : 2), current.color, 2.2, 7);
