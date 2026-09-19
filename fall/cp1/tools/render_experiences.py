@@ -1,6 +1,8 @@
 """Render the authored engineering experiences alongside the notebook index."""
 from pathlib import Path
 import html
+import json
+import re
 import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,10 +20,54 @@ def shell(title, body, week=0):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="CP1 engineering experiences for mechatronics: predict, investigate, test and explain, with companion Python notebooks.">
 <title>{esc(title)} · CP1 Engineering Experiences</title>
-<link rel="stylesheet" href="cp1-experiences.css?v=2"><script src="cp1-experiences.js?v=2" defer></script><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><script src="../../../assets/learning-path.js?v=1" defer></script></head>
+<link rel="stylesheet" href="cp1-experiences.css?v=3"><script src="cp1-experiences.js?v=2" defer></script><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><script src="../../../assets/learning-path.js?v=1" defer></script></head>
 <body data-week="{week}"><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="brand" href="CP1_Course_Dashboard.html">CP1 <span>/ ENGINEERING EXPERIENCES</span></a><nav aria-label="Course"><a href="CP1_Course_Dashboard.html#week-{week or 1}">Course home</a><details class="path-menu"><summary>Resources</summary><div><a href="CP1_Syllabus.html">Syllabus</a><a href="../STUDY_GUIDE.md">Study advice</a></div></details><button type="button" id="theme-toggle" hidden>Dark theme</button></nav></header>
 {body}<footer><p>Computer Programming I · Mechatronics Engineering · Dr. Arif Solmaz</p><p>Predict → investigate → test → explain. <span lang="tr">Önce düşün, dene, kanıtla ve açıkla.</span></p><a href="CP1_Course_Dashboard.html">Course home</a></footer></body></html>'''
+
+def introduction_markdown(lesson):
+    intro = lesson['intro']
+    return (f"## {lesson['title']}\n\n"
+            f"{intro['connection']}\n\n{lesson['brief']}\n\n"
+            f"**Try this first — before code.** {intro['first_task']}\n\n"
+            f"**Why this week's tool?** {intro['why_tool']}\n\n"
+            f"**By the end.** {intro['success']}\n")
+
+
+def sync_introductions(write):
+    """Keep the notebook opening identical in meaning to its HTML introduction."""
+    for lesson in LESSONS:
+        path = ROOT / 'notebooks' / f"Week_{lesson['week']:02d}.ipynb"
+        nb = json.loads(path.read_text())
+        candidates = [c for c in nb['cells'] if c.get('metadata', {}).get('cp1', {}).get('weekly_intro')
+                      or '## 🎯 Core Mastery Connection' in ''.join(c['source'])]
+        if len(candidates) != 1:
+            raise ValueError(f"Expected one introduction in {path.name}")
+        intro_cell = candidates[0]
+        intro_cell['source'] = introduction_markdown(lesson).splitlines(keepends=True)
+        intro_cell.setdefault('metadata', {}).setdefault('cp1', {})['weekly_intro'] = True
+        nb['cells'].remove(intro_cell)
+        nb['cells'].insert(1, intro_cell)
+        title = ''.join(nb['cells'][0]['source'])
+        title = '\n'.join(line for line in title.splitlines() if 'Core Mastery:' not in line)
+        phase = 1 if lesson['week'] <= 5 else 2 if lesson['week'] <= 9 else 3
+        title = re.sub(r'— PHASE[^\n]*', f"— PHASE {phase}: {lesson['strand']}", title)
+        nb['cells'][0]['source'] = title.rstrip().splitlines(keepends=True)
+        # Preserve teaching/assessment details while reducing the opening's visual load.
+        for cell in nb['cells'][2:]:
+            if cell['cell_type'] != 'markdown':
+                continue
+            text = ''.join(cell['source'])
+            if '<details>' in text:
+                continue
+            label = ('Learning objectives' if 'Learning Objectives' in text else
+                     'Class participation and assessment' if 'Mechatronics Learning Contract' in text else
+                     'Class schedule and checkpoints' if 'Roadmap' in text else None)
+            if label:
+                cell['source'] = (f'<details><summary>{label}</summary>\n\n'
+                                  + text.strip() + '\n\n</details>\n').splitlines(keepends=True)
+        write(path, json.dumps(nb, ensure_ascii=False, indent=1) + '\n')
+
 
 def simulator(week):
     if week == 1:
@@ -53,8 +99,8 @@ def render_lesson(lesson, notebook):
     body = f'''<main id="main">
 {weeknav}
 <div class="lesson-layout">
-<div class="lesson-content"><section class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p><p class="topic">Python tools: {esc(notebook['title'])}</p></section>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="experiment" aria-controls="experiment">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><section id="brief" class="section"><p class="eyebrow">01 / The situation</p><h2>{esc(lesson['question'])}</h2><p class="lead">{esc(lesson['brief'])}</p><div class="mission"><span class="tag">Your handover</span><p>{esc(lesson['evidence'])}</p></div><p class="note">Start on paper. Work alone or in a pair: one person predicts, the other challenges the assumptions; swap roles halfway through. All essential data is provided. No hardware or AI account is required.</p></section>
+<div class="lesson-content"><section class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p></section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="experiment" aria-controls="experiment">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><section id="brief" class="section weekly-opening"><p class="connection">{esc(lesson['intro']['connection'])}</p><p class="lead">{esc(lesson['brief'])}</p><div class="first-task"><p class="eyebrow">Start here · before code</p><h2>Try this first.</h2><p>{esc(lesson['intro']['first_task'])}</p></div><h3>Why this week's tool?</h3><p>{esc(lesson['intro']['why_tool'])}</p><p class="opening-outcome"><strong>By the end:</strong> {esc(lesson['intro']['success'])}</p></section>
 <section id="model" class="section"><p class="eyebrow">02 / Build a model</p><h2>Understand what the code represents.</h2><div class="concepts">{concepts}</div><details class="code-model"><summary>Inspect the small Python model</summary><p>Read and predict first. Run this self-contained example in a new notebook cell; use the result as evidence to discuss.</p><pre><code>{esc(lesson['model'])}</code></pre><h3>Reference output</h3><pre><samp>{esc(lesson['output'])}</samp></pre>{caveat}</details></section>
 <button class="path-next" type="button" data-step-target="experiment" hidden>Next: investigate →</button></section><section id="experiment" data-step><section id="bench" class="section"><p class="eyebrow">03 / Predict & inspect</p><h2>Try to break your first explanation.</h2><p>These are prepared teaching cases, not live sensor readings or an automatic grade. Write a prediction before opening a case, then reveal the reasoning one step at a time. Explain any disagreement.</p><label for="prediction">My prediction, with a reason</label><textarea id="prediction" data-note rows="3" placeholder="For case … I expect … because …"></textarea>{cases}{simulator(n)}</section>
 <section id="investigate" class="section"><p class="eyebrow">04 / Investigate</p><h2>One question. Several kinds of evidence.</h2><ol class="investigation">{investigate}</ol><div class="mission"><span class="tag">Keep the evidence</span><p>{esc(lesson['evidence'])}</p></div><label for="observations">Observed results and counterexamples</label><textarea id="observations" data-note rows="4" placeholder="Input → predicted result → observed result. What changed my explanation?"></textarea></section>

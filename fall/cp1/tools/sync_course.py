@@ -105,8 +105,8 @@ def panel(week):
     return f'''<section class="week-panel{' active' if n == 1 else ''}" id="week-{n}" aria-labelledby="heading-{n}">
 <p class="eyebrow">Week {n:02d} · {html.escape(lesson['strand'])}</p>
 <h2 class="week-heading" id="heading-{n}">{html.escape(lesson['title'])}</h2>
-<p class="subtitle">{html.escape(lesson['question'])}</p>
-<p>{html.escape(lesson['subtitle'])}</p>
+<p class="subtitle">{html.escape(lesson['subtitle'])}</p>
+<p>{html.escape(lesson['intro']['success'])}</p>
 <a class="button" href="Week_{n:02d}.html">Start Week {n:02d} →</a>
 <p class="study-note">The lesson takes you through Understand → Investigate → Check. Open Colab when you reach the experiment.</p>
 <details class="path-resources"><summary>Notebook, solutions &amp; practice reference</summary><div>
@@ -120,6 +120,8 @@ def panel(week):
 
 
 def sync():
+    from render_experiences import sync_introductions
+    sync_introductions(write)
     weeks = [load_week(n) for n in range(1, 15)]
     render_experiences(weeks, write)
     for w in weeks:

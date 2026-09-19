@@ -11,7 +11,7 @@ import json
 import os
 import tempfile
 
-from render_experiences import LESSONS, ROOT, render
+from render_experiences import LESSONS, ROOT, render, introduction_markdown
 
 class Page(HTMLParser):
     def __init__(self, content):
@@ -35,6 +35,14 @@ def verify():
         assert path.read_text() == content, f'Regenerate stale page: {path.name}'
     for lesson, week in zip(LESSONS, manifest['weeks']):
         assert lesson['week'] == week['week']
+        nb = json.loads((ROOT / week['notebook']).read_text())
+        intro = nb['cells'][1]
+        assert intro.get('metadata', {}).get('cp1', {}).get('weekly_intro')
+        assert ''.join(intro['source']) == introduction_markdown(lesson), (week['week'], 'intro drift')
+        opening = (ROOT / week['experience']).read_text().split('id="brief"', 1)[1].split('id="model"', 1)[0]
+        import html
+        for key in ('connection', 'first_task', 'why_tool', 'success'):
+            assert html.escape(lesson['intro'][key]) in opening, (week['week'], key)
         assert set(lesson['practice']) <= {ex['id'] for ex in week['exercises']}
         assert len(lesson['cases']) == 3
         assert week['experience'] == f'web/Week_{lesson["week"]:02d}.html'

@@ -61,3 +61,18 @@ guided sessions and do not add graded homework or change assessment weights.
 Weekly pages use Understand → Investigate → Check. The shared controls live in
 `../../../assets/learning-path.js` and `.css`. `CP1_Experiences.html` is a legacy
 redirect to the course home, so there is one weekly entry route.
+
+## Weekly openings
+
+Each lesson’s `intro` in `lessons/experiences.py` supplies the connection to the
+previous week, the first task before code, the reason for the Python tool, and
+the intended outcome. Together with its `brief`, this generates the same opening
+in the HTML lesson and the second notebook cell. Edit it there, then run
+`tools/sync_course.py`; do not maintain a separate notebook introduction. The
+verifier checks that the two versions agree.
+
+The fourteen weeks progress through **Describe and decide** (1–5), **Organise
+observations** (6–9), and **Build a checkable report** (10–14). These are stages of
+understanding, not an extra continuous hardware project or new assessment. The
+small examples retain their own supplied data. Objectives, participation rules
+and class schedules remain in the notebooks as expandable reference sections.
