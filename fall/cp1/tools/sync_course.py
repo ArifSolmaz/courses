@@ -130,6 +130,8 @@ def sync():
     manifest = {"course": "CP1", "weeks": weeks, "calendar_status": "Official dated CP1 timetable not supplied",
                 "assessment": {"midterm": 50, "final": 50}}
     write(ROOT / "course_manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+    from build_notebook_labs import build as build_notebook_labs
+    build_notebook_labs(write)
     template = (ROOT / "tools" / "templates" / "dashboard.html").read_text(encoding="utf-8")
     nav = ''.join(f'<option value="{w["week"]}">Week {w["week"]:02d} · {html.escape(LESSONS[w["week"]-1]["title"])}</option>' for w in weeks)
     dashboard = template.replace("<!-- CP1:NAV -->", nav).replace("<!-- CP1:PANELS -->", "\n".join(panel(w) for w in weeks))

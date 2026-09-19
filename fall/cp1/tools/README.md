@@ -81,16 +81,32 @@ understanding, not an extra continuous hardware project or new assessment. The
 small examples retain their own supplied data. Objectives, participation rules
 and class schedules remain in the notebooks as expandable reference sections.
 
-### Weekly interactive benches
+### Notebook animations
 
-Every weekly HTML lesson includes one ungraded bench, implemented in
-`web/cp1-lab.js` and styled in `web/cp1-lab.css`. The renderer inserts its host,
-so rebuilding preserves all 14 benches. These are deterministic teaching models,
-not a Python interpreter or a hardware controller. Each includes adjustable
-inputs, Play/Pause, Step, Back and Reset, with its assumptions visible. Input
-changes restart the trace; nothing is uploaded or graded.
+Each weekly HTML page has one **See the Colab code run** workspace with four
+notebook topics. The 56 topics map to actual notebook Part headings and related
+exercise IDs; 159 contrasting cases cover normal, boundary and faulty behavior.
+The engineering introductions remain separate.
 
-Check the default result and a contrasting input for each changed model. Useful
-boundaries include 60 °C, 9.950/10.050 mm, sampling that misses the pulse, a
-reference beyond the movement limit, and zero versus missing temperature data.
-Keep retained and rejected row counts consistent in the reporting examples.
+- Author code, cases and mappings in `lessons/notebook_labs.py`.
+- `tools/build_notebook_labs.py` executes these trusted examples in temporary
+  directories and records Python line/call/return/exception events, variables,
+  container identity, output and persisted files. A 150-step limit contains the
+  intentional infinite-loop demonstration.
+- `tools/sync_course.py` regenerates the 14 `web/lab-data/week-NN.js` files along
+  with the pages. The browser loads only the current week's data.
+- `web/cp1-lab.js` and `web/cp1-lab.css` present Play/Pause, Step, Back, Restart,
+  speed, timeline, topic/case selectors and Copy Python. No browser-side Python
+  interpreter, uploaded code or network service is involved.
+
+A highlighted line is **about to execute**. Its effects appear at the next event.
+Function frames expose local/global scope; object labels expose list aliasing;
+output is separate from return values. File panes show persisted file contents,
+which may change only when buffered writes are closed. Inputs are curated cases;
+copy the displayed code into Colab for unrestricted editing.
+
+Run `python3 fall/cp1/tools/verify_notebook_labs.py` after changing examples. It
+checks source mappings, exact regeneration and semantic fixtures for ranges,
+loop control, aliasing, function stacks, errors, CSV quoting and saved reports.
+Also check playback, case switching, keyboard scrubbing and mobile layout in the
+browser. All animations are ungraded practice.
