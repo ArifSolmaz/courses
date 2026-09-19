@@ -144,7 +144,7 @@ The follow-up review addresses the reported Week 1 vector diagrams, missing exam
 
 Live JupyterLab checks covered repeated vector updates, the reported 130° component diagram, maximum parallel addition, projection views, rendered equations/determinants/problem answers, the projectile table, and all four lesson navigation links. Desktop (1366 × 900) and narrow (480 × 800) panels were inspected; the narrow controls have no horizontal overflow. Independent plot reviews also exercised representative boundary values and animation frames. These checks sampled parameter combinations in JupyterLab. Published Week 1 typesetting was also checked in Colab; hosted Colab runtime execution and widget callbacks were not tested.
 
-See [the earlier execution and browser-check record](notebook_review_verification.json). The textbook-format edition was prepared for the course website and Colab links. The private solutions were not modified in that follow-up. The corrected source answer keys in modules 06–07 agree with their existing private hand-worked solutions.
+See the earlier execution and browser-check record (historical file; available in git history). The textbook-format edition was prepared for the course website and Colab links. The private solutions were not modified in that follow-up. The corrected source answer keys in modules 06–07 agree with their existing private hand-worked solutions.
 
 ## Complete textbook-format pass — prior verification
 

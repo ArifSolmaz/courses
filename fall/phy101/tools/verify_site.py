@@ -42,6 +42,16 @@ TEACHING_EXEMPT = {6, 7}
 
 
 def main():
+    # Notebook links must be resolved from notebooks/, including moved resources.
+    for target, expected in [
+        ("Final_Review.ipynb", B.COLAB + "/notebooks/Final_Review.ipynb"),
+        ("../extensions/Resonance.ipynb", B.COLAB + "/extensions/Resonance.ipynb"),
+        ("Final_Review.ipynb?x=1#section", B.COLAB + "/notebooks/Final_Review.ipynb?x=1#section"),
+        ("../COURSE_POLICY.md", B.GITHUB + "/COURSE_POLICY.md"),
+        ("../labs/", B.GITHUB.replace("/blob/", "/tree/") + "/labs"),
+    ]:
+        check(B.rewrite_link(target) == expected, f"incorrect notebook link rewrite: {target}")
+
     calendar = json.loads((ROOT / "calendar.json").read_text(encoding="utf-8"))
     pages = sorted(ROOT.glob("w*/index.html"))
     check(bool(pages), "no generated week pages found - run build_site.py")
@@ -99,6 +109,10 @@ def main():
             target = (page.parent / href).resolve()
             if target.suffix in (".css", ".js"):
                 check(target.is_file(), f"{rel}: missing asset {href}")
+
+        # Colab can return HTTP 200 even when its underlying notebook does not exist.
+        for target in set(re.findall(re.escape(B.COLAB) + r'/([^"?#]+)', html_text)):
+            check((ROOT / target).is_file(), f"{rel}: Colab notebook missing: {target}")
 
         # 3. KaTeX still pinned
         check(B.SRI_CSS in html_text and B.SRI_JS in html_text and B.SRI_AUTO in html_text,

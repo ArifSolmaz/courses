@@ -55,6 +55,8 @@ reach the parallel sections sitting the same common exam.
 import html
 import json
 import pathlib
+import posixpath
+from urllib.parse import urlsplit, urlunsplit, quote, unquote
 import re
 import sys
 
@@ -277,14 +279,19 @@ def rewrite_link(target):
         return t
     if t.startswith("#"):
         return None                                   # in-page anchor: drop the link, keep the words
-    t = re.sub(r"^\.\./", "", t)
-    if t == "labs/":
-        return f"{GITHUB}/labs"
-    if t.endswith(".ipynb"):
-        return f"{COLAB}/{t}"
-    if t.endswith(".md"):
-        return f"{GITHUB}/{t}"
-    return "../" + t
+    parts = urlsplit(t)
+    course_path = posixpath.normpath(posixpath.join("notebooks", unquote(parts.path)))
+    encoded = quote(course_path, safe="/")
+    if course_path == "labs":
+        base = GITHUB.replace("/blob/", "/tree/") + "/labs"
+    elif course_path.endswith(".ipynb"):
+        base = f"{COLAB}/{encoded}"
+    elif course_path.endswith(".md"):
+        base = f"{GITHUB}/{encoded}"
+    else:
+        base = "../" + encoded
+    return urlunsplit((*urlsplit(base)[:3], parts.query, parts.fragment))
+
 
 
 def inline(text):
