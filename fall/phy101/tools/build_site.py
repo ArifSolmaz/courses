@@ -912,7 +912,8 @@ def topic_list(chunk):
     """Give the topic headings of the Learn stage ids and list them under the h2."""
     seen, items = set(), []
     def repl(m):
-        title = re.sub(r"<[^>]+>", "", m.group(1)).strip()
+        title = re.sub(r"<em lang=\"tr\">.*?</em>", "", m.group(1), flags=re.S)
+        title = re.sub(r"<[^>]+>", "", title).strip()
         base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40] or "topic"
         slug, k = "t-" + base, 2
         while slug in seen:

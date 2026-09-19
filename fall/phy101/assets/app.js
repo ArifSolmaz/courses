@@ -69,7 +69,7 @@
       buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-stage") === key)); });
       if (scrollTop) {
         var bar = document.querySelector(".stagebar");
-        if (bar) window.scrollTo({ top: bar.getBoundingClientRect().top + window.pageYOffset - 60, behavior: "auto" });
+        if (bar) window.scrollTo({ top: bar.getBoundingClientRect().top + window.pageYOffset - 64, behavior: "auto" });
       }
       window.dispatchEvent(new CustomEvent("phy101:stage", { detail: { stage: key } }));
     }
