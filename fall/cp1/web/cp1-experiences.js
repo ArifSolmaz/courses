@@ -43,51 +43,6 @@
     });
   });
 
-  const diameter = document.getElementById('diameter');
-  if (diameter) {
-    const update = () => {
-      const mm = Number(diameter.value);
-      document.getElementById('wheel-result').textContent = `${mm.toFixed(1)} mm → ${(10 * Math.PI * mm / 1000).toFixed(3)} m ideal travel`;
-    };
-    diameter.addEventListener('input', update); update();
-  }
-  const interval = document.getElementById('interval');
-  if (interval) {
-    const offset = document.getElementById('offset');
-    const update = () => {
-      const times = [];
-      for (let t = Number(offset.value); t <= 500; t += Number(interval.value)) times.push(t);
-      const high = times.filter(t => t >= 200 && t < 300).length;
-      document.getElementById('sampling-result').textContent = `Interval ${interval.value} ms · offset ${offset.value} ms → ${high} high / ${times.length} samples`;
-      const points = document.getElementById('sample-points');
-      points.replaceChildren(...times.map(t => {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', String(40 + t * .8));
-        circle.setAttribute('cy', t >= 200 && t < 300 ? '35' : '100');
-        circle.setAttribute('r', '5');
-        return circle;
-      }));
-      const strip = document.getElementById('sample-strip');
-      strip.replaceChildren(...times.map(t => {
-        const item = document.createElement('span');
-        const detected = t >= 200 && t < 300;
-        item.className = detected ? 'high' : 'low';
-        item.textContent = `${t} ms · ${detected ? 'HIGH' : 'low'}`;
-        return item;
-      }));
-    };
-    interval.addEventListener('input', update); offset.addEventListener('input', update); update();
-  }
-  const voltage = document.getElementById('voltage');
-  if (voltage) {
-    const update = () => {
-      const v = Number(voltage.value);
-      const domain = v >= .5 && v <= 4.5 ? 'Inside calibration interval' : 'OUTSIDE calibration interval — unvalidated extrapolation';
-      document.getElementById('force-result').textContent = `${v.toFixed(1)} V → ${((v - .5) * 25).toFixed(1)} N · ${domain}`;
-    };
-    voltage.addEventListener('input', update); update();
-  }
-
   const fields = [...document.querySelectorAll('[data-note]')];
   if (!fields.length) return;
   const week = document.body.dataset.week;

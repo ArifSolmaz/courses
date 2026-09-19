@@ -80,3 +80,17 @@ observations** (6–9), and **Build a checkable report** (10–14). These are st
 understanding, not an extra continuous hardware project or new assessment. The
 small examples retain their own supplied data. Objectives, participation rules
 and class schedules remain in the notebooks as expandable reference sections.
+
+### Weekly interactive benches
+
+Every weekly HTML lesson includes one ungraded bench, implemented in
+`web/cp1-lab.js` and styled in `web/cp1-lab.css`. The renderer inserts its host,
+so rebuilding preserves all 14 benches. These are deterministic teaching models,
+not a Python interpreter or a hardware controller. Each includes adjustable
+inputs, Play/Pause, Step, Back and Reset, with its assumptions visible. Input
+changes restart the trace; nothing is uploaded or graded.
+
+Check the default result and a contrasting input for each changed model. Useful
+boundaries include 60 °C, 9.950/10.050 mm, sampling that misses the pulse, a
+reference beyond the movement limit, and zero versus missing temperature data.
+Keep retained and rejected row counts consistent in the reporting examples.

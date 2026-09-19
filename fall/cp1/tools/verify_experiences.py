@@ -46,6 +46,10 @@ def verify():
         assert set(lesson['practice']) <= {ex['id'] for ex in week['exercises']}
         assert len(lesson['cases']) == 3
         assert week['experience'] == f'web/Week_{lesson["week"]:02d}.html'
+        page_source = (ROOT / week['experience']).read_text()
+        assert page_source.count(f'data-cp1-lab="{lesson["week"]}"') == 1
+        assert 'cp1-lab.js?v=1' in page_source and 'cp1-lab.css?v=1' in page_source
+
         # In particular, Week 13 must never write test files into the repository.
         with tempfile.TemporaryDirectory() as directory:
             old = Path.cwd()

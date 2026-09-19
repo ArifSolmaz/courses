@@ -870,7 +870,7 @@ def summary_card(week, equations):
 
 STAGES = [
     ("prepare", "Prepare", "plan, objectives, pre-check"),
-    ("learn", "Learn", "concepts and worked examples"),
+    ("learn", "Learn", "concepts, animations and worked examples"),
     ("practise", "Practise", "practice examples and the problem set"),
     ("check", "Check", "exit check and key equations"),
 ]
@@ -936,7 +936,7 @@ def topic_list(chunk):
         out.append(box.group(0)); last = box.end()
     out.append(re.sub(r"<h3>(.*?)</h3>", repl, chunk[last:], flags=re.S))
     chunk = "".join(out)
-    items = [(sl, t) for sl, t in items if t.lower() not in ("worked examples",) and "nteractive" not in t and not t.lower().startswith("animated")]
+    items = [(sl, t) for sl, t in items if t.lower() not in ("worked examples",)]
     if len(items) < 3:
         return chunk
     nav = ('<details class="path-reference"><summary>Find a topic in this lesson</summary><nav class="topics" aria-label="Topics in this stage"><ol>'
