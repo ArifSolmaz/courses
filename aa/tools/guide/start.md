@@ -100,7 +100,7 @@ For Week 1, use only the first four ideas informally. Add symbols and bounds as 
 
 ## Assessment and source boundaries
 
-The [course home](index.html#grading) currently labels its assessment scheme **suggested**: midterm 30%, final exam 40%, in-class project demonstration 20%, and technical presentation 10%. This guide adds learning support, not a new grading policy. Weekly self-checks remain private practice. Follow any assessment announcement from the instructor.
+The [course home](index.html#grading) sets the assessment policy: Assessment consists only of the midterm exam (50%) and final exam (50%). Weekly notebooks, exercises, projects, demonstrations and presentations are ungraded practice; no weekly submission is required.
 
 The final project follows [Week 14](w14/index.html): two correct methods for the same task, measurements at four input sizes, a shared labelled figure, a growth explanation, and an approximately two-page report with a recommendation and an honest limitation. The engineering capstone remains a reading after Week 14.
 

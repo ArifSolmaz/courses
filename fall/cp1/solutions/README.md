@@ -4,7 +4,7 @@ Try each problem first; use these companions to compare reasoning, inspect tests
 
 **Türkçe:** Önce kendi çözümünü dene; sonra adımları ve testleri karşılaştır. Çözümü kapatıp değişik değerlerle yeniden çöz.
 
-Open a solution in a separate runtime. These are private-practice learning aids, not work to submit as your own assessed demonstration. The numbered `EX` labels match the lesson notebooks. `BRIDGE` marks a transition walkthrough.
+Open a solution in a separate runtime. These are private-practice learning aids, not assessed submissions. The numbered `EX` labels match the lesson notebooks. `BRIDGE` marks a transition walkthrough.
 
 | Week | HTML experience | Lesson notebook | Worked solutions | Core / optional |
 |---|---|---|---|---|

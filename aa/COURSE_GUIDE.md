@@ -121,7 +121,7 @@ For Week 1, use only the first four ideas informally. Add symbols and bounds as 
 
 ## Assessment and source boundaries
 
-The [course home](index.html#grading) currently labels its assessment scheme **suggested**: midterm 30%, final exam 40%, in-class project demonstration 20%, and technical presentation 10%. This guide adds learning support, not a new grading policy. Weekly self-checks remain private practice. Follow any assessment announcement from the instructor.
+The [course home](index.html#grading) sets the assessment policy: Assessment consists only of the midterm exam (50%) and final exam (50%). Weekly notebooks, exercises, projects, demonstrations and presentations are ungraded practice; no weekly submission is required.
 
 The final project follows [Week 14](w14/index.html): two correct methods for the same task, measurements at four input sizes, a shared labelled figure, a growth explanation, and an approximately two-page report with a recommendation and an honest limitation. The engineering capstone remains a reading after Week 14.
 
@@ -3516,7 +3516,7 @@ First specify one output contract and test both implementations against expected
 
 ## The existing final project, made manageable
 
-The original lesson requests **one notebook `AA_Final_YourName.ipynb`, a report of about two pages, and a five-minute presentation**. The notebook contains both approaches, the benchmark with at least three repeats, and a labelled log–log figure. The presentation uses the problem, one figure, one recommendation, and one limitation, without code on the slides. This guide does not add grading rules or deliverables.
+For an optional, ungraded portfolio, the lesson suggests **one notebook `AA_Final_YourName.ipynb`, a report of about two pages, and a five-minute presentation**. The notebook contains both approaches, the benchmark with at least three repeats, and a labelled log–log figure. The presentation uses the problem, one figure, one recommendation, and one limitation, without code on the slides. No project submission is required; only the midterm (50%) and final (50%) contribute to the grade.
 
 Use the original seven-part report structure. A practical two-page allocation follows; it is writing guidance, not a new rubric.
 
@@ -3530,7 +3530,7 @@ Use the original seven-part report structure. A practical two-page allocation fo
 | Recommendation | Choose a method for the stated workload and name conditions that could change the choice. |
 | Limitations | Identify untested inputs, timing noise, memory assumptions, or omitted costs honestly. |
 
-Put framing and methods on approximately the first page, then evidence and decisions on the second. Keep full implementations and raw measurements in the notebook. The existing rubric assigns 10 to framing, 20 to two correct approaches, 15 to analysis, 20 to benchmark quality, 15 to interpretation/prediction, 10 to recommendation, and 10 to limitations, totaling 100. A small well-supported improvement can satisfy this reasoning-focused standard.
+Put framing and methods on approximately the first page, then evidence and decisions on the second. Keep full implementations and raw measurements in the notebook. The ungraded checklist covers framing, two correct approaches, analysis, benchmark quality, interpretation/prediction, recommendation and limitations. A small well-supported improvement can satisfy this reasoning-focused standard.
 
 ## Misconceptions, glossary, and final readiness
 

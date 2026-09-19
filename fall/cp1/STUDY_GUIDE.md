@@ -55,7 +55,7 @@ Concept checkpoints compare your short prediction with the expected answer. The 
 
 Each solution shows the problem and data, the reasoning, executable Python, and checks or expected results. Use it to answer three questions: Which step did I miss? Why does this operation work? What input would reveal a mistake? Keep your own notebook and solution notebook in separate runtimes when testing.
 
-The solutions are available as learning aids for private practice. In an assessed demonstration or exam, follow the stated rules and explain your own reasoning. The syllabus keeps the existing assessment weights: midterm 25%, final 50%, in-class demonstration and technical explanation 25%.
+The solutions are available as learning aids for private practice. In an exam, follow the stated rules and explain your own reasoning. Assessment consists only of the midterm exam (50%) and final exam (50%). Weekly notebooks, exercises, projects, demonstrations and presentations are ungraded practice; no weekly submission is required.
 
 The week numbers describe the teaching sequence. Official CP1 teaching dates, holidays and exam dates have not been supplied here; use the instructor's announced timetable for dates.
 

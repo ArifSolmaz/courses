@@ -128,7 +128,7 @@ def sync():
         w["experience"] = f"web/Week_{w['week']:02d}.html"
         w["engineering_title"] = LESSONS[w["week"] - 1]["title"]
     manifest = {"course": "CP1", "weeks": weeks, "calendar_status": "Official dated CP1 timetable not supplied",
-                "assessment": {"midterm": 25, "final": 50, "demonstration": 25}}
+                "assessment": {"midterm": 50, "final": 50}}
     write(ROOT / "course_manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     template = (ROOT / "tools" / "templates" / "dashboard.html").read_text(encoding="utf-8")
     nav = ''.join(f'<option value="{w["week"]}">Week {w["week"]:02d} · {html.escape(LESSONS[w["week"]-1]["title"])}</option>' for w in weeks)
@@ -152,7 +152,7 @@ def sync():
             return re.sub(r"^- \d+ (?:exercises|guided project steps)[^\n]*", lambda _: line, value, flags=re.M)
         outline = re.sub(pattern, replace_count, outline, flags=re.S)
     write(ROOT / "content.md", outline)
-    index = "# CP1 worked solutions\n\nTry each problem first; use these companions to compare reasoning, inspect tests and retry with different values. Every core exercise, optional exercise and bridge/preview in Weeks 1–13 is included. Week 14 contains the complete tested sensor pipeline.\n\n**Türkçe:** Önce kendi çözümünü dene; sonra adımları ve testleri karşılaştır. Çözümü kapatıp değişik değerlerle yeniden çöz.\n\nOpen a solution in a separate runtime. These are private-practice learning aids, not work to submit as your own assessed demonstration. The numbered `EX` labels match the lesson notebooks. `BRIDGE` marks a transition walkthrough.\n\n"
+    index = "# CP1 worked solutions\n\nTry each problem first; use these companions to compare reasoning, inspect tests and retry with different values. Every core exercise, optional exercise and bridge/preview in Weeks 1–13 is included. Week 14 contains the complete tested sensor pipeline.\n\n**Türkçe:** Önce kendi çözümünü dene; sonra adımları ve testleri karşılaştır. Çözümü kapatıp değişik değerlerle yeniden çöz.\n\nOpen a solution in a separate runtime. These are private-practice learning aids, not assessed submissions. The numbered `EX` labels match the lesson notebooks. `BRIDGE` marks a transition walkthrough.\n\n"
     index += table.replace("](web/", "](../web/").replace("](notebooks/", "](../notebooks/").replace("](solutions/", "](")
     index += "\nEach notebook is self-contained and uses fixed demonstration inputs so it can run from top to bottom. File examples write sample files in the current runtime folder. Read the problem and assumptions before running.\n\n[Simple course guide](../STUDY_GUIDE.md) · [Dashboard](../web/CP1_Course_Dashboard.html)\n"
     write(ROOT / "solutions" / "README.md", index)

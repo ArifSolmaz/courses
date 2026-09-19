@@ -16,7 +16,7 @@ Each week: **one lesson notebook and one complete worked-solution companion**.
 - `Week_XX.ipynb` (≈5 hours): explanations, examples, concept checkpoints, core practice, optional extensions, breaks and review.
 - `solutions/Week_XX_Solutions.ipynb`: every numbered exercise and the bridge/preview, with reasoning and checks.
 - Weeks 1–13: eight core exercises per week. Week 14: ten core milestones including report writing and program integration.
-- Weekly notebooks are private practice. Assessment remains midterm 25%, final 50%, in-class demonstration and technical explanation 25%.
+- Weekly notebooks are private practice. Assessment consists only of the midterm exam (50%) and final exam (50%). Weekly notebooks, exercises, projects, demonstrations and presentations are ungraded practice; no weekly submission is required.
 
 Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index](solutions/README.md).
 

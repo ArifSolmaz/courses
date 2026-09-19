@@ -103,7 +103,7 @@ def check_page_links():
 def structural_checks():
     manifest = json.loads((ROOT / "course_manifest.json").read_text(encoding="utf-8"))
     assert len(manifest["weeks"]) == 14
-    assert manifest["assessment"] == {"midterm": 25, "final": 50, "demonstration": 25}
+    assert manifest["assessment"] == {"midterm": 50, "final": 50}
     totals = {"notebooks": 0, "exercises": 0, "solution_sections": 0, "code_cells": 0}
     for week in manifest["weeks"]:
         lesson = json.loads((ROOT / week["notebook"]).read_text(encoding="utf-8"))
