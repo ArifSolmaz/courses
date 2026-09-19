@@ -5,104 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PHY101 — Physics I Course Dashboard</title>
 <link rel="icon" href="data:,">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #f5f7fa; --surface: #ffffff; --surface2: #eef1f6; --border: #d4dae4;
-    --phy-orange: #e65100; --phy-blue: #1565c0; --accent-green: #2e7d32;
-    --text: #1a1a2e; --text-muted: #5a6070; --text-dim: #8a90a0;
-    --lecture-bg: #fff3e0; --lecture-border: #e65100;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-  .topbar { display: flex; align-items: center; justify-content: space-between; height: 54px; padding: 0 2rem;
-    background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-  .topbar-logo { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--phy-orange); }
-  .topbar-logo span { color: var(--phy-blue); }
-  .topbar-nav { display: flex; gap: .5rem; }
-  .topbar-nav a { font-family: 'JetBrains Mono', monospace; font-size: .7rem; text-decoration: none; padding: .35rem .8rem; border-radius: 999px; }
-  .topbar-nav a.active { background: var(--phy-blue); color: #fff; border-color: var(--phy-blue); }
-  .layout { display: flex; height: calc(100vh - 54px); }
-  .sidebar { width: 270px; min-width: 270px; overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); padding: 1rem 0; }
-  .sidebar-label { display: block; padding: .5rem 1.2rem .35rem; }
-  .week-btn { display: flex; align-items: flex-start; gap: .75rem; width: 100%; text-align: left; border: 0; border-left: 3px solid transparent; background: none; cursor: pointer; font: inherit; }
-  .week-btn.active { border-left-color: var(--phy-blue); }
-  .sidebar-link { text-decoration: none; color: inherit; }
-  .week-num { flex: 0 0 34px; font-size: .72rem; padding-top: .15rem; }
-  .week-title { display: block; line-height: 1.3; }
-  .week-date { display: block; font-size: .65rem; color: var(--text-muted); margin-top: .2rem; }
-  .main { flex: 1; overflow-y: auto; }
-  .week-panel { display: none; }
-  .week-panel.active { display: block; }
-  .week-header { display: block; }
-  .week-meta { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: var(--text-muted); margin: .9rem 0 0; }
-  .notebook-card { display: flex; flex-wrap: wrap; align-items: center; gap: .9rem 1.2rem; max-width: 760px; margin: 1.6rem 0;
-    padding: 1.1rem 1.3rem; border: 1px solid var(--lecture-border); border-radius: 12px; background: var(--lecture-bg); }
-  .notebook-card .what { flex: 1 1 280px; font-size: .9rem; line-height: 1.6; color: var(--text-muted); }
-  .notebook-card .what strong { color: var(--text); display: block; margin-bottom: .2rem; }
-  .button-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
-  .nb-btn { display: inline-block; text-decoration: none; padding: .6rem 1rem; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
-  .nb-btn.secondary { background: var(--surface2); color: var(--phy-blue); border: 1px solid var(--border); }
-  .goals { max-width: 760px; margin: 1.4rem 0 1.8rem; padding-left: 1.2rem; line-height: 1.7; font-size: .93rem; }
-  .goals li + li { margin-top: .3rem; }
-  .line { max-width: 760px; font-size: .88rem; line-height: 1.65; color: var(--text-muted); margin: .7rem 0; }
-  .line strong { color: var(--text); }
-  .line a { color: var(--phy-blue); }
-  .prev-next { display: flex; justify-content: space-between; gap: 1rem; max-width: 760px; margin-top: 2.2rem; padding-top: 1.2rem; border-top: 1px solid var(--border); font-size: .85rem; }
-  .prev-next a { color: var(--phy-blue); text-decoration: none; }
-  .overview-wrap { overflow-x: auto; max-width: 1000px; margin-top: 1.6rem; }
-  .calendar-overview { width: 100%; border-collapse: collapse; font-size: .84rem; background: var(--surface); }
-  .calendar-overview th, .calendar-overview td { padding: .7rem .75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; line-height: 1.5; }
-  .calendar-overview th { font-size: .68rem; }
-  .calendar-overview td:first-child { white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
-  .calendar-overview a { color: var(--phy-blue); }
-  /* The overview table set white text with no background, so the primary
-     “Open in Colab” action was invisible. Give it the background it needs. */
-  .calendar-overview .nb-btn:not(.secondary) { background: var(--phy-orange); color: #fff; border: 1px solid var(--phy-orange); }
-  .calendar-overview .button-row { min-width: 175px; }
-  .ext-row { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; max-width: 900px; padding: 1rem 0; border-bottom: 1px solid var(--border); }
-  .ext-row .what { flex: 1 1 320px; }
-  .ext-row .what strong { display: block; margin-bottom: .2rem; }
-  .ext-row .what span { display: block; font-size: .85rem; color: var(--text-muted); line-height: 1.55; }
-  .week-btn:focus-visible, a:focus-visible { outline: 3px solid var(--phy-blue); outline-offset: 2px; }
-  .week-heading:focus { outline: none; }
-  @media (max-width: 900px) { .sidebar { width: 200px; min-width: 200px; } .week-date { display: none; } }
-  @media (max-width: 600px) {
-    .calendar-overview { display: block; }
-    .calendar-overview thead { display: none; }
-    .calendar-overview tbody { display: grid; gap: .8rem; }
-    .calendar-overview tr { display: block; border: 1px solid var(--border); border-radius: 8px; padding: .7rem; }
-    .calendar-overview td { display: block; border: 0; padding: .3rem 0; }
-    .calendar-overview .button-row { min-width: 0; }
-  }
-</style>
-<link rel="stylesheet" href="../../../assets/course-design.css">
-<style>
-  /* Small screens: keep the three page links reachable next to the 72px week rail from the shared design. */
-  @media (max-width: 760px) {
-    .topbar-nav a:not(.active) { display: inline-block; }
-    .topbar-nav a { padding: .3rem .55rem; font-size: .62rem; }
-    .notebook-card, .goals, .line, .prev-next { max-width: none; }
-    .prev-next { flex-direction: column; }
-  }
-</style>
+<link rel="stylesheet" href="phy101-dashboard.css">
 </head>
 <body data-course="phy101" data-page="dashboard">
 
 <header class="topbar">
-  <div class="topbar-logo">PHY<span>101</span> · Physics I</div>
+  <a class="topbar-logo" href="#overview" data-panel-link="overview"><span class="mark" aria-hidden="true">Φ</span>PHY101&nbsp;<span class="sub">/ Physics I</span></a>
   <nav class="topbar-nav" aria-label="Course pages">
     <a href="#overview" data-panel-link="overview">Calendar</a>
     <a href="#extensions" data-panel-link="extensions">Extension notebooks</a>
-    <a href="../History%20of%20Physics/index.html">History Portal</a>
+    <a href="../History%20of%20Physics/index.html">History portal</a>
     <a href="PHY101_Syllabus.html">Syllabus</a>
   </nav>
 </header>
 
-<div class="layout">
-  <nav class="sidebar" id="calendar-navigation" aria-label="Weekly course navigation"></nav>
-  <main class="main" id="course-content">
-    <noscript>
+<div class="strip-wrap">
+  <nav class="strip" id="calendar-navigation" aria-label="Weekly course navigation"></nav>
+</div>
+
+<main class="main" id="course-content">
+<noscript>
     <h1>PHY101 · Physics I — Fall 2026–27</h1>
     <p>The interactive dashboard needs JavaScript, but the whole calendar is below and every link works
     without it. Readable week notes are published at
@@ -193,8 +115,7 @@
           <a href="../extensions/Review_and_Projects.ipynb">Review and projects</a></li>
     </ul>
     </noscript>
-  </main>
-</div>
+</main>
 
 <script src="phy101-calendar.js"></script>
 <script src="phy101-notes.js"></script>
@@ -234,10 +155,20 @@ function dateLabel(iso, year=false) {
   return new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/Istanbul', day:'numeric', month:'short', ...(year?{year:'numeric'}:{})}).format(new Date(iso+'T12:00:00+03:00'));
 }
 const dateRange = w => `${dateLabel(w.start)} – ${dateLabel(w.end, true)}`;
+const shortRange = w => `${dateLabel(w.start)} – ${dateLabel(w.end)}`;
 function today() {
   const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Istanbul', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(new Date()).filter(x => x.type !== 'literal').map(x => [x.type, x.value]));
   return `${p.year}-${p.month}-${p.day}`;
 }
+const TODAY = today();
+// The week that contains today; before the term starts, the first week; after it ends, none.
+const CURRENT_WEEK = (() => {
+  const w = CALENDAR.weeks.find(x => TODAY >= x.start && TODAY <= x.end);
+  if (w) return w.week;
+  if (TODAY < CALENDAR.weeks[0].start) return CALENDAR.weeks[0].week;
+  return null;
+})();
+const weekClass = w => (w.week === CURRENT_WEEK ? 'now' : w.kind === 'midterm' ? 'exam' : '');
 function notebookButtons(path, label) {
   return `<div class="button-row"><a class="nb-btn" href="${COLAB + path}" target="_blank" rel="noopener" aria-label="Open ${escapeHTML(label)} in Colab">Open in Colab</a>
     <a class="nb-btn secondary" href="../${escapeHTML(path)}" download aria-label="Download ${escapeHTML(label)} notebook">Download notebook</a></div>`;
@@ -245,25 +176,69 @@ function notebookButtons(path, label) {
 function solutionLine(n) {
   const date = CALENDAR.release_dates[String(n)];
   const file = `solutions/Week_${pad(n)}_Python_Solutions.ipynb`;
-  const released = date && today() >= date;
+  const released = date && TODAY >= date;
   return `<p class="line"><strong>Complete solution file</strong> (${escapeHTML(SOLUTION_TOPICS[n])}, problems labelled <em>Module ${pad(n)} Pn</em>): `
     + (released ? `<a href="${COLAB + file}" target="_blank" rel="noopener">open in Colab</a>.` : `opens ${dateLabel(date, true)}. Until then use the answers inside the notebook to check yourself.`) + `</p>`;
 }
 
+function stripNav() {
+  const weeks = CALENDAR.weeks.map(w => {
+    const mark = w.week === CURRENT_WEEK ? (TODAY < w.start ? 'starts ' + dateLabel(w.start) : 'this week')
+      : w.kind === 'midterm' ? 'exam' : w.kind === 'review' ? 'review' : w.lab ? '● lab' : '';
+    return `<button class="strip-btn ${weekClass(w)}" type="button" data-panel="week-${w.week}" title="Week ${pad(w.week)}: ${escapeHTML(w.title_en)}">
+      <span class="n">W${pad(w.week)}</span><span class="d">${escapeHTML(dateLabel(w.start))}</span><span class="m">${escapeHTML(mark)}&nbsp;</span></button>`;
+  }).join('');
+  return `<button class="strip-btn all" type="button" data-panel="overview"><span class="n">All</span></button>${weeks}
+    <button class="strip-btn all" type="button" data-panel="extensions" title="Optional extension notebooks"><span class="n">+ Ext</span></button>`;
+}
+
 function overviewPanel() {
-  const rows = CALENDAR.weeks.map(w => `<tr><td>${pad(w.week)}<br>${escapeHTML(dateRange(w))}</td>
-    <td><a href="#week-${w.week}" data-panel-link="week-${w.week}">${escapeHTML(w.title_en)}</a><br><span lang="tr">${escapeHTML(w.title_tr)}</span></td>
-    <td>${w.lab ? escapeHTML(w.lab.title_tr) + (w.lab.brief ? ` · <a href="../${escapeHTML(w.lab.brief)}">brief</a>` : '') : '—'}</td>
-    <td>${NOTE_PAGES.includes(w.week) ? `<a href="../w${w.week}/">Week ${pad(w.week)} notes</a>` : '<span style="opacity:.5">—</span>'}</td>
-    <td>${notebookButtons(w.notebook, 'Week ' + pad(w.week))}</td></tr>`).join('');
-  return `<section class="week-panel" id="overview"><header class="week-header">
-    <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 weeks · Mechatronics, Computer and Chemical Engineering</div>
-    <h1 class="week-heading" tabindex="-1">Physics I<br><em lang="tr">Fizik I</em></h1>
-    <p class="week-desc">One notebook per week. Each contains the concepts with worked algebra, interactive checks with a prediction prompt, worked examples and a three-level problem set whose answers let you check yourself. <strong>Open in Colab</strong> runs it in the browser; <strong>Download notebook</strong> saves it for Jupyter. Paper and a calculator are enough; Python is optional.</p>
-    <p class="week-desc" lang="tr">Her hafta için tek bir not vardır ve o haftanın tamamını kapsar. Notu tarayıcıda açmak için “Open in Colab”, indirmek için “Download notebook”.</p>
-    <p class="week-desc"><strong>The topic order and the experiments are set by the departmental schedule, and the midterm and final are common examinations</strong> shared with the parallel sections. Examinable scope is the Week 01–13 topic list only: the extension notebooks, the gravitation supplement and the laboratory analysis technique are enrichment and are not examined. See the <a href="../COURSE_POLICY.md">course policy</a> and the <a href="../TEXTBOOK_MAP.md">textbook &amp; laboratory map</a>.</p>
-    <p class="week-desc" lang="tr"><strong>Haftalık konu sırası ve deneyler bölüm izlencesine göredir; vize ve final ortak sınavdır.</strong> Sınav kapsamı yalnızca 01–13. hafta konularıdır; ek notlar ve laboratuvar analiz teknikleri kapsam dışıdır.</p></header>
-    <div class="overview-wrap"><table class="calendar-overview"><thead><tr><th>Week / Dates</th><th>Lecture / Ders</th><th>Laboratory / Deney</th><th>Web notes</th><th>Notebook / Not</th></tr></thead><tbody>${rows}</tbody></table></div>
+  const cards = CALENDAR.weeks.map(w => {
+    const labClass = w.lab ? '' : w.kind === 'midterm' ? 'exam' : 'none';
+    const lab = w.lab ? `Lab: ${escapeHTML(w.lab.title_en)}` + (w.lab.brief ? ` · <a href="../${escapeHTML(w.lab.brief)}">brief</a>` : '')
+      : w.kind === 'midterm' ? 'Common midterm — no new topic' : w.kind === 'review' ? 'Review week — no laboratory' : 'No laboratory this week';
+    const notes = NOTE_PAGES.includes(w.week) ? `<a class="nb-btn secondary" href="../w${w.week}/">Notes</a>` : '';
+    return `<article class="card ${weekClass(w)}" id="card-week-${w.week}">
+      <div class="card-meta"><span class="n">Week ${pad(w.week)}</span><span>${escapeHTML(shortRange(w))}</span></div>
+      <a class="card-title" href="#week-${w.week}" data-panel-link="week-${w.week}">${escapeHTML(w.title_en)}</a>
+      <span class="card-tr" lang="tr">${escapeHTML(w.title_tr)}</span>
+      <span class="card-lab ${labClass}">${lab}</span>
+      <div class="button-row"><a class="nb-btn" href="${COLAB + w.notebook}" target="_blank" rel="noopener" aria-label="Open Week ${pad(w.week)} in Colab">Open in Colab</a>
+        <a class="nb-btn secondary" href="../${escapeHTML(w.notebook)}" download aria-label="Download Week ${pad(w.week)} notebook">Download</a>${notes}</div>
+    </article>`;
+  }).join('');
+  return `<section class="week-panel" id="overview">
+    <header class="page-head">
+      <div>
+        <div class="week-tag">${escapeHTML(CALENDAR.term)} · 13 weeks · Mechatronics, Computer and Chemical Engineering</div>
+        <h1 class="week-heading" tabindex="-1">Physics I <em lang="tr">· Fizik I</em></h1>
+        <p class="week-desc">One notebook per week: the concepts with worked algebra, interactive checks with a prediction prompt, worked examples and a three-level problem set whose answers let you check yourself. <strong>Open in Colab</strong> runs it in the browser; <strong>Download</strong> saves it for Jupyter. Paper and a calculator are enough; Python is optional.</p>
+        <p class="week-desc" lang="tr">Her hafta için tek bir not vardır ve o haftanın tamamını kapsar. Notu tarayıcıda açmak için “Open in Colab”, indirmek için “Download”.</p>
+        <p class="week-desc"><strong>Topic order and experiments follow the departmental schedule; the midterm and final are common examinations</strong> shared with the parallel sections. Examinable scope is the Week 01–13 topic list only — extension notebooks, the gravitation supplement and laboratory analysis technique are enrichment. See the <a href="../COURSE_POLICY.md">course policy</a> and the <a href="../TEXTBOOK_MAP.md">textbook &amp; laboratory map</a>.</p>
+        <p class="week-desc" lang="tr"><strong>Haftalık konu sırası ve deneyler bölüm izlencesine göredir; vize ve final ortak sınavdır.</strong> Sınav kapsamı yalnızca 01–13. hafta konularıdır.</p>
+      </div>
+      <div class="chips">
+        <span class="chip accent">${escapeHTML(CALENDAR.term)}</span>
+        <span class="chip">13 weeks · Tuesday lectures</span>
+        <span class="chip">Midterm W07 · common exam</span>
+        <span class="chip">Scope: W01–W13</span>
+        <a class="chip" href="PHY101_Syllabus.html">Syllabus →</a>
+      </div>
+    </header>
+    <div class="grid-head"><strong>Weekly notebooks</strong>
+      <div class="legend"><span>laboratory week</span><span class="exam">examination</span><span class="none">no laboratory</span></div></div>
+    <div class="cards">${cards}</div>
+    <div class="resources">
+      <h2>Also on this site</h2>
+      <ul>
+        <li><a href="#extensions" data-panel-link="extensions">Extension notebooks</a> — optional, not examined</li>
+        <li><a href="../notebooks/Final_Review.ipynb">Final review notebook</a> — Weeks 01–13</li>
+        <li><a href="../labs/Lab_00_Uncertainty_Toolkit.ipynb">Uncertainty toolkit</a> — used in every experiment</li>
+        <li><a href="../History%20of%20Physics/index.html">History of Physics portal</a></li>
+        <li><a href="../TEXTBOOK_MAP.md">Textbook &amp; laboratory map</a> — chapters per week</li>
+        <li><a href="../COURSE_POLICY.md">Course policy</a></li>
+      </ul>
+    </div>
   </section>`;
 }
 
@@ -275,29 +250,39 @@ function weekPanel(w) {
     : 'Concepts with worked algebra, interactive checks, worked examples and a three-level problem set with answers to check against.';
   const goals = (GOALS[w.week] || []).map(g => `<li>${escapeHTML(g)}</li>`).join('');
   const ext = w.support_modules.map(n => CALENDAR.extensions[String(n)]).filter(Boolean)
-    .map(x => `<p class="line"><strong>Optional extension:</strong> ${escapeHTML(x.title_en)} / ${escapeHTML(x.title_tr)} — <a href="${COLAB + x.notebook}" target="_blank" rel="noopener">open in Colab</a> · <a href="#extensions" data-panel-link="extensions">all extensions</a>.</p>`).join('');
+    .map(x => `<div class="aside-card"><h3>Optional extension</h3><div class="big">${escapeHTML(x.title_en)}</div><div class="sub" lang="tr">${escapeHTML(x.title_tr)}</div>
+      <p><a href="${COLAB + x.notebook}" target="_blank" rel="noopener">Open in Colab</a> · <a href="#extensions" data-panel-link="extensions">all extensions</a> · not examined</p></div>`).join('');
   const solutions = w.kind === 'teaching' ? w.modules.map(solutionLine).join('') : '';
-  const lab = w.lab ? `<p class="line"><strong>Laboratory / Deney:</strong> ${escapeHTML(w.lab.title_tr)} — ${escapeHTML(w.lab.title_en)}. ${escapeHTML(w.lab.focus)}.`
-      + (w.lab.brief ? ` <a href="../${escapeHTML(w.lab.brief)}">Open the brief</a> · <a href="../labs/Lab_00_Uncertainty_Toolkit.ipynb">uncertainty toolkit</a>.` : ' All briefs are in <a href="../labs/">labs/</a>.')
-      + (w.lab.covers_week && w.lab.covers_week !== w.week ? ` It measures the physics of Week ${pad(w.lab.covers_week)}.` : '')
-      + ` Laboratory analysis technique is not examined in the common exams.</p>` : '';
+  const lab = w.lab ? `<div class="aside-card"><h3>Laboratory · Deney</h3><div class="big">${escapeHTML(w.lab.title_en)}</div><div class="sub" lang="tr">${escapeHTML(w.lab.title_tr)}</div>
+      <p>${escapeHTML(w.lab.focus)}.${w.lab.covers_week && w.lab.covers_week !== w.week ? ` It measures the physics of Week ${pad(w.lab.covers_week)}.` : ''} Laboratory analysis technique is not examined in the common exams.</p>
+      <p>${w.lab.brief ? `<a href="../${escapeHTML(w.lab.brief)}">Open the brief</a> · <a href="../labs/Lab_00_Uncertainty_Toolkit.ipynb">uncertainty toolkit</a>` : 'All briefs are in <a href="../labs/">labs/</a>'}</p></div>`
+    : `<div class="aside-card"><h3>Laboratory · Deney</h3><div class="sub">${w.kind === 'midterm' ? 'No laboratory in the midterm week.' : 'No laboratory this week.'}</div></div>`;
   const prev = CALENDAR.weeks.find(x => x.week === w.week - 1), next = CALENDAR.weeks.find(x => x.week === w.week + 1);
   return `<section class="week-panel" id="week-${w.week}" data-calendar-week="${w.week}">
-    <header class="week-header">
-      <div class="week-tag">Week ${pad(w.week)} of ${CALENDAR.weeks.length} · ${escapeHTML(dateRange(w))}${escapeHTML(session)}</div>
-      <h1 class="week-heading" tabindex="-1">${escapeHTML(w.title_en)}<br><em lang="tr">${escapeHTML(w.title_tr)}</em></h1>
-      <p class="week-desc">${escapeHTML(w.scope)}.${NOTES[w.week] ? ' ' + escapeHTML(NOTES[w.week]) : ''}</p>
+    <header class="page-head">
+      <div>
+        <div class="week-tag">Week ${pad(w.week)} of ${CALENDAR.weeks.length} · ${escapeHTML(dateRange(w))}${escapeHTML(session)}</div>
+        <h1 class="week-heading" tabindex="-1">${escapeHTML(w.title_en)}<span class="tr" lang="tr">${escapeHTML(w.title_tr)}</span></h1>
+        <p class="week-desc">${escapeHTML(w.scope)}.${NOTES[w.week] ? ' ' + escapeHTML(NOTES[w.week]) : ''}</p>
+      </div>
     </header>
-    <div class="notebook-card">
-      <div class="what"><strong>Week ${pad(w.week)} notebook</strong>${what}<br><span class="nb-filename">${escapeHTML(w.notebook)}</span></div>
-      ${notebookButtons(w.notebook, 'Week ' + pad(w.week))}
-      ${NOTE_PAGES.includes(w.week) ? `<div class="button-row"><a class="nb-btn" href="../w${w.week}/">Read the week notes</a></div>` : ''}
+    <div class="week-body">
+      <div class="week-main">
+        <div class="notebook-card">
+          <div class="what"><strong>Week ${pad(w.week)} notebook</strong>${what}<br><span class="nb-filename">${escapeHTML(w.notebook)}</span></div>
+          <div class="button-row"><a class="nb-btn" href="${COLAB + w.notebook}" target="_blank" rel="noopener" aria-label="Open Week ${pad(w.week)} in Colab">Open in Colab</a>
+            <a class="nb-btn secondary" href="../${escapeHTML(w.notebook)}" download aria-label="Download Week ${pad(w.week)} notebook">Download notebook</a>
+            ${NOTE_PAGES.includes(w.week) ? `<a class="nb-btn secondary" href="../w${w.week}/">Read the week notes</a>` : ''}</div>
+        </div>
+        <div><div class="section-title">${w.kind === 'midterm' ? 'This week' : 'By the end of this week you can'}</div><ol class="goals">${goals}</ol></div>
+        ${solutions}
+      </div>
+      <aside class="week-aside">
+        ${lab}${ext}
+        <div class="prev-next"><span>${prev ? `<a href="#week-${prev.week}" data-panel-link="week-${prev.week}">← W${pad(prev.week)} ${escapeHTML(prev.title_en)}</a>` : ''}</span>
+          <span>${next ? `<a href="#week-${next.week}" data-panel-link="week-${next.week}">W${pad(next.week)} ${escapeHTML(next.title_en)} →</a>` : `<a href="#extensions" data-panel-link="extensions">Extension notebooks →</a>`}</span></div>
+      </aside>
     </div>
-    <div class="section-title">${w.kind === 'midterm' ? 'This week' : 'By the end of this week you can'}</div>
-    <ul class="goals">${goals}</ul>
-    ${lab}${solutions}${ext}
-    <div class="prev-next"><span>${prev ? `<a href="#week-${prev.week}" data-panel-link="week-${prev.week}">← Week ${pad(prev.week)}: ${escapeHTML(prev.title_en)}</a>` : ''}</span>
-      <span>${next ? `<a href="#week-${next.week}" data-panel-link="week-${next.week}">Week ${pad(next.week)}: ${escapeHTML(next.title_en)} →</a>` : `<a href="#extensions" data-panel-link="extensions">Optional extension notebooks →</a>`}</span></div>
   </section>`;
 }
 
@@ -309,23 +294,23 @@ function extensionsPanel() {
       <span>${where} · same structure as a weekly notebook · problems labelled Module ${pad(n)} · solution file opens ${dateLabel(CALENDAR.release_dates[String(n)], true)}</span></div>
       ${notebookButtons(x.notebook, x.title_en)}</div>`;
   }).join('');
-  return `<section class="week-panel" id="extensions"><header class="week-header">
-    <div class="week-tag">Optional · ${Object.keys(CALENDAR.extensions).length} notebooks · not scheduled weeks</div>
-    <h1 class="week-heading" tabindex="-1">Extension notebooks<br><em lang="tr">İsteğe bağlı ek notlar</em></h1>
-    <p class="week-desc">The 13 weekly notebooks are the course. These add more for students who want it; none is required.</p></header>${rows}</section>`;
+  return `<section class="week-panel" id="extensions"><header class="page-head"><div>
+    <div class="week-tag">Optional · ${Object.keys(CALENDAR.extensions).length} notebooks · not scheduled weeks · not examined</div>
+    <h1 class="week-heading" tabindex="-1">Extension notebooks<span class="tr" lang="tr">İsteğe bağlı ek notlar</span></h1>
+    <p class="week-desc">The 13 weekly notebooks are the course. These add more for students who want it; none is required.</p></div></header>${rows}</section>`;
 }
 
 function showPanel(key, updateHash = true) {
   const panel = document.getElementById(key);
   if (!panel || !panel.classList.contains('week-panel')) return;
   document.querySelectorAll('.week-panel').forEach(p => p.classList.toggle('active', p === panel));
-  document.querySelectorAll('#calendar-navigation .week-btn').forEach(b => {
+  document.querySelectorAll('#calendar-navigation .strip-btn').forEach(b => {
     const on = b.dataset.panel === key; b.classList.toggle('active', on);
-    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    if (on) { b.setAttribute('aria-current', 'page'); b.scrollIntoView({block: 'nearest', inline: 'nearest'}); } else b.removeAttribute('aria-current');
   });
   document.querySelectorAll('.topbar-nav a[data-panel-link]').forEach(a => a.classList.toggle('active', a.dataset.panelLink === key));
   if (updateHash && window.location.hash !== '#' + key) window.history.replaceState(null, '', '#' + key);
-  document.getElementById('course-content').scrollTop = 0;
+  window.scrollTo({top: 0, behavior: 'auto'});
   panel.querySelector('h1')?.focus({preventScroll: true});
 }
 
@@ -334,15 +319,7 @@ function build() {
     document.getElementById('course-content').innerHTML = '<p>The course calendar could not load. Refresh this page or open the syllabus.</p>';
     throw new Error('Expected the 13-week PHY101 calendar');
   }
-  document.getElementById('calendar-navigation').innerHTML = `<span class="sidebar-label">Physics I · Fall 2026–27</span>
-    <button class="week-btn" type="button" data-panel="overview"><span class="week-num">All</span><span class="week-title">Calendar overview</span></button>
-    <a class="week-btn sidebar-link" href="../History%20of%20Physics/index.html"><span class="week-num">HIS</span><span class="week-title">History Portal</span></a>
-    ${CALENDAR.weeks.map(w => `<button class="week-btn" type="button" data-panel="week-${w.week}" title="Week ${w.week}: ${escapeHTML(w.title_en)}">
-      <span class="week-num">W${pad(w.week)}</span><span class="week-title">${escapeHTML(w.title_en)}<span class="week-date">${escapeHTML(dateRange(w))}</span></span></button>`).join('')}
-    <button class="week-btn" type="button" data-panel="extensions"><span class="week-num">+</span><span class="week-title">Extension notebooks<span class="week-date">optional</span></span></button>
-    <a class="week-btn sidebar-link" href="../notebooks/Final_Review.ipynb"><span class="week-num">FIN</span><span class="week-title">Final review<span class="week-date">Weeks 01–13</span></span></a>
-    <a class="week-btn sidebar-link" href="../labs/Lab_00_Uncertainty_Toolkit.ipynb"><span class="week-num">LAB</span><span class="week-title">Uncertainty toolkit<span class="week-date">all experiments</span></span></a>
-    <a class="week-btn sidebar-link" href="../TEXTBOOK_MAP.md"><span class="week-num">MAP</span><span class="week-title">Textbook &amp; lab map<span class="week-date">chapters per week</span></span></a>`;
+  document.getElementById('calendar-navigation').innerHTML = stripNav();
   document.getElementById('course-content').innerHTML = overviewPanel() + CALENDAR.weeks.map(weekPanel).join('') + extensionsPanel();
   document.querySelectorAll('[data-panel]').forEach(b => b.addEventListener('click', () => showPanel(b.dataset.panel)));
   document.querySelectorAll('[data-panel-link]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); showPanel(a.dataset.panelLink); }));
