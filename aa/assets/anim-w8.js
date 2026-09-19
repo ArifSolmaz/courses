@@ -79,8 +79,8 @@
         hint: "Could <code>max</code> skip any item? Play it at n = 8 and n = 16 and compare the work.",
         why: "<code>c</code> is <strong>O(n)</strong> — <code>max</code> must inspect every item; the biggest could be anywhere." },
       { src: "d = sorted(data)", ans: "nlogn", unit: "item moves",
-        hint: "Play it at n = 8 and n = 16: count the rounds and the moves per round.",
-        why: "<code>d</code> is <strong>O(n log n)</strong> — good sorting: about log₂ n rounds, each a pass over the data." },
+        hint: "Conceptual merge model for sorted(), not an exact Python trace: compare n = 8 and n = 16. Python exploits existing order.",
+        why: "<code>d</code> is <strong>O(n log n)</strong> — worst-case comparison sorting. This diagram models bottom-up merges, not Python’s exact sorting trace; Python also exploits existing order." },
       { src: "e = [x * 2 for x in data]", ans: "n", unit: "items visited",
         hint: "How many times does the comprehension visit each item? Play it at both sizes.",
         why: "<code>e</code> is <strong>O(n)</strong> — one visit per item, building a new list of n items." },
@@ -380,7 +380,7 @@
     gauge.appendChild(track);
     host.appendChild(gauge);
 
-    var quiz = quizRow(host, "this column implies", CLS, function (id) {
+    var quiz = quizRow(host, "this column suggests", CLS, function (id) {
       var S = STUDIES[cur];
       if (id === S.ans) {
         st[cur].ok = true;
@@ -455,7 +455,7 @@
       else {
         var rs = st[cur].ratios;
         m.innerHTML = "Column complete: ratios " + rs.map(function (x) { return x.toFixed(2); }).join(", ") + ". " +
-          (st[cur].ok ? "" : "Which class does that imply? Pick one above.");
+          (st[cur].ok ? "" : "Which class does that suggest? Pick one above.");
         if (!st[cur].played) { st[cur].played = true; quiz.enable(); if (!st[cur].ok) fb.innerHTML = ""; }
       }
     }

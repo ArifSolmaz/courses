@@ -526,9 +526,17 @@
       xs.forEach(function (x, i) { nu += (x - mx) * (ys[i] - my); de += (x - mx) * (x - mx); });
       return nu / de;
     }
-    function largest(pts, sl) {
-      var last = pts[pts.length - 1], n = last[0] * Math.pow(budget / last[1], 1 / sl);
-      if (n > 1e9) return "&gt; 1 billion (memory runs out first)";
+    function largest(pts, sl, id) {
+      var last = pts[pts.length - 1], n;
+      if (id === "sorted") {
+        // n log n is not a fixed power law; invert the stated model.
+        var lo = 1, hi = 2;
+        function seconds(x) { return COST.sortedUnit * x * Math.log2(x); }
+        while (seconds(hi) <= budget) hi *= 2;
+        for (var j = 0; j < 60; j++) { var mid = (lo + hi) / 2; if (seconds(mid) <= budget) lo = mid; else hi = mid; }
+        n = lo;
+      } else n = last[0] * Math.pow(budget / last[1], 1 / sl);
+      if (n > 1e9) return "&gt; 1 billion (memory not modelled)";
       var p = Math.pow(10, Math.floor(Math.log10(n)) - 1);
       return "≈ " + fmt(Math.round(n / p) * p);
     }
@@ -556,7 +564,7 @@
       var sls = {};
       tb.rows(ALGS.map(function (a) {
         var sl = slope(d[a.id]); sls[a.id] = sl;
-        return ["<span class='w13-dot' style='background:var(" + a.color + ")'></span>" + a.name, "<b>" + sl.toFixed(2) + "</b>", words(sl), largest(d[a.id], sl)];
+        return ["<span class='w13-dot' style='background:var(" + a.color + ")'></span>" + a.name, "<b>" + sl.toFixed(2) + "</b>", words(sl), largest(d[a.id], sl, a.id)];
       }), -1);
       var v = "";
       function chk(sel, val, name) {
@@ -565,8 +573,8 @@
         return " " + name + ": you said ≈ " + g + (Math.abs(g - val) < 0.15 ? " ✓." : ", measured " + val.toFixed(2) + ".");
       }
       v = chk(gB, sls.bubble, "bubble") + chk(gP, sls.sorted, "sorted()");
-      m.innerHTML = "Three parallel lines with slope ≈ 2 (same class, different constants — insertion is lowest because it stops early on random data) and one shallow line with slope just above 1. " +
-        "The gap between them widens with every doubling." + v + " Change the time budget to see how far each one can go.";
+      m.innerHTML = "Three parallel lines with slope ≈ 2 (same class, different constants — insertion does less work on average on these random inputs, with the chosen per-operation costs) and one shallow line with slope just above 1. " +
+        "The gap between them widens with every doubling." + v + " Budget estimates are model extrapolations, not practical guarantees: sorted() uses 23 ns × n·log₂n; the other estimates extend the fitted power laws. Memory and hardware limits are not modelled.";
     }
     var player = U.Player(host, {
       build: function () { var f = []; for (var k = 0; k <= SIZES.length; k++) f.push({ k: k }); return f; },

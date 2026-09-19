@@ -248,6 +248,7 @@
         out.push(padL(n, 10) + " " + padL(fx(m.t, 5), 12) + " " + padL(fx(ratio, 2), 8));
         fr(L.print, n, "One row of the table.", { cur: k });
         prev = m.t;
+        fr(L.keep, n, "Save this time in previous for the next ratio.", { cur: k });
       });
       f[f.length - 1].final = true;
       return f;

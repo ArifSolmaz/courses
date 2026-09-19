@@ -40,7 +40,7 @@
   function fixed(x, n) {
     if (x !== x) return "nan";
     if (!isFinite(x)) return x > 0 ? "inf" : "-inf";
-    var a = Math.abs(x), sign = x < 0 ? "-" : "";
+    var a = Math.abs(x), sign = x < 0 || Object.is(x, -0) ? "-" : "";
     if (a >= 1e21) return sign + a.toFixed(0);
     var ex = a.toFixed(Math.min(100, n + 80)), dot = ex.indexOf(".");
     var tail = ex.slice(dot + 1 + n);
@@ -603,12 +603,12 @@
       push(8, "And the count.", st({ up: true, space: true, cf: nF, cl: nL, letters: nF + nL }));
       var lf = chars(full).length;
       push(0, "What if we had written <code>len(full)</code>? It counts every character of " + esc(strRepr(full)) +
-        " — <strong>including the space</strong> — and gives <strong>" + lf + "</strong>, one more than " + (nF + nL) + ".",
+        " — <strong>including the space</strong> — and gives <strong>" + lf + "</strong>. The original names contain " + (nF + nL) + " code points; uppercasing can change the length (ß becomes SS). len counts code points, including any spaces typed into the name boxes.",
         st({ up: true, space: true, cf: nF, cl: nL, letters: nF + nL, len: true, count: lf }));
       return f;
     }
     function onFrame(fr) {
-      var s = fr.st, A = chars(fF.value), B = chars(fL.value), html = "", k = 0;
+      var s = fr.st, A = chars(s.len ? fF.value.toUpperCase() : fF.value), B = chars(s.len ? fL.value.toUpperCase() : fL.value), html = "", k = 0;
       function tile(c, cls, label) {
         k++;
         var numbered = s.count >= k;

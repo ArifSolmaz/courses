@@ -86,11 +86,21 @@
       var op = h("option", "", o[1]); op.value = o[0]; if (o[0] === "1") op.selected = true; sel.appendChild(op);
     });
     sel.addEventListener("change", function () { speed = parseFloat(sel.value); });
+    var scrub = h("input", "aa-scrub"); scrub.type = "range"; scrub.min = "0"; scrub.step = "1";
+    scrub.setAttribute("aria-label", "Animation step");
+    scrub.addEventListener("input", function () { stop(); i = Number(scrub.value); draw(); });
+    scrub.addEventListener("keydown", function (event) {
+      if (event.key !== "Home" && event.key !== "End") return;
+      event.preventDefault();
+      scrub.value = event.key === "Home" ? "0" : scrub.max;
+      scrub.dispatchEvent(new Event("input", { bubbles: true }));
+    });
     var count = h("span", "anim-count");
-    [bReset, bBack, bPlay, bStep, sel, count].forEach(function (x) { bar.appendChild(x); });
+    [bReset, bBack, bPlay, bStep, sel, scrub, count].forEach(function (x) { bar.appendChild(x); });
     host.appendChild(bar);
 
     function draw() {
+      scrub.max = String(Math.max(0, frames.length - 1)); scrub.value = String(i);
       cfg.render(frames[i], i, frames);
       count.textContent = "step " + i + " / " + (frames.length - 1);
       bBack.disabled = bReset.disabled = i === 0;
@@ -119,6 +129,9 @@
     function load() { stop(); frames = cfg.build(); i = 0; draw(); }
     new MutationObserver(function () { if (frames.length) draw(); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    var root = host.closest("[data-anim]") || host;
+    root.addEventListener("aa:pause", function () { stop(); if (frames.length) draw(); });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) { stop(); if (frames.length) draw(); } });
     return { load: load, stop: stop, el: bar };
   }
 
@@ -598,8 +611,8 @@
     opts.appendChild(slider); opts.appendChild(nv);
     host.appendChild(opts);
     var opts2 = h("div", "anim-opts");
-    var guess = h("input"); guess.type = "number"; guess.min = "0"; guess.placeholder = "looks?";
-    guess.setAttribute("aria-label", "Predicted number of looks");
+    var guess = h("input"); guess.type = "number"; guess.min = "0"; guess.placeholder = "halvings?";
+    guess.setAttribute("aria-label", "Predicted number of halvings");
     opts2.appendChild(h("span", "lab", "your prediction:"));
     opts2.appendChild(guess);
     opts2.appendChild(btn("1 000 000", "", function () { slider.value = "5"; change(); }));
@@ -612,7 +625,7 @@
     var bar = h("div", "db-bar"); var fill = h("div", "db-fill"); bar.appendChild(fill); host.appendChild(bar);
     var sub = h("div", "db-sub", "");
     host.appendChild(sub);
-    host.appendChild(h("div", "lab muted", "<small>looks used — one block per halving</small>"));
+    host.appendChild(h("div", "lab muted", "<small>halvings used — round up after each halving</small>"));
     var ticks = h("div", "db-ticks"); var tk = [];
     for (var i = 0; i < 30; i++) { var t = h("div", "db-tick"); ticks.appendChild(t); tk.push(t); }
     host.appendChild(ticks);
@@ -635,13 +648,13 @@
       if (fr.k === 0) {
         m.innerHTML = "Guess first, using the doubling rule: how many times can you halve " + fmt(N) + " before one item is left? Then press <strong>play</strong>.";
       } else if (fr.left > 1) {
-        m.innerHTML = "Look " + fr.k + ": one look throws away half, leaving " + fmt(fr.left) + ". <span class='muted'>Doubling the other way: 2<sup>" + fr.k + "</sup> = " + fmt(Math.pow(2, fr.k)) + ".</span>";
+        m.innerHTML = "Halving " + fr.k + ": round the remaining half up, leaving " + fmt(fr.left) + ". <span class='muted'>Doubling the other way: 2<sup>" + fr.k + "</sup> = " + fmt(Math.pow(2, fr.k)) + ".</span>";
       } else {
         var p = parseInt(guess.value, 10), v = "";
         if (!isNaN(p)) v = Math.abs(p - K) <= 1 ? " Your prediction (" + p + ") was spot on." : " You predicted " + p + " — compare with the doubling rule.";
-        m.innerHTML = "<strong>" + K + " looks</strong> for " + fmt(N) + " items, because 2<sup>" + K + "</sup> = " + fmt(Math.pow(2, K)) +
-          " is the first power of two that reaches " + fmt(N) + "." + v +
-          (N >= 1e6 ? " Try the other size: a thousand times more items costs only about ten more looks." : "");
+        m.innerHTML = "<strong>" + K + " halvings</strong> for " + fmt(N) + " items, because 2<sup>" + K + "</sup> = " + fmt(Math.pow(2, K)) +
+          " is the first power of two that reaches " + fmt(N) + ". This counts reductions to one candidate, not exact binary-search probes (the last candidate still needs checking)." + v +
+          (N >= 1e6 ? " Try the other size: a thousand times more items costs only about ten more halvings." : "");
       }
     }
     var player = Player(host, { build: build, render: render, fps: function () { return 2.2; } });
@@ -704,6 +717,7 @@
     function mood(x) { bot.className = "lr-bot " + (x || ""); }
     function speak(t, cls) { say.innerHTML = t; say.className = "lr-say " + (cls || ""); }
     function clear() { token++; clearTimeout(timer); bStop.disabled = true; }
+    host.addEventListener("aa:pause", function () { clear(); bRun.disabled = false; });
     function later(fn, ms) { var my = token; timer = setTimeout(function () { if (my === token) fn(); }, REDUCED ? Math.min(ms, 60) : ms); }
     function halt(t) { clear(); mood("confused"); speak(t, "q"); showRules(); bRun.disabled = false; bFix.disabled = !solved; }
     function showRules() { rules.classList.add("on"); }

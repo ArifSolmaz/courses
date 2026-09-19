@@ -211,10 +211,12 @@ def week_page(meta, body):
 """ if bridge else ""
     )
     animation_styles = '<link rel="stylesheet" href="../assets/anim.css">'
-    animation_scripts = '<script src="../assets/anim.js"></script>'
+    animation_scripts = '<script src="../assets/anim.js?v=9"></script>'
     if num > 1:
         animation_styles += f'<link rel="stylesheet" href="../assets/anim-w{num}.css">'
-        animation_scripts += f'<script src="../assets/anim-w{num}.js"></script>'
+        animation_scripts += f'<script src="../assets/anim-w{num}.js?v=9"></script>'
+    animation_styles += '<link rel="stylesheet" href="../assets/anim-workspace.css?v=9">'
+    animation_scripts += '<script src="../assets/anim-workspace.js?v=9"></script>'
     weekly_chips = [c for c in chips if "hour" not in c]
     weekly_chips.append("3-hour studio")
     chip_html = "".join(f'<span class="chip">{c}</span>' for c in weekly_chips)

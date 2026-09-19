@@ -165,7 +165,7 @@
           (k > 1 ? " Ratio to the previous size: <strong>×" + (v[k - 1] / v[k - 2]).toFixed(2) + "</strong>." : "");
       } else {
         var r = ratioAvg(), cls = op.cls === 1 ? "O(1)" : "O(n)", p = pred[op.id];
-        m.innerHTML = "Ratios hover around <strong>×" + r.toFixed(2) + "</strong> each time n doubles, so the measured class is <strong>" + cls + "</strong>" +
+        m.innerHTML = "Ratios hover around <strong>×" + r.toFixed(2) + "</strong> each time n doubles, consistent with the expected class <strong>" + cls + "</strong>" +
           (op.cls === 1 ? " — the time does not care how long the list is." : " — every doubling of n doubles the time.") +
           (p ? (p === op.cls ? " Your prediction was right." : " Your prediction said otherwise — look at the lockers again.") : "") +
           " Pick another operation: the finished ones stay on the chart, and they split into a flat group and a rising group.";

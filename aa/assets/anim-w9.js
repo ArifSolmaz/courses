@@ -310,7 +310,7 @@
         }
       }
       f.push({ line: 9, vars: { s1: s1, s2: s2 }, out: ["False"], list: list, counters: { candidates: fact(n) + " / " + fact(n), "characters joined": chars }, done: true,
-        note: "Exhausted: all <strong>" + fact(n) + "</strong> candidates tried, each costing a join of " + n + " characters → " + chars + " characters = n · n!. Add one letter and this multiplies by n + 1." });
+        note: "Exhausted: all <strong>" + fact(n) + "</strong> candidates tried, each costing a join of " + n + " characters → " + chars + " characters = n · n!. Adding one letter multiplies the candidate count by n + 1, but the characters joined by (n + 1)² / n (each candidate is longer too)." });
       return f;
     }
     function onFrame(fr) {
@@ -519,7 +519,7 @@
       left.appendChild(g); slots.push(arr);
     });
     var st4 = h("div", "anim-stats"); left.appendChild(st4);
-    right.appendChild(h("div", "w9-h", "anagram_counter · collections.Counter"));
+    right.appendChild(h("div", "w9-h", "anagram_counter · collections.Counter (conceptual distinct-key comparison)"));
     var cbc = codeBox(right, SRCC);
     var dicts = [];
     ["Counter(s1)", "Counter(s2)"].forEach(function (nm) {
@@ -599,7 +599,7 @@
       if (resC === null) resC = same;
       var last = snap({ l4: err ? 0 : res4 ? 16 : 15, lc: 4, done: true });
       var r4 = err ? "crashes (IndexError)" : String(res4 ? "True" : "False");
-      last.note = "Solution 4: <strong>" + r4 + "</strong> after " + up4 + " tally updates and " + chk4 + " slot checks. Counter: <strong>" + (resC ? "True" : "False") + "</strong> after " + upC + " updates and " + chkC + " key check" + (chkC === 1 ? "" : "s") + ". " +
+      last.note = "Solution 4: <strong>" + r4 + "</strong> after " + up4 + " tally updates and " + chk4 + " slot checks. Counter: <strong>" + (resC ? "True" : "False") + "</strong> after " + upC + " updates and " + chkC + " distinct-key check" + (chkC === 1 ? "" : "s") + " in this conceptual model (not an exact count of CPython Counter internals). " +
         (err ? "Counter supports a broader alphabet; the 26-slot list assumes a–z only." :
           pair[0] === "Listen" ? "Uppercase letters gave <em>negative</em> slot numbers — Python wrapped them silently. The 26-slot version needs validated input." :
             "Both visit every character once: same O(n) class. The difference is the work per step — a list slot vs a hash-table entry — and the fixed part: 26 + 26 slots vs k + k keys (k = " + k1.length + ").");
@@ -625,7 +625,7 @@
         }).join(", ") + "}";
       });
       st4.innerHTML = statHtml({ "tally updates": fr.up4, "slot checks": fr.chk4 + " / 26", "result": fr.done ? (fr.err ? "IndexError" : fr.res4 ? "True" : "False") : "…" });
-      stc.innerHTML = statHtml({ "tally updates": fr.upC, "key checks": fr.chkC, "result": fr.resC === null ? "…" : fr.resC ? "True" : "False" });
+      stc.innerHTML = statHtml({ "tally updates": fr.upC, "distinct-key checks (model)": fr.chkC, "result": fr.resC === null ? "…" : fr.resC ? "True" : "False" });
       st4.classList.toggle("w9-crash", !!fr.err);
       m.innerHTML = fr.note;
     }

@@ -464,7 +464,7 @@
     var cells = [];
     function build() {
       var order = mode === "bis" ? DATA : SETORD;
-      cap.innerHTML = "<small>" + (mode === "bis" ? "the sorted list <code>data</code> (index underneath)" : "the set <code>lookup</code> — its elements come out in hash order, not value order") + "</small>";
+      cap.innerHTML = "<small>" + (mode === "bis" ? "the sorted list <code>data</code> (index underneath)" : "the set <code>lookup</code> — illustrative iteration order, not guaranteed value order") + "</small>";
       arr.className = "arr w12-arr" + (mode === "bis" ? " idx" : " w12-bag");
       arr.innerHTML = ""; cells = [];
       order.forEach(function (v, j) {
@@ -483,7 +483,7 @@
           var lo = 0, hi = DATA.length, x = ps[1], nm = "bisect_" + ps[0];
           var ex = {}; if (rightVal !== null) ex["bisect_right(...)"] = rightVal;
           f.push({ line: 2, vars: V(ex), looked: seen.slice(), lo: lo, hi: hi, which: ps[0],
-            note: "Python evaluates the left operand first: <strong>" + nm + "(data, " + x + ")</strong>. It halves a window lo = 0, hi = " + hi + " — the same idea as insertion_point in §12.5.",
+            note: (ps[0] === "right" ? "Evaluate the left operand first: <strong>" : "Now evaluate the right operand: <strong>") + nm + "(data, " + x + ")</strong>. It halves a window lo = 0, hi = " + hi + " — the same idea as insertion_point in §12.5.",
             counters: { "elements looked at": looks } });
           while (lo < hi) {
             var mid = Math.floor((lo + hi) / 2), dv = DATA[mid];
