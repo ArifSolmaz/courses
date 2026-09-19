@@ -110,3 +110,11 @@ checks source mappings, exact regeneration and semantic fixtures for ranges,
 loop control, aliasing, function stacks, errors, CSV quoting and saved reports.
 Also check playback, case switching, keyboard scrubbing and mobile layout in the
 browser. All animations are ungraded practice.
+
+The animation workspace is bounded to the viewport height. Code, variables and
+collections share the central area; output and playback controls remain visible
+below it. Long content scrolls inside each pane, and execution follows the active
+line and changed state. Expand opens the same workspace in a native modal dialog;
+Close or Escape restores it without resetting the selected case or step. The
+Guide contains explanations and notebook references. Check inline and expanded
+layouts at 1280×720 and 1366×768 when changing this UI.

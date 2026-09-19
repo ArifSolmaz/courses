@@ -16,7 +16,7 @@ def esc(value):
     return html.escape(str(value))
 
 def shell(title, body, week=0):
-    lab_assets = (f'<link rel="stylesheet" href="cp1-lab.css?v=2"><script src="lab-data/week-{week:02d}.js?v=2" defer></script><script src="cp1-lab.js?v=2" defer></script>' if week else '')
+    lab_assets = (f'<link rel="stylesheet" href="cp1-lab.css?v=3"><script src="lab-data/week-{week:02d}.js?v=2" defer></script><script src="cp1-lab.js?v=3" defer></script>' if week else '')
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="CP1 weekly lessons for mechatronics: physical problems, clear explanations, worked examples and companion Python notebooks.">
