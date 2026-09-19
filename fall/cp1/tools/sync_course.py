@@ -108,7 +108,7 @@ def panel(week):
 <p class="subtitle">{html.escape(lesson['subtitle'])}</p>
 <p>{html.escape(lesson['intro']['success'])}</p>
 <a class="button" href="Week_{n:02d}.html">Start Week {n:02d} →</a>
-<p class="study-note">The lesson takes you through Understand → Investigate → Check. Open Colab when you reach the experiment.</p>
+<p class="study-note">Read the lesson and its examples on one page. Continue in Colab when you are ready to try them.</p>
 <details class="path-resources"><summary>Notebook, solutions &amp; practice reference</summary><div>
 <p>Python tools: {inline(week['title'])}. {week['core']} core / {week['optional']} optional exercises. Weekly notebooks are private practice.</p>
 <a href="{COLAB + week['notebook']}" target="_blank" rel="noopener">Lesson in Colab</a>

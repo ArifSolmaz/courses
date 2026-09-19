@@ -58,9 +58,13 @@ stored locally under a versioned, week-specific key and can be downloaded;
 nothing is submitted to an instructor. The HTML activities fit within existing
 guided sessions and do not add graded homework or change assessment weights.
 
-Weekly pages use Understand → Investigate → Check. The shared controls live in
-`../../../assets/learning-path.js` and `.css`. `CP1_Experiences.html` is a legacy
-redirect to the course home, so there is one weekly entry route.
+Weekly pages are continuous lessons: the opening problem, explanation and example
+code, worked variations, and practical work with a Colab link are on the same page.
+There are no stage tabs, stage-completion controls or hidden lesson panels. Notes
+and AI/partner guidance are optional disclosures. Shared navigation still supplies
+the week picker and resource menu; do not add `data-learning-path` or `data-step`
+to CP1 lessons. The old stage fragment IDs remain as scroll destinations for old
+links. `CP1_Experiences.html` remains a redirect to the course home.
 
 ## Weekly openings
 
