@@ -129,5 +129,22 @@ başına çok az şey öğretir. Kod yazmak bu dersin öğrenme hedefi değildir
 
 ---
 
+## 7. Public practice and reserved exam questions
+
+Public notebooks and HTML use independently authored practice scenarios. Do not reproduce reserved
+exam-bank stems, givens and answer patterns, or treat changing only names or numbers as a new problem.
+Keep the scheduled concept, but change the situation and the reasoning task: prediction, diagnosis,
+comparison or design. Include the worked route and its assumptions so students learn a transferable
+method. Exam preparation still follows the common syllabus.
+
+Replacing a published example does not retract copies or older git revisions. Previously exposed
+items should not be treated as unseen exam questions.
+
+**TR:** Açık ders materyallerinde sınav için ayrılan soru bankası soruları kullanılmaz. Yalnızca isim ve
+sayı değişikliği yerine, aynı kazanımı farklı bir durum ve akıl yürütme göreviyle çalıştıran özgün
+örnekler yazılır. Daha önce yayımlanmış bir soru, sayfadan kaldırılsa da görülmemiş kabul edilemez.
+
+---
+
 See [the textbook and laboratory map](TEXTBOOK_MAP.md), [the concept-inventory protocol](CONCEPT_INVENTORY.md),
 [the adopted calendar](SCHEDULE_ALIGNMENT.md) and [the course outline](content.md).

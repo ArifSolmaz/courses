@@ -864,13 +864,14 @@ def summary_card(week, equations):
 STAGES = [
     ("prepare", "Prepare", "plan, objectives, pre-check"),
     ("learn", "Learn", "concepts and worked examples"),
-    ("practise", "Practise", "bank examples and the problem set"),
+    ("practise", "Practise", "practice examples and the problem set"),
     ("check", "Check", "exit check and key equations"),
 ]
 STAGE_OF = {
     "before-you-start": "prepare",
     "concepts-demonstrations-and-worked-examples": "learn",
-    "more-worked-examples-from-the-question-bank": "practise",
+    "more-worked-examples-from-the-question-bank": "practise",  # old heading compatibility
+    "engineering-practice-examples": "practise",
     "optional-extension": "practise",
     "exit-check": "check",
     "solutions-and-next-week": "check",
@@ -893,7 +894,7 @@ WEX_RE = re.compile(r'<section class="wex" id="([^"]+)">(<div class="wex-head">.
 
 
 def fold_examples(chunk):
-    """Bank examples: keep the problem statement visible, fold the worked route."""
+    """Practice examples: keep the problem statement visible, fold the worked route."""
     def repl(m):
         ident, head, rest = m.group(1), m.group(2), m.group(3)
         cut = rest.find("</p>")

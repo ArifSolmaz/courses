@@ -34,7 +34,10 @@ Keep the section order the same in every week so students can navigate by the ta
    interface cell (id `phy101-widget-layout`).
 5. **Concepts, demonstrations and worked examples** — theory, demos beside their concept,
    checkpoints (model answers in `<details>`), worked examples.
-6. **More worked examples from the question bank**.
+6. **Engineering practice examples** — original scenarios with a prediction, symbolic route, limiting
+   check, numerical answer and interpretation. Do not publish reserved exam-bank items or variants
+   that only change names and numbers. Preserve example cell IDs and legacy anchors when replacing
+   content; regenerate the HTML with `python3 fall/phy101/tools/build_site.py all`.
 7. **Problem set — predict, then check** — core (L1), intermediate (L2), challenge (L3); each
    problem keeps its `Module XX Pn` identifier for the solution collection and hides its **answer** in
    `<details><summary>Answer …</summary>`. The answer is inline so a student can self-check; the full

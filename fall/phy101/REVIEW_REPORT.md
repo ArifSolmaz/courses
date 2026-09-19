@@ -1,5 +1,35 @@
 # PHY101 notebook and solutions review
 
+## Original public practice — 19 September 2026
+
+Replaced all 60 explicitly bank-sourced worked-example cells in Weeks 01–05 and 08–13
+with newly authored engineering practice. New tasks use prediction, diagnosis, comparison and
+parameter selection around the same scheduled physics concepts. Both notebook text and generated
+HTML are updated; the visible section is now **Engineering practice examples**. The source metadata
+now describes the replacement rather than attributing it to the former exam-bank item. Stable
+notebook cell IDs and existing explicit anchor IDs remain available.
+
+Each example includes a problem, physical picture and symbolic route, a limiting/model check,
+numerical results with units, interpretation and Turkish support. The HTML shows the problem first
+and folds its solution. No additional examples or weekly topics were introduced. Week 10’s general
+linear/angular relations are now boxed in the concept notes so the equation summary no longer
+depends on a removed bank solution.
+
+Validation: 108 numerical answers checked against the stated inputs across all 60 replacements;
+13 weekly notebooks pass schema validation; all executable cells are unchanged; all 60 former
+problem stems are absent from the current notebook sources; no testbank references remain in
+current notebook or HTML files; all existing explicit example anchors survive. All 60 replacement
+HTML solutions are folded, and the site verifier passes 311 checks across 13 pages. Browser checks
+found no KaTeX errors in the 11 affected weeks; expanded solutions were visually checked on desktop
+and at a 390-pixel mobile width, with no page-wide overflow in those views.
+
+This review covers the 60 identified bank-derived examples, not an assertion that every other
+course problem is unique against every publisher’s bank. Older public copies and git revisions
+remain accessible; replacement does not make previously exposed exam items unseen.
+
+**Historical record follows.** The source-bank provenance and earlier verification descriptions
+below refer to superseded editions, not the current practice examples.
+
 ## Single-notebook edition — 12 September 2026
 
 **What changed.** The course had two notebooks per week: a 14-file source-module library in `notebooks/` and 13 generated dated lessons in `calendar/`, both linked from the dashboard. They are merged into **one complete notebook per week** (`notebooks/Week_01.ipynb` … `Week_13.ipynb`) and five optional `extensions/` notebooks (circular motion, angular momentum, resonance, waves and sound, review and projects). The builder, the question-bank JSON and the two verification records of the old pipeline are removed; everything lives in the notebooks and in git history (commit `2ad4750`).
@@ -16,7 +46,7 @@ The sections below describe the earlier two-notebook editions and are kept as a 
 
 Reviewed 11 September 2026 against the local course notes, the lecture column of the supplied schedule image, and the separate `phy101-solutions` repository.
 
-## Additional fully worked examples — current revision
+## Additional fully worked examples — historical revision
 
 Sixty additional examples are now embedded in the source notes and the relevant
 dated lessons, before the existing practice sections. Fifty-five are based on
