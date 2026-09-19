@@ -136,7 +136,7 @@ ANIMS = {
         "foot": "T = 2m₁m₂g/(m₁+m₂) — the harmonic mean, which is always between the two.",
         "foot_tr": "Gerilme her zaman iki ağırlığın arasındadır.",
     })],
-    5: [("Work Done by a Variable Force", {
+    5: [("Work as the area under an F–x graph", {
         "name": "w5-area",
         "label": "Predict, then watch",
         "title": "Work is the signed area, and it accumulates",
@@ -447,7 +447,7 @@ def to_margin_notes(body):
     """
     def repl(m):
         text = TR_PREFIX.sub("", m.group(1)).strip()
-        return ('<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span>'
+        return ('<aside class="mn" lang="tr"><span class="mn-label">TÜRKÇE</span>'
                 f"<p>{text}</p></aside>")
     return re.sub(r'<p lang="tr">(.*?)</p>', repl, body, flags=re.S)
 
@@ -759,8 +759,10 @@ def head_html(title, desc, week, has_anim):
 (function () {{
   try {{
     var t = localStorage.getItem("phy101_theme");
-    if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    if (!t) t = "light";
     document.documentElement.setAttribute("data-theme", t);
+    var l = localStorage.getItem("phy101_lang");
+    if (l) document.documentElement.setAttribute("data-lang", l);
   }} catch (e) {{}}
 }})();
 </script>
@@ -783,6 +785,7 @@ def head_html(title, desc, week, has_anim):
     <a class="hlink" href="../web/PHY101_Course_Dashboard.html#overview">All weeks</a>
     <a class="hlink" href="../web/PHY101_Syllabus.html">Syllabus</a>
     <a class="hlink" href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Lab toolkit</a>
+    <button class="hlink" data-lang-toggle type="button" aria-pressed="false" title="Hide the Turkish notes">EN + TR</button>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
 </header>
@@ -843,11 +846,130 @@ def summary_card(week, equations):
             '<p>Every equation the notebook boxed, in the order it appeared. If you can say what each '
             'symbol is and when the equation does <em>not</em> apply, you are ready for the problem '
             'set.</p>'
-            '<aside class="mn"><span class="mn-label" lang="tr">TÜRKÇE</span><p>Bu haftanın '
+            '<aside class="mn" lang="tr"><span class="mn-label">TÜRKÇE</span><p>Bu haftanın '
             'çerçeveli denklemleri. Her sembolün ne olduğunu ve denklemin ne zaman '
             'geçerli <em>olmadığını</em> söyleyebiliyorsan problem setine '
             'hazırsın.</p></aside>'
             f'<div class="summary-grid">{items}</div></section>')
+
+
+
+# ---------------------------------------------------------------- stages
+#
+# A week's notes run to 9,000 words when everything is on one scroll. The
+# notebook's own section order gives four natural stages, and the page shows
+# one at a time behind a stage bar (all four print). Weeks without the full
+# structure (the review and midterm weeks) keep a single scroll.
+
+STAGES = [
+    ("prepare", "Prepare", "plan, objectives, pre-check"),
+    ("learn", "Learn", "concepts and worked examples"),
+    ("practise", "Practise", "bank examples and the problem set"),
+    ("check", "Check", "exit check and key equations"),
+]
+STAGE_OF = {
+    "before-you-start": "prepare",
+    "concepts-demonstrations-and-worked-examples": "learn",
+    "more-worked-examples-from-the-question-bank": "practise",
+    "optional-extension": "practise",
+    "exit-check": "check",
+    "solutions-and-next-week": "check",
+}
+
+
+def split_by_h2(body):
+    """[(slug, html)] — the first entry has slug '' when text precedes the first h2."""
+    parts, last, slug = [], 0, ""
+    for m in re.finditer(r'<h2 id="([^"]+)">', body):
+        if m.start() > last or parts or slug:
+            parts.append((slug, body[last:m.start()]))
+        slug, last = m.group(1), m.start()
+    parts.append((slug, body[last:]))
+    return [(sl, h) for sl, h in parts if h.strip()]
+
+
+WEX_RE = re.compile(r'<section class="wex" id="([^"]+)">(<div class="wex-head">.*?</div>)'
+                    r'<div class="wex-body">(.*?)</div></section>', re.S)
+
+
+def fold_examples(chunk):
+    """Bank examples: keep the problem statement visible, fold the worked route."""
+    def repl(m):
+        ident, head, rest = m.group(1), m.group(2), m.group(3)
+        cut = rest.find("</p>")
+        if cut < 0:
+            return m.group(0)
+        problem, route = rest[:cut + 4], rest[cut + 4:].strip()
+        if not route:
+            return m.group(0)
+        return (f'<section class="wex wex-fold" id="{ident}">{head}<div class="wex-body">{problem}'
+                f'<details class="wex-more"><summary>Show the worked route '
+                f'<span lang="tr">/ Çözüm yolunu göster</span></summary>{route}</details></div></section>')
+    return WEX_RE.sub(repl, chunk)
+
+
+def topic_list(chunk):
+    """Give the topic headings of the Learn stage ids and list them under the h2."""
+    seen, items = set(), []
+    def repl(m):
+        title = re.sub(r"<[^>]+>", "", m.group(1)).strip()
+        base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40] or "topic"
+        slug, k = "t-" + base, 2
+        while slug in seen:
+            slug, k = f"t-{base}-{k}", k + 1
+        seen.add(slug)
+        items.append((slug, title))
+        return f'<h3 id="{slug}">{m.group(1)}</h3>'
+    # only top-level topics: h3s inside worked-example boxes carry no id
+    out, last = [], 0
+    for box in re.finditer(r'<section class="wex.*?</section>', chunk, re.S):
+        out.append(re.sub(r"<h3>(.*?)</h3>", repl, chunk[last:box.start()], flags=re.S))
+        out.append(box.group(0)); last = box.end()
+    out.append(re.sub(r"<h3>(.*?)</h3>", repl, chunk[last:], flags=re.S))
+    chunk = "".join(out)
+    items = [(sl, t) for sl, t in items if t.lower() not in ("worked examples",) and "nteractive" not in t and not t.lower().startswith("animated")]
+    if len(items) < 3:
+        return chunk
+    nav = ('<nav class="topics" aria-label="Topics in this stage"><span class="toc-label">In this stage</span><ol>'
+           + "".join(f'<li><a href="#{sl}">{html.escape(t)}</a></li>' for sl, t in items) + "</ol></nav>")
+    return re.sub(r"(</h2>)", r"\1" + nav.replace("\\", "\\\\"), chunk, count=1)
+
+
+def stage_layout(body, intro, lab_box, summary, problems):
+    """Return the four-panel markup, or None when the week lacks the structure."""
+    parts = split_by_h2(body)
+    slugs = [sl for sl, _ in parts]
+    if "before-you-start" not in slugs or "concepts-demonstrations-and-worked-examples" not in slugs:
+        return None
+    buckets = {k: [] for k, _, _ in STAGES}
+    buckets["prepare"].append(intro)
+    if lab_box:
+        buckets["prepare"].append(lab_box)
+    for sl, h in parts:
+        stage = "prepare" if sl == "" else STAGE_OF.get(sl, "learn")
+        if stage in ("learn", "practise"):
+            h = fold_examples(h)
+        if sl == "concepts-demonstrations-and-worked-examples":
+            h = topic_list(h)
+        buckets[stage].append(h)
+    buckets["practise"].append(problems)
+    buckets["check"].append(summary)
+
+    bar = "".join(
+        f'<button class="stage-btn" type="button" data-stage="{key}" aria-pressed="false">'
+        f'<span class="stage-name">{name}</span><span class="stage-desc">{desc}</span></button>'
+        for key, name, desc in STAGES)
+    panels = []
+    for i, (key, name, desc) in enumerate(STAGES):
+        nxt = ""
+        if i + 1 < len(STAGES):
+            nk, nn, nd = STAGES[i + 1]
+            nxt = (f'<p class="stage-next"><button type="button" class="btn" data-stage="{nk}">'
+                   f'Next: {nn} &rarr;</button> <span class="stage-desc">{nd}</span></p>')
+        panels.append(f'<section class="stage" id="stage-{key}" data-stage="{key}" hidden>'
+                      + "\n\n".join(buckets[key]) + nxt + "</section>")
+    return (f'<nav class="stagebar" aria-label="Stages of this week">{bar}</nav>\n'
+            + "\n\n".join(panels))
 
 
 def week_page(wk, nb, known=None):
@@ -883,13 +1005,9 @@ def week_page(wk, nb, known=None):
   <p>These notes are generated from the <strong>Week {num:02d} notebook</strong>, so they always say the
   same thing it does. Read here; do the problems in the notebook, where every problem shows its answer
   and the full worked solution opens later.</p>
-  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Bu sayfa Week {num:02d} not
+  <aside class="mn" lang="tr"><span class="mn-label">T&Uuml;RK&Ccedil;E</span><p>Bu sayfa Week {num:02d} not
   defterinden &uuml;retilir, yani her zaman onunla ayn&#305; &#351;eyi s&ouml;yler. Konuyu burada oku;
   problemleri not defterinde &ccedil;&ouml;z.</p></aside>
-  <div class="btn-row">
-    <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Open Week {num:02d} in Colab</a>
-    <a class="btn secondary" href="../notebooks/Week_{num:02d}.ipynb" download>Download notebook</a>
-  </div>
 </div>"""
 
     lab_box = ""
@@ -906,7 +1024,7 @@ def week_page(wk, nb, known=None):
   <p>Do the prediction in &sect;1 of the brief <strong>before</strong> you arrive; you will be asked for
   your predicted number at the bench. Laboratory analysis technique is not examined in the common
   midterm or final &mdash; the physics being measured is.</p>
-  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Deneye gelmeden &ouml;nce
+  <aside class="mn" lang="tr"><span class="mn-label">T&Uuml;RK&Ccedil;E</span><p>Deneye gelmeden &ouml;nce
   brifingin &sect;1'indeki tahmini yap.</p></aside>
   <div class="btn-row">{brief}
     <a class="btn secondary" href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Uncertainty toolkit</a>
@@ -921,7 +1039,7 @@ def week_page(wk, nb, known=None):
   <p><strong>Write your own attempt first:</strong> symbolic answer, one limiting-case check, then
   numbers. Opening the answer first turns a problem into a worked example, and worked examples do not
   build the skill the exam tests.</p>
-  <aside class="mn"><span class="mn-label" lang="tr">T&Uuml;RK&Ccedil;E</span><p>Problem seti bu sayfada
+  <aside class="mn" lang="tr"><span class="mn-label">T&Uuml;RK&Ccedil;E</span><p>Problem seti bu sayfada
   de&#287;il, not defterinde. &Ouml;nce kendi denemeni yaz &mdash; sembolik sonu&ccedil;,
   s&#305;n&#305;r kontrol&uuml;, sonra say&#305;lar.</p></aside>
   <div class="btn-row">
@@ -929,20 +1047,27 @@ def week_page(wk, nb, known=None):
   </div>
 </div>"""
 
-    page = "\n".join([
-        head_html(f"Week {num:02d}: {wk['title_en']} — {SITE}", wk["scope"], num, has_anim),
-        f"""<div class="hero">
+    hero = f"""<div class="hero">
   <div class="eyebrow">Week {num:02d} &middot; {month_day(wk['start'])}&ndash;{month_day(wk['end'])} 2026</div>
   <h1>{html.escape(wk['title_en'])}<em lang="tr">{html.escape(wk['title_tr'])}</em></h1>
   <p class="lede">{html.escape(wk['scope'])}.</p>
   <div class="hero-meta">{''.join(chips)}</div>
-</div>""",
-        intro,
-        lab_box,
-        contents_card(meta["sections"]),
-        body,
-        summary_card(num, meta["equations"]),
-        problems,
+  <div class="btn-row hero-actions">
+    <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Open Week {num:02d} in Colab</a>
+    <a class="btn secondary" href="../notebooks/Week_{num:02d}.ipynb" download>Download notebook</a>
+  </div>
+</div>"""
+    summary = summary_card(num, meta["equations"])
+    staged = stage_layout(body, intro, lab_box, summary, problems)
+    if staged:
+        middle = [staged]
+    else:
+        middle = [intro, lab_box, contents_card(meta["sections"]), body, summary, problems]
+
+    page = "\n".join([
+        head_html(f"Week {num:02d}: {wk['title_en']} — {SITE}", wk["scope"], num, has_anim),
+        hero,
+        *middle,
         f"""<nav class="week-nav">
   {prev_link}
   <button class="done-btn" type="button" data-done="w{num}" aria-pressed="false">mark this week done</button>

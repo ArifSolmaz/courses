@@ -545,6 +545,73 @@ details > *:not(summary):last-child { padding-bottom: .8rem; }
   font-family: var(--font-display);
 }
 
+
+/* ============================== stages ==============================
+   One stage on screen at a time: Prepare · Learn · Practise · Check.
+   The bar sits under the site header; every stage prints. */
+
+.stagebar {
+  position: sticky; top: 3.25rem; z-index: 90;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem;
+  margin: 1.6rem 0 2rem; padding: .45rem;
+  background: var(--header-bg); backdrop-filter: saturate(150%) blur(8px);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.stage-btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .1rem;
+  min-height: 3rem; padding: .45rem .7rem; text-align: left; cursor: pointer;
+  background: transparent; border: 1px solid transparent; border-radius: 8px;
+  color: var(--muted); font: inherit;
+}
+.stage-btn:hover { background: var(--surface-2); color: var(--text); }
+.stage-btn:focus-visible { outline: 2px solid var(--phy-blue); outline-offset: 2px; }
+.stage-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--phy-orange); color: var(--text); }
+.stage-name { font-family: var(--font-display); font-weight: 700; font-size: .9rem; }
+.stage-btn[aria-pressed="true"] .stage-name { color: var(--phy-orange); }
+.stage-desc { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .04em; color: var(--muted); line-height: 1.3; }
+.stage[hidden] { display: none; }
+.stage > h2:first-child { margin-top: .5rem; }
+.stage-next {
+  margin: 3rem 0 0; padding-top: 1.2rem; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+}
+.stage-next .btn { cursor: pointer; }
+.hero-actions { margin-top: 1rem; }
+
+@media (max-width: 40rem) {
+  .stagebar { top: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .25rem; padding: .3rem; margin: 1.2rem 0 1.4rem; }
+  .stage-btn { min-height: 2.6rem; padding: .35rem .45rem; }
+  .stage-desc { display: none; }
+  .stage-name { font-size: .8rem; }
+}
+
+.topics { margin: 1rem 0 1.6rem; padding: .7rem 1rem; background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius); }
+.topics ol { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 1.5rem; }
+.topics li { margin: .15rem 0; font-size: .85rem; font-family: var(--font-display); break-inside: avoid; }
+.topics a { text-decoration: none; }
+.topics a:hover { text-decoration: underline; }
+@media (max-width: 40rem) { .topics ol { columns: 1; } }
+
+/* ============================== folded bank examples ============================== */
+
+.wex-more { margin: .6rem 0 0; }
+.wex-more > summary {
+  cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--font-mono); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--phy-blue); padding: .35rem .7rem; border: 1px solid var(--border-strong); border-radius: 999px;
+  background: var(--surface);
+}
+.wex-more > summary::-webkit-details-marker { display: none; }
+.wex-more > summary::before { content: "▸"; font-size: .7rem; }
+.wex-more[open] > summary::before { content: "▾"; }
+.wex-more[open] > summary { margin-bottom: .6rem; }
+.wex-more > summary:hover { color: var(--phy-orange); border-color: var(--phy-orange); }
+
+/* ============================== language toggle ==============================
+   data-lang="en" on <html> hides every Turkish note and heading gloss. */
+
+html[data-lang="en"] [lang="tr"] { display: none !important; }
+
 /* ============================== maths ============================== */
 
 .katex { font-size: 1.05em; }
@@ -561,11 +628,13 @@ details > *:not(summary):last-child { padding-bottom: .8rem; }
   body { font-size: 1.02rem; }
   .wrap { padding: 1.5rem 1.1rem 3rem; }
   .site-header { padding: .5rem 1rem; flex-wrap: wrap; }
-  h2 { font-size 1.35rem; margin-top: 2.2rem; }
+  h2 { font-size: 1.35rem; margin-top: 2.2rem; }
 }
 
 @media print {
-  .site-header, .week-nav, .done-btn, .anim-controls, .anim-gate, .btn-row, .toc { display: none !important; }
+  .site-header, .week-nav, .done-btn, .anim-controls, .anim-gate, .btn-row, .toc, .stagebar, .stage-next { display: none !important; }
+  .stage[hidden] { display: block !important; }
+  .wex-more > summary { display: none; }
   body { background: #fff; color: #000; font-size: 10.5pt; }
   .wrap { max-width: none; padding: 0; }
   .mn { float: none; width: auto; margin: .5rem 0; border-left: 2px solid #999; padding-left: .6rem; }
