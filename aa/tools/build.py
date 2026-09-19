@@ -210,6 +210,11 @@ def week_page(meta, body):
 </div>
 """ if bridge else ""
     )
+    animation_styles = '<link rel="stylesheet" href="../assets/anim.css">'
+    animation_scripts = '<script src="../assets/anim.js"></script>'
+    if num > 1:
+        animation_styles += f'<link rel="stylesheet" href="../assets/anim-w{num}.css">'
+        animation_scripts += f'<script src="../assets/anim-w{num}.js"></script>'
     weekly_chips = [c for c in chips if "hour" not in c]
     weekly_chips.append("3-hour studio")
     chip_html = "".join(f'<span class="chip">{c}</span>' for c in weekly_chips)
@@ -218,7 +223,7 @@ def week_page(meta, body):
             title=f"Week {num}: {title} — {SHORT}",
             desc=summary,
             base=base,
-        ),
+        ).replace("</head>", animation_styles + "</head>"),
         f"""<div class="hero">
   <div class="eyebrow">Week {num:02d} &middot; {PHASES[phase]}</div>
   <h1>{title}</h1>
@@ -236,7 +241,7 @@ def week_page(meta, body):
   {next_link}
 </nav>
 """,
-        FOOT.format(site=SITE, base=base),
+        FOOT.format(site=SITE, base=base).replace("</body>", animation_scripts + "</body>"),
     ]
     return "\n".join(out)
 

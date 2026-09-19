@@ -79,7 +79,7 @@ def staged_lesson(num, body, studio):
     from skiena_material import weekly_material
     notes, focus, optional = weekly_material(num)
     # The selected source problem leads the class workshop; existing tasks remain reference.
-    buckets['investigate'] = [focus, '<details class="path-reference"><summary>More class workshop tasks</summary><div>' + '\n'.join(buckets['investigate']) + '</div></details>']
+    buckets['investigate'] = [focus, '<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div>' + '\n'.join(buckets['investigate']) + '</div></details>']
     buckets['check'].append(optional)
     # Each explanation stays available without presenting the whole chapter at once.
     explanations = []
