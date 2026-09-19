@@ -557,7 +557,7 @@ negative.</desc>
 </svg>""",
         },
         {
-            "after": "Area Under F-x Curve",
+            "after": "area under an F–x graph",
             "slug": "fig-w5-area",
             "caption": "Work done by a varying force is the signed area under the force–position "
                        "graph. Area above the axis is energy put in; area below it is energy taken "
