@@ -37,22 +37,22 @@ Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index]
 ---
 
 <!-- BEGIN CP1 GENERATED INDEX -->
-| Week | Lesson | Worked solutions | Core / optional |
-|---|---|---|---|
-| 01 | [Colab Setup, Variables & Data Types](notebooks/Week_01.ipynb) | [Complete solutions](solutions/Week_01_Solutions.ipynb) | 8 / 7 |
-| 02 | [Operators, F-Strings & Type Conversion](notebooks/Week_02.ipynb) | [Complete solutions](solutions/Week_02_Solutions.ipynb) | 8 / 4 |
-| 03 | [Conditionals & Decision Making](notebooks/Week_03.ipynb) | [Complete solutions](solutions/Week_03_Solutions.ipynb) | 8 / 4 |
-| 04 | [for Loops & range -- Repetition](notebooks/Week_04.ipynb) | [Complete solutions](solutions/Week_04_Solutions.ipynb) | 8 / 4 |
-| 05 | [while Loops, break & continue](notebooks/Week_05.ipynb) | [Complete solutions](solutions/Week_05_Solutions.ipynb) | 8 / 4 |
-| 06 | [Problem-Solving Patterns](notebooks/Week_06.ipynb) | [Complete solutions](solutions/Week_06_Solutions.ipynb) | 8 / 4 |
-| 07 | [Lists Fundamentals](notebooks/Week_07.ipynb) | [Complete solutions](solutions/Week_07_Solutions.ipynb) | 8 / 4 |
-| 08 | [2D Lists & Nested Loops](notebooks/Week_08.ipynb) | [Complete solutions](solutions/Week_08_Solutions.ipynb) | 8 / 4 |
-| 09 | [String Processing](notebooks/Week_09.ipynb) | [Complete solutions](solutions/Week_09_Solutions.ipynb) | 8 / 4 |
-| 10 | [Functions — Basics](notebooks/Week_10.ipynb) | [Complete solutions](solutions/Week_10_Solutions.ipynb) | 8 / 4 |
-| 11 | [Scope & Mini-Library](notebooks/Week_11.ipynb) | [Complete solutions](solutions/Week_11_Solutions.ipynb) | 8 / 4 |
-| 12 | [Error Handling](notebooks/Week_12.ipynb) | [Complete solutions](solutions/Week_12_Solutions.ipynb) | 8 / 4 |
-| 13 | [File I/O & CSV](notebooks/Week_13.ipynb) | [Complete solutions](solutions/Week_13_Solutions.ipynb) | 8 / 4 |
-| 14 | [Mini Project — Sensor Log Summary](notebooks/Week_14.ipynb) | [Complete solutions](solutions/Week_14_Solutions.ipynb) | 10 / 2 |
+| Week | HTML experience | Lesson notebook | Worked solutions | Core / optional |
+|---|---|---|---|---|
+| 01 | [A number is not a measurement](web/Week_01.html) | [Colab Setup, Variables & Data Types](notebooks/Week_01.ipynb) | [Complete solutions](solutions/Week_01_Solutions.ipynb) | 8 / 7 |
+| 02 | [A display can tell the wrong story](web/Week_02.html) | [Operators, F-Strings & Type Conversion](notebooks/Week_02.ipynb) | [Complete solutions](solutions/Week_02_Solutions.ipynb) | 8 / 4 |
+| 03 | [Write the rule before the branch](web/Week_03.html) | [Conditionals & Decision Making](notebooks/Week_03.ipynb) | [Complete solutions](solutions/Week_03_Solutions.ipynb) | 8 / 4 |
+| 04 | [The event between the samples](web/Week_04.html) | [for Loops & range -- Repetition](notebooks/Week_04.ipynb) | [Complete solutions](solutions/Week_04_Solutions.ipynb) | 8 / 4 |
+| 05 | [A machine must know when to stop](web/Week_05.html) | [while Loops, break & continue](notebooks/Week_05.ipynb) | [Complete solutions](solutions/Week_05_Solutions.ipynb) | 8 / 4 |
+| 06 | [The average hides the spike](web/Week_06.html) | [Problem-Solving Patterns](notebooks/Week_06.ipynb) | [Complete solutions](solutions/Week_06_Solutions.ipynb) | 8 / 4 |
+| 07 | [Do not erase the evidence](web/Week_07.html) | [Lists Fundamentals](notebooks/Week_07.ipynb) | [Complete solutions](solutions/Week_07_Solutions.ipynb) | 8 / 4 |
+| 08 | [Where is the hot spot?](web/Week_08.html) | [2D Lists & Nested Loops](notebooks/Week_08.ipynb) | [Complete solutions](solutions/Week_08_Solutions.ipynb) | 8 / 4 |
+| 09 | [Agree on the message](web/Week_09.html) | [String Processing](notebooks/Week_09.ipynb) | [Complete solutions](solutions/Week_09_Solutions.ipynb) | 8 / 4 |
+| 10 | [Calibrate once, use deliberately](web/Week_10.html) | [Functions — Basics](notebooks/Week_10.ipynb) | [Complete solutions](solutions/Week_10_Solutions.ipynb) | 8 / 4 |
+| 11 | [Make the dependency visible](web/Week_11.html) | [Scope & Mini-Library](notebooks/Week_11.ipynb) | [Complete solutions](solutions/Week_11_Solutions.ipynb) | 8 / 4 |
+| 12 | [Unknown is not zero](web/Week_12.html) | [Error Handling](notebooks/Week_12.ipynb) | [Complete solutions](solutions/Week_12_Solutions.ipynb) | 8 / 4 |
+| 13 | [Leave a trail another engineer can follow](web/Week_13.html) | [File I/O & CSV](notebooks/Week_13.ipynb) | [Complete solutions](solutions/Week_13_Solutions.ipynb) | 8 / 4 |
+| 14 | [Earn trust in the whole pipeline](web/Week_14.html) | [Mini Project — Sensor Log Summary](notebooks/Week_14.ipynb) | [Complete solutions](solutions/Week_14_Solutions.ipynb) | 10 / 2 |
 <!-- END CP1 GENERATED INDEX -->
 
 ## 14-Week Topic Plan (CP1)

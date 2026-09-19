@@ -6,6 +6,7 @@ from pathlib import Path
 import html
 import json
 import re
+from render_experiences import LESSONS, render as render_experiences
 
 ROOT = Path(__file__).resolve().parents[1]
 COLAB = "https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/cp1/"
@@ -99,6 +100,7 @@ def load_week(week):
 
 def panel(week):
     n = week["week"]
+    experience = LESSONS[n - 1]
     local = "../" + week["notebook"]
     sol = "../" + week["solutions"]
     goals = "".join(f'<li>{inline(goal)}</li>' for goal in week["objectives"])
@@ -116,6 +118,7 @@ def panel(week):
 <div class="week-tag">Week {n:02d} · 5 hours · {week['core']} core / {week['optional']} optional</div>
 <h1 class="week-heading" id="heading-{n}">{inline(week['title'])}</h1>
 <p class="study-note">Read → predict → trace → write → test → explain. <span lang="tr">Önce düşün, sonra çalıştır ve sonucu açıkla.</span></p>
+<section class="study-card"><h2>Engineering experience · {inline(experience['title'])}</h2><p>{html.escape(experience['subtitle'])} {html.escape(experience['question'])}</p><p>One investigation: predict, inspect a failure, test the model, and defend a decision.</p><div class="study-actions"><a class="nb-btn" href="Week_{n:02d}.html">Open Week {n:02d} HTML experience</a><a href="CP1_Experiences.html">Explore all 14 experiences</a></div></section>
 <div class="study-actions"><a class="nb-btn" href="{local}" download>Download lesson notebook</a><a class="nb-btn solution-link" href="{sol}" download>Download all worked solutions</a></div>
 <p class="study-note"><a href="{COLAB + week['notebook']}" target="_blank" rel="noopener">Lesson in Colab</a> · <a href="{COLAB + week['solutions']}" target="_blank" rel="noopener">Solutions in Colab</a> (published course copies)</p>
 <div class="study-columns"><section class="study-card"><h2>What you will learn</h2><ul>{goals}</ul></section><section class="study-card"><h2>Notebook sections</h2><ul>{lessons}</ul></section></div>
@@ -129,6 +132,10 @@ def panel(week):
 
 def sync():
     weeks = [load_week(n) for n in range(1, 15)]
+    render_experiences(weeks, write)
+    for w in weeks:
+        w["experience"] = f"web/Week_{w['week']:02d}.html"
+        w["engineering_title"] = LESSONS[w["week"] - 1]["title"]
     manifest = {"course": "CP1", "weeks": weeks, "calendar_status": "Official dated CP1 timetable not supplied",
                 "assessment": {"midterm": 25, "final": 50, "demonstration": 25}}
     write(ROOT / "course_manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
@@ -136,9 +143,9 @@ def sync():
     nav = "".join(f'<button class="week-btn{ " active" if w["week"] == 1 else ""}" data-week="{w["week"]}" onclick="showWeek({w["week"]})" aria-controls="week-{w["week"]}"><span class="week-num">W{w["week"]:02d}</span><span class="week-title">{inline(w["title"])}</span></button>\n' for w in weeks)
     dashboard = template.replace("<!-- CP1:NAV -->", nav).replace("<!-- CP1:PANELS -->", "\n".join(panel(w) for w in weeks))
     write(ROOT / "web" / "CP1_Course_Dashboard.html", dashboard)
-    table = "| Week | Lesson | Worked solutions | Core / optional |\n|---|---|---|---|\n"
+    table = "| Week | HTML experience | Lesson notebook | Worked solutions | Core / optional |\n|---|---|---|---|---|\n"
     for w in weeks:
-        table += f'| {w["week"]:02d} | [{w["title"]}]({w["notebook"]}) | [Complete solutions]({w["solutions"]}) | {w["core"]} / {w["optional"]} |\n'
+        table += f'| {w["week"]:02d} | [{w["engineering_title"]}]({w["experience"]}) | [{w["title"]}]({w["notebook"]}) | [Complete solutions]({w["solutions"]}) | {w["core"]} / {w["optional"]} |\n'
     outline = (ROOT / "content.md").read_text(encoding="utf-8")
     block = "<!-- BEGIN CP1 GENERATED INDEX -->\n" + table + "<!-- END CP1 GENERATED INDEX -->"
     if "<!-- BEGIN CP1 GENERATED INDEX -->" in outline:
@@ -155,14 +162,14 @@ def sync():
         outline = re.sub(pattern, replace_count, outline, flags=re.S)
     write(ROOT / "content.md", outline)
     index = "# CP1 worked solutions\n\nTry each problem first; use these companions to compare reasoning, inspect tests and retry with different values. Every core exercise, optional exercise and bridge/preview in Weeks 1–13 is included. Week 14 contains the complete tested sensor pipeline.\n\n**Türkçe:** Önce kendi çözümünü dene; sonra adımları ve testleri karşılaştır. Çözümü kapatıp değişik değerlerle yeniden çöz.\n\nOpen a solution in a separate runtime. These are private-practice learning aids, not work to submit as your own assessed demonstration. The numbered `EX` labels match the lesson notebooks. `BRIDGE` marks a transition walkthrough.\n\n"
-    index += table.replace("](notebooks/", "](../notebooks/").replace("](solutions/", "](")
+    index += table.replace("](web/", "](../web/").replace("](notebooks/", "](../notebooks/").replace("](solutions/", "](")
     index += "\nEach notebook is self-contained and uses fixed demonstration inputs so it can run from top to bottom. File examples write sample files in the current runtime folder. Read the problem and assumptions before running.\n\n[Simple course guide](../STUDY_GUIDE.md) · [Dashboard](../web/CP1_Course_Dashboard.html)\n"
     write(ROOT / "solutions" / "README.md", index)
     syllabus = (ROOT / "web" / "CP1_Syllabus.html").read_text(encoding="utf-8")
     rows = []
     for w in weeks:
         goals = "; ".join(w["objectives"][:3])
-        rows.append(f'<tr><td class="week-num-cell">{w["week"]:02d}</td><td><div class="topic-title">{inline(w["title"])}</div><small>{w["core"]} core / {w["optional"]} optional</small></td><td class="topic-items">{inline(goals)}</td><td><a class="nb-link" href="../{w["notebook"]}" download>Lesson</a><br><a class="nb-link" href="../{w["solutions"]}" download>Worked solutions</a></td></tr>')
+        rows.append(f'<tr><td class="week-num-cell">{w["week"]:02d}</td><td><div class="topic-title">{inline(w["title"])}</div><small>{w["core"]} core / {w["optional"]} optional</small></td><td class="topic-items">{inline(goals)}</td><td><a class="nb-link" href="Week_{w["week"]:02d}.html">HTML experience</a><br><a class="nb-link" href="../{w["notebook"]}" download>Lesson notebook</a><br><a class="nb-link" href="../{w["solutions"]}" download>Worked solutions</a></td></tr>')
     pattern = r'(<table class="schedule-table">.*?<tbody>).*?(</tbody>)'
     syllabus, count = re.subn(pattern, lambda m: m.group(1) + "\n" + "\n".join(rows) + "\n" + m.group(2), syllabus, count=1, flags=re.S)
     if count != 1:

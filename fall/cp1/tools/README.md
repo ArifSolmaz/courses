@@ -29,3 +29,31 @@ Use this on exactly one Markdown section per exercise; use `BRIDGE` for the tran
 There are 171 numbered exercise slots, plus 13 bridge/preview walkthroughs in the solution set. Weeks 1–13 have eight core exercises each; Week 14 has ten core milestones and two optional bonuses. Weekly practice is ungraded. Do not add dates or release gates without an actual CP1 timetable or an instructor decision.
 
 For page verification, serve the repository locally and check all fourteen week panels and the complete syllabus in both themes at desktop and narrow widths. Expand every code example; inspect text/background contrast, links, table headings, button focus, theme persistence and notebook/solution downloads. Colab links open the published repository copy; local edits need publication before they appear there.
+
+## Weekly HTML engineering experiences
+
+The [experience journey](../web/CP1_Experiences.html) and `web/Week_01.html` through
+`web/Week_14.html` accompany the Colab notebooks. Author the scenarios, models,
+reference outputs, case traces and selected notebook exercise IDs in
+`lessons/experiences.py`. The source is deliberately separate from the notebooks:
+it adds an engineering investigation without rewriting their practice sequence.
+
+`sync_course.py` calls `render_experiences.py`, generates all fifteen pages, and
+maintains links in the dashboard, syllabus, manifest and Markdown indexes.
+Shared presentation and interactions live in `web/cp1-experiences.css` and
+`web/cp1-experiences.js`. Update their version queries in the renderer when
+changing published assets. No framework, external font or runtime dependency is
+required. Essential content and case answers remain readable without JavaScript.
+
+Run `python tools/verify_experiences.py` after synchronization. It executes every
+small teaching model in an isolated temporary folder, compares reference output,
+checks selected notebook IDs, verifies reproducible generation, and checks local
+links and fragment targets. Run the existing `verify_course.py` for notebook
+coverage. Interactive checks should include case reveal/reset, slider endpoints,
+note persistence and Markdown export, light/dark themes, mobile widths and print.
+
+The browser cases are prepared fixtures, not hardware simulations or automatic
+scores. Weeks 1, 4 and 10 also include adjustable mathematical models. Notes are
+stored locally under a versioned, week-specific key and can be downloaded;
+nothing is submitted to an instructor. The HTML activities fit within existing
+guided sessions and do not add graded homework or change assessment weights.

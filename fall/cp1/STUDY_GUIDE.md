@@ -4,6 +4,14 @@ The aim is to turn a problem into small steps that you can explain, write in Pyt
 
 **Türkçe:** Amaç bütün komutları ezberlemek değil; problemi küçük adımlara ayırmak, her adımı açıklamak ve sonucu kontrol etmektir.
 
+## Engineering experiences for mechatronics
+
+[Explore the fourteen HTML experiences](web/CP1_Experiences.html). Each companion starts from a physical question and ends with a small engineering handover: a prediction, an independent check, a boundary or fault case, and a limitation. The browser cases use prepared teaching data; three lessons also include adjustable models. No hardware or AI account is required.
+
+Use the HTML investigation within guided class time, alongside the matching Colab notebook. Selected exercise IDs connect the engineering question to the existing programming workshop; they do not redefine the notebook's core/optional labels or add homework. AI can propose code during practice, but students must examine assumptions, check units and defend the result. Existing assessment rules still apply.
+
+Notes on each HTML lesson can be saved in the browser and downloaded as an engineering log. They are private reasoning notes, not automatic grades or evidence of completion.
+
 ## Your weekly routine
 
 1. Read the goal and identify the inputs and the required output.
