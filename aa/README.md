@@ -8,11 +8,11 @@ published at:
 - Detailed guide: <https://arifsolmaz.github.io/courses/aa/guide/>
 - Weeks: <https://arifsolmaz.github.io/courses/aa/w1/> … `/courses/aa/w14/`
 
-Start with the [Detailed Learning Guide hub — English with Turkish explanations](guide/index.html)
-or its [complete Markdown edition](COURSE_GUIDE.md). The web guide is now separated into
-toolkit, bridge, weekly, and review pages. Every week includes slow explanations,
-traces, worked calculations, fully solved practice, misconceptions, and readiness checks.
-Nine arithmetic bridges and four review sessions support the existing 14-week sequence.
+Start at the course home and choose a week. Each weekly lesson follows
+**Understand → Investigate → Check**. Slower bilingual explanations are available
+inside that lesson under “Need a slower explanation?”, so students do not have to
+choose between two competing weekly routes. The standalone guide URLs and complete
+Markdown edition remain available as reference material.
 
 ## Design
 
@@ -53,6 +53,8 @@ aa/
                                      weeks/wNN.md, deepening/wNN.md
   assets/guide.css    guide reading, mobile, dark/light and print styles
   assets/guide.js     guide chapter navigation, theme and printing
+  tools/learning_path.py  weekly stages and embedded bilingual support
+  tools/course_reference.html  folded syllabus and course policies
   tools/home.html     source fragment for the course home
   tools/weeks/wNN.html  source fragment for each week's lesson
 ```
@@ -97,3 +99,14 @@ Hashes normalize text to UTF-8 with LF line endings, so Windows and GitHub check
 - Escape `<` and `>` inside code samples as `&lt;` / `&gt;`
 
 No build dependencies beyond Python 3 — the site is plain static HTML/CSS/JS.
+
+## Supplied beginner notes and exercises
+
+The two supplied Skiena DOCX sources are adapted within the existing weekly route.
+Each week has a concise explanation and one focused problem; the rest is folded
+optional practice. All 205 source exercises retain their numbers: 97 in weekly
+pages and 108 alongside three optional advanced introductions at `extensions/`.
+Source mapping and editorial corrections are documented in
+[tools/materials/README.md](tools/materials/README.md).
+
+Run `python3 aa/tools/verify_skiena_material.py` after rebuilding.

@@ -68,6 +68,10 @@
       panels.forEach(function (p) { p.hidden = p.getAttribute("data-stage") !== key; });
       buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-stage") === key)); });
       if (scrollTop) {
+        history.replaceState(null, '', '#stage-' + key);
+        var active = panels.find(function (p) { return p.getAttribute('data-stage') === key; });
+        var heading = active && (active.querySelector('h2,h3') || active);
+        if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({preventScroll:true}); }
         var bar = document.querySelector(".stagebar");
         if (bar) window.scrollTo({ top: bar.getBoundingClientRect().top + window.pageYOffset - 64, behavior: "auto" });
       }
@@ -84,6 +88,9 @@
       var key = stageOf(target);
       if (!key) return false;
       show(key, false);
+      for (var parent = target; parent; parent = parent.parentElement) {
+        if (parent.tagName === 'DETAILS') parent.open = true;
+      }
       requestAnimationFrame(function () { target.scrollIntoView({ block: "start" }); });
       return true;
     }
@@ -96,7 +103,7 @@
     });
     window.addEventListener("hashchange", function () { openHash(location.hash); });
 
-    if (!openHash(location.hash)) show("learn", false);
+    if (!openHash(location.hash)) show("prepare", false);
   }
 
   /* ---------- printing: open every folded route ---------- */

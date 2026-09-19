@@ -278,6 +278,8 @@ def rewrite_link(target):
     if t.startswith("#"):
         return None                                   # in-page anchor: drop the link, keep the words
     t = re.sub(r"^\.\./", "", t)
+    if t == "labs/":
+        return f"{GITHUB}/labs"
     if t.endswith(".ipynb"):
         return f"{COLAB}/{t}"
     if t.endswith(".md"):
@@ -770,7 +772,7 @@ def head_html(title, desc, week, has_anim):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/site.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=1"><script defer src="../../../assets/learning-path.js?v=1"></script>
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/contrib/auto-render.min.js" integrity="{SRI_AUTO}" crossorigin="anonymous"></script>
@@ -781,10 +783,8 @@ def head_html(title, desc, week, has_anim):
 <header class="site-header">
   <a class="brand" href="../web/PHY101_Course_Dashboard.html">PHY<span>101</span> / physics I</a>
   <nav class="header-nav" aria-label="Course pages">
-    <a class="hlink" href="../web/PHY101_Course_Dashboard.html">Dashboard</a>
-    <a class="hlink" href="../web/PHY101_Course_Dashboard.html#overview">All weeks</a>
-    <a class="hlink" href="../web/PHY101_Syllabus.html">Syllabus</a>
-    <a class="hlink" href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Lab toolkit</a>
+    <a class="hlink" href="../web/PHY101_Course_Dashboard.html">Course home</a>
+    <details class="path-menu"><summary>Resources</summary><div><a href="../web/PHY101_Syllabus.html">Syllabus</a><a href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Lab toolkit</a><a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">Open notebook in Colab</a><a href="../notebooks/Week_{week:02d}.ipynb" download>Download notebook</a></div></details>
     <button class="hlink" data-lang-toggle type="button" aria-pressed="false" title="Hide the Turkish notes">EN + TR</button>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
@@ -931,8 +931,8 @@ def topic_list(chunk):
     items = [(sl, t) for sl, t in items if t.lower() not in ("worked examples",) and "nteractive" not in t and not t.lower().startswith("animated")]
     if len(items) < 3:
         return chunk
-    nav = ('<nav class="topics" aria-label="Topics in this stage"><span class="toc-label">In this stage</span><ol>'
-           + "".join(f'<li><a href="#{sl}">{html.escape(t)}</a></li>' for sl, t in items) + "</ol></nav>")
+    nav = ('<details class="path-reference"><summary>Find a topic in this lesson</summary><nav class="topics" aria-label="Topics in this stage"><ol>'
+           + "".join(f'<li><a href="#{sl}">{html.escape(t)}</a></li>' for sl, t in items) + "</ol></nav></details>")
     return re.sub(r"(</h2>)", r"\1" + nav.replace("\\", "\\\\"), chunk, count=1)
 
 
@@ -953,6 +953,7 @@ def stage_layout(body, intro, lab_box, summary, problems):
         if sl == "concepts-demonstrations-and-worked-examples":
             h = topic_list(h)
         buckets[stage].append(h)
+    buckets["prepare"] = ['<p class="prepare-start">Before you begin, use the preparation below to recall the ideas you need. Then continue to the worked lesson.</p><details class="path-reference"><summary>Preparation, learning goals &amp; laboratory details</summary><div>' + "\n".join(buckets["prepare"]) + '</div></details>']
     buckets["practise"].append(problems)
     buckets["check"].append(summary)
 
@@ -967,7 +968,7 @@ def stage_layout(body, intro, lab_box, summary, problems):
             nk, nn, nd = STAGES[i + 1]
             nxt = (f'<p class="stage-next"><button type="button" class="btn" data-stage="{nk}">'
                    f'Next: {nn} &rarr;</button> <span class="stage-desc">{nd}</span></p>')
-        panels.append(f'<section class="stage" id="stage-{key}" data-stage="{key}" hidden>'
+        panels.append(f'<section class="stage" id="stage-{key}" data-stage="{key}">'
                       + "\n\n".join(buckets[key]) + nxt + "</section>")
     return (f'<nav class="stagebar" aria-label="Stages of this week">{bar}</nav>\n'
             + "\n\n".join(panels))
@@ -1052,11 +1053,7 @@ def week_page(wk, nb, known=None):
   <div class="eyebrow">Week {num:02d} &middot; {month_day(wk['start'])}&ndash;{month_day(wk['end'])} 2026</div>
   <h1>{html.escape(wk['title_en'])}<em lang="tr">{html.escape(wk['title_tr'])}</em></h1>
   <p class="lede">{html.escape(wk['scope'])}.</p>
-  <div class="hero-meta">{''.join(chips)}</div>
-  <div class="btn-row hero-actions">
-    <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Open Week {num:02d} in Colab</a>
-    <a class="btn secondary" href="../notebooks/Week_{num:02d}.ipynb" download>Download notebook</a>
-  </div>
+  <p class="reading-route">Prepare → Learn → Practise → Check</p>
 </div>"""
     summary = summary_card(num, meta["equations"])
     staged = stage_layout(body, intro, lab_box, summary, problems)

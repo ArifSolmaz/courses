@@ -32,7 +32,7 @@ For page verification, serve the repository locally and check all fourteen week 
 
 ## Weekly HTML engineering experiences
 
-The [experience journey](../web/CP1_Experiences.html) and `web/Week_01.html` through
+The [course home](../web/CP1_Course_Dashboard.html) and `web/Week_01.html` through
 `web/Week_14.html` accompany the Colab notebooks. Author the scenarios, models,
 reference outputs, case traces and selected notebook exercise IDs in
 `lessons/experiences.py`. The source is deliberately separate from the notebooks:
@@ -57,3 +57,7 @@ scores. Weeks 1, 4 and 10 also include adjustable mathematical models. Notes are
 stored locally under a versioned, week-specific key and can be downloaded;
 nothing is submitted to an instructor. The HTML activities fit within existing
 guided sessions and do not add graded homework or change assessment weights.
+
+Weekly pages use Understand → Investigate → Check. The shared controls live in
+`../../../assets/learning-path.js` and `.css`. `CP1_Experiences.html` is a legacy
+redirect to the course home, so there is one weekly entry route.

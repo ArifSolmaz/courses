@@ -455,6 +455,10 @@ def _shell(
     pager = _page_pager(specs, index, current)
     prefix = _course_prefix(current.out_rel)
     guide_home = _relative_page_link(current.out_rel, pathlib.PurePosixPath("guide/index.html"))
+    lesson_return = ''
+    if re.fullmatch(r'w\d{2}', current.key):
+        week = int(current.key[1:])
+        lesson_return = f'<p class="lesson-return">This is supporting reference material. <a href="{prefix}w{week}/">Return to Week {week:02d} lesson →</a></p>'
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -497,9 +501,10 @@ def _shell(
       <section class="guide-intro">
         <span>{html.escape(current.eyebrow)}</span>
         <h1 id="{html.escape(intro_id)}">{html.escape(current.headline)}</h1>
-        <p>{html.escape(current.summary)}</p>
+{lesson_return}
+        <details><summary>About this reference</summary><p>{html.escape(current.summary)}</p></details>
       </section>
-      {toc}
+      <details class="reference-toc"><summary>Find a topic in this reference</summary>{toc}</details>
       <section class="guide-chapter">
         {body}
       </section>

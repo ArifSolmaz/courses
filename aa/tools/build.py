@@ -138,6 +138,8 @@ CAP_SUMMARY = ("The engineering payoff: in a mechatronic system an algorithm mus
                "correct, it must finish before the next sensor sample arrives — on a chip with "
                "kilobytes of memory.")
 
+from learning_path import staged_lesson
+
 HEAD = """<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -148,16 +150,14 @@ HEAD = """<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{base}assets/style.css">
+<link rel="stylesheet" href="{base}assets/style.css"><link rel="stylesheet" href="{base}../assets/learning-path.css?v=1"><link rel="stylesheet" href="{base}assets/learning.css?v=1">
 </head>
 <body>
 <header class="site-header">
   <a class="brand" href="{base}index.html">AA <span>/ algorithm analysis</span></a>
   <nav class="header-nav">
     <a class="hlink" href="{base}index.html">Course home</a>
-    <a class="hlink" href="{base}index.html#weeks">All weeks</a>
-    <a class="hlink" href="{base}guide/">Learning guide</a>
-    <a class="hlink" href="https://arifsolmaz.github.io/courses/">Other courses</a>
+    <details class="path-menu"><summary>Resources</summary><div><a href="{base}index.html#course-info">Course info &amp; assessment</a><a href="{base}guide/">Reference library</a><a href="{base}../index.html#fall">Other courses</a></div></details>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
   </nav>
 </header>
@@ -169,7 +169,7 @@ FOOT = """</main>
   <span>{site} &middot; Dr. Arif Solmaz</span>
   <span><a href="{base}index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
-<script src="{base}assets/app.js"></script>
+<script src="{base}assets/app.js"></script><script src="{base}../assets/learning-path.js?v=1"></script>
 </body>
 </html>
 """
@@ -192,11 +192,7 @@ STUDIO = """
 def week_page(meta, body):
     num, title, summary, phase, question, chips = meta
     base = "../"
-    guide_link = (
-        f'<div class="note green"><p><strong>Need a slower walkthrough?</strong> '
-        f'<a href="../guide/w{num:02d}/">Open Week {num} in the detailed learning guide</a> '
-        'for English and Turkish explanations, hand traces, worked calculations, and complete practice solutions.</p></div>'
-    )
+
     prev_link = (
         f'<a href="../w{num-1}/">&larr; Week {num-1}</a>' if num > 1
         else '<a href="../index.html">&larr; Course home</a>'
@@ -227,13 +223,12 @@ def week_page(meta, body):
   <div class="eyebrow">Week {num:02d} &middot; {PHASES[phase]}</div>
   <h1>{title}</h1>
   <p class="lede">{summary}</p>
-  <div class="hero-meta"><span class="chip gold">Big question: {question}</span>{chip_html}</div>
+  <p class="path-question"><strong>{question}</strong></p>
 </div>
 """,
-        STUDIO,
-        guide_link,
-        body.strip(),
-        bridge_html,
+        '<div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump>' + ''.join(f'<option value="../w{w[0]}/"{" selected" if w[0] == num else ""}>Week {w[0]:02d} · {w[1]}</option>' for w in WEEKS) + '</select></div>',
+        staged_lesson(num, body.strip(), STUDIO),
+        '<details class="path-resources"><summary>How this connects to next week</summary><div>' + bridge_html + '</div></details>',
         f"""
 <nav class="week-nav">
   {prev_link}
@@ -294,7 +289,9 @@ def home_page(intro):
         )
     grid = '<div class="grid">' + "\n".join(cards) + "</div>"
     grid = grid.replace('<div class="grid"></div>\n', "", 1)
-    body = intro.replace("<!--WEEK-GRID-->", grid)
+    options = '<option value="">Select a week…</option>' + ''.join(f'<option value="w{w[0]}/">Week {w[0]:02d} · {w[1]}</option>' for w in WEEKS)
+    reference = (ROOT / 'tools' / 'course_reference.html').read_text(encoding='utf-8')
+    body = intro.replace("<!--WEEK-GRID-->", grid).replace('<!--WEEK-OPTIONS-->', options).replace('<!--COURSE-REFERENCE-->', reference)
     return "\n".join([
         HEAD.format(
             title=f"{SITE} — {SHORT}",
@@ -335,12 +332,17 @@ def main():
     else:
         missing.append(f"{CAP_SLUG}.html")
 
+    from skiena_material import extension_body
+    extension = ROOT / 'extensions' / 'index.html'
+    extension.parent.mkdir(parents=True, exist_ok=True)
+    extension.write_text(HEAD.format(title='Optional extensions — AA', desc='Optional graphs, dynamic programming and reductions from the supplied beginner notes.', base='../') + extension_body() + FOOT.format(base='../', site=SITE))
+
     if missing:
         print("\nMISSING FRAGMENTS: " + ", ".join(missing), file=sys.stderr)
         return 1
     from build_guide import build as build_guide
     build_guide()
-    print("\nOK - 14 weeks + capstone + home + detailed guide built.")
+    print("\nOK - 14 weeks + optional extensions + capstone + home + detailed guide built.")
     return 0
 
 

@@ -100,34 +100,23 @@ def load_week(week):
 
 def panel(week):
     n = week["week"]
-    experience = LESSONS[n - 1]
-    local = "../" + week["notebook"]
-    sol = "../" + week["solutions"]
-    goals = "".join(f'<li>{inline(goal)}</li>' for goal in week["objectives"])
-    lessons = "".join(f'<li>{inline(title)}</li>' for title in week["lessons"])
-    rows = "".join(f'<tr><td>{ex["id"]}</td><td>{html.escape(ex["title"])}</td><td>{"Core" if ex["core"] else "Optional"}</td></tr>'
-                   for ex in week["exercises"])
-    bridge = '<p class="study-note">A bridge to the next week follows the exercises; its walkthrough is included in the worked solutions.</p>' if week["bridge"] else ""
-    capstone = '''<section class="study-card"><h2>Project agreement</h2>
-<p>Read <code>sensor_data.csv</code> with columns <code>timestamp,sensor,value</code>. The supplied 20 records give 15 valid readings and 5 rejected records.</p>
-<p>Use sensor-specific ranges: temperature −50 to 60 °C, humidity 0 to 100%, pressure 800 to 1200 hPa. A negative temperature can be valid. Reject malformed rows, unknown sensors and nonfinite values; handle empty groups explicitly.</p>
-<table class="exercise-table"><thead><tr><th>Sensor</th><th>Count</th><th>Mean</th></tr></thead><tbody><tr><td>Temperature</td><td>6</td><td>23.02</td></tr><tr><td>Humidity</td><td>5</td><td>45.38</td></tr><tr><td>Pressure</td><td>4</td><td>1012.86</td></tr></tbody></table>
-<p>Core milestones 1–10 produce <code>sensor_data_clean.csv</code> and <code>sensor_report.txt</code>, then combine the steps in a complete program. Exercises 11–12 extend it. Filtering the cleaned data for the specified time interval gives six readings.</p>
-<p lang="tr">Önce her aşamayı ayrı test et, sonra birleştir. Eksik veya hatalı veriyi açık bir gerekçeyle reddet.</p></section>''' if n == 14 else ""
+    lesson = LESSONS[n - 1]
+    rows = ''.join(f'<tr><td>{ex["id"]}</td><td>{html.escape(ex["title"])}</td><td>{"Core" if ex["core"] else "Optional"}</td></tr>' for ex in week["exercises"])
     return f'''<section class="week-panel{' active' if n == 1 else ''}" id="week-{n}" aria-labelledby="heading-{n}">
-<div class="week-tag">Week {n:02d} · 5 hours · {week['core']} core / {week['optional']} optional</div>
-<h1 class="week-heading" id="heading-{n}">{inline(week['title'])}</h1>
-<p class="study-note">Read → predict → trace → write → test → explain. <span lang="tr">Önce düşün, sonra çalıştır ve sonucu açıkla.</span></p>
-<section class="study-card"><h2>Engineering experience · {inline(experience['title'])}</h2><p>{html.escape(experience['subtitle'])} {html.escape(experience['question'])}</p><p>One investigation: predict, inspect a failure, test the model, and defend a decision.</p><div class="study-actions"><a class="nb-btn" href="Week_{n:02d}.html">Open Week {n:02d} HTML experience</a><a href="CP1_Experiences.html">Explore all 14 experiences</a></div></section>
-<div class="study-actions"><a class="nb-btn" href="{local}" download>Download lesson notebook</a><a class="nb-btn solution-link" href="{sol}" download>Download all worked solutions</a></div>
-<p class="study-note"><a href="{COLAB + week['notebook']}" target="_blank" rel="noopener">Lesson in Colab</a> · <a href="{COLAB + week['solutions']}" target="_blank" rel="noopener">Solutions in Colab</a> (published course copies)</p>
-<div class="study-columns"><section class="study-card"><h2>What you will learn</h2><ul>{goals}</ul></section><section class="study-card"><h2>Notebook sections</h2><ul>{lessons}</ul></section></div>
-<section class="study-card"><h2>Practice and review</h2><p>Complete the core exercises at your own pace during guided practice. Use the final 15 minutes to revisit a difficult example and explain one solution. Four short breaks and concept checkpoints are built into the notebook agenda.</p><p>Checkpoint 5 records your explicit self-report. It does not grade your code. Test a normal case and a boundary case before adding an exercise to your list.</p><p lang="tr">Bir hücrenin çalışması yeterli değildir. Sonucun neden doğru olduğunu anlat ve farklı bir girdiyi dene.</p></section>
-{capstone}
-<section class="study-card"><h2>Exercises in this notebook</h2><div class="table-scroll"><table class="exercise-table"><thead><tr><th>ID</th><th>Actual notebook exercise</th><th>Study role</th></tr></thead><tbody>{rows}</tbody></table></div>{bridge}<p class="study-note">Every listed exercise has a complete worked solution with reasoning and checks. Try it first, then compare. Keep the solution and your own work in separate runtimes.</p></section>
-<details class="study-card"><summary>Code example from this notebook</summary><p class="study-note">This is an actual lesson cell. Run it in notebook order so earlier definitions are available.</p><pre class="code-snippet" data-language="python">{html.escape(chr(10).join(line.rstrip() for line in week['snippet'].splitlines()))}</pre></details>
-<p class="study-note">Weekly notebooks are private practice. Assessment: midterm 25%, final 50%, in-class demonstration and technical explanation 25%. <a href="CP1_Syllabus.html">Read the syllabus</a>.</p>
-</section>'''
+<p class="eyebrow">Week {n:02d} · {html.escape(lesson['strand'])}</p>
+<h2 class="week-heading" id="heading-{n}">{html.escape(lesson['title'])}</h2>
+<p class="subtitle">{html.escape(lesson['question'])}</p>
+<p>{html.escape(lesson['subtitle'])}</p>
+<a class="button" href="Week_{n:02d}.html">Start Week {n:02d} →</a>
+<p class="study-note">The lesson takes you through Understand → Investigate → Check. Open Colab when you reach the experiment.</p>
+<details class="path-resources"><summary>Notebook, solutions &amp; practice reference</summary><div>
+<p>Python tools: {inline(week['title'])}. {week['core']} core / {week['optional']} optional exercises. Weekly notebooks are private practice.</p>
+<a href="{COLAB + week['notebook']}" target="_blank" rel="noopener">Lesson in Colab</a>
+<a href="../{week['notebook']}" download>Download notebook</a>
+<a href="{COLAB + week['solutions']}" target="_blank" rel="noopener">Worked solutions in Colab</a>
+<a href="../{week['solutions']}" download>Download solutions</a>
+<details><summary>Exercise list</summary><div class="table-scroll"><table class="exercise-table"><thead><tr><th>ID</th><th>Notebook exercise</th><th>Role</th></tr></thead><tbody>{rows}</tbody></table></div></details>
+</div></details></section>'''
 
 
 def sync():
@@ -140,7 +129,7 @@ def sync():
                 "assessment": {"midterm": 25, "final": 50, "demonstration": 25}}
     write(ROOT / "course_manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     template = (ROOT / "tools" / "templates" / "dashboard.html").read_text(encoding="utf-8")
-    nav = "".join(f'<button class="week-btn{ " active" if w["week"] == 1 else ""}" data-week="{w["week"]}" onclick="showWeek({w["week"]})" aria-controls="week-{w["week"]}"><span class="week-num">W{w["week"]:02d}</span><span class="week-title">{inline(w["title"])}</span></button>\n' for w in weeks)
+    nav = ''.join(f'<option value="{w["week"]}">Week {w["week"]:02d} · {html.escape(LESSONS[w["week"]-1]["title"])}</option>' for w in weeks)
     dashboard = template.replace("<!-- CP1:NAV -->", nav).replace("<!-- CP1:PANELS -->", "\n".join(panel(w) for w in weeks))
     write(ROOT / "web" / "CP1_Course_Dashboard.html", dashboard)
     table = "| Week | HTML experience | Lesson notebook | Worked solutions | Core / optional |\n|---|---|---|---|---|\n"
