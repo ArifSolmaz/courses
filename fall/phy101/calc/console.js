@@ -7,9 +7,9 @@
 
    The one idea that makes the rest work: the four-digit VARIANT CODE seeds the
    random numbers. Given (challenge id, code) the parameters are reproducible
-   exactly, on any machine, next year included. So nothing has to be stored
-   between the question and the marking, and a student who copies last year's
-   answer gets it wrong because their code is different.
+   exactly, on any machine, next year included. Timing intervals must be stored
+   between asking and marking. Codes associate responses with rounds; they do
+   not provide secrecy or prevent answer sharing.
    ========================================================================= */
 (function () {
   "use strict";
@@ -108,7 +108,7 @@
     code: 0,
     lang: "en",
     seconds: 120, left: 120, running: false, revealed: false,
-    tick: null
+    tick: null, windows: [], deadline: null
   };
 
   function weekList(w) { return CH.filter(function (c) { return c.week === w; }); }
@@ -141,7 +141,7 @@
      time they are shown. One source of truth, so an import cannot drift from
      it and a removed round cannot leave its points behind. */
   function totals() {
-    var out = {};
+    var out = Object.create(null);
     DB.results.forEach(function (r) {
       r.rows.forEach(function (o) {
         var rec = out[o.sid] || { handle: o.handle, points: 0, correct: 0, attempts: 0 };
@@ -280,7 +280,7 @@
     picker.innerHTML = "";
     [2, 3, 4, 5, 6].forEach(function (w) {
       var b = el("button", "chip" + (w === S.week ? " on" : ""), "W" + w);
-      b.onclick = function () { S.week = w; S.idx = 0; reset(); };
+      b.onclick = function () { S.week = w; S.idx = 0; fresh(); };
       picker.appendChild(b);
     });
     var sep = el("span", "sep", "");
@@ -288,7 +288,7 @@
     weekList(S.week).forEach(function (c, i) {
       var b = el("button", "chip" + (i === S.idx ? " on" : ""), String(i + 1));
       b.title = c.skill;
-      b.onclick = function () { S.idx = i; reset(); };
+      b.onclick = function () { S.idx = i; fresh(); };
       picker.appendChild(b);
     });
 
@@ -312,8 +312,8 @@
     $("r-answer").innerHTML = SF3(a) + " <span class='unit'>" + esc(ch.unit) + "</span>";
     $("r-head-a").textContent = tr ? "cevap" : "the answer";
     $("r-head-b").textContent = tr
-      ? "ve sınıfın üreteceği iki yanlış cevap"
-      : "and the two answers the room will have produced";
+      ? "iki yaygın yanlış cevap"
+      : "two common wrong answers";
     $("r-note").textContent = ch.mark === "sf3"
       ? (tr ? "Üç anlamlı rakamda bu değere eşit olmalı."
             : "Must agree with this to three significant figures.")
@@ -335,32 +335,47 @@
 
   /* ------------------------------------------------------------------ timer */
   function paintClock() {
-    $("clock").textContent = fmtSec(Math.max(S.left, 0));
+    $("clock").textContent = fmtSec(Math.ceil(Math.max(S.left, 0)));
     var frac = S.seconds ? Math.max(S.left, 0) / S.seconds : 0;
     $("bar").style.width = (frac * 100).toFixed(2) + "%";
     document.body.classList.toggle("is-low", S.left <= 15 && S.left > 0);
     document.body.classList.toggle("is-done", S.left <= 0);
-    $("btn-start").textContent = S.running ? "PAUSE" : (S.left < S.seconds ? "RESUME" : "START");
+    $("btn-start").disabled = S.revealed || S.left <= 0;
+    $("btn-start").textContent = S.revealed ? "CLOSED" : S.left <= 0 ? "TIME UP" : S.running ? "PAUSE" : (S.left < S.seconds ? "RESUME" : "START");
   }
   function startStop() {
-    if (S.left <= 0) return;
-    S.running = !S.running;
-    if (S.running) startPolling(); else stopPolling();
+    if (S.left <= 0 || S.revealed) return;
     if (S.running) {
+      S.left = Math.max(0, (S.deadline - Date.now()) / 1000);
+      closeWindow(); stop(); stopPolling();
+    } else {
+      S.running = true;
+      S.deadline = Date.now() + S.left * 1000;
+      S.timedRound = { id: current().id, week: S.week, idx: S.idx, code: S.code };
+      S.windows.push({ start: Date.now(), end: S.deadline });
+      remember();
+      startPolling();
       S.tick = window.setInterval(function () {
-        S.left--;
-        if (S.left <= 0) { S.left = 0; stop(); }
+        S.left = Math.max(0, (S.deadline - Date.now()) / 1000);
+        if (S.left <= 0) { closeWindow(); stop(); stopPolling(); }
         paintClock();
-      }, 1000);
-    } else if (S.tick) { window.clearInterval(S.tick); S.tick = null; }
+      }, 250);
+    }
     paintClock();
+  }
+  function closeWindow() {
+    var w = S.windows[S.windows.length - 1];
+    if (S.running && w) w.end = Math.min(w.end, Date.now());
+    if (S.windows.length) remember();
   }
   function stop() {
     S.running = false;
     if (S.tick) { window.clearInterval(S.tick); S.tick = null; }
   }
   function reset() {
+    closeWindow();
     stop();
+    S.windows = []; S.deadline = null; S.timedRound = null;
     stopPolling();
     S.left = S.seconds; S.revealed = false;
     LIVE.n = 0; LIVE.rows = null; LIVE.err = ""; LIVE.result = null;
@@ -374,11 +389,16 @@
      Keep the (challenge, code) pair so it can still be marked after the
      numbers have moved on - at the end of the class, or that evening. */
   function remember() {
-    var ch = current();
-    var key = ch.id + "-" + S.code;
-    if (DB.history.some(function (h) { return h.key === key; })) return;
-    DB.history.unshift({ key: key, id: ch.id, week: S.week, idx: S.idx, code: S.code,
-                         at: new Date().toISOString().slice(0, 16).replace("T", " ") });
+    var round = S.timedRound || { id: current().id, week: S.week, idx: S.idx, code: S.code };
+    var key = round.id + "-" + round.code;
+    var existing = DB.history.filter(function (h) { return h.key === key; })[0];
+    if (existing) {
+      existing.windows = S.windows.map(function (w) { return { start: w.start, end: w.end }; });
+      save(DB); return;
+    }
+    DB.history.unshift({ key: key, id: round.id, week: round.week, idx: round.idx, code: round.code,
+                         at: new Date().toISOString().slice(0, 16).replace("T", " "),
+                         windows: S.windows.map(function (w) { return { start: w.start, end: w.end }; }) });
     if (DB.codes.indexOf(S.code) < 0) DB.codes.push(S.code);
     if (DB.history.length > 80) DB.history.length = 80;
     save(DB);
@@ -536,6 +556,7 @@
     var ch = current(), code = S.code;
     LIVE.lastCode = code;
     liveFetch(code, function (err, data) {
+      if (code !== S.code || ch !== current() || !S.revealed) return;
       if (err || !data || data.ok !== true) {
         var m = $("live-msg");
         if (m) {
@@ -626,12 +647,28 @@
     var s = String(raw == null ? "" : raw).trim().toLowerCase();
     if (!s) return NaN;
     s = s.replace(/^=+/, "").replace(/\s+/g, "");
-    s = s.replace(/[a-z°µ\/²³]+$/i, "");                 /* trailing unit */
-    s = s.replace(/(?:x|\*|·)10\^?/, "e").replace(/\^/, "e");
+    s = s.replace(/(?:m\/s[²³]?|kg|m|s|n|j|w|°)$/i, "");                 /* trailing unit */
+    s = s.replace(/(?:x|\*|·)10\^?/, "e");
     if (s.indexOf(",") >= 0 && s.indexOf(".") < 0) s = s.replace(/,/g, ".");
     else s = s.replace(/,/g, "");
     if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/.test(s)) return NaN;
     return parseFloat(s);
+  }
+
+  function parseTimestamp(raw) {
+    var s = String(raw || "").trim();
+    s = s.replace(/^(\d{4})\/(\d{2})\/(\d{2}) /, "$1-$2-$3 ");
+    // Live results use ISO with a zone. Sheet paste supports unambiguous local
+    // YYYY-MM-DD and Turkish DD.MM.YYYY; slash dates are deliberately refused.
+    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/.test(s))
+      return Date.parse(s.replace(" ", "T"));
+    var m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+    if (m) {
+      var d = new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5], +m[6]);
+      if (d.getFullYear() === +m[3] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[1]
+          && d.getHours() === +m[4] && d.getMinutes() === +m[5] && d.getSeconds() === +m[6]) return +d;
+    }
+    return NaN;
   }
 
   function scoreRows(rows, override) {
@@ -662,17 +699,33 @@
 
     var round = override || scoringRound();
     var ch = round.ch, wanted = round.code;
+    var rehearsal = !!round.rehearsal;
+    var history = DB.history.filter(function (h) { return h.id === ch.id && h.code === wanted; })[0];
+    var windows = history && history.windows;
+    if (!rehearsal && (!windows || !windows.length)) {
+      return { err: "No recorded timing for this round. Start the clock before accepting answers. "
+        + "Older rounds without timing cannot be safely scored; use them as ungraded practice." };
+    }
+    if (!rehearsal && ci.ts < 0) return { err: "Timestamp column required to enforce the deadline." };
+    var excluded = 0;
     /* Gather EVERY row for this code first, then decide which attempt counts.
        That order is what makes "last" and "best" possible at all, and it is
        also how the repeat count becomes visible instead of silently dropped. */
     var all = [], p = paramsFor(ch, wanted);
     for (var r = 1; r < rows.length; r++) {
       var row = rows[r];
-      var code = parseInt(String(row[ci.code] || "").replace(/\D/g, ""), 10);
+      var codeText = String(row[ci.code] || "").trim();
+      if (!/^[1-9][0-9]{3}$/.test(codeText)) continue;
+      var code = Number(codeText);
       if (!(code >= 1000 && code <= 9999)) continue;           /* other rounds */
       if (code !== wanted) continue;
       var id = String(row[ci.id] || "").trim();
       if (!id) continue;
+      var ts = ci.ts >= 0 ? String(row[ci.ts] || "").trim() : "";
+      var time = parseTimestamp(ts);
+      if (!rehearsal && (!isFinite(time) || !windows.some(function (w) {
+        return isFinite(w.start) && isFinite(w.end) && time >= w.start && time < w.end;
+      }))) { excluded++; continue; }
 
       var val = parseNum(row[ci.ans]);
       var ok = isFinite(val) && MARK(ch, p, val);
@@ -689,7 +742,7 @@
            is worked out at render time from this plus the display setting, so
            a supplied handle still wins and the setting governs the rest. */
         handle: ci.handle >= 0 ? String(row[ci.handle] || "").trim() : "",
-        ts: ci.ts >= 0 ? String(row[ci.ts] || "").trim() : "",
+        ts: ts, time: time,
         raw: String(row[ci.ans] || "").trim(),
         val: val, ok: ok, trap: which,
         seq: r                   /* sheet order: the tiebreak when times tie */
@@ -699,11 +752,11 @@
     /* oldest first, so "first" and "last" mean what they say even when rows
        arrive out of order */
     all.sort(function (a, b) {
-      if (a.ts !== b.ts) return a.ts < b.ts ? -1 : 1;
+      if (isFinite(a.time) && isFinite(b.time) && a.time !== b.time) return a.time - b.time;
       return a.seq - b.seq;
     });
 
-    var byId = {}, order = [], extra = 0, counts = {};
+    var byId = Object.create(null), order = [], extra = 0, counts = Object.create(null);
     all.forEach(function (o) {
       counts[o.id] = (counts[o.id] || 0) + 1;
       var prev = byId[o.id];
@@ -716,18 +769,18 @@
     var out = order.map(function (id) { return byId[id]; });
     var nRepeat = Object.keys(counts).filter(function (id) { return counts[id] > 1; }).length;
     if (!out.length) {
-      return { err: "No rows carried the code " + wanted
+      return { err: "No eligible, on-time rows carried the code " + wanted
                  + ". Either the round has not been submitted yet, or the sheet is from "
                  + "another round." };
     }
 
     /* Accuracy first, speed only as a tiebreak: every correct answer is worth
        the same 10 points, and the first three correct get a small bonus. */
-    out.sort(function (a, b) { return a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0; });
+    out.sort(function (a, b) { return (a.time - b.time) || (a.seq - b.seq); });
     var rank = 0;
     out.forEach(function (o) {
       o.points = o.ok ? 10 : 0;
-      if (o.ok) { rank++; if (rank <= 3) o.points += [3, 2, 1][rank - 1]; o.rank = rank; }
+      if (o.ok) { rank++; if (isFinite(o.time) && out.every(function (r) { return isFinite(r.time); }) && rank <= 3) o.points += [3, 2, 1][rank - 1]; o.rank = rank; }
     });
     /* Two IDs can land on the same alias. Measured over 4000 simulated classes:
        never once for consecutive student numbers, which is what a real class
@@ -736,7 +789,7 @@
        The points are keyed by ID so they stay correct either way, but the
        screen would show one name twice, so flag it rather than let a student
        discover it. */
-    var seenAlias = {}, clash = [];
+    var seenAlias = Object.create(null), clash = [];
     if (PREFS.show !== "id") {                 /* student numbers cannot clash */
       out.forEach(function (o) {
         var name = rowLabel(o);
@@ -748,7 +801,7 @@
 
     var byPts = out.slice().sort(function (a, b) { return b.points - a.points; });
     return { rows: out, board: byPts, ch: ch, code: wanted, clash: clash,
-             repeats: extra, nRepeat: nRepeat, attempt: PREFS.attempt,
+             repeats: extra, nRepeat: nRepeat, attempt: PREFS.attempt, excluded: excluded,
              rehearsal: !!(override && override.rehearsal),
              nOk: out.filter(function (o) { return o.ok; }).length };
   }
@@ -769,6 +822,9 @@
     box.appendChild(el("p", "s-sum", res.nOk + " of " + res.rows.length + " correct"
       + " &nbsp;·&nbsp; " + esc(res.ch.id) + " &nbsp;·&nbsp; code " + res.code));
 
+    if (res.excluded) box.appendChild(el("p", "warn", res.excluded
+      + " submission(s) excluded: before start, during pause, after the deadline, or invalid timestamp. "
+      + "Use the live endpoint for unambiguous timestamps."));
     if (res.repeats) {
       var how = res.attempt === "last" ? "the last one counts"
               : res.attempt === "best" ? "their first correct one counts"
@@ -879,7 +935,7 @@
     var t = 0;
     function stamp() { t += 6 + Math.floor(Math.random() * 9);
       var mm = 30 + Math.floor(t / 60), ss = t % 60;
-      return "2026/01/01 10:" + mm + ":" + (ss < 10 ? "0" + ss : ss); }
+      return "2026-01-01 10:" + mm + ":" + (ss < 10 ? "0" + ss : ss); }
     var body = [
       [stamp(), "9001", NAMES[0], code, n(a)],
       [stamp(), "9002", NAMES[1], code, String(n(a)).replace(".", ",")],
@@ -1196,7 +1252,7 @@
     $("btn-new").onclick = fresh;
     $("btn-start").onclick = startStop;
     $("btn-reveal").onclick = function () {
-      stop(); stopPolling();
+      closeWindow(); stop(); stopPolling();
       S.revealed = true; remember(); renderQuestion(); paintClock();
       autoMark();                       /* no-op unless an endpoint is set */
     };
@@ -1212,7 +1268,7 @@
       renderQuestion();
     };
     $("sel-time").onchange = function () {
-      S.seconds = parseInt(this.value, 10); reset();
+      S.seconds = parseInt(this.value, 10); fresh();
     };
     $("tab-run").onclick = function () { show("run"); };
     $("tab-score").onclick = function () { show("score"); };

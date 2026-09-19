@@ -18,7 +18,9 @@ One page. The rest of the documentation explains *why*; this one is what to do, 
 3. **Before class → Run the checks.** Eleven lines, four seconds. Green ✓ is a pass, blue
    ✓ is a remark, red ✕ is the only thing that should stop you.
 4. **Settings → Test** if you are using live results. It should say *Connected*.
-5. Slide 1 up with the form link and the student-page link on it. Ask them to open the
+5. Confirm the computer clock and response-sheet timezone agree. For paste scoring, format
+   timestamps as `yyyy-mm-dd hh:mm:ss`; live results require the updated Apps Script for ISO timestamps.
+6. Slide 1 up with the form link and the student-page link on it. Ask them to open the
    form now, before the first round, not while the clock is running.
 
 ## Each round — about four minutes
@@ -38,6 +40,12 @@ One page. The rest of the documentation explains *why*; this one is what to do, 
 `T` switches the whole console between English and Turkish, mid-round if you like.
 
 Three rounds is a normal class. Fifteen across weeks 2–6.
+
+Always start the clock. Only submissions during recorded running intervals count;
+pausing closes an interval, resuming opens another, and reveal closes it immediately.
+Old rounds without recorded timing cannot be re-marked safely. Keep backups of timing
+history as well as totals. Use this activity as supervised practice; see [AUDIT.md](AUDIT.md)
+for identity and answer-lookup limitations.
 
 ## After the last round
 

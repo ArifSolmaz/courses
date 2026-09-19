@@ -5,8 +5,8 @@
    mistake that costs marks in the common exam, not just "do some arithmetic".
 
    Every challenge is a template:
-     gen()      -> fresh random parameters, so neighbours get different numbers
-                   and the set can be re-run next year
+     gen()      -> fresh random parameters for each draw (shared by the room),
+                   so the set can be re-run next year
      text(p)    -> the question, in English and Turkish
      answer(p)  -> the correct value
      unit, sf   -> unit string and the significant figures expected

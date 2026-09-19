@@ -48,10 +48,10 @@ function doGet(e) {
       return reply({ ok: false, error: "bad key" });
     }
 
-    /* A code is required. Without one this returns nothing at all, so the
-       endpoint can never be used to pull the whole term. */
-    var code = String(p.code || "").replace(/[^0-9]/g, "");
-    if (!/^[0-9]{4}$/.test(code)) {
+    /* A code scopes each response. It is NOT authentication: four-digit codes
+       are enumerable. Keep the deployment URL private and set SHARED_KEY. */
+    var code = String(p.code || "").trim();
+    if (!/^[1-9][0-9]{3}$/.test(code)) {
       return reply({ ok: false, error: "a four-digit code is required" });
     }
 
@@ -84,12 +84,13 @@ function doGet(e) {
        place rather than this script quietly dropping rows first. */
     var rows = [];
     for (var r = 1; r < values.length; r++) {
-      var rowCode = String(values[r][iCd]).replace(/[^0-9]/g, "");
+      var rowCode = String(values[r][iCd]).trim();
       if (rowCode !== code) continue;
       var id = String(values[r][iId]).trim();
       if (!id) continue;
       rows.push({
-        ts: iTs >= 0 ? String(values[r][iTs]) : "",
+        ts: iTs >= 0 && values[r][iTs] instanceof Date
+          ? values[r][iTs].toISOString() : (iTs >= 0 ? String(values[r][iTs]) : ""),
         id: id,
         ans: String(values[r][iAns])
       });

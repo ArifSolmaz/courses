@@ -84,5 +84,16 @@ ok(call({ code: "9208", key: "wrong" }).data.ok === false, "and a wrong key is r
 ok(call({ code: "9208", key: "hunter2" }).data.ok === true, "the right key works");
 SHARED_KEY = "";
 
+/* Strict codes and timezone-stable Google timestamps. */
+SHEET = [["Timestamp","No","Kod","Cevap"],
+  [new Date("2026-09-20T10:00:00Z"),1111,9208,"15.7"],
+  [new Date("2026-09-20T10:00:01Z"),2222,"92a08","15.7"]];
+r = call({code:"9208"});
+ok(r.data.rows.length === 1, "malformed stored codes are not normalised into valid codes");
+ok(r.data.rows[0].ts === "2026-09-20T10:00:00.000Z", "Date timestamps use ISO UTC");
+for (const code of ["92a08", "9208.0", "09208", "0000"]) {
+  ok(call({code}).data.ok === false, "reject malformed request code " + code);
+}
+
 console.log(fails ? "\nFAILED " + fails + " of " + n : "\nall " + n + " checks passed");
 process.exit(fails ? 1 : 0);

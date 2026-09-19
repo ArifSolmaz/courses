@@ -5,8 +5,10 @@ targets a **specific keystroke mistake** that costs marks in the common exam —
 a negative, DEG versus RAD, the `EXP` key, bracketing a numerator, rounding too early —
 rather than just being arithmetic to do quickly.
 
-The numbers are drawn fresh every time, so the answer cannot be passed along the row
-or found in last year's notes.
+The numbers change between draws. Everyone in the same round shares the question.
+This is supervised calculator practice, not a secure assessment: the public question
+bank can reproduce answers, and the form does not authenticate student identity.
+See [AUDIT.md](AUDIT.md) before using scores for credit.
 
 Open `index.html` in a browser. No server, no accounts, no network, nothing to install.
 
@@ -24,10 +26,10 @@ time, next year included.
 That buys three things:
 
 - Students type the code into the form, so their answer is tied to the round they sat in.
-- Nothing has to be stored between asking and marking — the console re-derives the
-  numbers from the code.
-- An answer copied from a friend in the other section, or from last year, is wrong,
-  because their code was different.
+- Question parameters are re-derived from the code. Recorded timing intervals are
+  stored in this browser and its backups so deadlines can be enforced.
+- Different draws usually require different answers; this discourages recycling old
+  answers but does not prevent copying or looking up the public answer generator.
 
 A student who types the wrong code is not marked. Read it out as well as showing it.
 
@@ -40,8 +42,8 @@ they submit repeatedly, once per round.
 
 | # | Question | Type | Required | Notes |
 |---|----------|------|----------|-------|
-| 1 | Öğrenci No / Student ID | Short answer | yes | Response validation → Number → *is number*. The only thing collected that identifies anyone. |
-| 2 | Kod / Code | Short answer | yes | Response validation → Number → *between 1000 and 9999*. |
+| 1 | Öğrenci No / Student ID | Short answer | yes | Response validation → Regular expression → Matches `^[0-9]+$`. Preserve leading zeros; this is not identity verification. |
+| 2 | Kod / Code | Short answer | yes | Response validation → Regular expression → Matches `^[1-9][0-9]{3}$`. A number range also accepts decimals. |
 | 3 | Cevap / Your answer | Short answer | yes | Plain number. Units are stripped, and a comma decimal is accepted. |
 
 Three questions, nothing else — **no name, no handle, no email**. The projector name is
@@ -49,8 +51,12 @@ derived from the ID instead (see §6).
 
 The column *headings* do not have to match those words exactly — the console looks for
 any header containing `student`/`öğrenci`/`no`, `code`/`kod`, `answer`/`cevap`. A
-`Timestamp` column is used for the speed bonus; without it everyone correct simply gets
-the flat 10. (If you ever do add a handle column, it is used in place of the derived
+`Timestamp` column and recorded round timing are required for scoring. Start the clock
+for each round. Early, paused, late and unparseable timestamps are excluded before
+choosing the first/last/best attempt. Old untimed rounds cannot be re-marked safely.
+Live results supply ISO timestamps after deploying the updated Apps Script. For sheet
+paste, format the timestamp column as `yyyy-mm-dd hh:mm:ss` and use the same timezone
+on the sheet and instructor computer. Ambiguous slash-form dates are refused. (If you ever do add a handle column, it is used in place of the derived
 alias.)
 
 Shorten the form link once and put it on the first slide of every lecture. The students
