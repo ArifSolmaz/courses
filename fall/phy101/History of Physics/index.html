@@ -3195,9 +3195,12 @@ function niceStep(max, target = 4) {
     ctx.strokeStyle = '#5b6a8a'; ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx, ty + th); ctx.lineTo(tx + tw, ty + th); ctx.stroke();
     ctx.fillStyle = '#8f9cb8'; ctx.font = '11px "IBM Plex Mono", monospace';
-    ctx.fillText('T (K)', tx + 4, ty - 4); ctx.fillText('S (J/K)', tx + tw - 44, ty + th + 14);
+    ctx.fillText('T (K)', tx + 4, ty - 4); ctx.fillText('S (J/K)', tx + tw - 44, ty + th + 26);
     ctx.textAlign = 'right'; ctx.fillStyle = '#fb7185'; ctx.fillText(String(cyc.Th), tx - 4, TY(cyc.Th) + 4);
-    ctx.fillStyle = '#38bdf8'; ctx.fillText(String(cyc.Tc), tx - 4, TY(cyc.Tc) + 4); ctx.textAlign = 'left';
+    ctx.fillStyle = '#38bdf8'; ctx.fillText(String(cyc.Tc), tx - 4, TY(cyc.Tc) + 4);
+    ctx.fillStyle = '#8f9cb8'; ctx.fillText('0', tx - 4, TY(0) + 4); ctx.textAlign = 'center';
+    [0, 4, 8, 12].forEach((sv) => { ctx.fillText(String(sv), SX(sv), ty + th + 14); ctx.beginPath(); ctx.moveTo(SX(sv), ty + th); ctx.lineTo(SX(sv), ty + th + 4); ctx.stroke(); });
+    ctx.textAlign = 'left';
     const xa = SX(S0), xb = SX(S0 + cyc.dS);
     ctx.fillStyle = 'rgba(56,189,248,0.18)'; ctx.fillRect(xa, TY(cyc.Tc), xb - xa, TY(0) - TY(cyc.Tc));        // Q_out
     ctx.fillStyle = 'rgba(34,211,238,0.35)'; ctx.fillRect(xa, TY(cyc.Th), xb - xa, TY(cyc.Tc) - TY(cyc.Th));  // W
@@ -3269,7 +3272,7 @@ function wavelengthToRGB(l) {
     ni: $('#bohr-ni'), nf: $('#bohr-nf'), jump: $('#bohr-jump'), presets: $('#bohr-presets'),
     de: $('#bohr-de'), lam: $('#bohr-lambda'), f: $('#bohr-f'), series: $('#bohr-series'), status: $('#bohr-status'),
   };
-  const ax = 190, ay = 206, r1 = 5.3, radius = (n) => r1 * n * n;
+  const ax = 200, ay = 206, r1 = 5.05, radius = (n) => r1 * n * n;   // r6 = 182 px: the n = 6 orbit stays inside the stage
   const En = (n) => -E1 / (n * n);
   const ladder = { x0: 428, x1: 556, yTop: 40, yBot: 300 };
   const LY = (E) => ladder.yTop + (-E / E1) * (ladder.yBot - ladder.yTop);
@@ -3391,15 +3394,32 @@ function wavelengthToRGB(l) {
       ctx.strokeStyle = k === n ? '#22d3ee' : 'rgba(233,238,248,0.7)'; ctx.lineWidth = k === n ? 2.2 : 1.2; ctx.stroke();
       ctx.fillStyle = k === n ? '#22d3ee' : '#c3cde0';
       if (k <= 3) ctx.fillText(`n=${k}  ${En(k).toFixed(2)} eV`, ladder.x1 + 6, y + 4);
-      else ctx.fillText(`${k}`, ladder.x0 - 12, y + 4);
     }
+    // n = 4, 5, 6 sit within 20 px of each other on a linear energy axis, so their
+    // labels are stacked to the left of the ladder and tied to the levels by leaders.
+    let slotY = LY(En(4)) + 4;
+    ctx.textAlign = 'right';
+    for (let k = 4; k <= 6; k++) {
+      const y = LY(En(k));
+      slotY = Math.min(slotY, y + 4);
+      ctx.fillStyle = k === n ? '#22d3ee' : '#c3cde0';
+      ctx.fillText(`n=${k}`, ladder.x0 - 14, slotY);
+      ctx.strokeStyle = 'rgba(160,176,206,0.5)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(ladder.x0 - 11, slotY - 3); ctx.lineTo(ladder.x0 - 2, y); ctx.stroke();
+      slotY -= 12;
+    }
+    ctx.textAlign = 'left';
     ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(ladder.x0, LY(0)); ctx.lineTo(ladder.x1, LY(0)); ctx.strokeStyle = '#8f9cb8'; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = '#8f9cb8'; ctx.fillText('n=∞  0 eV (ionized)', ladder.x1 + 6, LY(0) + 4);
-    ctx.fillText('E_n = −13.6 eV / n²', ladder.x0, ladder.yBot + 22);
+    ctx.fillText('E_n = −13.6 eV / n²', ladder.x0, ladder.yTop - 16);
     if (current) {
       const yi = LY(En(current.ni)), yf = LY(En(current.nf)), xL = (ladder.x0 + ladder.x1) / 2;
       drawArrow(ctx, xL, yi, xL, yf + (yf > yi ? -2 : 2), current.color, 2.2, 7);
-      ctx.fillStyle = current.color; ctx.fillText(`ΔE = ${current.dE.toFixed(2)} eV`, xL + 10, (yi + yf) / 2 + 4);
+      ctx.fillStyle = current.color;
+      const label = `ΔE = ${current.dE.toFixed(2)} eV`;
+      // Beside the arrow when the two levels are far enough apart; otherwise in a fixed slot under the ladder.
+      if (Math.abs(yi - yf) >= 30) ctx.fillText(label, xL + 10, (yi + yf) / 2 + 4);
+      else ctx.fillText(label, ladder.x0, ladder.yBot + 22);
     }
 
     // ---- Spectrum strip (log wavelength axis) ----
