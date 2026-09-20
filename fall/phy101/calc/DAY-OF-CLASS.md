@@ -4,7 +4,9 @@ One page. The rest of the documentation explains *why*; this one is what to do, 
 
 - **The console (you):** <https://arifsolmaz.github.io/courses/fall/phy101/calc/>
 - **The page for students:** <https://arifsolmaz.github.io/courses/fall/phy101/calc/students.html>
-- **The form (them):** your shortened Google Form link — on slide 1, every week.
+- **The form (them):** <https://forms.gle/MxGUR2aZhvWRgMdZ6>
+- **Big QR for the projector:** <https://arifsolmaz.github.io/courses/fall/phy101/calc/join.html>
+  — also available from **Form QR ↗** in the console. Show it before starting the clock.
 
 ---
 
@@ -112,3 +114,16 @@ one.
 
 If you ran a round on a shared or podium machine, clear it before you walk away:
 **Settings → empty the URL box → Save**.
+
+## Using a different computer
+
+Form responses are collected by Google, independent of the instructor's PC. Open the
+same console URL on the new PC. For automatic results, enter the private deployment URL
+and shared key in Settings and press Test, before connecting the projector. Alternatively,
+sign into the Google account with access to the response sheet and paste its data.
+
+Before changing PCs, export **Totals → backup (JSON)** on the old PC, then use
+**Totals → restore / merge a backup** on the new PC. This transfers totals, used codes and
+recorded round timings; endpoint settings are entered separately. Do this even if a round
+has not yet been banked. Do not switch PCs in the middle of a running round. These local
+browser records do not automatically sync through Google or GitHub.
