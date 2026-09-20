@@ -7,6 +7,7 @@ const read=name=>fs.readFileSync(path.join(base,name),'utf8');
 let html=read('cloud/instructor.html');
 html=html.replace('<!-- WALKTHROUGH_CSS -->','<style>'+read('walkthrough.css')+'</style>')
  .replace('<!-- CHALLENGES_JS -->','<script>'+read('challenges.js')+'</script>')
+ .replace('<!-- FORMULAS_JS -->','<script>'+read('cloud/formulas.js')+'</script>')
  .replace('<!-- WALKTHROUGH_JS -->','<script>'+read('walkthrough.js')+'</script>');
 const config={sheet,tab:Number(tab),owner};
 const source='var window = {};\n'+read('challenges.js')+'\n'+read('cloud/core.js')+'\n'+read('cloud/server.gs')+'\nfunction cloudDeploymentConfig_(){return '+JSON.stringify(config)+';}\nfunction cloudHtml_(){return '+JSON.stringify(html)+';}\n';
