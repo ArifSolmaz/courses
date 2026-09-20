@@ -12,6 +12,16 @@ Use the HTML investigation within guided class time, alongside the matching Cola
 
 Notes on each HTML lesson can be saved in the browser and downloaded as an engineering log. They are private reasoning notes, not automatic grades or evidence of completion.
 
+## Explain the program before running it
+
+Every weekly lesson now has an explanation tied to its actual Python topic: what the operation means, a small drawing or state trace, a prediction, a folded worked explanation and a changed-input question. The same section appears in the Colab notebook. Use it beside the existing walkthrough; it fits within the existing class time.
+
+State what a variable represents after each important step. Draw name-to-object arrows for shared lists, input/output arrows for functions, and a pipeline for the sensor report. These representations explain why the code should work; running examples then checks particular cases. A successful run alone does not establish correctness for every input.
+
+At the end of the course, the sensor example connects to [AA’s comparison of two reporting methods](../../aa/w14/#meaning-before-analysis). CP1 establishes the behaviour and validation rules; AA compares methods that preserve those rules. Neither course requires enrolment in the other.
+
+**Türkçe:** Önce işlemin anlamını ve küçük bir örnekte durumun nasıl değiştiğini açıkla. Çalıştırmadan tahmin et; sonra bir girdiyi değiştirip gerekçeni yeniden dene.
+
 ## Your weekly routine
 
 1. Read the goal and identify the inputs and the required output.

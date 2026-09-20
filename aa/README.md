@@ -50,7 +50,7 @@ aa/
   tools/build.py      the generator: page template + week metadata
   tools/build_guide.py  dependency-free guide generator (called by build.py)
   tools/guide/        guide sources: start.md, toolkit.md, math.md, reviews.md,
-                                     weeks/wNN.md, deepening/wNN.md
+                                     weeks/wNN.md, meaning/wNN.md, deepening/wNN.md
   assets/guide.css    guide reading, mobile, dark/light and print styles
   assets/guide.js     guide chapter navigation, theme and printing
   tools/learning_path.py  weekly stages and embedded bilingual support
@@ -110,3 +110,7 @@ Source mapping and editorial corrections are documented in
 [tools/materials/README.md](tools/materials/README.md).
 
 Run `python3 aa/tools/verify_skiena_material.py` after rebuilding.
+
+## Meaning before analysis
+
+`tools/guide/meaning/wNN.md` supplies the topic-specific meaning, representation, prediction, worked reasoning and transfer question for every week. The same authored source appears at the start of the weekly Understand stage and in the detailed guide; the main lesson folds the worked answer until students choose to reveal it. `build_guide.py` includes the sources in its guide and verification manifest, and `learning_path.py` renders them into the weekly route. Use the existing Markdown grammar and independently runnable, bounded Python examples. These sections strengthen the current topic order without adding graded work.

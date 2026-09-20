@@ -45,6 +45,10 @@ def deepening_source(num: int) -> pathlib.Path:
     return SOURCE / "deepening" / f"w{num:02d}.md"
 
 
+def meaning_source(num: int) -> pathlib.Path:
+    return SOURCE / "meaning" / f"w{num:02d}.md"
+
+
 def page_link(out_rel: pathlib.PurePosixPath) -> str:
     if out_rel.name == "index.html":
         return out_rel.parent.as_posix().rstrip("/") + "/"
@@ -55,6 +59,7 @@ def source_files() -> list[pathlib.Path]:
     files: list[pathlib.Path] = [SOURCE / "start.md", SOURCE / "toolkit.md", SOURCE / "math.md"]
     for num in range(1, WEEK_COUNT + 1):
         files.append(week_source(num))
+        files.append(meaning_source(num))
         files.append(deepening_source(num))
     files.append(SOURCE / "reviews.md")
     return files
@@ -109,7 +114,7 @@ def guide_page_specs() -> list[PageSpec]:
             PageSpec(
                 key=f"w{num:02d}",
                 label=f"Week {num:02d}",
-                source_paths=(week_path, deepening_source(num)),
+                source_paths=(week_path, meaning_source(num), deepening_source(num)),
                 out_rel=pathlib.PurePosixPath(f"guide/w{num:02d}/index.html"),
                 group="Weekly Guide Pages",
                 eyebrow=f"Week {num:02d}",

@@ -118,3 +118,7 @@ line and changed state. Expand opens the same workspace in a native modal dialog
 Close or Escape restores it without resetting the selected case or step. The
 Guide contains explanations and notebook references. Check inline and expanded
 layouts at 1280×720 and 1366×768 when changing this UI.
+
+## Meaning and state-tracing explanations
+
+`lessons/reasoning.json` authors one topic-specific bridge for each of the 14 weeks: meaning, representation, prediction, worked steps, explanation, transfer question and Turkish support. `render_experiences.py` publishes it in the weekly HTML and synchronises the matching `cp1-reasoning-NN` notebook cell. Edit the JSON and run the normal preparation/synchronisation workflow; do not hand-edit generated explanations. Existing exercise IDs, code cells, animation fixtures and assessment weights stay unchanged. `verify_experiences.py` checks that the two versions agree.

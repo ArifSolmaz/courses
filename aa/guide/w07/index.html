@@ -107,6 +107,7 @@
 <a href="#6-optional-deepening-polynomial-evaluation">6. Optional deepening — polynomial evaluation</a>
 <a href="#7-graduated-practice-with-complete-solutions">7. Graduated practice with complete solutions</a>
 <a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#meaning-before-analysis-the-shape-of-the-visited-work-explains-the-formula">Meaning before analysis: the shape of the visited work explains the formula</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w7/index.html">Original lesson</a></p>
@@ -251,6 +252,18 @@ assert (value, multiplications, additions) == (32, 3, 3)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning</th></tr></thead><tbody><tr><td>Basic operation</td><td>Temel işlem</td><td>The operation explicitly being counted</td></tr><tr><td>Dominant term</td><td>Baskın terim</td><td>Fastest-growing part of a cost formula</td></tr><tr><td>Constant factor</td><td>Sabit çarpan</td><td>Multiplier independent of input size</td></tr><tr><td>Triangular sum</td><td>Üçgensel toplam</td><td>A sum of consecutive increasing counts</td></tr><tr><td>RAM model</td><td>RAM hesaplama modeli</td><td>Constant-cost operations on machine-sized values</td></tr><tr><td>Horner&#x27;s method</td><td>Horner yöntemi</td><td>Nested multiply-and-add polynomial evaluation</td></tr></tbody></table></div>
 <p>You are ready when you can derive 2n, n², 10n and n(n−1)/2 without guessing from indentation alone. If not, trace n = 4 and label the counted update. The dependent triple-loop proofs and Horner challenge can wait. When revisiting them, redo the inclusive-length warm-up and the pesky cancellation. If exact counts and growth labels are mixed together, keep two separate columns in your answers.</p>
 <p><strong>Bridge to Week 8:</strong> now that you can justify a cost formula, you are ready to express an upper bound precisely and distinguish it from a tight description of growth.</p>
+<h2 id="meaning-before-analysis-the-shape-of-the-visited-work-explains-the-formula">Meaning before analysis: the shape of the visited work explains the formula</h2>
+<p>Counts add for consecutive work and multiply for a full collection of combinations. A nested loop whose inner length changes needs a sum of its actual lengths. The number of written loops alone does not determine growth.</p>
+<p><strong>Draw or trace.</strong> Draw a 4 by 4 grid for every ordered pair. Then mark only pairs with column less than row: row lengths are 0, 1, 2, 3. These dots represent actual visits.</p>
+<p><strong>Predict before checking.</strong> How many visits occur in the square and triangle? Why does the triangle represent each unordered pair of distinct indices once?</p>
+<h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The square has 16 visits; the triangle has 6. In general the triangle count is 0 + 1 + ... + (n − 1) = n(n − 1)/2. Combining two such triangles gives n(n − 1) off-diagonal ordered pairs. Two consecutive full scans instead give n + n visits, not n squared. Assume bounded-cost work at each visited pair when converting this count to a time bound.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">for n in (0, 1, 4, 10):
+    pairs = [(i, j) for i in range(n) for j in range(i)]
+    assert len(pairs) == n * (n - 1) // 2
+print(&quot;Four items give&quot;, len([(i, j) for i in range(4) for j in range(i)]), &quot;pairs&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Make the inner loop always run three times. There are still two loops, but now there are 3n body visits. State what changed geometrically.</p>
+<p class="turkish"><strong>Türkçe:</strong> Döngü sayısını değil ziyaret edilen işi say. Ardışık işler toplanır; değişen iç döngü uzunlukları bir toplam oluşturur.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Exact counting is where students learn to slow down. The safest method is to write the loop shape before simplifying.</p>
 <div class="table-scroll"><table><thead><tr><th>Shape</th><th>Exact count</th><th>Growth</th></tr></thead><tbody><tr><td>one loop over n items</td><td>n</td><td>linear</td></tr><tr><td>two consecutive full loops</td><td>n + n = 2n</td><td>linear</td></tr><tr><td>full nested loops</td><td>n * n = n^2</td><td>quadratic</td></tr><tr><td>triangular nested loop</td><td>0 + 1 + ... + (n - 1)</td><td>quadratic</td></tr><tr><td>loop that halves the remaining candidates</td><td>about log2 n rounds</td><td>logarithmic</td></tr></tbody></table></div>

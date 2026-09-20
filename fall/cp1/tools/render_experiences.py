@@ -10,6 +10,8 @@ spec = importlib.util.spec_from_file_location('cp1_experiences', ROOT / 'lessons
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 LESSONS = module.LESSONS
+REASONING = json.loads((ROOT / 'lessons' / 'reasoning.json').read_text(encoding='utf-8'))
+assert [item['week'] for item in REASONING] == list(range(1, 15))
 COLAB = 'https://colab.research.google.com/github/ArifSolmaz/courses/blob/main/fall/cp1/'
 
 def esc(value):
@@ -35,6 +37,28 @@ def introduction_markdown(lesson):
             f"**By the end.** {intro['success']}\n")
 
 
+def reasoning_markdown(week):
+    item = REASONING[week - 1]
+    trace = '\n'.join(f'{i}. {step}' for i, step in enumerate(item['steps'], 1))
+    return (f"## Explain the program: {item['title']}\n\n{item['meaning']}\n\n"
+            f"**Draw or trace.** {item['picture']}\n\n**Predict before running.** {item['predict']}\n\n"
+            f"<details><summary>Trace and explanation — after your prediction</summary>\n\n"
+            f"{trace}\n\n{item['answer']}\n\n</details>\n\n"
+            f"**Change one thing.** {item['transfer']}\n\n**Türkçe:** {item['tr']}\n")
+
+
+def reasoning_html(week):
+    item = REASONING[week - 1]
+    trace = ''.join(f'<li>{esc(step)}</li>' for step in item['steps'])
+    return (f'<section id="explain-the-program" class="section"><h2>{esc(item["title"])}</h2>'
+            f'<p>{esc(item["meaning"])}</p><h3>Draw or trace</h3><p>{esc(item["picture"])}</p>'
+            f'<p><strong>Predict before running.</strong> {esc(item["predict"])}</p>'
+            f'<details class="code-model"><summary>Trace and explanation — after your prediction</summary>'
+            f'<ol>{trace}</ol><p>{esc(item["answer"])}</p></details>'
+            f'<p><strong>Change one thing.</strong> {esc(item["transfer"])}</p>'
+            f'<p lang="tr"><strong>Türkçe:</strong> {esc(item["tr"])}</p></section>')
+
+
 def sync_introductions(write):
     """Keep the notebook opening identical in meaning to its HTML introduction."""
     for lesson in LESSONS:
@@ -49,6 +73,13 @@ def sync_introductions(write):
         intro_cell.setdefault('metadata', {}).setdefault('cp1', {})['weekly_intro'] = True
         nb['cells'].remove(intro_cell)
         nb['cells'].insert(1, intro_cell)
+        ident = f'cp1-reasoning-{lesson["week"]:02d}'
+        existing = next((c for c in nb['cells'] if c.get('id') == ident), None)
+        if existing:
+            nb['cells'].remove(existing)
+        nb['cells'].insert(2, dict(cell_type='markdown', id=ident,
+                                  metadata={'cp1': {'reasoning': True}},
+                                  source=reasoning_markdown(lesson['week']).splitlines(keepends=True)))
         title = ''.join(nb['cells'][0]['source'])
         title = '\n'.join(line for line in title.splitlines() if 'Core Mastery:' not in line)
         phase = 1 if lesson['week'] <= 5 else 2 if lesson['week'] <= 9 else 3
@@ -92,6 +123,7 @@ def render_lesson(lesson, notebook):
 <header class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p></header>
 <section id="brief" class="section weekly-opening"><span id="understand" class="legacy-anchor"></span><p class="connection">{esc(lesson['intro']['connection'])}</p><p class="lead">{esc(lesson['brief'])}</p><div class="first-task"><p class="eyebrow">Start with the problem</p><h2>Try this first.</h2><p>{esc(lesson['intro']['first_task'])}</p></div><h3>Why this week's tool?</h3><p>{esc(lesson['intro']['why_tool'])}</p><p class="opening-outcome"><strong>By the end:</strong> {esc(lesson['intro']['success'])}</p></section>
 <section id="model" class="section"><h2>The idea behind the program</h2><div class="concepts">{concepts}</div><details class="code-model"><summary>A short Python example</summary><p>Read the example alongside the explanation. Run it in a new notebook cell and change one input to see how it behaves.</p><pre><code>{esc(lesson['model'])}</code></pre><h3>Example output</h3><pre><samp>{esc(lesson['output'])}</samp></pre>{caveat}</details></section>
+{reasoning_html(n)}
 <section id="bench" class="section"><span id="experiment" class="legacy-anchor"></span><h2>Examples and variations</h2><p>Each example changes something about the same problem. Open the ones you want to explore and follow the worked explanation.</p>{cases}</section>
 <section id="notebook-animations" class="section"><h2>See the Colab code run</h2><section class="cp1-lab" data-cp1-lab="{n}"><p>Interactive walkthroughs of {esc(notebook["title"])}. Enable JavaScript to step through code, variables, collections and output. The companion notebook remains available below.</p></section></section>
 <section id="investigate" class="section"><h2>Work on it in Colab</h2><p>Use the notebook to try the ideas yourself. The steps below connect this week's example to the programming practice.</p><ol class="investigation">{investigate}</ol><p><strong>Something to take away:</strong> {esc(lesson['evidence'])}</p><div id="notebook"><div class="actions"><a class="button" href="{COLAB + notebook['notebook']}" target="_blank" rel="noopener">Open Week {n:02d} in Colab ↗</a></div><details class="path-resources"><summary>Suggested exercises, downloads &amp; solutions</summary><div><p>Read the notebook's teaching cells before these exercises.</p><ul class="practice">{practice}</ul><a href="../{notebook['notebook']}" download>Download notebook</a><a href="{COLAB + notebook['solutions']}" target="_blank" rel="noopener">Worked solutions</a><p>Use the notebook's core and optional labels to choose your workload. This activity fits within guided class time.</p></div></details></div></section>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=1">
+<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
 <link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w12.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=9"></head>
 <body>
 <header class="site-header">
@@ -29,7 +29,31 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Lookup That Doesn't Slow Down</option><option value="../w12/" selected>Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 4, 5</p><h3>Binary search needs more than sorted values</h3><p>Binary search repeatedly discards half the candidate positions. Its logarithmic search cost relies on efficient access to the middle position. A sorted array supports that access; a linked list has to walk through links to reach the middle.</p><p>With one candidate, a search may still need a comparison. For a conventional successful binary search on n ≥ 1 array items, the worst comparison count is floor(log₂ n) + 1. “About log n” is useful for growth, but an exact count needs an implementation and a convention.</p><p>A balanced search tree offers a different route: follow one link per level, keeping height logarithmic. An ordinary unbalanced tree can become a chain. Sorted data, random insertion order and guaranteed balance are not interchangeable conditions.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Choose between an array of calibration points and a linked record chain by examining the actual access operations.</p></section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="meaning-before-analysis-discarding-half-requires-a-reason">Meaning before analysis: discarding half requires a reason</h2>
+<p>Binary search is correct because sorted order justifies eliminating an entire interval. The maintained claim is that any matching position still possible lies inside the current search interval. Halving describes the shrinking candidates; sortedness explains why the discarded candidates cannot contain the target.</p>
+<p><strong>Draw or trace.</strong> For [2, 5, 8, 12, 16, 23, 38], search for 16 with inclusive bounds. Write low, high and mid for each step.</p>
+<p><strong>Predict before checking.</strong> After comparing with 12, why may the left half be discarded? Will the same argument hold for the original acquisition order of unsorted readings?</p>
+<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The first midpoint is index 3, value 12. Sortedness makes every value at or left of it too small, leaving indices 4–6. Next compare 23 at index 5, then 16 at index 4. Without order, the eliminated side can still contain the answer. A halved candidate interval gives logarithmic iterations only when the implementation also keeps each iteration bounded-cost; slicing can add copying costs.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def binary_find(values, target):
+    low, high = 0, len(values) - 1
+    while low &lt;= high:
+        mid = (low + high) // 2
+        if values[mid] == target:
+            return mid
+        if values[mid] &lt; target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return None
+
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 16) == 4
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 17) is None
+assert binary_find([], 16) is None
+print(&quot;Found, missing and empty cases checked.&quot;)</code></pre></div>
+</details><p><strong>Change one thing.</strong> Change the contract to first occurrence among duplicates. Returning any equal midpoint is no longer enough. Also include sorting cost when starting from unsorted data.</p>
+<p class="turkish"><strong>Türkçe:</strong> Yarısını elemek için sıralılık gerekçesi gerekir. Aday aralığı küçülürken hedefi dışarı atmadığını açıkla; dilimlemenin kopyalama maliyetini unutma.</p></section>
+<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 4, 5</p><h3>Binary search needs more than sorted values</h3><p>Binary search repeatedly discards half the candidate positions. Its logarithmic search cost relies on efficient access to the middle position. A sorted array supports that access; a linked list has to walk through links to reach the middle.</p><p>With one candidate, a search may still need a comparison. For a conventional successful binary search on n ≥ 1 array items, the worst comparison count is floor(log₂ n) + 1. “About log n” is useful for growth, but an exact count needs an implementation and a convention.</p><p>A balanced search tree offers a different route: follow one link per level, keeping height logarithmic. An ordinary unbalanced tree can become a chain. Sorted data, random insertion order and guaranteed balance are not interchangeable conditions.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Choose between an array of calibration points and a linked record chain by examining the actual access operations.</p></section>
 <details class="path-reference teaching-part"><summary>The game you already played</summary><div><section>
   <h2><span class="num">12.1</span>The game you already played</h2>
   <p>
@@ -429,6 +453,30 @@ print(count)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Precondition</td><td>Önkoşul: fact required before the algorithm begins</td></tr><tr><td>Boundary</td><td>Sınır: edge of the remaining candidate interval</td></tr><tr><td>Inclusive</td><td>Dahil: an endpoint belongs to the interval</td></tr><tr><td>Insertion point</td><td>Ekleme konumu: where a value could fit in sorted order</td></tr><tr><td>Logarithm</td><td>Logaritma: exponent answering a repeated-multiplication question</td></tr><tr><td>Break-even</td><td>Başabaş noktası: where competing total costs meet</td></tr></tbody></table></div>
 <p>You are ready when you can complete both traces without guessing, explain the empty-list result, and charge preparation once. If boundaries confuse you, draw two boxes and repeat Problem 1. If logarithms confuse you, rebuild the powers-of-two table. If strategy choice feels arbitrary, write the exact output requirement before choosing a container.</p>
 <p>Next week explains the sorting cost used here. You will count real comparisons, distinguish best from worst inputs, and see why preparation is often O(n log n) instead of O(n²).</p>
+<h2 id="help-meaning-before-analysis-discarding-half-requires-a-reason">Meaning before analysis: discarding half requires a reason</h2>
+<p>Binary search is correct because sorted order justifies eliminating an entire interval. The maintained claim is that any matching position still possible lies inside the current search interval. Halving describes the shrinking candidates; sortedness explains why the discarded candidates cannot contain the target.</p>
+<p><strong>Draw or trace.</strong> For [2, 5, 8, 12, 16, 23, 38], search for 16 with inclusive bounds. Write low, high and mid for each step.</p>
+<p><strong>Predict before checking.</strong> After comparing with 12, why may the left half be discarded? Will the same argument hold for the original acquisition order of unsorted readings?</p>
+<h3 id="help-worked-reasoning">Worked reasoning</h3>
+<p>The first midpoint is index 3, value 12. Sortedness makes every value at or left of it too small, leaving indices 4–6. Next compare 23 at index 5, then 16 at index 4. Without order, the eliminated side can still contain the answer. A halved candidate interval gives logarithmic iterations only when the implementation also keeps each iteration bounded-cost; slicing can add copying costs.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def binary_find(values, target):
+    low, high = 0, len(values) - 1
+    while low &lt;= high:
+        mid = (low + high) // 2
+        if values[mid] == target:
+            return mid
+        if values[mid] &lt; target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return None
+
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 16) == 4
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 17) is None
+assert binary_find([], 16) is None
+print(&quot;Found, missing and empty cases checked.&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Change the contract to first occurrence among duplicates. Returning any equal midpoint is no longer enough. Also include sorting cost when starting from unsorted data.</p>
+<p class="turkish"><strong>Türkçe:</strong> Yarısını elemek için sıralılık gerekçesi gerekir. Aday aralığı küçülürken hedefi dışarı atmadığını açıkla; dilimlemenin kopyalama maliyetini unutma.</p>
 <h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Binary search is a boundary discipline. Most wrong versions lose the answer by updating bounds carelessly or by forgetting that sortedness is a prerequisite.</p>
 <div class="table-scroll"><table><thead><tr><th>Boundary convention</th><th>Meaning</th><th>Common repair</th></tr></thead><tbody><tr><td>inclusive low and high</td><td>both endpoints may still contain the answer</td><td>loop while low &lt;= high</td></tr><tr><td>half-open low and high</td><td>low may contain answer, high is excluded</td><td>loop while low &lt; high</td></tr><tr><td>insertion position</td><td>return where target would be placed</td><td>do not require equality to report a useful boundary</td></tr></tbody></table></div>

@@ -106,6 +106,7 @@
 <a href="#a-second-boundary-convention-insertion-positions">A second boundary convention: insertion positions</a>
 <a href="#three-graduated-practice-problems">Three graduated practice problems</a>
 <a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#meaning-before-analysis-discarding-half-requires-a-reason">Meaning before analysis: discarding half requires a reason</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w12/index.html">Original lesson</a></p>
@@ -199,6 +200,30 @@ print(count)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Precondition</td><td>Önkoşul: fact required before the algorithm begins</td></tr><tr><td>Boundary</td><td>Sınır: edge of the remaining candidate interval</td></tr><tr><td>Inclusive</td><td>Dahil: an endpoint belongs to the interval</td></tr><tr><td>Insertion point</td><td>Ekleme konumu: where a value could fit in sorted order</td></tr><tr><td>Logarithm</td><td>Logaritma: exponent answering a repeated-multiplication question</td></tr><tr><td>Break-even</td><td>Başabaş noktası: where competing total costs meet</td></tr></tbody></table></div>
 <p>You are ready when you can complete both traces without guessing, explain the empty-list result, and charge preparation once. If boundaries confuse you, draw two boxes and repeat Problem 1. If logarithms confuse you, rebuild the powers-of-two table. If strategy choice feels arbitrary, write the exact output requirement before choosing a container.</p>
 <p>Next week explains the sorting cost used here. You will count real comparisons, distinguish best from worst inputs, and see why preparation is often O(n log n) instead of O(n²).</p>
+<h2 id="meaning-before-analysis-discarding-half-requires-a-reason">Meaning before analysis: discarding half requires a reason</h2>
+<p>Binary search is correct because sorted order justifies eliminating an entire interval. The maintained claim is that any matching position still possible lies inside the current search interval. Halving describes the shrinking candidates; sortedness explains why the discarded candidates cannot contain the target.</p>
+<p><strong>Draw or trace.</strong> For [2, 5, 8, 12, 16, 23, 38], search for 16 with inclusive bounds. Write low, high and mid for each step.</p>
+<p><strong>Predict before checking.</strong> After comparing with 12, why may the left half be discarded? Will the same argument hold for the original acquisition order of unsorted readings?</p>
+<h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The first midpoint is index 3, value 12. Sortedness makes every value at or left of it too small, leaving indices 4–6. Next compare 23 at index 5, then 16 at index 4. Without order, the eliminated side can still contain the answer. A halved candidate interval gives logarithmic iterations only when the implementation also keeps each iteration bounded-cost; slicing can add copying costs.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def binary_find(values, target):
+    low, high = 0, len(values) - 1
+    while low &lt;= high:
+        mid = (low + high) // 2
+        if values[mid] == target:
+            return mid
+        if values[mid] &lt; target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return None
+
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 16) == 4
+assert binary_find([2, 5, 8, 12, 16, 23, 38], 17) is None
+assert binary_find([], 16) is None
+print(&quot;Found, missing and empty cases checked.&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Change the contract to first occurrence among duplicates. Returning any equal midpoint is no longer enough. Also include sorting cost when starting from unsorted data.</p>
+<p class="turkish"><strong>Türkçe:</strong> Yarısını elemek için sıralılık gerekçesi gerekir. Aday aralığı küçülürken hedefi dışarı atmadığını açıkla; dilimlemenin kopyalama maliyetini unutma.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Binary search is a boundary discipline. Most wrong versions lose the answer by updating bounds carelessly or by forgetting that sortedness is a prerequisite.</p>
 <div class="table-scroll"><table><thead><tr><th>Boundary convention</th><th>Meaning</th><th>Common repair</th></tr></thead><tbody><tr><td>inclusive low and high</td><td>both endpoints may still contain the answer</td><td>loop while low &lt;= high</td></tr><tr><td>half-open low and high</td><td>low may contain answer, high is excluded</td><td>loop while low &lt; high</td></tr><tr><td>insertion position</td><td>return where target would be placed</td><td>do not require equality to report a useful boundary</td></tr></tbody></table></div>

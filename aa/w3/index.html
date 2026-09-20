@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=1">
+<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
 <link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w3.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=9"></head>
 <body>
 <header class="site-header">
@@ -29,7 +29,23 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/" selected>Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Lookup That Doesn't Slow Down</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>Count a loop by drawing its work</h3><p>Do not count indentation levels alone. Draw one mark for each execution of the operation you care about. If the outer counter runs from 1 to n and the inner counter runs from 1 to that outer counter, the rows contain 1, 2, …, n marks. At n = 4 there are 10 marks, not 16.</p><p>The total is n(n + 1)/2. Pair the first and last rows, then the second and second-last: each pair has n + 1 marks. A full rectangular pair of loops has n² marks instead. Both eventually grow quadratically, but their exact counts differ.</p><p>A doubling counter follows a different pattern: 1, 2, 4, 8, … . Count the doublings rather than the size of the final value. We will attach the formal growth notation in Week 8.</p><p class="engineering-transfer"><strong>Engineering use.</strong> For a collision check between parts, distinguish all ordered pairs, unique pairs, and pairs including a part with itself.</p></section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="meaning-before-analysis-a-loop-repeats-work-while-preserving-meaning">Meaning before analysis: a loop repeats work while preserving meaning</h2>
+<p>A loop combines a sequence of states. A counter records how often a chosen event occurs; an accumulator records an amount. They can advance differently even in the same loop.</p>
+<p><strong>Draw or trace.</strong> For numbers 1, 2, 3, 4, write one row per visit with the current number, running sum and visit count.</p>
+<p><strong>Predict before checking.</strong> Will the sum and visit count end equal? What changes if the count increment is placed inside an even-number test?</p>
+<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The running sums are 1, 3, 6, 10 while visits are 1, 2, 3, 4. Counting only even-number matches gives 2, but all four numbers were still visited. Name the event being counted before making a claim about work. A counter placed in the wrong branch measures a different quantity.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">total = visits = matches = 0
+for number in range(1, 5):
+    visits += 1
+    total += number
+    if number % 2 == 0:
+        matches += 1
+assert (total, visits, matches) == (10, 4, 2)
+print(total, visits, matches)</code></pre></div>
+</details><p><strong>Change one thing.</strong> Use an empty range and then a range containing only odd numbers. Explain the difference between no visits and visits with no matches.</p>
+<p class="turkish"><strong>Türkçe:</strong> Sayaç hangi olayın kaç kez olduğunu ölçer. Eşleşme sayısı, ziyaret sayısı ve toplam değer birbirinin yerine kullanılamaz.</p></section>
+<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>Count a loop by drawing its work</h3><p>Do not count indentation levels alone. Draw one mark for each execution of the operation you care about. If the outer counter runs from 1 to n and the inner counter runs from 1 to that outer counter, the rows contain 1, 2, …, n marks. At n = 4 there are 10 marks, not 16.</p><p>The total is n(n + 1)/2. Pair the first and last rows, then the second and second-last: each pair has n + 1 marks. A full rectangular pair of loops has n² marks instead. Both eventually grow quadratically, but their exact counts differ.</p><p>A doubling counter follows a different pattern: 1, 2, 4, 8, … . Count the doublings rather than the size of the final value. We will attach the formal growth notation in Week 8.</p><p class="engineering-transfer"><strong>Engineering use.</strong> For a collision check between parts, distinguish all ordered pairs, unique pairs, and pairs including a part with itself.</p></section>
 <details class="path-reference teaching-part"><summary>Decisions first</summary><div><section>
   <h2><span class="num">3.1</span>Decisions first</h2>
   <p>
@@ -403,6 +419,22 @@ print(visited, even_count)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning</th></tr></thead><tbody><tr><td>Condition</td><td>Koşul</td><td>A true-or-false test</td></tr><tr><td>Iteration</td><td>Yineleme</td><td>One visit through a loop</td></tr><tr><td>Accumulator</td><td>Biriktirici</td><td>A value storing the running result</td></tr><tr><td>Counter</td><td>Sayaç</td><td>A value recording events</td></tr><tr><td>Loop body</td><td>Döngü gövdesi</td><td>The repeated indented instructions</td></tr><tr><td>Termination</td><td>Sonlanma</td><td>Reaching a condition that ends the process</td></tr></tbody></table></div>
 <p>For readiness, explain why a four-by-four grid makes 16 visits and why five even numbers among ten still require ten inspections. Explain where <code>total = 0</code> belongs. <strong>Answers:</strong> four rows each contain four visits; every candidate needs a test; initialization belongs before accumulation begins.</p>
 <p>If uncertain, use <code>n = 3</code>, write each visited value, and mark the counted line before increasing the input. Week 4 applies these counters to stored lists, scans, searches and pair comparisons.</p>
+<h2 id="help-meaning-before-analysis-a-loop-repeats-work-while-preserving-meaning">Meaning before analysis: a loop repeats work while preserving meaning</h2>
+<p>A loop combines a sequence of states. A counter records how often a chosen event occurs; an accumulator records an amount. They can advance differently even in the same loop.</p>
+<p><strong>Draw or trace.</strong> For numbers 1, 2, 3, 4, write one row per visit with the current number, running sum and visit count.</p>
+<p><strong>Predict before checking.</strong> Will the sum and visit count end equal? What changes if the count increment is placed inside an even-number test?</p>
+<h3 id="help-worked-reasoning">Worked reasoning</h3>
+<p>The running sums are 1, 3, 6, 10 while visits are 1, 2, 3, 4. Counting only even-number matches gives 2, but all four numbers were still visited. Name the event being counted before making a claim about work. A counter placed in the wrong branch measures a different quantity.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">total = visits = matches = 0
+for number in range(1, 5):
+    visits += 1
+    total += number
+    if number % 2 == 0:
+        matches += 1
+assert (total, visits, matches) == (10, 4, 2)
+print(total, visits, matches)</code></pre></div>
+<p><strong>Change one thing.</strong> Use an empty range and then a range containing only odd numbers. Explain the difference between no visits and visits with no matches.</p>
+<p class="turkish"><strong>Türkçe:</strong> Sayaç hangi olayın kaç kez olduğunu ölçer. Eşleşme sayısı, ziyaret sayısı ve toplam değer birbirinin yerine kullanılamaz.</p>
 <h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>This week is where students often start saying &quot;the loop runs n times&quot; too quickly. Make them name the values visited by the loop before they name n.</p>
 <div class="table-scroll"><table><thead><tr><th>Loop description</th><th>Values visited</th><th>Count</th></tr></thead><tbody><tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td><td>5</td></tr><tr><td><code>range(2, 7)</code></td><td>2, 3, 4, 5, 6</td><td>5</td></tr><tr><td><code>range(1, 8, 2)</code></td><td>1, 3, 5, 7</td><td>4</td></tr><tr><td>while value halves from 32 until 1</td><td>32, 16, 8, 4, 2</td><td>five tests before reaching 1 if the loop stops after the update</td></tr></tbody></table></div>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=1">
+<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
 <link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w7.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=9"></head>
 <body>
 <header class="site-header">
@@ -29,7 +29,19 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/" selected>Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Lookup That Doesn't Slow Down</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 1, 2, 3</p><h3>Prove that some work cannot be avoided</h3><p>To find the maximum of n distinct readings using comparisons, every reading except the winner must lose at least one comparison. A comparison can create only one new loser. Therefore at least n − 1 comparisons are necessary in the worst case.</p><p>A single scan achieves n − 1 comparisons, so its comparison count meets the lower bound. This is stronger than saying “my code looks short”: it explains why a different comparison-based method cannot remove that work.</p><p>State your model. The argument counts comparisons on distinct values; it does not count every instruction or memory access. Correctness and cost proofs each need assumptions, a base case and a reason the next step preserves the claim.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Use a maximum-temperature scan to separate a proof of the returned value from a claim about controller timing.</p></section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="meaning-before-analysis-the-shape-of-the-visited-work-explains-the-formula">Meaning before analysis: the shape of the visited work explains the formula</h2>
+<p>Counts add for consecutive work and multiply for a full collection of combinations. A nested loop whose inner length changes needs a sum of its actual lengths. The number of written loops alone does not determine growth.</p>
+<p><strong>Draw or trace.</strong> Draw a 4 by 4 grid for every ordered pair. Then mark only pairs with column less than row: row lengths are 0, 1, 2, 3. These dots represent actual visits.</p>
+<p><strong>Predict before checking.</strong> How many visits occur in the square and triangle? Why does the triangle represent each unordered pair of distinct indices once?</p>
+<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The square has 16 visits; the triangle has 6. In general the triangle count is 0 + 1 + ... + (n − 1) = n(n − 1)/2. Combining two such triangles gives n(n − 1) off-diagonal ordered pairs. Two consecutive full scans instead give n + n visits, not n squared. Assume bounded-cost work at each visited pair when converting this count to a time bound.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">for n in (0, 1, 4, 10):
+    pairs = [(i, j) for i in range(n) for j in range(i)]
+    assert len(pairs) == n * (n - 1) // 2
+print(&quot;Four items give&quot;, len([(i, j) for i in range(4) for j in range(i)]), &quot;pairs&quot;)</code></pre></div>
+</details><p><strong>Change one thing.</strong> Make the inner loop always run three times. There are still two loops, but now there are 3n body visits. State what changed geometrically.</p>
+<p class="turkish"><strong>Türkçe:</strong> Döngü sayısını değil ziyaret edilen işi say. Ardışık işler toplanır; değişen iç döngü uzunlukları bir toplam oluşturur.</p></section>
+<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 1, 2, 3</p><h3>Prove that some work cannot be avoided</h3><p>To find the maximum of n distinct readings using comparisons, every reading except the winner must lose at least one comparison. A comparison can create only one new loser. Therefore at least n − 1 comparisons are necessary in the worst case.</p><p>A single scan achieves n − 1 comparisons, so its comparison count meets the lower bound. This is stronger than saying “my code looks short”: it explains why a different comparison-based method cannot remove that work.</p><p>State your model. The argument counts comparisons on distinct values; it does not count every instruction or memory access. Correctness and cost proofs each need assumptions, a base case and a reason the next step preserves the claim.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Use a maximum-temperature scan to separate a proof of the returned value from a claim about controller timing.</p></section>
 <details class="path-reference teaching-part"><summary>The problem with seconds</summary><div><section>
   <h2><span class="num">7.1</span>The problem with seconds</h2>
   <p>
@@ -61,8 +73,7 @@
   <h2><span class="num">7.2</span>T(n): the step-count formula</h2>
   <p>
     <code>T(n)</code> is simply "how many steps this code takes when the input size is n".
-    We count assignments — the cost of storing one value — because they are easy to see and
-    roughly proportional to everything else.
+    We count assignments — the cost of storing one value — as an explicit teaching cost model. Check that omitted work is bounded per iteration before using this count to describe overall growth.
   </p>
   <div class="code"><div class="code-head"><span class="dot"></span>count the assignments</div><pre><code>def sum_to(n):
     total = 0                          <span class="c"># 1 assignment</span>
@@ -79,7 +90,7 @@
   <div class="code"><div class="code-head"><span class="dot"></span>no loop at all</div><pre><code>def sum_formula(n):
     return n * (n + 1) // 2            <span class="c"># a fixed handful of operations</span></code></pre></div>
   <p>
-    Here <code>T(n) = 3</code> or so, whatever n is. That single fact — the formula's step
+    Under a unit-cost arithmetic model, this expression uses a fixed number of arithmetic operations. Python integers can grow in bit length, so actual arithmetic cost is not constant for arbitrarily large integers. That single fact — the formula's step
     count does not contain <code>n</code> — is exactly what you saw in week 5, when its
     timings refused to grow.
   </p>
@@ -457,6 +468,18 @@ assert (value, multiplications, additions) == (32, 3, 3)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning</th></tr></thead><tbody><tr><td>Basic operation</td><td>Temel işlem</td><td>The operation explicitly being counted</td></tr><tr><td>Dominant term</td><td>Baskın terim</td><td>Fastest-growing part of a cost formula</td></tr><tr><td>Constant factor</td><td>Sabit çarpan</td><td>Multiplier independent of input size</td></tr><tr><td>Triangular sum</td><td>Üçgensel toplam</td><td>A sum of consecutive increasing counts</td></tr><tr><td>RAM model</td><td>RAM hesaplama modeli</td><td>Constant-cost operations on machine-sized values</td></tr><tr><td>Horner&#x27;s method</td><td>Horner yöntemi</td><td>Nested multiply-and-add polynomial evaluation</td></tr></tbody></table></div>
 <p>You are ready when you can derive 2n, n², 10n and n(n−1)/2 without guessing from indentation alone. If not, trace n = 4 and label the counted update. The dependent triple-loop proofs and Horner challenge can wait. When revisiting them, redo the inclusive-length warm-up and the pesky cancellation. If exact counts and growth labels are mixed together, keep two separate columns in your answers.</p>
 <p><strong>Bridge to Week 8:</strong> now that you can justify a cost formula, you are ready to express an upper bound precisely and distinguish it from a tight description of growth.</p>
+<h2 id="help-meaning-before-analysis-the-shape-of-the-visited-work-explains-the-formula">Meaning before analysis: the shape of the visited work explains the formula</h2>
+<p>Counts add for consecutive work and multiply for a full collection of combinations. A nested loop whose inner length changes needs a sum of its actual lengths. The number of written loops alone does not determine growth.</p>
+<p><strong>Draw or trace.</strong> Draw a 4 by 4 grid for every ordered pair. Then mark only pairs with column less than row: row lengths are 0, 1, 2, 3. These dots represent actual visits.</p>
+<p><strong>Predict before checking.</strong> How many visits occur in the square and triangle? Why does the triangle represent each unordered pair of distinct indices once?</p>
+<h3 id="help-worked-reasoning">Worked reasoning</h3>
+<p>The square has 16 visits; the triangle has 6. In general the triangle count is 0 + 1 + ... + (n − 1) = n(n − 1)/2. Combining two such triangles gives n(n − 1) off-diagonal ordered pairs. Two consecutive full scans instead give n + n visits, not n squared. Assume bounded-cost work at each visited pair when converting this count to a time bound.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">for n in (0, 1, 4, 10):
+    pairs = [(i, j) for i in range(n) for j in range(i)]
+    assert len(pairs) == n * (n - 1) // 2
+print(&quot;Four items give&quot;, len([(i, j) for i in range(4) for j in range(i)]), &quot;pairs&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Make the inner loop always run three times. There are still two loops, but now there are 3n body visits. State what changed geometrically.</p>
+<p class="turkish"><strong>Türkçe:</strong> Döngü sayısını değil ziyaret edilen işi say. Ardışık işler toplanır; değişen iç döngü uzunlukları bir toplam oluşturur.</p>
 <h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Exact counting is where students learn to slow down. The safest method is to write the loop shape before simplifying.</p>
 <div class="table-scroll"><table><thead><tr><th>Shape</th><th>Exact count</th><th>Growth</th></tr></thead><tbody><tr><td>one loop over n items</td><td>n</td><td>linear</td></tr><tr><td>two consecutive full loops</td><td>n + n = 2n</td><td>linear</td></tr><tr><td>full nested loops</td><td>n * n = n^2</td><td>quadratic</td></tr><tr><td>triangular nested loop</td><td>0 + 1 + ... + (n - 1)</td><td>quadratic</td></tr><tr><td>loop that halves the remaining candidates</td><td>about log2 n rounds</td><td>logarithmic</td></tr></tbody></table></div>
@@ -471,7 +494,7 @@ assert (value, multiplications, additions) == (32, 3, 3)</code></pre></div>
       <li>write down a step-count formula T(n) for short pieces of code;</li>
       <li>find the dominant term of a formula and justify dropping the rest;</li>
       <li>show that constant factors do not change the growth pattern;</li>
-      <li>decide which operation to count, and see why the choice never changes the dominant term;</li>
+      <li>state which operation is counted and justify whether its count represents the dominant work;</li>
       <li>tell arithmetic growth (adding a step) from geometric growth (multiplying), and read log n out of the second;</li>
       <li>connect a step-count formula to the ratio column you measured last week.</li>
     </ul>

@@ -107,3 +107,13 @@ The final project follows [Week 14](w14/index.html): two correct methods for the
 The primary sources for every chapter are linked in that chapter. Added micro-examples and review exercises are teaching examples built around those source concepts. Harder proof-style and interview-style chapter problems remain available in the original notes and the Skiena companion. Their optional status is preserved.
 
 **Türkçe:** Rehberdeki ek açıklamalar konu sırasını ve ölçme-değerlendirme düzenini değiştirmez. Amaç, mevcut notları gerçekten anlayabilmen için aradaki düşünme adımlarını görünür kılmaktır.
+
+## Meaning, correctness and cost
+
+Each week now opens with a topic-specific explanation of what the operation accomplishes and why its representation fits the problem. Predict the tiny example, draw or trace it, and only then inspect the worked reasoning. Change one input or assumption after checking. Use a state table for assignment, a grid for pair counts, an interval for binary search and a preparation/query account for repeated lookups.
+
+Keep three claims separate: the method returns the required result, its counted work grows in a stated way, and a particular implementation took a measured time. Explain each with the appropriate evidence. A collection of passing examples cannot replace an argument for all allowed inputs, and a timing ratio cannot by itself prove a complexity bound.
+
+The Week 14 sensor-report example connects with [PROG/CP1’s final lesson](../fall/cp1/web/Week_14.html#explain-the-program). The scenario is self-contained: CP1 explains reliable processing; AA compares correct methods for the same output. It is optional capstone context, not a new prerequisite or assessment.
+
+**Türkçe:** İşlemin anlamı, doğruluğun gerekçesi ve işin büyümesi farklı açıklamalar ister. Küçük örneği önce elle izle; sonra sonucu ve maliyeti ayrı ayrı savun.

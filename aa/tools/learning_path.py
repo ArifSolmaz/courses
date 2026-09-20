@@ -50,6 +50,21 @@ def inline_guide(num):
     return '<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide">' + content + '</div></details>'
 
 
+def meaning_section(num):
+    """One authored explanation feeds both the weekly lesson and detailed guide."""
+    import build_guide as G
+    markdown = G.meaning_source(num).read_text(encoding='utf-8')
+    records = G._heading_records(markdown)
+    content = G.Renderer(PurePosixPath(f'w{num}/index.html'), {r[2] for r in records},
+                         G._anchor_routes(G.guide_page_specs())).render(markdown)
+    # Preserve a prediction before revealing the trace, code and model answer.
+    content, count = re.subn(r'(<h3[^>]*>Worked reasoning</h3>)(.*?)(?=<p><strong>Change one thing\.</strong>)',
+                            r'<details class="solution"><summary>Worked reasoning — after your prediction</summary>\1\2</details>',
+                            content, flags=re.S)
+    assert count == 1, f'Week {num}: reasoning answer must be folded'
+    return '<section class="meaning-lesson" id="meaning-before-analysis">' + content + '</section>'
+
+
 def staged_lesson(num, body, studio):
     buckets = {'understand': [], 'investigate': [], 'check': []}
     objectives = ''
@@ -85,7 +100,7 @@ def staged_lesson(num, body, studio):
     explanations = []
     for block in buckets['understand']:
         explanations.append('<details class="path-reference teaching-part"><summary>' + html.escape(heading(block)) + '</summary><div>' + block + '</div></details>')
-    buckets['understand'] = [notes] + explanations + [inline_guide(num), '<details class="path-resources"><summary>Learning goals & class plan</summary><div>' + objectives + studio + '</div></details>']
+    buckets['understand'] = [meaning_section(num), notes] + explanations + [inline_guide(num), '<details class="path-resources"><summary>Learning goals & class plan</summary><div>' + objectives + studio + '</div></details>']
     keys = [('understand', 'Understand'), ('investigate', 'Investigate'), ('check', 'Check')]
     nav = '<nav class="path-steps" aria-label="Lesson steps" hidden>' + ''.join(f'<button type="button" data-step-target="{key}" aria-controls="{key}">{i+1} · {label}</button>' for i,(key,label) in enumerate(keys)) + '</nav>'
     panels = []

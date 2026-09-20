@@ -11,7 +11,7 @@ import json
 import os
 import tempfile
 
-from render_experiences import LESSONS, ROOT, render, introduction_markdown
+from render_experiences import LESSONS, ROOT, render, introduction_markdown, reasoning_markdown
 
 class Page(HTMLParser):
     def __init__(self, content):
@@ -39,6 +39,9 @@ def verify():
         intro = nb['cells'][1]
         assert intro.get('metadata', {}).get('cp1', {}).get('weekly_intro')
         assert ''.join(intro['source']) == introduction_markdown(lesson), (week['week'], 'intro drift')
+        reasoning = [c for c in nb['cells'] if c.get('metadata', {}).get('cp1', {}).get('reasoning')]
+        assert len(reasoning) == 1, (week['week'], 'reasoning section missing or duplicated')
+        assert ''.join(reasoning[0]['source']) == reasoning_markdown(week['week']), (week['week'], 'reasoning drift')
         opening = (ROOT / week['experience']).read_text().split('id="brief"', 1)[1].split('id="model"', 1)[0]
         import html
         for key in ('connection', 'first_task', 'why_tool', 'success'):

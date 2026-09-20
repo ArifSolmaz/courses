@@ -1,0 +1,212 @@
+[
+  {
+    "week": 1,
+    "title": "Assignment describes a change of state",
+    "meaning": "A Python name refers to a value. Assignment evaluates the right-hand expression using the current state, then binds the name on the left to the result. It is an instruction in time, not an algebraic equality.",
+    "picture": "Draw a before-and-after table for distance = 2, step = 3, then distance = distance + step. Keep the printed output in a separate column.",
+    "predict": "After that update, what happens if step is assigned 10? Does distance automatically become 12?",
+    "steps": [
+      "Before the update: distance refers to 2 and step to 3.",
+      "Evaluate the right side: 2 + 3 gives 5; assign that result to distance.",
+      "Assigning 10 to step later does not rerun the earlier expression. distance remains 5."
+    ],
+    "answer": "The result is 5. A stored number is not a live spreadsheet formula. Recalculate explicitly when the inputs change.",
+    "transfer": "Change the update to distance = step + step. Explain which old value is now irrelevant before running it.",
+    "tr": "Atama önce sağ tarafı hesaplar, sonra adı sonuca bağlar. Girdi değişince önceki ifade kendiliğinden yeniden hesaplanmaz."
+  },
+  {
+    "week": 2,
+    "title": "Representation is not the quantity itself",
+    "meaning": "Text, a numeric value and formatted output are different representations. Conversion makes arithmetic possible; formatting makes a result readable. Neither operation establishes that a measurement is valid.",
+    "picture": "Draw a pipeline: input text → numeric value → decision → display. Attach millimetres to the value in your explanation; Python does not infer that unit from the variable name.",
+    "predict": "The limit is 10.05 mm, inclusive. Should a reading of 10.051 pass because a two-decimal display shows 10.05?",
+    "steps": [
+      "The text \"10.051\" becomes the number 10.051.",
+      "Compare the unrounded value with 10.05: it exceeds the limit.",
+      "A formatted display can show 10.05 without changing the stored value."
+    ],
+    "answer": "It fails this exact-value teaching rule. Rounding the display must not silently change the decision. A real inspection policy may also need measurement uncertainty, which is separate from formatting.",
+    "transfer": "Compare \"12\" + \"3\" with 12 + 3. Explain why the same symbol can concatenate text or add numbers.",
+    "tr": "Metin, sayı ve biçimlendirilmiş çıktı farklıdır. Gösterimde yuvarlama, karar için kullanılan değeri sessizce değiştirmemelidir."
+  },
+  {
+    "week": 3,
+    "title": "A condition encodes a rule and its boundaries",
+    "meaning": "A Boolean expression answers a precise yes/no question. An if/elif chain chooses the first satisfied branch; separate if statements ask separate questions. Translate the operating rule before choosing the syntax.",
+    "picture": "Draw a temperature number line with the accepted interval 10 ≤ temperature ≤ 40, then a second gate for guard_closed. Operation requires both gates.",
+    "predict": "Classify temperatures 9, 10, 40 and 41 with a closed guard. What changes when the guard is open?",
+    "steps": [
+      "With a closed guard, 10 and 40 pass because both endpoints are included.",
+      "9 and 41 fail the interval test.",
+      "With an open guard, every temperature fails the combined and condition."
+    ],
+    "answer": "The condition means “inside the interval AND guard closed.” Using or would allow operation when only one requirement holds. This is a logic exercise, not a complete machine-safety controller.",
+    "transfer": "Change the specification to exclude the upper endpoint. Identify exactly one comparison that must change and one test that detects it.",
+    "tr": "Önce işletme kuralını ve sınırlarını çiz. and bütün koşulları ister; or yalnızca birinin sağlanmasıyla doğru olabilir."
+  },
+  {
+    "week": 4,
+    "title": "An accumulator remembers the processed part",
+    "meaning": "A loop performs repeated updates. The accumulator has a meaning after every iteration: total is the sum of the values processed so far. That meaning explains both its initial value and where its update belongs.",
+    "picture": "Trace the three samples 4, 7 and 2. Draw one row per iteration with columns current sample, previous total and new total.",
+    "predict": "What does the program remember if total = 0 is moved inside the loop?",
+    "steps": [
+      "Before any sample: total = 0, the sum of no values.",
+      "After 4, then 7, then 2: total becomes 4, 11, 13.",
+      "Resetting inside the loop gives 4, 7, 2 instead: earlier contributions are erased."
+    ],
+    "answer": "The intended answer is 13. A repeated instruction is useful only when its state update preserves the intended meaning.",
+    "transfer": "Replace addition with count = count + 1. Explain why the result becomes 3 rather than 13. For a nested loop, trace one complete inner loop before the outer loop advances.",
+    "tr": "Toplam değişkeni işlenen kısmın toplamını tutar. Her turda sıfırlamak önceki veriyi siler; saymak ile toplamak farklıdır."
+  },
+  {
+    "week": 5,
+    "title": "A while loop needs progress as well as a condition",
+    "meaning": "A while loop checks the current state before each iteration. Its condition says when to continue; an update must move the state toward stopping. A correct condition alone cannot guarantee termination.",
+    "picture": "Draw a cycle: test attempts < 3 → perform one attempt → increase attempts → test again. Mark the exit when the test is false.",
+    "predict": "Starting with attempts = 0, how many attempts occur? What if continue runs before the increment every time?",
+    "steps": [
+      "Tests at attempts 0, 1 and 2 are true; each completed iteration increments the count.",
+      "At attempts 3 the test is false, so no fourth attempt starts.",
+      "If every iteration skips the update, attempts stays 0 and the loop does not terminate."
+    ],
+    "answer": "There are three attempts in the first version. Every path that continues must make the required progress, or another stopping condition must apply. break exits immediately; continue skips the rest of the current iteration.",
+    "transfer": "Start at attempts = 3 and predict whether the body runs. Distinguish zero iterations from running once and then checking.",
+    "tr": "Koşul devam etmeyi söyler; güncelleme bitişe ilerlemeyi sağlar. continue güncellemeyi atlarsa döngü sonsuza gidebilir."
+  },
+  {
+    "week": 6,
+    "title": "Choose a pattern by what must be remembered",
+    "meaning": "A sum remembers accumulated amount; a count remembers how many; a search remembers whether or where a match was found; a maximum remembers the greatest value seen so far. These are different questions about the same observations.",
+    "picture": "For readings −5, −2 and −7, create separate columns for running sum, count and maximum. For a nonempty sequence initialise the maximum from its first reading.",
+    "predict": "Why does maximum = 0 give a misleading result when all readings are negative?",
+    "steps": [
+      "Sum after each reading: −5, −7, −14; count: 1, 2, 3.",
+      "Maximum starts at −5, becomes −2, and stays −2.",
+      "Starting at 0 leaves a value that never occurred in the data."
+    ],
+    "answer": "The correct maximum is −2. An initial value must match the question and allowed inputs. For no readings, define a separate no-data result rather than inventing a maximum.",
+    "transfer": "Change the question from maximum to first reading above a threshold. Explain why stopping early is now possible and why it would be wrong when finding the overall maximum.",
+    "tr": "Çözüm kalıbını istenen bilgiye göre seç. Başlangıç değeri, özellikle negatif ve boş girdilerde, sonucun anlamını belirler."
+  },
+  {
+    "week": 7,
+    "title": "A list is an object, and names can share it",
+    "meaning": "Assignment of a list to another name does not copy its elements into a new list. Both names can refer to one mutable object. A copy creates a new outer list; it does not automatically copy nested objects.",
+    "picture": "Draw raw → [3, 1, 3] and view pointing to the same box after view = raw. Draw a second box instead after view = raw.copy().",
+    "predict": "If view.sort() runs in each version, which version preserves the acquisition order in raw?",
+    "steps": [
+      "With an alias, sorting the shared list makes both names show [1, 3, 3].",
+      "With a copy of this flat numeric list, raw stays [3, 1, 3] while view becomes [1, 3, 3].",
+      "The duplicate 3 is still a separate observation; removing it changes the dataset."
+    ],
+    "answer": "The copied version preserves raw order here. Sorting in place changes a list; it returns None rather than the sorted list. Object identity and displayed values answer different questions.",
+    "transfer": "Replace the elements with nested lists. Explain why a shallow copy can still share an inner list before trying an inner-list mutation.",
+    "tr": "İki ad aynı listeyi gösterebilir. Kopya dış listeyi ayırır; iç içe nesneler sığ kopyada ortak kalabilir."
+  },
+  {
+    "week": 8,
+    "title": "Nested indexing preserves location",
+    "meaning": "grid[row][column] first chooses a row object and then an element in it. A nested traversal should preserve the coordinates associated with each reading. Index numbers are positions in a representation, not physical distances.",
+    "picture": "Draw [[22, 23, 24], [25, 80, 26]] as a two-row, three-column table. Label row and column indices from zero.",
+    "predict": "Where is 80? What information is lost if the report returns only the largest value?",
+    "steps": [
+      "Outer row 0 visits columns 0, 1, 2.",
+      "Outer row 1 visits columns 0, 1, 2; the peak is at (1, 1).",
+      "A temperature without its coordinates cannot identify the affected location."
+    ],
+    "answer": "The peak is 80 at row 1, column 1. The six visits follow the grid shape. For ragged rows, each row can have a different length; a rectangular assumption must be stated and checked.",
+    "transfer": "Place another 80 at (0, 2). Decide whether the required result is the first maximum, last maximum or all maxima. That choice determines how equal values are handled.",
+    "tr": "İndis değerin konumudur, fiziksel uzaklık değildir. Eşit maksimumlarda hangi konumun döndürüleceğini önceden belirle."
+  },
+  {
+    "week": 9,
+    "title": "Parsing translates a representation under a contract",
+    "meaning": "String processing turns a structured message into named pieces. Splitting locates separators; conversion interprets one piece as a number. Successful conversion alone does not establish that the fields or units mean what the program expects.",
+    "picture": "Use the simple teaching format \"T1,23.5,C\". Draw three labelled boxes: sensor, reading text, unit. Preserve the raw message while deriving the pieces.",
+    "predict": "Would \"T1,,C\" mean zero? Would \"T1,23.5,F\" describe the same temperature?",
+    "steps": [
+      "Split the nominal line into T1, 23.5 and C.",
+      "Convert only the numeric field after checking that it is present.",
+      "Keep the unit attached; the same number with F has a different meaning from C."
+    ],
+    "answer": "An empty field is missing data, not zero. The unit mismatch needs an explicit policy. Simple splitting is suitable only for this restricted format; quoted separators require the CSV tools studied later.",
+    "transfer": "Add a fourth field or remove the unit. Write the expected rejection or handling rule before changing the parser.",
+    "tr": "Parçalama alanları bulur; dönüşüm sayıyı yorumlar. Boş alan sıfır değildir, birim de verinin anlamının parçasıdır."
+  },
+  {
+    "week": 10,
+    "title": "A function returns information to its caller",
+    "meaning": "A function call creates a local computation using the arguments. return supplies a value to the caller; print sends text to the output display. A function can print a correct-looking number while returning None.",
+    "picture": "Draw an arrow from the argument 20 into a Celsius-to-Fahrenheit function and an arrow carrying 68 back to result. Put printed text in a separate output box.",
+    "predict": "If the function only prints 68, can its caller use result + 1 as if result were 68?",
+    "steps": [
+      "The argument 20 is bound to the local parameter.",
+      "The expression 20 × 9 / 5 + 32 evaluates to 68.",
+      "return passes 68 to the caller; print alone displays it and an implicit return gives None."
+    ],
+    "answer": "The print-only version cannot supply the numeric value for the next calculation. Define the function contract in terms of inputs, returned result and side effects, not the appearance of the screen.",
+    "transfer": "Call the conversion twice with different inputs. Explain why each call should depend on its argument rather than a previously stored global measurement.",
+    "tr": "print ekrana yazar; return değeri çağırana verir. Görünen çıktı ile sonraki hesaplamada kullanılacak değer farklıdır."
+  },
+  {
+    "week": 11,
+    "title": "Scope locates names; mutation changes objects",
+    "meaning": "A local name can be rebound without rebinding the caller’s name. But if a parameter refers to the caller’s list, mutating that shared object can affect the caller. “Local variable” does not mean “private copy of every object.”",
+    "picture": "Draw caller and function frames, each with a name pointing to one list [2, 4]. Compare adding an element to that object with rebinding the local name to a new list.",
+    "predict": "Which changes the caller’s list: values.append(6), or values = [6] inside the function?",
+    "steps": [
+      "append mutates the shared list, so the caller sees [2, 4, 6].",
+      "Assignment values = [6] points the local name at a new object.",
+      "Without returning and assigning that new object, the caller still refers to its original list."
+    ],
+    "answer": "The first operation changes shared data; the second changes a local binding. Document intended mutation and pass sensor-specific settings as arguments when composing a reusable library.",
+    "transfer": "Use the same helper with two sensor datasets in different orders. Predict which hidden global state could make the result depend on call order.",
+    "tr": "Kapsam adın nerede bulunduğunu belirler; mutasyon nesneyi değiştirir. Yerel parametre çağıranın nesnesini paylaşabilir."
+  },
+  {
+    "week": 12,
+    "title": "Invalid data is a different state from zero",
+    "meaning": "Error handling should preserve the meaning of valid observations. A conversion failure, a nonfinite number and an out-of-range reading require explicit handling; replacing them with zero invents measurements.",
+    "picture": "Trace four inputs: \"0\", \"20\", \"missing\" and \"nan\". Separate conversion, finiteness and allowed-range checks before admitting a value to a summary.",
+    "predict": "If missing data becomes zero, how does the average of the valid readings 0 and 20 change?",
+    "steps": [
+      "With only the two valid readings, total = 20 and count = 2, giving mean 10.",
+      "Replacing one missing value with zero changes count to 3 and gives about 6.67.",
+      "A successful float conversion of \"nan\" still needs a finiteness check."
+    ],
+    "answer": "Zero is valid when the sensor contract permits it; missing data is not a zero reading. Catch the relevant exception, record or report the failure, and define the all-invalid case without dividing by zero.",
+    "transfer": "Change every row to invalid data. Specify the report’s no-data message before running the program.",
+    "tr": "Eksik veriyi sıfır yapmak ölçüm uydurur ve ortalamayı değiştirir. Dönüşüm, sonluluk ve aralık denetimleri ayrı adımlardır."
+  },
+  {
+    "week": 13,
+    "title": "A file stores a representation that must be recoverable",
+    "meaning": "Writing text transfers a representation to persistent storage. A correct report must retain enough structure to be read back with the same intended meaning. Formatting, delimiters, quoting and file mode are part of that contract.",
+    "picture": "Draw memory → writer → file bytes → reader → reconstructed records. Put a sensor label containing a comma in one field to expose the difference between simple splitting and CSV parsing.",
+    "predict": "Will splitting every line at every comma reliably recover a quoted field containing a comma? What happens when a second run uses write mode?",
+    "steps": [
+      "A CSV-aware writer quotes fields as required; a CSV-aware reader reconstructs them.",
+      "Plain split on commas treats the comma inside a quoted field as another separator.",
+      "Write mode replaces an existing file; append mode adds content and can duplicate rows or headers if used carelessly."
+    ],
+    "answer": "Test a write–read round trip and inspect the saved file after closing it. Equality of the reconstructed records checks the representation; it does not validate the original measurements.",
+    "transfer": "Run the export twice in a temporary file. Decide whether the required outcome is replacement or accumulation, then check for duplicated headers.",
+    "tr": "Dosyaya yazmak bir gösterimi saklar. CSV tırnaklaması ve dosya modu anlamı korumalı; yazdığını yeniden okuyarak denetle."
+  },
+  {
+    "week": 14,
+    "title": "The report needs a chain of explainable contracts",
+    "meaning": "The sensor project composes reading, validation, grouping, summarising and writing. Each stage must state its accepted input, output and failure policy. A plausible final average cannot establish that the entire pipeline is correct.",
+    "picture": "Draw a pipeline and track four rows: T1=10, T1=20, T1=missing and T2=30, with compatible units and values allowed by the sensor contracts. Keep accepted and rejected counts beside the flow.",
+    "predict": "What should T1’s count and mean be? Can sorting, dropping duplicates or replacing the missing value with zero silently change the answer?",
+    "steps": [
+      "Validation accepts three numeric rows and rejects the missing one with a reason.",
+      "T1 has count 2, sum 30 and mean 15; T2 has count 1 and mean 30.",
+      "An independent hand summary of these tiny inputs checks the full pipeline’s output."
+    ],
+    "answer": "Preserve raw data and distinguish per-sensor results from the total accepted-row count. Repeated equal readings may be legitimate observations. Explain the all-invalid case and check the reopened report.",
+    "transfer": "AA asks the next question: can repeated per-sensor scans and a single-pass dictionary compute exactly this same result, and how does their work grow? That comparison is optional here; CP1 first establishes reliable behaviour.",
+    "tr": "Her aşamanın girdi, çıktı ve hata kuralını belirt. Küçük veriyi elle özetleyerek bütün hattı kontrol et; makul görünen sonuç tek başına kanıt değildir."
+  }
+]

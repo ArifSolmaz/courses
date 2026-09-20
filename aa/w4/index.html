@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=1">
+<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
 <link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w4.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=9"></head>
 <body>
 <header class="site-header">
@@ -29,7 +29,28 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/" selected>Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Lookup That Doesn't Slow Down</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>The order of service changes the system</h3><p>A list stores items, but a stack or queue also specifies which item leaves next. A stack removes the most recently added item; a queue removes the earliest. These are behavioural rules, independent of the implementation.</p><p>Imagine three inspection jobs arriving as 1, 2 and 3. A last-in-first-out stack returns 3 then 2. A first-in-first-out queue returns 1 then 2. The same stored values produce different behaviour because the service rule changed.</p><p>A Python list gives direct access to a position. A linked list reaches a position by following links. Both can grow, but they pay different costs for access and rearrangement. Do not assume that a container's name proves it is appropriate for the job.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Choose a service rule for inspection jobs and a different rule for undoing a sequence of edits. Explain the consequence of each.</p></section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="meaning-before-analysis-position-access-and-value-search-answer-different-questions">Meaning before analysis: position access and value search answer different questions</h2>
+<p>An index names a position already known. Searching by value asks which position, if any, contains a match. The second task may require inspecting many positions; the similarity of the notation does not make their work identical.</p>
+<p><strong>Draw or trace.</strong> Draw the list [8, 3, 8, 6] with indices 0–3. Point directly to index 2, then trace a left-to-right search for 6.</p>
+<p><strong>Predict before checking.</strong> How many equality checks find the first 8, find 6, or establish that 9 is missing?</p>
+<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The counts are 1, 4 and 4 for this simple scan. Duplicate 8s make the output contract important: finding the first position, every position, or only whether a match exists are different problems. An empty list needs zero element comparisons to report no match.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def first_match(values, target):
+    checks = 0
+    for index, value in enumerate(values):
+        checks += 1
+        if value == target:
+            return index, checks
+    return None, checks
+
+assert first_match([8, 3, 8, 6], 8) == (0, 1)
+assert first_match([8, 3, 8, 6], 6) == (3, 4)
+assert first_match([8, 3, 8, 6], 9) == (None, 4)
+assert first_match([], 9) == (None, 0)
+print(first_match([8, 3, 8, 6], 9))</code></pre></div>
+</details><p><strong>Change one thing.</strong> Move 6 to the front. Does that change the missing-target count? Explain why input arrangement matters for successful search.</p>
+<p class="turkish"><strong>Türkçe:</strong> İndis konumu zaten belirtir; değer aramak konumu bulmayı gerektirir. İlk eşleşme ile bütün eşleşmeler aynı çıktı değildir.</p></section>
+<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>The order of service changes the system</h3><p>A list stores items, but a stack or queue also specifies which item leaves next. A stack removes the most recently added item; a queue removes the earliest. These are behavioural rules, independent of the implementation.</p><p>Imagine three inspection jobs arriving as 1, 2 and 3. A last-in-first-out stack returns 3 then 2. A first-in-first-out queue returns 1 then 2. The same stored values produce different behaviour because the service rule changed.</p><p>A Python list gives direct access to a position. A linked list reaches a position by following links. Both can grow, but they pay different costs for access and rearrangement. Do not assume that a container's name proves it is appropriate for the job.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Choose a service rule for inspection jobs and a different rule for undoing a sequence of edits. Explain the consequence of each.</p></section>
 <details class="path-reference teaching-part"><summary>One name, many values</summary><div><section>
   <h2><span class="num">4.1</span>One name, many values</h2>
   <p>
@@ -409,6 +430,27 @@ print(compact)</code></pre></div>
 <h2 id="help-readiness-repair-and-review-a">Readiness, repair and Review A</h2>
 <p>Explain why a missing search over six values needs six comparisons, why two names can display the same appended item, and why a four-item all-pairs scan needs six comparisons. <strong>Answers:</strong> every candidate must be rejected; the names may share one list; the row counts are <code>3 + 2 + 1 + 0</code>.</p>
 <p>If any answer is uncertain, draw the list with indices, draw arrows from names to the list, or enumerate pairs on paper. Then change one input and predict the outcome again. Complete <a href="../guide/reviews/#review-a">Review A — Weeks 1–4</a> before moving on: this is the built-in consolidation point for instructions, types, loops and lists. Week 5 packages a process into a function and measures it with a stopwatch. Clear inputs, correct outputs and meaningful counts come first.</p>
+<h2 id="help-meaning-before-analysis-position-access-and-value-search-answer-different-questions">Meaning before analysis: position access and value search answer different questions</h2>
+<p>An index names a position already known. Searching by value asks which position, if any, contains a match. The second task may require inspecting many positions; the similarity of the notation does not make their work identical.</p>
+<p><strong>Draw or trace.</strong> Draw the list [8, 3, 8, 6] with indices 0–3. Point directly to index 2, then trace a left-to-right search for 6.</p>
+<p><strong>Predict before checking.</strong> How many equality checks find the first 8, find 6, or establish that 9 is missing?</p>
+<h3 id="help-worked-reasoning">Worked reasoning</h3>
+<p>The counts are 1, 4 and 4 for this simple scan. Duplicate 8s make the output contract important: finding the first position, every position, or only whether a match exists are different problems. An empty list needs zero element comparisons to report no match.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def first_match(values, target):
+    checks = 0
+    for index, value in enumerate(values):
+        checks += 1
+        if value == target:
+            return index, checks
+    return None, checks
+
+assert first_match([8, 3, 8, 6], 8) == (0, 1)
+assert first_match([8, 3, 8, 6], 6) == (3, 4)
+assert first_match([8, 3, 8, 6], 9) == (None, 4)
+assert first_match([], 9) == (None, 0)
+print(first_match([8, 3, 8, 6], 9))</code></pre></div>
+<p><strong>Change one thing.</strong> Move 6 to the front. Does that change the missing-target count? Explain why input arrangement matters for successful search.</p>
+<p class="turkish"><strong>Türkçe:</strong> İndis konumu zaten belirtir; değer aramak konumu bulmayı gerektirir. İlk eşleşme ile bütün eşleşmeler aynı çıktı değildir.</p>
 <h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Lists introduce the difference between known position and unknown value. This distinction is the bridge from basic Python to algorithm analysis.</p>
 <div class="table-scroll"><table><thead><tr><th>Question</th><th>Operation</th><th>Cost idea</th></tr></thead><tbody><tr><td>What is <code>data[3]</code>?</td><td>direct indexed access</td><td>reach one known slot</td></tr><tr><td>Is 3 somewhere in <code>data</code>?</td><td>membership search</td><td>inspect values until found or exhausted</td></tr><tr><td>How many times does 3 occur?</td><td>full count</td><td>inspect every item; early stopping would be wrong</td></tr><tr><td>What is the largest item?</td><td>scan with remembered best</td><td>one pass and an invariant</td></tr></tbody></table></div>

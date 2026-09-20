@@ -106,6 +106,7 @@
 <a href="#prepare-once-then-count-the-whole-job">Prepare once, then count the whole job</a>
 <a href="#three-graduated-practice-problems">Three graduated practice problems</a>
 <a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#meaning-before-analysis-preparing-once-changes-the-cost-of-repeated-questions">Meaning before analysis: preparing once changes the cost of repeated questions</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w11/index.html">Original lesson</a></p>
@@ -178,6 +179,20 @@ print(answer)</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Membership</td><td>Üyelik: whether a value is present</td></tr><tr><td>Key / value</td><td>Anahtar / değer: lookup label and associated information</td></tr><tr><td>Collision</td><td>Çakışma: different keys directed to the same initial location</td></tr><tr><td>Hashable</td><td>Hashlenebilir: a key satisfies stable hashing/equality rules</td></tr><tr><td>Frequency</td><td>Sıklık: how many occurrences were observed</td></tr><tr><td>Preparation cost</td><td>Hazırlık maliyeti: work paid before queries begin</td></tr></tbody></table></div>
 <p>You are ready when you can trace a count update, explain why duplicate removal can be incorrect, state hash lookup&#x27;s average and worst cases, and include construction in a total cost. Repair a gap by rebuilding the six-visit table, drawing the eight buckets, or repeating the break-even calculation with twice the build cost.</p>
 <p>The next bridge is an order question: “How many observations lie between these two limits?” A set alone does not preserve the ordering or multiplicities needed for that answer. Week 12 uses sorted sequences and carefully maintained search boundaries.</p>
+<h2 id="meaning-before-analysis-preparing-once-changes-the-cost-of-repeated-questions">Meaning before analysis: preparing once changes the cost of repeated questions</h2>
+<p>A set can support repeated membership questions without rescanning every list element. Construction still costs work and memory, and a set discards order and duplicate occurrences. Choose it only when those changes fit the required result.</p>
+<p><strong>Draw or trace.</strong> Draw two routes: q queries each scan n values, or one preparation scan followed by q set lookups. Label preparation separately from query work.</p>
+<p><strong>Predict before checking.</strong> Is preparation automatically worthwhile for one query? What if the question asks how many times a reading occurred?</p>
+<h3 id="worked-reasoning">Worked reasoning</h3>
+<p>For bounded-cost equality and hashing, repeated missing-target list scans take nq equality checks. Building a set and making q lookups takes expected O(n + q) time with O(n) possible extra storage; lookup has worst-case qualifications. Constants can make a single scan preferable for one query. A set alone cannot return occurrence counts; a frequency dictionary preserves that different meaning.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = [3, 1, 3, 8]
+queries = [3, 7, 8]
+prepared = set(values)
+assert [q in values for q in queries] == [q in prepared for q in queries]
+assert len(prepared) == 3 and len(values) == 4
+print(&quot;Membership agrees; multiplicity is not preserved.&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Make the data change after every query. Decide whether rebuilding or maintaining the prepared structure must now enter the cost account.</p>
+<p class="turkish"><strong>Türkçe:</strong> Hazırlık maliyeti ve bellek ücretsiz değildir. Küme varlık sorusunu yanıtlar; tekrar sayısını ve sırayı korumaz.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Sets and dictionaries are not magic speed buttons. They are prepared structures with assumptions and trade-offs.</p>
 <div class="table-scroll"><table><thead><tr><th>Choice</th><th>Good for</th><th>Cost to remember</th></tr></thead><tbody><tr><td>list scan</td><td>one small query, preserve order naturally</td><td>O(n) worst-case membership</td></tr><tr><td>set</td><td>many membership questions on hashable values</td><td>build cost, memory, duplicates collapse</td></tr><tr><td>dictionary</td><td>lookup associated values by key</td><td>key uniqueness; updating a key replaces a value</td></tr><tr><td>list plus set</td><td>preserve list order while using fast membership</td><td>maintain two structures consistently</td></tr></tbody></table></div>
