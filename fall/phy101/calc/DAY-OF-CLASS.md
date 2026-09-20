@@ -8,7 +8,7 @@
 ## Before class
 
 1. Open instructor sign-in on whichever PC you are using. Sign in with the configured Google account.
-2. Wait for **Saved online**, then choose **Take control here**. The current session and totals come from the shared response spreadsheet.
+2. Wait for **Saved online**, then choose **Enable controls here**. The current session and totals come from the shared response spreadsheet.
 3. Show **Form QR ↗** on the projector and ask students to open the form before the timer starts.
 
 ## Each round
@@ -22,7 +22,7 @@
 
 ## Changing PCs or finishing class
 
-Open the same instructor link on the next PC and choose **Take control here**. The previous PC becomes view only; the running deadline stays the same. Round history and totals are stored centrally. There is no export, restore or endpoint configuration on each PC.
+Open the same instructor link on the next PC and choose **Enable controls here**. The previous PC becomes view only; the running deadline stays the same. Round history and totals are stored centrally. There is no export, restore or endpoint configuration on each PC.
 
 Sign out of Google before leaving a shared computer. Internet access is required. If a save fails, use **Retry saving**; the app reuses the request rather than duplicating the round. A started timer still expires on the server when the browser closes or disconnects.
 

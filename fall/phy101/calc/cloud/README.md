@@ -7,7 +7,7 @@ not as an unauthenticated GitHub Pages page.
 ## Daily use
 
 Open [instructor sign-in](https://arifsolmaz.github.io/courses/fall/phy101/calc/instructor.html), sign in with the configured Google account, and choose
-**Take control here**. Select a question and create/start a round. On another PC, open
+**Enable controls here**. Select a question and create/start a round. On another PC, open
 the same URL and take control there. The current code, question, running intervals and
 deadline come from the server; switching PCs does not reset them. No exports or per-PC
 endpoint settings are needed.
@@ -85,3 +85,11 @@ or student score records were added. The draft was left ready, without starting 
 This checks separate browser sessions on one machine; physical-PC and student-device
 testing remains a useful classroom rehearsal. Timing and score edge cases were tested
 with synthetic data in the local test suite.
+
+## Slow-refresh regression check
+
+Run the synthetic preview with PREVIEW_PORT=8767 and SNAPSHOT_DELAY_MS=7000.
+Enable controls, create a round, press Refresh, and immediately press Start round.
+Start must succeed while the read is in flight. Pause, Resume and Reveal must also
+work, and a late snapshot must not restore an earlier round state. This sequence
+passed in the browser after separating refresh requests from save requests.
