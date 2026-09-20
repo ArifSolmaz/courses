@@ -307,6 +307,7 @@
 
   /* ----------------------------------------------------------------- reveal */
   function renderReveal(ch, p) {
+    if (window.CALC_WALKTHROUGH) window.CALC_WALKTHROUGH.mount($("calculator-walkthrough"), ch, p, S.lang);
     var tr = S.lang === "tr";
     var a = ch.answer(p);
     $("r-answer").innerHTML = SF3(a) + " <span class='unit'>" + esc(ch.unit) + "</span>";
@@ -373,6 +374,7 @@
     if (S.tick) { window.clearInterval(S.tick); S.tick = null; }
   }
   function reset() {
+    if (window.CALC_WALKTHROUGH) window.CALC_WALKTHROUGH.clear();
     closeWindow();
     stop();
     S.windows = []; S.deadline = null; S.timedRound = null;

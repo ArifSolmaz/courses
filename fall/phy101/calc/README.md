@@ -129,6 +129,23 @@ week 1, and you will never wonder again.
 
 ---
 
+### Animated calculator walkthrough
+
+After **Reveal**, expand **Calculator · step by step**. The Casio-style teaching
+calculator animates the exact values in the current draw for all 15 challenges.
+Use **Play / Pause**, **Back**, **Next** or **Replay** to explain individual keys.
+Switching the console to Turkish also translates the lesson. There is no automatic
+playback, and moving to another question clears the previous lesson.
+
+This is a teaching illustration, not an emulator of a particular Casio model.
+Choose DEG on the student's own calculator where indicated; menu paths differ by model.
+Intermediate `Ans` values retain full precision, with rounding only at the end.
+The walkthrough is hidden until reveal in the classroom UI; public source code still
+is not an access-control mechanism.
+
+Check the arithmetic and key sequences with `node test-walkthrough.js` (1,500 draws,
+both languages). No network or packages are required.
+
 ## 5 · After class — scoring
 
 Open the response sheet and select **the whole thing including the heading row** — the
