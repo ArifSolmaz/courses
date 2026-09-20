@@ -82,7 +82,7 @@ var PhyCloud = (function () {
         byId[id]={id:id,raw:String(row.answer),correct:ok,time:row.time,seq:row.seq,points:ok?10:0};
       });
     var entries=Object.keys(byId).map(function(id){return byId[id];}).sort(function(a,b){return a.time-b.time || a.seq-b.seq;});
-    var rank=0;entries.forEach(function(row){if(row.correct){rank++;row.rank=rank;if(rank<=3)row.points+=[3,2,1][rank-1];}});
+    var rank=0;entries.forEach(function(row){if(row.correct){rank++;}});
     return {rows:entries,rejected:rejected,repeats:repeats,correct:rank};
   }
   function view(s,rows,client,now) {

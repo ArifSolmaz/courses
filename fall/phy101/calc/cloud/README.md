@@ -112,3 +112,6 @@ ineligible timestamps never receive points. Classroom codes discourage casual re
 entry but cannot establish physical presence or verified student identity.
 
 Run test-public.js for public-data minimization, code rejection and instructor auth checks.
+
+Scoring: every correct eligible answer earns 10 points; incorrect answers earn 0.
+There is no speed bonus. Totals are recalculated with this rule, including saved rounds.

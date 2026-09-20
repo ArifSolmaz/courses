@@ -26,8 +26,8 @@ test('early, paused and late answers filtered before first attempt',()=>{
  const r=s.rounds[0],ch=ctx.window.CALC_CHALLENGES[0],answer=ch.answer(r.params);
  const row=(time,id,answer,seq)=>({time,id,answer:String(answer),code:String(r.code),seq});
  const result=C.score(r,[row(start-1,'001',0,1),row(start+1000,'001',answer,2),row(start+15000,'002',answer,3),row(now,'003',answer,4),row(start+25000,'001',0,5)]);
- assert.equal(result.correct,1);assert.equal(result.rejected,3);assert.equal(result.repeats,1);assert.equal(result.rows[0].id,'001');assert.equal(result.rows[0].points,13);
- const view=C.view(s,[row(start+1000,'001',answer,2)],B,now);assert.equal(view.totals[0].points,13);assert.equal(C.view(s,[row(start+1000,'001',answer,2)],B,now).totals[0].points,13);
+ assert.equal(result.correct,1);assert.equal(result.rejected,3);assert.equal(result.repeats,1);assert.equal(result.rows[0].id,'001');assert.equal(result.rows[0].points,10);
+ const view=C.view(s,[row(start+1000,'001',answer,2)],B,now);assert.equal(view.totals[0].points,10);assert.equal(C.view(s,[row(start+1000,'001',answer,2)],B,now).totals[0].points,10);
 });
 test('new codes unique even if the random source repeats',()=>{
  const s=openFixture();command(s,A,'claim');command(s,A,'create',{question:'W2-C1',seconds:120});command(s,A,'create',{question:'W3-C2',seconds:120});assert.notEqual(s.rounds[0].code,s.rounds[1].code);
@@ -64,4 +64,13 @@ test('automatic closing bounds acceptance even without an open browser',()=>{
  now+=2000;assert.equal(C.isOpen(s,now),false);C.normalise(s,now);
  assert.equal(s.rounds[0].closed,s.classroom.closesAt);
  assert.equal(C.score(s.rounds[0],[{code:s.rounds[0].code,id:'1',time:now,answer:'1',seq:1}]).rows.length,0);
+});
+
+test('correct answers earn equal points regardless of submission speed',()=>{
+ const s=openFixture();command(s,A,'claim');command(s,A,'create',{question:'W2-C1',seconds:120});command(s,A,'start');
+ const r=s.rounds[0],answer=ctx.window.CALC_CHALLENGES.find(c=>c.id===r.question).answer(r.params);
+ const rows=[1,2,3,4].map((i)=>({id:String(i),code:r.code,answer:String(answer),time:now+i*1000,seq:i}));
+ const marked=C.score(r,rows);
+ assert.equal(marked.rows.length,4);
+ for(const result of marked.rows)assert.equal(result.points,10);
 });
