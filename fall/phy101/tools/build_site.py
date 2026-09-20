@@ -783,7 +783,7 @@ def head_html(title, desc, week, has_anim):
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/contrib/auto-render.min.js" integrity="{SRI_AUTO}" crossorigin="anonymous"></script>
-{scripts}<script defer src="../assets/app.js"></script>
+{scripts}<script defer src="../assets/app.js?v=2"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to the notes</a>

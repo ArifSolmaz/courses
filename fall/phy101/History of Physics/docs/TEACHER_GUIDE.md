@@ -34,6 +34,14 @@ Three pedagogical commitments follow from that shape.
 
 ---
 
+## Physical meaning routine for PHY101
+
+Use the [course-wide approach](../../TEACHING_APPROACH.md) with every selected milestone: identify the physical question, draw its geometry, explain what the operation measures, predict a sign or trend, and then inspect the equation and evidence. For Newton, distinguish net force from velocity; for energy, distinguish transferred work from transfer rate; for rotation, show the perpendicular lever arm. Ask what observation could distinguish the proposed model from another explanation.
+
+The portal also covers PHY102 and later physics. Those cards remain optional context for PHY101 and do not enlarge its common-exam scope. Modern vector notation can explain an older discovery without implying the historical author used that notation. Historical chronology and evidence should not be replaced by a present-day analogy.
+
+**TR:** Önce fiziksel soru, şekil ve işlemin anlamı; sonra tahmin, denklem ve kanıt. Portalın ileri konuları PHY101 ortak sınav kapsamını genişletmez.
+
 ## 2. Orientation for instructors
 
 ### 2.1 The modules at a glance

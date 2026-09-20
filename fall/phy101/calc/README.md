@@ -10,7 +10,9 @@ This is supervised calculator practice, not a secure assessment: the public ques
 bank can reproduce answers, and the form does not authenticate student identity.
 See [AUDIT.md](AUDIT.md) before using scores for credit.
 
-Open `index.html` in a browser. No server, no accounts, no network, nothing to install.
+**Current classroom workflow:** use [Day of class](DAY-OF-CLASS.md) and the private instructor app. It saves rounds and scores online across PCs and requires internet access. Use [physical-meaning prompts](MEANING_PROMPTS.md) for all 15 drills. Correct eligible answers earn 10 points, incorrect answers 0, with no speed bonus.
+
+**Legacy reference below:** the browser-storage, export, settings and old-console instructions describe the retired local workflow. They are not the instructions for the current shared classroom app.
 
 **On the day, you want [DAY-OF-CLASS.md](DAY-OF-CLASS.md)** — one page, in order. This
 file is the reference behind it.

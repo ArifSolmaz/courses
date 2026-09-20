@@ -91,7 +91,7 @@
       for (var parent = target; parent; parent = parent.parentElement) {
         if (parent.tagName === 'DETAILS') parent.open = true;
       }
-      requestAnimationFrame(function () { target.scrollIntoView({ block: "start" }); });
+      target.scrollIntoView({ block: "start", behavior: "instant" });
       return true;
     }
 
@@ -99,7 +99,12 @@
       var b = e.target.closest("[data-stage]");
       if (b && b.tagName === "BUTTON") { show(b.getAttribute("data-stage"), true); return; }
       var a = e.target.closest('a[href^="#"]');
-      if (a && openHash(a.getAttribute("href"))) e.preventDefault();
+      if (a && openHash(a.getAttribute("href"))) {
+        e.preventDefault();
+        if (location.hash !== a.getAttribute("href")) {
+          history.pushState(null, '', a.getAttribute("href"));
+        }
+      }
     });
     window.addEventListener("hashchange", function () { openHash(location.hash); });
 

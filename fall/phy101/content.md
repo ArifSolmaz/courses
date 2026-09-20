@@ -21,7 +21,7 @@ On the [course dashboard](web/PHY101_Course_Dashboard.html), choose **Open in Co
 
 **Audience:** the course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students together. The physical laws, algebra and standards of explanation are the same for all three departments; the application questions in Weeks 10–13 are posed from each department’s perspective.
 
-**Learning sequence:** draw → choose a physical principle → write the equation → rearrange → substitute with units → interpret and check. English explanations include short Turkish support. Students can solve on paper; Python and interactive plots are optional ways to check a prediction.
+**Learning sequence:** draw → explain the physical meaning and choose a law → rearrange symbolically → check a limiting case → substitute with units → interpret. Predict a sign, direction or trend before calculation; connect the operation to geometry and an engineering example. See [the teaching approach and full topic map](TEACHING_APPROACH.md). English explanations include short Turkish support. Students can solve on paper; Python and interactive plots are optional ways to check a prediction.
 
 ## Weekly sequence
 

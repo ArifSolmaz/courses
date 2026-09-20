@@ -24,7 +24,7 @@ The exact Tuesday lecture hours remain those already published. There is no addi
 ## A 10–15-minute entry routine
 
 1. Ask students to draw the system and identify the quantity to predict.
-2. Recall one necessary equation and its assumptions. Explain the algebraic operation on both sides, such as dividing $\tau=I\alpha$ by $I$.
+2. Explain the physical meaning and geometry of the needed operation before recalling the equation: perpendicular turning effect, a weighted distribution or restoration toward equilibrium. State the assumptions, then explain the algebraic rearrangement. See [the course-wide approach](TEACHING_APPROACH.md).
 3. Work through one small calculation with SI units.
 4. Predict what changes if one parameter doubles, then inspect a prepared graph or check the calculation.
 

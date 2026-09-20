@@ -20,6 +20,7 @@ import json
 import pathlib
 import re
 import sys
+from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import build_site as B
@@ -106,7 +107,7 @@ def main():
 
         # 2. local assets exist
         for href in set(re.findall(r'(?:href|src)="(\.\./[^"]+)"', html_text)):
-            target = (page.parent / href).resolve()
+            target = (page.parent / unquote(urlsplit(href).path)).resolve()
             if target.suffix in (".css", ".js"):
                 check(target.is_file(), f"{rel}: missing asset {href}")
 

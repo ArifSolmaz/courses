@@ -67,6 +67,8 @@ The significant-figure teaching cells in Week 01 are exempt: there, a four-digit
 The course standard is **draw → choose a law → rearrange → check a limiting case → substitute with units
 → interpret**. The limiting-case step was added in September 2026 and is now required.
 
+Before choosing the equation, identify the quantity, system, axes and geometry. Explain why the operation fits the physical question—combining, projecting, turning, taking a rate, accumulating, or weighting—and predict a sign or trend. See [the course-wide teaching approach](TEACHING_APPROACH.md) for the topic map and scope boundaries. This strengthens the existing method without changing common-exam topics or grading.
+
 1. **Symbolic answer.** Get the unknown alone on one side, in symbols, before any number appears.
 2. **One limiting case.** Send a parameter to a value whose answer you already know — $\mu \to 0$,
    $m_2 \to \infty$, $\theta \to 90^\circ$, $I \to 0$ — and confirm the formula does the sensible thing.

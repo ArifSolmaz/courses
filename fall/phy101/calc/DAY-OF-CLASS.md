@@ -15,10 +15,10 @@
 ## Each round
 
 1. Choose a question and duration, then **Create round**.
-2. Read the question and submission code aloud.
+2. Read the question and submission code aloud. Use the matching [physical-meaning prompt](MEANING_PROMPTS.md): students sketch and predict a sign or trend on paper before calculating.
 3. Press **Start**. Only submissions during recorded running intervals count. Pause closes acceptance until you resume.
 4. Press **Reveal & save scores**. Acceptance closes and results are calculated automatically. Refresh includes any delayed sheet arrivals whose submission timestamps were on time.
-5. Play the calculator walkthrough and explain each keypress. Results and totals are collapsed until you choose to show them.
+5. Ask students to explain why the equation fits the picture, then play the calculator walkthrough and explain each keypress. Results and totals are collapsed until you choose to show them.
 6. Create the next round. The first eligible attempt per student counts.
 
 ## Changing PCs or finishing class
