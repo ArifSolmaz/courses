@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx={window:{},console,Date,Session:{getActiveUser:()=>({getEmail:()=>''})},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},cloudDeploymentConfig_:()=>({sheet:'private-sheet',tab:1,owner:'owner@test.example'})};
+vm.createContext(ctx);
+for(const f of ['../challenges.js','core.js','server.gs'])vm.runInContext(fs.readFileSync(__dirname+'/'+f,'utf8'),ctx);
+let state={rounds:[{answer:'secret'}],controller:'private',classroom:{code:'SECRET12',closesAt:Date.now()+60000}};
+ctx.cloudBook_=()=>({});ctx.cloudRead_=()=>state;
+assert.deepEqual(Object.keys(ctx.cloudStudentStatus()).sort(),['closesAt','open','serverTime']);
+assert.equal(ctx.cloudJoin('WRONG').admitted,false);assert.equal(ctx.cloudJoin('WRONG').formUrl,undefined);
+assert.equal(ctx.cloudJoin('secret12').admitted,true);
+state.classroom.closed=true;assert.equal(ctx.cloudJoin('SECRET12').formUrl,undefined);assert.equal(ctx.cloudStudentStatus().open,false);
+for(const call of [()=>ctx.cloudSnapshot('browser-aaaaaaaaaaaa'),()=>ctx.cloudCommand({action:'openClass'}),()=>ctx.doGet({parameter:{}})])assert.throws(call,/Instructor access only/);
+console.log('Public gateway checks passed: closed defaults, code validation, minimal fields, instructor RPC rejection.');

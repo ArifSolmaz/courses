@@ -13,7 +13,7 @@
 <!-- WALKTHROUGH_CSS -->
 </head><body>
 <header><strong>PHY101 · Instructor</strong><span id="status" role="status">Connecting…</span><button id="refresh">Refresh</button><button id="lang">Türkçe</button><a class="btn" href="https://arifsolmaz.github.io/courses/fall/phy101/calc/join.html" target="_blank" rel="noopener">Form QR ↗</a></header>
-<main><p id="error" role="alert"></p><button id="retry" hidden>Retry saving</button>
+<main><section class="setup" id="classroom"><div class="actions"><strong id="class-state">Classroom closed</strong><label>Auto-close after<select id="class-duration"><option value="15">15 min</option><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option><option value="90">90 min</option><option value="120">120 min</option></select></label><button id="openClass" disabled>Open classroom activity</button><button id="endClass" disabled>End classroom activity</button></div><p id="class-help" class="small"></p></section><p id="error" role="alert"></p><button id="retry" hidden>Retry saving</button>
 
 <div class="actions setup"><label><span id="choose-label">Question</span><select id="question"></select></label><label><span id="time-label">Time</span><select id="duration"><option value="60">60 s</option><option value="90">90 s</option><option value="120" selected>2 min</option><option value="180">3 min</option><option value="300">5 min</option></select></label><button id="create" disabled>Create round</button></div>
 <p id="empty">The shared session will appear here.</p>
@@ -44,7 +44,7 @@ function accepted(data){
 function failed(error){
  online=false;busy=false;
  const message=String(error && error.message || error);
- if(/Session changed|read-only|current round|cannot be started|not running|Start the round|Invalid duration|Unknown question/.test(message))pending=null;
+ if(/Session changed|read-only|current round|cannot be started|not running|Start the round|Invalid duration|Unknown question|Open the classroom|already open|Invalid classroom/.test(message))pending=null;
  $('error').textContent=message;paint();
 }
 function pull(){
@@ -54,7 +54,7 @@ function pull(){
  error=>{refreshing=false;if(!busy&&!pending)failed(error);});
 }
 function send(){if(!pending||busy)return;busy=true;paint();rpc('cloudCommand',pending,data=>{pending=null;busy=false;accepted(data);},failed);}
-function command(action){if(!state||!online||busy||pending)return;pending={action,client,revision:state.revision,request:crypto.randomUUID(),question:$('question').value,seconds:Number($('duration').value)};send();}
+function command(action){if(!state||!online||busy||pending)return;pending={action,client,revision:state.revision,request:crypto.randomUUID(),question:$('question').value,seconds:Number($('duration').value),minutes:Number($('class-duration').value)};send();}
 function table(host,heads,rows){host.replaceChildren();const table=document.createElement('table');const head=document.createElement('tr');for(const text of heads){const th=document.createElement('th');th.textContent=text;head.appendChild(th);}table.appendChild(head);for(const row of rows){const tr=document.createElement('tr');for(const text of row){const td=document.createElement('td');td.textContent=text;tr.appendChild(td);}table.appendChild(tr);}host.appendChild(table);}
 function clock(){if(!state||!state.round)return;const r=state.round;const ms=r.status==='running'?Math.max(0,r.deadline-(Date.now()+offset)):r.remaining;const seconds=Math.ceil(ms/1000);$('clock').textContent=r.status==='closed'?t('Closed','Kapalı'):Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
 function paint(){
@@ -64,6 +64,11 @@ function paint(){
  const control=state&&state.control,ready=online&&!busy&&!pending;
  $('claim').disabled=!ready||control;$('claim').hidden=!!control;$('claim').textContent=t('Enable controls here','Kontrolü bu bilgisayara al');
  $('controller').textContent=control?t('This PC controls the session.','Oturumu bu bilgisayar yönetiyor.'):t('To start or pause, enable controls on this computer below.','Yalnızca görüntüleme. Devam etmek için kontrolü al.');
+ const classroom=state&&state.classroom,opened=classroom&&classroom.open;
+ $('openClass').disabled=!ready||!control||opened;$('endClass').disabled=!ready||!control||!opened;
+ $('class-duration').disabled=!!opened;
+ $('class-state').textContent=opened?t('Classroom OPEN · Code ','Ders AÇIK · Kod ')+classroom.code:t('Classroom closed','Ders kapalı');
+ $('class-help').textContent=opened?t('Closes automatically at ','Otomatik kapanış: ')+new Date(classroom.closesAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+t('. Show this classroom code on the projector. The round code is separate.','. Bu ders kodunu yansıtın. Tur kodu ayrıdır.'):t('Students cannot join until you open the activity. Scores stay saved when you close it.','Etkinliği açana kadar öğrenciler katılamaz. Kapatınca puanlar korunur.');
  const r=state&&state.round;
  $('create').disabled=!ready||!control||(r&&['running','paused','ended'].includes(r.status));
  $('create').textContent=t('Create round','Tur oluştur');$('choose-label').textContent=t('Question','Soru');$('time-label').textContent=t('Time','Süre');
@@ -71,7 +76,7 @@ function paint(){
  document.querySelector('.question-card').hidden=!r;
  $('clock').hidden=!r;$('round-note').hidden=!r;$('received').hidden=!r;
  $('start').hidden=!r;$('pause').hidden=!r;$('reveal').hidden=!r;
- $('start').disabled=!ready||!control||!r||!['ready','paused'].includes(r.status);
+ $('start').disabled=!opened||!ready||!control||!r||!['ready','paused'].includes(r.status);
  $('pause').disabled=!ready||!control||!r||r.status!=='running';
  $('reveal').disabled=!ready||!control||!r||!['running','paused','ended'].includes(r.status);
  $('start').textContent=r&&r.status==='paused'?t('Resume','Devam et'):t('Start round','Turu başlat');$('pause').textContent=t('Pause','Duraklat');$('reveal').textContent=t('Reveal & save scores','Cevabı göster ve puanları kaydet');
@@ -93,7 +98,7 @@ function paint(){
  clock();}
  if(state){table($('history'),[t('Question','Soru'),t('Code','Kod'),t('Correct','Doğru')],state.history.map(x=>[x.question,x.code,x.correct+'/'+x.count]));table($('totals-panel'),[t('Student','Öğrenci'),t('Total','Toplam'),t('Rounds','Turlar')],state.totals.map(x=>[x.id,x.points,x.rounds]));}
 }
-for(const name of ['claim','create','start','pause','reveal'])$(name).onclick=()=>command(name);
+for(const name of ['claim','create','start','pause','reveal','openClass','endClass'])$(name).onclick=()=>command(name);
 $('retry').onclick=send;$('refresh').onclick=pull;$('lang').onclick=()=>{lang=lang==='en'?'tr':'en';paint();};
 pull();setInterval(()=>{if(!document.hidden&&!pending)pull();},5000);setInterval(clock,250);
 })();

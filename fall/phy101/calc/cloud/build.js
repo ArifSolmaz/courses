@@ -9,7 +9,8 @@ html=html.replace('<!-- WALKTHROUGH_CSS -->','<style>'+read('walkthrough.css')+'
  .replace('<!-- CHALLENGES_JS -->','<script>'+read('challenges.js')+'</script>')
  .replace('<!-- FORMULAS_JS -->','<script>'+read('cloud/formulas.js')+'</script>')
  .replace('<!-- WALKTHROUGH_JS -->','<script>'+read('walkthrough.js')+'</script>');
+const student=read('cloud/student.html');
 const config={sheet,tab:Number(tab),owner};
-const source='var window = {};\n'+read('challenges.js')+'\n'+read('cloud/core.js')+'\n'+read('cloud/server.gs')+'\nfunction cloudDeploymentConfig_(){return '+JSON.stringify(config)+';}\nfunction cloudHtml_(){return '+JSON.stringify(html)+';}\n';
+const source='var window = {};\n'+read('challenges.js')+'\n'+read('cloud/core.js')+'\n'+read('cloud/server.gs')+'\nfunction cloudDeploymentConfig_(){return '+JSON.stringify(config)+';}\nfunction cloudHtml_(){return '+JSON.stringify(html)+';}\nfunction cloudStudentHtml_(){return '+JSON.stringify(student)+';}\n';
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,source,{mode:0o600});
 console.log('Private Apps Script bundle built: '+Buffer.byteLength(source)+' bytes');

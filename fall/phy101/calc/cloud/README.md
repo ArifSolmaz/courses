@@ -93,3 +93,22 @@ Enable controls, create a round, press Refresh, and immediately press Start roun
 Start must succeed while the read is in flight. Pause, Resume and Reveal must also
 work, and a late snapshot must not restore an earlier round state. This sequence
 passed in the browser after separating refresh requests from save requests.
+
+## Classroom opening and student entry
+
+The private deployment stays restricted to the instructor. A separate public deployment
+from the same Apps Script project serves only the student HTML and public availability.
+Use ?student=1 for entry, and ?status=1 for the fixed phyActivityStatus JSONP callback.
+Every instructor RPC and the default page still enforce the configured Google account.
+Keep both deployments updated when changing shared server code.
+
+Sessions default closed. Opening creates a fresh eight-character classroom code and an
+absolute closing deadline. End classroom activity closes acceptance immediately; each
+round deadline is capped at the classroom deadline, even with no browsers connected.
+The course dashboard hides its join button when closed or unavailable. The existing
+student URL checks availability through the public app. The large QR points there.
+Original Form URLs and previously distributed QR images may still open Google Forms;
+ineligible timestamps never receive points. Classroom codes discourage casual remote
+entry but cannot establish physical presence or verified student identity.
+
+Run test-public.js for public-data minimization, code rejection and instructor auth checks.

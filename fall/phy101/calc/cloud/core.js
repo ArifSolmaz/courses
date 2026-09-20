@@ -4,7 +4,14 @@ var PhyCloud = (function () {
   function blank() { return {schema:1,revision:0,controller:null,active:null,rounds:[],codes:[],receipts:[]}; }
   function challenge(id) { var ch=window.CALC_CHALLENGES.find(function(c){return c.id===id;}); if(!ch) throw Error('Unknown question'); return ch; }
   function active(s) { return s.rounds.find(function(r){return r.id===s.active;}) || null; }
+  function isOpen(s,now) {return !!(s.classroom && now<s.classroom.closesAt && !s.classroom.closed);}
+  function endClass(s,now) {
+    if(s.classroom)s.classroom.closed=true;
+    var r=active(s);
+    if(r && ['running','paused','ended'].indexOf(r.status)>=0){close(r,now);r.status='closed';r.closed=now;}
+  }
   function normalise(s,now) {
+    if(s.classroom && !s.classroom.closed && now>=s.classroom.closesAt){endClass(s,s.classroom.closesAt);return true;}
     var r=active(s);
     if(r && r.status==='running' && now>=r.deadline) {r.status='ended';r.remaining=0;return true;}
     return false;
@@ -24,6 +31,12 @@ var PhyCloud = (function () {
     var r=active(s);
     switch(cmd.action) {
       case 'claim': s.controller=cmd.client; break;
+      case 'openClass':
+        if(isOpen(s,now))throw Error('Classroom is already open');
+        if([15,30,45,60,90,120].indexOf(cmd.minutes)<0)throw Error('Invalid classroom duration');
+        s.classroom={openedAt:now,closesAt:now+cmd.minutes*60000,closed:false,code:String(makeId()).replace(/-/g,'').slice(0,8).toUpperCase()};
+        break;
+      case 'endClass': endClass(s,now); break;
       case 'create':
         if(r && ['running','paused','ended'].indexOf(r.status)>=0) throw Error('Reveal the current round before creating another.');
         var ch=challenge(cmd.question);
@@ -36,8 +49,9 @@ var PhyCloud = (function () {
         r={id:makeId(),question:ch.id,code:code,params:ch.gen(),duration:cmd.seconds*1000,remaining:cmd.seconds*1000,status:'ready',windows:[],deadline:null,created:now};
         s.rounds.push(r);s.active=r.id;break;
       case 'start':
+        if(!isOpen(s,now))throw Error('Open the classroom activity before starting a round');
         if(!r || ['ready','paused'].indexOf(r.status)<0) throw Error('This round cannot be started');
-        r.deadline=now+r.remaining;r.windows.push({start:now,end:r.deadline});r.status='running';break;
+        r.deadline=Math.min(now+r.remaining,s.classroom.closesAt);r.windows.push({start:now,end:r.deadline});r.status='running';break;
       case 'pause':
         if(!r || r.status!=='running') throw Error('The round is not running');
         close(r,now);r.status='paused';break;
@@ -86,8 +100,8 @@ var PhyCloud = (function () {
         received:rows.filter(function(row){return String(row.code).trim()===String(r.code);}).length};
       if(r.status==='closed') {current.params=r.params;current.answer=ch.answer(r.params).toPrecision(3);current.score=score(r,rows);}
     }
-    return {acknowledged:s.receipts.filter(function(r){return r.client===client;}).map(function(r){return r.request;}),revision:s.revision,serverTime:now,control:s.controller===client,round:current,history:history,
+    return {classroom:{open:isOpen(s,now),closesAt:s.classroom?s.classroom.closesAt:null,code:isOpen(s,now)?s.classroom.code:null},acknowledged:s.receipts.filter(function(r){return r.client===client;}).map(function(r){return r.request;}),revision:s.revision,serverTime:now,control:s.controller===client,round:current,history:history,
       totals:Object.keys(totals).map(function(id){return totals[id];}).sort(function(a,b){return b.points-a.points || a.id.localeCompare(b.id);})};
   }
-  return {blank:blank,apply:apply,normalise:normalise,view:view,score:score,number:number};
+  return {isOpen:isOpen,blank:blank,apply:apply,normalise:normalise,view:view,score:score,number:number};
 })();

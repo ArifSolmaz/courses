@@ -10,7 +10,13 @@ function cloudAuthorise_() {
   if(!email || email.toLowerCase()!==cfg.owner.toLowerCase()) throw Error('Instructor access only. Sign in with the configured account.');
   return cfg;
 }
-function doGet() {
+function doGet(e) {
+  if(e && e.parameter && e.parameter.status==='1'){
+    return ContentService.createTextOutput('phyActivityStatus('+JSON.stringify(cloudStudentStatus())+');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  if(e && e.parameter && e.parameter.student==='1'){
+    return HtmlService.createHtmlOutput(cloudStudentHtml_()).setTitle('PHY101 · Classroom activity').addMetaTag('viewport','width=device-width, initial-scale=1');
+  }
   cloudAuthorise_();
   return HtmlService.createHtmlOutput(cloudHtml_()).setTitle('PHY101 · Instructor').addMetaTag('viewport','width=device-width, initial-scale=1');
 }
@@ -69,4 +75,25 @@ function cloudCommand(cmd) {
     if(!result.duplicate)cloudWrite_(book,state);
     return PhyCloud.view(state,cloudResponses_(book,cfg),cmd.client,now);
   } finally {lock.releaseLock();}
+}
+
+
+// Public operations return only availability and, after a classroom-code check,
+// the existing student form link. Never expose state, questions, IDs or scores.
+function cloudPublic_(code) {
+  var lock=LockService.getScriptLock();lock.waitLock(20000);
+  try{
+    var state=cloudRead_(cloudBook_(cloudConfig_())),now=Date.now(),open=PhyCloud.isOpen(state,now);
+    var result={open:open,closesAt:open?state.classroom.closesAt:null,serverTime:now};
+    if(typeof code==='string' && open){
+      result.admitted=code.trim().toUpperCase()===state.classroom.code;
+      if(result.admitted)result.formUrl='https://forms.gle/MxGUR2aZhvWRgMdZ6';
+    }
+    return result;
+  }finally{lock.releaseLock();}
+}
+function cloudStudentStatus(){return cloudPublic_();}
+function cloudJoin(code){
+  if(typeof code!=='string'||code.length>32)throw Error('Enter the classroom code shown by your instructor.');
+  return cloudPublic_(code);
 }
