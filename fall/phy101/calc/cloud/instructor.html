@@ -1,0 +1,82 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PHY101 · Instructor</title>
+<style>
+:root{color-scheme:light dark;--bg:#faf9f6;--surface:white;--border:#d5d0c5;--text:#222;--muted:#625e55;--phy-orange:#ad430d}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:18px system-ui,sans-serif}header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:14px 24px;border-bottom:1px solid var(--border)}header strong{margin-right:auto}main{max-width:1180px;margin:auto;padding:24px}button,select,a.btn{font:inherit;padding:10px 16px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);cursor:pointer;text-decoration:none}button:disabled{opacity:.45;cursor:default}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}.primary{background:#ad430d;color:white}#status{font-size:14px}#error{color:#ad2719;white-space:pre-wrap}.meta{display:flex;justify-content:space-between;gap:20px;align-items:center}.code{font:bold 48px ui-monospace,monospace;letter-spacing:.12em}.question{font-size:clamp(24px,3vw,42px);line-height:1.4}.hint{color:var(--muted)}#clock{font:700 clamp(58px,10vw,112px) ui-monospace,monospace;margin:20px 0}.answer{font-size:60px;color:#197349;font-weight:700}section,details.history{margin:24px 0;padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:16px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border)}.table-wrap{overflow:auto}.small{font-size:14px;color:var(--muted)}[hidden]{display:none!important}label{display:grid;gap:5px;font-size:14px}.saved{color:#187642}.warn{color:#ad430d}summary{cursor:pointer}#controller{font-size:14px}#round-note{font-weight:600}#totals-panel{margin-top:32px}:focus-visible{outline:3px solid #bf6a0e;outline-offset:3px}@media(prefers-color-scheme:dark){:root{--bg:#121610;--surface:#1b2118;--border:#38422f;--text:#f0eee7;--muted:#b0b3a6;--phy-orange:#f3a462}.saved,.answer{color:#8bdfac}.warn{color:#f3a462}#error{color:#ffaea2}}@media(max-width:600px){main{padding:12px}header{padding:12px}section{padding:12px}.code{font-size:36px}}
+</style>
+<!-- WALKTHROUGH_CSS -->
+</head><body>
+<header><strong>PHY101 · Instructor</strong><span id="status" role="status">Connecting…</span><button id="refresh">Refresh</button><button id="lang">Türkçe</button><a class="btn" href="https://arifsolmaz.github.io/courses/fall/phy101/calc/join.html" target="_blank" rel="noopener">Form QR ↗</a></header>
+<main><p id="error" role="alert"></p><button id="retry" hidden>Retry saving</button>
+<div class="actions"><span id="controller">Loading session…</span><button id="claim" disabled>Take control here</button></div>
+<div class="actions"><label><span id="choose-label">Question</span><select id="question"></select></label><label><span id="time-label">Time</span><select id="duration"><option value="60">60 s</option><option value="90">90 s</option><option value="120" selected>2 min</option><option value="180">3 min</option><option value="300">5 min</option></select></label><button id="create" disabled>Create round</button></div>
+<p id="empty">The shared session will appear here.</p>
+<section id="round" hidden><div class="meta"><b id="qid"></b><div><span id="code-label">CODE</span> <strong class="code" id="code"></strong></div></div><div class="question" id="text"></div><p class="hint" id="hint"></p><div id="clock"></div><p id="round-note"></p><p id="received"></p>
+<div class="actions"><button id="start" disabled>Start</button><button id="pause" disabled>Pause</button><button id="reveal" disabled>Reveal &amp; save scores</button></div>
+<div id="solution" hidden><div class="answer" id="answer"></div><div id="walkthrough"></div><p class="small" id="score-note"></p><details id="scores"><summary id="scores-label">Show student results</summary><div class="table-wrap" id="board"></div></details></div></section>
+<details class="history"><summary id="history-label">Previous rounds and term totals</summary><p class="small" id="privacy">Student numbers appear when you open the tables below. Keep this private when projecting.</p><div class="table-wrap" id="history"></div><div class="table-wrap" id="totals-panel"></div></details>
+<p class="small" id="help">Your session is saved online. Open this same private link on another PC and sign in with your Google account. Take control there to continue; the timer does not restart.</p>
+</main>
+<!-- CHALLENGES_JS -->
+<!-- WALKTHROUGH_JS -->
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), client=crypto.randomUUID();
+let state=null,pending=null,busy=false,online=false,offset=0,lang='en',lessonKey='';
+const t=(en,tr)=>lang==='tr'?tr:en;
+for(const ch of window.CALC_CHALLENGES){const option=document.createElement('option');option.value=ch.id;option.textContent=ch.id+' · '+ch.skill;$('question').appendChild(option);}
+function rpc(name,arg,ok,fail){google.script.run.withSuccessHandler(ok).withFailureHandler(fail)[name](arg);}
+function accepted(data){
+ if(state && data.revision<state.revision)return;
+ state=data;offset=data.serverTime-Date.now();online=true;
+ if(pending && (data.acknowledged||[]).includes(pending.request))pending=null;
+ $('error').textContent='';paint();
+}
+function failed(error){
+ online=false;busy=false;
+ const message=String(error && error.message || error);
+ if(/Session changed|read-only|current round|cannot be started|not running|Start the round|Invalid duration|Unknown question/.test(message))pending=null;
+ $('error').textContent=message;paint();
+}
+function pull(){if(busy)return;busy=true;paint();rpc('cloudSnapshot',client,data=>{busy=false;accepted(data);},failed);}
+function send(){if(!pending||busy)return;busy=true;paint();rpc('cloudCommand',pending,data=>{pending=null;busy=false;accepted(data);},failed);}
+function command(action){if(!state||!online||busy||pending)return;pending={action,client,revision:state.revision,request:crypto.randomUUID(),question:$('question').value,seconds:Number($('duration').value)};send();}
+function table(host,heads,rows){host.replaceChildren();const table=document.createElement('table');const head=document.createElement('tr');for(const text of heads){const th=document.createElement('th');th.textContent=text;head.appendChild(th);}table.appendChild(head);for(const row of rows){const tr=document.createElement('tr');for(const text of row){const td=document.createElement('td');td.textContent=text;tr.appendChild(td);}table.appendChild(tr);}host.appendChild(table);}
+function clock(){if(!state||!state.round)return;const r=state.round;const ms=r.status==='running'?Math.max(0,r.deadline-(Date.now()+offset)):r.remaining;const seconds=Math.ceil(ms/1000);$('clock').textContent=r.status==='closed'?t('Closed','Kapalı'):Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
+function paint(){
+ $('status').textContent=busy?t('Saving / checking…','Kaydediliyor / kontrol ediliyor…'):!online?t('Not connected — controls unavailable','Bağlantı yok — kontroller kapalı'):pending?t('Save not confirmed','Kayıt onaylanmadı'):t('Saved online','Çevrim içi kaydedildi');
+ $('status').className=online&&!busy&&!pending?'saved':'warn';
+ $('retry').hidden=!pending||busy;$('retry').textContent=t('Retry saving','Kaydetmeyi tekrar dene');
+ const control=state&&state.control,ready=online&&!busy&&!pending;
+ $('claim').disabled=!ready||control;$('claim').textContent=t('Take control here','Kontrolü bu bilgisayara al');
+ $('controller').textContent=control?t('This PC controls the session.','Oturumu bu bilgisayar yönetiyor.'):t('View only. Take control to continue on this PC.','Yalnızca görüntüleme. Devam etmek için kontrolü al.');
+ const r=state&&state.round;
+ $('create').disabled=!ready||!control||(r&&['running','paused','ended'].includes(r.status));
+ $('create').textContent=t('Create round','Tur oluştur');$('choose-label').textContent=t('Question','Soru');$('time-label').textContent=t('Time','Süre');
+ $('empty').hidden=!!r;$('empty').textContent=t('Take control, choose a question, and create your first round.','Kontrolü al, soru seç ve ilk turunu oluştur.');$('round').hidden=!r;
+ $('start').disabled=!ready||!control||!r||!['ready','paused'].includes(r.status);
+ $('pause').disabled=!ready||!control||!r||r.status!=='running';
+ $('reveal').disabled=!ready||!control||!r||!['running','paused','ended'].includes(r.status);
+ $('start').textContent=r&&r.status==='paused'?t('Resume','Devam et'):t('Start','Başlat');$('pause').textContent=t('Pause','Duraklat');$('reveal').textContent=t('Reveal & save scores','Cevabı göster ve puanları kaydet');
+ $('lang').textContent=t('Türkçe','English');document.documentElement.lang=lang;
+ $('refresh').textContent=t('Refresh','Yenile');$('code-label').textContent=t('CODE','KOD');
+ $('scores-label').textContent=t('Show student results','Öğrenci sonuçlarını göster');$('history-label').textContent=t('Previous rounds and term totals','Önceki turlar ve dönem toplamları');
+ $('privacy').textContent=t('Student numbers appear in these tables. Keep this private when projecting.','Bu tablolarda öğrenci numaraları görünür. Yansıtırken gizli tut.');
+ $('help').textContent=t('Saved online. Open this private link on another PC, sign in, and take control. The timer does not restart.','Çevrim içi kaydedilir. Başka bilgisayarda bu özel bağlantıyı aç, giriş yap ve kontrolü al. Süre yeniden başlamaz.');
+ if(r){
+ $('qid').textContent=r.question;$('code').textContent=r.code;$('text').innerHTML=lang==='tr'?r.text_tr:r.text;$('hint').textContent=r.hint;
+ const status={ready:t('Ready — submissions do not count yet.','Hazır — gönderiler henüz sayılmaz.'),running:t('Round in progress','Tur sürüyor'),paused:t('Paused — submissions do not count.','Duraklatıldı — gönderiler sayılmaz.'),ended:t('Time is up. Reveal to show the solution.','Süre doldu. Çözümü göstermek için cevabı aç.'),closed:t('Scores saved online. On-time responses are refreshed automatically.','Puanlar çevrim içi kaydedildi. Zamanında gönderiler otomatik yenilenir.')};
+ $('round-note').textContent=status[r.status];$('received').textContent=r.received+' '+t('responses received','yanıt alındı');$('solution').hidden=r.status!=='closed';
+ if(r.status==='closed'){
+ $('answer').textContent=r.answer+' '+r.unit;
+ const key=r.id+'/'+lang;if(lessonKey!==key){lessonKey=key;window.CALC_WALKTHROUGH.mount($('walkthrough'),window.CALC_CHALLENGES.find(c=>c.id===r.question),r.params,lang);}
+ $('score-note').textContent=t('First on-time submission counts. ','İlk zamanında gönderi sayılır. ')+r.score.correct+'/'+r.score.rows.length+t(' correct; ',' doğru; ')+r.score.rejected+t(' ineligible, ',' geçersiz, ')+r.score.repeats+t(' repeat submissions.',' tekrar gönderi.');
+ table($('board'),[t('Student','Öğrenci'),t('Answer','Cevap'),t('Points','Puan')],r.score.rows.map(x=>[x.id,x.raw,x.points]));
+ }else{lessonKey='';window.CALC_WALKTHROUGH.clear();}
+ clock();}
+ if(state){table($('history'),[t('Question','Soru'),t('Code','Kod'),t('Correct','Doğru')],state.history.map(x=>[x.question,x.code,x.correct+'/'+x.count]));table($('totals-panel'),[t('Student','Öğrenci'),t('Total','Toplam'),t('Rounds','Turlar')],state.totals.map(x=>[x.id,x.points,x.rounds]));}
+}
+for(const name of ['claim','create','start','pause','reveal'])$(name).onclick=()=>command(name);
+$('retry').onclick=send;$('refresh').onclick=pull;$('lang').onclick=()=>{lang=lang==='en'?'tr':'en';paint();};
+pull();setInterval(()=>{if(!document.hidden&&!pending)pull();},5000);setInterval(clock,250);
+})();
+</script></body></html>
