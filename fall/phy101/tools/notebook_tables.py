@@ -2,7 +2,9 @@
 
 Colab strips inline CSS from Markdown but preserves HTML width attributes.
 Pixel widths based on the longest prose cell forced entire notebook cells off
-screen. Percentage columns share the available page width; long prose wraps.
+screen. Percentage columns share the available page width. Colab also forces table
+cells to a single truncated line, so wide/text-heavy tables become labelled
+records with ordinary wrapping paragraphs.
 Existing HTML tables are normalized too, so refreshing older notebooks repairs
 their widths. Mathematics and cell contents are preserved verbatim.
 """
@@ -107,6 +109,22 @@ def normalize_html_tables(source: str) -> str:
         weights = [_column_width([re.sub(r'<[^>]+>', '', h)] +
                     [re.sub(r'<[^>]+>', '', row[i]) for row in rows if len(row) == len(headers)])
                    for i, h in enumerate(headers)]
+        # Colab applies nowrap + hidden overflow + ellipsis to every td.
+        # Width changes alone hide prose. Use ordinary blocks for content that
+        # cannot safely fit a compact numerical table, without relying on CSS.
+        if max(weights) >= 280 or len(headers) > 4:
+            records = []
+            for row in rows:
+                if not row:
+                    continue
+                if len(row) != len(headers):
+                    raise ValueError("Cannot reflow a table with an irregular row")
+                records.append(f'<p><strong>{headers[0]}:</strong> {row[0]}</p>')
+                records.append('<ul>')
+                records.extend(f'<li><p><strong>{label}:</strong> {value}</p></li>'
+                               for label, value in zip(headers[1:], row[1:]))
+                records.append('</ul>')
+            return '\n'.join(records)
         percentages = iter(_percentages(weights))
         block = re.sub(r'<table\b[^>]*>', '<table width="100%">', block, count=1)
         def header(m):
