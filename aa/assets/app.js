@@ -103,7 +103,7 @@
     { name: "O(n)",      f: function (n) { return n; } },
     { name: "O(n log n)",f: function (n) { return n * Math.max(1, Math.log(n) / Math.LN2); } },
     { name: "O(n²)", f: function (n) { return n * n; } },
-    { name: "O(2ⁿ)", f: function (n) { return Math.pow(2, Math.min(n, 400)); } }
+    { name: "O(2ⁿ)", f: function (n) { return Math.pow(2, n); } }
   ];
   var SIZES = [10, 50, 100, 500, 1000, 5000, 10000, 100000, 1000000];
 
@@ -118,13 +118,13 @@
   }
   function humanTime(steps) {           /* assume 10 million steps per second */
     var s = steps / 1e7;
-    if (s < 1e-3) return "instant";
+    if (s < 1e-3) return "<1 ms";
     if (s < 1) return (s * 1000).toFixed(1) + " ms";
     if (s < 60) return s.toFixed(1) + " s";
     if (s < 3600) return (s / 60).toFixed(1) + " min";
     if (s < 86400) return (s / 3600).toFixed(1) + " hours";
     if (s < 3.15e7) return (s / 86400).toFixed(1) + " days";
-    if (s / 3.15e7 > 1e9) return "longer than the universe";
+    if (s / 3.15e7 > 1e10) return ">10 billion years";
     return (s / 3.15e7).toFixed(1) + " years";
   }
 
@@ -137,8 +137,8 @@
         '<div class="readout"></div><div class="bars"></div>' +
         '<p style="font-size:.76rem;color:var(--muted);margin:.8rem 0 0">' +
         (mode === "time"
-          ? "Time assumes a computer doing 10 million simple steps per second."
-          : "Bars are on a logarithmic scale — each step right is 10× more work.") +
+          ? "Illustrative models with constant factor 1, at 10 million steps per second; Big-O alone does not predict exact times. Bars use a log scale, capped at n²."
+          : "Illustrative counts: 1, log₂n, n, n·log₂n, n² and 2ⁿ (rounded). Big-O alone does not give exact counts. Bars use a log scale, capped at n²; tiny bars have a minimum visible width.") +
         "</p>";
       var slider = host.querySelector("input");
       var readout = host.querySelector(".readout");
@@ -165,7 +165,12 @@
           var pct = maxLog > 0 ? (Math.log10(Math.max(c, 1)) / maxLog) * 100 : 2;
           pct = Math.min(pct, 100);
           fills[i].style.width = Math.max(pct, 1.5) + "%";
-          vals[i].textContent = mode === "time" ? humanTime(c) : human(c) + " steps";
+          var countText = human(c);
+          if (!isFinite(c) && i === ORDERS.length - 1) {
+            var logCount = n * Math.LOG10E * Math.LN2, exponent = Math.floor(logCount);
+            countText = "≈" + Math.pow(10, logCount - exponent).toFixed(2) + " × 10^" + exponent;
+          }
+          vals[i].textContent = mode === "time" ? humanTime(c) : countText + (c === 1 ? " step" : " steps");
         });
       }
       slider.addEventListener("input", draw);

@@ -54,3 +54,14 @@ for(const budget of [1,60,3600]){
   if(Number.isFinite(n)){const t=23e-9*n*Math.log2(n);assert(Math.abs(t/budget-1)<0.04);checks++;}
 }
 console.log(`${checks.toLocaleString()} total assertions including numeric formatting and sorting-budget inversion.`);
+
+// The growth widget must keep growing beyond n=400; tiny times are not zero.
+const app = fs.readFileSync(path.join(__dirname, '../assets/app.js'), 'utf8');
+const growth = app.slice(app.indexOf('  var ORDERS ='), app.indexOf('  function initGrowth()'));
+const growthContext = {};
+vm.runInNewContext(growth + ';globalThis.audit={ORDERS,humanTime};', growthContext);
+for (const n of [10,100,400,500,1000]) equal(growthContext.audit.ORDERS[5].f(n), 2 ** n);
+equal(growthContext.audit.humanTime(1), '<1 ms');
+equal(growthContext.audit.humanTime(1e7), '1.0 s');
+equal(growthContext.audit.humanTime(Infinity), '>10 billion years');
+console.log('Growth-widget counts and time labels passed.');

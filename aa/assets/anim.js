@@ -88,7 +88,7 @@
     sel.addEventListener("change", function () { speed = parseFloat(sel.value); });
     var scrub = h("input", "aa-scrub"); scrub.type = "range"; scrub.min = "0"; scrub.step = "1";
     scrub.setAttribute("aria-label", "Animation step");
-    scrub.addEventListener("input", function () { stop(); i = Number(scrub.value); draw(); });
+    scrub.addEventListener("input", function () { stop(); (host.closest("[data-anim]") || host).classList.add("aa-scrubbing"); i = Number(scrub.value); draw(); });
     scrub.addEventListener("keydown", function (event) {
       if (event.key !== "Home" && event.key !== "End") return;
       event.preventDefault();
@@ -119,6 +119,7 @@
       if (playing) raf = requestAnimationFrame(loop);
     }
     function play() {
+      (host.closest("[data-anim]") || host).classList.remove("aa-scrubbing");
       if (i >= frames.length - 1) i = 0;
       playing = true; last = 0; acc = 1;          /* first step happens immediately */
       draw();
@@ -621,7 +622,7 @@
     slider.addEventListener("input", change);
     function change() { N = SIZES[parseInt(slider.value, 10)]; nv.textContent = fmt(N); player.load(); }
 
-    host.appendChild(h("div", "lab muted", "<small>items still in play (drawn to scale)</small>"));
+    host.appendChild(h("div", "lab muted", "<small>items still in play (a minimum-width marker keeps tiny values visible)</small>"));
     var bar = h("div", "db-bar"); var fill = h("div", "db-fill"); bar.appendChild(fill); host.appendChild(bar);
     var sub = h("div", "db-sub", "");
     host.appendChild(sub);
@@ -651,7 +652,7 @@
         m.innerHTML = "Halving " + fr.k + ": round the remaining half up, leaving " + fmt(fr.left) + ". <span class='muted'>Doubling the other way: 2<sup>" + fr.k + "</sup> = " + fmt(Math.pow(2, fr.k)) + ".</span>";
       } else {
         var p = parseInt(guess.value, 10), v = "";
-        if (!isNaN(p)) v = Math.abs(p - K) <= 1 ? " Your prediction (" + p + ") was spot on." : " You predicted " + p + " — compare with the doubling rule.";
+        if (!isNaN(p)) v = p === K ? " Your prediction (" + p + ") was spot on." : " You predicted " + p + " — compare with the doubling rule.";
         m.innerHTML = "<strong>" + K + " halvings</strong> for " + fmt(N) + " items, because 2<sup>" + K + "</sup> = " + fmt(Math.pow(2, K)) +
           " is the first power of two that reaches " + fmt(N) + ". This counts reductions to one candidate, not exact binary-search probes (the last candidate still needs checking)." + v +
           (N >= 1e6 ? " Try the other size: a thousand times more items costs only about ten more halvings." : "");
@@ -974,6 +975,7 @@
     o = o || {};
     var cv = h("canvas", "lc");
     cv.width = 720; cv.height = o.height || 320;
+    cv.style.height = (o.height || 320) + "px";
     cv.setAttribute("role", "img");
     cv.setAttribute("aria-label", o.label || "chart");
     parent.appendChild(cv);
@@ -985,7 +987,13 @@
     }
     function draw(series, d) {
       last = [series, d]; d = d || {};
-      var W = cv.width, H = cv.height, L = 84, R = 16, T = 16, B = 44;
+      var W = cv.clientWidth, H = cv.clientHeight || o.height || 320;
+      if (!W) return;
+      var dpr = window.devicePixelRatio || 1;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var L = W < 480 ? 66 : 84, R = 34,
+          T = 20 + series.filter(function(s){return s.name;}).length * 17, B = 44;
       var col = function (v) { return cssVar(parent, v) || v; };
       ctx.clearRect(0, 0, W, H);
       ctx.font = "12px " + (cssVar(parent, "--font-mono") || "monospace");
@@ -1005,12 +1013,14 @@
         ctx.beginPath(); ctx.moveTo(L, gy); ctx.lineTo(W - R, gy); ctx.stroke();
         ctx.textAlign = "right"; ctx.fillText(nice(o.logy ? Math.pow(10, vy) : vy), L - 6, gy + 4);
         var gx = L + g * (W - L - R) / 4, vx = x0 + g * (x1 - x0) / 4;
-        ctx.textAlign = "center"; ctx.fillText(nice(o.logx ? Math.pow(10, vx) : vx), gx, H - B + 16);
+        if (W >= 480 || g % 2 === 0) {
+          ctx.textAlign = "center"; ctx.fillText(nice(o.logx ? Math.pow(10, vx) : vx), gx, H - B + 16);
+        }
       }
       ctx.fillText((o.xlabel || "n") + (o.logx ? "  (log scale)" : ""), (L + W - R) / 2, H - 8);
       ctx.save(); ctx.translate(12, (T + H - B) / 2); ctx.rotate(-Math.PI / 2);
       ctx.fillText((o.ylabel || "") + (o.logy ? "  (log)" : ""), 0, 0); ctx.restore();
-      var ly = T + 4;
+      var ly = 9;
       series.forEach(function (s) {
         var c = col(s.color || "--accent"), pts = s.points.slice(0, d.upto == null ? s.points.length : d.upto);
         ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 2.5;
@@ -1027,6 +1037,7 @@
     }
     new MutationObserver(function () { if (last) draw(last[0], last[1]); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    new ResizeObserver(function () { if (last) draw(last[0], last[1]); }).observe(cv);
     return { draw: draw, el: cv };
   }
 

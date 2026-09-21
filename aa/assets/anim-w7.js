@@ -268,7 +268,7 @@
   var TCOL = ["--accent", "--blue", "--green"];
   function share(x) {
     var p = x * 100;
-    if (p >= 99.995) return "100%";
+    if (p >= 99.995) return p === 100 ? "100%" : "≈100%";
     if (p >= 99.5) return p.toFixed(2) + "%";
     if (p < 0.01) return p === 0 ? "0%" : "<0.01%";
     if (p < 1) return p.toFixed(2) + "%";

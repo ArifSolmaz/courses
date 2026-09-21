@@ -17,12 +17,20 @@
     // Keep the main diagram or code trace at full height; supporting content
     // shares a second scrollable column rather than shrinking the diagram.
     var panes=Array.from(stage.children);
-    if(panes.length>1){
+    if(panes.length>1 && !stage.querySelector('.ct')){
+      // Non-trace drawings often have labels and diagrams in adjacent siblings.
+      // Preserve that order in one pane instead of separating the labels.
+      var together=element('div','aa-pane aa-primary');together.tabIndex=0;
+      together.setAttribute('role','region');together.setAttribute('aria-label','Diagram and explanation');
+      panes.forEach(function(p){while(p.firstChild)together.append(p.firstChild);p.remove();});
+      stage.append(together);stage.classList.add('aa-diagram-stage');
+    } else if(panes.length>1){
       var main=panes.find(function(p){return p.querySelector('.ct');}) || panes.find(function(p){return p.querySelector('canvas,svg');}) || panes.find(function(p){return p.firstElementChild.tagName==='DIV' && !p.firstElementChild.classList.contains('lab');}) || panes[0];
       var side=element('div','aa-pane aa-support');side.tabIndex=0;side.setAttribute('role','region');side.setAttribute('aria-label','Supporting diagrams and explanation');
       panes.forEach(function(p){if(p!==main){while(p.firstChild)side.append(p.firstChild);p.remove();}});
       main.classList.add('aa-primary');stage.prepend(main);stage.append(side);
     }
+    if(!stage.querySelector('.ct'))stage.classList.add('aa-diagram-stage');
     host.append(header,settings,stage,footer);
     function fitVisiblePanes(){
       Array.from(stage.children).forEach(function(p){

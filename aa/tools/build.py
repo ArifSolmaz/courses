@@ -169,7 +169,7 @@ FOOT = """</main>
   <span>{site} &middot; Dr. Arif Solmaz</span>
   <span><a href="{base}index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
 </footer>
-<script src="{base}assets/app.js"></script><script src="{base}../assets/learning-path.js?v=1"></script>
+<script src="{base}assets/app.js?v=2"></script><script src="{base}../assets/learning-path.js?v=1"></script>
 </body>
 </html>
 """
@@ -211,12 +211,12 @@ def week_page(meta, body):
 """ if bridge else ""
     )
     animation_styles = '<link rel="stylesheet" href="../assets/anim.css">'
-    animation_scripts = '<script src="../assets/anim.js?v=9"></script>'
+    animation_scripts = '<script src="../assets/anim.js?v=13"></script>'
     if num > 1:
         animation_styles += f'<link rel="stylesheet" href="../assets/anim-w{num}.css">'
-        animation_scripts += f'<script src="../assets/anim-w{num}.js?v=9"></script>'
-    animation_styles += '<link rel="stylesheet" href="../assets/anim-workspace.css?v=9">'
-    animation_scripts += '<script src="../assets/anim-workspace.js?v=9"></script>'
+        animation_scripts += f'<script src="../assets/anim-w{num}.js?v=10"></script>'
+    animation_styles += '<link rel="stylesheet" href="../assets/anim-workspace.css?v=17">'
+    animation_scripts += '<script src="../assets/anim-workspace.js?v=11"></script>'
     weekly_chips = [c for c in chips if "hour" not in c]
     weekly_chips.append("3-hour studio")
     chip_html = "".join(f'<span class="chip">{c}</span>' for c in weekly_chips)
