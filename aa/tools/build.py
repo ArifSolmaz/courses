@@ -192,14 +192,6 @@ def week_page(meta, body):
     num, title, summary, phase, question, chips = meta
     base = "../"
 
-    prev_link = (
-        f'<a href="../w{num-1}/">&larr; Week {num-1}</a>' if num > 1
-        else '<a href="../index.html">&larr; Course home</a>'
-    )
-    next_link = (
-        f'<a href="../w{num+1}/">Week {num+1} &rarr;</a>' if num < len(WEEKS)
-        else f'<a href="../{CAP_SLUG}/">Engineering capstone &rarr;</a>'
-    )
     bridge = BRIDGES.get(num)
     bridge_html = (
         f"""
@@ -228,7 +220,7 @@ def week_page(meta, body):
             title=f"Week {num}: {title} — {SHORT}",
             desc=summary,
             base=base,
-        ).replace("</head>", animation_styles + "</head>"),
+        ).replace("</head>", animation_styles + "</head>").replace('<summary>Course menu</summary>', '<summary>Settings</summary>').replace('<a href="../index.html#weeks">All weeks</a>', '').replace('<a href="../index.html#course-info">Course info &amp; assessment</a>', '').replace('<a href="../../index.html#fall">Other courses</a>', ''),
         f"""<div class="hero">
   <div class="eyebrow">Week {num:02d} &middot; {PHASES[phase]}</div>
   <h1>{title}</h1>
@@ -237,15 +229,7 @@ def week_page(meta, body):
 </div>
 """,
 
-        staged_lesson(num, body.strip(), STUDIO),
-        '<details class="path-resources"><summary>How this connects to next week</summary><div>' + bridge_html + '</div></details>',
-        f"""
-<nav class="week-nav">
-  {prev_link}
-  <button class="done-btn" type="button" data-done="w{num}">mark this week done</button>
-  {next_link}
-</nav>
-""",
+        staged_lesson(num, body.strip(), STUDIO, bridge_html),
         FOOT.format(site=SITE, base=base).replace("</body>", animation_scripts + "</body>"),
     ]
     return "\n".join(out)

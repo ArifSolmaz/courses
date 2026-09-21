@@ -65,7 +65,7 @@ def meaning_section(num):
     return '<section class="meaning-lesson" id="meaning-before-analysis">' + content + '</section>'
 
 
-def staged_lesson(num, body, studio):
+def staged_lesson(num, body, studio, bridge=""):
     buckets = {'understand': [], 'investigate': [], 'check': []}
     objectives = ''
     blocks = sections(body)
@@ -123,10 +123,16 @@ def staged_lesson(num, body, studio):
             folded('Optional textbook workshop', focus)]
         buckets['check'] = [block if 'self-check' in heading(block).lower() or block.startswith('<details') else folded('Optional reference · ' + html.escape(heading(block) or 'extra practice'), block)
                             for block in original['check']] + [optional]
-    keys = [('understand', 'Understand'), ('investigate', 'Investigate'), ('check', 'Check')]
-    nav = '<nav class="path-steps" aria-label="Lesson steps" hidden>' + ''.join(f'<button type="button" data-step-target="{key}" aria-controls="{key}">{i+1} · {label}</button>' for i,(key,label) in enumerate(keys)) + '</nav>'
-    panels = []
-    for i, (key,label) in enumerate(keys):
-        nxt = f'<button class="path-next" type="button" data-step-target="{keys[i+1][0]}" hidden>Next: {keys[i+1][1].lower()} →</button>' if i < 2 else ''
-        panels.append(f'<section id="{key}" data-step><h2 class="path-stage-title">{label}</h2>' + '\n'.join(buckets[key]) + nxt + '</section>')
-    return '<div data-learning-path>' + nav + '\n'.join(panels) + '</div>'
+    # A lesson is a single reading surface. Keep old section IDs for bookmarks.
+    extra, panels = [], []
+    for key, label in [('understand', 'Lesson'), ('investigate', 'Practice'), ('check', 'Check your understanding')]:
+        main = []
+        for block in buckets[key]:
+            if (block.startswith('<details') and 'Explore the animations' not in block) or block.startswith(('<p class="vl-reference"', '<p class="w1-reference"')):
+                extra.append(block)
+            else:
+                main.append(block)
+        panels.append(f'<section id="{key}" class="lesson-part"><h2 class="path-stage-title">{label}</h2>' + '\n'.join(main) + '</section>')
+    if bridge:
+        extra.append(bridge)
+    return '<div class="continuous-lesson">' + '\n'.join(panels) + '<details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div>' + '\n'.join(extra) + '</div></details></div>'

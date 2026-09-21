@@ -643,9 +643,8 @@ def colab_pointer(title, prose_html, week):
 <div class="callout grey">
   <span class="callout-label">Interactive in the notebook</span>
   <p><strong>{html.escape(title)}</strong> is a live demonstration with sliders. It needs a running
-  Python kernel, so it cannot run on this page &mdash;
-  <a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">open Week {week:02d} in Colab</a>, run the setup
-  cell once, then run this demonstration.</p>
+  Python kernel. Use the notebook in the practice section, run its setup cell once,
+  then run this demonstration.</p>
 </div>"""
 
 
@@ -817,7 +816,7 @@ def head_html(title, desc, week, has_anim):
 <header class="site-header">
   <a class="brand" href="../web/PHY101_Course_Dashboard.html">PHY101 / course home</a>
   <nav class="header-nav" aria-label="Course pages">
-    <details class="path-menu"><summary>Course menu</summary><div><a href="../web/PHY101_Course_Dashboard.html#weeks">All weeks</a><a href="../web/PHY101_Course_Dashboard.html#course-info">Course info &amp; resources</a><a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">Open notebook in Colab</a><a href="../notebooks/Week_{week:02d}.ipynb" download>Download notebook</a>
+    <details class="path-menu"><summary>Settings</summary><div>
     <button class="hlink" data-lang-toggle type="button" aria-pressed="false" title="Hide the Turkish notes">EN + TR</button>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
@@ -973,7 +972,7 @@ def topic_list(chunk):
 
 
 def stage_layout(body, intro, lab_box, summary, problems):
-    """Return the four-panel markup, or None when the week lacks the structure."""
+    """Return a continuous lesson, preserving existing section bookmarks."""
     parts = split_by_h2(body)
     slugs = [sl for sl, _ in parts]
     if "before-you-start" not in slugs or "concepts-demonstrations-and-worked-examples" not in slugs:
@@ -986,28 +985,18 @@ def stage_layout(body, intro, lab_box, summary, problems):
         stage = "prepare" if sl == "" else STAGE_OF.get(sl, "learn")
         if stage in ("learn", "practise"):
             h = fold_examples(h)
-        if sl == "concepts-demonstrations-and-worked-examples":
-            h = topic_list(h)
+        if sl == "optional-extension":
+            h = '<details class="path-reference"><summary>Optional extension notebooks</summary><div>' + h + '</div></details>'
+        if sl == "solutions-and-next-week":
+            h = re.sub(r'<p><a href="[^"]+">Course page / Ders sayfası</a></p>', '', h)
+            h = '<details class="path-reference"><summary>Solutions &amp; next week</summary><div>' + h + '</div></details>'
         buckets[stage].append(h)
     buckets["prepare"] = ['<p class="prepare-start">Before you begin, use the preparation below to recall the ideas you need. Then continue to the worked lesson.</p><details class="path-reference"><summary>Preparation, learning goals &amp; laboratory details</summary><div>' + "\n".join(buckets["prepare"]) + '</div></details>']
     buckets["practise"].append(problems)
     buckets["check"].append(summary)
 
-    bar = "".join(
-        f'<button class="stage-btn" type="button" data-stage="{key}" aria-pressed="false">'
-        f'<span class="stage-name">{name}</span><span class="stage-desc">{desc}</span></button>'
-        for key, name, desc in STAGES)
-    panels = []
-    for i, (key, name, desc) in enumerate(STAGES):
-        nxt = ""
-        if i + 1 < len(STAGES):
-            nk, nn, nd = STAGES[i + 1]
-            nxt = (f'<p class="stage-next"><button type="button" class="btn" data-stage="{nk}">'
-                   f'Next: {nn} &rarr;</button> <span class="stage-desc">{nd}</span></p>')
-        panels.append(f'<section class="stage" id="stage-{key}" data-stage="{key}">'
-                      + "\n\n".join(buckets[key]) + nxt + "</section>")
-    return (f'<nav class="stagebar" aria-label="Stages of this week">{bar}</nav>\n'
-            + "\n\n".join(panels))
+    # Preserve deep links, but read all stages without tabs or route buttons.
+    return '\n'.join(f'<section class="stage lesson-part" id="stage-{key}">' + '\n\n'.join(buckets[key]) + '</section>' for key, name, desc in STAGES)
 
 
 def week_page(wk, nb, known=None):
@@ -1102,11 +1091,7 @@ def week_page(wk, nb, known=None):
         head_html(f"Week {num:02d}: {wk['title_en']} — {SITE}", wk["scope"], num, has_anim),
         hero,
         *middle,
-        f"""<nav class="week-nav">
-  {prev_link}
-  <button class="done-btn" type="button" data-done="w{num}" aria-pressed="false">mark this week done</button>
-  {next_link}
-</nav>""",
+        f'<details class="path-resources" id="lesson-resources"><summary>Downloads &amp; course resources</summary><div><a href="../notebooks/Week_{num:02d}.ipynb" download>Download this notebook</a><a href="../web/PHY101_Course_Dashboard.html#course-info">Course resources</a></div></details>',
         FOOT,
     ])
     return page, skipped, missing_anim, missing_fig, meta

@@ -470,7 +470,7 @@ def _shell(
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{html.escape(current.headline)} | Algorithm Analysis Guide</title>
-  <link rel="stylesheet" href="{prefix}assets/guide.css" />
+  <link rel="stylesheet" href="{prefix}assets/guide.css?v=2" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2325665c'/%3E%3Ctext x='32' y='41' font-size='28' text-anchor='middle' fill='white' font-family='Arial'%3EAA%3C/text%3E%3C/svg%3E" />
 </head>
 <body>
@@ -478,30 +478,11 @@ def _shell(
   <header class="guide-header">
     <a class="brand" href="{prefix}">Algorithm Analysis <span>course guide</span></a>
     <nav class="header-actions">
-      <a href="{prefix}index.html">Course Home</a>
-      <a href="{guide_home}">Guide</a>
       <button id="theme" type="button">Dark theme</button>
       <button id="print" type="button">Print</button>
     </nav>
   </header>
-  <div class="mobile-jump">
-    <label for="chapter">Guide page</label>
-    <select id="chapter" data-guide-select>
-      {options}
-    </select>
-  </div>
   <main class="guide-layout" id="content">
-    <aside class="sidebar" aria-label="Guide pages">
-      <div class="eyebrow">Guide pages</div>
-      <h2>Algorithm Analysis</h2>
-      <label for="chapterSide">Guide page</label>
-      <select id="chapterSide" data-guide-select>
-        {options}
-      </select>
-      <nav>
-        {nav}
-      </nav>
-    </aside>
     <article class="reading">
       <section class="guide-intro">
         <span>{html.escape(current.eyebrow)}</span>
@@ -513,7 +494,7 @@ def _shell(
       <section class="guide-chapter">
         {body}
       </section>
-      {pager}
+      <details class="reference-toc"><summary>Other reference chapters</summary><nav class="reference-index">{nav}</nav></details>
     </article>
   </main>
   <script src="{prefix}assets/guide.js"></script>
@@ -554,6 +535,8 @@ def build() -> None:
         records = _heading_records(body_markdown)
         local_anchors = {intro_id} | {anchor for _level, _title, anchor in records}
         body = Renderer(spec.out_rel, local_anchors, routes).render(body_markdown)
+        # The reference hero already links back to the weekly lesson.
+        body = re.sub(r'<p><a href="[^"]+">Original lesson</a></p>', "", body).strip()
         if spec.key == "overview":
             body = _hub_cards(specs, spec) + "\n" + body
         target = ROOT / spec.out_rel

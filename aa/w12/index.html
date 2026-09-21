@@ -14,7 +14,7 @@
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
+    <details class="path-menu"><summary>Settings</summary><div>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
@@ -27,7 +27,7 @@
   <p class="path-question"><strong>How do you find something in a million items with only 20 looks?</strong></p>
 </div>
 
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Sorted order makes discarding safe</h2><figure class="vl-figure"><figcaption>Find 33 in a sorted list, using inclusive bounds</figcaption><div class="vl-trace"><b>index</b><div class="vl-cards" style="--row-columns:8"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div></div><div class="vl-trace"><b>value</b><div class="vl-cards" style="--row-columns:8"><span>3</span><span>7</span><span>9</span><span>14</span><span>21</span><span>28</span><span>33</span><span>40</span></div></div><div class="vl-trace"><b>check 1</b><div class="vl-cards" style="--row-columns:2"><span>mid 3: 14 &lt; 33</span><span>keep indices 4…7</span></div></div><div class="vl-trace"><b>check 2</b><div class="vl-cards" style="--row-columns:2"><span>mid 5: 28 &lt; 33</span><span>keep indices 6…7</span></div></div><div class="vl-trace"><b>check 3</b><div class="vl-cards" style="--row-columns:2"><span>mid 6: 33</span><span>found</span></div></div></figure><p>Each failed comparison removes the middle item and one side. Without sorted order, the discarded side might contain the target.</p></section><section class="vl-lesson"><h2>Make the interval shrink every time</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def binary_search(a, target):
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Sorted order makes discarding safe</h2><figure class="vl-figure"><figcaption>Find 33 in a sorted list, using inclusive bounds</figcaption><div class="vl-trace"><b>index</b><div class="vl-cards" style="--row-columns:8"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div></div><div class="vl-trace"><b>value</b><div class="vl-cards" style="--row-columns:8"><span>3</span><span>7</span><span>9</span><span>14</span><span>21</span><span>28</span><span>33</span><span>40</span></div></div><div class="vl-trace"><b>check 1</b><div class="vl-cards" style="--row-columns:2"><span>mid 3: 14 &lt; 33</span><span>keep indices 4…7</span></div></div><div class="vl-trace"><b>check 2</b><div class="vl-cards" style="--row-columns:2"><span>mid 5: 28 &lt; 33</span><span>keep indices 6…7</span></div></div><div class="vl-trace"><b>check 3</b><div class="vl-cards" style="--row-columns:2"><span>mid 6: 33</span><span>found</span></div></div></figure><p>Each failed comparison removes the middle item and one side. Without sorted order, the discarded side might contain the target.</p></section><section class="vl-lesson"><h2>Make the interval shrink every time</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def binary_search(a, target):
     low, high = 0, len(a) - 1
     while low &lt;= high:
         mid = (low + high) // 2
@@ -40,8 +40,169 @@
     return -1</code></pre></div><div class="vl-equation"><span>Worst-case middle checks, n > 0</span><strong>⌊log₂ n⌋ + 1</strong></div><p>Empty input makes high = −1, so the loop never runs. With duplicates, this version returns a matching index, not necessarily the first. The +1 and −1 prevent checking the same middle forever.</p></section><section class="vl-lesson"><h2>Include the price of preparing the data</h2><div class="vl-table"><table><thead><tr><th scope="col">q queries on initially unsorted n values</th><th scope="col">Total work model</th></tr></thead><tbody><tr><td>Scan each time</td><td>O(qn)</td></tr><tr><td>Sort once, then binary search</td><td>O(n log n + q log n)</td></tr><tr><td>Build a set once, membership only</td><td>O(n + q) average</td></tr></tbody></table></div><p>For one query, sorting may cost more than scanning. A set is suitable for membership; sorted order also supports ranges. Constants and required outputs decide which model fits.</p></section><section class="vl-lesson"><h2>Test boundaries; use insertion positions for ranges</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from bisect import bisect_left, bisect_right
 a = [2, 4, 4, 7, 9]
 count = bisect_right(a, 7) - bisect_left(a, 4)
-print(count)  # 3 values in the inclusive range [4, 7]</code></pre></div><figure class="vl-figure"><figcaption>Boundary test set</figcaption><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>empty</span><span>one hit</span><span>one miss</span></div></div><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>first hit</span><span>last hit</span><span>interior gap</span></div></div></figure><p><code>bisect_left</code> finds the first allowed position; <code>bisect_right</code> goes after equal values. Finding a position is logarithmic; inserting into a list can still shift n items.</p></section>
-<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+print(count)  # 3 values in the inclusive range [4, 7]</code></pre></div><figure class="vl-figure"><figcaption>Boundary test set</figcaption><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>empty</span><span>one hit</span><span>one miss</span></div></div><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>first hit</span><span>last hit</span><span>interior gap</span></div></div></figure><p><code>bisect_left</code> finds the first allowed position; <code>bisect_right</code> goes after equal values. Finding a position is logarithmic; inserting into a list can still shift n items.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Search for 30 in [3, 7, 9, 14, 21, 28, 33, 40]. Record middle values.</p><details class="solution"><summary>Check your reasoning</summary><div><p>14 → 28 → 33; then low = 6, high = 5, so return −1.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>What is the worst-case number of middle checks for 1,023 sorted items?</p><details class="solution"><summary>Check your reasoning</summary><div><p>⌊log₂ 1023⌋ + 1 = 10.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>In the range example, change the interval to [4, 4]. Predict the answer.</p><details class="solution"><summary>Check your reasoning</summary><div><p>bisect_right(a, 4) − bisect_left(a, 4) = 3 − 1 = 2. Both copies count.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">12.9</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — count the halvings</span>
+    <p>
+      Use the <code>steps</code> value returned by <code>binary_search</code> to fill a
+      table for n = 1 000, 10 000, 100 000, 1 000 000, 10 000 000 (worst case: search for a
+      missing value). What is the pattern?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch the window halve, then fill the table</summary>
+      <div class="widget anim" data-anim="w12-halvings"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        For a missing target larger than every item: 10, 14, 17, 20, 24. Other missing targets can take fewer steps. Each ten-fold increase in data adds roughly three or four
+        steps. That is what "logarithmic" feels like from the inside.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — break it deliberately</span>
+    <p>
+      Run <code>binary_search</code> on an <em>unsorted</em> list and find a value it fails
+      to locate even though it is present. Then explain in two sentences why no error was
+      raised.
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — pick a value and watch binary search miss it</summary>
+      <div class="widget anim" data-anim="w12-unsorted"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 3 — the crossover with sorting included</span>
+    <p>
+      For a list of 1 000 000 unsorted items, compare total time for q searches, q = 1, 10,
+      100, 1 000, 10 000, under three strategies: (a) linear each time, (b) sort once then
+      binary, (c) build a set once then look up. At what q does each strategy win?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — predict the winner, then race three strategies</summary>
+      <div class="widget anim" data-anim="w12-crossover"></div>
+    </details><details class="solution"><summary>What you should find</summary>
+      <p>
+        For a single search, linear scanning avoids preparation and is often preferable; the actual winner depends on the input and implementation.
+        The set overtakes very quickly (usually within a handful of queries) because building
+        it is only one pass. Sorting pays off later than the set for pure membership, but it
+        is the only one of the three that also answers range questions.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — a question a set cannot answer</span>
+    <p>
+      Given a sorted list of a million timestamps, use <code>bisect</code> to count how many
+      fall between two given values, in O(log n). Then try to do the same with a set and
+      describe why it degrades to O(n).
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — count a range with bisect, then with a set</summary>
+      <div class="widget anim" data-anim="w12-range"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>range count</div><pre><code>import bisect
+count = bisect.bisect_right(data, high) - bisect.bisect_left(data, low)</code></pre></div>
+      <p>
+        Two O(log n) lookups and a subtraction. A set has no notion of order, so the only
+        option is to examine every element — O(n). This is the reason sorted structures still
+        exist in a world with hash tables.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — trace it on paper</span>
+    <p>
+      By hand, trace <code>binary_search([3, 7, 9, 14, 21, 28, 33, 40], 33)</code>, writing
+      <code>low</code>, <code>high</code> and <code>middle</code> at each step. How many steps?
+      Then trace a search for <code>10</code> (absent) the same way.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — check your paper trace, or fill the table yourself</summary>
+      <div class="widget anim" data-anim="w12-paper-trace"></div>
+    </details><details class="solution"><summary>Answer</summary>
+      <p>
+        Finding 33 (indices 0–7): mid 3 → data[3]=14, 33&gt;14, low=4; mid 5 → data[5]=28,
+        33&gt;28, low=6; mid 6 → data[6]=33, match. <strong>3 steps.</strong> Searching for 10:
+        mid 3 → 14, 10&lt;14, high=2; mid 1 → 7, 10&gt;7, low=2; mid 2 → 9, 10&gt;9, low=3; now
+        low 3 &gt; high 2, return −1. <strong>3 steps, then the crossing.</strong>
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — pass the six tests</span>
+    <p>
+      Write your own binary search and run it against all six boundary cases from §12.5: an
+      empty list, a one-item list, a two-item list, the first element, the last element, and a
+      missing value. Fix anything that fails. Which case caught the most bugs for you?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — run the six tests on five versions</summary>
+      <div class="widget anim" data-anim="w12-six-tests"></div>
+    </details><details class="solution"><summary>What to watch for</summary>
+      <p>
+        The two-item list and the "missing value just past the end" case are the usual
+        culprits — they are exactly where a stray <code>&lt;</code> instead of <code>&lt;=</code>,
+        or a missing <code>−1</code>, shows itself. If all six pass, the loop condition and the
+        two narrowing steps are consistent.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">12.10</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Binary search on 1 000 000 sorted items needs at most about:</p>
+      <button class="opt">1 000 000 steps</button>
+      <button class="opt">1 000 steps</button>
+      <button class="opt">20 steps</button>
+      <button class="opt">2 steps</button>
+      <div class="why">Each step halves the range; a million halves to one in about twenty steps.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>You have unsorted data and need exactly one search. The right choice is:</p>
+      <button class="opt">Linear search — sorting first would cost more than the scan</button>
+      <button class="opt">Sort, then binary search</button>
+      <button class="opt">Build a set, then look up</button>
+      <button class="opt">Binary search directly on the unsorted list</button>
+      <div class="why">Preparation only pays off when its preparation cost is spread over many searches. And the last option is silently wrong, which is worse than slow.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Binary search on unsorted data:</p>
+      <button class="opt">Raises an error</button>
+      <button class="opt">Returns wrong answers with no warning</button>
+      <button class="opt">Works, but slowly</button>
+      <button class="opt">Sorts the data first automatically</button>
+      <div class="why">It happily discards the half containing your item. Silent wrongness is the most dangerous failure mode in software.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>When is a sorted list with <code>bisect</code> better than a set?</p>
+      <button class="opt">When you only ask "is this present?"</button>
+      <button class="opt">When memory is unlimited</button>
+      <button class="opt">Never — sets are always better</button>
+      <button class="opt">When you need order: nearest value, next larger, or everything in a range</button>
+      <div class="why">Hash tables destroy order by design. Order questions need an ordered structure.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A binary search that writes <code>high = middle</code> instead of <code>high = middle - 1</code> risks:</p>
+      <button class="opt">Sorting the data twice</button>
+      <button class="opt">Using too much memory</button>
+      <button class="opt">Looping forever, because the window can stop shrinking</button>
+      <button class="opt">Nothing — the two are equivalent</button>
+      <div class="why">If the window never narrows, <code>low</code> and <code>high</code> never cross and the <code>while</code> loop never ends. Always move past the middle.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Why is the loop condition <code>while low &lt;= high</code> rather than <code>&lt;</code>?</p>
+      <button class="opt">So a one-element window (<code>low == high</code>) is still examined</button>
+      <button class="opt">To make it run faster</button>
+      <button class="opt">Because <code>&lt;</code> is invalid Python</button>
+      <button class="opt">It makes no difference which you use</button>
+      <div class="why">With <code>&lt;</code>, the last remaining candidate is never checked, so a value sitting there is missed. The trace in §12.4 ends exactly when <code>low</code> passes <code>high</code>.</div>
+    </div>
+  </div>
+</section></section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">12.1</span>The game you already played</h2>
   <p>
     In week 1 you guessed a number between 1 and 100 by always choosing the middle of the
@@ -376,170 +537,8 @@ n= 1000000  linear  42.0517s   binary 0.00119s   set 0.00007s</div>
   </div>
 </section>
 </div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w12/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Search for 30 in [3, 7, 9, 14, 21, 28, 33, 40]. Record middle values.</p><details class="solution"><summary>Check your reasoning</summary><div><p>14 → 28 → 33; then low = 6, high = 5, so return −1.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>What is the worst-case number of middle checks for 1,023 sorted items?</p><details class="solution"><summary>Check your reasoning</summary><div><p>⌊log₂ 1023⌋ + 1 = 10.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>In the range example, change the interval to [4, 4]. Predict the answer.</p><details class="solution"><summary>Check your reasoning</summary><div><p>bisect_right(a, 4) − bisect_left(a, 4) = 3 − 1 = 2. Both copies count.</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">12.9</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — count the halvings</span>
-    <p>
-      Use the <code>steps</code> value returned by <code>binary_search</code> to fill a
-      table for n = 1 000, 10 000, 100 000, 1 000 000, 10 000 000 (worst case: search for a
-      missing value). What is the pattern?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — watch the window halve, then fill the table</summary>
-      <div class="widget anim" data-anim="w12-halvings"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        For a missing target larger than every item: 10, 14, 17, 20, 24. Other missing targets can take fewer steps. Each ten-fold increase in data adds roughly three or four
-        steps. That is what "logarithmic" feels like from the inside.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — break it deliberately</span>
-    <p>
-      Run <code>binary_search</code> on an <em>unsorted</em> list and find a value it fails
-      to locate even though it is present. Then explain in two sentences why no error was
-      raised.
-    </p>
-  <details class="solution anim-wrap"><summary>Animate it — pick a value and watch binary search miss it</summary>
-      <div class="widget anim" data-anim="w12-unsorted"></div>
-    </details></div>
-
-  <div class="task">
-    <span class="label">Task 3 — the crossover with sorting included</span>
-    <p>
-      For a list of 1 000 000 unsorted items, compare total time for q searches, q = 1, 10,
-      100, 1 000, 10 000, under three strategies: (a) linear each time, (b) sort once then
-      binary, (c) build a set once then look up. At what q does each strategy win?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — predict the winner, then race three strategies</summary>
-      <div class="widget anim" data-anim="w12-crossover"></div>
-    </details><details class="solution"><summary>What you should find</summary>
-      <p>
-        For a single search, linear scanning avoids preparation and is often preferable; the actual winner depends on the input and implementation.
-        The set overtakes very quickly (usually within a handful of queries) because building
-        it is only one pass. Sorting pays off later than the set for pure membership, but it
-        is the only one of the three that also answers range questions.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 4 — a question a set cannot answer</span>
-    <p>
-      Given a sorted list of a million timestamps, use <code>bisect</code> to count how many
-      fall between two given values, in O(log n). Then try to do the same with a set and
-      describe why it degrades to O(n).
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — count a range with bisect, then with a set</summary>
-      <div class="widget anim" data-anim="w12-range"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>range count</div><pre><code>import bisect
-count = bisect.bisect_right(data, high) - bisect.bisect_left(data, low)</code></pre></div>
-      <p>
-        Two O(log n) lookups and a subtraction. A set has no notion of order, so the only
-        option is to examine every element — O(n). This is the reason sorted structures still
-        exist in a world with hash tables.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — trace it on paper</span>
-    <p>
-      By hand, trace <code>binary_search([3, 7, 9, 14, 21, 28, 33, 40], 33)</code>, writing
-      <code>low</code>, <code>high</code> and <code>middle</code> at each step. How many steps?
-      Then trace a search for <code>10</code> (absent) the same way.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — check your paper trace, or fill the table yourself</summary>
-      <div class="widget anim" data-anim="w12-paper-trace"></div>
-    </details><details class="solution"><summary>Answer</summary>
-      <p>
-        Finding 33 (indices 0–7): mid 3 → data[3]=14, 33&gt;14, low=4; mid 5 → data[5]=28,
-        33&gt;28, low=6; mid 6 → data[6]=33, match. <strong>3 steps.</strong> Searching for 10:
-        mid 3 → 14, 10&lt;14, high=2; mid 1 → 7, 10&gt;7, low=2; mid 2 → 9, 10&gt;9, low=3; now
-        low 3 &gt; high 2, return −1. <strong>3 steps, then the crossing.</strong>
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 6 — pass the six tests</span>
-    <p>
-      Write your own binary search and run it against all six boundary cases from §12.5: an
-      empty list, a one-item list, a two-item list, the first element, the last element, and a
-      missing value. Fix anything that fails. Which case caught the most bugs for you?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — run the six tests on five versions</summary>
-      <div class="widget anim" data-anim="w12-six-tests"></div>
-    </details><details class="solution"><summary>What to watch for</summary>
-      <p>
-        The two-item list and the "missing value just past the end" case are the usual
-        culprits — they are exactly where a stray <code>&lt;</code> instead of <code>&lt;=</code>,
-        or a missing <code>−1</code>, shows itself. If all six pass, the loop condition and the
-        two narrowing steps are consistent.
-      </p>
-    </details>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-052"><p class="source-label">Source exercise 52 · medium</p><p>Binary search on a sorted array costs O(log n). Why does the same idea not work on a sorted linked list?</p><details class="solution"><summary>Show reasoning</summary><div><p>binary search needs to jump to the middle element in O(1); a linked list can only reach the middle by walking n/2 pointers, which already costs O(n).</p></div></details></article><p><strong>Write down:</strong> A search trace and a list of the conditions needed for the growth bound you claim.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
-<section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
-  <h2><span class="num">12.10</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="2">
-      <p>Binary search on 1 000 000 sorted items needs at most about:</p>
-      <button class="opt">1 000 000 steps</button>
-      <button class="opt">1 000 steps</button>
-      <button class="opt">20 steps</button>
-      <button class="opt">2 steps</button>
-      <div class="why">Each step halves the range; a million halves to one in about twenty steps.</div>
-    </div>
-    <div class="q" data-answer="0">
-      <p>You have unsorted data and need exactly one search. The right choice is:</p>
-      <button class="opt">Linear search — sorting first would cost more than the scan</button>
-      <button class="opt">Sort, then binary search</button>
-      <button class="opt">Build a set, then look up</button>
-      <button class="opt">Binary search directly on the unsorted list</button>
-      <div class="why">Preparation only pays off when its preparation cost is spread over many searches. And the last option is silently wrong, which is worse than slow.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>Binary search on unsorted data:</p>
-      <button class="opt">Raises an error</button>
-      <button class="opt">Returns wrong answers with no warning</button>
-      <button class="opt">Works, but slowly</button>
-      <button class="opt">Sorts the data first automatically</button>
-      <div class="why">It happily discards the half containing your item. Silent wrongness is the most dangerous failure mode in software.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>When is a sorted list with <code>bisect</code> better than a set?</p>
-      <button class="opt">When you only ask "is this present?"</button>
-      <button class="opt">When memory is unlimited</button>
-      <button class="opt">Never — sets are always better</button>
-      <button class="opt">When you need order: nearest value, next larger, or everything in a range</button>
-      <div class="why">Hash tables destroy order by design. Order questions need an ordered structure.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>A binary search that writes <code>high = middle</code> instead of <code>high = middle - 1</code> risks:</p>
-      <button class="opt">Sorting the data twice</button>
-      <button class="opt">Using too much memory</button>
-      <button class="opt">Looping forever, because the window can stop shrinking</button>
-      <button class="opt">Nothing — the two are equivalent</button>
-      <div class="why">If the window never narrows, <code>low</code> and <code>high</code> never cross and the <code>while</code> loop never ends. Always move past the middle.</div>
-    </div>
-    <div class="q" data-answer="0">
-      <p>Why is the loop condition <code>while low &lt;= high</code> rather than <code>&lt;</code>?</p>
-      <button class="opt">So a one-element window (<code>low == high</code>) is still examined</button>
-      <button class="opt">To make it run faster</button>
-      <button class="opt">Because <code>&lt;</code> is invalid Python</button>
-      <button class="opt">It makes no difference which you use</button>
-      <div class="why">With <code>&lt;</code>, the last remaining candidate is never checked, so a value sitting there is missed. The trace in §12.4 ends exactly when <code>low</code> passes <code>high</code>.</div>
-    </div>
-  </div>
-</section>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w12/">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-052"><p class="source-label">Source exercise 52 · medium</p><p>Binary search on a sorted array costs O(log n). Why does the same idea not work on a sorted linked list?</p><details class="solution"><summary>Show reasoning</summary><div><p>binary search needs to jump to the middle element in O(1); a linked list can only reach the middle by walking n/2 pointers, which already costs O(n).</p></div></details></article><p><strong>Write down:</strong> A search trace and a list of the conditions needed for the growth bound you claim.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details>
 <details class="path-reference"><summary>Optional extra practice</summary><div><section>
   <h2><span class="num">12.11</span>Optional Studio Extension</h2>
   <div class="task">
@@ -850,20 +849,13 @@ print(550 - total)           <span class="c"># 7  -> the light bag is number 7</
     </details>
   </div>
 </section></div></details>
-<details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p><details class="source-choice"><summary>Exercise 37 · easy — In a binary search tree, where is the largest key? The smallest?</summary><article class="source-exercise" id="skiena-ex-037"><p class="source-label">Source exercise 37 · easy</p><p>In a binary search tree, where is the largest key? The smallest?</p><details class="solution"><summary>Show reasoning</summary><div><p>largest: start at the root and keep going right until you cannot. Smallest: keep going left.</p></div></details></article></details><details class="source-choice"><summary>Exercise 38 · easy — Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its he…</summary><article class="source-exercise" id="skiena-ex-038"><p class="source-label">Source exercise 38 · easy</p><p>Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its height.</p><details class="solution"><summary>Show reasoning</summary><div><p>50 is the root; 30 is its left child and 70 its right child; 20 and 40 hang under 30; 60 and 80 hang under 70. Three levels, height 2. It is perfectly balanced.</p></div></details></article></details><details class="source-choice"><summary>Exercise 39 · easy — What does an in-order traversal of the tree in exercise 38 print?</summary><article class="source-exercise" id="skiena-ex-039"><p class="source-label">Source exercise 39 · easy</p><p>What does an in-order traversal of the tree in exercise 38 print?</p><p class="source-context">Exercise 38 uses the BST obtained by inserting 50, 30, 70, 20, 40, 60, 80 in that order.</p><details class="solution"><summary>Show reasoning</summary><div><p>20 30 40 50 60 70 80, the keys in sorted order.</p></div></details></article></details><details class="source-choice"><summary>Exercise 40 · easy — Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cos…</summary><article class="source-exercise" id="skiena-ex-040"><p class="source-label">Source exercise 40 · easy</p><p>Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cost?</p><details class="solution"><summary>Show reasoning</summary><div><p>each key goes to the right of the previous one, giving a chain of height 4; search costs O(n), no better than a linked list.</p></div></details></article></details><details class="source-choice"><summary>Exercise 49 · medium — In a BST, node x has no right child. Where is its successor?</summary><article class="source-exercise" id="skiena-ex-049"><p class="source-label">Source exercise 49 · medium</p><p>In a BST, node x has no right child. Where is its successor?</p><details class="solution"><summary>Show reasoning</summary><div><p>walk up from x until you arrive at an ancestor from its left child; that ancestor is the successor (the next key in in-order). If you reach the root without ever coming up from a left child, x is the maximum.</p></div></details></article></details><details class="source-choice"><summary>Exercise 50 · medium — When deleting a BST node with two children, which node takes its place, and why is that node guarant…</summary><article class="source-exercise" id="skiena-ex-050"><p class="source-label">Source exercise 50 · medium</p><p>When deleting a BST node with two children, which node takes its place, and why is that node guaranteed to have at most one child?</p><details class="solution"><summary>Show reasoning</summary><div><p>its successor, the minimum of the right subtree (the predecessor works symmetrically). Being a minimum, it cannot have a left child, so it has at most a right child and can be removed with the one-child case.</p></div></details></article></details><details class="source-choice"><summary>Exercise 51 · medium — How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</summary><article class="source-exercise" id="skiena-ex-051"><p class="source-label">Source exercise 51 · medium</p><p>How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</p><details class="solution"><summary>Show reasoning</summary><div><p>For distinct keys and a strict BST ordering rule, traverse in order and check that successive keys are strictly increasing. Visit every node once: O(n) time. If duplicate keys are allowed, specify which subtree may contain them and enforce that policy with lower and upper bounds during traversal; a nondecreasing traversal alone cannot enforce a one-sided duplicate policy.</p></div></details></article></details><details class="source-choice"><summary>Exercise 57 · medium — What is the height of a perfectly balanced BST holding 1,023 keys?</summary><article class="source-exercise" id="skiena-ex-057"><p class="source-label">Source exercise 57 · medium</p><p>What is the height of a perfectly balanced BST holding 1,023 keys?</p><details class="solution"><summary>Show reasoning</summary><div><p>9. A full tree of height h has 2ʰ⁺¹ − 1 nodes, and 2¹⁰ − 1 = 1,023, so there are 10 levels and 9 edges from root to leaf.</p></div></details></article></details><details class="source-choice"><summary>Exercise 59 · hard — Prove that an in-order traversal of any BST outputs its keys in sorted order.</summary><article class="source-exercise" id="skiena-ex-059"><p class="source-label">Source exercise 59 · hard</p><p>Prove that an in-order traversal of any BST outputs its keys in sorted order.</p><details class="solution"><summary>Show reasoning</summary><div><p>induction on the number of nodes. An empty tree prints nothing, which is sorted. For a tree with root r, by the induction hypothesis the left subtree prints its keys sorted and so does the right subtree. Every left key is &lt; r &lt; every right key by the BST property, so “left output, then r, then right output” is sorted.</p></div></details></article></details></div></details></section></div>
-<details class="path-resources"><summary>How this connects to next week</summary><div>
+<details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p><details class="source-choice"><summary>Exercise 37 · easy — In a binary search tree, where is the largest key? The smallest?</summary><article class="source-exercise" id="skiena-ex-037"><p class="source-label">Source exercise 37 · easy</p><p>In a binary search tree, where is the largest key? The smallest?</p><details class="solution"><summary>Show reasoning</summary><div><p>largest: start at the root and keep going right until you cannot. Smallest: keep going left.</p></div></details></article></details><details class="source-choice"><summary>Exercise 38 · easy — Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its he…</summary><article class="source-exercise" id="skiena-ex-038"><p class="source-label">Source exercise 38 · easy</p><p>Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its height.</p><details class="solution"><summary>Show reasoning</summary><div><p>50 is the root; 30 is its left child and 70 its right child; 20 and 40 hang under 30; 60 and 80 hang under 70. Three levels, height 2. It is perfectly balanced.</p></div></details></article></details><details class="source-choice"><summary>Exercise 39 · easy — What does an in-order traversal of the tree in exercise 38 print?</summary><article class="source-exercise" id="skiena-ex-039"><p class="source-label">Source exercise 39 · easy</p><p>What does an in-order traversal of the tree in exercise 38 print?</p><p class="source-context">Exercise 38 uses the BST obtained by inserting 50, 30, 70, 20, 40, 60, 80 in that order.</p><details class="solution"><summary>Show reasoning</summary><div><p>20 30 40 50 60 70 80, the keys in sorted order.</p></div></details></article></details><details class="source-choice"><summary>Exercise 40 · easy — Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cos…</summary><article class="source-exercise" id="skiena-ex-040"><p class="source-label">Source exercise 40 · easy</p><p>Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cost?</p><details class="solution"><summary>Show reasoning</summary><div><p>each key goes to the right of the previous one, giving a chain of height 4; search costs O(n), no better than a linked list.</p></div></details></article></details><details class="source-choice"><summary>Exercise 49 · medium — In a BST, node x has no right child. Where is its successor?</summary><article class="source-exercise" id="skiena-ex-049"><p class="source-label">Source exercise 49 · medium</p><p>In a BST, node x has no right child. Where is its successor?</p><details class="solution"><summary>Show reasoning</summary><div><p>walk up from x until you arrive at an ancestor from its left child; that ancestor is the successor (the next key in in-order). If you reach the root without ever coming up from a left child, x is the maximum.</p></div></details></article></details><details class="source-choice"><summary>Exercise 50 · medium — When deleting a BST node with two children, which node takes its place, and why is that node guarant…</summary><article class="source-exercise" id="skiena-ex-050"><p class="source-label">Source exercise 50 · medium</p><p>When deleting a BST node with two children, which node takes its place, and why is that node guaranteed to have at most one child?</p><details class="solution"><summary>Show reasoning</summary><div><p>its successor, the minimum of the right subtree (the predecessor works symmetrically). Being a minimum, it cannot have a left child, so it has at most a right child and can be removed with the one-child case.</p></div></details></article></details><details class="source-choice"><summary>Exercise 51 · medium — How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</summary><article class="source-exercise" id="skiena-ex-051"><p class="source-label">Source exercise 51 · medium</p><p>How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</p><details class="solution"><summary>Show reasoning</summary><div><p>For distinct keys and a strict BST ordering rule, traverse in order and check that successive keys are strictly increasing. Visit every node once: O(n) time. If duplicate keys are allowed, specify which subtree may contain them and enforce that policy with lower and upper bounds during traversal; a nondecreasing traversal alone cannot enforce a one-sided duplicate policy.</p></div></details></article></details><details class="source-choice"><summary>Exercise 57 · medium — What is the height of a perfectly balanced BST holding 1,023 keys?</summary><article class="source-exercise" id="skiena-ex-057"><p class="source-label">Source exercise 57 · medium</p><p>What is the height of a perfectly balanced BST holding 1,023 keys?</p><details class="solution"><summary>Show reasoning</summary><div><p>9. A full tree of height h has 2ʰ⁺¹ − 1 nodes, and 2¹⁰ − 1 = 1,023, so there are 10 levels and 9 edges from root to leaf.</p></div></details></article></details><details class="source-choice"><summary>Exercise 59 · hard — Prove that an in-order traversal of any BST outputs its keys in sorted order.</summary><article class="source-exercise" id="skiena-ex-059"><p class="source-label">Source exercise 59 · hard</p><p>Prove that an in-order traversal of any BST outputs its keys in sorted order.</p><details class="solution"><summary>Show reasoning</summary><div><p>induction on the number of nodes. An empty tree prints nothing, which is sorted. For a tree with root r, by the induction hypothesis the left subtree prints its keys sorted and so does the right subtree. Every left key is &lt; r &lt; every right key by the BST property, so “left output, then r, then right output” is sorted.</p></div></details></article></details></div></details>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>Binary search only works on sorted data. Week 13 asks what sorting itself costs, and why the sort you invent is so much slower than the built-in one.</p>
 </div>
-</div></details>
-
-<nav class="week-nav">
-  <a href="../w11/">&larr; Week 11</a>
-  <button class="done-btn" type="button" data-done="w12">mark this week done</button>
-  <a href="../w13/">Week 13 &rarr;</a>
-</nav>
-
+</div></details></div>
 </main>
 <footer class="site-footer">
   <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>

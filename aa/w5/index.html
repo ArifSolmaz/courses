@@ -14,7 +14,7 @@
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
+    <details class="path-menu"><summary>Settings</summary><div>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
@@ -27,7 +27,7 @@
   <p class="path-question"><strong>How long does my code actually take?</strong></p>
 </div>
 
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Give a repeated method a name</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def contains(values, target):
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Give a repeated method a name</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def contains(values, target):
     for x in values:
         if x == target:
             return True
@@ -42,8 +42,171 @@ print(found, elapsed)</code></pre></div><p>The missing target forces a full scan
 samples = repeat(lambda: contains(values, -1),
                  number=100, repeat=5)
 seconds_per_call = min(samples) / 100
-print(seconds_per_call)</code></pre></div></section><section class="vl-lesson"><h2>Keep evidence separate from a claim</h2><div class="vl-table"><table><thead><tr><th scope="col">Record</th><th scope="col">Example</th></tr></thead><tbody><tr><td>Input family</td><td>n distinct integers; target absent</td></tr><tr><td>Correctness check</td><td>returns False</td></tr><tr><td>Work model</td><td>n equality checks</td></tr><tr><td>Measurement</td><td>seconds per call, repetitions and machine</td></tr><tr><td>Limit</td><td>Does not describe early matches</td></tr></tbody></table></div><p>A faster run is evidence about this experiment. It does not prove that a method is faster for every input or every machine.</p></section>
-<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+print(seconds_per_call)</code></pre></div></section><section class="vl-lesson"><h2>Keep evidence separate from a claim</h2><div class="vl-table"><table><thead><tr><th scope="col">Record</th><th scope="col">Example</th></tr></thead><tbody><tr><td>Input family</td><td>n distinct integers; target absent</td></tr><tr><td>Correctness check</td><td>returns False</td></tr><tr><td>Work model</td><td>n equality checks</td></tr><tr><td>Measurement</td><td>seconds per call, repetitions and machine</td></tr><tr><td>Limit</td><td>Does not describe early matches</td></tr></tbody></table></div><p>A faster run is evidence about this experiment. It does not prove that a method is faster for every input or every machine.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Call contains([4, 7, 9], 7), then contains([4, 7, 9], 2). Count equality checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>True after 2 checks; False after 3 checks.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>A batch of 100 calls takes 0.42 seconds. What is the time per call?</p><details class="solution"><summary>Check your reasoning</summary><div><p>0.42 / 100 = 0.0042 seconds = 4.2 ms.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Move the target from absent to the first item. What changes in the experiment?</p><details class="solution"><summary>Check your reasoning</summary><div><p>The scan now makes one equality check. This is a different input case, so record it separately.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">5.7</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — functions from last week</span>
+    <p>
+      Turn the linear search from week 4 into <code>def contains(data, target)</code> that
+      returns <code>True</code> or <code>False</code>. Test it on a small list.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — follow two calls and an early return</summary>
+      <div class="widget anim" data-anim="w5-contains"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>contains.py</div><pre><code>def contains(data, target):
+    for item in data:
+        if item == target:
+            return True      <span class="c"># return leaves the function immediately</span>
+    return False
+
+print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — time the worst case</span>
+    <p>
+      Time <code>contains</code> searching for a missing item in lists of 100 000,
+      200 000, 400 000 and 800 000 items. Build each list <em>before</em> starting the
+      clock. Report the ratio column.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — build the ratio column at doubling sizes</summary>
+      <div class="widget anim" data-anim="w5-worst"></div>
+    </details><details class="solution"><summary>What you should see</summary>
+      <p>
+        Ratios close to 2.0. A missing item forces a full pass, so the time follows the
+        length of the list exactly. If your ratios are wild (0.4, 6.1), your n is too small
+        or you timed the list construction.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — a deliberately dishonest benchmark</span>
+    <p>
+      Move the line that builds the test list <em>inside</em> the timed region and re-run
+      Task 2. What happens to the numbers, and why does this no longer isolate search time?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — move the list-building into the timed region</summary>
+      <div class="widget anim" data-anim="w5-dishonest"></div>
+    </details><details class="solution"><summary>Answer</summary>
+      <p>
+        Times may increase while the ratios still look roughly linear. You are now measuring
+        "build a list of n items" plus search. That is a valid end-to-end measurement if
+        labelled accordingly, but it cannot isolate search cost. State exactly what is
+        inside the timed region.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — see the warm-up for yourself</span>
+    <p>
+      Time <code>sum_to(2000000)</code> eight times in a row with a plain
+      <code>perf_counter</code> loop, printing each run. Then print the fastest and the mean
+      of all eight, and the fastest and the mean of runs 2–8 only (dropping the first). Which
+      statistic changed the most when you dropped run 1, and why?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — drop run 1 and watch the fastest and the mean</summary>
+      <div class="widget anim" data-anim="w5-warmup"></div>
+    </details><details class="solution"><summary>What to look for</summary>
+      <p>
+        If the first run is unusually slow, removing it lowers the mean and leaves the minimum
+        unchanged. If it is the fastest, the minimum changes too. Report what your samples
+        actually show; a minimum is not a substitute for an explicit warm-up policy.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — perf_counter vs timeit</span>
+    <p>
+      Measure the cost of one call to <code>sum_to(1000)</code> two ways: once with a single
+      <code>perf_counter</code> pair around one call, and once with
+      <code>timeit.timeit("sum_to(1000)", globals=globals(), number=10000)</code> divided by
+      10 000. Which gives the steadier answer across three repeats, and why?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — compare single readings with a timeit batch</summary>
+      <div class="widget anim" data-anim="w5-timeit"></div>
+    </details><details class="solution"><summary>Answer</summary>
+      <p>
+        The single <code>perf_counter</code> reading jumps around — a 41-microsecond call is
+        only a few hundred times the measurement overhead, so a single interruption swamps
+        it. The <code>timeit</code> batch can be steadier because repeating 10 000 runs
+        turns each fixed disturbance into a tiny percentage (§5.6, "noise is a percentage").
+        For calls this fast, <code>timeit</code> is the correct instrument.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — relative noise shrinks with n</span>
+    <p>
+      For n = 1 000 and again for n = 2 000 000, time <code>sum_to(n)</code> ten times and
+      report the spread as a percentage: <code>(slowest − fastest) / fastest × 100</code>.
+      Explain the two numbers using the idea from §5.6.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — see a fixed disturbance shrink to a rounding error</summary>
+      <div class="widget anim" data-anim="w5-noise"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        A disturbance of a fixed duration is a smaller percentage of a longer run. Your
+        measured spreads need not decrease monotonically: background work and cache or
+        frequency changes may differ between runs. Report the actual percentages and use
+        repetition to judge whether a ratio is stable.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">5.8</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>A function without a <code>return</code> statement gives back:</p>
+      <button class="opt">The last value it computed</button>
+      <button class="opt">Zero</button>
+      <button class="opt">None</button>
+      <button class="opt">An error</button>
+      <div class="why">It runs happily and hands back None. Printing inside a function is not the same as returning.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Why take the fastest of several runs rather than the slowest?</p>
+      <button class="opt">The fastest run is the only correct one</button>
+      <button class="opt">Interruptions often add delay, so the minimum estimates a lightly interrupted run</button>
+      <button class="opt">Because Python speeds up as it warms</button>
+      <button class="opt">It makes the numbers look better in reports</button>
+      <div class="why">Interruptions can add delay, but changing machine state and measurement overhead still matter. The minimum is a summary, not a guaranteed intrinsic cost.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Your benchmark reports 0.00002 s for n = 10 and 0.00003 s for n = 20. What should you do?</p>
+      <button class="opt">Report that the algorithm is roughly linear</button>
+      <button class="opt">Report that it is constant time</button>
+      <button class="opt">Switch to a faster computer</button>
+      <button class="opt">Increase n until the runs take tens of milliseconds — these numbers are noise</button>
+      <div class="why">At this scale you are measuring the clock and the loop overhead, not the algorithm. Grow n until the signal is well above the noise.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>The very first of five identical timed runs is noticeably slower than the other four. The usual reason is:</p>
+      <button class="opt">A bug that only shows up once</button>
+      <button class="opt">One-off warm-up costs — cold cache and fresh allocation — which is why the first run is discarded, or why we take the fastest</button>
+      <button class="opt">perf_counter is broken until it is called twice</button>
+      <button class="opt">Python runs faster later in the day</button>
+      <div class="why">A slow first call may include start-up costs. An explicit untimed warm-up is appropriate for steady-state studies; the minimum alone is not a guarantee.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>You want to measure one call to a snippet that takes about 40 microseconds. The best tool is:</p>
+      <button class="opt">time.time() around a single call</button>
+      <button class="opt">A single perf_counter pair — one reading is enough for tiny code</button>
+      <button class="opt">timeit, which runs it thousands of times and disables the garbage collector</button>
+      <button class="opt">A wall clock and a keen eye</button>
+      <div class="why">At tens of microseconds a single reading is mostly overhead. timeit repeats the snippet many times so each fixed disturbance becomes a negligible percentage.</div>
+    </div>
+  </div>
+</section>
+</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">5.1</span>A function is a named piece of work</h2>
   <p>
     Up to now, changing <code>n</code> meant editing the code and running it again. A
@@ -332,171 +495,8 @@ print(f"{per_call * 1e6:.2f} microseconds per call")</code></pre></div>
   </div>
 </section>
 </div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w05/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Call contains([4, 7, 9], 7), then contains([4, 7, 9], 2). Count equality checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>True after 2 checks; False after 3 checks.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>A batch of 100 calls takes 0.42 seconds. What is the time per call?</p><details class="solution"><summary>Check your reasoning</summary><div><p>0.42 / 100 = 0.0042 seconds = 4.2 ms.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Move the target from absent to the first item. What changes in the experiment?</p><details class="solution"><summary>Check your reasoning</summary><div><p>The scan now makes one equality check. This is a different input case, so record it separately.</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">5.7</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — functions from last week</span>
-    <p>
-      Turn the linear search from week 4 into <code>def contains(data, target)</code> that
-      returns <code>True</code> or <code>False</code>. Test it on a small list.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — follow two calls and an early return</summary>
-      <div class="widget anim" data-anim="w5-contains"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>contains.py</div><pre><code>def contains(data, target):
-    for item in data:
-        if item == target:
-            return True      <span class="c"># return leaves the function immediately</span>
-    return False
-
-print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — time the worst case</span>
-    <p>
-      Time <code>contains</code> searching for a missing item in lists of 100 000,
-      200 000, 400 000 and 800 000 items. Build each list <em>before</em> starting the
-      clock. Report the ratio column.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — build the ratio column at doubling sizes</summary>
-      <div class="widget anim" data-anim="w5-worst"></div>
-    </details><details class="solution"><summary>What you should see</summary>
-      <p>
-        Ratios close to 2.0. A missing item forces a full pass, so the time follows the
-        length of the list exactly. If your ratios are wild (0.4, 6.1), your n is too small
-        or you timed the list construction.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 3 — a deliberately dishonest benchmark</span>
-    <p>
-      Move the line that builds the test list <em>inside</em> the timed region and re-run
-      Task 2. What happens to the numbers, and why does this no longer isolate search time?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — move the list-building into the timed region</summary>
-      <div class="widget anim" data-anim="w5-dishonest"></div>
-    </details><details class="solution"><summary>Answer</summary>
-      <p>
-        Times may increase while the ratios still look roughly linear. You are now measuring
-        "build a list of n items" plus search. That is a valid end-to-end measurement if
-        labelled accordingly, but it cannot isolate search cost. State exactly what is
-        inside the timed region.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 4 — see the warm-up for yourself</span>
-    <p>
-      Time <code>sum_to(2000000)</code> eight times in a row with a plain
-      <code>perf_counter</code> loop, printing each run. Then print the fastest and the mean
-      of all eight, and the fastest and the mean of runs 2–8 only (dropping the first). Which
-      statistic changed the most when you dropped run 1, and why?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — drop run 1 and watch the fastest and the mean</summary>
-      <div class="widget anim" data-anim="w5-warmup"></div>
-    </details><details class="solution"><summary>What to look for</summary>
-      <p>
-        If the first run is unusually slow, removing it lowers the mean and leaves the minimum
-        unchanged. If it is the fastest, the minimum changes too. Report what your samples
-        actually show; a minimum is not a substitute for an explicit warm-up policy.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — perf_counter vs timeit</span>
-    <p>
-      Measure the cost of one call to <code>sum_to(1000)</code> two ways: once with a single
-      <code>perf_counter</code> pair around one call, and once with
-      <code>timeit.timeit("sum_to(1000)", globals=globals(), number=10000)</code> divided by
-      10 000. Which gives the steadier answer across three repeats, and why?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — compare single readings with a timeit batch</summary>
-      <div class="widget anim" data-anim="w5-timeit"></div>
-    </details><details class="solution"><summary>Answer</summary>
-      <p>
-        The single <code>perf_counter</code> reading jumps around — a 41-microsecond call is
-        only a few hundred times the measurement overhead, so a single interruption swamps
-        it. The <code>timeit</code> batch can be steadier because repeating 10 000 runs
-        turns each fixed disturbance into a tiny percentage (§5.6, "noise is a percentage").
-        For calls this fast, <code>timeit</code> is the correct instrument.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 6 — relative noise shrinks with n</span>
-    <p>
-      For n = 1 000 and again for n = 2 000 000, time <code>sum_to(n)</code> ten times and
-      report the spread as a percentage: <code>(slowest − fastest) / fastest × 100</code>.
-      Explain the two numbers using the idea from §5.6.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — see a fixed disturbance shrink to a rounding error</summary>
-      <div class="widget anim" data-anim="w5-noise"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        A disturbance of a fixed duration is a smaller percentage of a longer run. Your
-        measured spreads need not decrease monotonically: background work and cache or
-        frequency changes may differ between runs. Report the actual percentages and use
-        repetition to judge whether a ratio is stable.
-      </p>
-    </details>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-008"><p class="source-label">Source exercise 8 · easy</p><p>Define worst-case running time in one sentence, and say why the course prefers it.</p><details class="solution"><summary>Show reasoning</summary><div><p>Worst-case running time is the maximum cost over all legal inputs of a fixed size n, under the stated cost model. It provides an upper guarantee, useful when a controller has a deadline. It need not be close to average-case cost. A bound on operation count is not by itself a measured or certified time bound on a real controller.</p></div></details></article><p><strong>Write down:</strong> A timing table with positions of the target, including a missing target, repeat count, units and one limitation.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
-<section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
-  <h2><span class="num">5.8</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="2">
-      <p>A function without a <code>return</code> statement gives back:</p>
-      <button class="opt">The last value it computed</button>
-      <button class="opt">Zero</button>
-      <button class="opt">None</button>
-      <button class="opt">An error</button>
-      <div class="why">It runs happily and hands back None. Printing inside a function is not the same as returning.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>Why take the fastest of several runs rather than the slowest?</p>
-      <button class="opt">The fastest run is the only correct one</button>
-      <button class="opt">Interruptions often add delay, so the minimum estimates a lightly interrupted run</button>
-      <button class="opt">Because Python speeds up as it warms</button>
-      <button class="opt">It makes the numbers look better in reports</button>
-      <div class="why">Interruptions can add delay, but changing machine state and measurement overhead still matter. The minimum is a summary, not a guaranteed intrinsic cost.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>Your benchmark reports 0.00002 s for n = 10 and 0.00003 s for n = 20. What should you do?</p>
-      <button class="opt">Report that the algorithm is roughly linear</button>
-      <button class="opt">Report that it is constant time</button>
-      <button class="opt">Switch to a faster computer</button>
-      <button class="opt">Increase n until the runs take tens of milliseconds — these numbers are noise</button>
-      <div class="why">At this scale you are measuring the clock and the loop overhead, not the algorithm. Grow n until the signal is well above the noise.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>The very first of five identical timed runs is noticeably slower than the other four. The usual reason is:</p>
-      <button class="opt">A bug that only shows up once</button>
-      <button class="opt">One-off warm-up costs — cold cache and fresh allocation — which is why the first run is discarded, or why we take the fastest</button>
-      <button class="opt">perf_counter is broken until it is called twice</button>
-      <button class="opt">Python runs faster later in the day</button>
-      <div class="why">A slow first call may include start-up costs. An explicit untimed warm-up is appropriate for steady-state studies; the minimum alone is not a guarantee.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>You want to measure one call to a snippet that takes about 40 microseconds. The best tool is:</p>
-      <button class="opt">time.time() around a single call</button>
-      <button class="opt">A single perf_counter pair — one reading is enough for tiny code</button>
-      <button class="opt">timeit, which runs it thousands of times and disables the garbage collector</button>
-      <button class="opt">A wall clock and a keen eye</button>
-      <div class="why">At tens of microseconds a single reading is mostly overhead. timeit repeats the snippet many times so each fixed disturbance becomes a negligible percentage.</div>
-    </div>
-  </div>
-</section>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w05/">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-008"><p class="source-label">Source exercise 8 · easy</p><p>Define worst-case running time in one sentence, and say why the course prefers it.</p><details class="solution"><summary>Show reasoning</summary><div><p>Worst-case running time is the maximum cost over all legal inputs of a fixed size n, under the stated cost model. It provides an upper guarantee, useful when a controller has a deadline. It need not be close to average-case cost. A bound on operation count is not by itself a measured or certified time bound on a real controller.</p></div></details></article><p><strong>Write down:</strong> A timing table with positions of the target, including a missing target, repeat count, units and one limitation.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details>
 <details class="path-reference"><summary>Optional extra practice</summary><div><section>
   <h2><span class="num">5.9</span>Optional Studio Extension</h2>
   <div class="task">
@@ -530,20 +530,12 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     </table>
   </div>
 </section></div></details>
-</section></div>
-<details class="path-resources"><summary>How this connects to next week</summary><div>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>You can time one input size. Week 6 times several sizes at once and reads the pattern in the numbers — the doubling experiment.</p>
 </div>
-</div></details>
-
-<nav class="week-nav">
-  <a href="../w4/">&larr; Week 4</a>
-  <button class="done-btn" type="button" data-done="w5">mark this week done</button>
-  <a href="../w6/">Week 6 &rarr;</a>
-</nav>
-
+</div></details></div>
 </main>
 <footer class="site-footer">
   <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>

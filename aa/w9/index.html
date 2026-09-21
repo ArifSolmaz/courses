@@ -14,7 +14,7 @@
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
+    <details class="path-menu"><summary>Settings</summary><div>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
@@ -27,7 +27,7 @@
   <p class="path-question"><strong>Same answer, same computer: why is one version a million times slower?</strong></p>
 </div>
 
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Anagrams have equal letter counts</h2><figure class="vl-figure"><figcaption>listen and silent: order changes, counts do not</figcaption><div class="vl-trace"><b>letter</b><div class="vl-cards" style="--row-columns:6"><span>e</span><span>i</span><span>l</span><span>n</span><span>s</span><span>t</span></div></div><div class="vl-trace"><b>listen</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div><div class="vl-trace"><b>silent</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div></figure><p>First define the rules: here inputs contain only lowercase English letters, and every character counts. Repeated letters matter: <code>aab</code> and <code>abb</code> are not anagrams.</p></section><section class="vl-lesson"><h2>Four methods, one decision</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Work for length n</th><th scope="col">Main idea</th></tr></thead><tbody><tr><td>Cross off a matching letter</td><td>O(n²)</td><td>Search remaining positions for each letter.</td></tr><tr><td>Sort both strings</td><td>O(n log n)</td><td>Equal sorted sequences have equal counts.</td></tr><tr><td>Try every permutation</td><td>O(n · n!)</td><td>Generate candidates and compare each.</td></tr><tr><td>Count k possible letters</td><td>O(n + k)</td><td>Compare the two frequency arrays.</td></tr></tbody></table></div><p>These are upper bounds. The permutation bound includes up to n work per candidate. Early mismatches can finish sooner. With a fixed alphabet k = 26, counting is linear.</p></section><section class="vl-lesson"><h2>Build a count, then cancel it</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def anagram(a, b):
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Anagrams have equal letter counts</h2><figure class="vl-figure"><figcaption>listen and silent: order changes, counts do not</figcaption><div class="vl-trace"><b>letter</b><div class="vl-cards" style="--row-columns:6"><span>e</span><span>i</span><span>l</span><span>n</span><span>s</span><span>t</span></div></div><div class="vl-trace"><b>listen</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div><div class="vl-trace"><b>silent</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div></figure><p>First define the rules: here inputs contain only lowercase English letters, and every character counts. Repeated letters matter: <code>aab</code> and <code>abb</code> are not anagrams.</p></section><section class="vl-lesson"><h2>Four methods, one decision</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Work for length n</th><th scope="col">Main idea</th></tr></thead><tbody><tr><td>Cross off a matching letter</td><td>O(n²)</td><td>Search remaining positions for each letter.</td></tr><tr><td>Sort both strings</td><td>O(n log n)</td><td>Equal sorted sequences have equal counts.</td></tr><tr><td>Try every permutation</td><td>O(n · n!)</td><td>Generate candidates and compare each.</td></tr><tr><td>Count k possible letters</td><td>O(n + k)</td><td>Compare the two frequency arrays.</td></tr></tbody></table></div><p>These are upper bounds. The permutation bound includes up to n work per candidate. Early mismatches can finish sooner. With a fixed alphabet k = 26, counting is linear.</p></section><section class="vl-lesson"><h2>Build a count, then cancel it</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def anagram(a, b):
     if len(a) != len(b):
         return False
     counts = [0] * 26
@@ -35,8 +35,184 @@
         counts[ord(ch) - ord(&quot;a&quot;)] += 1
     for ch in b:
         counts[ord(ch) - ord(&quot;a&quot;)] -= 1
-    return all(c == 0 for c in counts)</code></pre></div><figure class="vl-figure"><figcaption>Trace aab against abb; show only a and b</figcaption><div class="vl-trace"><b>counts for aab</b><div class="vl-cards" style="--row-columns:2"><span>a: 2</span><span>b: 1</span></div></div><div class="vl-trace"><b>subtract abb</b><div class="vl-cards" style="--row-columns:2"><span>a: 1</span><span>b: −1</span></div></div></figure><p>The final nonzero entries show the mismatch. This implementation requires a–z input; validate or normalise first if the input rules differ.</p></section><section class="vl-lesson"><h2>Compare on the same job</h2><div class="vl-equation"><span>Frequency-array work</span><strong>n increments + n decrements + k checks</strong></div><p>Test empty strings, repeated letters, unequal lengths, a valid pair and a same-length non-pair. Time each method on the same families. For general text, a dictionary counter can handle a larger alphabet; its lookup cost is average-case, and case/spacing rules must be explicit.</p></section>
-<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+    return all(c == 0 for c in counts)</code></pre></div><figure class="vl-figure"><figcaption>Trace aab against abb; show only a and b</figcaption><div class="vl-trace"><b>counts for aab</b><div class="vl-cards" style="--row-columns:2"><span>a: 2</span><span>b: 1</span></div></div><div class="vl-trace"><b>subtract abb</b><div class="vl-cards" style="--row-columns:2"><span>a: 1</span><span>b: −1</span></div></div></figure><p>The final nonzero entries show the mismatch. This implementation requires a–z input; validate or normalise first if the input rules differ.</p></section><section class="vl-lesson"><h2>Compare on the same job</h2><div class="vl-equation"><span>Frequency-array work</span><strong>n increments + n decrements + k checks</strong></div><p>Test empty strings, repeated letters, unequal lengths, a valid pair and a same-length non-pair. Time each method on the same families. For general text, a dictionary counter can handle a larger alphabet; its lookup cost is average-case, and case/spacing rules must be explicit.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Write the a/b counts for aab and aba, then aab and abb.</p><details class="solution"><summary>Check your reasoning</summary><div><p>aab/aba both have a:2, b:1 → True. abb has a:1, b:2 → False.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>For n = 100 and k = 26, count the two character passes plus final count checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>100 + 100 + 26 = 226, excluding initialisation and loop overhead.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Allow uppercase letters. What must change before using the 26-slot code?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Choose case-sensitive or case-insensitive rules. For case-insensitive English input, lowercase and validate a–z before indexing; otherwise choose a larger mapping.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">9.9</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — instrument solution 1</span>
+    <p>
+      Add a comparison counter to <code>anagram_checking_off</code> and report it for
+      n = 100, 200, 400 on genuine anagram pairs. Compare the counts with the predicted
+      n(n+1)/2.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — count the comparisons, then scale up to n = 400</summary>
+      <div class="widget anim" data-anim="w9-checkoff"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        Exactly 5 050, 20 100 and 80 200 — with doubling ratios approaching four,
+        just as predicted.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — how far can brute force go?</span>
+    <p>
+      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there, or earlier if slow).
+      Use equal-length non-anagrams to force exhaustion, for example <code>"a" * n</code>
+      and <code>"a" * (n-1) + "b"</code>. Then predict
+      n = 12 from the pattern, and say whether you would wait for it.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch every rearrangement, then extrapolate to n = 12</summary>
+      <div class="widget anim" data-anim="w9-brute"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        Under a constant-cost-per-candidate model, 12!/9! = 10 × 11 × 12 = 1 320.
+        An illustrative one-second run at n = 9 predicts 22 minutes at n = 12 and
+        15!/9! = 3 603 600 seconds, about 41.7 days, at n = 15. The full n · n!
+        model adds factors 12/9 and 15/9, giving about 29.3 minutes and 69.5 days.
+        These are extrapolations for exhaustive searches, not guaranteed durations.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — find the crossover</span>
+    <p>
+      Sorting may beat counting at the sizes you test. Increase n within a practical
+      limit (build inputs outside the timer) and look for a crossover. If none occurs,
+      report the tested range and input family rather than inventing a crossover.
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — race sort against count and report what you see</summary>
+      <div class="widget anim" data-anim="w9-crossover"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 4 — a fifth solution</span>
+    <p>
+      Python has <code>collections.Counter</code>. Write <code>anagram_counter(s1, s2)</code>
+      in one line using it, benchmark it against your solution 4, and explain why the class
+      is the same but the time differs.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — run the 26-slot lists and Counter side by side</summary>
+      <div class="widget anim" data-anim="w9-counter"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>one line</div><pre><code>from collections import Counter
+
+def anagram_counter(s1, s2):
+    return Counter(s1) == Counter(s2)</code></pre></div>
+      <p>
+        Expected O(n) time under ordinary hash-table assumptions: Counter visits each
+        character and stores counts for the k distinct characters, using O(k) space.
+        It also supports a broader alphabet than the 26-slot function. Implementation
+        constants can differ; benchmark rather than assume it is faster.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — a variation: are they permutations of digits?</span>
+    <p>
+      Adapt the counting solution to decide whether two lists of integers (each 0–9) are
+      rearrangements of each other — e.g. <code>[3, 1, 4, 1]</code> and
+      <code>[1, 4, 3, 1]</code>. What is the class, and what changed from the letters
+      version?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — add for a, subtract for b, check for zeros</summary>
+      <div class="widget anim" data-anim="w9-digits"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>digits version</div><pre><code>def same_multiset(a, b):
+    if len(a) != len(b):
+        return False
+    counts = [0] * 10          <span class="c"># one slot per digit 0-9</span>
+    for x in a:
+        counts[x] += 1
+    for x in b:
+        counts[x] -= 1         <span class="c"># cancel out</span>
+    return all(c == 0 for c in counts)</code></pre></div>
+      <p>
+        Still <strong>O(n)</strong>: two passes over the data and a fixed 10-slot check.
+        The only change is a smaller alphabet (10 slots instead of 26) and a tidy trick —
+        add for one list, subtract for the other, and everything should cancel to zero.
+        Same idea, same class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — confirm by counting, not timing</span>
+    <p>
+      Run the operation-counter from §9.7 for the checking-off and counting methods at
+      n = 100, 200, 400, 800. Put the two ratio columns side by side and state, in one
+      sentence each, what class the underlying count formula proves and whether the column agrees — without calling
+      <code>time.perf_counter</code>.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — build both ratio columns without a stopwatch</summary>
+      <div class="widget anim" data-anim="w9-count-ratios"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        The checking-off ratios approach 4 and counting ratios approach 2. Deriving
+        n(n+1)/2 and 2n+26 for every genuine length-n anagram establishes Θ(n²)
+        and Θ(n); the finite table checks those formulas rather than proving them alone.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">9.10</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p>Why do we use an O(n log n) worst-case sorting upper bound for <code>sorted(s1) == sorted(s2)</code>?</p>
+      <button class="opt">Because comparing two lists is O(n²)</button>
+      <button class="opt">Because sorting itself costs O(n log n), and that dominates the comparison</button>
+      <button class="opt">Because it uses extra memory</button>
+      <button class="opt">It is O(n) — the line is short</button>
+      <div class="why">The cost is inside the built-in. Short code can hide expensive work; always price the built-ins you call.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>What buys the counting solution its linear time?</p>
+      <button class="opt">Writing it in fewer lines</button>
+      <button class="opt">Avoiding functions</button>
+      <button class="opt">Using a faster computer</button>
+      <button class="opt">Spending extra memory on two tally lists, so no letter has to be searched for</button>
+      <div class="why">Trading a little space for a lot of time is one of the most reliable moves in computing — and the whole idea behind week 11.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Exhaustively checking all 20! positional permutations at ten million candidates per second is:</p>
+      <button class="opt">Impractical at that stated rate: thousands of years</button>
+      <button class="opt">Slow but usable overnight</button>
+      <button class="opt">Fine, since 20 is a small number</button>
+      <button class="opt">Faster than O(n²) for small n, so acceptable</button>
+      <div class="why">2.4 × 10¹⁸ arrangements is thousands of years at ten million per second. Factorial growth ends the conversation.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>In the benchmark, the O(n log n) version beat the O(n) version at n = 1 000. Does that disprove the analysis?</p>
+      <button class="opt">Yes — measurements always beat theory</button>
+      <button class="opt">Yes — the classes must be wrong</button>
+      <button class="opt">No — implementation and inputs affect measured times; these upper bounds alone do not guarantee a crossover</button>
+      <button class="opt">No — the measurement must have been faulty</button>
+      <div class="why">Report the bound, input family and observed times, including whether any crossover was actually observed.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>The checking-off formula n(n+1)/2 produces ratios approaching four when n doubles. Its tight growth is:</p>
+      <button class="opt">O(n) — the count grew</button>
+      <button class="opt">Θ(n²) — the exact formula has a quadratic dominant term</button>
+      <button class="opt">O(log n) — the count is small</button>
+      <button class="opt">Nothing — only timing can prove a class</button>
+      <div class="why">The formula derived for all valid anagram sizes proves the bound. A finite ratio table provides a check rather than a proof by itself.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>Inputs are a dozen letters and the check runs a handful of times. Which do you ship, and why?</p>
+      <button class="opt">Brute force — it uses the least memory</button>
+      <button class="opt">Counting — the fastest class always wins</button>
+      <button class="opt">Sort-and-compare — its worse class never bites at that size, and one clear line is easier to trust</button>
+      <button class="opt">Checking-off — it reads like the spoken idea</button>
+      <div class="why">At tiny n the class barely matters; readability and correctness do. The counting version earns its keep only when the data is large or the call is hot.</div>
+    </div>
+  </div>
+</section></section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">9.1</span>The problem</h2>
   <p>
     Two words are <strong>anagrams</strong> if one is a rearrangement of the other:
@@ -435,185 +611,8 @@ for n in [250, 500, 1000, 2000]:
   </div>
 </section>
 </div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w09/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Write the a/b counts for aab and aba, then aab and abb.</p><details class="solution"><summary>Check your reasoning</summary><div><p>aab/aba both have a:2, b:1 → True. abb has a:1, b:2 → False.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>For n = 100 and k = 26, count the two character passes plus final count checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>100 + 100 + 26 = 226, excluding initialisation and loop overhead.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Allow uppercase letters. What must change before using the 26-slot code?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Choose case-sensitive or case-insensitive rules. For case-insensitive English input, lowercase and validate a–z before indexing; otherwise choose a larger mapping.</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">9.9</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — instrument solution 1</span>
-    <p>
-      Add a comparison counter to <code>anagram_checking_off</code> and report it for
-      n = 100, 200, 400 on genuine anagram pairs. Compare the counts with the predicted
-      n(n+1)/2.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — count the comparisons, then scale up to n = 400</summary>
-      <div class="widget anim" data-anim="w9-checkoff"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        Exactly 5 050, 20 100 and 80 200 — with doubling ratios approaching four,
-        just as predicted.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — how far can brute force go?</span>
-    <p>
-      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there, or earlier if slow).
-      Use equal-length non-anagrams to force exhaustion, for example <code>"a" * n</code>
-      and <code>"a" * (n-1) + "b"</code>. Then predict
-      n = 12 from the pattern, and say whether you would wait for it.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — watch every rearrangement, then extrapolate to n = 12</summary>
-      <div class="widget anim" data-anim="w9-brute"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        Under a constant-cost-per-candidate model, 12!/9! = 10 × 11 × 12 = 1 320.
-        An illustrative one-second run at n = 9 predicts 22 minutes at n = 12 and
-        15!/9! = 3 603 600 seconds, about 41.7 days, at n = 15. The full n · n!
-        model adds factors 12/9 and 15/9, giving about 29.3 minutes and 69.5 days.
-        These are extrapolations for exhaustive searches, not guaranteed durations.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 3 — find the crossover</span>
-    <p>
-      Sorting may beat counting at the sizes you test. Increase n within a practical
-      limit (build inputs outside the timer) and look for a crossover. If none occurs,
-      report the tested range and input family rather than inventing a crossover.
-    </p>
-  <details class="solution anim-wrap"><summary>Animate it — race sort against count and report what you see</summary>
-      <div class="widget anim" data-anim="w9-crossover"></div>
-    </details></div>
-
-  <div class="task">
-    <span class="label">Task 4 — a fifth solution</span>
-    <p>
-      Python has <code>collections.Counter</code>. Write <code>anagram_counter(s1, s2)</code>
-      in one line using it, benchmark it against your solution 4, and explain why the class
-      is the same but the time differs.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — run the 26-slot lists and Counter side by side</summary>
-      <div class="widget anim" data-anim="w9-counter"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>one line</div><pre><code>from collections import Counter
-
-def anagram_counter(s1, s2):
-    return Counter(s1) == Counter(s2)</code></pre></div>
-      <p>
-        Expected O(n) time under ordinary hash-table assumptions: Counter visits each
-        character and stores counts for the k distinct characters, using O(k) space.
-        It also supports a broader alphabet than the 26-slot function. Implementation
-        constants can differ; benchmark rather than assume it is faster.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — a variation: are they permutations of digits?</span>
-    <p>
-      Adapt the counting solution to decide whether two lists of integers (each 0–9) are
-      rearrangements of each other — e.g. <code>[3, 1, 4, 1]</code> and
-      <code>[1, 4, 3, 1]</code>. What is the class, and what changed from the letters
-      version?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — add for a, subtract for b, check for zeros</summary>
-      <div class="widget anim" data-anim="w9-digits"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>digits version</div><pre><code>def same_multiset(a, b):
-    if len(a) != len(b):
-        return False
-    counts = [0] * 10          <span class="c"># one slot per digit 0-9</span>
-    for x in a:
-        counts[x] += 1
-    for x in b:
-        counts[x] -= 1         <span class="c"># cancel out</span>
-    return all(c == 0 for c in counts)</code></pre></div>
-      <p>
-        Still <strong>O(n)</strong>: two passes over the data and a fixed 10-slot check.
-        The only change is a smaller alphabet (10 slots instead of 26) and a tidy trick —
-        add for one list, subtract for the other, and everything should cancel to zero.
-        Same idea, same class.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 6 — confirm by counting, not timing</span>
-    <p>
-      Run the operation-counter from §9.7 for the checking-off and counting methods at
-      n = 100, 200, 400, 800. Put the two ratio columns side by side and state, in one
-      sentence each, what class the underlying count formula proves and whether the column agrees — without calling
-      <code>time.perf_counter</code>.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — build both ratio columns without a stopwatch</summary>
-      <div class="widget anim" data-anim="w9-count-ratios"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        The checking-off ratios approach 4 and counting ratios approach 2. Deriving
-        n(n+1)/2 and 2n+26 for every genuine length-n anagram establishes Θ(n²)
-        and Θ(n); the finite table checks those formulas rather than proving them alone.
-      </p>
-    </details>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Source exercise 56 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><details class="solution"><summary>Show reasoning</summary><div><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></details></article><p><strong>Write down:</strong> Two traces, their preparation costs, and a reason to prefer one under a stated constraint.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
-<section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
-  <h2><span class="num">9.10</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="1">
-      <p>Why do we use an O(n log n) worst-case sorting upper bound for <code>sorted(s1) == sorted(s2)</code>?</p>
-      <button class="opt">Because comparing two lists is O(n²)</button>
-      <button class="opt">Because sorting itself costs O(n log n), and that dominates the comparison</button>
-      <button class="opt">Because it uses extra memory</button>
-      <button class="opt">It is O(n) — the line is short</button>
-      <div class="why">The cost is inside the built-in. Short code can hide expensive work; always price the built-ins you call.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>What buys the counting solution its linear time?</p>
-      <button class="opt">Writing it in fewer lines</button>
-      <button class="opt">Avoiding functions</button>
-      <button class="opt">Using a faster computer</button>
-      <button class="opt">Spending extra memory on two tally lists, so no letter has to be searched for</button>
-      <div class="why">Trading a little space for a lot of time is one of the most reliable moves in computing — and the whole idea behind week 11.</div>
-    </div>
-    <div class="q" data-answer="0">
-      <p>Exhaustively checking all 20! positional permutations at ten million candidates per second is:</p>
-      <button class="opt">Impractical at that stated rate: thousands of years</button>
-      <button class="opt">Slow but usable overnight</button>
-      <button class="opt">Fine, since 20 is a small number</button>
-      <button class="opt">Faster than O(n²) for small n, so acceptable</button>
-      <div class="why">2.4 × 10¹⁸ arrangements is thousands of years at ten million per second. Factorial growth ends the conversation.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>In the benchmark, the O(n log n) version beat the O(n) version at n = 1 000. Does that disprove the analysis?</p>
-      <button class="opt">Yes — measurements always beat theory</button>
-      <button class="opt">Yes — the classes must be wrong</button>
-      <button class="opt">No — implementation and inputs affect measured times; these upper bounds alone do not guarantee a crossover</button>
-      <button class="opt">No — the measurement must have been faulty</button>
-      <div class="why">Report the bound, input family and observed times, including whether any crossover was actually observed.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>The checking-off formula n(n+1)/2 produces ratios approaching four when n doubles. Its tight growth is:</p>
-      <button class="opt">O(n) — the count grew</button>
-      <button class="opt">Θ(n²) — the exact formula has a quadratic dominant term</button>
-      <button class="opt">O(log n) — the count is small</button>
-      <button class="opt">Nothing — only timing can prove a class</button>
-      <div class="why">The formula derived for all valid anagram sizes proves the bound. A finite ratio table provides a check rather than a proof by itself.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>Inputs are a dozen letters and the check runs a handful of times. Which do you ship, and why?</p>
-      <button class="opt">Brute force — it uses the least memory</button>
-      <button class="opt">Counting — the fastest class always wins</button>
-      <button class="opt">Sort-and-compare — its worse class never bites at that size, and one clear line is easier to trust</button>
-      <button class="opt">Checking-off — it reads like the spoken idea</button>
-      <div class="why">At tiny n the class barely matters; readability and correctness do. The counting version earns its keep only when the data is large or the call is hot.</div>
-    </div>
-  </div>
-</section>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w09/">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Source exercise 56 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><details class="solution"><summary>Show reasoning</summary><div><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></details></article><p><strong>Write down:</strong> Two traces, their preparation costs, and a reason to prefer one under a stated constraint.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details>
 <details class="path-reference"><summary>Optional extra practice</summary><div><section>
   <h2><span class="num">9.11</span>Optional Studio Extension</h2>
   <div class="task">
@@ -748,20 +747,13 @@ def anagram_counter(s1, s2):
     </details>
   </div>
 </section></div></details>
-<details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p><details class="source-choice"><summary>Exercise 55 · medium — Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</summary><article class="source-exercise" id="skiena-ex-055"><p class="source-label">Source exercise 55 · medium</p><p>Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</p><details class="solution"><summary>Show reasoning</summary><div><p>the window’s hash is a base-α number built from its characters. Sliding right drops the leftmost character (subtract its contribution αᵐ⁻¹ × char), shifts everything one place (multiply by α), and appends the new character (add it): two multiplications, a subtraction and an addition, no matter how long the window is.</p></div></details></article></details></div></details></section></div>
-<details class="path-resources"><summary>How this connects to next week</summary><div>
+<details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p><details class="source-choice"><summary>Exercise 55 · medium — Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</summary><article class="source-exercise" id="skiena-ex-055"><p class="source-label">Source exercise 55 · medium</p><p>Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</p><details class="solution"><summary>Show reasoning</summary><div><p>the window’s hash is a base-α number built from its characters. Sliding right drops the leftmost character (subtract its contribution αᵐ⁻¹ × char), shifts everything one place (multiply by α), and appends the new character (add it): two multiplications, a subtraction and an addition, no matter how long the window is.</p></div></details></article></details></div></details>
+
 <div class="note blue">
   <span class="label">Where this leads</span>
   <p>You saw that changing <em>strategy</em> — not language or hardware — buys orders of magnitude. Week 10 hunts those costs inside everyday Python list operations.</p>
 </div>
-</div></details>
-
-<nav class="week-nav">
-  <a href="../w8/">&larr; Week 8</a>
-  <button class="done-btn" type="button" data-done="w9">mark this week done</button>
-  <a href="../w10/">Week 10 &rarr;</a>
-</nav>
-
+</div></details></div>
 </main>
 <footer class="site-footer">
   <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>

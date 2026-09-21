@@ -25,3 +25,12 @@ Course directory → course schedule → weekly lesson → notebook when prompte
 - CP1: 14 models, 42 cases, reproducible lesson pages and links pass; 28 notebooks, 171 exercises and 184 solution sections preserved.
 - PHY101: 419 generated-page checks pass; public calendar, topic order and laboratory validation pass. Private solution schedule not touched.
 - No notebook execution needed for this navigation-only change; existing CP1 structural checks and teaching-model executions were run.
+
+## Follow-up: simplify the subpages (21 September 2026)
+
+- All 41 weekly lessons now read continuously. Removed stage tabs, next-stage buttons, previous/next-week bars and completion buttons. Existing section bookmarks remain.
+- Weekly headers contain one course-home link and a Settings disclosure for appearance/language. The notebook action stays with practice.
+- AA optional reference material is collected at the bottom. Its 18 guide pages use a single column with collapsed chapter navigation instead of sidebar and chapter selectors; duplicate lesson-return links removed.
+- CP1 optional notes/guidance are grouped. PHY101 repeated notebook pointers are plain instructions, while extension links and next-week information are collapsed.
+- Browser check across all 41 weeks at 390 × 844: no page-width overflow, no old stage/week navigation, and no hidden main lesson sections. Representative AA/CP1 desktop and mobile layouts, PHY101 mobile and AA reference desktop inspected. Extra-material disclosure opened successfully.
+- AA textbook preservation, compact-lesson checks and guide examples pass. CP1 teaching cases, local links and notebook structure pass. PHY101 418 page checks and public calendar validation pass.
