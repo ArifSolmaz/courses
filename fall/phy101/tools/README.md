@@ -267,3 +267,9 @@ python fall/phy101/tools/verify_week01_notebook.py --output-dir /tmp/phy101-week
 ```
 
 The animation check covers all slider settings and six addition orders at five sizes. The notebook check executes its source, exercises all three graphical panels and every converter unit pair, rejects unknown dimensional symbols and saves boundary plots for visual inspection. Numerical checks supplement browser and plot inspection; they do not replace it. See `../WEEK01_REVIEW.md` for the audit and repair record.
+
+### Illustrated textbook solutions through Exercise 1.44
+
+The 22 selected textbook exercises through 1.44 have full numerical working and original drawings in the canonical Week 01 notebook. The two later exercises (1.47 and 1.48) retain their existing solutions. Answers were cross-checked against the supplied Chapter 1 instructor manual; Exercise 1.32 documents its transposed intermediate x-component.
+
+Regenerate the drawings with `python fall/phy101/tools/draw_week01_solutions.py` (NumPy and Matplotlib required), then rebuild Week 01 with `python fall/phy101/tools/build_site.py 1`. The notebook uses published image URLs for Colab; the site builder converts these to relative asset paths for local previews and deployment. Inspect the drawings and rendered mathematics at desktop and phone widths after changes.

@@ -399,6 +399,9 @@ def md_to_html(text, heading_shift=0):
             continue
         if stripped.startswith("<"):
             flush_all()
+            # Notebook images need absolute URLs in Colab; generated pages use
+            # local assets so previews and published pages load the same drawing.
+            raw = raw.replace("https://arifsolmaz.github.io/courses/fall/phy101/assets/", "../assets/")
             out.append(raw.rstrip())
             continue
 
