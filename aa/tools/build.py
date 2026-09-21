@@ -216,6 +216,7 @@ def week_page(meta, body):
         animation_styles += '<link rel="stylesheet" href="../assets/week1-visual.css?v=1">'
         animation_scripts = animation_scripts.replace('anim.js?v=13', 'anim.js?v=14')
     if num > 1:
+        animation_styles += '<link rel="stylesheet" href="../assets/visual-lesson.css?v=1">'
         animation_styles += f'<link rel="stylesheet" href="../assets/anim-w{num}.css">'
         animation_scripts += f'<script src="../assets/anim-w{num}.js?v=10"></script>'
     animation_styles += '<link rel="stylesheet" href="../assets/anim-workspace.css?v=17">'

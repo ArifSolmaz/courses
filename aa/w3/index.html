@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w3.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w3.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
@@ -29,24 +29,23 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/" selected>Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Faster Lookups</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="count-visits-separately-from-the-total">Count visits separately from the total</h2>
-<p>A loop repeats instructions. A counter records how many times something happens. A running total adds up values; this is also called an accumulator. The count and the total can be different even in the same loop.</p>
-<p><strong>Draw or trace.</strong> For numbers 1, 2, 3, 4, write one row per visit with the current number, running sum and visit count.</p>
-<p><strong>Predict before checking.</strong> Will the sum and visit count end equal? What changes if the increase to the counter is placed inside an even-number test?</p>
-<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
-<p>The running totals are 1, 3, 6, 10. The visit counts are 1, 2, 3, 4. Only two numbers are even, but the loop still visits all four. Before using a counter, say exactly what it counts. Putting it inside the even-number test counts matches, not all visits.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">total = visits = matches = 0
-for number in range(1, 5):
-    visits += 1
-    total += number
-    if number % 2 == 0:
-        matches += 1
-assert (total, visits, matches) == (10, 4, 2)
-print(total, visits, matches)</code></pre></div>
-</details><p><strong>Change one thing.</strong> Use an empty range and then a range containing only odd numbers. Explain the difference between no visits and visits with no matches.</p>
-<p class="turkish"><strong>Türkçe:</strong> Sayaç hangi olayın kaç kez olduğunu ölçer. Eşleşme sayısı, ziyaret sayısı ve toplam değer birbirinin yerine kullanılamaz.</p></section>
-<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>Count a loop by drawing its work</h3><p>Do not count indentation levels alone. Draw one mark for each execution of the operation you care about. If the outer counter runs from 1 to n and the inner counter runs from 1 to that outer counter, the rows contain 1, 2, …, n marks. At n = 4 there are 10 marks, not 16.</p><p>The total is n(n + 1)/2. Pair the first and last rows, then the second and second-last: each pair has n + 1 marks. A full rectangular pair of loops has n² marks instead. Both eventually grow quadratically, but their exact counts differ.</p><p>A doubling counter follows a different pattern: 1, 2, 4, 8, … . Count the doublings rather than the size of the final value. We will attach the formal growth notation in Week 8.</p><p class="engineering-transfer"><strong>Engineering use.</strong> For a collision check between parts, distinguish pairs counted in both orders, pairs counted only once, and a part paired with itself.</p></section>
-<details class="path-reference teaching-part"><summary>Decisions first</summary><div><section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Follow one decision at a time</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>x = 7
+if x % 2 == 0:
+    print(&quot;even&quot;)
+else:
+    print(&quot;odd&quot;)</code></pre></div><figure class="vl-figure"><figcaption>Trace x = 7</figcaption><ol class="vl-flow"><li>7 % 2 = 1</li><li>1 == 0 → False</li><li>take else</li><li>print odd</li></ol></figure><p><code>==</code> compares values. <code>if / elif / else</code> chooses the first matching branch. Indentation shows which instructions belong to it.</p></section><section class="vl-lesson"><h2>A loop is a repeated trace</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>total = 0
+for i in range(1, 5):
+    total += i
+print(total)</code></pre></div><figure class="vl-figure"><figcaption>range(1, 5): include 1, stop before 5</figcaption><div class="vl-trace"><b>i</b><div class="vl-cards" style="--row-columns:4"><span>1</span><span>2</span><span>3</span><span>4</span></div></div><div class="vl-trace"><b>total after adding i</b><div class="vl-cards" style="--row-columns:4"><span>1</span><span>3</span><span>6</span><span>10</span></div></div></figure><p><code>total += i</code> means <code>total = total + i</code>. <code>range(n)</code> gives 0 through n − 1. <code>break</code> leaves a loop; <code>continue</code> skips to its next turn.</p></section><section class="vl-lesson"><h2>Two loops: add or multiply?</h2><figure class="vl-figure"><figcaption>Each cell is one inner-loop action</figcaption><div class="vl-trace"><b>i = 0</b><div class="vl-cards" style="--row-columns:3"><span>(0, 0)</span><span>(0, 1)</span><span>(0, 2)</span></div></div><div class="vl-trace"><b>i = 1</b><div class="vl-cards" style="--row-columns:3"><span>(1, 0)</span><span>(1, 1)</span><span>(1, 2)</span></div></div><div class="vl-trace"><b>i = 2</b><div class="vl-cards" style="--row-columns:3"><span>(2, 0)</span><span>(2, 1)</span><span>(2, 2)</span></div></div></figure><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>n = 3
+for i in range(n):
+    for j in range(n):
+        print(i, j)</code></pre></div><div class="vl-equation"><span>Nested loops</span><strong>n × n = n² actions</strong></div><p>Two separate loops of n turns do n + n = 2n actions. Nesting makes every outer turn repeat the whole inner loop.</p></section><section class="vl-lesson"><h2>Halve until the stopping condition fails</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>n = 20
+steps = 0
+while n &gt; 1:
+    n //= 2
+    steps += 1
+print(steps)</code></pre></div><figure class="vl-figure"><figcaption>Four updates, then n > 1 becomes false</figcaption><div class="vl-trace"><b>n</b><div class="vl-cards" style="--row-columns:5"><span>20</span><span>10</span><span>5</span><span>2</span><span>1</span></div></div></figure><div class="vl-equation"><span>For a positive integer starting value n</span><strong>steps = ⌊log₂ n⌋</strong><p>For powers of two: 2ᵏ → … → 1 takes exactly k updates.</p></div><p>A <code>while</code> loop must move toward a stopping condition. Using <code>n += 1</code> here would never reach it.</p></section>
+<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">3.1</span>Decisions first</h2>
   <p>
     Before repetition, one small tool: doing something only in certain cases. Python
@@ -83,8 +82,8 @@ else:
     can safely say just <code>&gt; 15</code>: if the temperature had been above 30 we would
     already have stopped at "Hot". Read a chain of <code>elif</code>s as "otherwise, if…".
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>The for loop: do this n times</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.2</span>The for loop: do this n times</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>counting out loud</div><pre><code>for i in range(5):
     print("step", i)</code></pre></div>
@@ -116,8 +115,8 @@ print(f"The numbers 1 to {n} add up to {total}")</code></pre></div>
     The pattern — start an accumulator at zero, add to it inside the loop, use it after —
     is worth memorising. You will write it a hundred times.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>The while loop: keep going until</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.3</span>The while loop: keep going until</h2>
   <p>
     Use <code>for</code> when you know how many repetitions you need, <code>while</code>
@@ -147,8 +146,8 @@ print(f"Size left: {remaining}, reductions: {reductions}")</code></pre></div>
       thing the condition tests.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Counting the work</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.4</span>Counting the work</h2>
   <p>
     Here is the technique that carries the whole course. Add a variable whose only job is
@@ -177,8 +176,8 @@ print(f"n = {n}, result = {total}, steps = {steps}")</code></pre></div>
       stopwatch in week 5 and use both together for the rest of the course.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>A loop inside a loop</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.5</span>A loop inside a loop</h2>
   <p>Now the moment that makes people sit up. Put one loop inside another:</p>
   <div class="code"><div class="code-head"><span class="dot"></span>every pair</div><pre><code>n = 5
@@ -212,8 +211,8 @@ print(f"n = {n}, steps = {steps}")</code></pre></div>
     forbidden — sometimes you genuinely must compare every pair — but from now on, when
     you write one, you should feel a small alarm go off.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Deciding inside a loop: break and continue</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.6</span>Deciding inside a loop: break and continue</h2>
   <p>
     Combining a decision with a loop is where loops earn their keep. Two keywords give you
@@ -261,8 +260,8 @@ print(f"total {total}, skipped {skipped}")</code></pre></div>
     <em>what</em> happens on a pass, not <em>how many</em> passes there are. Keep that
     separation clear: skipping an item is not the same as never visiting it.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Common mistakes with loops</summary><div><section>
+</section>
+<section>
   <h2><span class="num">3.7</span>Common mistakes with loops</h2>
   <p>
     Four loop bugs account for most of the confusion in these first weeks. Meet them here
@@ -310,138 +309,8 @@ right version: 15</div>
       reveal the bug, and it is far faster than staring at the whole thing.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide"><h2 id="help-the-big-question">The big question</h2>
-<p><strong>How do I make the computer repeat work, and how do I count that work?</strong></p>
-<p>A five-line program can perform thousands of operations. Decisions and loops let us investigate how work changes with input. Trace tiny cases first; formulas should summarize an understood pattern.</p>
-<p>Trace <code>if</code>, <code>for</code>, and <code>while</code>; explain <code>range</code> endpoints; maintain an accumulator; and count a specified operation. Distinguish visits, accepted values, and inner-body executions: their counts can differ.</p>
-<h2 id="help-retrieval-with-answers">Retrieval with answers</h2>
-<div class="table-scroll"><table><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody><tr><td>Old <code>total</code> is 7. What does <code>total = total + 3</code> do?</td><td>Calculate 7 + 3, then store 10.</td></tr><tr><td>What is <code>17 % 5</code>?</td><td>2, since 17 = 3 × 5 + 2.</td></tr><tr><td>What is <code>17 // 5</code>?</td><td>3, the number of complete groups of five.</td></tr><tr><td>Does <code>=</code> test equality?</td><td>No. <code>=</code> assigns; <code>==</code> compares values.</td></tr></tbody></table></div>
-<p>If uncertain, revisit Week 2 assignment. Distinguish a value before an iteration from its value afterward.</p>
-<h2 id="help-decisions-one-selected-path">Decisions: one selected path</h2>
-<p>An <code>if</code> condition produces <code>True</code> or <code>False</code>. Its indented block runs only when the condition is true. In an <code>if</code> / <code>elif</code> / <code>else</code> chain, Python selects the first true branch, or the final <code>else</code> if none is true. It does not execute every branch whose condition might be true independently.</p>
-<p>For the lesson&#x27;s weather example, “hot” means <code>temperature &amp;gt; 30</code>, “warm” means the remaining cases with <code>temperature &amp;gt; 15</code>, and “cool” covers everything else. Therefore 31 is hot, 30 is warm, and 15 is cool. Exact boundary values reveal whether you intended <code>&amp;gt;</code> or <code>&amp;gt;=</code>.</p>
-<p><code>and</code> requires both conditions; <code>or</code> needs at least one; <code>not</code> reverses a Boolean result. A multiple of both three and five satisfies <code>number % 3 == 0 and number % 5 == 0</code>. In FizzBuzz, check this combined case before the single-multiple cases, or 15 will enter the first single case too early.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> Koşul sırası, sorunun çözümünün bir parçasıdır. <code>if</code> ile başlayan tek zincirde ilk doğru dal seçilince aşağıdaki <code>elif</code> dalları denenmez. “Her koşulu ayrı ayrı kontrol et” ile “uygun tek sınıfı seç” aynı algoritma değildir.</p>
-<h2 id="help-repetition-define-exactly-which-values-are-visited">Repetition: define exactly which values are visited</h2>
-<p><code>range(5)</code> visits 0, 1, 2, 3, 4. <code>range(1, 6)</code> visits 1, 2, 3, 4, 5. Both contain five values. The stop value is excluded, which lets <code>range(n)</code> repeat exactly <code>n</code> times for a nonnegative integer <code>n</code>. <code>range(10, 0, -1)</code> visits ten down to one; the negative step moves toward the excluded zero.</p>
-<p>A <code>for</code> loop visits a supplied sequence. A <code>while</code> loop repeats while a condition is true. With <code>while</code>, identify what changes and why the condition must eventually become false. For example, subtracting one from a positive countdown moves it toward zero. Forgetting that update can produce an infinite loop.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> <code>range(1, n)</code> yazınca n dahil değildir. Son değeri ezberlemek yerine üç küçük değer yaz: n = 4 için 1, 2, 3 gelir. Amaç 1&#x27;den 4&#x27;e kadar toplamaksa durma sınırı 5 olmalıdır.</p>
-<h2 id="help-worked-example-1-an-accumulator-and-its-counter">Worked example 1: an accumulator and its counter</h2>
-<p>Add the integers from one through four. <code>total</code> stores the mathematical result so far. <code>steps</code> counts executions of the addition line; it does not count every operation performed by Python.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">n = 4
-total = 0
-steps = 0
-for value in range(1, n + 1):
-    total = total + value
-    steps = steps + 1
-print(total, steps)</code></pre></div>
-<div class="guide-code"><div class="code-label">output</div><pre><code class="language-output">10 4</code></pre></div>
-<div class="table-scroll"><table><thead><tr><th>Iteration</th><th><code>value</code></th><th><code>total</code> before</th><th>Addition</th><th><code>total</code> after</th><th><code>steps</code> after</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>0</td><td>0 + 1</td><td>1</td><td>1</td></tr><tr><td>2</td><td>2</td><td>1</td><td>1 + 2</td><td>3</td><td>2</td></tr><tr><td>3</td><td>3</td><td>3</td><td>3 + 3</td><td>6</td><td>3</td></tr><tr><td>4</td><td>4</td><td>6</td><td>6 + 4</td><td>10</td><td>4</td></tr></tbody></table></div>
-<p>The initialization <code>total = 0</code> runs before the loop. Moving it inside would erase the previous sum every iteration, leaving only the last value, four. The counter follows the same pattern: initialize once, update once per counted event.</p>
-<p>For general nonnegative <code>n</code>, the selected addition executes <code>n</code> times. The resulting sum is <code>n × (n + 1) / 2</code>: at four, <code>4 × 5 / 2 = 10</code>. These are different quantities. At 100, the answer is 5050 but the addition count is 100.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> Sonucun büyüklüğü, işlemin kaç kez yapıldığı değildir. Para toplarken kutudaki toplam tutar ile kutuya kaç kez para koyduğun ayrı sayılardır. <code>total</code> birinciyi, <code>steps</code> ikinciyi izler.</p>
-<h2 id="help-worked-example-2-count-a-grid-row-by-row">Worked example 2: count a grid row by row</h2>
-<p>For each of three rows, visit each of three columns. The inner loop restarts for every outer iteration.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">n = 3
-steps = 0
-for row in range(n):
-    for column in range(n):
-        steps = steps + 1
-        print(row, column, steps)
-print(&quot;Total:&quot;, steps)</code></pre></div>
-<div class="guide-code"><div class="code-label">output</div><pre><code class="language-output">0 0 1
-0 1 2
-0 2 3
-1 0 4
-1 1 5
-1 2 6
-2 0 7
-2 1 8
-2 2 9
-Total: 9</code></pre></div>
-<div class="table-scroll"><table><thead><tr><th>Outer value</th><th>Inner values</th><th>Work in this row</th><th>Accumulated work</th></tr></thead><tbody><tr><td>0</td><td>0, 1, 2</td><td>3</td><td>3</td></tr><tr><td>1</td><td>0, 1, 2</td><td>3</td><td>6</td></tr><tr><td>2</td><td>0, 1, 2</td><td>3</td><td>9</td></tr></tbody></table></div>
-<p>There are <code>n</code> rows and <code>n</code> visits per row, so the body executes <code>n × n = n²</code> times. Doubling <code>n</code> from three to six changes nine visits to 36: <code>36 / 9 = 4</code>. Both dimensions doubled.</p>
-<p>Two nested loops do not automatically mean <code>n²</code>. If each row contains only two visits, the total is <code>2n</code>. If row lengths differ, add their lengths. Always inspect the actual bounds.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> İç içe döngüyü bir dikdörtgen gibi düşünmek, yalnızca her satır aynı uzunluktaysa doğrudur. İç sınır dış değişkene bağlıysa önce satırların uzunluklarını yaz; çarpım formülünü otomatik uygulama.</p>
-<h2 id="help-halving-count-reductions-precisely">Halving: count reductions precisely</h2>
-<p>The integer-halving loop applies floor division until at most one remains. Trace actual updates rather than substituting an approximate search estimate.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">remaining = 1000
-reductions = 0
-while remaining &gt; 1:
-    remaining = remaining // 2
-    reductions = reductions + 1
-    print(reductions, remaining)
-print(&quot;Reductions:&quot;, reductions)</code></pre></div>
-<div class="guide-code"><div class="code-label">output</div><pre><code class="language-output">1 500
-2 250
-3 125
-4 62
-5 31
-6 15
-7 7
-8 3
-9 1
-Reductions: 9</code></pre></div>
-<p>For starting sizes 1000, 10 000, 100 000 and 1 000 000, the counts are <strong>9, 13, 16 and 19</strong>. Odd values round downward: 125 // 2 is 62. This program counts size reductions; it does not inspect a target, maintain a search interval or perform a final candidate comparison. Therefore its exact counts are not the exact guessing-game counts from Week 1. The shared idea is slow growth under repeated halving.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> “Yaklaşık yarıya indirme” fikri doğru olsa da sayaç, yazdığın kodun olaylarını sayar. Son adayın kontrolü bu döngüde yoktur. Arama adımı ile tamsayı bölme adımını aynı saymak bir eksik veya bir fazla sonuca götürebilir.</p>
-<h2 id="help-three-practice-problems-with-complete-solutions">Three practice problems with complete solutions</h2>
-<h3 id="help-practice-1-visits-and-accepted-values">Practice 1 — visits and accepted values</h3>
-<p>Inspect every integer from one through six and count the even values. How many values are inspected, and how many pass the test?</p>
-<h4 id="help-solution-1">Solution 1</h4>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">n = 6
-visited = 0
-even_count = 0
-for value in range(1, n + 1):
-    visited = visited + 1
-    if value % 2 == 0:
-        even_count = even_count + 1
-print(visited, even_count)</code></pre></div>
-<div class="guide-code"><div class="code-label">output</div><pre><code class="language-output">6 3</code></pre></div>
-<p>The visited values are 1, 2, 3, 4, 5, 6. The accepted values are 2, 4, 6. Thus six tests produce three successes. At <code>n = 5</code>, the counts become five and two. <strong>Türkçe:</strong> Koşul yanlış olduğunda o değer yine incelenmiştir; yalnızca başarı sayacı artmaz.</p>
-<h3 id="help-practice-2-stopping-and-skipping">Practice 2 — stopping and skipping</h3>
-<p>First, test positive integers in order until finding one whose square exceeds 1000. How many tests occur? Second, sum one through 20 while skipping multiples of three. Find the sum, skipped count, and total visits.</p>
-<h4 id="help-solution-2">Solution 2</h4>
-<p><code>31² = 961</code> is too small and <code>32² = 1024</code> exceeds 1000. Testing from one finds 32 after 32 tests; a <code>break</code> then ends the loop. A counter placed before the condition includes that successful final test.</p>
-<p>The full sum is <code>20 × 21 / 2 = 210</code>. Skipped numbers are 3, 6, 9, 12, 15, 18, totaling <code>3 × (1 + 2 + 3 + 4 + 5 + 6) = 3 × 21 = 63</code>. The desired sum is <code>210 − 63 = 147</code>, with six skips and 20 visits. <code>continue</code> skips the remaining body for one iteration; it does not terminate the loop. <strong>Türkçe:</strong> <code>break</code> aramayı bitirir, <code>continue</code> sadece mevcut adayın kalan işlemlerini atlar.</p>
-<h3 id="help-practice-3-unequal-row-lengths">Practice 3 — unequal row lengths</h3>
-<p>For <code>i</code> from one through <code>n</code>, let <code>j</code> run from <code>i</code> through <code>2i</code>, including both endpoints. Count the inner-body executions for <code>n = 3</code>, then write a general expression. This follows the lesson&#x27;s Chapter 2 problem 2-35.</p>
-<h4 id="help-solution-3">Solution 3</h4>
-<div class="table-scroll"><table><thead><tr><th><code>i</code></th><th><code>j</code> values</th><th>Row count</th></tr></thead><tbody><tr><td>1</td><td>1, 2</td><td>2</td></tr><tr><td>2</td><td>2, 3, 4</td><td>3</td></tr><tr><td>3</td><td>3, 4, 5, 6</td><td>4</td></tr></tbody></table></div>
-<p>An inclusive interval from <code>i</code> to <code>2i</code> contains <code>2i − i + 1 = i + 1</code> values. Total work is <code>2 + 3 + ... + (n + 1) = n(n + 1)/2 + n = (n² + 3n)/2</code>. At three, <code>(9 + 9)/2 = 9</code>. Python needs <code>range(i, 2 * i + 1)</code> to include <code>2i</code>. <strong>Türkçe:</strong> Sondaki <code>+1</code>, iki uç dahil olduğundan gelir; uzunluk hesabında en sık kaybolan adımdır.</p>
-<h2 id="help-the-chapter-connections-without-rushing">The chapter connections, without rushing</h2>
-<p>Problem 2-32 alternates squares: at five, <code>1 − 4 + 9 − 16 + 25 = 15 = 5 × 6 / 2</code>. Pairing adjacent terms explains the cancellation; testing examples alone is evidence, not a proof for every input. For even <code>k</code>, the result is <code>−k(k + 1)/2</code>; for odd <code>k</code>, it is positive.</p>
-<p>To see why, take an odd number <code>a</code> followed by <code>a + 1</code>. Their square difference is <code>a² − (a + 1)² = −2a − 1 = −(a + (a + 1))</code>. For even <code>k</code>, pairing every term therefore gives the negative sum from one through <code>k</code>. For odd <code>k</code>, the first <code>k − 1</code> terms give <code>−(k − 1)k/2</code>; adding the last square gives <code>k² − (k − 1)k/2 = (2k² − k² + k)/2 = k(k + 1)/2</code>.</p>
-<p>Problem 2-34 counts gifts. Day <code>d</code> gives <code>d(d + 1)/2</code> gifts, so four days give <code>1 + 3 + 6 + 10 = 20</code>. The cumulative formula is <code>n(n + 1)(n + 2)/6</code>. A loop adding the daily formula runs once per day: its addition count is <code>n</code>, even though the gift total grows like a cubic expression. State what you are counting before discussing growth.</p>
-<p class="turkish"><strong>Türkçe açıklama:</strong> İşaretli karelerde iki komşu terimi birlikte açınca büyük kareler birbirini götürür; tek sayıda terim varsa son kareyi ayrıca ekleriz. Hediyelerde ise toplam hediye sayısı ile günlük toplamı hesaplayan kodun işlem sayısı ayrıdır. Formülü kullanmak, her hediyeyi tek tek ziyaret etmek anlamına gelmez.</p>
-<h2 id="help-misconceptions-glossary-and-repair">Misconceptions, glossary and repair</h2>
-<div class="table-scroll"><table><thead><tr><th>Misconception</th><th>Correction</th></tr></thead><tbody><tr><td>Every nested loop has square growth</td><td>Check inner bounds and add row counts</td></tr><tr><td>Resetting the accumulator each round is harmless</td><td>It erases previous work</td></tr><tr><td>A counter measures all running time</td><td>It measures the event where you increment it</td></tr><tr><td>Testing many values proves a formula</td><td>A general argument must cover all allowed values</td></tr></tbody></table></div>
-<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning</th></tr></thead><tbody><tr><td>Condition</td><td>Koşul</td><td>A true-or-false test</td></tr><tr><td>Iteration</td><td>Yineleme</td><td>One visit through a loop</td></tr><tr><td>Accumulator</td><td>Biriktirici</td><td>A value storing the running result</td></tr><tr><td>Counter</td><td>Sayaç</td><td>A value recording events</td></tr><tr><td>Loop body</td><td>Döngü gövdesi</td><td>The repeated indented instructions</td></tr><tr><td>Termination</td><td>Sonlanma</td><td>Reaching a condition that ends the process</td></tr></tbody></table></div>
-<p>For readiness, explain why a four-by-four grid makes 16 visits and why five even numbers among ten still require ten inspections. Explain where <code>total = 0</code> belongs. <strong>Answers:</strong> four rows each contain four visits; every candidate needs a test; initialization belongs before accumulation begins.</p>
-<p>If uncertain, use <code>n = 3</code>, write each visited value, and mark the counted line before increasing the input. Week 4 applies these counters to stored lists, scans, searches and pair comparisons.</p>
-<h2 id="help-count-visits-separately-from-the-total">Count visits separately from the total</h2>
-<p>A loop repeats instructions. A counter records how many times something happens. A running total adds up values; this is also called an accumulator. The count and the total can be different even in the same loop.</p>
-<p><strong>Draw or trace.</strong> For numbers 1, 2, 3, 4, write one row per visit with the current number, running sum and visit count.</p>
-<p><strong>Predict before checking.</strong> Will the sum and visit count end equal? What changes if the increase to the counter is placed inside an even-number test?</p>
-<h3 id="help-worked-reasoning">Worked reasoning</h3>
-<p>The running totals are 1, 3, 6, 10. The visit counts are 1, 2, 3, 4. Only two numbers are even, but the loop still visits all four. Before using a counter, say exactly what it counts. Putting it inside the even-number test counts matches, not all visits.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">total = visits = matches = 0
-for number in range(1, 5):
-    visits += 1
-    total += number
-    if number % 2 == 0:
-        matches += 1
-assert (total, visits, matches) == (10, 4, 2)
-print(total, visits, matches)</code></pre></div>
-<p><strong>Change one thing.</strong> Use an empty range and then a range containing only odd numbers. Explain the difference between no visits and visits with no matches.</p>
-<p class="turkish"><strong>Türkçe:</strong> Sayaç hangi olayın kaç kez olduğunu ölçer. Eşleşme sayısı, ziyaret sayısı ve toplam değer birbirinin yerine kullanılamaz.</p>
-<h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
-<p>This week is where students often start saying &quot;the loop runs n times&quot; too quickly. Make them name the values visited by the loop before they name n.</p>
-<div class="table-scroll"><table><thead><tr><th>Loop description</th><th>Values visited</th><th>Count</th></tr></thead><tbody><tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td><td>5</td></tr><tr><td><code>range(2, 7)</code></td><td>2, 3, 4, 5, 6</td><td>5</td></tr><tr><td><code>range(1, 8, 2)</code></td><td>1, 3, 5, 7</td><td>4</td></tr><tr><td>while value halves from 32 until 1</td><td>32, 16, 8, 4, 2</td><td>five tests before reaching 1 if the loop stops after the update</td></tr></tbody></table></div>
-<p>Extra exam-style prompt: A loop processes rows of lengths 2, 4, and 6. Is the total work 3, 6, 12, or something else?</p>
-<p>Solution: It is 2 + 4 + 6 = 12 item visits. The outer loop has three rows, but the inner work depends on row length. If row lengths follow 2, 4, ..., 2n, the total is 2(1 + 2 + ... + n) = n(n + 1), which grows quadratically.</p>
-<p class="turkish"><strong>Turkce:</strong> Dongu kelimesini gormek yetmez. Hangi degerler ziyaret ediliyor? Ic dongu her satirda kac kez calisiyor? Once bu listeyi yaz, sonra formulu sec.</p></div></details>
-<details class="path-resources"><summary>Learning goals & class plan</summary><div><section>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>Count a loop by drawing its work</h3><p>Do not count indentation levels alone. Draw one mark for each execution of the operation you care about. If the outer counter runs from 1 to n and the inner counter runs from 1 to that outer counter, the rows contain 1, 2, …, n marks. At n = 4 there are 10 marks, not 16.</p><p>The total is n(n + 1)/2. Pair the first and last rows, then the second and second-last: each pair has n + 1 marks. A full rectangular pair of loops has n² marks instead. Both eventually grow quadratically, but their exact counts differ.</p><p>A doubling counter follows a different pattern: 1, 2, 4, 8, … . Count the doublings rather than the size of the final value. We will attach the formal growth notation in Week 8.</p><p class="engineering-transfer"><strong>Engineering use.</strong> For a collision check between parts, distinguish pairs counted in both orders, pairs counted only once, and a part paired with itself.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
@@ -465,9 +334,10 @@ print(total, visits, matches)</code></pre></div>
     <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
   </div>
 </section>
-</div></details><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-018"><p class="source-label">Source exercise 18 · medium</p><p>What is the running time of this loop nest? for i = 1 to n: for j = 1 to i: (constant work)</p><details class="solution"><summary>Show reasoning</summary><div><p>the inner loop runs 1 + 2 + … + n = n(n + 1)/2 times in total, so Θ(n²). Notice that “the inner loop depends on i” does not change the order compared with a full n × n nest.</p></div></details></article><p><strong>Write down:</strong> A hand-drawn trace at n = 4 and the operation being counted.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>
-<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div><section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w03/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
+<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>For the sum loop, replace range(1, 5) with range(1, 6). List each total.</p><details class="solution"><summary>Check your reasoning</summary><div><p>1, 3, 6, 10, 15: five additions.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>Count body actions for two nested loops, each range(8). Compare two separate loops.</p><details class="solution"><summary>Check your reasoning</summary><div><p>Nested: 8 × 8 = 64. Separate: 8 + 8 = 16.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Start the halving loop at 32, then 31. Predict the update counts.</p><details class="solution"><summary>Check your reasoning</summary><div><p>32 → 16 → 8 → 4 → 2 → 1 takes 5. 31 → 15 → 7 → 3 → 1 takes 4.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
   <h2><span class="num">3.8</span>Try it yourself</h2>
 
   <div class="task">
@@ -598,7 +468,8 @@ print(f"answer {answer}, checked {steps}")</code></pre></div>
       </p>
     </details>
   </div>
-</section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
+</section></div></details>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-018"><p class="source-label">Source exercise 18 · medium</p><p>What is the running time of this loop nest? for i = 1 to n: for j = 1 to i: (constant work)</p><details class="solution"><summary>Show reasoning</summary><div><p>the inner loop runs 1 + 2 + … + n = n(n + 1)/2 times in total, so Θ(n²). Notice that “the inner loop depends on i” does not change the order compared with a full n × n nest.</p></div></details></article><p><strong>Write down:</strong> A hand-drawn trace at n = 4 and the operation being counted.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
 <section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
   <h2><span class="num">3.9</span>Self-check</h2>
   <div class="quiz" data-quiz>
@@ -657,7 +528,7 @@ print(f"answer {answer}, checked {steps}")</code></pre></div>
     </ol>
   </div>
 </section></div></details>
-<section>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
   <h2><span class="num">3.11</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
@@ -673,7 +544,7 @@ print(f"answer {answer}, checked {steps}")</code></pre></div>
       </tbody>
     </table>
   </div>
-</section>
+</section></div></details>
 <details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
   <h2><span class="num">3.12</span>Chapter problem set — Skiena 2.10</h2>
   <p>

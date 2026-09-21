@@ -93,6 +93,7 @@ def staged_lesson(num, body, studio):
     assert all(buckets.values()), f'Week {num}: missing lesson stage'
     from skiena_material import weekly_material
     notes, focus, optional = weekly_material(num)
+    original = {key: list(value) for key, value in buckets.items()}
     # The selected source problem leads the class workshop; existing tasks remain reference.
     buckets['investigate'] = [focus, '<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div>' + '\n'.join(buckets['investigate']) + '</div></details>']
     buckets['check'].append(optional)
@@ -111,6 +112,17 @@ def staged_lesson(num, body, studio):
         ]
         practice = [block for block in blocks if 'Try it yourself' in heading(block)]
         buckets['investigate'] = practice + ['<details class="path-reference"><summary>Optional textbook workshop · correctness</summary><div>' + focus + '</div></details>']
+    if num > 1:
+        from visual_lessons import lesson, practice
+        def folded(title, content):
+            return '<details class="path-reference"><summary>' + title + '</summary><div>' + content + '</div></details>'
+        buckets['understand'] = [lesson(num), folded('Optional depth · full technical reference', '\n'.join(original['understand']) + notes),
+            folded('Learning goals &amp; class plan', objectives + studio),
+            f'<p class="vl-reference">Need a slower explanation? <a href="../guide/w{num:02d}/">Open the English + Türkçe reference guide</a>.</p>']
+        buckets['investigate'] = [practice(num), folded('Explore the animations &amp; more worked tasks', '\n'.join(original['investigate'])),
+            folded('Optional textbook workshop', focus)]
+        buckets['check'] = [block if 'self-check' in heading(block).lower() or block.startswith('<details') else folded('Optional reference · ' + html.escape(heading(block) or 'extra practice'), block)
+                            for block in original['check']] + [optional]
     keys = [('understand', 'Understand'), ('investigate', 'Investigate'), ('check', 'Check')]
     nav = '<nav class="path-steps" aria-label="Lesson steps" hidden>' + ''.join(f'<button type="button" data-step-target="{key}" aria-controls="{key}">{i+1} · {label}</button>' for i,(key,label) in enumerate(keys)) + '</nav>'
     panels = []

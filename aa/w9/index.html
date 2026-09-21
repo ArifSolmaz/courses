@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w9.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w9.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
@@ -29,24 +29,16 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/" selected>Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Faster Lookups</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="count-each-letter-including-repeats">Count each letter, including repeats</h2>
-<p>Two words are anagrams if they contain the same letters the same number of times. First agree whether capitals and spaces count. A fast method is still wrong if it loses information needed for the answer.</p>
-<p><strong>Draw or trace.</strong> Lay out tiles for aab and abb. Both use letters a and b, but their piles have different sizes. Draw a per-letter tally rather than only a set of present letters.</p>
-<p><strong>Predict before checking.</strong> Will converting both words to sets correctly decide whether they are anagrams?</p>
-<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
-<p>No. Both sets contain a and b, but sets discard repeat counts. Sorting keeps every letter, so we can compare the sorted words position by position. Counting letters also keeps the information we need. An array of counters needs a known, fixed set of possible letters. A dictionary can handle more kinds of keys, but its fast lookup is an average-case claim, not a worst-case guarantee.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from collections import Counter
-
-left, right = &quot;aab&quot;, &quot;abb&quot;
-assert set(left) == set(right)
-assert sorted(left) != sorted(right)
-assert Counter(left) != Counter(right)
-assert Counter(&quot;aab&quot;) == Counter(&quot;baa&quot;)
-print(&quot;Sets lose the counts required by this problem.&quot;)</code></pre></div>
-</details><p><strong>Change one thing.</strong> Try Aab versus baa, then a word containing a space. State whether case and spaces matter before changing capitals or removing spaces. Do not let competing methods silently solve different problems.</p>
-<p class="turkish"><strong>Türkçe:</strong> Anagramda harfin varlığı değil tekrar sayısı da önemlidir. Hız karşılaştırmasından önce bütün yöntemlerin aynı soruyu çözdüğünü doğrula.</p></section>
-<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 6, 7, 8</p><h3>Compare whole strategies, including preparation</h3><p>The notes use sorting and hashing to turn repeated searching into organised work. To find two records whose values sum to T, one strategy sorts then moves pointers inward; another remembers earlier values in a hash set and looks for T − x.</p><p>Preparation matters. Sorting is part of the first method's total cost. Hashing needs extra storage, hashing that spreads keys well across storage slots and a rule that prevents using one record twice. Check the complement before inserting the current record, or track counts explicitly.</p><p>This is the same habit as comparing anagram methods: state the output contract, trace a small case, count the expensive operations, and include setup. A method that is fast on average can still have a slow worst case.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Use paired loads or calibration values as the test case. Include duplicate values and a case with no valid pair.</p></section>
-<details class="path-reference teaching-part"><summary>The problem</summary><div><section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Anagrams have equal letter counts</h2><figure class="vl-figure"><figcaption>listen and silent: order changes, counts do not</figcaption><div class="vl-trace"><b>letter</b><div class="vl-cards" style="--row-columns:6"><span>e</span><span>i</span><span>l</span><span>n</span><span>s</span><span>t</span></div></div><div class="vl-trace"><b>listen</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div><div class="vl-trace"><b>silent</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div></figure><p>First define the rules: here inputs contain only lowercase English letters, and every character counts. Repeated letters matter: <code>aab</code> and <code>abb</code> are not anagrams.</p></section><section class="vl-lesson"><h2>Four methods, one decision</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Work for length n</th><th scope="col">Main idea</th></tr></thead><tbody><tr><td>Cross off a matching letter</td><td>O(n²)</td><td>Search remaining positions for each letter.</td></tr><tr><td>Sort both strings</td><td>O(n log n)</td><td>Equal sorted sequences have equal counts.</td></tr><tr><td>Try every permutation</td><td>O(n · n!)</td><td>Generate candidates and compare each.</td></tr><tr><td>Count k possible letters</td><td>O(n + k)</td><td>Compare the two frequency arrays.</td></tr></tbody></table></div><p>These are upper bounds. The permutation bound includes up to n work per candidate. Early mismatches can finish sooner. With a fixed alphabet k = 26, counting is linear.</p></section><section class="vl-lesson"><h2>Build a count, then cancel it</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def anagram(a, b):
+    if len(a) != len(b):
+        return False
+    counts = [0] * 26
+    for ch in a:
+        counts[ord(ch) - ord(&quot;a&quot;)] += 1
+    for ch in b:
+        counts[ord(ch) - ord(&quot;a&quot;)] -= 1
+    return all(c == 0 for c in counts)</code></pre></div><figure class="vl-figure"><figcaption>Trace aab against abb; show only a and b</figcaption><div class="vl-trace"><b>counts for aab</b><div class="vl-cards" style="--row-columns:2"><span>a: 2</span><span>b: 1</span></div></div><div class="vl-trace"><b>subtract abb</b><div class="vl-cards" style="--row-columns:2"><span>a: 1</span><span>b: −1</span></div></div></figure><p>The final nonzero entries show the mismatch. This implementation requires a–z input; validate or normalise first if the input rules differ.</p></section><section class="vl-lesson"><h2>Compare on the same job</h2><div class="vl-equation"><span>Frequency-array work</span><strong>n increments + n decrements + k checks</strong></div><p>Test empty strings, repeated letters, unequal lengths, a valid pair and a same-length non-pair. Time each method on the same families. For general text, a dictionary counter can handle a larger alphabet; its lookup cost is average-case, and case/spacing rules must be explicit.</p></section>
+<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">9.1</span>The problem</h2>
   <p>
     Two words are <strong>anagrams</strong> if one is a rearrangement of the other:
@@ -66,8 +58,8 @@ print(&quot;Sets lose the counts required by this problem.&quot;)</code></pre></
     or punctuation. It requires validation or an explicit normalization policy at a real
     interface. Unequal lengths return False; two empty strings are anagrams.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Solution 1 — checking off</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.2</span>Solution 1 — checking off</h2>
   <p>
     The way most people describe it out loud: <em>take each letter of the first word and
@@ -104,8 +96,8 @@ print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span>
     exactly 1 through n in some order, even with repeated letters. Rejections may stop
     earlier. Worst-case time is Θ(n²); the list copy uses Θ(n) extra space.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Solution 2 — sort and compare</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.3</span>Solution 2 — sort and compare</h2>
   <p>
     A neat observation: two words are anagrams exactly when their letters, sorted, are
@@ -134,8 +126,8 @@ print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span>
       what it costs. The n log n expression is a growth bound, not an exact comparison count.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Solution 3 — brute force (do not run this on long words)</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.4</span>Solution 3 — brute force (do not run this on long words)</h2>
   <p>
     The "try everything" approach: generate every possible rearrangement of the first word
@@ -176,8 +168,8 @@ def anagram_brute_force(s1, s2):
     much sooner. The generator avoids storing every result, but its state and current
     candidate use O(n) extra storage. Keep experimental runs at very small n.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Solution 4 — count and compare</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.5</span>Solution 4 — count and compare</h2>
   <p>
     The winning move is to stop comparing letters with letters. Count how many times each
@@ -213,8 +205,8 @@ def anagram_brute_force(s1, s2):
     trade — spend a little space to save a lot of time — is one of the most reliable moves
     in all of computing, and week 11 is built entirely on it.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Head to head</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.6</span>Head to head</h2>
   <div class="table-wrap">
     <table>
@@ -276,8 +268,8 @@ n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</
       optional extension, but report honestly if none is observed in the tested range.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Counting operations to confirm the class</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.7</span>Counting operations to confirm the class</h2>
   <p>
     Timing is honest but noisy — it mixes in your CPU, the language and whatever else the
@@ -365,8 +357,8 @@ for n in [250, 500, 1000, 2000]:
       from a doubling ratio; it does not explain every disagreement.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Which would you ship?</summary><div><section>
+</section>
+<section>
   <h2><span class="num">9.8</span>Which would you ship?</h2>
   <p>
     "Fastest class" is not automatically "best choice". Real decisions weigh speed against
@@ -409,200 +401,8 @@ for n in [250, 500, 1000, 2000]:
       was first on the page" is an accident that happens to be fine until the data grows.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide"><h2 id="help-the-big-question">The big question</h2>
-<p>How can four correct programs solve the same problem with very different amounts of work? This week brings the course together: define the problem, trace a program, count its work, describe its growth, and measure carefully before choosing an implementation.</p>
-<p>The problem is <strong>anagram detection</strong>. Two strings are anagrams when they contain exactly the same characters, with the same number of occurrences of each character. Order may differ. <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;aba&amp;quot;</code> are anagrams; <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;abb&amp;quot;</code> are not. Merely containing the same <em>kinds</em> of letters is insufficient.</p>
-<p>The core route is the input contract, four strategies, two worked traces, and Practices 1–2. Practice 3 and the multiplication section are optional deepening. They preserve the source lesson&#x27;s further questions without adding prerequisites for Week 10.</p>
-<p>By the end, you should explain why marking prevents reuse, why sorting hides work, why permutation generation becomes expensive, and why counting solves the fixed-alphabet problem in linear time. You should also distinguish a proved operation bound from a measured speed comparison.</p>
-<h2 id="help-warm-up-with-answers">Warm-up, with answers</h2>
-<ol>
-<li>Are <code>&amp;quot;ab&amp;quot;</code> and <code>&amp;quot;aab&amp;quot;</code> anagrams? <strong>No.</strong> Their lengths differ, so their multiplicities cannot all agree.</li>
-<li>Are <code>&amp;quot;&amp;quot;</code> and <code>&amp;quot;&amp;quot;</code> anagrams? <strong>Yes.</strong> Both have zero copies of every character. The empty case is a valid input.</li>
-<li>What is 1 + 2 + 3 + 4? <strong>10</strong>, also 4 × 5 / 2. This triangular sum will describe checking off.</li>
-<li>What does 4! mean? <strong>4 × 3 × 2 × 1 = 24.</strong> It counts orderings of four distinct positions.</li>
-<li>Is <code>sorted(word)</code> constant-time because it is one expression? <strong>No.</strong> The called operation processes the characters and constructs a result.</li>
-</ol>
-<p class="turkish"><strong>Türkçe:</strong> Anagram, yalnızca “aynı harfler var” demek değildir. Her harfin <em>kaç kez</em> geçtiği de aynı olmalıdır. <code>aab</code> ve <code>abb</code> aynı harf türlerini içerir fakat a ve b sayıları farklıdır. Önce doğru koşulu belirlemezsek hızlı çalışan yanlış bir çözüm üretebiliriz.</p>
-<h2 id="help-agree-on-a-contract-before-comparing-costs">Agree on a contract before comparing costs</h2>
-<p>For the main comparison, inputs are Python strings containing only the 26 ASCII letters <code>a</code> through <code>z</code>. Uppercase letters, spaces, punctuation, accents, and Turkish characters such as <code>ı</code> are outside this contract. There is no automatic case conversion or removal of spaces. Unequal lengths return <code>False</code>; equal empty strings return <code>True</code>.</p>
-<p>The counting implementation depends on this restriction. Its index is <code>ord(letter) - ord(&amp;#x27;a&amp;#x27;)</code>: <code>a</code> gives 0, <code>b</code> gives 1, and <code>z</code> gives 25. A different character can produce an invalid index or even a valid negative Python index with the wrong meaning. A real interface should validate its input or define an explicit normalization policy before calling this restricted implementation. Calling <code>.lower()</code> alone does not turn arbitrary Unicode text into ASCII.</p>
-<p>Let n mean the common length after the length check. We count character comparisons or tally updates under the usual unit-cost model. “Extra space” excludes the input strings and includes temporary lists. Exact selected-operation counts are not exact counts of all Python instructions.</p>
-<h2 id="help-strategy-1-find-a-partner-and-mark-it-used">Strategy 1 — Find a partner and mark it used</h2>
-<p>For each character in the first string, search the second string for an unused equal character. Convert the second string to a list because Python strings cannot be changed. Replace a matched entry with <code>None</code>, a marker unequal to every character under our contract.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def checking_off(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    letters = list(s2)
-    for letter in s1:
-        found = False
-        for i in range(len(letters)):
-            if letters[i] == letter:
-                letters[i] = None
-                found = True
-                break
-        if not found:
-            return False
-    return True
-
-assert checking_off(&quot;aab&quot;, &quot;aba&quot;) is True
-assert checking_off(&quot;aab&quot;, &quot;abb&quot;) is False
-assert checking_off(&quot;&quot;, &quot;&quot;) is True
-print(&quot;Checking-off examples passed&quot;)</code></pre></div>
-<p><code>break</code> leaves only the inner search loop. <code>found</code> is reset for each new letter. A failed search returns immediately, because one missing occurrence is enough to reject the pair.</p>
-<h3 id="help-worked-example-1-repeated-letters-and-an-exact-count">Worked example 1 — Repeated letters and an exact count</h3>
-<p>Trace <code>s1 = &amp;quot;aab&amp;quot;</code>, <code>s2 = &amp;quot;aba&amp;quot;</code>. Count each evaluation of <code>letters[i] == letter</code>, including comparisons against a crossed-off entry.</p>
-<div class="table-scroll"><table><thead><tr><th>Letter requested</th><th>Positions inspected, from index 0</th><th>Match index</th><th>List after matching</th><th>Comparisons</th></tr></thead><tbody><tr><td>first a</td><td>a</td><td>0</td><td>[None, b, a]</td><td>1</td></tr><tr><td>second a</td><td>None, b, a</td><td>2</td><td>[None, b, None]</td><td>3</td></tr><tr><td>b</td><td>None, b</td><td>1</td><td>[None, None, None]</td><td>2</td></tr></tbody></table></div>
-<p>Total = 1 + 3 + 2 = <strong>6</strong>. Notice that individual searches did not cost 3, then 2, then 1. The list never shrank. Instead, each successful match used a different original position. For a genuine length-n anagram, those match positions are exactly 0 through n − 1 in some order. Their search costs are therefore exactly 1 through n in some order.</p>
-<p>Total comparisons = 1 + 2 + … + n = n(n + 1)/2. This argument works even with repeated letters. For n = 4 the total is 10; for n = 8 it is 36. The ratio 36/10 = 3.6 is near 4, not exactly 4, because the formula also contains a linear term. The worst-case time is Θ(n²), and the copied list requires Θ(n) extra space.</p>
-<p class="turkish"><strong>Türkçe:</strong> Silinen elemanın yeri listeden kaldırılmıyor; <code>None</code> oluyor. Bu nedenle “her turda liste bir eleman kısalır” açıklaması bu kod için yanlıştır. Üçgensel toplamın nedeni, başarılı eşleştirmede her konumun bir kez kullanılmasıdır. İşaretleme olmazsa aynı a harfini iki kez kullanıp yanlışlıkla <code>True</code> döndürebiliriz.</p>
-<h2 id="help-strategy-2-put-both-strings-in-a-common-order">Strategy 2 — Put both strings in a common order</h2>
-<p>Sorting makes equal multisets look identical. Repeated letters are preserved: <code>&amp;quot;aab&amp;quot;</code> sorts to <code>[a, a, b]</code>, while <code>&amp;quot;abb&amp;quot;</code> sorts to <code>[a, b, b]</code>.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def sort_and_compare(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    return sorted(s1) == sorted(s2)
-
-print(sort_and_compare(&quot;listen&quot;, &quot;silent&quot;))  # True
-print(sort_and_compare(&quot;aab&quot;, &quot;abb&quot;))        # False</code></pre></div>
-<p>A usual worst-case bound for comparison sorting is O(n log n). Two sorts plus a comparison give O(n log n) + O(n log n) + O(n), hence O(n log n). The two sorted lists use O(n) extra space. The factor 2 disappears from the growth class, but the second sort still performs real work.</p>
-<p>This is an upper-bound analysis, not a promise of exactly n log n comparisons. Python sorting adapts to existing order. Actual character distributions, repeated values, and implementation details matter. Short code can be a good engineering choice, but its cost must still be accounted for.</p>
-<h2 id="help-strategy-3-generate-candidates-until-one-matches">Strategy 3 — Generate candidates until one matches</h2>
-<p>Brute force tries arrangements of input positions. The generator yields one tuple at a time. <code>&amp;quot;&amp;quot;.join(candidate)</code> builds a string from that tuple, and the comparison checks whether it is the target.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from itertools import permutations
-
-def brute_force(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    for candidate in permutations(s1):
-        if &quot;&quot;.join(candidate) == s2:
-            return True
-    return False
-
-print(brute_force(&quot;abc&quot;, &quot;cab&quot;))  # True
-print(brute_force(&quot;aaa&quot;, &quot;aab&quot;))  # False; exhausts 3! candidates
-print(brute_force(&quot;&quot;, &quot;&quot;))        # True</code></pre></div>
-<p>There are n! positional permutations. With repeated characters, different positional permutations can produce the same string: <code>&amp;quot;aab&amp;quot;</code> has 3! = 6 positional permutations but only 3!/2! = 3 distinct strings. This code still visits the duplicate candidates. It does not automatically remove them.</p>
-<p>The candidate count is factorial, but the full code also joins n characters for each candidate. Exhausting the generator therefore costs <strong>Θ(n × n!)</strong> under our model. Reporting O(n!) alone describes a unit-cost-per-candidate simplification, not the full implementation. Early success may stop much sooner; worst-case statements concern inputs that force all candidates to be tried.</p>
-<p>The generator avoids storing n! results at once. It still holds O(n) state and creates length-n candidates and strings, so auxiliary space is O(n), not O(1). Keep classroom runs very small. The examples above never exceed six candidates.</p>
-<p class="turkish"><strong>Türkçe:</strong> “Üreteç kullanmak” zaman maliyetini ortadan kaldırmaz. Üreteç bütün sonuçları aynı anda belleğe koymaz, ama gerektiğinde yine bütün adayları üretir. Ayrıca her adayın n harfini birleştirmek de iş gerektirir. Aday sayısı ile aday başına maliyeti ayrı ayrı yazmalıyız.</p>
-<h2 id="help-strategy-4-count-occurrences-directly">Strategy 4 — Count occurrences directly</h2>
-<p>Use one slot per allowed letter in each string. The exact positions no longer matter; only their totals matter.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def count_and_compare(s1, s2):
-    # Contract: every character is an ASCII letter from a through z.
-    if len(s1) != len(s2):
-        return False
-    counts1 = [0] * 26
-    counts2 = [0] * 26
-    for letter in s1:
-        counts1[ord(letter) - ord(&#x27;a&#x27;)] += 1
-    for letter in s2:
-        counts2[ord(letter) - ord(&#x27;a&#x27;)] += 1
-    for i in range(26):
-        if counts1[i] != counts2[i]:
-            return False
-    return True
-
-assert count_and_compare(&quot;aab&quot;, &quot;aba&quot;)
-assert not count_and_compare(&quot;aab&quot;, &quot;abb&quot;)
-assert count_and_compare(&quot;&quot;, &quot;&quot;)
-print(&quot;Counting examples passed&quot;)</code></pre></div>
-<h3 id="help-worked-example-2-a-frequency-table-is-a-correctness-argument">Worked example 2 — A frequency table is a correctness argument</h3>
-<p>For <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;aba&amp;quot;</code>, the relevant slots are:</p>
-<div class="table-scroll"><table><thead><tr><th>Slot</th><th>Character</th><th>First string</th><th>Second string</th><th>Equal?</th></tr></thead><tbody><tr><td>0</td><td>a</td><td>2</td><td>2</td><td>yes</td></tr><tr><td>1</td><td>b</td><td>1</td><td>1</td><td>yes</td></tr><tr><td>2 through 25</td><td>c through z</td><td>all 0</td><td>all 0</td><td>yes</td></tr></tbody></table></div>
-<p>After k characters of the first loop, its tally records exactly the occurrences in the first k characters. Initially k = 0 and every tally is zero. Processing one more character increments precisely its slot, preserving that statement. At the end, the table is correct for the whole string. The same argument applies to the second string. Comparing all slots therefore checks exactly the anagram definition.</p>
-<p>For a true pair, selected work = n first-string updates + n second-string updates + 26 comparisons = <strong>2n + 26</strong>. At n = 3 that is 32; at n = 1,000 it is 2,026. This excludes initialization and index arithmetic, whose inclusion does not change the linear class. A false pair may stop the final comparison before slot 25.</p>
-<p>Two 26-slot lists occupy a fixed number of slots: O(1) extra space with respect to n in the usual word model. If alphabet size k is variable, the corresponding bounds are O(n + k) time and O(k) slots. If memory is measured in individual bits, storing increasingly large counts also matters; the constant-slot statement is not a claim of constant bits for unbounded n.</p>
-<h2 id="help-compare-evidence-fairly">Compare evidence fairly</h2>
-<div class="table-scroll"><table><thead><tr><th>Method</th><th>Worst-case time under the stated model</th><th>Auxiliary space</th><th>Main lesson</th></tr></thead><tbody><tr><td>Checking off</td><td>Θ(n²)</td><td>Θ(n)</td><td>repeated searching adds up</td></tr><tr><td>Sort and compare</td><td>O(n log n)</td><td>O(n)</td><td>built-ins hide substantial work</td></tr><tr><td>Brute-force code above</td><td>Θ(n × n!)</td><td>O(n)</td><td>candidate count and cost both matter</td></tr><tr><td>Count, fixed alphabet</td><td>Θ(n)</td><td>O(1) slots</td><td>choose a representation matching the question</td></tr></tbody></table></div>
-<p>These are deterministic selected counts for genuine anagrams, not benchmark measurements:</p>
-<div class="table-scroll"><table><thead><tr><th>n</th><th>Checking-off comparisons n(n + 1)/2</th><th>Tally updates plus final checks 2n + 26</th></tr></thead><tbody><tr><td>250</td><td>31,375</td><td>526</td></tr><tr><td>500</td><td>125,250</td><td>1,026</td></tr><tr><td>1,000</td><td>500,500</td><td>2,026</td></tr><tr><td>2,000</td><td>2,001,000</td><td>4,026</td></tr></tbody></table></div>
-<p>The formulas establish growth; finitely many observations only support it. To measure the implementations, prepare identical valid input pairs outside the timer, check their answers, repeat, and report sizes and input family. Genuine anagrams fully exercise checking off and counting, but need not be worst-case sorting or brute-force inputs. Do not include brute force in a large-input timing loop.</p>
-<p>Python&#x27;s built-in sorting may beat a Python-level counting loop at measured sizes. These upper bounds do not guarantee that a sort/count crossover will appear in your chosen input family. Report “no crossover observed up to n = …” if that is what happened. A timing table without an actual run should be labelled illustrative, never presented as measured evidence.</p>
-<p>For occasional short words, sorting offers a compact implementation. For a fixed alphabet and stringent time or memory needs, counting is a strong candidate. Choose using the contract, representative measurements, maintainability, and memory budget. The anagram <em>problem</em> is tractable; one inefficient algorithm does not make the problem intractable.</p>
-<h2 id="help-three-graduated-practice-problems">Three graduated practice problems</h2>
-<h3 id="help-practice-1-explain-a-rejection">Practice 1 — Explain a rejection</h3>
-<p>Trace checking off for <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;abb&amp;quot;</code>. Count comparisons and explain why reusing a match would be wrong.</p>
-<h4 id="help-solution-1">Solution 1</h4>
-<p>The first a matches index 0 in one comparison. The list becomes <code>[None, b, b]</code>. The second a tests all three entries and fails, so the function returns <code>False</code> after 1 + 3 = <strong>4 comparisons</strong>. It never processes the final b. Without marking, both a requests could reuse index 0, giving a false positive. The six-comparison formula applies to genuine length-3 anagrams, not every rejected input.</p>
-<p class="turkish"><strong>Türkçe:</strong> İkinci a için yeni bir a gerekir. Daha önce kullanılan eşleşme tekrar kullanılamaz; bu yüzden <code>None</code> işareti doğruluğun bir parçasıdır.</p>
-<h3 id="help-practice-2-rearranged-digits">Practice 2 — Rearranged digits</h3>
-<p>Decide whether two lists containing integers 0–9 have the same multiplicities, using one tally list. Explain each phase and test an empty case, a true pair, and a false pair.</p>
-<h4 id="help-solution-2">Solution 2</h4>
-<p>Add one for each occurrence in the first list; subtract one for each occurrence in the second. At the end, slot d stores “first count of digit d minus second count of digit d”. Every slot must be zero. <code>all(...)</code> returns <code>True</code> only if every generated condition is true.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def same_digits(a, b):
-    # Contract: list items are integers from 0 through 9.
-    if len(a) != len(b):
-        return False
-    balance = [0] * 10
-    for digit in a:
-        balance[digit] += 1
-    for digit in b:
-        balance[digit] -= 1
-    return all(value == 0 for value in balance)
-
-assert same_digits([], [])
-assert same_digits([3, 1, 4, 1], [1, 4, 3, 1])
-assert not same_digits([1, 1, 2], [1, 2, 2])
-assert not same_digits([1], [1, 1])
-print(&quot;Digit tests passed&quot;)</code></pre></div>
-<p>For the false equal-length pair, the final balances are +1 at digit 1 and −1 at digit 2. Time is Θ(n) in the worst case and extra space is ten slots, O(1). <strong>Türkçe:</strong> Toplama ve çıkarma iki ayrı sayacı tek bir “fark sayacı”na dönüştürür. Sıfır toplam tek başına yetmez; <em>her kutunun</em> sıfır olması gerekir.</p>
-<h3 id="help-practice-3-optional-challenge-estimate-factorial-growth-honestly">Practice 3 — Optional challenge: estimate factorial growth honestly</h3>
-<p>Suppose exhaustive candidate generation at n = 9 takes one second in an illustrative constant-cost-per-candidate model. Predict n = 12 and n = 15. Then account for a cost proportional to n per candidate. Do not run those sizes.</p>
-<h4 id="help-solution-3">Solution 3</h4>
-<p>The candidate-count multiplier from 9 to 12 is 12!/9! = 10 × 11 × 12 = 1,320. The prediction is 1,320 seconds = <strong>22 minutes</strong>. From 9 to 15 it is 10 × 11 × 12 × 13 × 14 × 15 = 3,603,600, giving 3,603,600/86,400 ≈ <strong>41.71 days</strong>.</p>
-<p>In the full n × n! model, multiply again by the candidate-length ratio. For n = 12: 1,320 × 12/9 = 1,760 seconds, about 29.33 minutes. For n = 15: 3,603,600 × 15/9 = 6,006,000 seconds, about 69.51 days. These are model-based extrapolations, not measurements or guarantees about hardware. They also assume exhaustion, not an early successful match.</p>
-<h2 id="help-optional-deepening-other-representations-and-multiplication">Optional deepening — Other representations and multiplication</h2>
-<p>The source&#x27;s fifth implementation, <code>collections.Counter</code>, generalizes the tally idea using a dictionary of observed characters. For ordinary hash-table assumptions it takes expected O(n) time and O(k) space for k distinct characters. It supports more characters than the fixed ASCII table; this changes the contract. Its exact performance must be measured rather than assumed.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from collections import Counter
-
-def anagram_counter(s1, s2):
-    return Counter(s1) == Counter(s2)
-
-print(anagram_counter(&quot;şiş&quot;, &quot;işş&quot;))  # True: same exact Unicode characters
-print(anagram_counter(&quot;aab&quot;, &quot;abb&quot;))  # False</code></pre></div>
-<p>The chapter&#x27;s multiplication problems ask the same strategic question with a different input-size definition: n is now the <strong>number of digits</strong>, not the numeric value.</p>
-<p>Repeated addition computes x × y with y additions. An n-digit base-b integer can be as large as bⁿ − 1. The running result needs at most 2n digits, so digit-by-digit addition costs O(n), not O(1). The worst-case bound is O(n × bⁿ). For fixed b, that is exponential in the input&#x27;s digit length.</p>
-<p>Grade-school multiplication pairs each of n digits with each of n digits: n² single-digit products, plus O(n²) work for carrying and adding rows. For fixed base, the total is Θ(n²).</p>
-<p>For example, 23 × 14 = 23 × 4 + 23 × 10 = 92 + 230 = <strong>322</strong>. The two-by-two digit multiplication uses four digit products: 3 × 4, 2 × 4, 3 × 1, and 2 × 1. Carrying and adding are additional work. Repeated addition instead adds 23 fourteen times. At twenty digits, “400” counts digit products in long multiplication, not every elementary step; the alternative can require nearly 10²⁰ additions. A smarter representation of the task changes the growth dramatically.</p>
-<p class="turkish"><strong>Türkçe:</strong> 999 sayısının değeri 999, basamak sayısı 3&#x27;tür. Girdi boyutunu 3 kabul ediyorsak 999 tekrar, boyuta göre küçük bir sabit değildir. Algoritma analizinde önce n&#x27;nin neyi ölçtüğünü söylemek bu yüzden zorunludur.</p>
-<h2 id="help-misconceptions-to-repair">Misconceptions to repair</h2>
-<ul>
-<li>“Same letters means anagram.” Count repeated occurrences as well as letter types.</li>
-<li>“Nested loops always mean n².” Here the exact successful count is triangular; prove the bounds from the actual searches.</li>
-<li>“A generator uses no growing memory.” It avoids storing all results, but its state and current candidate still grow.</li>
-<li>“A linear upper bound guarantees the fastest Python code.” Correctness, implementation, input family, and measured sizes still matter.</li>
-<li>“Four measurements prove the class.” A general count argument proves a bound; measurements test the model&#x27;s relevance.</li>
-</ul>
-<h2 id="help-englishturkish-glossary">English–Turkish glossary</h2>
-<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning here</th></tr></thead><tbody><tr><td>anagram</td><td>anagram</td><td>equal character multiplicities, any order</td></tr><tr><td>multiplicity</td><td>tekrar sayısı</td><td>how many occurrences an item has</td></tr><tr><td>input contract</td><td>girdi koşulları</td><td>assumptions the implementation requires</td></tr><tr><td>checking off</td><td>eşleştirip işaretleme</td><td>consume each matching occurrence once</td></tr><tr><td>permutation</td><td>permütasyon</td><td>an ordering of positions or elements</td></tr><tr><td>tally / frequency</td><td>sayım / sıklık</td><td>count associated with each symbol</td></tr><tr><td>auxiliary space</td><td>ek bellek</td><td>working storage beyond input</td></tr><tr><td>crossover</td><td>performansın kesiştiği boyut</td><td>an observed or modelled change of winner</td></tr></tbody></table></div>
-<h2 id="help-readiness-repair-and-the-week-10-bridge">Readiness, repair, and the Week 10 bridge</h2>
-<p>You are ready when you can explain the repeated-letter example, name the work hidden in sorting and joining, derive 2n + 26 under the stated count convention, and choose a method with one explicit assumption. You do not need to master factorial extrapolation or digit-complexity proofs before progressing.</p>
-<p>If matching is unclear, redraw Practice 1 and physically cross out each used position. If counts are unclear, tally <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;abb&amp;quot;</code> by hand before rereading the loops. If class and timing are getting mixed together, write two separate sentences: “Under this model, the bound is …” and “On these measured inputs, implementation … was faster.”</p>
-<p>Week 10 compares data structures and the costs of their operations. Carry forward this week&#x27;s main habit: a representation is useful because it makes the operations your problem needs cheaper or clearer. The array of counts worked because the question was about frequency, not order.</p>
-<h2 id="help-count-each-letter-including-repeats">Count each letter, including repeats</h2>
-<p>Two words are anagrams if they contain the same letters the same number of times. First agree whether capitals and spaces count. A fast method is still wrong if it loses information needed for the answer.</p>
-<p><strong>Draw or trace.</strong> Lay out tiles for aab and abb. Both use letters a and b, but their piles have different sizes. Draw a per-letter tally rather than only a set of present letters.</p>
-<p><strong>Predict before checking.</strong> Will converting both words to sets correctly decide whether they are anagrams?</p>
-<h3 id="help-worked-reasoning">Worked reasoning</h3>
-<p>No. Both sets contain a and b, but sets discard repeat counts. Sorting keeps every letter, so we can compare the sorted words position by position. Counting letters also keeps the information we need. An array of counters needs a known, fixed set of possible letters. A dictionary can handle more kinds of keys, but its fast lookup is an average-case claim, not a worst-case guarantee.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from collections import Counter
-
-left, right = &quot;aab&quot;, &quot;abb&quot;
-assert set(left) == set(right)
-assert sorted(left) != sorted(right)
-assert Counter(left) != Counter(right)
-assert Counter(&quot;aab&quot;) == Counter(&quot;baa&quot;)
-print(&quot;Sets lose the counts required by this problem.&quot;)</code></pre></div>
-<p><strong>Change one thing.</strong> Try Aab versus baa, then a word containing a space. State whether case and spaces matter before changing capitals or removing spaces. Do not let competing methods silently solve different problems.</p>
-<p class="turkish"><strong>Türkçe:</strong> Anagramda harfin varlığı değil tekrar sayısı da önemlidir. Hız karşılaştırmasından önce bütün yöntemlerin aynı soruyu çözdüğünü doğrula.</p>
-<h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
-<p>The anagram case study is valuable because all methods can be correct while their costs differ dramatically. Protect the output contract before naming a winner.</p>
-<div class="table-scroll"><table><thead><tr><th>Strategy</th><th>Main repeated work</th><th>Risk to explain</th></tr></thead><tbody><tr><td>check off matched letters</td><td>repeated search in the remaining letters</td><td>duplicate handling and marking used positions</td></tr><tr><td>sort both strings</td><td>sorting work</td><td>sorting cost and character normalization</td></tr><tr><td>generate all permutations</td><td>factorial candidate explosion</td><td>impossible growth for modest n</td></tr><tr><td>count characters</td><td>one pass plus table comparison</td><td>alphabet size, case, spaces, and memory</td></tr></tbody></table></div>
-<p>Extra exam-style prompt: Are <code>&amp;quot;Dormitory&amp;quot;</code> and <code>&amp;quot;dirty room&amp;quot;</code> anagrams? Give two possible contracts and explain why the answer changes.</p>
-<p>Solution: Under a literal character contract including case and spaces, they are not the same multiset. Under a normalized phrase contract that ignores spaces and case, both become the same letters, so they are anagrams. Analysis must state the contract before comparing strategies.</p>
-<p class="turkish"><strong>Turkce:</strong> Ayni kelime oyunu farkli kurallarla farkli cevap verir. Bosluk, buyuk harf ve noktalama davranisi belirtilmeden hiz karsilastirmasi eksiktir.</p></div></details>
-<details class="path-resources"><summary>Learning goals & class plan</summary><div><section>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 6, 7, 8</p><h3>Compare whole strategies, including preparation</h3><p>The notes use sorting and hashing to turn repeated searching into organised work. To find two records whose values sum to T, one strategy sorts then moves pointers inward; another remembers earlier values in a hash set and looks for T − x.</p><p>Preparation matters. Sorting is part of the first method's total cost. Hashing needs extra storage, hashing that spreads keys well across storage slots and a rule that prevents using one record twice. Check the complement before inserting the current record, or track counts explicitly.</p><p>This is the same habit as comparing anagram methods: state the output contract, trace a small case, count the expensive operations, and include setup. A method that is fast on average can still have a slow worst case.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Use paired loads or calibration values as the test case. Include duplicate values and a case with no valid pair.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
@@ -636,9 +436,10 @@ print(&quot;Sets lose the counts required by this problem.&quot;)</code></pre></
     <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
   </div>
 </section>
-</div></details><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Source exercise 56 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><details class="solution"><summary>Show reasoning</summary><div><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></details></article><p><strong>Write down:</strong> Two traces, their preparation costs, and a reason to prefer one under a stated constraint.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>
-<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div><section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w09/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
+<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Write the a/b counts for aab and aba, then aab and abb.</p><details class="solution"><summary>Check your reasoning</summary><div><p>aab/aba both have a:2, b:1 → True. abb has a:1, b:2 → False.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>For n = 100 and k = 26, count the two character passes plus final count checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>100 + 100 + 26 = 226, excluding initialisation and loop overhead.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Allow uppercase letters. What must change before using the 26-slot code?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Choose case-sensitive or case-insensitive rules. For case-insensitive English input, lowercase and validate a–z before indexing; otherwise choose a larger mapping.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
   <h2><span class="num">9.9</span>Try it yourself</h2>
 
   <div class="task">
@@ -760,7 +561,8 @@ def anagram_counter(s1, s2):
       </p>
     </details>
   </div>
-</section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
+</section></div></details>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Source exercise 56 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><details class="solution"><summary>Show reasoning</summary><div><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></details></article><p><strong>Write down:</strong> Two traces, their preparation costs, and a reason to prefer one under a stated constraint.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
 <section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
   <h2><span class="num">9.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
@@ -827,7 +629,7 @@ def anagram_counter(s1, s2):
     </ol>
   </div>
 </section></div></details>
-<section>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
   <h2><span class="num">9.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
@@ -843,7 +645,7 @@ def anagram_counter(s1, s2):
       </tbody>
     </table>
   </div>
-</section>
+</section></div></details>
 <details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
   <h2><span class="num">9.13</span>Chapter problem set — Skiena 2.10</h2>
   <p>

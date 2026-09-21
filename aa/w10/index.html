@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w10.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w10.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
@@ -29,23 +29,14 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/" selected>Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Faster Lookups</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="one-list-instruction-can-move-many-items">One list instruction can move many items</h2>
-<p>A Python list stores references: links to its items. Removing the first item shifts the later references left to fill the gap. Removing the last item does not need these shifts. The items themselves do not have to be copied for this work to take time.</p>
-<p><strong>Draw or trace.</strong> Draw four slots A, B, C, D. Remove A, then show B, C and D moving one slot left. Repeat until empty and record the number of shifted references.</p>
-<p><strong>Predict before checking.</strong> How many total shifts occur when repeatedly removing from the front? Does one line of Python imply one unit of work?</p>
-<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
-<p>The shift counts are 3, 2, 1, 0: six in total. With n starting items, the total is n(n − 1)/2, so repeatedly removing the first item gives quadratic work in this model. A short instruction can hide work that grows with the list. Append has amortised O(1) cost: the total work spread over many appends stays constant per append. One append can still be expensive.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = list(&quot;ABCD&quot;)
-shifts = 0
-while values:
-    shifts += len(values) - 1
-    values.pop(0)
-assert shifts == 6
-print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
-</details><p><strong>Change one thing.</strong> If the task allows reverse removal order, compare repeated end removal. If it requires removing items in their arrival order, changing removal order is not a valid optimisation.</p>
-<p class="turkish"><strong>Türkçe:</strong> Tek satır çok iş saklayabilir. Listenin başından silmek sonraki başvuruları kaydırır; daha hızlı işlem aynı çıktı sözleşmesini korumalıdır.</p></section>
-<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>Occasional expensive work can hide in an average</h3><p>A dynamic array is an array that can grow; it keeps some empty slots for new items. In the simplified doubling model, growth copies 1, 2, 4, … items into successively larger arrays. To reach n = 2ᵏ stored items from capacity 1, the copies total n − 1, even though the final resize alone is expensive.</p><p>This gives constant copying cost per append when the total is spread over the whole sequence (amortised cost). It does not make every individual append constant-time. Growing by only ten slots instead repeatedly copies nearly all the items already stored, producing quadratic total copying.</p><p>The exact way Python reserves extra slots depends on its implementation; the doubling model explains the idea rather than specifying its precise behaviour. Keep “amortised over a sequence” separate from “expected over random choices” and “worst case for one operation”.</p><p class="engineering-transfer"><strong>Engineering use.</strong> A data logger may tolerate occasional slow appends. A controller with a strict deadline may not tolerate the pause when storage grows.</p></section>
-<details class="path-reference teaching-part"><summary>What a list really is</summary><div><section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Removing the front shifts the rest</h2><figure class="vl-figure" style="--trace-columns:4"><figcaption>pop(0) on [A, B, C, D]</figcaption><div class="vl-trace"><b>before</b><div class="vl-cards" style="--row-columns:4"><span>A</span><span>B</span><span>C</span><span>D</span></div></div><div class="vl-trace"><b>after</b><div class="vl-cards" style="--row-columns:3"><span>B ←</span><span>C ←</span><span>D ←</span></div></div></figure><div class="vl-equation"><span>Remove every item from the front</span><strong>(n − 1) + (n − 2) + … + 1 = n(n − 1)/2 shifts</strong></div><p>A Python list stores references in an array. Access by index is O(1). Removing its last item avoids shifting the others; repeatedly removing the first creates quadratic work.</p></section><section class="vl-lesson"><h2>An occasional expensive append can average out</h2><figure class="vl-figure"><figcaption>A simplified capacity-doubling model, not exact Python capacities</figcaption><div class="vl-trace"><b>capacity</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span></div></div><div class="vl-trace"><b>copy on growth</b><div class="vl-cards" style="--row-columns:5"><span>—</span><span>1</span><span>2</span><span>4</span><span>8</span></div></div></figure><div class="vl-equation"><span>Over n appends, geometric copying stays linear</span><strong>1 + 2 + 4 + … &lt; 2n</strong></div><p>Most appends place one reference; a resize copies many. Spread all resizing work over the whole sequence: append costs O(1) amortised. An individual append can still take O(n). Python uses its own overallocation rule.</p></section><section class="vl-lesson"><h2>Choose the operation before the container</h2><div class="vl-table"><table><thead><tr><th scope="col">Operation</th><th scope="col">list</th><th scope="col">collections.deque</th></tr></thead><tbody><tr><td>Read a middle index</td><td>O(1)</td><td>O(n)</td></tr><tr><td>Append at an end</td><td>O(1) amortised</td><td>O(1)</td></tr><tr><td>Remove from the front</td><td>O(n)</td><td>O(1)</td></tr><tr><td>Search for a value</td><td>O(n)</td><td>O(n)</td></tr></tbody></table></div><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from collections import deque
+queue = deque([&quot;A&quot;, &quot;B&quot;, &quot;C&quot;])
+queue.append(&quot;D&quot;)
+first = queue.popleft()
+print(first, list(queue))</code></pre></div><p>A deque fits a queue: add at the back, remove at the front. It does not make arbitrary searches constant-time.</p></section><section class="vl-lesson"><h2>Repeated copying can hide inside short code</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>parts = [&quot;algorithm&quot;, &quot;analysis&quot;, &quot;with&quot;, &quot;Python&quot;]
+text = &quot; &quot;.join(parts)
+print(text)</code></pre></div><div class="vl-equation"><span>Naïve repeated prefix copying, n equal-size pieces</span><strong>1 + 2 + … + n = n(n + 1)/2 units</strong></div><p><code>join</code> builds the final text in work proportional to total output length. Some Python string-concatenation patterns are optimised, so timings may vary; use the copying model only when each step really copies the prefix. Repeated list <code>result = result + [x]</code> does copy the growing list.</p></section>
+<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">10.1</span>What a list really is</h2>
   <p>
     Picture a row of numbered lockers, side by side, with no gaps. That is a Python list:
@@ -71,8 +62,8 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
       moves. Same act, entirely different price.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>The cost table</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.2</span>The cost table</h2>
   <div class="table-wrap">
     <table>
@@ -99,8 +90,8 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
     so total resizing work across many appends remains linear. The exact growth policy depends on the implementation. The next
     section watches that happen.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Amortised append: watching the list grow</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.3</span>Amortised append: watching the list grow</h2>
   <p>
     The lockers picture has one loose end: what happens when the row is full and you append
@@ -164,8 +155,8 @@ len=16   184 bytes</div>
       full and correct answer.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Measuring it: front versus back</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.4</span>Measuring it: front versus back</h2>
   <p>
     Test the model yourself. These builders use the same values but produce opposite orders: append preserves their arrival order, while front insertion reverses it. If order matters, include a final O(n) reversal when comparing equivalent outputs.
@@ -202,8 +193,8 @@ n= 80000  append 0.0062s   insert(0) 1.4102s   ratio 227x</div>
     <code>O(n)</code> each is <code>n × n</code>. The two loops look almost identical on
     the page. One of them is a bomb with a slow fuse.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Building strings and lists the fast way</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.5</span>Building strings and lists the fast way</h2>
   <p>
     The same trap appears when you build a list or a string by repeated concatenation.
@@ -279,8 +270,8 @@ n=100000   += 0.7640s   join 0.0069s   ratio 111x</div>
   <p>
     These illustrative timings show the repeated-copy model; they are not a guaranteed output of this interpreter-dependent experiment. Record your actual ratios, even if <code>+=</code> scales nearly linearly. Building pieces and joining once gives a predictable linear construction in the total number of characters.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>When you need a fast front: deque</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.6</span>When you need a fast front: deque</h2>
   <p>
     Sometimes you genuinely need to add and remove at both ends — a queue of jobs, a
@@ -318,8 +309,8 @@ deque.popleft(): 0.006s</div>
       which needs the cost table for both.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Measuring every operation at once</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.7</span>Measuring every operation at once</h2>
   <p>
     You have measured a few operations one pair at a time. Here is a single harness that
@@ -389,8 +380,8 @@ for label, setup, op, reps in rows:
       its class.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Common mistakes</summary><div><section>
+</section>
+<section>
   <h2><span class="num">10.8</span>Common mistakes</h2>
   <div class="table-wrap">
     <table>
@@ -406,99 +397,8 @@ for label, setup, op, reps in rows:
       </tbody>
     </table>
   </div>
-</section></div></details>
-<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide"><h2 id="help-the-big-question">The big question</h2>
-<p><strong>Why can two loops with the same number of iterations have very different costs?</strong> Because the operation inside each iteration may become more expensive as the list grows. This week connects the counting methods you already know to ordinary list operations. You do not need to memorize Python internals. You need to recognize when work means a direct access, a search, a shift, or a copy.</p>
-<p>By the end, explain why indexing is constant time, why front operations are linear, and why repeated front insertion becomes quadratic. Explain amortized append without claiming every append is equally fast. Rewrite a list-building method while preserving its output, and distinguish the memory used by the answer from additional working memory.</p>
-<p class="turkish"><strong>Türkçe:</strong> Döngünün kaç kez çalıştığını bilmek tek başına yeterli değildir. Her turda yapılan iş büyüyor mu? Bir kutuya doğrudan ulaşmak ile bütün kutuları bir yer kaydırmak aynı maliyette değildir. Bu hafta kodu ezberlemek yerine bu farkı görmeyi öğreniyoruz.</p>
-<h2 id="help-prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
-<p>For <code>data = [10, 20, 30, 40]</code>, answer three questions before continuing. What are <code>data[2]</code>, <code>data[1:3]</code>, and the number of items inspected when searching for the missing value 99 from left to right?</p>
-<p><strong>Answers:</strong> Indexing begins at zero, so <code>data[2]</code> is 30. A slice includes its start and excludes its stop, so <code>data[1:3]</code> creates <code>[20, 30]</code>. The missing-value search checks all four items. Indexing chooses a known position; membership must discover whether a suitable position exists.</p>
-<p>Now add <code>0 + 1 + 2 + 3</code>. The answer is 6. Pair the ends: <code>0 + 3 = 3</code> and <code>1 + 2 = 3</code>, giving <code>2 × 3 = 6</code>. This small sum will explain a large performance problem.</p>
-<h2 id="help-read-the-operation-before-counting-the-loop">Read the operation before counting the loop</h2>
-<p>A Python list stores an ordered sequence of references. A reference points to an object; moving a reference is different from copying the object&#x27;s entire contents. The list knows where its slots begin and how many slots it uses.</p>
-<p>If slot numbers start at zero, reaching slot i uses a location calculation. It does not visit slots 0 through i first. This is why <code>data[i]</code> has O(1) cost in the usual list model. By contrast, a search for a value may inspect every slot, so its worst case is O(n), where n is the current list length.</p>
-<div class="table-scroll"><table><thead><tr><th>Operation</th><th>Work to count</th><th>Time model</th></tr></thead><tbody><tr><td>Read or replace <code>data[i]</code></td><td>Reach one slot</td><td>O(1)</td></tr><tr><td><code>len(data)</code></td><td>Read the stored length</td><td>O(1)</td></tr><tr><td><code>data.append(x)</code></td><td>Add one reference, occasionally resize</td><td>O(1) amortized</td></tr><tr><td><code>data.pop()</code></td><td>Remove from the end, occasionally resize</td><td>O(1) amortized in the dynamic-array model</td></tr><tr><td><code>data.insert(0, x)</code></td><td>Shift the existing n references</td><td>O(n)</td></tr><tr><td><code>data.pop(0)</code></td><td>Shift the remaining n − 1 references</td><td>O(n)</td></tr><tr><td><code>x in data</code></td><td>Search until found or exhausted</td><td>O(n) worst case</td></tr><tr><td><code>data[a:b]</code> with k selected items</td><td>Make a new list of k references</td><td>O(k)</td></tr><tr><td><code>a + b</code>, lengths n and m</td><td>Make a new list with both sequences</td><td>O(n + m)</td></tr><tr><td><code>sum(data)</code></td><td>Visit each number</td><td>O(n)</td></tr></tbody></table></div>
-<p>These models assume simple, fixed-size values and comparisons. Comparing two very long strings introduces another input size. An O(n) operation also does not necessarily inspect n elements on every call: a search can find its answer immediately.</p>
-<h2 id="help-worked-example-1-four-front-insertions">Worked example 1 — Four front insertions</h2>
-<p>Start empty and insert 0, 1, 2, 3 at the front. Count only the old references that must shift, separately from writing the new item.</p>
-<div class="table-scroll"><table><thead><tr><th>Incoming value</th><th>Before insertion</th><th>Old references shifted</th><th>After insertion</th></tr></thead><tbody><tr><td>0</td><td><code>[]</code></td><td>0</td><td><code>[0]</code></td></tr><tr><td>1</td><td><code>[0]</code></td><td>1</td><td><code>[1, 0]</code></td></tr><tr><td>2</td><td><code>[1, 0]</code></td><td>2</td><td><code>[2, 1, 0]</code></td></tr><tr><td>3</td><td><code>[2, 1, 0]</code></td><td>3</td><td><code>[3, 2, 1, 0]</code></td></tr></tbody></table></div>
-<p>Total shifts are <code>0 + 1 + 2 + 3 = 6</code>. There are also four writes for the new values. For n insertions, shifts are <code>0 + 1 + ... + (n − 1)</code>.</p>
-<p>Write this sum forwards and backwards. Each paired column becomes n − 1, and there are n columns. Thus twice the sum is <code>n(n − 1)</code>. Divide by two: <strong>shifts = n(n − 1)/2</strong>. Including the n new writes gives <code>n(n − 1)/2 + n = (n² + n)/2</code>, which is O(n²).</p>
-<p>At n = 1,000, shifts are <code>1,000 × 999 / 2 = 499,500</code>. At n = 2,000, they are <code>2,000 × 1,999 / 2 = 1,999,000</code>. The ratio is about 4.002, approaching four rather than being exactly four.</p>
-<p class="turkish"><strong>Türkçe:</strong> Her turda n kaydırma yapılmıyor; ilk turda sıfır, sonra bir, iki, üç yapılıyor. Bu yüzden kesin sayı bir toplamdır. O(n²) dememizin nedeni toplamın büyümesini n² teriminin belirlemesidir. Dört kat ifadesi büyük girdiler için yaklaşık büyüme davranışını anlatır.</p>
-<p>Preserve the output when improving the method. Appending produces ascending order here; front insertion produces descending order. This replacement does the same job:</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">data = []
-for value in range(4):
-    data.append(value)
-data.reverse()
-assert data == [3, 2, 1, 0]
-print(data)</code></pre></div>
-<p>Appending n items costs O(n) total and reversing costs another O(n). Add the phases: <code>O(n) + O(n) = O(n)</code>. Consecutive phases add; they do not multiply.</p>
-<h2 id="help-worked-example-2-copying-the-growing-answer">Worked example 2 — Copying the growing answer</h2>
-<p>Consider <code>result = result + [value]</code>. The plus operation builds a new list. With values 0 through 3, the new list lengths are 1, 2, 3, 4. Therefore 10 references are placed into newly built lists: <code>1 + 2 + 3 + 4 = 10</code>.</p>
-<p>For n values this becomes <code>n(n + 1)/2</code>. At n = 1,000 it is 500,500 reference placements, versus 1,000 ordinary append writes plus occasional resizing. Both methods create the same ordered result, but they do not perform the same amount of copying.</p>
-<p>A full slice has the same danger when repeated. Copying an n-item list once takes O(n) time and O(n) space. Copying it n times costs O(n²) time. If each temporary copy replaces the previous one, peak extra space may still be O(n). If all copies are stored, extra space becomes O(n²). <strong>Total work and peak simultaneous storage answer different questions.</strong></p>
-<p class="turkish"><strong>Türkçe:</strong> Bellek hesabında “şimdi aynı anda kaç öğe tutuluyor?” diye sorarız. Zaman hesabında ise işlem boyunca yapılan bütün kopyalamaları toplarız. Bir milyon kopyalama adımı, aynı anda bir milyon öğe saklandığı anlamına gelmez.</p>
-<h2 id="help-slow-concept-amortized-does-not-mean-random-average">Slow concept — Amortized does not mean random average</h2>
-<p>Imagine a teaching model whose capacity doubles when full: 1, 2, 4, 8, 16. Capacity means available slots; length means occupied slots. Python&#x27;s exact growth policy is implementation-specific, so this is an explanatory model, not its literal allocation schedule.</p>
-<p>To append eight items, suppose resizing copies 1, then 2, then 4 old references. The total is 7 copies, plus 8 new writes: 15 units. The average over this sequence is <code>15/8 = 1.875</code> units per append, although the append that crosses capacity four performs more work than an ordinary append.</p>
-<p>For n = 2ᵏ items, where k is a nonnegative integer, the copies are <code>1 + 2 + ... + n/2 = n − 1</code>. Including n writes gives <code>2n − 1</code>. Dividing by n gives <code>2 − 1/n</code>, less than two. For other n, the geometric sum still gives a constant multiple of n total work. That is the reason for <strong>O(1) amortized per append</strong>.</p>
-<p>Amortized analysis spreads the total cost across a sequence of operations. It does not assume random inputs or claim an individual operation cannot be slow. A resizing append may be O(n) in the worst case. Both statements can be true.</p>
-<p class="turkish"><strong>Türkçe:</strong> Amortize maliyet, pahalı işlemin ücretini çok sayıda ucuz işleme bölüştürmektir. “Ortalama kullanıcıda hızlıdır” demiyoruz. Belirli bir işlem dizisinin toplam maliyetini sınırlıyoruz. Tek bir eklemenin pahalı olması, bütün eklemelerin pahalı olduğu anlamına gelmez.</p>
-<h2 id="help-three-graduated-practice-problems">Three graduated practice problems</h2>
-<h3 id="help-problem-1-identify-the-hidden-work">Problem 1 — Identify the hidden work</h3>
-<p>A list contains six items. How many old references shift when removing its front? How many references are copied by <code>data[1:4]</code> on the original list? What is the worst-case number of equality checks for a missing value?</p>
-<h4 id="help-solution-1-separate-three-different-actions">Solution 1 — Separate three different actions</h4>
-<p>Removing the front leaves five items, all of which shift left: <strong>five shifts</strong>. The slice selects indices 1, 2, 3: <strong>three copied references</strong>, O(k) with k = 3. The missing-value search inspects all six: <strong>six equality checks</strong>, O(n). The slice does not include index 4. These counts concern the original six-item list separately, not three consecutive operations on a changing list.</p>
-<h3 id="help-problem-2-empty-a-queue">Problem 2 — Empty a queue</h3>
-<p>Jobs <code>[&amp;quot;A&amp;quot;, &amp;quot;B&amp;quot;, &amp;quot;C&amp;quot;, &amp;quot;D&amp;quot;]</code> must be processed in arrival order. Repeatedly removing index zero shifts how many references in total? Give a suitable alternative and its total cost.</p>
-<h4 id="help-solution-2-keep-the-order-and-change-the-container">Solution 2 — Keep the order and change the container</h4>
-<p>The shifts are <code>3 + 2 + 1 + 0 = 6</code>. For n jobs, they total <code>n(n − 1)/2</code>, so removal work is O(n²). A deque supports end operations without shifting the entire remaining sequence.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from collections import deque
-
-queue = deque([&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;])
-processed = []
-while queue:
-    processed.append(queue.popleft())
-assert processed == [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;]
-print(processed)</code></pre></div>
-<p>Construction is O(n); n left removals are O(n); collecting the answer is O(n). Total time remains O(n), with O(n) storage. A deque is suitable for this queue, but its middle indexing is not a constant-time replacement for list indexing.</p>
-<h3 id="help-problem-3-diagnose-a-timing-experiment">Problem 3 — Diagnose a timing experiment</h3>
-<p>A benchmark starts with 100,000 items and calls <code>pop()</code> 200,000 times. It also reports that a single front removal doubles in time when n doubles. What must be corrected, and what can the timing support?</p>
-<h4 id="help-solution-3-validate-the-experiment-before-its-conclusion">Solution 3 — Validate the experiment before its conclusion</h4>
-<p>The pop benchmark exhausts the list after 100,000 removals and raises <code>IndexError</code> on the next one. It cannot produce the claimed complete result. Use no more removals than available items, or benchmark an explicitly described balanced append/pop workload. Those are different experiments.</p>
-<p>For single front removals, prepare a fresh list before each timed operation and keep construction outside that timing. A near-two ratio supports a linear shifting model. It does not prove a complexity bound. Timing an entire queue drain answers a different question and should approach a fourfold ratio instead.</p>
-<h2 id="help-misconceptions-to-repair">Misconceptions to repair</h2>
-<p>“One Python statement is one unit of work” fails for slicing, searching, summing, and concatenation. Name the hidden operation. “Append is always O(1)” needs the amortized qualifier. “Faster code is equivalent code” fails when list order changes.</p>
-<p>For text, collecting pieces and joining once avoids relying on repeated reconstruction. Measure total characters as well as piece count. Some interpreter contexts optimize repeated string concatenation, so a particular <code>+=</code> timing need not show a quadratic curve. Do not manufacture a fourfold result. The general concatenation caution is documented in <a href="https://docs.python.org/3/library/stdtypes.html#immutable-sequence-types">Python&#x27;s sequence documentation</a>.</p>
-<h2 id="help-small-englishturkish-glossary">Small English–Turkish glossary</h2>
-<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Reference</td><td>Başvuru: an address-like link to an object</td></tr><tr><td>Shift</td><td>Kaydırma: move existing references to adjacent slots</td></tr><tr><td>Copy</td><td>Kopyalama: create another sequence of references</td></tr><tr><td>Capacity</td><td>Kapasite: allocated slots, including unused ones</td></tr><tr><td>Amortized cost</td><td>Amortize maliyet: total sequence cost divided across operations</td></tr><tr><td>Peak extra space</td><td>En yüksek ek bellek: additional storage alive at the same time</td></tr></tbody></table></div>
-<h2 id="help-readiness-repair-and-the-next-bridge">Readiness, repair, and the next bridge</h2>
-<p>You are ready when you can derive the triangular sum, explain an expensive append without contradicting amortized O(1), and preserve a queue&#x27;s order while improving its cost. If the sum feels mysterious, rebuild the four-row insertion table with six values. If space and time blur together, draw which copies are alive simultaneously. If timing feels decisive, state the operation count before looking at seconds.</p>
-<p>Next week keeps the same question but changes the dominant operation: instead of shifting a list repeatedly, you will search it repeatedly. A set can help, provided its missing order and duplicate information do not change the answer.</p>
-<h2 id="help-one-list-instruction-can-move-many-items">One list instruction can move many items</h2>
-<p>A Python list stores references: links to its items. Removing the first item shifts the later references left to fill the gap. Removing the last item does not need these shifts. The items themselves do not have to be copied for this work to take time.</p>
-<p><strong>Draw or trace.</strong> Draw four slots A, B, C, D. Remove A, then show B, C and D moving one slot left. Repeat until empty and record the number of shifted references.</p>
-<p><strong>Predict before checking.</strong> How many total shifts occur when repeatedly removing from the front? Does one line of Python imply one unit of work?</p>
-<h3 id="help-worked-reasoning">Worked reasoning</h3>
-<p>The shift counts are 3, 2, 1, 0: six in total. With n starting items, the total is n(n − 1)/2, so repeatedly removing the first item gives quadratic work in this model. A short instruction can hide work that grows with the list. Append has amortised O(1) cost: the total work spread over many appends stays constant per append. One append can still be expensive.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = list(&quot;ABCD&quot;)
-shifts = 0
-while values:
-    shifts += len(values) - 1
-    values.pop(0)
-assert shifts == 6
-print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
-<p><strong>Change one thing.</strong> If the task allows reverse removal order, compare repeated end removal. If it requires removing items in their arrival order, changing removal order is not a valid optimisation.</p>
-<p class="turkish"><strong>Türkçe:</strong> Tek satır çok iş saklayabilir. Listenin başından silmek sonraki başvuruları kaydırır; daha hızlı işlem aynı çıktı sözleşmesini korumalıdır.</p>
-<h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
-<p>This week is about hidden work inside familiar operations. Students should annotate one Python statement with the work it causes.</p>
-<div class="table-scroll"><table><thead><tr><th>Statement</th><th>Hidden work to notice</th></tr></thead><tbody><tr><td><code>data.insert(0, x)</code></td><td>existing references shift right</td></tr><tr><td><code>data.pop(0)</code></td><td>remaining references shift left</td></tr><tr><td><code>data = data + [x]</code></td><td>a new list copies old references and the new reference</td></tr><tr><td><code>data[:k]</code></td><td>k references are copied</td></tr><tr><td><code>x in data</code></td><td>values are inspected until match or exhaustion</td></tr></tbody></table></div>
-<p>Extra exam-style prompt: A queue implementation repeatedly uses <code>pop(0)</code> on n jobs. Give the total shift count and a better container.</p>
-<p>Solution: The shifts are n - 1, n - 2, ..., 0, totaling n(n - 1)/2. That is quadratic total shifting. A <code>deque</code> supports left removals efficiently for queue behavior, while preserving arrival order. It is not a drop-in replacement for every list use, especially random middle indexing.</p>
-<p class="turkish"><strong>Turkce:</strong> Tek satir kod tek is demek degildir. Listenin basindan silmek, kalan elemanlari kaydirir. Kuyruk davranisi istiyorsan veri yapisi secimi algoritmanin parcasidir.</p></div></details>
-<details class="path-resources"><summary>Learning goals & class plan</summary><div><section>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>Occasional expensive work can hide in an average</h3><p>A dynamic array is an array that can grow; it keeps some empty slots for new items. In the simplified doubling model, growth copies 1, 2, 4, … items into successively larger arrays. To reach n = 2ᵏ stored items from capacity 1, the copies total n − 1, even though the final resize alone is expensive.</p><p>This gives constant copying cost per append when the total is spread over the whole sequence (amortised cost). It does not make every individual append constant-time. Growing by only ten slots instead repeatedly copies nearly all the items already stored, producing quadratic total copying.</p><p>The exact way Python reserves extra slots depends on its implementation; the doubling model explains the idea rather than specifying its precise behaviour. Keep “amortised over a sequence” separate from “expected over random choices” and “worst case for one operation”.</p><p class="engineering-transfer"><strong>Engineering use.</strong> A data logger may tolerate occasional slow appends. A controller with a strict deadline may not tolerate the pause when storage grows.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
@@ -522,9 +422,10 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
     <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
   </div>
 </section>
-</div></details><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-045"><p class="source-label">Source exercise 45 · medium</p><p>A dynamic array holds n = 2ᵏ items after growing from size 1 by doubling. How many item-copies were made in total over all the doublings? Show the total is less than n.</p><details class="solution"><summary>Show reasoning</summary><div><p>the doublings copied 1, 2, 4, …, 2ᵏ⁻¹ items, totalling 2ᵏ − 1 = n − 1 &lt; n. So the copying costs O(n) in total, or O(1) per item on average (“amortised”).</p></div></details></article><p><strong>Write down:</strong> A capacity/copies table up to 16 items and a statement distinguishing total cost from a single append.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>
-<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div><section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w10/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
+<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Draw each pop(0) while emptying four items. Count shifts.</p><details class="solution"><summary>Check your reasoning</summary><div><p>3 + 2 + 1 + 0 = 6 shifts.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>How many shifts occur when emptying 1,000 items from the front?</p><details class="solution"><summary>Check your reasoning</summary><div><p>1,000 × 999 / 2 = 499,500.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Replace a list queue with deque. Which operation changes, and which stays linear?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Use popleft() for O(1) front removal. Searching for an arbitrary value still costs O(n).</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
   <h2><span class="num">10.9</span>Try it yourself</h2>
 
   <div class="task">
@@ -630,7 +531,8 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
       </p>
     </details>
   </div>
-</section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
+</section></div></details>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-045"><p class="source-label">Source exercise 45 · medium</p><p>A dynamic array holds n = 2ᵏ items after growing from size 1 by doubling. How many item-copies were made in total over all the doublings? Show the total is less than n.</p><details class="solution"><summary>Show reasoning</summary><div><p>the doublings copied 1, 2, 4, …, 2ᵏ⁻¹ items, totalling 2ᵏ − 1 = n − 1 &lt; n. So the copying costs O(n) in total, or O(1) per item on average (“amortised”).</p></div></details></article><p><strong>Write down:</strong> A capacity/copies table up to 16 items and a statement distinguishing total cost from a single append.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
 <section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
   <h2><span class="num">10.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
@@ -698,7 +600,7 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
     </ol>
   </div>
 </section></div></details>
-<section>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
   <h2><span class="num">10.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
@@ -714,7 +616,7 @@ print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
       </tbody>
     </table>
   </div>
-</section>
+</section></div></details>
 <details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p><details class="source-choice"><summary>Exercise 35 · easy — List the seven dictionary operations.</summary><article class="source-exercise" id="skiena-ex-035"><p class="source-label">Source exercise 35 · easy</p><p>List the seven dictionary operations.</p><details class="solution"><summary>Show reasoning</summary><div><p>search, insert, delete, minimum, maximum, predecessor, successor.</p></div></details></article></details><details class="source-choice"><summary>Exercise 36 · easy — In a sorted array, what do search and insert cost, and why is insert slow?</summary><article class="source-exercise" id="skiena-ex-036"><p class="source-label">Source exercise 36 · easy</p><p>In a sorted array, what do search and insert cost, and why is insert slow?</p><details class="solution"><summary>Show reasoning</summary><div><p>search O(log n) by binary search; insert O(n), because after finding the right spot every later item must shift one place to make room.</p></div></details></article></details><details class="source-choice"><summary>Exercise 43 · easy — Starting with a dynamic array of size 1 and doubling whenever it fills, how many doublings are neede…</summary><article class="source-exercise" id="skiena-ex-043"><p class="source-label">Source exercise 43 · easy</p><p>Starting with a dynamic array of size 1 and doubling whenever it fills, how many doublings are needed before it can hold 1,000 items?</p><details class="solution"><summary>Show reasoning</summary><div><p>10, since 2¹⁰ = 1,024 ≥ 1,000; in general ⌈lg n⌉.</p></div></details></article></details><details class="source-choice"><summary>Exercise 46 · medium — Suppose the array grows by adding 10 slots each time it fills, instead of doubling. What does insert…</summary><article class="source-exercise" id="skiena-ex-046"><p class="source-label">Source exercise 46 · medium</p><p>Suppose the array grows by adding 10 slots each time it fills, instead of doubling. What does inserting n items cost in total?</p><details class="solution"><summary>Show reasoning</summary><div><p>Θ(n²). There are n/10 expansions, and the i-th one copies about 10i items, so the total is 10(1 + 2 + … + n/10) ≈ n²/20. Doubling is essential; adding a constant is not enough.</p></div></details></article></details><details class="source-choice"><summary>Exercise 47 · medium — You hold a pointer to a node x in a singly linked list, x is not the last node, and you have no poin…</summary><article class="source-exercise" id="skiena-ex-047"><p class="source-label">Source exercise 47 · medium</p><p>You hold a pointer to a node x in a singly linked list, x is not the last node, and you have no pointer to the head. Delete x’s value from the list in O(1).</p><details class="solution"><summary>Show reasoning</summary><div><p>copy the next node’s item into x, then splice out the next node: x.next = x.next.next. The list now contains the same values minus x’s original one, and no predecessor search was needed.</p></div></details></article></details><details class="source-choice"><summary>Exercise 48 · medium — Build a queue out of two stacks so that every operation is O(1) on average.</summary><article class="source-exercise" id="skiena-ex-048"><p class="source-label">Source exercise 48 · medium</p><p>Build a queue out of two stacks so that every operation is O(1) on average.</p><details class="solution"><summary>Show reasoning</summary><div><p>enqueue pushes onto stack In. Dequeue pops from stack Out; if Out is empty, first pop everything from In and push it onto Out (which reverses the order). Each item is moved at most twice in its lifetime, so n operations cost O(n) in total.</p></div></details></article></details><details class="source-choice"><summary>Exercise 61 · hard — Design a stack that supports push, pop and get-minimum, all in O(1).</summary><article class="source-exercise" id="skiena-ex-061"><p class="source-label">Source exercise 61 · hard</p><p>Design a stack that supports push, pop and get-minimum, all in O(1).</p><details class="solution"><summary>Show reasoning</summary><div><p>keep a second stack of running minima. On push(x), push x onto the main stack and push min(x, current top of the min stack) onto the min stack. On pop, pop both. The top of the min stack is always the minimum of the main stack.</p></div></details></article></details><details class="source-choice"><summary>Exercise 63 · hard — Design a cache that holds at most k items and evicts the least recently used one, with get and put b…</summary><article class="source-exercise" id="skiena-ex-063"><p class="source-label">Source exercise 63 · hard</p><p>Design a cache that holds at most k items and evicts the least recently used one, with get and put both in O(1).</p><details class="solution"><summary>Show reasoning</summary><div><p>Use a doubly linked list ordered by recency and a hash map from keys to nodes. Get moves a found node to the front. Put inserts or updates at the front; if capacity is exceeded, unlink the tail and remove its map entry. Pointer changes are worst-case O(1); the combined operations are expected O(1) with suitable hashing, not a universal worst-case guarantee.</p></div></details></article></details></div></details></section></div>
 <details class="path-resources"><summary>How this connects to next week</summary><div>
 <div class="note blue">

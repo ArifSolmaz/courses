@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w13.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w13.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
@@ -29,28 +29,10 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/">Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Faster Lookups</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/" selected>Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="put-one-more-item-in-its-final-place">Put one more item in its final place</h2>
-<p>Selection sort finds the smallest item in the part that is still unsorted. It puts that item in the next position at the front. The finished part grows by one item each round. This explains why the answer is sorted. Counting comparisons answers a separate question: how much work was needed?</p>
-<p><strong>Draw or trace.</strong> Trace [4, 1, 3, 2] with a boundary between finished front part and unfinished remaining part. Record comparisons for each minimum search.</p>
-<p><strong>Predict before checking.</strong> If the list is already sorted, does this ordinary selection-sort version avoid the minimum searches?</p>
-<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
-<p>No. This version still makes 3, 2 and 1 comparisons: six for four items. For n items it makes n(n − 1)/2 comparisons, whatever the starting order. A bubble sort that stops when no swaps occur behaves differently, so name the version you are analysing. Also check what happens to equal values. A stable sort keeps equal-value records in their original order; not every sort does.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = [4, 1, 3, 2]
-comparisons = 0
-for start in range(len(values) - 1):
-    smallest = start
-    for index in range(start + 1, len(values)):
-        comparisons += 1
-        if values[index] &lt; values[smallest]:
-            smallest = index
-    values[start], values[smallest] = values[smallest], values[start]
-assert values == [1, 2, 3, 4]
-assert comparisons == 6
-print(values, comparisons)</code></pre></div>
-</details><p><strong>Change one thing.</strong> Add record labels to equal sorting values. Inspect whether swapping a later minimum across an record with the same sorting value changes their order, even though the key values finish sorted.</p>
-<p class="turkish"><strong>Türkçe:</strong> Doğruluk için her turda kesinleşen bölgeyi açıkla; maliyet için karşılaştırmaları say. Sıralı girdi her algoritmada daha az iş demek değildir.</p></section>
-<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 7, 8, 9</p><h3>Merge first, then explain the full sort</h3><p>Merging two sorted lists only compares their next items that have not yet been copied. Each comparison chooses one item to copy to the result. When one list empties, copy the rest without more key comparisons. With n items in total, at most n − 1 comparisons are needed when both lists start nonempty.</p><p>Mergesort merges all n items at each level, across about log₂ n levels. Quicksort splits items around a chosen value, called the pivot, instead: choosing pivots randomly gives expected O(n log n) comparisons in the usual analysis, but repeatedly splitting into very unequal parts can be quadratic. Equal values need care. Three-way partitioning makes separate groups smaller than, equal to and larger than the pivot.</p><p>The lower bound for sorts based only on comparisons does not apply to every kind of sort. Counting sort uses counts within a known value range; radix sort groups values by digits. Check the key range, whether equal-value records must keep their original order and memory cost before claiming a faster solution.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Merge timestamped sensor streams and keep equal-time records in a defined order.</p></section>
-<details class="path-reference teaching-part"><summary>Why study slow sorts?</summary><div><section>
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Watch neighbouring swaps move the maximum</h2><figure class="vl-figure"><figcaption>Bubble sort: shorten the unsorted part after each pass</figcaption><div class="vl-trace"><b>start</b><div class="vl-cards" style="--row-columns:5"><span>5</span><span>1</span><span>4</span><span>2</span><span>8</span></div></div><div class="vl-trace"><b>pass 1</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>4</span><span>2</span><span>5</span><span>8</span></div></div><div class="vl-trace"><b>pass 2</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>5</span><span>8</span></div></div><div class="vl-trace"><b>pass 3</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>5</span><span>8</span></div></div></figure><div class="vl-table"><table><thead><tr><th scope="col">Pass</th><th scope="col">Comparisons</th><th scope="col">Swaps</th></tr></thead><tbody><tr><td>1</td><td>4</td><td>3</td></tr><tr><td>2</td><td>3</td><td>1</td></tr><tr><td>3</td><td>2</td><td>0 → stop</td></tr></tbody></table></div><p>This version stops after a pass with no swaps: 9 comparisons and 4 swaps here. A different stopping rule can change the count.</p></section><section class="vl-lesson"><h2>Different methods exploit different structure</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Best time</th><th scope="col">Worst time</th><th scope="col">What moves</th></tr></thead><tbody><tr><td>Bubble, with early stop</td><td>Θ(n)</td><td>Θ(n²)</td><td>Adjacent out-of-order pairs</td></tr><tr><td>Selection</td><td>Θ(n²)</td><td>Θ(n²)</td><td>Choose the smallest remaining item</td></tr><tr><td>Insertion</td><td>Θ(n)</td><td>Θ(n²)</td><td>Insert into a sorted prefix</td></tr></tbody></table></div><div class="vl-equation"><span>Selection comparisons, regardless of initial order</span><strong>(n − 1) + … + 1 = n(n − 1)/2</strong></div><p>Insertion sort does little work on nearly sorted input. In its usual shifting version, every shift removes one inversion: a pair whose order is wrong.</p></section><section class="vl-lesson"><h2>Merge: divide the list, then combine sorted halves</h2><figure class="vl-figure"><figcaption>Merge sort example</figcaption><div class="vl-trace"><b>split</b><div class="vl-cards" style="--row-columns:2"><span>[5, 1]</span><span>[4, 2]</span></div></div><div class="vl-trace"><b>sort halves</b><div class="vl-cards" style="--row-columns:2"><span>[1, 5]</span><span>[2, 4]</span></div></div><div class="vl-trace"><b>merge</b><div class="vl-cards" style="--row-columns:4"><span>1</span><span>2</span><span>4</span><span>5</span></div></div></figure><div class="vl-equation"><span>For n = 2ᵏ: k merge levels, linear work per level</span><strong>T(n) = Θ(n log₂ n)</strong></div><p>Merging repeatedly takes the smaller front item. A typical array implementation uses O(n) extra storage. Unequal halves for other n do not change the growth class.</p></section><section class="vl-lesson"><h2>Use keys; preserve ties when needed</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>students = [(&quot;Ada&quot;, 80), (&quot;Lin&quot;, 70), (&quot;Sam&quot;, 80)]
+ranked = sorted(students, key=lambda pair: pair[1])
+print(ranked)</code></pre></div><figure class="vl-figure"><figcaption>Stable score sort: Ada stays before Sam</figcaption><div class="vl-trace"><b>result</b><div class="vl-cards" style="--row-columns:3"><span>Lin: 70</span><span>Ada: 80</span><span>Sam: 80</span></div></div></figure><p><code>sorted</code> returns a new list. <code>list.sort()</code> changes that list and returns <code>None</code>. <code>lambda pair: pair[1]</code> selects the second field (the score). Python sorting is stable: equal keys keep their original order. Its adaptive sort has O(n log n) worst-case time and can exploit existing order.</p></section>
+<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">13.1</span>Why study slow sorts?</h2>
   <p>
     You will never ship bubble sort. You study it because it is the clearest example in all
@@ -61,8 +43,8 @@ print(values, comparisons)</code></pre></div>
     Sorting also underpins week 12 (binary search needs sorted data), week 9 (the sort-and-
     compare anagram solution) and any report you will ever produce from data.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Bubble sort</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.2</span>Bubble sort</h2>
   <p>
     Walk along the row comparing neighbours; swap them if they are out of order. Each full
@@ -97,8 +79,8 @@ print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
     fires after the third pass finds nothing to swap, so it stops at 9 comparisons instead of
     the full 10.)
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Selection sort</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.3</span>Selection sort</h2>
   <p>
     Find the smallest item, put it first. Find the smallest of the rest, put it second.
@@ -125,8 +107,8 @@ print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
     bubble sort's possible n²/2. If moving items is expensive and comparing them is cheap,
     that matters. Two algorithms in the same class can still differ in ways worth measuring.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Insertion sort, and all three by hand</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.4</span>Insertion sort, and all three by hand</h2>
   <p>
     The third classic completes the set. Take each item and slide it back into its correct
@@ -181,8 +163,8 @@ print(insertion_sort([5, 1, 4, 2, 8]))</code></pre></div>
     insertion sort does the fewest here because the data was not badly scrambled. The class is
     the same for all three — the constants are not.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Where n log n comes from</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.5</span>Where n log n comes from</h2>
   <p>
     All three sorts above compare, in the worst case, every item with essentially every other.
@@ -215,8 +197,8 @@ print(insertion_sort([5, 1, 4, 2, 8]))</code></pre></div>
     merge — log n levels of n work each") and the ability to recognise its 2.1–2.2 ratio in
     a doubling experiment.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Python&#x27;s sorted(), and how far ahead it is</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.6</span>Python's sorted(), and how far ahead it is</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>your sort vs the real one</div><pre><code>import time, random
 
@@ -265,8 +247,8 @@ n= 8000  bubble   5.9612s (31,996,000 comparisons)   sorted() 0.00228s   2,615x<
       That is your baseline. Beating it is a research project, not routine practice.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Using sorting properly</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.7</span>Using sorting properly</h2>
   <div class="code"><div class="code-head"><span class="dot"></span>the everyday toolkit</div><pre><code>data = [5, 2, 9, 1]
 
@@ -292,8 +274,8 @@ print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by
     Sorting a list of n items m times is O(m · n log n) when sorting once outside the loop
     would have done. Ask yourself every time: does this need to happen again?
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Stability, and sorting by more than one key</summary><div><section>
+</section>
+<section>
   <h2><span class="num">13.8</span>Stability, and sorting by more than one key</h2>
   <p>
     A sort is <strong>stable</strong> when items that compare equal keep their original order.
@@ -330,127 +312,8 @@ print(sorted(students, key=lambda s: (s[0], s[1])))</code></pre></div>
     grade descending — sort in two stable passes (grade first with <code>reverse=True</code>,
     then subject). For numeric grades, a single tuple key such as <code>(subject, -grade)</code> also expresses subject ascending and grade descending.
   </p>
-</section></div></details>
-<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide"><h2 id="help-the-big-question">The big question</h2>
-<p><strong>How can several correct ways to sort the same values require different amounts of work?</strong> Sorting is a useful place to connect traces, exact counts, growth classes, memory, and measurement. The slow sorts are learning tools. Python&#x27;s built-in sorting is the practical baseline in the original lesson.</p>
-<p>Your outcomes are to trace bubble and selection sort accurately, explain insertion sort&#x27;s sensitivity to existing order, derive triangular comparison counts, and interpret O(n log n) as repeated levels of linear work. You should also distinguish a new sorted list from mutation of an existing list and preserve the intended ordering of tied records.</p>
-<p class="turkish"><strong>Türkçe:</strong> Bütün yöntemlerin sonunda aynı sıralı listeye ulaşması, aynı işi yaptıkları anlamına gelmez. Karşılaştırma, takas ve kaydırma sayılarını ayrı ayrı sayacağız. “Hızlı” kararını da yalnızca küçük bir örneğe veya tek bir süreye bağlamayacağız.</p>
-<h2 id="help-prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
-<p>How many adjacent pairs exist in five items? Add <code>4 + 3 + 2 + 1</code>. If doubling input changes modeled time from n² to (2n)², what happens to the time?</p>
-<p><strong>Answers:</strong> There are four adjacent pairs, because the final item has no next neighbor. The sum is ten. Expanding <code>(2n)² = (2n)(2n) = 4n²</code> gives four times the leading quadratic term. An exact count containing both n² and n terms need not increase by exactly four.</p>
-<p>Remember that a comparison asks a question such as “is the left value greater?” A swap changes two positions. A comparison may produce no swap, so these counters must not be treated as identical.</p>
-<h2 id="help-worked-example-1-bubble-sort-one-pass-at-a-time">Worked example 1 — Bubble sort, one pass at a time</h2>
-<p>Use the actual lesson input <code>[5, 1, 4, 2, 8]</code>. Bubble sort compares adjacent values and swaps out-of-order neighbors. After one pass, the largest value in the unsorted region is at its right end. That final position no longer needs checking in later passes.</p>
-<p>During pass one, compare 5 with 1 and swap: <code>[1, 5, 4, 2, 8]</code>. Compare 5 with 4 and swap: <code>[1, 4, 5, 2, 8]</code>. Compare 5 with 2 and swap: <code>[1, 4, 2, 5, 8]</code>. Compare 5 with 8 and leave them alone. Four comparisons, three swaps.</p>
-<div class="table-scroll"><table><thead><tr><th>Pass</th><th>Comparisons in this pass</th><th>Swaps</th><th>List afterwards</th></tr></thead><tbody><tr><td>1</td><td>4</td><td>3</td><td><code>[1, 4, 2, 5, 8]</code></td></tr><tr><td>2</td><td>3</td><td>1</td><td><code>[1, 2, 4, 5, 8]</code></td></tr><tr><td>3</td><td>2</td><td>0</td><td><code>[1, 2, 4, 5, 8]</code></td></tr></tbody></table></div>
-<p>The third pass makes no swaps. Every adjacent pair it checks is in order, and the previously completed suffix is already correct. The early-exit flag therefore stops the algorithm. Total comparisons are <code>4 + 3 + 2 = 9</code>; total swaps are <code>3 + 1 + 0 = 4</code>. Although the list became sorted after pass two, the algorithm needs the clean pass to discover that it can stop.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def bubble_sort(data):
-    items = data[:]
-    comparisons = swaps = 0
-    for end in range(len(items) - 1, 0, -1):
-        swapped = False
-        for i in range(end):
-            comparisons += 1
-            if items[i] &gt; items[i + 1]:
-                items[i], items[i + 1] = items[i + 1], items[i]
-                swaps += 1
-                swapped = True
-        if not swapped:
-            break
-    return items, comparisons, swaps
-
-assert bubble_sort([5, 1, 4, 2, 8]) == ([1, 2, 4, 5, 8], 9, 4)
-assert bubble_sort([]) == ([], 0, 0)
-print(bubble_sort([3, 2, 1]))</code></pre></div>
-<p>The printed result is <code>([1, 2, 3], 3, 3)</code>. The initial slice protects the caller&#x27;s input, but it costs O(n) time and O(n) additional space. A function that sorts a copy is not an O(1)-extra-space implementation merely because its swap operation uses constant storage.</p>
-<p class="turkish"><strong>Türkçe:</strong> Liste ikinci tur sonunda sıralandı; fakat program bunu henüz kesin olarak bilmiyor. Üçüncü turdaki “hiç takas yok” bilgisi durma gerekçesidir. Kağıt üzerinde sonucu görmemiz ile algoritmanın durma koşuluna ulaşması aynı an olmak zorunda değildir.</p>
-<h2 id="help-worked-example-2-selection-sort-makes-a-different-promise">Worked example 2 — Selection sort makes a different promise</h2>
-<p>Selection sort repeatedly finds the smallest value in the remaining suffix and puts it at the next final position. It cannot stop examining a suffix merely because the values inspected so far look sorted: a smaller value might still be near the end.</p>
-<div class="table-scroll"><table><thead><tr><th>Start position</th><th>Values compared while finding minimum</th><th>Chosen value</th><th>Result after possible swap</th></tr></thead><tbody><tr><td>0</td><td>4 comparisons</td><td>1</td><td><code>[1, 5, 4, 2, 8]</code></td></tr><tr><td>1</td><td>3 comparisons</td><td>2</td><td><code>[1, 2, 4, 5, 8]</code></td></tr><tr><td>2</td><td>2 comparisons</td><td>4</td><td>No change</td></tr><tr><td>3</td><td>1 comparison</td><td>5</td><td>No change</td></tr><tr><td>4</td><td>0 comparisons</td><td>8</td><td>No change</td></tr></tbody></table></div>
-<p>This gives <strong>ten comparisons and two swaps</strong>. The fact that the list becomes sorted early does not remove the later scans from this implementation.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def selection_sort(data):
-    items = data[:]
-    comparisons = swaps = 0
-    for start in range(len(items)):
-        smallest = start
-        for i in range(start + 1, len(items)):
-            comparisons += 1
-            if items[i] &lt; items[smallest]:
-                smallest = i
-        if smallest != start:
-            items[start], items[smallest] = items[smallest], items[start]
-            swaps += 1
-    return items, comparisons, swaps
-
-assert selection_sort([5, 1, 4, 2, 8]) == ([1, 2, 4, 5, 8], 10, 2)
-assert selection_sort([1, 2, 3]) == ([1, 2, 3], 3, 0)
-print(selection_sort([2, 1]))</code></pre></div>
-<p>The printed result is <code>([1, 2], 1, 1)</code>. At most one swap happens for each of the first n − 1 positions, so at most n − 1 swaps occur. Comparison count is still quadratic. Fewer swaps may improve a measured constant without changing that growth class.</p>
-<h2 id="help-slow-concept-derive-the-exact-count-before-simplifying">Slow concept — Derive the exact count before simplifying</h2>
-<p>Selection sort&#x27;s comparisons are <code>(n − 1) + (n − 2) + ... + 1</code>. Let the sum be S. Write the terms in reverse order beneath them. Each column adds to n; there are n − 1 columns. Therefore <code>2S = n(n − 1)</code>, and <strong>S = n(n − 1)/2</strong>.</p>
-<p>For n = 2,000, <code>S = 2,000 × 1,999 / 2 = 1,999,000</code>. For n = 4,000, <code>S = 4,000 × 3,999 / 2 = 7,998,000</code>. The ratio is approximately 4.001, not exactly four. The dominant n² term explains O(n²), while the exact expression explains the slightly different ratio.</p>
-<p>For the bubble implementation, the same sum is its full-pass worst-case count, not a mandatory count for every input. On an already sorted list of n ≥ 2 items, it performs n − 1 comparisons, zero swaps, and exits. A strictly descending list requires every comparison and swap. Random input often requires nearly all passes, but the precise count depends on the actual permutation.</p>
-<p class="turkish"><strong>Türkçe:</strong> Seçmeli sıralamada üçgen toplam her girdide geçerlidir. Erken durmalı kabarcık sıralamasında ise bu toplam en kötü durum içindir. Aynı formülü kullanırken “hangi algoritma, hangi girdi, hangi durum?” sorularını belirtmek gerekir.</p>
-<h2 id="help-insertion-sort-and-existing-order">Insertion sort and existing order</h2>
-<p>Insertion sort maintains a sorted prefix. Take the next value, shift larger prefix values right, and place the held value into the gap. On the same five-item example, inserting 1 requires one comparison and one shift. Inserting 4 requires two comparisons and one shift. Inserting 2 requires three comparisons and two shifts. Inserting 8 requires one comparison and no shift. Totals are <strong>seven comparisons and four shifts</strong>, matching the original lesson&#x27;s counting convention.</p>
-<p>On already sorted input, each new item needs one comparison: n − 1 comparisons. On strictly reverse-sorted input, all earlier items shift, giving the triangular sum. Thus insertion sort is O(n) in its best case and O(n²) in its worst case. All three lesson functions copy their input first and therefore use O(n) extra space; their in-place cores can use O(1) auxiliary space.</p>
-<h2 id="help-why-n-log-n-appears-and-what-sorted-guarantees">Why n log n appears, and what sorted() guarantees</h2>
-<p>Imagine splitting eight items until single items remain. There are three splitting levels because <code>8 = 2³</code>. When combining sorted pieces, each merge level processes eight items in total: first four two-item merges, then two four-item merges, then one eight-item merge. The work model is <code>8 + 8 + 8 = 8 × 3 = 24</code>. This is an illustration of total processing, not an exact claim of 24 key comparisons.</p>
-<p>In general, about log₂ n levels each perform O(n) work, yielding O(n log n). On doubling n, the leading work ratio is <code>2(log₂ n + 1)/log₂ n</code>. At n = 1,024, it is <code>2 × 11 / 10 = 2.2</code>. The ratio changes slowly with size; 2.1 or 2.2 is not a universal constant.</p>
-<p>Python&#x27;s built-in sorting is adaptive: it can exploit existing order. It has O(n log n) worst-case comparison-sort behavior and can be linear on already ordered data. <code>sorted(data)</code> returns a new list. <code>data.sort()</code> modifies the existing list and returns <code>None</code>. In-place modification does not promise zero workspace; built-in list sorting may use O(n) auxiliary storage.</p>
-<p>A <strong>stable</strong> sort preserves relative order among records with equal keys. It does not mean equally valued records remain at their original absolute indices. <code>reverse=True</code> also preserves tie order. See the <a href="https://docs.python.org/3/howto/sorting.html#sort-stability-and-complex-sorts">official sorting guide</a> for the language guarantees.</p>
-<h2 id="help-three-graduated-practice-problems">Three graduated practice problems</h2>
-<h3 id="help-problem-1-best-versus-worst">Problem 1 — Best versus worst</h3>
-<p>For six distinct items, give bubble sort&#x27;s comparisons and swaps on sorted and reverse-sorted input. Give selection sort&#x27;s comparisons in both cases. Use the implementations above.</p>
-<h4 id="help-solution-1-use-the-stopping-rules">Solution 1 — Use the stopping rules</h4>
-<p>Sorted bubble input uses <code>6 − 1 = 5</code> comparisons and zero swaps. Reverse-sorted bubble input uses <code>6 × 5 / 2 = 15</code> comparisons and 15 swaps. Selection sort always uses 15 comparisons here, including on sorted input; its sorted case makes zero swaps. Do not assign selection sort 15 swaps merely because it makes 15 comparisons.</p>
-<h3 id="help-problem-2-preserve-ties-then-deliberately-break-them">Problem 2 — Preserve ties, then deliberately break them</h3>
-<p>Records arrive as <code>[(&amp;quot;Cem&amp;quot;, 88), (&amp;quot;Ada&amp;quot;, 88), (&amp;quot;Ece&amp;quot;, 72)]</code>. Sort by descending grade while preserving arrival order for ties. Then sort by descending grade and ascending name. Explain the difference.</p>
-<h4 id="help-solution-2-define-the-full-key">Solution 2 — Define the full key</h4>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">records = [(&quot;Cem&quot;, 88), (&quot;Ada&quot;, 88), (&quot;Ece&quot;, 72)]
-by_grade = sorted(records, key=lambda item: item[1], reverse=True)
-by_grade_name = sorted(records, key=lambda item: (-item[1], item[0]))
-assert by_grade == [(&quot;Cem&quot;, 88), (&quot;Ada&quot;, 88), (&quot;Ece&quot;, 72)]
-assert by_grade_name == [(&quot;Ada&quot;, 88), (&quot;Cem&quot;, 88), (&quot;Ece&quot;, 72)]
-print(by_grade_name)</code></pre></div>
-<p>In the first result, Cem stays before Ada because their keys are equal. In the second, negated numeric grade sorts larger grades first; name breaks the tie alphabetically. A tuple can express these mixed directions for a numeric grade. Two stable passes are another valid option, beginning with the less important key. The original records remain unchanged because both calls use <code>sorted</code>.</p>
-<h3 id="help-problem-3-predict-without-pretending-to-measure">Problem 3 — Predict without pretending to measure</h3>
-<p>Suppose a repeated benchmark gives 0.20 seconds for bubble sort at n = 2,000 and 0.80 seconds at n = 4,000 on comparable difficult inputs. Predict at n = 8,000. Explain what a fair comparison with <code>sorted()</code> needs.</p>
-<h4 id="help-solution-3-state-the-model-and-its-limits">Solution 3 — State the model and its limits</h4>
-<p>The observed doubling ratio is <code>0.80 / 0.20 = 4</code>. Under the same quadratic-dominant model, predict <code>0.80 × 4 = 3.20 seconds</code> at 8,000. This is a prediction, not an observed runtime, and it assumes similar input structure and operating conditions.</p>
-<p>Give both sorts identical input values, fresh inputs when mutation matters, and equivalent output requirements. Build test data outside the timed region. Repeat runs and report the chosen summary. Include copying consistently: the lesson&#x27;s bubble function already copies internally. Check equality with a trusted sorted result outside timing. Benchmark multiple input patterns because already sorted data activates early exits and adaptive behavior.</p>
-<h2 id="help-misconceptions-and-a-short-bridge-to-the-chapter-puzzle">Misconceptions and a short bridge to the chapter puzzle</h2>
-<p>Do not infer “quadratic” from any two nested loops without counting their bounds. Do not infer a proof from near-four timing ratios. Do not replace <code>data</code> with <code>data.sort()</code>, because the assigned result is <code>None</code>. Do not call every in-place operation constant-space.</p>
-<p>The optional triangle puzzle uses the same “count contributions” habit. Row sums are 1, 3, 9, 27. Every entry contributes to exactly three positions in the next row, so each new total is three times the previous total. Row i therefore sums to 3 raised to the power i − 1. The explanation establishes the general pattern; the four observed totals alone do not.</p>
-<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Comparison</td><td>Karşılaştırma: test the relative order of two keys</td></tr><tr><td>Swap / shift</td><td>Takas / kaydırma: exchange two positions or move an item along</td></tr><tr><td>Stable sort</td><td>Kararlı sıralama: equal-key records retain relative order</td></tr><tr><td>Sorted prefix</td><td>Sıralı önek: the completed beginning of the sequence</td></tr><tr><td>In place</td><td>Yerinde: modify the existing container</td></tr><tr><td>Auxiliary space</td><td>Yardımcı bellek: extra workspace beyond input/output</td></tr></tbody></table></div>
-<p>You are ready when you can reproduce 9/4 for bubble and 10/2 for selection, derive the triangular count, and explain a stable tie. Repair counting gaps with three items before returning to five. Repair complexity gaps by naming the input case explicitly. Bring these habits to Week 14, where two correct approaches become a complete, evidence-based recommendation.</p>
-<h2 id="help-put-one-more-item-in-its-final-place">Put one more item in its final place</h2>
-<p>Selection sort finds the smallest item in the part that is still unsorted. It puts that item in the next position at the front. The finished part grows by one item each round. This explains why the answer is sorted. Counting comparisons answers a separate question: how much work was needed?</p>
-<p><strong>Draw or trace.</strong> Trace [4, 1, 3, 2] with a boundary between finished front part and unfinished remaining part. Record comparisons for each minimum search.</p>
-<p><strong>Predict before checking.</strong> If the list is already sorted, does this ordinary selection-sort version avoid the minimum searches?</p>
-<h3 id="help-worked-reasoning">Worked reasoning</h3>
-<p>No. This version still makes 3, 2 and 1 comparisons: six for four items. For n items it makes n(n − 1)/2 comparisons, whatever the starting order. A bubble sort that stops when no swaps occur behaves differently, so name the version you are analysing. Also check what happens to equal values. A stable sort keeps equal-value records in their original order; not every sort does.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = [4, 1, 3, 2]
-comparisons = 0
-for start in range(len(values) - 1):
-    smallest = start
-    for index in range(start + 1, len(values)):
-        comparisons += 1
-        if values[index] &lt; values[smallest]:
-            smallest = index
-    values[start], values[smallest] = values[smallest], values[start]
-assert values == [1, 2, 3, 4]
-assert comparisons == 6
-print(values, comparisons)</code></pre></div>
-<p><strong>Change one thing.</strong> Add record labels to equal sorting values. Inspect whether swapping a later minimum across an record with the same sorting value changes their order, even though the key values finish sorted.</p>
-<p class="turkish"><strong>Türkçe:</strong> Doğruluk için her turda kesinleşen bölgeyi açıkla; maliyet için karşılaştırmaları say. Sıralı girdi her algoritmada daha az iş demek değildir.</p>
-<h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
-<p>Sorting connects correctness, stability, and cost. A sort is not only &quot;put items in order&quot;; it must say which key defines order and what happens to ties.</p>
-<div class="table-scroll"><table><thead><tr><th>Method</th><th>What to trace</th><th>Cost idea</th></tr></thead><tbody><tr><td>bubble sort</td><td>adjacent swaps and passes</td><td>repeated comparisons, quadratic worst case</td></tr><tr><td>selection sort</td><td>minimum selection for each suffix</td><td>quadratic comparisons even if few swaps</td></tr><tr><td>insertion sort</td><td>shifts until each item reaches its place</td><td>fast on nearly sorted data, quadratic worst case</td></tr><tr><td>Python <code>sorted</code></td><td>key function and stability</td><td>O(n log n) worst-case guarantee for comparisons in the documented model</td></tr></tbody></table></div>
-<p>Extra exam-style prompt: Sort student records by grade descending, preserving original order among equal grades. What must the contract say?</p>
-<p>Solution: The key is grade, the direction is descending, and ties must keep input order. A stable sort with key <code>grade</code> and reverse order satisfies the tie requirement. If ties may be reordered, the output contract is different. Analysis should include key computation cost if it is expensive.</p>
-<p class="turkish"><strong>Turkce:</strong> Siralama kuralini tam soyle: hangi alana gore, artan mi azalan mi, esitlikte ne olacak? Bu ayrinti hem dogrulugu hem maliyeti etkileyebilir.</p></div></details>
-<details class="path-resources"><summary>Learning goals & class plan</summary><div><section>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 7, 8, 9</p><h3>Merge first, then explain the full sort</h3><p>Merging two sorted lists only compares their next items that have not yet been copied. Each comparison chooses one item to copy to the result. When one list empties, copy the rest without more key comparisons. With n items in total, at most n − 1 comparisons are needed when both lists start nonempty.</p><p>Mergesort merges all n items at each level, across about log₂ n levels. Quicksort splits items around a chosen value, called the pivot, instead: choosing pivots randomly gives expected O(n log n) comparisons in the usual analysis, but repeatedly splitting into very unequal parts can be quadratic. Equal values need care. Three-way partitioning makes separate groups smaller than, equal to and larger than the pivot.</p><p>The lower bound for sorts based only on comparisons does not apply to every kind of sort. Counting sort uses counts within a known value range; radix sort groups values by digits. Check the key range, whether equal-value records must keep their original order and memory cost before claiming a faster solution.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Merge timestamped sensor streams and keep equal-time records in a defined order.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
@@ -473,9 +336,10 @@ print(values, comparisons)</code></pre></div>
     <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
   </div>
 </section>
-</div></details><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-072"><p class="source-label">Source exercise 72 · easy</p><p>Merge [1, 4, 9] and [2, 3, 10]. Give the output and count the comparisons.</p><details class="solution"><summary>Show reasoning</summary><div><p>1, 2, 3, 4, 9, 10. Comparisons: 1 vs 2, 4 vs 2, 4 vs 3, 4 vs 10, 9 vs 10; five comparisons, then 10 is copied with none. That is n − 1 = 5 for n = 6.</p></div></details></article><p><strong>Write down:</strong> A merge trace, its comparison count, and the assumption behind the sort you recommend.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>
-<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div><section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w13/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
+<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Draw the first bubble pass on [5, 1, 4, 2, 8]. Mark every swap.</p><details class="solution"><summary>Check your reasoning</summary><div><p>5 swaps with 1, then 4, then 2; no swap with 8. Result [1, 4, 2, 5, 8].</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>How many comparisons does selection sort make for n = 8?</p><details class="solution"><summary>Check your reasoning</summary><div><p>8 × 7 / 2 = 28, even if the input is already sorted.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Reverse the order of Ada and Sam in the input. Sort by score again.</p><details class="solution"><summary>Check your reasoning</summary><div><p>Sam now stays before Ada among the equal score-80 records. Stability preserves input order for ties.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
   <h2><span class="num">13.9</span>Try it yourself</h2>
 
   <div class="task">
@@ -574,7 +438,8 @@ print(values, comparisons)</code></pre></div>
       </p>
     </details>
   </div>
-</section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
+</section></div></details>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-072"><p class="source-label">Source exercise 72 · easy</p><p>Merge [1, 4, 9] and [2, 3, 10]. Give the output and count the comparisons.</p><details class="solution"><summary>Show reasoning</summary><div><p>1, 2, 3, 4, 9, 10. Comparisons: 1 vs 2, 4 vs 2, 4 vs 3, 4 vs 10, 9 vs 10; five comparisons, then 10 is copied with none. That is n − 1 = 5 for n = 6.</p></div></details></article><p><strong>Write down:</strong> A merge trace, its comparison count, and the assumption behind the sort you recommend.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
 <section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
   <h2><span class="num">13.10</span>Self-check</h2>
   <div class="quiz" data-quiz>
@@ -641,7 +506,7 @@ print(values, comparisons)</code></pre></div>
     </ol>
   </div>
 </section></div></details>
-<section>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
   <h2><span class="num">13.12</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
@@ -658,7 +523,7 @@ print(values, comparisons)</code></pre></div>
       </tbody>
     </table>
   </div>
-</section>
+</section></div></details>
 <details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
   <h2><span class="num">13.13</span>Chapter problem set — Skiena 2.10</h2>
   <p>

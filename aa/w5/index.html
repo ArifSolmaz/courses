@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/anim-w5.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w5.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ algorithm analysis</span></a>
@@ -29,25 +29,23 @@
 </div>
 
 <div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump><option value="../w1/">Week 01 · What Is an Algorithm?</option><option value="../w2/">Week 02 · Your First Python: Values, Names, and Output</option><option value="../w3/">Week 03 · Repeating Work: Loops and a Step Counter</option><option value="../w4/">Week 04 · Lists: Holding Many Things at Once</option><option value="../w5/" selected>Week 05 · Functions and the Stopwatch</option><option value="../w6/">Week 06 · The Doubling Experiment</option><option value="../w7/">Week 07 · Counting Steps Instead of Seconds</option><option value="../w8/">Week 08 · Big-O Notation</option><option value="../w9/">Week 09 · One Problem, Four Algorithms: The Anagram Story</option><option value="../w10/">Week 10 · What Python Lists Really Cost</option><option value="../w11/">Week 11 · Dictionaries and Sets: Faster Lookups</option><option value="../w12/">Week 12 · Searching: Linear vs Binary</option><option value="../w13/">Week 13 · Sorting: Why Some Sorts Are Slow</option><option value="../w14/">Week 14 · Putting It All Together</option></select></div>
-<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="meaning-lesson" id="meaning-before-analysis"><h2 id="be-clear-about-what-you-time">Be clear about what you time</h2>
-<p>First check that the function returns the right answer. Then decide which work to time. Put the timer around that work, and leave unrelated printing outside. Say whether preparing the input is part of the measurement.</p>
-<p><strong>Draw or trace.</strong> Draw setup → start timer → function call → stop timer → report. Mark whether creating the input is inside or outside the interval.</p>
-<p><strong>Predict before checking.</strong> If one method includes input construction and another reuses prepared data, can their timings alone establish which method answers a query faster?</p>
-<details class="solution"><summary>Worked reasoning — after your prediction</summary><h3 id="worked-reasoning">Worked reasoning</h3>
-<p>No. The two timings include different work. Use the same input rules, check that the answers agree, and treat preparation the same way. Repeat the measurements because times vary. A tiny measured time does not mean no work happened. Reporting only the fastest convenient run hides that variation.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def loop_sum(n):
-    total = 0
-    for value in range(1, n + 1):
-        total += value
-    return total
+<div data-learning-path><nav class="path-steps" aria-label="Lesson steps" hidden><button type="button" data-step-target="understand" aria-controls="understand">1 · Understand</button><button type="button" data-step-target="investigate" aria-controls="investigate">2 · Investigate</button><button type="button" data-step-target="check" aria-controls="check">3 · Check</button></nav><section id="understand" data-step><h2 class="path-stage-title">Understand</h2><section class="vl-lesson"><h2>Give a repeated method a name</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def contains(values, target):
+    for x in values:
+        if x == target:
+            return True
+    return False
 
-for n in (0, 1, 7, 20):
-    assert loop_sum(n) == n * (n + 1) // 2
-print(&quot;Results agree on the checked inputs; timing comes next.&quot;)</code></pre></div>
-</details><p><strong>Change one thing.</strong> Change the question from one query on ready-made data to the full task starting with raw input. Explain why the timing boundary must change.</p>
-<p class="turkish"><strong>Türkçe:</strong> Kronometre yalnızca içine aldığın işi ölçer. Aynı çıktıyı doğrula, hazırlık maliyetini belirt, sonra karşılaştır.</p></section>
-<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>A stopwatch answers a question about an input</h3><p>The notes separate best, worst and average cost over inputs of the same size. A timing measurement is one observation on one machine, implementation and input. One run does not tell you the best, worst or average time across all inputs of that size.</p><p>Searching a hundred readings can stop at the first reading, stop at the last, or exhaust the list without finding the target. Keep n fixed and compare those cases. Repeat measurements and record what setup work you included. The worst observed time is evidence about your trials, not proof of the worst possible time.</p><p>Counting how many operations the method needs helps explain the measured time. A real controller deadline additionally depends on the computer, memory access and other tasks running at the same time.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Write “largest time in these trials” rather than “guaranteed maximum” unless you have established that guarantee.</p></section>
-<details class="path-reference teaching-part"><summary>A function is a named piece of work</summary><div><section>
+print(contains([4, 7, 9], 7))</code></pre></div><figure class="vl-figure"><figcaption>Function call</figcaption><ol class="vl-flow"><li>inputs: [4, 7, 9], 7</li><li>check 4 → check 7</li><li>return True; stop</li></ol></figure><p>A parameter names an input. <code>return</code> sends a result back and ends the call; <code>print</code> only displays it. The final <code>return False</code> belongs after the loop, so all candidates get a chance.</p></section><section class="vl-lesson"><h2>Time only the work you are comparing</h2><figure class="vl-figure"><figcaption>Benchmark boundary</figcaption><ol class="vl-flow"><li>build data<small>outside timer</small></li><li>start = perf_counter()</li><li>call the method</li><li>elapsed = perf_counter() − start</li></ol></figure><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from time import perf_counter
+values = list(range(100_000))
+start = perf_counter()
+found = contains(values, -1)
+elapsed = perf_counter() - start
+print(found, elapsed)</code></pre></div><p>The missing target forces a full scan. Compare methods on the same data and target. Keep printing and data creation outside the timed region unless those are part of the question.</p></section><section class="vl-lesson"><h2>Repeat before trusting a number</h2><p>Illustrative timings for five runs:</p><div class="vl-table"><table><thead><tr><th scope="col">Run</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th></tr></thead><tbody><tr><td>Time (ms)</td><td>4.0</td><td>4.1</td><td>7.2</td><td>4.0</td><td>4.2</td></tr></tbody></table></div><div class="vl-equation"><span>Same method, five trials</span><strong>minimum = 4.0 ms; mean = 4.7 ms</strong></div><p>The minimum can approximate an uninterrupted run; the mean includes interruptions. Report which you use. Warm up once, then repeat; background work and timer resolution can overwhelm tiny measurements.</p><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from timeit import repeat
+samples = repeat(lambda: contains(values, -1),
+                 number=100, repeat=5)
+seconds_per_call = min(samples) / 100
+print(seconds_per_call)</code></pre></div></section><section class="vl-lesson"><h2>Keep evidence separate from a claim</h2><div class="vl-table"><table><thead><tr><th scope="col">Record</th><th scope="col">Example</th></tr></thead><tbody><tr><td>Input family</td><td>n distinct integers; target absent</td></tr><tr><td>Correctness check</td><td>returns False</td></tr><tr><td>Work model</td><td>n equality checks</td></tr><tr><td>Measurement</td><td>seconds per call, repetitions and machine</td></tr><tr><td>Limit</td><td>Does not describe early matches</td></tr></tbody></table></div><p>A faster run is evidence about this experiment. It does not prove that a method is faster for every input or every machine.</p></section>
+<details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
   <h2><span class="num">5.1</span>A function is a named piece of work</h2>
   <p>
     Up to now, changing <code>n</code> meant editing the code and running it again. A
@@ -84,8 +82,8 @@ print(sum_to(1000))</code></pre></div>
       word. Nothing happens until you <em>call</em> it: <code>sum_to(10)</code>.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>The stopwatch</summary><div><section>
+</section>
+<section>
   <h2><span class="num">5.2</span>The stopwatch</h2>
   <p>
     Python's <code>time</code> module has a high-resolution clock. Read it before, read it
@@ -112,8 +110,8 @@ print(f"result {result}, took {elapsed:.4f} seconds")</code></pre></div>
       matters.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>One measurement is not a measurement</summary><div><section>
+</section>
+<section>
   <h2><span class="num">5.3</span>One measurement is not a measurement</h2>
   <p>
     Your computer is doing dozens of other things while it runs your loop. Time the same
@@ -152,8 +150,8 @@ print(f"{time_it(sum_to, 1000000):.4f} s")</code></pre></div>
       <li><strong>You measured the wrong thing.</strong> Building a million-item test list inside the timed block measures list-building plus your algorithm. Build the data <em>before</em> <code>start</code>.</li>
     </ol>
   </div>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Your first benchmark table</summary><div><section>
+</section>
+<section>
   <h2><span class="num">5.4</span>Your first benchmark table</h2>
   <p>
     Now the pattern that every remaining week of this course uses. Same function, several
@@ -179,8 +177,8 @@ for n in sizes:
     Near-doubling times support the linear model here; the loop count explains it for all n.
     Next week you will use ratios as evidence when distinguishing growth patterns.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Two functions, one job</summary><div><section>
+</section>
+<section>
   <h2><span class="num">5.5</span>Two functions, one job</h2>
   <p>
     There is a closed-form formula for the same sum: n(n+1)/2. Same answer, different
@@ -203,8 +201,8 @@ n= 10000000  loop 0.512000s   formula 0.000000180s   x2844444 faster</div>
     between the two methods widens with the data. <em>That</em> is the thing this course
     teaches you to see coming, before you write the slow one.
   </p>
-</section></div></details>
-<details class="path-reference teaching-part"><summary>Going deeper: warm-up, resolution and timeit</summary><div><section>
+</section>
+<section>
   <h2><span class="num">5.6</span>Going deeper: warm-up, resolution and timeit</h2>
   <p>
     You have a working stopwatch. Three refinements separate a rough timing from one you
@@ -308,150 +306,8 @@ print(f"{per_call * 1e6:.2f} microseconds per call")</code></pre></div>
       numbers are trustworthy and where they are not.
     </p>
   </div>
-</section></div></details>
-<details class="path-reference" id="extra-explanation"><summary>Need a slower explanation? English + Türkçe</summary><div class="inline-guide"><h2 id="help-the-question-for-this-week">The question for this week</h2>
-<p><strong>How can we run the same piece of work with different inputs, then measure it without measuring something else by accident?</strong></p>
-<p>Earlier weeks used variables and loops to describe algorithms. This week packages those steps into functions and adds a stopwatch. These are separate skills: a function can be correct while its benchmark is misleading, and a carefully measured function can still calculate the wrong answer. Check correctness first, timing second.</p>
-<p>By the end, you should be able to explain a parameter, an argument, and a return value; define a reusable function; place a timer around a clearly stated task; repeat measurements; distinguish clock resolution from practical measurement accuracy; and choose between <code>perf_counter</code> and <code>timeit</code>. You should also know what a timing table cannot establish.</p>
-<p class="turkish"><strong>Türkçe:</strong> Önce “hangi işi yapıyorum?” sorusunu kesinleştiririz. Fonksiyon o işi tekrar kullanmamızı sağlar; zaman ölçümü ise işin belirli bir ortamda ne kadar sürdüğünü gösterir. Doğru sonuç, doğru ölçüm ve büyüme analizi birbirinin yerine geçmez.</p>
-<h2 id="help-prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
-<ol>
-<li>What values does <code>range(1, 5)</code> produce? <strong>Answer:</strong> 1, 2, 3, 4. Its stop value is excluded.</li>
-<li>Starting with <code>total = 0</code>, what follows adding 1, then 2, then 3? <strong>Answer:</strong> the successive totals are 1, 3, 6.</li>
-<li>What is 15% as a decimal? <strong>Answer:</strong> 15/100 = 0.15. Conversely, a fraction becomes a percentage by multiplying by 100.</li>
-<li>A clock reads 12.400 seconds before work and 12.425 afterward. What elapsed? <strong>Answer:</strong> 12.425 − 12.400 = 0.025 seconds = 25 milliseconds.</li>
-</ol>
-<p>If the last conversion was difficult, keep these equalities visible: 1 second = 1000 milliseconds; 1 millisecond = 1000 microseconds. A smaller unit produces a larger numerical reading for the same interval.</p>
-<h2 id="help-1-a-function-has-an-input-a-job-and-a-result">1. A function has an input, a job, and a result</h2>
-<p>Consider this complete program:</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def sum_to(n):
-    total = 0
-    for number in range(1, n + 1):
-        total = total + number
-    return total
-
-answer = sum_to(4)
-print(answer)
-assert answer == 10
-assert sum_to(0) == 0</code></pre></div>
-<p><code>def</code> creates the function. The indented lines are its body. The name <code>n</code> is a <strong>parameter</strong>: a local name ready to receive a value. In <code>sum_to(4)</code>, 4 is the <strong>argument</strong> supplied by this particular call. The call begins the body, and <code>return total</code> hands its result to the caller. Assignment then stores that returned result in <code>answer</code>.</p>
-<p>Defining the function does not execute its loop. Calling it does. Calling it again starts a fresh <code>total = 0</code>; it does not continue the previous call&#x27;s total. Here the input contract is a non-negative integer n. Negative or fractional inputs need a separate specification rather than an accidental interpretation of <code>range</code>.</p>
-<h3 id="help-worked-example-1-trace-before-running">Worked example 1 — trace before running</h3>
-<p>For n = 4, <code>range(1, n + 1)</code> becomes <code>range(1, 5)</code>.</p>
-<div class="table-scroll"><table><thead><tr><th>Moment</th><th>number</th><th>total before addition</th><th>total afterward</th></tr></thead><tbody><tr><td>Initialization</td><td>not assigned yet</td><td>—</td><td>0</td></tr><tr><td>First iteration</td><td>1</td><td>0</td><td>1</td></tr><tr><td>Second iteration</td><td>2</td><td>1</td><td>3</td></tr><tr><td>Third iteration</td><td>3</td><td>3</td><td>6</td></tr><tr><td>Fourth iteration</td><td>4</td><td>6</td><td>10</td></tr><tr><td>Return</td><td>—</td><td>10</td><td>caller receives 10</td></tr></tbody></table></div>
-<p>The arithmetic is 1 + 2 + 3 + 4 = 10. The table also shows why initialization belongs outside the loop. Moving <code>total = 0</code> inside would repeatedly erase earlier additions.</p>
-<p><code>print(total)</code> and <code>return total</code> do different jobs. Printing displays text. Returning supplies a value that another calculation can use. A function that only prints and then reaches its end returns <code>None</code>. Therefore, when <code>answer</code> unexpectedly becomes <code>None</code>, inspect the function&#x27;s return paths before blaming the arithmetic.</p>
-<p class="turkish"><strong>Türkçe:</strong> <code>print</code> ekrana yazar; <code>return</code> çağırana değer verir. Parametre tanımdaki isimdir, argüman çağrıda verdiğimiz değerdir. Her çağrıda yerel toplam yeniden sıfırdan başlar.</p>
-<h2 id="help-2-put-boundaries-around-the-measured-task">2. Put boundaries around the measured task</h2>
-<p><code>time.perf_counter()</code> provides a clock suitable for elapsed intervals. Its absolute reading is not a date or an execution time. Subtract two readings to obtain an interval. It is monotonic: it does not move backward when the wall clock is adjusted. This is why it is preferable to <code>time.time()</code> for these measurements.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">import time
-
-def sum_to(n):
-    total = 0
-    for number in range(1, n + 1):
-        total += number
-    return total
-
-n = 1000
-start = time.perf_counter()
-answer = sum_to(n)
-elapsed = time.perf_counter() - start
-assert answer == 500500
-print(&quot;Answer:&quot;, answer)
-print(&quot;Observed seconds:&quot;, elapsed)</code></pre></div>
-<p>This small run demonstrates timer placement. Its short duration is <strong>not sufficient evidence for a growth classification</strong>. Your observed number will vary. There is no fixed expected timing to copy.</p>
-<p>For a search benchmark, decide whether the task is “search an existing list” or “construct a list and search it.” Both questions can be legitimate. They need different timer boundaries. If you claim to measure search alone, build the list before starting the clock. Keep printing outside the timed interval because formatting and console output are additional work.</p>
-<p>Record the function, input size, input contents or generation rule, chosen case, repetition count, and summary statistic. “The algorithm took 0.02 seconds” omits almost everything another person needs to interpret the result.</p>
-<h2 id="help-3-repetition-warm-up-and-noise">3. Repetition, warm-up, and noise</h2>
-<p>A computer shares its resources among many tasks. Scheduling, CPU frequency, cache state, memory allocation and garbage collection can change observed time. Repeat the same stated experiment instead of trusting one lucky or unlucky run.</p>
-<p>The lesson&#x27;s minimum-of-repeats harness is useful when asking about relatively uninterrupted execution. The <strong>minimum</strong> is the smallest observation. The <strong>mean</strong> is total time divided by the number of observations. The <strong>median</strong> is the middle value after sorting, or the mean of the middle two when there is an even count. Report which one you use.</p>
-<h3 id="help-worked-example-2-summarize-illustrative-observations">Worked example 2 — summarize illustrative observations</h3>
-<p>The following values are <strong>illustrative arithmetic data, not measurements made for this guide</strong>: 12, 8, 9, 8, 13 milliseconds.</p>
-<div class="table-scroll"><table><thead><tr><th>Statistic</th><th>Calculation</th><th>Result</th></tr></thead><tbody><tr><td>Minimum</td><td>smallest of the five</td><td>8 ms</td></tr><tr><td>Mean</td><td>(12 + 8 + 9 + 8 + 13)/5 = 50/5</td><td>10 ms</td></tr><tr><td>Median</td><td>sorted values 8, 8, 9, 12, 13</td><td>9 ms</td></tr><tr><td>Relative spread</td><td>(13 − 8)/8 × 100</td><td>62.5%</td></tr></tbody></table></div>
-<p>If we deliberately exclude the first observation, the mean becomes (8 + 9 + 8 + 13)/4 = 38/4 = 9.5 ms. The minimum remains 8 ms. This demonstrates the arithmetic of a warm-up policy; it does not prove the first observation was a warm-up effect.</p>
-<p>The first call <strong>may</strong> pay one-time costs and be slower. It is not guaranteed to be the slowest. An explicit untimed warm-up makes the policy understandable. Taking a minimum is not a universal substitute for controlling the experiment, and does not reveal a unique hardware-independent “true time.” For workloads where cold-start behavior matters, discarding it would answer the wrong question.</p>
-<p class="turkish"><strong>Türkçe:</strong> En küçük süre “kesin gerçek süre” değildir; gözlenen koşullardan birini temsil eder. İlk çalıştırmayı çıkarıyorsanız neden çıkardığınızı yazın. Sıcak başlangıç ile ilk kullanım performansı farklı sorulardır.</p>
-<h2 id="help-4-resolution-is-not-the-same-as-accuracy">4. Resolution is not the same as accuracy</h2>
-<p>Clock resolution is the nominal interval the clock can distinguish. You can inspect it with <code>time.get_clock_info(&amp;quot;perf_counter&amp;quot;).resolution</code>. A fine clock still has call overhead, and your program still experiences noise. Many displayed decimal places do not establish equally many trustworthy digits.</p>
-<p>Suppose a disturbance adds 0.25 ms. On a 0.5 ms task, its share is 0.25/0.5 × 100 = 50%. On a 2-second task, first convert 2 seconds to 2000 ms. The share is 0.25/2000 × 100 = <strong>0.0125%</strong>. Always use matching units before dividing.</p>
-<p>Longer observations can reduce the relative effect of a fixed disturbance. However, disturbances are not all fixed, and very large inputs can introduce cache or memory effects. Use a small pilot experiment, increase sizes cautiously, and stop before an expensive trial becomes impractical. The lesson&#x27;s “tens of milliseconds” advice is a practical starting point, not a universal mathematical threshold.</p>
-<h2 id="help-5-tiny-snippets-and-timeit">5. Tiny snippets and <code>timeit</code></h2>
-<p>For a very short operation, time a batch of calls. If 1000 calls take total time t, the estimated average per call is t/1000. This is what <code>timeit</code> helps organize. Its standard configuration temporarily disables garbage collection during the timed work, which is helpful for some experiments but must be considered if collection is part of the workload you care about.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">import timeit
-
-def sum_formula(n):
-    return n * (n + 1) // 2
-
-assert sum_formula(1000) == 500500
-totals = timeit.repeat(lambda: sum_formula(1000), number=1000, repeat=3)
-print(&quot;Observed total seconds for each 1000-call batch:&quot;, totals)
-print(&quot;Minimum batch average per call:&quot;, min(totals) / 1000)</code></pre></div>
-<p>The <code>lambda</code> supplies a tiny callable that performs the chosen call; it is not an extra algorithm to learn. The measured average includes calling overhead. This block has bounded inputs and produces real observations, with no promised numeric timing.</p>
-<p>The loop and formula give the same sum because 1 + … + n = n(n+1)/2. At n = 4, the formula gives 4×5/2 = 10. The loop performs n additions; the formula performs a fixed number of arithmetic operations under the course&#x27;s unit-cost model. For arbitrarily large Python integers, arithmetic costs grow with the number of bits, so “fixed number of operations” does not mean unlimited-size arithmetic is literally free.</p>
-<h2 id="help-6-graduated-practice-with-complete-solutions">6. Graduated practice with complete solutions</h2>
-<h3 id="help-practice-1-make-search-reusable">Practice 1 — make search reusable</h3>
-<p>Write <code>contains(data, target)</code> and explain why the final <code>False</code> must be outside the loop. Test <code>[3, 9, 4]</code> with targets 9 and 5, and test an empty list.</p>
-<h4 id="help-solution-1">Solution 1</h4>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def contains(data, target):
-    for item in data:
-        if item == target:
-            return True
-    return False
-
-assert contains([3, 9, 4], 9) is True
-assert contains([3, 9, 4], 5) is False
-assert contains([], 9) is False
-print(&quot;All three search cases passed.&quot;)</code></pre></div>
-<p>For target 9, comparing 3 is unsuccessful, but does not justify failure: later items remain. Only exhausting the list justifies <code>False</code>. The empty list immediately reaches that final return.</p>
-<h3 id="help-practice-2-repair-a-measurement-report">Practice 2 — repair a measurement report</h3>
-<p>A report times list construction, search, and printing together, then calls the result “search time.” It reports one run. Give a complete repair and calculate the average of illustrative repeats 18, 12, 12 ms.</p>
-<h4 id="help-solution-2">Solution 2</h4>
-<p>Construct the list first, choose a missing target to require a full scan, warm up according to a stated policy, then time only the search. Repeat and move printing afterward. Preserve the individual observations. The example mean is (18+12+12)/3 = 14 ms; the minimum is 12 ms. State the statistic and measured scope. If construction is intentionally included, rename the result “construction plus search time” rather than claiming the observation is meaningless.</p>
-<h3 id="help-practice-3-check-correctness-before-comparing-speed">Practice 3 — check correctness before comparing speed</h3>
-<p>Compare the loop and formula for n = 0, 1, 4, 10. Predict the answers and explain why a timing win alone would not validate either implementation.</p>
-<h4 id="help-solution-3">Solution 3</h4>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def loop_sum(n):
-    result = 0
-    for value in range(1, n + 1):
-        result += value
-    return result
-
-def formula_sum(n):
-    return n * (n + 1) // 2
-
-for n, expected in [(0, 0), (1, 1), (4, 10), (10, 55)]:
-    assert loop_sum(n) == formula_sum(n) == expected
-    print(n, expected)</code></pre></div>
-<p>Both methods satisfy these checks. Returning zero immediately would be extremely fast but wrong for most inputs. Test cases support correctness; the summation identity explains why the formula works for all non-negative integers.</p>
-<h2 id="help-misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</h2>
-<div class="table-scroll"><table><thead><tr><th>Misconception</th><th>Correction</th></tr></thead><tbody><tr><td>Defining a function runs its work</td><td>A call runs the body</td></tr><tr><td>Printing returns the answer</td><td>A return supplies the caller&#x27;s value</td></tr><tr><td>The fastest timing proves complexity</td><td>It is an observation at one size and under one environment</td></tr><tr><td>A tiny time is automatically accurate</td><td>Clock overhead and relative noise may dominate</td></tr></tbody></table></div>
-<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning here</th></tr></thead><tbody><tr><td>Parameter / argument</td><td>Parametre / argüman</td><td>Definition&#x27;s name / call&#x27;s supplied value</td></tr><tr><td>Return value</td><td>Dönüş değeri</td><td>Result handed to the caller</td></tr><tr><td>Benchmark</td><td>Performans ölçümü</td><td>A measurement with explicit scope and conditions</td></tr><tr><td>Warm-up</td><td>Isınma çalıştırması</td><td>Preparation before recorded runs</td></tr><tr><td>Resolution</td><td>Çözünürlük</td><td>Clock&#x27;s nominal distinguishable interval</td></tr><tr><td>Noise</td><td>Ölçüm değişkenliği</td><td>Variation not explained solely by the algorithm</td></tr></tbody></table></div>
-<p>You are ready when you can trace <code>sum_to(4)</code>, explain <code>None</code>, put a timer around search alone, and compute a repeat statistic with correct units. If returns are unclear, repair Practice 1 before timing. If percentages are unclear, redo the 0.25 ms example entirely in milliseconds. If measurements fluctuate, keep the samples and inspect scope before making a claim.</p>
-<p><strong>Bridge to Week 6:</strong> one timing answers “how long here?” Several input sizes answer “how does it change?” Bring the same function, correctness checks and measurement policy to the doubling experiment.</p>
-<h2 id="help-be-clear-about-what-you-time">Be clear about what you time</h2>
-<p>First check that the function returns the right answer. Then decide which work to time. Put the timer around that work, and leave unrelated printing outside. Say whether preparing the input is part of the measurement.</p>
-<p><strong>Draw or trace.</strong> Draw setup → start timer → function call → stop timer → report. Mark whether creating the input is inside or outside the interval.</p>
-<p><strong>Predict before checking.</strong> If one method includes input construction and another reuses prepared data, can their timings alone establish which method answers a query faster?</p>
-<h3 id="help-worked-reasoning">Worked reasoning</h3>
-<p>No. The two timings include different work. Use the same input rules, check that the answers agree, and treat preparation the same way. Repeat the measurements because times vary. A tiny measured time does not mean no work happened. Reporting only the fastest convenient run hides that variation.</p>
-<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def loop_sum(n):
-    total = 0
-    for value in range(1, n + 1):
-        total += value
-    return total
-
-for n in (0, 1, 7, 20):
-    assert loop_sum(n) == n * (n + 1) // 2
-print(&quot;Results agree on the checked inputs; timing comes next.&quot;)</code></pre></div>
-<p><strong>Change one thing.</strong> Change the question from one query on ready-made data to the full task starting with raw input. Explain why the timing boundary must change.</p>
-<p class="turkish"><strong>Türkçe:</strong> Kronometre yalnızca içine aldığın işi ölçer. Aynı çıktıyı doğrula, hazırlık maliyetini belirt, sonra karşılaştır.</p>
-<h2 id="help-additional-analysis-laboratory">Additional analysis laboratory</h2>
-<p>Functions let us put a boundary around the work being measured. The boundary must match the claim. If the claim is about a complete method, setup belongs inside the function; if the claim is query-only, setup must be reported separately.</p>
-<div class="table-scroll"><table><thead><tr><th>Boundary choice</th><th>What it can support</th><th>What it cannot support</th></tr></thead><tbody><tr><td>time one expression once</td><td>a rough observation</td><td>a growth conclusion</td></tr><tr><td>repeat a function on fixed data</td><td>a more stable estimate for that data</td><td>behavior at larger n</td></tr><tr><td>generate data outside, time the function</td><td>function cost on supplied input</td><td>data-generation cost</td></tr><tr><td>prepare a set outside, time lookup only</td><td>query cost after preparation</td><td>end-to-end method cost</td></tr></tbody></table></div>
-<p>Extra exam-style prompt: A report says a lookup method takes O(1) because the timer starts after the set is built. What wording repairs the claim?</p>
-<p>Solution: Say &quot;After a set has already been built, each ordinary membership query is expected O(1) under the hash model.&quot; For the complete method, add the O(n) build cost and memory cost. If there are q queries, the total average model is O(n + q).</p>
-<p class="turkish"><strong>Turkce:</strong> Kronometrenin nerede baslayip bittigi iddianin siniridir. Hazirlik isini disarida biraktiysan, bunu acikca soylemeden tum algoritmayi olcmus sayilmazsin.</p></div></details>
-<details class="path-resources"><summary>Learning goals & class plan</summary><div><section>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>A stopwatch answers a question about an input</h3><p>The notes separate best, worst and average cost over inputs of the same size. A timing measurement is one observation on one machine, implementation and input. One run does not tell you the best, worst or average time across all inputs of that size.</p><p>Searching a hundred readings can stop at the first reading, stop at the last, or exhaust the list without finding the target. Keep n fixed and compare those cases. Repeat measurements and record what setup work you included. The worst observed time is evidence about your trials, not proof of the worst possible time.</p><p>Counting how many operations the method needs helps explain the measured time. A real controller deadline additionally depends on the computer, memory access and other tasks running at the same time.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Write “largest time in these trials” rather than “guaranteed maximum” unless you have established that guarantee.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
   <div class="objectives">
     <span class="eyebrow">By the end of this week you can</span>
     <ul>
@@ -477,9 +333,10 @@ print(&quot;Results agree on the checked inputs; timing comes next.&quot;)</code
     <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
   </div>
 </section>
-</div></details><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
-<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-008"><p class="source-label">Source exercise 8 · easy</p><p>Define worst-case running time in one sentence, and say why the course prefers it.</p><details class="solution"><summary>Show reasoning</summary><div><p>Worst-case running time is the maximum cost over all legal inputs of a fixed size n, under the stated cost model. It provides an upper guarantee, useful when a controller has a deadline. It need not be close to average-case cost. A bound on operation count is not by itself a measured or certified time bound on a real controller.</p></div></details></article><p><strong>Write down:</strong> A timing table with positions of the target, including a missing target, repeat count, units and one limitation.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>
-<details class="path-reference" open><summary>Animations &amp; workshop tasks</summary><div><section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w05/">Open the English + Türkçe reference guide</a>.</p><button class="path-next" type="button" data-step-target="investigate" hidden>Next: investigate →</button></section>
+<section id="investigate" data-step><h2 class="path-stage-title">Investigate</h2><section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Call contains([4, 7, 9], 7), then contains([4, 7, 9], 2). Count equality checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>True after 2 checks; False after 3 checks.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>A batch of 100 calls takes 0.42 seconds. What is the time per call?</p><details class="solution"><summary>Check your reasoning</summary><div><p>0.42 / 100 = 0.0042 seconds = 4.2 ms.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Move the target from absent to the first item. What changes in the experiment?</p><details class="solution"><summary>Check your reasoning</summary><div><p>The scan now makes one equality check. This is a different input case, so record it separately.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
   <h2><span class="num">5.7</span>Try it yourself</h2>
 
   <div class="task">
@@ -595,7 +452,8 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       </p>
     </details>
   </div>
-</section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
+</section></div></details>
+<details class="path-reference"><summary>Optional textbook workshop</summary><div><section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p><article class="source-exercise" id="skiena-ex-008"><p class="source-label">Source exercise 8 · easy</p><p>Define worst-case running time in one sentence, and say why the course prefers it.</p><details class="solution"><summary>Show reasoning</summary><div><p>Worst-case running time is the maximum cost over all legal inputs of a fixed size n, under the stated cost model. It provides an upper guarantee, useful when a controller has a deadline. It need not be close to average-case cost. A bound on operation count is not by itself a measured or certified time bound on a real controller.</p></div></details></article><p><strong>Write down:</strong> A timing table with positions of the target, including a missing target, repeat count, units and one limitation.</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section></div></details><button class="path-next" type="button" data-step-target="check" hidden>Next: check →</button></section>
 <section id="check" data-step><h2 class="path-stage-title">Check</h2><section>
   <h2><span class="num">5.8</span>Self-check</h2>
   <div class="quiz" data-quiz>
@@ -655,7 +513,7 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
     </ol>
   </div>
 </section></div></details>
-<section>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
   <h2><span class="num">5.10</span>Words from this week</h2>
   <div class="table-wrap">
     <table>
@@ -673,7 +531,7 @@ print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
       </tbody>
     </table>
   </div>
-</section>
+</section></div></details>
 </section></div>
 <details class="path-resources"><summary>How this connects to next week</summary><div>
 <div class="note blue">
