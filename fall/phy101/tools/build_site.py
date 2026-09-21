@@ -81,13 +81,36 @@ FONTS = ("https://fonts.googleapis.com/css2"
          "&family=Syne:wght@400;600;700&display=swap")
 
 ANIMS = {
-    1: [("Vector Components Visualizer", {
+    1: [("Vector Components", {
         "name": "w1-vectors",
         "label": "Predict, then watch",
-        "title": "Components, and why 3 + 4 = 5",
-        "desc": "Resolve one vector into components, or watch two displacements join tip-to-tail.",
-        "foot": "The same idea is examined every week from here on: components add, magnitudes do not.",
-        "foot_tr": "Bileşenler toplanır, büyüklükler toplanmaz.",
+        "title": "The signs, quadrant by quadrant \u2014 and the arctan trap",
+        "desc": "Turn one vector all the way round and watch each component change sign as it "
+                "crosses an axis, with the angle a calculator would report shown beside the one "
+                "that is true. The second view is Example 1.5, the cross-country skier.",
+        "foot": "Equations (1.5) give the components and (1.7) the direction \u2014 but any two "
+                "angles 180\u00b0 apart share a tangent, so the sketch, not the calculator, decides "
+                "the quadrant. Example 1.7 and VP1.7.3 both turn on exactly this.",
+        "foot_tr": "\u0130\u015faretler b\u00f6lgeden gelir; arktanjant tek ba\u015f\u0131na b\u00f6lgeyi bilemez, \u00e7izim bilir.",
+    }), ("Vector Addition in Any Order", {
+        "name": "w1-order",
+        "label": "Predict, then watch",
+        "title": "Three displacements, six routes, one buried key",
+        "desc": "The three legs of Example 1.7 laid head to tail. Shuffle the order and the route "
+                "across the field changes completely while the resultant does not move.",
+        "foot": "Equations (1.3): vector addition is commutative and associative. The three "
+                "contestants walk 147.5 m between them to finish 12.7 m from where they started.",
+        "foot_tr": "Toplama s\u0131ras\u0131 bile\u015fkeyi de\u011fi\u015ftirmez; yaln\u0131zca ara yol de\u011fi\u015fir.",
+    }), ("Scalar and Vector Products", {
+        "name": "w1-products",
+        "label": "Predict, then watch",
+        "title": "One angle, two products",
+        "desc": "As the angle between two vectors grows, AB cos \u03c6 falls from +AB through zero "
+                "to \u2212AB while AB sin \u03c6 rises from zero to AB and back.",
+        "foot": "Each product vanishes exactly where the other is extreme. That is why one of them "
+                "measures alignment \u2014 work, in Week 05 \u2014 and the other measures turning: "
+                "torque, in Week 11.",
+        "foot_tr": "Biri s\u0131f\u0131rken \u00f6teki en b\u00fcy\u00fckt\u00fcr: biri hizalanmay\u0131, \u00f6teki d\u00f6nd\u00fcrmeyi \u00f6l\u00e7er.",
     })],
     2: [("x-t, v-t, a-t Graph Explorer", {
         "name": "w2-graphs",
@@ -879,6 +902,7 @@ STAGE_OF = {
     "concepts-demonstrations-and-worked-examples": "learn",
     "more-worked-examples-from-the-question-bank": "practise",  # old heading compatibility
     "engineering-practice-examples": "practise",
+    "bridging-problem-and-variation-problems": "practise",
     "optional-extension": "practise",
     "exit-check": "check",
     "solutions-and-next-week": "check",

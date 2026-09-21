@@ -55,7 +55,7 @@ FIGURES = {
     # ================================================================== WEEK 1
     1: [
         {
-            "after": "Scalars vs. Vectors",
+            "after": "1.8: Components of vectors",
             "slug": "fig-w1-components",
             "caption": "A vector and its components. The components are the two sides of a right "
                        "triangle whose hypotenuse is the vector, so neither component can ever be "
@@ -99,7 +99,7 @@ V sine theta. Dashed lines complete the rectangle to the vector's tip.</desc>
 </svg>""",
         },
         {
-            "after": "Vector Addition",
+            "after": "1.7: Vectors and vector addition",
             "slug": "fig-w1-tiptotail",
             "caption": "Walking 3 km east, then 4 km north. Both axes use the same scale, so the "
                        "closing side really is 5 km long: the distance walked is 7 km, but the "
@@ -138,7 +138,7 @@ same scale.</desc>
 </svg>""",
         },
         {
-            "after": "Dot Product",
+            "after": "1.10: The scalar (dot) product",
             "slug": "fig-w1-projection",
             "caption": "The dot product measures how much of one vector lies along another. The "
                        "green dimension line is the projection of A on B, equal to A cos θ. The "
@@ -173,6 +173,69 @@ theta from the common origin to the foot of that perpendicular.</desc>
 <path d="M 99 160 A 44 44 0 0 0 93.96 139.55" class="fig-thin fig-accent"/>
 <text x="106" y="152" class="fig-lab fig-accent">θ</text>
 <text x="266" y="104" class="fig-note">A sin θ adds nothing</text>
+</svg>""",
+        },
+        {
+            "after": "The vector (cross) product",
+            "slug": "fig-w1-crossproduct",
+            "caption": "The vector product of the same two vectors, taken in the two possible orders. "
+                       "Its magnitude is the area of the shaded parallelogram, AB sin \u03c6 \u2014 the base A "
+                       "times the perpendicular height B sin \u03c6 \u2014 so it is largest when the vectors are "
+                       "perpendicular and zero when they are parallel. Reversing the order does not "
+                       "change that area; it reverses the direction, out of the page for A \u00d7 B and into "
+                       "the page for B \u00d7 A.",
+            "caption_tr": "Ayn\u0131 iki vekt\u00f6r\u00fcn iki s\u0131radaki vekt\u00f6rel \u00e7arp\u0131m\u0131. B\u00fcy\u00fckl\u00fck, taral\u0131 "
+                          "paralelkenar\u0131n alan\u0131d\u0131r: taban A \u00e7arp\u0131 dik y\u00fckseklik B sin \u03c6. S\u0131ra "
+                          "de\u011fi\u015ftirilince alan ayn\u0131 kal\u0131r, y\u00f6n ters d\u00f6ner: A \u00d7 B sayfadan d\u0131\u015far\u0131, "
+                          "B \u00d7 A sayfaya do\u011fru.",
+            # A = 90 px along +x, B = 75 px at 55 deg; heights and arc ends computed,
+            # not eyeballed: 75 sin 55 = 61.44, 75 cos 55 = 43.02.
+            "svg": """<svg viewBox="0 0 420 152" role="img" aria-labelledby="t-cr d-cr">
+<title id="t-cr">The vector product in both orders, and the parallelogram whose area is its magnitude</title>
+<desc id="d-cr">The same two vectors A and B drawn tail to tail twice. In each case they span a shaded
+parallelogram. On the left a circle with a dot at its centre marks the product A cross B pointing out of
+the page; on the right a circle with a cross marks B cross A pointing into the page. A dashed line on the
+left marks the perpendicular height B sine phi.</desc>
+""" + _markers("m1d") + """
+<!-- ---------------- left: A x B, out of the page ---------------- -->
+<polygon points="38,87 128,87 171.02,25.56 81.02,25.56" class="fig-fill"/>
+<line x1="128" y1="87" x2="171.02" y2="25.56" class="fig-thin-dash"/>
+<line x1="81.02" y1="25.56" x2="171.02" y2="25.56" class="fig-thin-dash"/>
+
+<!-- perpendicular height: B sin(phi) above the line of A -->
+<line x1="81.02" y1="25.56" x2="81.02" y2="87" class="fig-thin fig-green"/>
+<path d="M 81.02 73 L 95 73 L 95 87" class="fig-thin"/>
+<text x="88" y="38" class="fig-lab fig-green">B sin \u03c6</text>
+
+<line x1="38" y1="87" x2="128" y2="87" class="fig-vec fig-blue" marker-end="url(#m1d-blue)"/>
+<line x1="38" y1="87" x2="81.02" y2="25.56" class="fig-vec fig-accent" marker-end="url(#m1d-accent)"/>
+<path d="M 68 87 A 30 30 0 0 0 55.21 62.42" class="fig-thin fig-muted"/>
+<text x="72" y="79" class="fig-lab fig-muted">\u03c6</text>
+<text x="120" y="104" class="fig-lab fig-blue" text-anchor="middle">A</text>
+<text x="54" y="20" class="fig-lab fig-accent">B</text>
+
+<circle cx="130" cy="62" r="11" class="fig-thin fig-green"/>
+<circle cx="130" cy="62" r="3" class="fig-dot"/>
+<text x="104" y="130" class="fig-note" text-anchor="middle">A \u00d7 B points out of the page</text>
+
+<!-- ---------------- right: B x A, into the page ---------------- -->
+<polygon points="240,87 330,87 373.02,25.56 283.02,25.56" class="fig-fill"/>
+<line x1="330" y1="87" x2="373.02" y2="25.56" class="fig-thin-dash"/>
+<line x1="283.02" y1="25.56" x2="373.02" y2="25.56" class="fig-thin-dash"/>
+
+<line x1="240" y1="87" x2="330" y2="87" class="fig-vec fig-blue" marker-end="url(#m1d-blue)"/>
+<line x1="240" y1="87" x2="283.02" y2="25.56" class="fig-vec fig-accent" marker-end="url(#m1d-accent)"/>
+<path d="M 270 87 A 30 30 0 0 0 257.21 62.42" class="fig-thin fig-muted"/>
+<text x="274" y="79" class="fig-lab fig-muted">\u03c6</text>
+<text x="322" y="104" class="fig-lab fig-blue" text-anchor="middle">A</text>
+<text x="256" y="20" class="fig-lab fig-accent">B</text>
+
+<circle cx="332" cy="62" r="11" class="fig-thin fig-green"/>
+<line x1="324.2" y1="54.2" x2="339.8" y2="69.8" class="fig-thin fig-green"/>
+<line x1="324.2" y1="69.8" x2="339.8" y2="54.2" class="fig-thin fig-green"/>
+<text x="306" y="130" class="fig-note" text-anchor="middle">B \u00d7 A points into the page</text>
+
+<text x="210" y="148" class="fig-note" text-anchor="middle">shaded area = |A \u00d7 B| = AB sin \u03c6</text>
 </svg>""",
         },
     ],

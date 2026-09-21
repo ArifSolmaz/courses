@@ -19,6 +19,14 @@ with a limiting-case check before numbers appear, and every interactive demonstr
 prompt above it. The course dashboard and syllabus read their calendar
 from `calendar.json` through the generated `web/phy101-calendar.js`.
 
+Week 01 was rewritten on 21 September 2026 to follow **Young & Freedman 15e chapter 1 section by
+section**: its topic headings are `Section 1.1:` … `Section 1.10:` (the `Section` prefix keeps the
+left-hand side of a bilingual heading ASCII, which is what `split_bilingual()` needs to pull the
+Turkish out as a subtitle), the eleven chapter examples are the worked examples, and the six boxed
+equations are the chapter's own Key Equations (1.9), (1.14), (1.16), (1.19), (1.20) and (1.25).
+The figure anchors in `figures.py` point at those headings, so renaming one silently drops a figure
+— `build_site.py` fails loudly instead, which is the intent.
+
 Since 12 September 2026 the former fourteen source modules and the generated “calendar” lessons are
 merged into the weekly notebooks. The old files, the builder and the question-bank JSON remain in git
 history (commit `2ad4750` and earlier) if a past version is ever needed.
@@ -38,6 +46,10 @@ Keep the section order the same in every week so students can navigate by the ta
    check, numerical answer and interpretation. Do not publish reserved exam-bank items or variants
    that only change names and numbers. Preserve example cell IDs and legacy anchors when replacing
    content; regenerate the HTML with `python3 fall/phy101/tools/build_site.py all`.
+   Week 01 titles this section **Bridging problem and variation problems** instead, because Young &
+   Freedman ch. 1 supplies both, and the practice is better spent on the chapter's own Bridging
+   Problem and Key Example Variation Problems than on invented scenarios. A renamed section needs its
+   slug adding to `STAGE_OF` in `build_site.py`, or the stage bar files it under *Learn*.
 7. **Problem set — predict, then check** — core (L1), intermediate (L2), challenge (L3); each
    problem keeps its `Module XX Pn` identifier for the solution collection and hides its **answer** in
    `<details><summary>Answer …</summary>`. The answer is inline so a student can self-check; the full
