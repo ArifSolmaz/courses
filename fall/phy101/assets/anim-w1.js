@@ -17,17 +17,20 @@
 
      Every drawing in this week is about a direction or an angle, and an
      angle drawn on axes with different scales is simply the wrong angle.
-     The data ranges therefore fix the shape: the height sets the pixels per
-     unit, the width follows from it, and what is left over becomes margin. */
+     The data ranges fix the shape: the smaller available axis scale sets
+     pixels per unit on both axes; leftover space becomes margin. */
   function evenPlot(s, o) {
     var pad = o.pad || { l: 56, r: 16, t: 22, b: 36 };
-    var ph = (o.h || s.h) - pad.t - pad.b;
-    var scale = ph / (o.ylim[1] - o.ylim[0]);
+    var availableW = (o.w || s.w) - pad.l - pad.r;
+    var availableH = (o.h || s.h) - pad.t - pad.b;
+    var scale = Math.min(availableW / (o.xlim[1] - o.xlim[0]),
+                         availableH / (o.ylim[1] - o.ylim[0]));
     var pw = (o.xlim[1] - o.xlim[0]) * scale;
-    var boxW = Math.min(s.w, pw + pad.l + pad.r);
+    var ph = (o.ylim[1] - o.ylim[0]) * scale;
     return s.plot({
-      x: (o.x || 0) + Math.max(0, (s.w - (o.x || 0) - boxW) / 2),
-      y: o.y || 0, w: boxW, h: o.h || s.h,
+      x: (o.x || 0) + (availableW - pw) / 2,
+      y: (o.y || 0) + (availableH - ph) / 2,
+      w: pw + pad.l + pad.r, h: ph + pad.t + pad.b,
       xlim: o.xlim, ylim: o.ylim, xticks: o.xticks, yticks: o.yticks,
       xlabel: o.xlabel, ylabel: o.ylabel, pad: pad
     });
@@ -105,7 +108,7 @@
           xlabel: "east (km)", ylabel: "north (km)"
         });
         P.frame();
-        P.title("Example 1.5 — 1.00 km north, then 2.00 km east");
+        P.title(s.w < 520 ? "Skier: 1 km N, then 2 km E" : "Example 1.5 — 1.00 km north, then 2.00 km east");
         P.arrow(0, 0, 0, 1, { color: blue, width: 2.5 });
         P.text(0, 0.5, "1.00 km N", { color: blue, dx: 6, baseline: "middle" });
         P.arrow(0, 1, 2, 1, { color: green, width: 2.5 });
@@ -133,8 +136,8 @@
       var a = ang * Math.PI / 180;
       var vx = mag * Math.cos(a), vy = mag * Math.sin(a);
       var quad = mag === 0 ? 0 : Math.floor(((ang % 360) + 360) % 360 / 90) + 1;
-      P2.title("Quadrant " + (quad || "—")
-               + " — the signs come from cos θ and sin θ");
+      P2.title((mag === 0 ? "Zero vector" : (ang % 90 === 0 ? "On an axis" : "Quadrant " + quad))
+               + (s.w < 520 ? " — components" : " — the signs come from cos θ and sin θ"));
 
       P2.line([[vx, 0], [vx, vy]], { color: green, width: 1.4, dash: [4, 3] });
       P2.line([[0, vy], [vx, vy]], { color: blue, width: 1.4, dash: [4, 3] });
@@ -162,13 +165,14 @@
         P2.line([[0, 0], [mag * Math.cos(ghostA), mag * Math.sin(ghostA)]],
                 { color: dim, width: 2, dash: [5, 4] });
         P2.text(mag * Math.cos(ghostA) * 0.8, mag * Math.sin(ghostA) * 0.8,
-                "what arctan says", { color: dim, size: 11, dx: 6 });
+                "arctan", { color: dim, size: 11, dx: 6 });
       }
 
       sX.set(fmt(vx, 2) + " m");
       sY.set(fmt(vy, 2) + " m");
       sMag.set(fmt(Math.hypot(vx, vy), 2) + " m");
       sArc.set(mag === 0 ? "undefined"
+               : Math.abs(vx) < 1e-10 ? "undefined (Aₓ = 0); direction " + (vy > 0 ? "90°" : "270°")
                : fmt(shown, 1) + "°" + (off ? " — wrong by 180°" : " — correct here"));
     });
 
@@ -193,7 +197,7 @@
       why: "Vector addition is commutative and associative, Eqs. (1.3): "
          + "$\\vec A+\\vec B+\\vec C$ has one value however the arrows are laid head to tail. "
          + "All three dig in the same place, 12.7 m from the centre at $129^\\circ$ "
-         + "— after walking 147.5 m between them. Shuffle the order below and watch "
+         + "— after walking 147.5 m each. Shuffle the order below and watch "
          + "the route change while the green resultant does not move.",
       why_tr: "Vektör toplamı değişme ve birleşme özelliklerine uyar: sıra değişse de "
             + "bileşke aynıdır. Üçü de aynı noktayı kazar."
@@ -205,7 +209,7 @@
       { name: "B", mag: 57.3, ang: 216.0, css: "--phy-orange" },
       { name: "C", mag: 17.8, ang: 270.0, css: "--purple" }
     ];
-    var ORDERS = [[0, 1, 2], [2, 0, 1], [1, 2, 0]];
+    var ORDERS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
     var pick = 0;
 
     var sc = U.Scene(m.stage, {
@@ -213,7 +217,7 @@
       alt: "Three displacement arrows laid head to tail in different orders, reaching the same point"
     });
 
-    U.seg(m.controls, "order", [[0, "A, B, C"], [1, "C, A, B"], [2, "B, C, A"]], 0,
+    U.seg(m.controls, "order", ORDERS.map(function (order, i) { return [i, order.map(function (j) { return LEGS[j].name; }).join(", ")]; }), 0,
       function (v) { pick = v; player.reset(); sc.draw(); });
 
     var player = U.Player(m.controls, {
@@ -238,14 +242,14 @@
 
     sc.onDraw(function (s) {
       var P = evenPlot(s, {
-        xlim: [-70, 70], ylim: [-35, 90],
+        xlim: [-70, 70], ylim: [-60, 90],
         xticks: [-60, -30, 0, 30, 60], yticks: [-30, 0, 30, 60],
         xlabel: "east (m)", ylabel: "north (m)"
       });
       P.frame();
       var order = ORDERS[pick];
       P.title("Order: " + order.map(function (i) {
-        return LEGS[i].name + " " + fmt(LEGS[i].mag, 1) + " m";
+        return LEGS[i].name + (s.w < 520 ? "" : " " + fmt(LEGS[i].mag, 1) + " m");
       }).join("  \u2192  "));
 
       var pts = chain(order);
@@ -278,8 +282,8 @@
       P.dot(R[0], R[1], { color: green, r: 4 });
       P.text(R[0], R[1], "the keys", { color: green, size: 12, align: "right",
                                        dx: -9, dy: 20 });
-      P.text(-66, -30, "the green resultant is the same in every order",
-             { color: dim, size: 11 });
+      P.text(0, 76, "Same resultant in every order",
+             { color: dim, size: 11, align: "center" });
 
       sRx.set(fmt(R[0], 2) + " m");
       sRy.set(fmt(R[1], 2) + " m");
@@ -317,7 +321,7 @@
     var A = 4, B = 5, phi = 77;
 
     var sc = U.Scene(m.stage, {
-      height: 340,
+      height: 340, responsiveHeight: function(w) { return w < 520 ? 600 : 340; },
       alt: "Two vectors tail to tail beside graphs of AB cos phi and AB sin phi against the angle"
     });
 
@@ -339,7 +343,9 @@
     sc.onDraw(function (s) {
       var green = s.col("--green"), purple = s.col("--purple"),
           orange = s.col("--phy-orange"), blue = s.col("--phy-blue"), dim = s.col("--muted");
-      var half = Math.floor(s.w / 2);
+      var stacked = s.w < 520;
+      var half = stacked ? s.w : Math.floor(s.w / 2);
+      var panelH = stacked ? s.h / 2 : s.h;
       var rad = phi * Math.PI / 180;
       var dot = A * B * Math.cos(rad), cross = A * B * Math.sin(rad);
 
@@ -349,10 +355,12 @@
       for (var tv = -Math.floor(lim / step) * step; tv <= lim; tv += step) ticks.push(tv);
       /* one scale on both axes: the angle is the whole point of this panel */
       var lpad = { l: 40, r: 10, t: 22, b: 34 };
-      var lscale = (half - lpad.l - lpad.r) / (2 * lim);
+      var lscale = Math.min((half - lpad.l - lpad.r) / (2 * lim),
+                            (panelH - lpad.t - lpad.b) / (lim + 1.8));
       var lh = (lim + 1.8) * lscale + lpad.t + lpad.b;
       var P = s.plot({
-        x: 0, y: Math.max(0, (s.h - lh) / 2), w: half, h: lh,
+        x: (half - (2 * lim * lscale + lpad.l + lpad.r)) / 2,
+        y: Math.max(0, (panelH - lh) / 2), w: 2 * lim * lscale + lpad.l + lpad.r, h: lh,
         xlim: [-lim, lim], ylim: [-1.8, lim],
         xticks: ticks, yticks: ticks.filter(function (v) { return v >= 0; }),
         xlabel: "", ylabel: "", pad: lpad
@@ -372,7 +380,7 @@
 
       /* right: both products against the angle */
       var Q = s.plot({
-        x: half, w: s.w - half, h: s.h, xlim: [0, 180], ylim: [-70, 70],
+        x: stacked ? 0 : half, y: stacked ? panelH : 0, w: stacked ? s.w : s.w - half, h: panelH, xlim: [0, 180], ylim: [-70, 70],
         xticks: [0, 45, 90, 135, 180], yticks: [-60, -30, 0, 30, 60],
         xlabel: "angle φ between the vectors (°)", ylabel: "product",
         pad: { l: 46, r: 14, t: 22, b: 34 }

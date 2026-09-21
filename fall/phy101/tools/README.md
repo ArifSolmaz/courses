@@ -256,3 +256,14 @@ two things in particular, and both have already produced wrong figures here:
 **Direction is physics, not decoration.** Figure 11.1 shipped a first draft with
 the wheel rolling right and ω drawn counter-clockwise. A rotation arrow must be
 checked against every velocity arrow in the same figure.
+
+### Week 01 regression checks
+
+Week 01 includes 44 worked examples: the original 20 plus 24 optional, attributed Chapter 1 textbook exercises. Keep the extra bank separate from the required three-hour route.
+
+```bash
+node fall/phy101/tools/verify_week01_animations.cjs
+python fall/phy101/tools/verify_week01_notebook.py --output-dir /tmp/phy101-week01-qa
+```
+
+The animation check covers all slider settings and six addition orders at five sizes. The notebook check executes its source, exercises all three graphical panels and every converter unit pair, rejects unknown dimensional symbols and saves boundary plots for visual inspection. Numerical checks supplement browser and plot inspection; they do not replace it. See `../WEEK01_REVIEW.md` for the audit and repair record.

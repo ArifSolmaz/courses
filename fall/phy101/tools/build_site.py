@@ -99,7 +99,7 @@ ANIMS = {
         "desc": "The three legs of Example 1.7 laid head to tail. Shuffle the order and the route "
                 "across the field changes completely while the resultant does not move.",
         "foot": "Equations (1.3): vector addition is commutative and associative. The three "
-                "contestants walk 147.5 m between them to finish 12.7 m from where they started.",
+                "contestants each walk 147.5 m to finish 12.7 m from where they started.",
         "foot_tr": "Toplama s\u0131ras\u0131 bile\u015fkeyi de\u011fi\u015ftirmez; yaln\u0131zca ara yol de\u011fi\u015fir.",
     }), ("Scalar and Vector Products", {
         "name": "w1-products",
@@ -535,7 +535,8 @@ def to_key_equations(body, week, counter, collected, allow=True):
         if not allow or "\\boxed" not in tex or looks_like_an_answer(tex):
             return m.group(0)
         counter[0] += 1
-        num = f"{week}.{counter[0]}"
+        num = (f"1.{[9, 14, 16, 19, 20, 25][counter[0] - 1]}"
+               if week == 1 and counter[0] <= 6 else f"{week}.{counter[0]}")
         shown = unbox(tex)
         collected.append((num, shown))
         return (f'<div class="keyeq" id="eq-{week}-{counter[0]}">'
@@ -574,7 +575,7 @@ def split_bilingual(title):
     if " / " not in title:
         return title, ""
     left, right = title.rsplit(" / ", 1)
-    if NON_ASCII.search(right) and not NON_ASCII.search(left):
+    if (NON_ASCII.search(right) and not NON_ASCII.search(left)) or right.strip() == "Standartlar ve birimler":
         return left.strip(), right.strip()
     return title, ""
 
@@ -777,8 +778,8 @@ def head_html(title, desc, week, has_anim):
     animcss = '<link rel="stylesheet" href="../assets/anim.css">\n' if has_anim else ""
     scripts = ""
     if has_anim:
-        scripts = ('<script defer src="../assets/anim.js"></script>\n'
-                   f'<script defer src="../assets/anim-w{week}.js"></script>\n')
+        scripts = ('<script defer src="../assets/anim.js?v=20260921"></script>\n'
+                   f'<script defer src="../assets/anim-w{week}.js?v=20260921"></script>\n')
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -928,10 +929,12 @@ def fold_examples(chunk):
     """Practice examples: keep the problem statement visible, fold the worked route."""
     def repl(m):
         ident, head, rest = m.group(1), m.group(2), m.group(3)
-        cut = rest.find("</p>")
-        if cut < 0:
+        # A question can contain several paragraphs, lists and display equations.
+        # Fold at the authored reasoning boundary, never at its first paragraph.
+        boundary = re.search(r'<p>\s*<strong>(?:IDENTIFY|Predict|Symbolic|Solution|Draw|SET UP)', rest)
+        if not boundary:
             return m.group(0)
-        problem, route = rest[:cut + 4], rest[cut + 4:].strip()
+        problem, route = rest[:boundary.start()], rest[boundary.start():].strip()
         if not route:
             return m.group(0)
         return (f'<section class="wex wex-fold" id="{ident}">{head}<div class="wex-body">{problem}'

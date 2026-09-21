@@ -184,13 +184,16 @@
     var self = { ctx: ctx, canvas: cv, w: 0, h: height, drawFn: null };
 
     function size() {
-      var cssW = Math.max(240, parent.clientWidth || 640);
+      // clientWidth includes padding, whereas a 100%-width canvas does not.
+      var style = getComputedStyle(parent);
+      var cssW = Math.max(1, (parent.clientWidth || 640)
+        - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0));
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       self.w = cssW;
-      self.h = height;
+      self.h = typeof o.responsiveHeight === "function" ? o.responsiveHeight(cssW) : height;
       cv.width = Math.round(cssW * dpr);
-      cv.height = Math.round(height * dpr);
-      cv.style.height = height + "px";
+      cv.height = Math.round(self.h * dpr);
+      cv.style.height = self.h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 

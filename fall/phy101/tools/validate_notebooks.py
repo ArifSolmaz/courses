@@ -28,10 +28,14 @@ _report = []
 for _p in _physics_panels:
     _before = _p.updates
     for _name, _c in _p.controls.items():
-        if isinstance(_c, widgets.fixed) or not hasattr(_c, 'min'):
+        if isinstance(_c, widgets.fixed):
             continue
-        _c.value = _c.min if _c.value != _c.min else _c.max
-        break
+        if hasattr(_c, 'min'):
+            _c.value = _c.min if _c.value != _c.min else _c.max
+            break
+        if isinstance(_c, widgets.Dropdown) and len(_c.options) > 1:
+            _c.index = (_c.index + 1) % len(_c.options)
+            break
     _report.append({'f': _p.f.__name__, 'seconds': round(_p.seconds, 3), 'live': _p.live,
                     'outputs': _p.last_outputs, 'error': (_p.error or '')[-300:], 'changed': _p.updates > _before})
 print('PANELREPORT ' + _json.dumps(_report))
