@@ -107,7 +107,7 @@
 <a href="#misconceptions-to-repair">Misconceptions to repair</a>
 <a href="#small-englishturkish-glossary">Small English–Turkish glossary</a>
 <a href="#readiness-repair-and-the-next-bridge">Readiness, repair, and the next bridge</a>
-<a href="#meaning-before-analysis-a-familiar-list-operation-can-hide-many-moves">Meaning before analysis: a familiar list operation can hide many moves</a>
+<a href="#one-list-instruction-can-move-many-items">One list instruction can move many items</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w10/index.html">Original lesson</a></p>
@@ -181,12 +181,12 @@ print(processed)</code></pre></div>
 <h2 id="readiness-repair-and-the-next-bridge">Readiness, repair, and the next bridge</h2>
 <p>You are ready when you can derive the triangular sum, explain an expensive append without contradicting amortized O(1), and preserve a queue&#x27;s order while improving its cost. If the sum feels mysterious, rebuild the four-row insertion table with six values. If space and time blur together, draw which copies are alive simultaneously. If timing feels decisive, state the operation count before looking at seconds.</p>
 <p>Next week keeps the same question but changes the dominant operation: instead of shifting a list repeatedly, you will search it repeatedly. A set can help, provided its missing order and duplicate information do not change the answer.</p>
-<h2 id="meaning-before-analysis-a-familiar-list-operation-can-hide-many-moves">Meaning before analysis: a familiar list operation can hide many moves</h2>
-<p>Python list positions refer to consecutive slots in the list’s reference array. Removing the first element shifts later references left to close the gap. Removing the last does not require those shifts. The objects themselves need not be copied for this cost to exist.</p>
+<h2 id="one-list-instruction-can-move-many-items">One list instruction can move many items</h2>
+<p>A Python list stores references: links to its items. Removing the first item shifts the later references left to fill the gap. Removing the last item does not need these shifts. The items themselves do not have to be copied for this work to take time.</p>
 <p><strong>Draw or trace.</strong> Draw four slots A, B, C, D. Remove A, then show B, C and D moving one slot left. Repeat until empty and record the number of shifted references.</p>
 <p><strong>Predict before checking.</strong> How many total shifts occur when repeatedly removing from the front? Does one line of Python imply one unit of work?</p>
 <h3 id="worked-reasoning">Worked reasoning</h3>
-<p>The shift counts are 3, 2, 1, 0: six in total. For n starting elements the count is n(n − 1)/2, so repeatedly removing from the front is quadratic under this list model. Individual operations must be opened up when their cost depends on input size. Append is amortized constant time, not a promise that every append has identical cost.</p>
+<p>The shift counts are 3, 2, 1, 0: six in total. With n starting items, the total is n(n − 1)/2, so repeatedly removing the first item gives quadratic work in this model. A short instruction can hide work that grows with the list. Append has amortised O(1) cost: the total work spread over many appends stays constant per append. One append can still be expensive.</p>
 <div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = list(&quot;ABCD&quot;)
 shifts = 0
 while values:
@@ -194,7 +194,7 @@ while values:
     values.pop(0)
 assert shifts == 6
 print(&quot;Reference shifts:&quot;, shifts)</code></pre></div>
-<p><strong>Change one thing.</strong> If the task allows reverse removal order, compare repeated end removal. If it requires first-in-first-out behaviour, changing removal order is not a valid optimisation.</p>
+<p><strong>Change one thing.</strong> If the task allows reverse removal order, compare repeated end removal. If it requires removing items in their arrival order, changing removal order is not a valid optimisation.</p>
 <p class="turkish"><strong>Türkçe:</strong> Tek satır çok iş saklayabilir. Listenin başından silmek sonraki başvuruları kaydırır; daha hızlı işlem aynı çıktı sözleşmesini korumalıdır.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>This week is about hidden work inside familiar operations. Students should annotate one Python statement with the work it causes.</p>

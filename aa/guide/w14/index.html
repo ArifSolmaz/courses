@@ -105,7 +105,7 @@
 <a href="#three-graduated-practice-problems">Three graduated practice problems</a>
 <a href="#the-existing-final-project-made-manageable">The existing final project, made manageable</a>
 <a href="#misconceptions-glossary-and-final-readiness">Misconceptions, glossary, and final readiness</a>
-<a href="#meaning-before-analysis-compare-the-same-sensor-report-by-two-routes">Meaning before analysis: compare the same sensor report by two routes</a>
+<a href="#make-the-same-sensor-report-in-two-ways">Make the same sensor report in two ways</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w14/index.html">Original lesson</a></p>
@@ -227,12 +227,12 @@ assert has_pair([], 8) is False</code></pre></div>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Contract</td><td>Girdi/çıktı koşulları: what counts as the correct answer</td></tr><tr><td>Bottleneck</td><td>Darboğaz: a part that limits overall performance</td></tr><tr><td>Benchmark</td><td>Performans deneyi: a specified, repeatable timing workload</td></tr><tr><td>Evidence / proof</td><td>Bulgular / kanıt: observed support versus a general justification</td></tr><tr><td>Prediction</td><td>Tahmin: a model-based value not yet measured</td></tr><tr><td>Limitation</td><td>Sınırlılık: where the claim has not been established</td></tr></tbody></table></div>
 <p>You are ready to finish when another person can reproduce your table, understand why both methods answer the same question, follow your prediction arithmetic, and identify the scope of your recommendation. Repair missing correctness with a hand-traced example. Repair unclear growth by exposing the repeated operation and its bound. Repair a weak report by replacing “much faster” with a size, a ratio, an explanation, and a limitation.</p>
 <p class="turkish"><strong>Türkçe:</strong> Son kontrol şudur: Arkadaşınız sonuçları sizin yardımınız olmadan anlayabiliyor mu? Hangi sayı ölçüldü, hangisi hesaplandı, hangi varsayım kullanıldı açık mı? Bu açıklık, sonraki Veri Yapıları ve Algoritmalar dersine taşıyacağınız temel beceridir.</p>
-<h2 id="meaning-before-analysis-compare-the-same-sensor-report-by-two-routes">Meaning before analysis: compare the same sensor report by two routes</h2>
-<p>The CP1 sensor-report task becomes an analysis question here: after applying the same validation rules, compute per-sensor counts and means. A faster method is useful only if it preserves the same accepted rows, grouping rules and no-data policy.</p>
+<h2 id="make-the-same-sensor-report-in-two-ways">Make the same sensor report in two ways</h2>
+<p>For each sensor, report how many accepted readings it has and their mean (average). Both methods must reject the same invalid rows and use the same rule when no readings exist. This example also appears in CP1, but you do not need that course to follow it.</p>
 <p><strong>Draw or trace.</strong> Use valid rows T1=10, T1=20, T2=30 and a rejected T1=missing row. Draw repeated per-sensor scans beside one pass updating a dictionary of count and sum.</p>
-<p><strong>Predict before checking.</strong> For n accepted rows and k requested sensors, which route revisits rows? What must be included if the sensor names are not supplied?</p>
+<p><strong>Predict before checking.</strong> For n accepted rows and k requested sensors, which route checks the same rows again? What must be included if the sensor names are not supplied?</p>
 <h3 id="worked-reasoning">Worked reasoning</h3>
-<p>A scan for each of k names visits n rows k times, O(kn), when names are supplied and comparisons have bounded cost. One dictionary pass takes expected O(n), plus O(k) to report requested sensors, with O(k) aggregate storage when those are the possible sensors. If k is fixed, both routes are linear in n; do not call O(kn) quadratic unless k also grows proportionally to n. Discovering names and sorting output, if required, add costs. Validate identically before comparing, then benchmark equivalent full tasks.</p>
+<p>With n accepted rows and k supplied sensor names, scanning every row for each sensor takes O(kn) work, assuming constant-time comparisons. A dictionary can collect counts and totals in one pass: expected O(n) time, then O(k) to report the answers, using O(k) extra storage for those sensors under the usual hashing assumptions. If k is fixed, both methods grow linearly with n. The first becomes quadratic when k grows in proportion to n. Finding sensor names or sorting the report adds work if required. Time the same complete task in both methods.</p>
 <div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">rows = [(&quot;T1&quot;, 10.0), (&quot;T1&quot;, 20.0), (&quot;T2&quot;, 30.0)]  # already validated
 sensors = [&quot;T1&quot;, &quot;T2&quot;, &quot;T3&quot;]
 scanned = {}
@@ -248,7 +248,7 @@ single_pass = {sensor: (count, total / count if count else None)
                for sensor, (count, total) in aggregates.items()}
 assert scanned == single_pass == {&quot;T1&quot;: (2, 15.0), &quot;T2&quot;: (1, 30.0), &quot;T3&quot;: (0, None)}
 print(single_pass)</code></pre></div>
-<p><strong>Change one thing.</strong> Add duplicate observations, a sensor with no valid readings and more distinct sensors. Defend which changes affect correctness, operation counts and memory. This is an optional capstone context, not a prerequisite to have taken CP1.</p>
+<p><strong>Change one thing.</strong> Add duplicate observations, a sensor with no valid readings and more different sensors. Defend which changes affect correctness, operation counts and memory. This is an optional capstone context, not a prerequisite to have taken CP1.</p>
 <p class="turkish"><strong>Türkçe:</strong> Aynı geçerli satırları ve çıktı kuralını koru. k sabitse kn doğrusal büyür; k de büyüdüğünde ayrı değişken olarak izlenmelidir.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>The final report should read like an engineering decision, not a speed contest. It must connect correctness, model, measurement, and limitation.</p>

@@ -571,9 +571,9 @@ You are ready when you can explain why four cards needed three comparisons, why 
 
 **Bridge to Week 2:** A remembered largest value will become a variable; “report the answer” will become an output command. The reasoning remains the same. You can also use the original lesson's optional Colab setup to prepare the workspace, without treating programming knowledge as a prerequisite for this week.
 
-## Meaning before analysis: an answer needs a reason to be trusted
+## Why the answer is correct
 
-An algorithm specifies how to reach the required result for allowed inputs. A successful example is evidence of behaviour on that example; it is not a guarantee for every input. Start with the contract and a property that remains true as the method proceeds.
+An algorithm is a set of steps for solving a problem. First say what data it accepts and what answer it must give. Getting one example right does not show that it works for every allowed input. Explain why each step keeps the answer on track.
 
 **Draw or trace.** Lay out cards 8, 3, 11, 6. After each card, write the largest value among the cards inspected so far. Cover the uninspected cards.
 
@@ -581,7 +581,7 @@ An algorithm specifies how to reach the required result for allowed inputs. A su
 
 ### Worked reasoning
 
-The remembered values are 8, 8, 11, 11. A later card replaces the remembered value only when larger, so the remembered value stays the maximum of the inspected prefix. Only after every card has been inspected does that prefix cover the entire input. Four looks require three comparisons here. An unseen card could be 100, so a large-looking value does not justify stopping.
+The largest values remembered are 8, 8, 11, 11. Replace the remembered value only when the next card is larger. This keeps the largest value seen so far. After checking every card, it is the largest value in the whole list. Four cards need three comparisons because the first card gives the starting value. You cannot stop at 11: an unseen card could be 100.
 
 **Change one thing.** Use all-negative cards, then no cards. Keep the same rule for negative values and explicitly define the empty-input result. Do this on paper; Python is not a prerequisite this week.
 
@@ -799,9 +799,9 @@ Explain `score = score + 2` when the old score is 8. **Answer:** retrieve 8, cal
 
 If assignment is unclear, draw an “old value / calculation / new value” table. If types are unclear, label every literal as number or text before calculating. Week 3 adds decisions and repetition to this same tracing habit: one written line may then execute many times.
 
-## Meaning before analysis: assignment changes the current state
+## Follow the value of each name
 
-A name refers to its current value. The right side of an assignment is evaluated before the name on the left is rebound. A trace records those changes; printed output is a separate observation of selected states.
+In Python, assignment means giving a name a value. In x = x + 3, Python calculates the right side first, then gives x that new value. A trace is a written record of the values after each step. Printing shows only the values you ask to see.
 
 **Draw or trace.** Trace x = 4, y = x, x = x + 3. Draw each name and the integer it refers to after every instruction.
 
@@ -809,7 +809,7 @@ A name refers to its current value. The right side of an assignment is evaluated
 
 ### Worked reasoning
 
-y remains 4. Assigning y = x binds y to the value obtained then; it does not create a live formula that follows later rebindings of x. A trace explains output. Counting operations and measuring elapsed time are separate tasks introduced gradually in this course.
+y stays 4. The line y = x gives y the value of x at that moment. It does not make y follow later changes to x. Following the values explains the printed answer. Counting steps and timing the program are two different tasks that we will learn later.
 
 ```python
 x = 4
@@ -819,7 +819,7 @@ assert (x, y) == (7, 4)
 print(x, y)
 ```
 
-**Change one thing.** Change the final line to y = x + 3. Predict both values first. Later, when values are mutable lists, distinguish rebinding a name from mutating a shared object.
+**Change one thing.** Change the final line to y = x + 3. Predict both values first. Later, when values are lists that can be changed, distinguish giving a name a different value from changing a list shared by two names.
 
 **Türkçe:** Atama anındaki değeri izle; adlar canlı formül değildir. Çıktı, işlem sayısı ve geçen süre farklı sorulardır.
 
@@ -1062,17 +1062,17 @@ For readiness, explain why a four-by-four grid makes 16 visits and why five even
 
 If uncertain, use `n = 3`, write each visited value, and mark the counted line before increasing the input. Week 4 applies these counters to stored lists, scans, searches and pair comparisons.
 
-## Meaning before analysis: a loop repeats work while preserving meaning
+## Count visits separately from the total
 
-A loop combines a sequence of states. A counter records how often a chosen event occurs; an accumulator records an amount. They can advance differently even in the same loop.
+A loop repeats instructions. A counter records how many times something happens. A running total adds up values; this is also called an accumulator. The count and the total can be different even in the same loop.
 
 **Draw or trace.** For numbers 1, 2, 3, 4, write one row per visit with the current number, running sum and visit count.
 
-**Predict before checking.** Will the sum and visit count end equal? What changes if the count increment is placed inside an even-number test?
+**Predict before checking.** Will the sum and visit count end equal? What changes if the increase to the counter is placed inside an even-number test?
 
 ### Worked reasoning
 
-The running sums are 1, 3, 6, 10 while visits are 1, 2, 3, 4. Counting only even-number matches gives 2, but all four numbers were still visited. Name the event being counted before making a claim about work. A counter placed in the wrong branch measures a different quantity.
+The running totals are 1, 3, 6, 10. The visit counts are 1, 2, 3, 4. Only two numbers are even, but the loop still visits all four. Before using a counter, say exactly what it counts. Putting it inside the even-number test counts matches, not all visits.
 
 ```python
 total = visits = matches = 0
@@ -1306,17 +1306,17 @@ Explain why a missing search over six values needs six comparisons, why two name
 
 If any answer is uncertain, draw the list with indices, draw arrows from names to the list, or enumerate pairs on paper. Then change one input and predict the outcome again. Complete [Review A — Weeks 1–4](#review-a) before moving on: this is the built-in consolidation point for instructions, types, loops and lists. Week 5 packages a process into a function and measures it with a stopwatch. Clear inputs, correct outputs and meaningful counts come first.
 
-## Meaning before analysis: position access and value search answer different questions
+## Knowing a position is different from searching
 
-An index names a position already known. Searching by value asks which position, if any, contains a match. The second task may require inspecting many positions; the similarity of the notation does not make their work identical.
+An index is an item’s position in a list. If you already know the index, you can go straight to that item. Searching means checking items to find a value. That may take many checks, even when the Python instruction is short.
 
-**Draw or trace.** Draw the list [8, 3, 8, 6] with indices 0–3. Point directly to index 2, then trace a left-to-right search for 6.
+**Draw or trace.** Draw the list [8, 3, 8, 6] with positions (indices) 0–3. Point directly to index 2, then trace a left-to-right search for 6.
 
 **Predict before checking.** How many equality checks find the first 8, find 6, or establish that 9 is missing?
 
 ### Worked reasoning
 
-The counts are 1, 4 and 4 for this simple scan. Duplicate 8s make the output contract important: finding the first position, every position, or only whether a match exists are different problems. An empty list needs zero element comparisons to report no match.
+The searches need 1, 4 and 4 comparisons. Because 8 appears twice, be clear about the answer you want: its first position, all its positions, or just whether it is present. These are different tasks. An empty list needs no item comparisons to report that a value is missing.
 
 ```python
 def first_match(values, target):
@@ -1573,9 +1573,9 @@ You are ready when you can trace `sum_to(4)`, explain `None`, put a timer around
 
 **Bridge to Week 6:** one timing answers “how long here?” Several input sizes answer “how does it change?” Bring the same function, correctness checks and measurement policy to the doubling experiment.
 
-## Meaning before analysis: the timer measures the interval you actually enclose
+## Be clear about what you time
 
-A function’s result and its measured duration are different outputs. Before timing, establish that the function solves the required problem. Then draw the measurement boundary: include the work relevant to the question and keep unrelated printing outside it.
+First check that the function returns the right answer. Then decide which work to time. Put the timer around that work, and leave unrelated printing outside. Say whether preparing the input is part of the measurement.
 
 **Draw or trace.** Draw setup → start timer → function call → stop timer → report. Mark whether creating the input is inside or outside the interval.
 
@@ -1583,7 +1583,7 @@ A function’s result and its measured duration are different outputs. Before ti
 
 ### Worked reasoning
 
-No. They measure different workloads. Use the same input contract, verify equal results, state the treatment of preparation, and repeat measurements. A very small measured duration is not evidence of literally zero work. Recording only the fastest convenient run hides variability.
+No. The two timings include different work. Use the same input rules, check that the answers agree, and treat preparation the same way. Repeat the measurements because times vary. A tiny measured time does not mean no work happened. Reporting only the fastest convenient run hides that variation.
 
 ```python
 def loop_sum(n):
@@ -1845,9 +1845,9 @@ Optional second-pass readiness means explaining how doubling affects logarithmic
 
 **Bridge to Week 7:** the stopwatch suggests a pattern. A line-by-line operation count explains why it arises, even when a shared computer gives noisy times.
 
-## Meaning before analysis: a doubling ratio is a clue with assumptions
+## What happens when the input doubles?
 
-Doubling experiments connect input size to observed workload. If work is proportional to n, doubling n doubles that work; if proportional to n squared, it quadruples. Measured time also contains overhead and noise, so one ratio cannot prove a growth class.
+Let n be the number of input items. Work proportional to n doubles when n doubles. Work proportional to n squared becomes four times as large. Timings also include fixed extra work and small variations, so one timing ratio cannot prove a growth pattern.
 
 **Draw or trace.** Draw squares of side n and 2n. The larger square contains four copies of the smaller. Compare this with two line segments of lengths n and 2n.
 
@@ -1855,7 +1855,7 @@ Doubling experiments connect input size to observed workload. If work is proport
 
 ### Worked reasoning
 
-At n = 10 the ratio is 120/110, about 1.09. At n = 1000 it is 2100/1100, about 1.91. The fixed overhead masks the linear part for small inputs. These numbers are a model calculation, not benchmark measurements. A ratio near one can mean overhead dominates; it does not establish constant-time behaviour.
+At n = 10, the ratio is 120/110, about 1.09. At n = 1000, it is 2100/1100, about 1.91. The fixed 100 matters more when n is small. These numbers come from the formula; they are not measured times. A ratio near one may simply mean the fixed work is large, not that the algorithm always takes constant time.
 
 ```python
 for n in (10, 1000):
@@ -2153,9 +2153,9 @@ You are ready when you can derive 2n, n², 10n and n(n−1)/2 without guessing f
 
 **Bridge to Week 8:** now that you can justify a cost formula, you are ready to express an upper bound precisely and distinguish it from a tight description of growth.
 
-## Meaning before analysis: the shape of the visited work explains the formula
+## Draw the work before writing its formula
 
-Counts add for consecutive work and multiply for a full collection of combinations. A nested loop whose inner length changes needs a sum of its actual lengths. The number of written loops alone does not determine growth.
+Add counts for tasks done one after another. Multiply when every item is paired with every item. If an inner loop runs a different number of times on each round, add those actual counts. Seeing two loops is not enough to decide how the work grows.
 
 **Draw or trace.** Draw a 4 by 4 grid for every ordered pair. Then mark only pairs with column less than row: row lengths are 0, 1, 2, 3. These dots represent actual visits.
 
@@ -2163,7 +2163,7 @@ Counts add for consecutive work and multiply for a full collection of combinatio
 
 ### Worked reasoning
 
-The square has 16 visits; the triangle has 6. In general the triangle count is 0 + 1 + ... + (n − 1) = n(n − 1)/2. Combining two such triangles gives n(n − 1) off-diagonal ordered pairs. Two consecutive full scans instead give n + n visits, not n squared. Assume bounded-cost work at each visited pair when converting this count to a time bound.
+The square has 16 visits; the triangle has 6. For n items, the triangle gives 0 + 1 + ... + (n − 1) = n(n − 1)/2. Each pair of different positions appears once, without counting the reversed pair again. Two such triangles count both orders. Two separate full scans take n + n visits, not n squared. To use visits as a time estimate, assume each visit does a fixed amount of work.
 
 ```python
 for n in (0, 1, 4, 10):
@@ -2448,17 +2448,17 @@ You are ready when you can exhibit c and n₀, explain why O(n²) can be loose, 
 
 **Bridge to Week 9:** four correct anagram methods will apply these distinctions. You will compare strategy, operation counts, input contracts, hidden built-in work and memory rather than choosing a winner from a complexity label alone.
 
-## Meaning before analysis: a bound is a claim with a domain and a threshold
+## Big-O describes a limit on growth
 
-Big-O describes an eventual upper bound under a stated cost model; it is not a stopwatch reading, an exact formula, or automatically a tight bound. Best and worst cases describe which inputs are considered, not different meanings of the O symbol.
+Big-O gives an upper bound: for large enough inputs, the work stays below a fixed multiple of the named growth pattern. Say what work you are counting. Big-O does not give seconds, an exact count, or necessarily the closest bound. Best and worst cases describe which inputs you consider.
 
-**Draw or trace.** Compare T(n) = 3n + 2 with an envelope 5n for n ≥ 1. Show why every value of the first expression stays under the second in that domain.
+**Draw or trace.** Compare T(n) = 3n + 2 with the upper limit 5n for n ≥ 1. Show why every value of the first expression stays under the second for those input sizes.
 
 **Predict before checking.** Is 3n + 2 also O(n squared)? If so, does that mean its actual growth is quadratic?
 
 ### Worked reasoning
 
-For n ≥ 1, 3n + 2 ≤ 5n ≤ 5n squared. Both are valid upper bounds, but Θ(n) gives the tighter growth description. Testing finitely many values illustrates the inequalities; the algebra establishes them for all n in the domain. Space analysis must separately say whether input storage is included or only auxiliary memory.
+For n ≥ 1, 3n + 2 ≤ 5n ≤ 5n squared. So both O(n) and O(n squared) are valid upper bounds. Θ(n), read “theta of n”, says the growth is linear from both above and below. Checking a few values helps us see the pattern; the algebra shows it holds for every n ≥ 1. When counting memory, say whether you include the input or only the extra storage, called auxiliary memory.
 
 ```python
 for n in (1, 2, 10, 100):
@@ -2779,9 +2779,9 @@ If matching is unclear, redraw Practice 1 and physically cross out each used pos
 
 Week 10 compares data structures and the costs of their operations. Carry forward this week's main habit: a representation is useful because it makes the operations your problem needs cheaper or clearer. The array of counts worked because the question was about frequency, not order.
 
-## Meaning before analysis: anagram methods must preserve multiplicity
+## Count each letter, including repeats
 
-An anagram comparison asks whether both words contain the same characters with the same counts under an agreed normalisation rule. A method can be fast while solving a weaker, incorrect problem. Decide what information the representation must preserve before comparing costs.
+Two words are anagrams if they contain the same letters the same number of times. First agree whether capitals and spaces count. A fast method is still wrong if it loses information needed for the answer.
 
 **Draw or trace.** Lay out tiles for aab and abb. Both use letters a and b, but their piles have different sizes. Draw a per-letter tally rather than only a set of present letters.
 
@@ -2789,7 +2789,7 @@ An anagram comparison asks whether both words contain the same characters with t
 
 ### Worked reasoning
 
-No: both sets contain a and b, so a set loses the multiplicity needed by this contract. Sorting preserves each occurrence and enables a position-by-position comparison. Counting preserves occurrences in tallies. Fixed-size count arrays require a bounded stated alphabet; dictionaries support broader keys under their average-case lookup assumptions.
+No. Both sets contain a and b, but sets discard repeat counts. Sorting keeps every letter, so we can compare the sorted words position by position. Counting letters also keeps the information we need. An array of counters needs a known, fixed set of possible letters. A dictionary can handle more kinds of keys, but its fast lookup is an average-case claim, not a worst-case guarantee.
 
 ```python
 from collections import Counter
@@ -2802,7 +2802,7 @@ assert Counter("aab") == Counter("baa")
 print("Sets lose the counts required by this problem.")
 ```
 
-**Change one thing.** Try Aab versus baa, then a word containing a space. State whether case and spaces matter before adding normalisation. Do not let competing methods silently solve different problems.
+**Change one thing.** Try Aab versus baa, then a word containing a space. State whether case and spaces matter before changing capitals or removing spaces. Do not let competing methods silently solve different problems.
 
 **Türkçe:** Anagramda harfin varlığı değil tekrar sayısı da önemlidir. Hız karşılaştırmasından önce bütün yöntemlerin aynı soruyu çözdüğünü doğrula.
 
@@ -2982,9 +2982,9 @@ You are ready when you can derive the triangular sum, explain an expensive appen
 
 Next week keeps the same question but changes the dominant operation: instead of shifting a list repeatedly, you will search it repeatedly. A set can help, provided its missing order and duplicate information do not change the answer.
 
-## Meaning before analysis: a familiar list operation can hide many moves
+## One list instruction can move many items
 
-Python list positions refer to consecutive slots in the list’s reference array. Removing the first element shifts later references left to close the gap. Removing the last does not require those shifts. The objects themselves need not be copied for this cost to exist.
+A Python list stores references: links to its items. Removing the first item shifts the later references left to fill the gap. Removing the last item does not need these shifts. The items themselves do not have to be copied for this work to take time.
 
 **Draw or trace.** Draw four slots A, B, C, D. Remove A, then show B, C and D moving one slot left. Repeat until empty and record the number of shifted references.
 
@@ -2992,7 +2992,7 @@ Python list positions refer to consecutive slots in the list’s reference array
 
 ### Worked reasoning
 
-The shift counts are 3, 2, 1, 0: six in total. For n starting elements the count is n(n − 1)/2, so repeatedly removing from the front is quadratic under this list model. Individual operations must be opened up when their cost depends on input size. Append is amortized constant time, not a promise that every append has identical cost.
+The shift counts are 3, 2, 1, 0: six in total. With n starting items, the total is n(n − 1)/2, so repeatedly removing the first item gives quadratic work in this model. A short instruction can hide work that grows with the list. Append has amortised O(1) cost: the total work spread over many appends stays constant per append. One append can still be expensive.
 
 ```python
 values = list("ABCD")
@@ -3004,7 +3004,7 @@ assert shifts == 6
 print("Reference shifts:", shifts)
 ```
 
-**Change one thing.** If the task allows reverse removal order, compare repeated end removal. If it requires first-in-first-out behaviour, changing removal order is not a valid optimisation.
+**Change one thing.** If the task allows reverse removal order, compare repeated end removal. If it requires removing items in their arrival order, changing removal order is not a valid optimisation.
 
 **Türkçe:** Tek satır çok iş saklayabilir. Listenin başından silmek sonraki başvuruları kaydırır; daha hızlı işlem aynı çıktı sözleşmesini korumalıdır.
 
@@ -3186,9 +3186,9 @@ You are ready when you can trace a count update, explain why duplicate removal c
 
 The next bridge is an order question: “How many observations lie between these two limits?” A set alone does not preserve the ordering or multiplicities needed for that answer. Week 12 uses sorted sequences and carefully maintained search boundaries.
 
-## Meaning before analysis: preparing once changes the cost of repeated questions
+## Prepare once to answer many searches
 
-A set can support repeated membership questions without rescanning every list element. Construction still costs work and memory, and a set discards order and duplicate occurrences. Choose it only when those changes fit the required result.
+A set lets you check whether a value is present without scanning the whole list each time. Building it still takes work and memory. It also loses the original order and repeat counts. Use it only if that fits the answer you need.
 
 **Draw or trace.** Draw two routes: q queries each scan n values, or one preparation scan followed by q set lookups. Label preparation separately from query work.
 
@@ -3196,7 +3196,7 @@ A set can support repeated membership questions without rescanning every list el
 
 ### Worked reasoning
 
-For bounded-cost equality and hashing, repeated missing-target list scans take nq equality checks. Building a set and making q lookups takes expected O(n + q) time with O(n) possible extra storage; lookup has worst-case qualifications. Constants can make a single scan preferable for one query. A set alone cannot return occurrence counts; a frequency dictionary preserves that different meaning.
+Suppose each comparison and hash calculation takes constant time. A hash calculation chooses where to look for a key. If each of q list searches misses, it checks all n items: nq checks in total. Building a set and doing q searches takes expected O(n + q) time and up to O(n) extra storage under the usual hashing assumptions. Bad collisions can make lookup slower. For just one search, scanning may be cheaper than preparation. Use a dictionary of counts if you need to know how often each value appears.
 
 ```python
 values = [3, 1, 3, 8]
@@ -3207,7 +3207,7 @@ assert len(prepared) == 3 and len(values) == 4
 print("Membership agrees; multiplicity is not preserved.")
 ```
 
-**Change one thing.** Make the data change after every query. Decide whether rebuilding or maintaining the prepared structure must now enter the cost account.
+**Change one thing.** Make the data change after every query. Decide whether rebuilding or maintaining the prepared structure must now enter the work you count.
 
 **Türkçe:** Hazırlık maliyeti ve bellek ücretsiz değildir. Küme varlık sorusunu yanıtlar; tekrar sayısını ve sırayı korumaz.
 
@@ -3412,17 +3412,17 @@ You are ready when you can complete both traces without guessing, explain the em
 
 Next week explains the sorting cost used here. You will count real comparisons, distinguish best from worst inputs, and see why preparation is often O(n log n) instead of O(n²).
 
-## Meaning before analysis: discarding half requires a reason
+## Why binary search can discard half
 
-Binary search is correct because sorted order justifies eliminating an entire interval. The maintained claim is that any matching position still possible lies inside the current search interval. Halving describes the shrinking candidates; sortedness explains why the discarded candidates cannot contain the target.
+Binary search works because the list is sorted. After checking the middle, we can rule out positions whose values are too small or too large. Any possible match must stay in the part we keep. Without sorted order, throwing away half could lose the answer.
 
-**Draw or trace.** For [2, 5, 8, 12, 16, 23, 38], search for 16 with inclusive bounds. Write low, high and mid for each step.
+**Draw or trace.** For [2, 5, 8, 12, 16, 23, 38], search for 16 including both end positions of the search range. Write low, high and mid for each step.
 
-**Predict before checking.** After comparing with 12, why may the left half be discarded? Will the same argument hold for the original acquisition order of unsorted readings?
+**Predict before checking.** After comparing with 12, why may the left half be discarded? Will the same argument hold for the original order of unsorted readings?
 
 ### Worked reasoning
 
-The first midpoint is index 3, value 12. Sortedness makes every value at or left of it too small, leaving indices 4–6. Next compare 23 at index 5, then 16 at index 4. Without order, the eliminated side can still contain the answer. A halved candidate interval gives logarithmic iterations only when the implementation also keeps each iteration bounded-cost; slicing can add copying costs.
+First check index 3, which holds 12. The target is 16, so 12 and everything to its left are too small. Keep indices 4–6. Then check 23 at index 5, followed by 16 at index 4. In an unsorted list, this reasoning fails. Halving the remaining positions gives about log₂ n rounds. Each round must also take constant work for an O(log n) search; copying slices can add extra work.
 
 ```python
 def binary_find(values, target):
@@ -3443,7 +3443,7 @@ assert binary_find([], 16) is None
 print("Found, missing and empty cases checked.")
 ```
 
-**Change one thing.** Change the contract to first occurrence among duplicates. Returning any equal midpoint is no longer enough. Also include sorting cost when starting from unsorted data.
+**Change one thing.** Change the required answer to the first position of a repeated value. Returning any equal midpoint is no longer enough. Also include sorting cost when starting from unsorted data.
 
 **Türkçe:** Yarısını elemek için sıralılık gerekçesi gerekir. Aday aralığı küçülürken hedefi dışarı atmadığını açıkla; dilimlemenin kopyalama maliyetini unutma.
 
@@ -3638,17 +3638,17 @@ The optional triangle puzzle uses the same “count contributions” habit. Row 
 
 You are ready when you can reproduce 9/4 for bubble and 10/2 for selection, derive the triangular count, and explain a stable tie. Repair counting gaps with three items before returning to five. Repair complexity gaps by naming the input case explicitly. Bring these habits to Week 14, where two correct approaches become a complete, evidence-based recommendation.
 
-## Meaning before analysis: sorting progresses by establishing a guaranteed region
+## Put one more item in its final place
 
-For selection sort, each pass finds the smallest item in the unsorted suffix and places it at the next boundary. The growing prefix is in its final sorted position. That statement explains correctness; counting comparisons explains workload. These are separate arguments.
+Selection sort finds the smallest item in the part that is still unsorted. It puts that item in the next position at the front. The finished part grows by one item each round. This explains why the answer is sorted. Counting comparisons answers a separate question: how much work was needed?
 
-**Draw or trace.** Trace [4, 1, 3, 2] with a boundary between fixed prefix and unsorted suffix. Record comparisons for each minimum search.
+**Draw or trace.** Trace [4, 1, 3, 2] with a boundary between finished front part and unfinished remaining part. Record comparisons for each minimum search.
 
 **Predict before checking.** If the list is already sorted, does this ordinary selection-sort version avoid the minimum searches?
 
 ### Worked reasoning
 
-No. The searches still compare 3, 2 and 1 candidates beyond the current minimum: six comparisons for four items. In general the count is n(n − 1)/2 regardless of input order for this implementation. An early-exit bubble-sort variant behaves differently on sorted input, so the algorithm version matters. When sorting records, state whether ties must preserve original order; not every sorting method is stable.
+No. This version still makes 3, 2 and 1 comparisons: six for four items. For n items it makes n(n − 1)/2 comparisons, whatever the starting order. A bubble sort that stops when no swaps occur behaves differently, so name the version you are analysing. Also check what happens to equal values. A stable sort keeps equal-value records in their original order; not every sort does.
 
 ```python
 values = [4, 1, 3, 2]
@@ -3665,7 +3665,7 @@ assert comparisons == 6
 print(values, comparisons)
 ```
 
-**Change one thing.** Add record labels to equal keys. Inspect whether swapping a later minimum across an equal-key record changes their order, even though the key values finish sorted.
+**Change one thing.** Add record labels to equal sorting values. Inspect whether swapping a later minimum across an record with the same sorting value changes their order, even though the key values finish sorted.
 
 **Türkçe:** Doğruluk için her turda kesinleşen bölgeyi açıkla; maliyet için karşılaştırmaları say. Sıralı girdi her algoritmada daha az iş demek değildir.
 
@@ -3900,17 +3900,17 @@ You are ready to finish when another person can reproduce your table, understand
 
 **Türkçe:** Son kontrol şudur: Arkadaşınız sonuçları sizin yardımınız olmadan anlayabiliyor mu? Hangi sayı ölçüldü, hangisi hesaplandı, hangi varsayım kullanıldı açık mı? Bu açıklık, sonraki Veri Yapıları ve Algoritmalar dersine taşıyacağınız temel beceridir.
 
-## Meaning before analysis: compare the same sensor report by two routes
+## Make the same sensor report in two ways
 
-The CP1 sensor-report task becomes an analysis question here: after applying the same validation rules, compute per-sensor counts and means. A faster method is useful only if it preserves the same accepted rows, grouping rules and no-data policy.
+For each sensor, report how many accepted readings it has and their mean (average). Both methods must reject the same invalid rows and use the same rule when no readings exist. This example also appears in CP1, but you do not need that course to follow it.
 
 **Draw or trace.** Use valid rows T1=10, T1=20, T2=30 and a rejected T1=missing row. Draw repeated per-sensor scans beside one pass updating a dictionary of count and sum.
 
-**Predict before checking.** For n accepted rows and k requested sensors, which route revisits rows? What must be included if the sensor names are not supplied?
+**Predict before checking.** For n accepted rows and k requested sensors, which route checks the same rows again? What must be included if the sensor names are not supplied?
 
 ### Worked reasoning
 
-A scan for each of k names visits n rows k times, O(kn), when names are supplied and comparisons have bounded cost. One dictionary pass takes expected O(n), plus O(k) to report requested sensors, with O(k) aggregate storage when those are the possible sensors. If k is fixed, both routes are linear in n; do not call O(kn) quadratic unless k also grows proportionally to n. Discovering names and sorting output, if required, add costs. Validate identically before comparing, then benchmark equivalent full tasks.
+With n accepted rows and k supplied sensor names, scanning every row for each sensor takes O(kn) work, assuming constant-time comparisons. A dictionary can collect counts and totals in one pass: expected O(n) time, then O(k) to report the answers, using O(k) extra storage for those sensors under the usual hashing assumptions. If k is fixed, both methods grow linearly with n. The first becomes quadratic when k grows in proportion to n. Finding sensor names or sorting the report adds work if required. Time the same complete task in both methods.
 
 ```python
 rows = [("T1", 10.0), ("T1", 20.0), ("T2", 30.0)]  # already validated
@@ -3930,7 +3930,7 @@ assert scanned == single_pass == {"T1": (2, 15.0), "T2": (1, 30.0), "T3": (0, No
 print(single_pass)
 ```
 
-**Change one thing.** Add duplicate observations, a sensor with no valid readings and more distinct sensors. Defend which changes affect correctness, operation counts and memory. This is an optional capstone context, not a prerequisite to have taken CP1.
+**Change one thing.** Add duplicate observations, a sensor with no valid readings and more different sensors. Defend which changes affect correctness, operation counts and memory. This is an optional capstone context, not a prerequisite to have taken CP1.
 
 **Türkçe:** Aynı geçerli satırları ve çıktı kuralını koru. k sabitse kn doğrusal büyür; k de büyüdüğünde ayrı değişken olarak izlenmelidir.
 

@@ -110,7 +110,7 @@
 <a href="#misconceptions-to-repair">Misconceptions to repair</a>
 <a href="#englishturkish-glossary">English–Turkish glossary</a>
 <a href="#readiness-repair-and-the-week-10-bridge">Readiness, repair, and the Week 10 bridge</a>
-<a href="#meaning-before-analysis-anagram-methods-must-preserve-multiplicity">Meaning before analysis: anagram methods must preserve multiplicity</a>
+<a href="#count-each-letter-including-repeats">Count each letter, including repeats</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w9/index.html">Original lesson</a></p>
@@ -284,12 +284,12 @@ print(anagram_counter(&quot;aab&quot;, &quot;abb&quot;))  # False</code></pre></
 <p>You are ready when you can explain the repeated-letter example, name the work hidden in sorting and joining, derive 2n + 26 under the stated count convention, and choose a method with one explicit assumption. You do not need to master factorial extrapolation or digit-complexity proofs before progressing.</p>
 <p>If matching is unclear, redraw Practice 1 and physically cross out each used position. If counts are unclear, tally <code>&amp;quot;aab&amp;quot;</code> and <code>&amp;quot;abb&amp;quot;</code> by hand before rereading the loops. If class and timing are getting mixed together, write two separate sentences: “Under this model, the bound is …” and “On these measured inputs, implementation … was faster.”</p>
 <p>Week 10 compares data structures and the costs of their operations. Carry forward this week&#x27;s main habit: a representation is useful because it makes the operations your problem needs cheaper or clearer. The array of counts worked because the question was about frequency, not order.</p>
-<h2 id="meaning-before-analysis-anagram-methods-must-preserve-multiplicity">Meaning before analysis: anagram methods must preserve multiplicity</h2>
-<p>An anagram comparison asks whether both words contain the same characters with the same counts under an agreed normalisation rule. A method can be fast while solving a weaker, incorrect problem. Decide what information the representation must preserve before comparing costs.</p>
+<h2 id="count-each-letter-including-repeats">Count each letter, including repeats</h2>
+<p>Two words are anagrams if they contain the same letters the same number of times. First agree whether capitals and spaces count. A fast method is still wrong if it loses information needed for the answer.</p>
 <p><strong>Draw or trace.</strong> Lay out tiles for aab and abb. Both use letters a and b, but their piles have different sizes. Draw a per-letter tally rather than only a set of present letters.</p>
 <p><strong>Predict before checking.</strong> Will converting both words to sets correctly decide whether they are anagrams?</p>
 <h3 id="worked-reasoning">Worked reasoning</h3>
-<p>No: both sets contain a and b, so a set loses the multiplicity needed by this contract. Sorting preserves each occurrence and enables a position-by-position comparison. Counting preserves occurrences in tallies. Fixed-size count arrays require a bounded stated alphabet; dictionaries support broader keys under their average-case lookup assumptions.</p>
+<p>No. Both sets contain a and b, but sets discard repeat counts. Sorting keeps every letter, so we can compare the sorted words position by position. Counting letters also keeps the information we need. An array of counters needs a known, fixed set of possible letters. A dictionary can handle more kinds of keys, but its fast lookup is an average-case claim, not a worst-case guarantee.</p>
 <div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">from collections import Counter
 
 left, right = &quot;aab&quot;, &quot;abb&quot;
@@ -298,7 +298,7 @@ assert sorted(left) != sorted(right)
 assert Counter(left) != Counter(right)
 assert Counter(&quot;aab&quot;) == Counter(&quot;baa&quot;)
 print(&quot;Sets lose the counts required by this problem.&quot;)</code></pre></div>
-<p><strong>Change one thing.</strong> Try Aab versus baa, then a word containing a space. State whether case and spaces matter before adding normalisation. Do not let competing methods silently solve different problems.</p>
+<p><strong>Change one thing.</strong> Try Aab versus baa, then a word containing a space. State whether case and spaces matter before changing capitals or removing spaces. Do not let competing methods silently solve different problems.</p>
 <p class="turkish"><strong>Türkçe:</strong> Anagramda harfin varlığı değil tekrar sayısı da önemlidir. Hız karşılaştırmasından önce bütün yöntemlerin aynı soruyu çözdüğünü doğrula.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>The anagram case study is valuable because all methods can be correct while their costs differ dramatically. Protect the output contract before naming a winner.</p>

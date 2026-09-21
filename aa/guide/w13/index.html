@@ -106,7 +106,7 @@
 <a href="#why-n-log-n-appears-and-what-sorted-guarantees">Why n log n appears, and what sorted() guarantees</a>
 <a href="#three-graduated-practice-problems">Three graduated practice problems</a>
 <a href="#misconceptions-and-a-short-bridge-to-the-chapter-puzzle">Misconceptions and a short bridge to the chapter puzzle</a>
-<a href="#meaning-before-analysis-sorting-progresses-by-establishing-a-guaranteed-region">Meaning before analysis: sorting progresses by establishing a guaranteed region</a>
+<a href="#put-one-more-item-in-its-final-place">Put one more item in its final place</a>
 <a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
       <section class="guide-chapter">
         <p><a href="../../w13/index.html">Original lesson</a></p>
@@ -203,12 +203,12 @@ print(by_grade_name)</code></pre></div>
 <p>The optional triangle puzzle uses the same “count contributions” habit. Row sums are 1, 3, 9, 27. Every entry contributes to exactly three positions in the next row, so each new total is three times the previous total. Row i therefore sums to 3 raised to the power i − 1. The explanation establishes the general pattern; the four observed totals alone do not.</p>
 <div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe and meaning</th></tr></thead><tbody><tr><td>Comparison</td><td>Karşılaştırma: test the relative order of two keys</td></tr><tr><td>Swap / shift</td><td>Takas / kaydırma: exchange two positions or move an item along</td></tr><tr><td>Stable sort</td><td>Kararlı sıralama: equal-key records retain relative order</td></tr><tr><td>Sorted prefix</td><td>Sıralı önek: the completed beginning of the sequence</td></tr><tr><td>In place</td><td>Yerinde: modify the existing container</td></tr><tr><td>Auxiliary space</td><td>Yardımcı bellek: extra workspace beyond input/output</td></tr></tbody></table></div>
 <p>You are ready when you can reproduce 9/4 for bubble and 10/2 for selection, derive the triangular count, and explain a stable tie. Repair counting gaps with three items before returning to five. Repair complexity gaps by naming the input case explicitly. Bring these habits to Week 14, where two correct approaches become a complete, evidence-based recommendation.</p>
-<h2 id="meaning-before-analysis-sorting-progresses-by-establishing-a-guaranteed-region">Meaning before analysis: sorting progresses by establishing a guaranteed region</h2>
-<p>For selection sort, each pass finds the smallest item in the unsorted suffix and places it at the next boundary. The growing prefix is in its final sorted position. That statement explains correctness; counting comparisons explains workload. These are separate arguments.</p>
-<p><strong>Draw or trace.</strong> Trace [4, 1, 3, 2] with a boundary between fixed prefix and unsorted suffix. Record comparisons for each minimum search.</p>
+<h2 id="put-one-more-item-in-its-final-place">Put one more item in its final place</h2>
+<p>Selection sort finds the smallest item in the part that is still unsorted. It puts that item in the next position at the front. The finished part grows by one item each round. This explains why the answer is sorted. Counting comparisons answers a separate question: how much work was needed?</p>
+<p><strong>Draw or trace.</strong> Trace [4, 1, 3, 2] with a boundary between finished front part and unfinished remaining part. Record comparisons for each minimum search.</p>
 <p><strong>Predict before checking.</strong> If the list is already sorted, does this ordinary selection-sort version avoid the minimum searches?</p>
 <h3 id="worked-reasoning">Worked reasoning</h3>
-<p>No. The searches still compare 3, 2 and 1 candidates beyond the current minimum: six comparisons for four items. In general the count is n(n − 1)/2 regardless of input order for this implementation. An early-exit bubble-sort variant behaves differently on sorted input, so the algorithm version matters. When sorting records, state whether ties must preserve original order; not every sorting method is stable.</p>
+<p>No. This version still makes 3, 2 and 1 comparisons: six for four items. For n items it makes n(n − 1)/2 comparisons, whatever the starting order. A bubble sort that stops when no swaps occur behaves differently, so name the version you are analysing. Also check what happens to equal values. A stable sort keeps equal-value records in their original order; not every sort does.</p>
 <div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">values = [4, 1, 3, 2]
 comparisons = 0
 for start in range(len(values) - 1):
@@ -221,7 +221,7 @@ for start in range(len(values) - 1):
 assert values == [1, 2, 3, 4]
 assert comparisons == 6
 print(values, comparisons)</code></pre></div>
-<p><strong>Change one thing.</strong> Add record labels to equal keys. Inspect whether swapping a later minimum across an equal-key record changes their order, even though the key values finish sorted.</p>
+<p><strong>Change one thing.</strong> Add record labels to equal sorting values. Inspect whether swapping a later minimum across an record with the same sorting value changes their order, even though the key values finish sorted.</p>
 <p class="turkish"><strong>Türkçe:</strong> Doğruluk için her turda kesinleşen bölgeyi açıkla; maliyet için karşılaştırmaları say. Sıralı girdi her algoritmada daha az iş demek değildir.</p>
 <h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
 <p>Sorting connects correctness, stability, and cost. A sort is not only &quot;put items in order&quot;; it must say which key defines order and what happens to ties.</p>
