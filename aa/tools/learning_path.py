@@ -101,6 +101,16 @@ def staged_lesson(num, body, studio):
     for block in buckets['understand']:
         explanations.append('<details class="path-reference teaching-part"><summary>' + html.escape(heading(block)) + '</summary><div>' + block + '</div></details>')
     buckets['understand'] = [meaning_section(num), notes] + explanations + [inline_guide(num), '<details class="path-resources"><summary>Learning goals & class plan</summary><div>' + objectives + studio + '</div></details>']
+    if num == 1:
+        # Week 1 visual-first pilot: one explanation per concept on the main route.
+        # Keep the source material available without duplicating the lesson above it.
+        buckets['understand'] = [block for block in blocks if 'w1-lesson' in block] + [
+            '<details class="path-reference"><summary>Optional depth · correctness and counterexamples</summary><div>' + notes + '</div></details>',
+            '<details class="path-resources"><summary>Learning goals & class plan</summary><div>' + objectives + studio + '</div></details>',
+            '<p class="w1-reference">Need a longer explanation? <a href="../guide/w01/">Open the English + Türkçe reference guide</a>.</p>'
+        ]
+        practice = [block for block in blocks if 'Try it yourself' in heading(block)]
+        buckets['investigate'] = practice + ['<details class="path-reference"><summary>Optional textbook workshop · correctness</summary><div>' + focus + '</div></details>']
     keys = [('understand', 'Understand'), ('investigate', 'Investigate'), ('check', 'Check')]
     nav = '<nav class="path-steps" aria-label="Lesson steps" hidden>' + ''.join(f'<button type="button" data-step-target="{key}" aria-controls="{key}">{i+1} · {label}</button>' for i,(key,label) in enumerate(keys)) + '</nav>'
     panels = []

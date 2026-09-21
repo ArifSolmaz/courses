@@ -35,8 +35,8 @@ PHASES = {
 # num, title, one-line summary for the home page, phase, "big question", chips
 WEEKS = [
     (1, "What Is an Algorithm?",
-     "Recipes, step-by-step thinking, and why two correct methods can be wildly different.",
-     1, "If two people both get the right answer, why would we prefer one method?",
+     "Trace a method. Draw what changes. Count the work.",
+     1, "How can we get the right answer with less work?",
      ["no programming needed", "Colab setup", "≈2 hours"]),
     (2, "Your First Python: Values, Names, and Output",
      "print, variables, numbers, text — the four things you need before anything else.",
@@ -212,6 +212,9 @@ def week_page(meta, body):
     )
     animation_styles = '<link rel="stylesheet" href="../assets/anim.css">'
     animation_scripts = '<script src="../assets/anim.js?v=13"></script>'
+    if num == 1:
+        animation_styles += '<link rel="stylesheet" href="../assets/week1-visual.css?v=1">'
+        animation_scripts = animation_scripts.replace('anim.js?v=13', 'anim.js?v=14')
     if num > 1:
         animation_styles += f'<link rel="stylesheet" href="../assets/anim-w{num}.css">'
         animation_scripts += f'<script src="../assets/anim-w{num}.js?v=10"></script>'

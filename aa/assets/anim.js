@@ -697,7 +697,7 @@
     host.appendChild(scene);
 
     var rules = h("div", "lr-rules");
-    rules.appendChild(h("p", "q", "Which of the three rules from §1.7 did this instruction break?"));
+    rules.appendChild(h("p", "q", "Which instruction check did this example fail?"));
     var rrow = h("div", "anim-opts");
     var rbtns = RULES.map(function (r) {
       var b = btn(r[1], "", function () { pick(r[0], b); });
