@@ -1,14 +1,10 @@
-"""Give notebook tables room before Colab typesets their mathematics.
+"""Format notebook tables with bounded, percentage-based column widths.
 
-Colab strips inline CSS from Markdown, uses a fixed table layout, and measures
-inline MathJax against the initial column width. Plain pipe tables can therefore
-break a short equation into several lines even on a wide screen. HTML ``width``
-attributes survive its sanitizer. A full-width table with content-sized header
-columns gives MathJax usable space on its first pass, without running Python.
-
-Only pipe-table blocks are changed. Existing HTML tables and non-table prose are
-left alone, so ``format_markdown_tables`` is idempotent. Mathematics is copied
-verbatim: escaping a comparison as ``&lt;`` inside TeX would change its meaning.
+Colab strips inline CSS from Markdown but preserves HTML width attributes.
+Pixel widths based on the longest prose cell forced entire notebook cells off
+screen. Percentage columns share the available page width; long prose wraps.
+Existing HTML tables are normalized too, so refreshing older notebooks repairs
+their widths. Mathematics and cell contents are preserved verbatim.
 """
 
 from __future__ import annotations
@@ -73,12 +69,7 @@ def _inline(source: str) -> str:
 
 
 def _column_width(values: list[str]) -> int:
-    """Conservative content width at Colab's normal reading size, in pixels.
-
-    Pixel column widths act as minimums in Colab's fixed table layout. The table
-    still fills a larger viewport. On a phone, Colab's own notebook scroller
-    permits horizontal scrolling instead of chopping an equation into pieces.
-    """
+    """Estimate a column weight, capped so prose wraps instead of widening the page."""
     sizes = []
     for value in values:
         # Count visible symbols rather than the spelling of LaTeX commands.
@@ -92,7 +83,37 @@ def _column_width(values: list[str]) -> int:
         text = html.unescape(text)
         sizes.append(len(text))
     # Extra room covers cell padding, mathematical glyphs, and font differences.
-    return max(64, 24 + 8 * max(sizes, default=0))
+    return min(400, max(64, 24 + 8 * max(sizes, default=0)))
+
+
+def _percentages(widths: list[int]) -> list[int]:
+    """Allocate exactly 100 percent, retaining useful space for short columns."""
+    total = sum(widths)
+    values = [100 * width / total for width in widths]
+    result = [int(value) for value in values]
+    for index in sorted(range(len(values)), key=lambda i: values[i] - result[i], reverse=True)[:100-sum(result)]:
+        result[index] += 1
+    return result
+
+
+def normalize_html_tables(source: str) -> str:
+    def table(match: re.Match[str]) -> str:
+        block = match.group(0)
+        headers = re.findall(r'<th\b[^>]*>(.*?)</th>', block, re.S)
+        if not headers:
+            return block
+        rows = [re.findall(r'<td\b[^>]*>(.*?)</td>', row, re.S)
+                for row in re.findall(r'<tr\b[^>]*>(.*?)</tr>', block, re.S)]
+        weights = [_column_width([re.sub(r'<[^>]+>', '', h)] +
+                    [re.sub(r'<[^>]+>', '', row[i]) for row in rows if len(row) == len(headers)])
+                   for i, h in enumerate(headers)]
+        percentages = iter(_percentages(weights))
+        block = re.sub(r'<table\b[^>]*>', '<table width="100%">', block, count=1)
+        def header(m):
+            tag = re.sub(r'\s+width="[^"]*"', '', m.group(0))
+            return tag[:-1] + f' width="{next(percentages)}%">'
+        return re.sub(r'<th\b[^>]*>', header, block)
+    return re.sub(r'<table\b.*?</table>', table, source, flags=re.S)
 
 
 def format_markdown_tables(source: str) -> str:
@@ -120,8 +141,9 @@ def format_markdown_tables(source: str) -> str:
                     end += 1
                 widths = [_column_width([headers[c]] + [row[c] for row in rows])
                           for c in range(len(headers))]
+                widths = _percentages(widths)
                 output = ['<table width="100%">', '<thead>', '<tr>']
-                output += [f'<th align="left" width="{width}" scope="col">{_inline(header)}</th>'
+                output += [f'<th align="left" width="{width}%" scope="col">{_inline(header)}</th>'
                            for header, width in zip(headers, widths)]
                 output += ['</tr>', '</thead>', '<tbody>']
                 for row in rows:
@@ -134,4 +156,4 @@ def format_markdown_tables(source: str) -> str:
                 continue
         result.append(lines[index])
         index += 1
-    return ''.join(result)
+    return normalize_html_tables(''.join(result))
