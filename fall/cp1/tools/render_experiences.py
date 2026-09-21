@@ -23,10 +23,10 @@ def shell(title, body, week=0):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="CP1 weekly lessons for mechatronics: physical problems, clear explanations, worked examples and companion Python notebooks.">
 <title>{esc(title)} · CP1 Engineering Experiences</title>
-<link rel="stylesheet" href="cp1-experiences.css?v=4"><script src="cp1-experiences.js?v=3" defer></script>{lab_assets}<link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><script src="../../../assets/learning-path.js?v=1" defer></script></head>
+<link rel="stylesheet" href="cp1-experiences.css?v=4"><script src="cp1-experiences.js?v=3" defer></script>{lab_assets}<link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script src="../../../assets/learning-path.js?v=1" defer></script></head>
 <body data-week="{week}"><a class="skip" href="#main">Skip to content</a>
-<header class="top"><a class="brand" href="CP1_Course_Dashboard.html">CP1 <span>/ ENGINEERING EXPERIENCES</span></a><nav aria-label="Course"><a href="CP1_Course_Dashboard.html#week-{week or 1}">Course home</a><details class="path-menu"><summary>Resources</summary><div><a href="CP1_Syllabus.html">Syllabus</a><a href="../STUDY_GUIDE.md">Study advice</a></div></details><button type="button" id="theme-toggle" hidden>Dark theme</button></nav></header>
-{body}<footer><p>Computer Programming I · Mechatronics Engineering · Dr. Arif Solmaz</p><a href="CP1_Course_Dashboard.html">Course home</a></footer></body></html>'''
+<header class="top"><a class="brand" href="CP1_Course_Dashboard.html">CP1 <span>/ COURSE HOME</span></a><nav aria-label="Course"><details class="path-menu"><summary>Course menu</summary><div><a href="CP1_Course_Dashboard.html#weeks">All weeks</a><a href="CP1_Course_Dashboard.html#course-info">Course info &amp; resources</a><button type="button" id="theme-toggle" hidden>Dark theme</button></div></details></nav></header>
+{body}<footer><p>Computer Programming I · Mechatronics Engineering · Dr. Arif Solmaz</p></footer></body></html>'''
 
 def introduction_markdown(lesson):
     intro = lesson['intro']
@@ -118,7 +118,6 @@ def render_lesson(lesson, notebook):
     following = f'<a href="Week_{n+1:02d}.html">Week {n+1:02d} →</a>' if n < 14 else '<a href="CP1_Course_Dashboard.html">Return to course journey →</a>'
     caveat = f'<p class="note">{esc(lesson["caveat"])}</p>' if lesson.get('caveat') else ''
     body = f'''<main id="main">
-{weeknav}
 <div class="lesson-layout"><div class="lesson-content">
 <header class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p></header>
 <section id="brief" class="section weekly-opening"><span id="understand" class="legacy-anchor"></span><p class="connection">{esc(lesson['intro']['connection'])}</p><p class="lead">{esc(lesson['brief'])}</p><div class="first-task"><p class="eyebrow">Start with the problem</p><h2>Try this first.</h2><p>{esc(lesson['intro']['first_task'])}</p></div><h3>Why this week's tool?</h3><p>{esc(lesson['intro']['why_tool'])}</p><p class="opening-outcome"><strong>By the end:</strong> {esc(lesson['intro']['success'])}</p></section>

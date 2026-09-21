@@ -134,7 +134,10 @@ def sync():
     build_notebook_labs(write)
     template = (ROOT / "tools" / "templates" / "dashboard.html").read_text(encoding="utf-8")
     nav = ''.join(f'<option value="{w["week"]}">Week {w["week"]:02d} · {html.escape(LESSONS[w["week"]-1]["title"])}</option>' for w in weeks)
-    dashboard = template.replace("<!-- CP1:NAV -->", nav).replace("<!-- CP1:PANELS -->", "\n".join(panel(w) for w in weeks))
+    schedule = '<table><thead><tr><th>Week</th><th>Topic</th><th>Lesson</th></tr></thead><tbody>' + ''.join(
+        f'<tr><td>{w["week"]:02d}</td><td><strong>{html.escape(LESSONS[w["week"]-1]["title"])}</strong><small>{html.escape(w["title"])}</small></td><td><a href="Week_{w["week"]:02d}.html" aria-label="Open Week {w["week"]:02d}">Open →</a></td></tr>' for w in weeks) + '</tbody></table>'
+    library = ''.join(f'<details><summary>Week {w["week"]:02d} · {html.escape(w["title"])}</summary>{panel(w)}</details>' for w in weeks)
+    dashboard = template.replace("<!-- CP1:SCHEDULE -->", schedule).replace("<!-- CP1:PANELS -->", library)
     write(ROOT / "web" / "CP1_Course_Dashboard.html", dashboard)
     table = "| Week | HTML experience | Lesson notebook | Worked solutions | Core / optional |\n|---|---|---|---|---|\n"
     for w in weeks:
@@ -162,7 +165,7 @@ def sync():
     rows = []
     for w in weeks:
         goals = "; ".join(w["objectives"][:3])
-        rows.append(f'<tr><td class="week-num-cell">{w["week"]:02d}</td><td><div class="topic-title">{inline(w["title"])}</div><small>{w["core"]} core / {w["optional"]} optional</small></td><td class="topic-items">{inline(goals)}</td><td><a class="nb-link" href="Week_{w["week"]:02d}.html">HTML experience</a><br><a class="nb-link" href="../{w["notebook"]}" download>Lesson notebook</a><br><a class="nb-link" href="../{w["solutions"]}" download>Worked solutions</a></td></tr>')
+        rows.append(f'<tr><td class="week-num-cell">{w["week"]:02d}</td><td><div class="topic-title">{inline(w["title"])}</div><small>{w["core"]} core / {w["optional"]} optional</small></td><td class="topic-items">{inline(goals)}</td><td><a class="nb-link" href="Week_{w["week"]:02d}.html">Open lesson →</a></td></tr>')
     pattern = r'(<table class="schedule-table">.*?<tbody>).*?(</tbody>)'
     syllabus, count = re.subn(pattern, lambda m: m.group(1) + "\n" + "\n".join(rows) + "\n" + m.group(2), syllabus, count=1, flags=re.S)
     if count != 1:

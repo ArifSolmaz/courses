@@ -150,15 +150,14 @@ HEAD = """<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{base}assets/style.css"><link rel="stylesheet" href="{base}../assets/learning-path.css?v=1"><link rel="stylesheet" href="{base}assets/learning.css?v=2">
+<link rel="stylesheet" href="{base}assets/style.css"><link rel="stylesheet" href="{base}../assets/learning-path.css?v=1"><link rel="stylesheet" href="{base}assets/learning.css?v=2"><link rel="stylesheet" href="{base}../assets/course-navigation.css?v=2"><script defer src="{base}../assets/course-navigation.js?v=1"></script>
 </head>
 <body>
 <header class="site-header">
-  <a class="brand" href="{base}index.html">AA <span>/ algorithm analysis</span></a>
+  <a class="brand" href="{base}index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <a class="hlink" href="{base}index.html">Course home</a>
-    <details class="path-menu"><summary>Resources</summary><div><a href="{base}index.html#course-info">Course info &amp; assessment</a><a href="{base}guide/">Reference library</a><a href="{base}../index.html#fall">Other courses</a></div></details>
-    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+    <details class="path-menu"><summary>Course menu</summary><div><a href="{base}index.html#weeks">All weeks</a><a href="{base}index.html#course-info">Course info &amp; assessment</a><a href="{base}../index.html#fall">Other courses</a>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
 <main class="wrap">
@@ -167,7 +166,7 @@ HEAD = """<!DOCTYPE html>
 FOOT = """</main>
 <footer class="site-footer">
   <span>{site} &middot; Dr. Arif Solmaz</span>
-  <span><a href="{base}index.html">Course home</a> &middot; <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+
 </footer>
 <script src="{base}assets/app.js?v=2"></script><script src="{base}../assets/learning-path.js?v=1"></script>
 </body>
@@ -237,7 +236,7 @@ def week_page(meta, body):
   <p class="path-question"><strong>{question}</strong></p>
 </div>
 """,
-        '<div class="path-picker" data-jump-control hidden><label for="lesson-week">Week</label><select id="lesson-week" data-week-jump>' + ''.join(f'<option value="../w{w[0]}/"{" selected" if w[0] == num else ""}>Week {w[0]:02d} · {w[1]}</option>' for w in WEEKS) + '</select></div>',
+
         staged_lesson(num, body.strip(), STUDIO),
         '<details class="path-resources"><summary>How this connects to next week</summary><div>' + bridge_html + '</div></details>',
         f"""
@@ -282,25 +281,9 @@ def capstone_page(body):
 
 
 def home_page(intro):
-    cards = []
-    current_phase = None
-    for num, title, summary, phase, question, chips in WEEKS:
-        if phase != current_phase:
-            current_phase = phase
-            cards.append(f'</div>\n<div class="phase">{PHASES[phase]}</div>\n<div class="grid">')
-        cards.append(
-            f"""  <a class="week-card" data-week="w{num}" href="w{num}/">
-    <div class="card">
-      <div class="wk">WEEK {num:02d}</div>
-      <h4>{title}</h4>
-      <p>{summary}</p>
-      <span class="tick">&#10003;</span>
-    </div>
-  </a>"""
-        )
-    grid = '<div class="grid">' + "\n".join(cards) + "</div>"
-    grid = grid.replace('<div class="grid"></div>\n', "", 1)
-    options = '<option value="">Select a week…</option>' + ''.join(f'<option value="w{w[0]}/">Week {w[0]:02d} · {w[1]}</option>' for w in WEEKS)
+    rows = ''.join(f'<tr id="week-{n}"><td>{n:02d}</td><td><strong>{title}</strong><small>{summary}</small></td><td><a href="w{n}/" aria-label="Open Week {n:02d}">Open →</a></td></tr>' for n,title,summary,phase,question,chips in WEEKS)
+    grid = '<table><thead><tr><th>Week</th><th>Topic</th><th>Lesson</th></tr></thead><tbody>' + rows + '</tbody></table>'
+    options = ''
     reference = (ROOT / 'tools' / 'course_reference.html').read_text(encoding='utf-8')
     body = intro.replace("<!--WEEK-GRID-->", grid).replace('<!--WEEK-OPTIONS-->', options).replace('<!--COURSE-REFERENCE-->', reference)
     return "\n".join([

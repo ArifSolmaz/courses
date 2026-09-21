@@ -806,7 +806,7 @@ def head_html(title, desc, week, has_anim):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=2"><script defer src="../../../assets/learning-path.js?v=1"></script>
+<link rel="stylesheet" href="../assets/site.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script defer src="../../../assets/learning-path.js?v=1"></script>
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/contrib/auto-render.min.js" integrity="{SRI_AUTO}" crossorigin="anonymous"></script>
@@ -815,12 +815,11 @@ def head_html(title, desc, week, has_anim):
 <body>
 <a class="skip" href="#main">Skip to the notes</a>
 <header class="site-header">
-  <a class="brand" href="../web/PHY101_Course_Dashboard.html">PHY<span>101</span> / physics I</a>
+  <a class="brand" href="../web/PHY101_Course_Dashboard.html">PHY101 / course home</a>
   <nav class="header-nav" aria-label="Course pages">
-    <a class="hlink" href="../web/PHY101_Course_Dashboard.html">Course home</a>
-    <details class="path-menu"><summary>Resources</summary><div><a href="../web/PHY101_Syllabus.html">Syllabus</a><a href="{COLAB}/labs/Lab_00_Uncertainty_Toolkit.ipynb">Lab toolkit</a><a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">Open notebook in Colab</a><a href="../notebooks/Week_{week:02d}.ipynb" download>Download notebook</a></div></details>
+    <details class="path-menu"><summary>Course menu</summary><div><a href="../web/PHY101_Course_Dashboard.html#weeks">All weeks</a><a href="../web/PHY101_Course_Dashboard.html#course-info">Course info &amp; resources</a><a href="{COLAB}/notebooks/Week_{week:02d}.ipynb">Open notebook in Colab</a><a href="../notebooks/Week_{week:02d}.ipynb" download>Download notebook</a>
     <button class="hlink" data-lang-toggle type="button" aria-pressed="false" title="Hide the Turkish notes">EN + TR</button>
-    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
 <main class="wrap" id="main">
@@ -832,8 +831,7 @@ FOOT = f"""</article>
 </main>
 <footer class="site-footer">
   <span>{SITE} &middot; Dr. Arif Solmaz &middot; &#304;ST&#220;N</span>
-  <span><a href="../web/PHY101_Course_Dashboard.html">Dashboard</a> &middot;
-        <a href="https://arifsolmaz.github.io/courses/">All courses</a></span>
+
 </footer>
 </body>
 </html>
@@ -1091,7 +1089,7 @@ def week_page(wk, nb, known=None):
   <div class="eyebrow">Week {num:02d} &middot; {month_day(wk['start'])}&ndash;{month_day(wk['end'])} 2026</div>
   <h1>{html.escape(wk['title_en'])}<em lang="tr">{html.escape(wk['title_tr'])}</em></h1>
   <p class="lede">{html.escape(wk['scope'])}.</p>
-  <p class="reading-route">Prepare → Learn → Practise → Check</p>
+
 </div>"""
     summary = summary_card(num, meta["equations"])
     staged = stage_layout(body, intro, lab_box, summary, problems)

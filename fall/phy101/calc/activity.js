@@ -3,6 +3,7 @@
 const endpoint='https://script.google.com/macros/s/AKfycbyvlnt9Pj9oYobNwzOrk0HaojwQ7-oAZrirgsSTLb1W0ZZ74vFC5sUGhOq3-upvJjX9/exec';
 let expires=0,updated=0,offset=0,pending=false;
 function show(open){
+ document.querySelectorAll('[data-activity-container]').forEach(el=>{el.hidden=!open;});
  document.querySelectorAll('[data-activity-join]').forEach(a=>{a.hidden=!open;a.style.display=open?'':'none';});
  document.querySelectorAll('[data-activity-status]').forEach(p=>{p.textContent=open?'Calculator activity is open for this class. / Hesap makinesi etkinliği bu ders için açık.':'No calculator activity is open. / Açık hesap makinesi etkinliği yok.';});
 }
