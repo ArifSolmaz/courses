@@ -1087,11 +1087,12 @@ def week_page(wk, nb, known=None):
     else:
         middle = [intro, lab_box, contents_card(meta["sections"]), body, summary, problems]
 
+    chapter_resource = '<a href="https://drive.google.com/file/d/1v5tJxyEvDnrLoW1X_rfTq5RwYD8N0cbJ/view?usp=share_link">CH-1</a>' if num == 1 else ""
     page = "\n".join([
         head_html(f"Week {num:02d}: {wk['title_en']} — {SITE}", wk["scope"], num, has_anim),
         hero,
         *middle,
-        f'<details class="path-resources" id="lesson-resources"><summary>Downloads &amp; course resources</summary><div><a href="../notebooks/Week_{num:02d}.ipynb" download>Download this notebook</a><a href="../web/PHY101_Course_Dashboard.html#course-info">Course resources</a></div></details>',
+        f'<details class="path-resources" id="lesson-resources"><summary>Downloads &amp; course resources</summary><div><a href="../notebooks/Week_{num:02d}.ipynb" download>Download this notebook</a>{chapter_resource}<a href="../web/PHY101_Course_Dashboard.html#course-info">Course resources</a></div></details>',
         FOOT,
     ])
     return page, skipped, missing_anim, missing_fig, meta
