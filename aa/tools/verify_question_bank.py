@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Coverage, hidden-answer structure, and independent checks of numeric/proof examples."""
+"""Coverage, visible-answer structure, and independent checks of numeric/proof examples."""
 import itertools as it
 import json, math, re, heapq
 from pathlib import Path
@@ -18,20 +18,20 @@ for group in (WRITTEN,GUIDED_MCQ):
  for plain,hint,steps in group.values():assert plain and hint and len(steps)>=2 and all(steps)
 class Scan(HTMLParser):
  def __init__(self,source):
-  super().__init__();self.tests=[];self.written=[];self.stack=[];self.hidden_answers=0;self.hints=0;self.feed(source)
+  super().__init__();self.tests=[];self.written=[];self.stack=[];self.visible_answers=0;self.hints=0;self.feed(source)
  def handle_starttag(self,tag,attrs):
   a=dict(attrs);ident=a.get('id','');classes=a.get('class','').split()
   if ident.startswith('skiena-mcq-'):self.tests.append(int(ident.rsplit('-',1)[1]))
   if ident.startswith('skiena-ex-'):self.written.append(int(ident.rsplit('-',1)[1]))
   if 'question-answer' in classes:
-   assert tag=='details' and 'open' not in a;self.hidden_answers+=1
+   assert tag=='div' and 'hidden' not in a;self.visible_answers+=1
   if 'question-hint' in classes:
-   assert tag=='details' and 'open' not in a;self.hints+=1
+   assert tag=='p' and 'hidden' not in a;self.hints+=1
 all_mcq=[];all_written=[]
 for n in range(1,15):
  s=(ROOT/f'w{n}/index.html').read_text();p=Scan(s)
  assert sorted(p.tests)==sorted(WEEK_MCQ[n]);assert sorted(p.written)==sorted(WEEK_EXERCISES[n])
- assert p.hidden_answers==len(p.tests)+len(p.written)
+ assert p.visible_answers==len(p.tests)+len(p.written)
  assert p.hints==sum(MCQ[i]['level']=='Hard' for i in p.tests)+sum(EXERCISES[i]['level']=='Hard' for i in p.written)
  assert s.index('class="source-exercise test-question"')<s.index('id="skiena-ex-')
  # The question bank is on the visible lesson route, not nested in a reference disclosure.
@@ -39,7 +39,7 @@ for n in range(1,15):
  assert prefix.count('<details')==prefix.count('</details>')
  all_mcq+=p.tests;all_written+=p.written
 s=(ROOT/'extensions/index.html').read_text();p=Scan(s)
-assert p.hidden_answers==len(p.tests)+len(p.written)
+assert p.visible_answers==len(p.tests)+len(p.written)
 for key,_,_,ids,*_ in EXTENSIONS:
  start=s.index(f'id="{key}-questions"');end=s.find('<section class="extension-chapter"',start)
  chapter=s[start:end if end!=-1 else len(s)]
@@ -173,4 +173,4 @@ var=['x','nx','y','ny','z','nz'];c1=['c1x','c1y','c1nz'];c2=['c2nx','c2y','c2z']
 gadget=[('x','nx'),('y','ny'),('z','nz')]+list(it.combinations(c1,2))+list(it.combinations(c2,2))+list(zip(c1,['x','y','nz']))+list(zip(c2,['nx','y','z']))
 cover={'x','y','z','c1y','c1nz','c2nx','c2z'}
 check('written 205 SAT cover',len(var+c1+c2)==12 and len(cover)==7 and all(u in cover or v in cover for u,v in gadget))
-print(f'PASS: 120 tests + 205 written questions, exact-once chapter placement, tests first, 325 concealed answers, all 57 hard-question scaffolds, {len(checks)} independent fixture checks.')
+print(f'PASS: 120 tests + 205 written questions, exact-once chapter placement, tests first, 325 visible answers, all 57 hard-question scaffolds, {len(checks)} independent fixture checks.')

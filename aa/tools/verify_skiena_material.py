@@ -27,7 +27,7 @@ for meta in build.WEEKS:
  n=meta[0];p=ROOT/f'w{n}'/'index.html';text=p.read_text();pages.append(p)
  assert text==build.week_page(meta,(build.FRAG/f'w{n:02d}.html').read_text()),f'w{n}: stale build'
  assert text.count('id="skiena-practice"')==1
- assert 'Show reasoning</summary>' in text
+ assert '<h5>Answer &amp; reasoning</h5>' in text
  for number in WEEK_EXERCISES[n]:
   assert f'id="skiena-ex-{number:03d}"' in text
   assert html.escape(EXERCISES[number]['answer']) in text

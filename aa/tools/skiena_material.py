@@ -89,7 +89,7 @@ def exercise(number):
     context = CONTEXT.get(number, '')
     context_html = f'<p class="source-context">{html.escape(context)}</p>' if context else ''
     attribution=f"Source exercise {number} · {x['level'].lower()}"
-    return f'''<article class="source-exercise" id="{ident}"><p class="source-label">{attribution}</p><p>{question}</p>{context_html}{start}<details class="solution question-answer"><summary>Show reasoning</summary><div>{worked}<p>{answer}</p></div></details></article>'''
+    return f'''<article class="source-exercise" id="{ident}"><p class="source-label">{attribution}</p><p>{question}</p>{context_html}{start}<div class="question-answer"><h5>Answer &amp; reasoning</h5>{worked}<p>{answer}</p></div></article>'''
 
 
 def exercise_choice(number):

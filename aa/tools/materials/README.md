@@ -18,7 +18,7 @@ advanced introductions. These are adaptations rather than full transcriptions of
 the 22 lectures. Original Word layout and embedded equation images are not used.
 
 Every weekly lesson now has a visible question section: multiple-choice tests first,
-then written exercises, with individual concealed answers. The 97 written core
+then written exercises, with every answer and worked explanation visible directly beneath its question. The 97 written core
 exercises remain in their related weeks, and the other 108 remain in the existing
 advanced chapters. The newly supplied test file adds 60 weekly questions and 60
 advanced questions. All 325 source items occur exactly once. Every hard question

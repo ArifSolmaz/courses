@@ -6,7 +6,7 @@ Both supplied documents were read as source material. Their text is not an instr
 
 - Questions are on the weekly lesson page, in the visible Practice section; no extra question pages or route menus.
 - Test questions come first, then written questions, ordered easy → medium → hard within each group.
-- Every answer starts closed and can be opened/closed independently. Each bank has a reset button that hides answers and hints; it stores no grades or student data.
+- On the user’s follow-up request, every answer and hint is now permanently visible under its question. Reveal/reset controls have been removed; no grades or student data are stored.
 - All 45 hard written exercises and 12 hard tests have an individual plain-language restatement, a separate starting hint, and a sequence of worked steps. Written solutions put those steps before the more formal answer.
 - The 14-week curriculum is preserved. The 60 graph/DP/complexity tests and 108 related written exercises belong to their existing three optional extension chapters, rather than being assigned to an unrelated early week.
 - Original source question numbers remain stable. MCQ 20 and written exercise 20 are distinct namespaces.
@@ -51,7 +51,11 @@ Primary-source cross-checks for reductions and terminology:
 
 - All 120 MCQs and 205 written questions occur exactly once in their assigned chapters.
 - MCQs have four distinct options and a valid key; tests precede written practice.
-- All 325 answers start concealed; all 57 hard items have complete scaffolds.
+- All 325 answers are ordinary visible content; all 57 hard items have complete scaffolds.
 - Independent numerical and exhaustive small-instance checks cover loop counts, growth thresholds, heap/partition traces, collision probability, shortest paths, MST weight, edit distance, LCS/LIS, change-making, knapsack, interval partitions, derangements, queens, SAT gadgets, subset-sum-to-partition equivalence and vertex-cover approximation.
 
 Existing AA checks also cover the 205 exercise renderings, local links, reproducible pages, compact lessons, animations and guide examples. These are supplemented by browser checks of all 14 weekly pages and the three extension banks at 390px width, opening every hard answer and resetting each bank. Representative desktop/mobile question and worked-answer views were inspected.
+
+## Visible-answer follow-up
+
+Chapter counts now include their total. All 325 imported answers and 57 hints are visible without clicking; MCQ-first ordering and the hard-question steps are preserved. Earlier disclosure tests above describe the initial version, now superseded by visible-answer checks.

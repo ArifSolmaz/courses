@@ -19,7 +19,7 @@ def scaffold(kind, number):
     data = (WRITTEN if kind == 'written' else MCQ_GUIDANCE).get(number)
     if not data:return '', ''
     plain, hint, steps = data
-    start = f'<p class="question-plain"><strong>In simpler words:</strong> {html.escape(plain)}</p><details class="question-hint"><summary>Need a starting hint?</summary><p>{html.escape(hint)}</p></details>'
+    start = f'<p class="question-plain"><strong>In simpler words:</strong> {html.escape(plain)}</p><p class="question-hint"><strong>Starting hint:</strong> {html.escape(hint)}</p>'
     worked = '<h5>Step by step</h5><ol class="reasoning-steps">' + ''.join(f'<li>{html.escape(s)}</li>' for s in steps) + '</ol>'
     return start, worked
 
@@ -32,7 +32,7 @@ def test_question(number):
     # Deliberately no correct-option class, colour, checked state or answer in the prompt.
     return f'''<article class="source-exercise test-question" id="skiena-mcq-{number:03d}">
 <p class="source-label">Test {number} · {x['level'].lower()}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
-<details class="solution question-answer"><summary>Reveal answer &amp; explanation</summary><div><p><strong>Answer: option {x['correct'].upper()}.</strong> {html.escape(x['answer'])}</p>{worked}</div></details></article>'''
+<div class="question-answer"><p><strong>Answer: option {x['correct'].upper()}.</strong> {html.escape(x['answer'])}</p>{worked}</div></article>'''
 
 def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice questions'):
     from skiena_material import exercise
@@ -41,10 +41,9 @@ def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice question
     from skiena_material import EXERCISES
     written=sorted(written_ids,key=lambda n:(rank[EXERCISES[n]['level']],n))
     return f'''<section class="chapter-question-bank" id="{ident}"><h3>{html.escape(title)}</h3>
-<p class="source-label">{len(tests)} test questions · {len(written)} written questions</p>
-<p>Choose an answer before opening its explanation. Close it and try again later. Hard questions include a hint and smaller reasoning steps; use them for a second pass.</p>
-<button class="reset-answers" type="button" hidden>Hide answers &amp; hints — try again</button>
+<p class="source-label">{len(tests)} test questions · {len(written)} written questions · {len(tests) + len(written)} total</p>
+<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
 {''.join(test_question(n) for n in tests)}
-<h4>Written questions</h4><p class="source-context">Write a short explanation, trace or proof before revealing the reasoning. Exercise numbers match the supplied written-question document.</p>
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Exercise numbers match the supplied written-question document.</p>
 {''.join(exercise(n) for n in written)}</section>'''
