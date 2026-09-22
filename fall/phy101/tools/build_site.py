@@ -1087,7 +1087,8 @@ def week_page(wk, nb, known=None):
     else:
         middle = [intro, lab_box, contents_card(meta["sections"]), body, summary, problems]
 
-    chapter_resource = '<a href="https://drive.google.com/file/d/1v5tJxyEvDnrLoW1X_rfTq5RwYD8N0cbJ/view?usp=share_link" title="Textbook — Chapter 1" aria-label="Textbook — Chapter 1">CH-1</a>' if num == 1 else ""
+    chapter = wk.get("textbook")
+    chapter_resource = (f'<a href="{html.escape(chapter["url"], quote=True)}" title="{html.escape(chapter["title"], quote=True)}" aria-label="{html.escape(chapter["title"], quote=True)}">{html.escape(chapter["label"])}</a>' if chapter else "")
     page = "\n".join([
         head_html(f"Week {num:02d}: {wk['title_en']} — {SITE}", wk["scope"], num, has_anim),
         hero,
