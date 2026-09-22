@@ -151,6 +151,8 @@ HEAD = """<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{base}assets/style.css"><link rel="stylesheet" href="{base}../assets/learning-path.css?v=1"><link rel="stylesheet" href="{base}assets/learning.css?v=2"><link rel="stylesheet" href="{base}../assets/course-navigation.css?v=2"><script defer src="{base}../assets/course-navigation.js?v=1"></script>
+<link rel="stylesheet" href="{base}assets/questions.css?v=1">
+<script defer src="{base}assets/questions.js?v=1"></script>
 </head>
 <body>
 <header class="site-header">

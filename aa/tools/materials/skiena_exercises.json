@@ -18,7 +18,8 @@
     "block": "Block A — Foundations (Lectures 1–3)",
     "level": "Easy",
     "question": "Why can there be a provably correct algorithm for “find the shortest tour” but not for “find the best tour”?",
-    "answer": "“shortest” is a precise condition that any proposed answer can be checked against; “best” has no definition, so nothing can be proved about it."
+    "answer": "“Shortest” supplies an objective: minimise total length among legal tours. That lets us state and prove a correctness claim. “Best” needs a defined objective first. Checking a tour’s length is easy; proving that no shorter tour exists is a different and potentially difficult task.",
+    "source_answer": "“shortest” is a precise condition that any proposed answer can be checked against; “best” has no definition, so nothing can be proved about it."
   },
   {
     "id": 4,
@@ -34,8 +35,9 @@
     "id": 5,
     "block": "Block A — Foundations (Lectures 1–3)",
     "level": "Easy",
-    "question": "Of the three rules for movie-star scheduling (earliest start, shortest job, earliest finish), which one is always optimal?",
-    "answer": "earliest finish first, repeatedly accepting the job that ends soonest and discarding whatever overlaps it."
+    "question": "For fixed-time jobs with equal value, maximise the number of nonoverlapping jobs (adjacent jobs may share a finish/start boundary). Which rule is optimal: earliest start, shortest job, or earliest finish?",
+    "answer": "earliest finish first, repeatedly accepting the job that ends soonest and discarding whatever overlaps it.",
+    "source_question": "Of the three rules for movie-star scheduling (earliest start, shortest job, earliest finish), which one is always optimal?"
   },
   {
     "id": 6,
@@ -151,7 +153,8 @@
     "block": "Block A — Foundations (Lectures 1–3)",
     "level": "Medium",
     "question": "Which grows faster: n^1.01 or n log n? And 2ⁿ or n¹⁰⁰?",
-    "answer": "n^1.01, because any power of n above 1 dominates n log n (log n grows slower than n^0.01). And 2ⁿ, because an exponential dominates every polynomial; it overtakes n¹⁰⁰ at around n ≈ 1,000."
+    "answer": "n^1.01 eventually grows faster than n log n because log n / n^0.01 tends to zero. Also 2ⁿ eventually exceeds n¹⁰⁰. Near n = 1,000 they are close; for integer n ≥ 1, the final crossover is at n = 997. These are eventual-growth statements, not rankings at every small n.",
+    "source_answer": "n^1.01, because any power of n above 1 dominates n log n (log n grows slower than n^0.01). And 2ⁿ, because an exponential dominates every polynomial; it overtakes n¹⁰⁰ at around n ≈ 1,000."
   },
   {
     "id": 22,
@@ -209,15 +212,18 @@
     "id": 29,
     "block": "Block A — Foundations (Lectures 1–3)",
     "level": "Hard",
-    "question": "Suppose the robot’s n points lie on a straight line. Prove that the shortest closed tour has length exactly 2 × (rightmost − leftmost), and give an algorithm that finds it in O(n).",
-    "answer": "any closed tour starts somewhere, must at some point reach the leftmost point and the rightmost point, and must return; so it travels at least once from the leftmost to the rightmost point and at least once back, each leg covering at least the full spread. Hence every tour has length ≥ 2 × (max − min). Walking from the start to one end, then to the other end, then home achieves exactly that, so it is optimal. Finding the minimum and maximum takes one scan, O(n). The nearest-neighbour rule fails here only because it does not commit to one direction."
+    "question": "The robot starts at one of n points on a line and visits any point it passes. Prove that the shortest closed route has length 2 × (rightmost − leftmost), and find that route description in O(n).",
+    "answer": "Any closed route reaching both extremes contains a journey from the left extreme to the right extreme and a return journey, costing at least twice their separation. Moving from the start to the left extreme, then to the right extreme, then home achieves this bound and passes every point. One scan finds both extremes, so the route described by these turning points takes O(n) time to find. Producing all points in sorted visitation order would be a separate sorting task.",
+    "source_question": "Suppose the robot’s n points lie on a straight line. Prove that the shortest closed tour has length exactly 2 × (rightmost − leftmost), and give an algorithm that finds it in O(n).",
+    "source_answer": "any closed tour starts somewhere, must at some point reach the leftmost point and the rightmost point, and must return; so it travels at least once from the leftmost to the rightmost point and at least once back, each leg covering at least the full spread. Hence every tour has length ≥ 2 × (max − min). Walking from the start to one end, then to the other end, then home achieves exactly that, so it is optimal. Finding the minimum and maximum takes one scan, O(n). The nearest-neighbour rule fails here only because it does not commit to one direction."
   },
   {
     "id": 30,
     "block": "Block A — Foundations (Lectures 1–3)",
     "level": "Hard",
     "question": "Change the movie-star problem so that each job pays a fee and the goal is to maximise the total fee earned. Show by example that earliest-finish-first is no longer optimal.",
-    "answer": "job A = [1, 2] pays 1 and job B = [1, 10] pays 100. Earliest finish first takes A (it ends at 2), which blocks B, earning 1 instead of 100. With weights, a greedy rule that ignores the fees cannot work; the weighted version needs dynamic programming (Lectures 16–18)."
+    "answer": "Job A = [1, 2) pays 1 and job B = [1, 10) pays 100. Earliest finish first takes A, which blocks B, earning 1 instead of 100. This disproves that greedy rule for unequal fees. Weighted interval scheduling can be solved by dynamic programming; this example does not rule out every possible fee-aware greedy rule by itself.",
+    "source_answer": "job A = [1, 2] pays 1 and job B = [1, 10] pays 100. Earliest finish first takes A (it ends at 2), which blocks B, earning 1 instead of 100. With weights, a greedy rule that ignores the fees cannot work; the weighted version needs dynamic programming (Lectures 16–18)."
   },
   {
     "id": 31,
@@ -331,7 +337,8 @@
     "block": "Block B — Data structures (Lectures 4–6)",
     "level": "Medium",
     "question": "Suppose the array grows by adding 10 slots each time it fills, instead of doubling. What does inserting n items cost in total?",
-    "answer": "Θ(n²). There are n/10 expansions, and the i-th one copies about 10i items, so the total is 10(1 + 2 + … + n/10) ≈ n²/20. Doubling is essential; adding a constant is not enough."
+    "answer": "Θ(n²). About n/10 expansions copy 10, 20, 30, … items, whose sum grows quadratically. A multiplicative factor greater than 1, such as 1.5 or 2, gives linear total copying instead; doubling is convenient but not essential.",
+    "source_answer": "Θ(n²). There are n/10 expansions, and the i-th one copies about 10i items, so the total is 10(1 + 2 + … + n/10) ≈ n²/20. Doubling is essential; adding a constant is not enough."
   },
   {
     "id": 47,
@@ -400,7 +407,8 @@
     "block": "Block B — Data structures (Lectures 4–6)",
     "level": "Medium",
     "question": "Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.",
-    "answer": "the window’s hash is a base-α number built from its characters. Sliding right drops the leftmost character (subtract its contribution αᵐ⁻¹ × char), shifts everything one place (multiply by α), and appends the new character (add it): two multiplications, a subtraction and an addition, no matter how long the window is."
+    "answer": "With a fixed-word modulus and a precomputed α^(m−1) modulo that modulus, remove the outgoing character contribution, multiply by α, then add the incoming character, all modulo the modulus. That uses constant word operations. Without bounded arithmetic or the precomputed power, this constant-time claim needs qualification; confirming a hash match still compares characters.",
+    "source_answer": "the window’s hash is a base-α number built from its characters. Sliding right drops the leftmost character (subtract its contribution αᵐ⁻¹ × char), shifts everything one place (multiply by α), and appends the new character (add it): two multiplications, a subtraction and an addition, no matter how long the window is."
   },
   {
     "id": 56,
@@ -423,7 +431,8 @@
     "block": "Block B — Data structures (Lectures 4–6)",
     "level": "Medium",
     "question": "Describe two ways to sort n numbers with a balanced BST, and their cost.",
-    "answer": "(1) insert all n keys (O(n log n)), then do an in-order traversal (O(n)); (2) insert all keys, then repeatedly find and delete the minimum, or find the minimum and follow successors (n × O(log n)). Either way O(n log n)."
+    "answer": "Insert all records into a balanced BST in O(n log n), keeping a multiplicity count or list for duplicate keys. Then an in-order traversal outputs all n records in O(n). Alternatively, repeatedly find and delete a minimum, costing O(n log n) overall. A set-like tree that silently discards duplicates would not correctly sort the original sequence.",
+    "source_answer": "(1) insert all n keys (O(n log n)), then do an in-order traversal (O(n)); (2) insert all keys, then repeatedly find and delete the minimum, or find the minimum and follow successors (n × O(log n)). Either way O(n log n)."
   },
   {
     "id": 59,
@@ -436,8 +445,10 @@
     "id": 60,
     "block": "Block B — Data structures (Lectures 4–6)",
     "level": "Hard",
-    "question": "Design a data structure that supports insert(x), delete(x) and get-random (return a uniformly random stored element) all in O(1) expected time.",
-    "answer": "keep the elements in an array A and a hash map from element to its index in A. Insert appends to A and records the index. Delete looks up x’s index i, swaps A[i] with the last element (updating that element’s index in the map), removes the last slot, and deletes x from the map. Get-random picks a random index in A."
+    "question": "Design a set of distinct fixed-size keys supporting insert, delete and a uniformly random stored key in expected amortised O(1) time.",
+    "answer": "Use a dynamic array A and a hash map from each key to its array index. Insert a missing key by appending it and recording its index. To delete x at i, move the last key to i, update that key’s map entry, pop the last slot and remove x from the map. Choose a uniform random index for get-random; report empty if no key is stored. Hashing gives expected costs and array resizing gives amortised costs, assuming bounded load and constant-size records.",
+    "source_question": "Design a data structure that supports insert(x), delete(x) and get-random (return a uniformly random stored element) all in O(1) expected time.",
+    "source_answer": "keep the elements in an array A and a hash map from element to its index in A. Insert appends to A and records the index. Delete looks up x’s index i, swaps A[i] with the last element (updating that element’s index in the map), removes the last slot, and deletes x from the map. Get-random picks a random index in A."
   },
   {
     "id": 61,
@@ -467,7 +478,8 @@
     "block": "Block B — Data structures (Lectures 4–6)",
     "level": "Hard",
     "question": "Show that no comparison-based dictionary can support both insert and delete-minimum in o(log n) worst-case time each.",
-    "answer": "if it could, sort n numbers by inserting them all and then deleting the minimum n times, printing each. That would sort with n × o(log n) = o(n log n) comparisons, contradicting the Ω(n log n) lower bound for comparison-based sorting (Lecture 9). Balanced trees and heaps, at Θ(log n), are therefore optimal."
+    "answer": "Otherwise, insert n distinct keys and delete the minimum n times to sort them using o(n log n) comparisons in total. This contradicts the comparison-sorting lower bound. Thus both operations cannot simultaneously have o(log n) worst-case cost. The claim concerns this pair of operations, not every dictionary operation individually.",
+    "source_answer": "if it could, sort n numbers by inserting them all and then deleting the minimum n times, printing each. That would sort with n × o(log n) = o(n log n) comparisons, contradicting the Ω(n log n) lower bound for comparison-based sorting (Lecture 9). Balanced trees and heaps, at Θ(log n), are therefore optimal."
   },
   {
     "id": 65,
@@ -634,8 +646,10 @@
     "id": 87,
     "block": "Block C — Sorting (Lectures 7–9)",
     "level": "Medium",
-    "question": "Two sets have sizes m and n with m much smaller than n. Give the best way to test whether they are disjoint, and its cost.",
-    "answer": "sort the small set in O(m log m), then binary-search each element of the large set in it: O(n log m). Total O((m + n) log m), which beats sorting the large set. With hashing, O(m + n) expected."
+    "question": "Two sets of sizes m and n, with 2 ≤ m ≤ n, are supplied as unsorted arrays. Give a comparison-based method and an expected-time hashing method to test disjointness.",
+    "answer": "Sort the smaller set in O(m log m), then binary-search each of the n larger-set items in it in O(n log m), for O((m + n) log m) total. Alternatively hash the smaller set and scan the larger in O(m + n) expected time under suitable hashing assumptions. Empty sets are immediately disjoint; for m = 1 a linear scan suffices.",
+    "source_question": "Two sets have sizes m and n with m much smaller than n. Give the best way to test whether they are disjoint, and its cost.",
+    "source_answer": "sort the small set in O(m log m), then binary-search each element of the large set in it: O(n log m). Total O((m + n) log m), which beats sorting the large set. With hashing, O(m + n) expected."
   },
   {
     "id": 88,
@@ -686,8 +700,9 @@
     "id": 94,
     "block": "Block C — Sorting (Lectures 7–9)",
     "level": "Hard",
-    "question": "Merge k sorted lists containing n elements in total in O(n log k) time.",
-    "answer": "put the first element of each list into a min-heap of size k. Repeatedly extract the minimum, append it to the output, and insert the next element from the list it came from. Each of the n elements passes through the heap once at O(log k)."
+    "question": "Merge k nonempty sorted lists containing n elements in total, for 2 ≤ k ≤ n, in O(n log k) time.",
+    "answer": "put the first element of each list into a min-heap of size k. Repeatedly extract the minimum, append it to the output, and insert the next element from the list it came from. Each of the n elements passes through the heap once at O(log k).",
+    "source_question": "Merge k sorted lists containing n elements in total in O(n log k) time."
   },
   {
     "id": 95,
@@ -715,7 +730,8 @@
     "block": "Block D — Graphs (Lectures 10–14)",
     "level": "Easy",
     "question": "Define the degree of a vertex, a path, and a connected graph.",
-    "answer": "the degree is the number of edges touching the vertex; a path is a sequence of edges joining one vertex to another; a graph is connected if every pair of vertices is joined by some path."
+    "answer": "For a simple undirected graph, degree is the number of incident edges. A path is a vertex sequence whose consecutive vertices are joined by edges; a simple path has no repeated vertices. A graph is connected when every pair of vertices is joined by a path.",
+    "source_answer": "the degree is the number of edges touching the vertex; a path is a sequence of edges joining one vertex to another; a graph is connected if every pair of vertices is joined by some path."
   },
   {
     "id": 99,
@@ -831,7 +847,8 @@
     "block": "Block D — Graphs (Lectures 10–14)",
     "level": "Medium",
     "question": "Run Dijkstra’s algorithm on graph W from A. Give the final distance to every vertex and the shortest-path tree.",
-    "answer": "A = 0; C = 1 (edge A–C); B = 3 (A–C–B beats A–B at 4); D = 8 (via B, 3 + 5, beating C–D at 1 + 8); E = 11 (via D, 8 + 3, tying with C–E at 1 + 10). Tree edges: A–C, C–B, B–D, D–E."
+    "answer": "Distances from A are A = 0, C = 1, B = 3, D = 8, E = 11. A–C–B costs 3, improving the direct edge of weight 4. A–C–B–D costs 8. E has two equally short routes: A–C–E and A–C–B–D–E, both 11. One shortest-path tree uses A–C, C–B, B–D, C–E; choosing D–E instead is also valid. Parent choices depend on the tie rule; strict-improvement-only updates keep C as E’s parent.",
+    "source_answer": "A = 0; C = 1 (edge A–C); B = 3 (A–C–B beats A–B at 4); D = 8 (via B, 3 + 5, beating C–D at 1 + 8); E = 11 (via D, 8 + 3, tying with C–E at 1 + 10). Tree edges: A–C, C–B, B–D, D–E."
   },
   {
     "id": 115,
@@ -1021,7 +1038,8 @@
     "block": "Block E — Backtracking and dynamic programming (Lectures 15–18)",
     "level": "Easy",
     "question": "Why does the plain recursive Fibonacci function take exponential time?",
-    "answer": "it recomputes the same values again and again (F(n − 2) is computed twice, F(n − 3) three times, and so on); the call tree has about 1.6ⁿ leaves."
+    "answer": "The recurrence recomputes the same subproblems many times. Its call count satisfies C(n) = 1 + C(n−1) + C(n−2), so C(n) = 2F(n+1) − 1 = Θ(φⁿ), where φ ≈ 1.618. Saying “about 1.6ⁿ” is informal; 1.6 is not the exact asymptotic base.",
+    "source_answer": "it recomputes the same values again and again (F(n − 2) is computed twice, F(n − 3) three times, and so on); the call tree has about 1.6ⁿ leaves."
   },
   {
     "id": 141,
@@ -1072,7 +1090,8 @@
     "block": "Block E — Backtracking and dynamic programming (Lectures 15–18)",
     "level": "Easy",
     "question": "State the principle of optimality in one sentence and give one algorithm from the notes that relies on it.",
-    "answer": "the best way to finish from any state does not depend on how that state was reached. Dijkstra’s algorithm relies on it (only the distance to a vertex matters, not the route), as does edit distance (only the cost of editing two prefixes matters)."
+    "answer": "Once the state contains all information that can affect future choices, an optimal solution can use optimal subproblem solutions. In edit distance the state is a pair of prefix lengths; for shortest paths, a shortest route has shortest subroutes. This principle alone does not justify Dijkstra’s settled-once order, which also needs nonnegative edges.",
+    "source_answer": "the best way to finish from any state does not depend on how that state was reached. Dijkstra’s algorithm relies on it (only the distance to a vertex matters, not the route), as does edit distance (only the cost of editing two prefixes matters)."
   },
   {
     "id": 148,
@@ -1197,7 +1216,8 @@
     "block": "Block E — Backtracking and dynamic programming (Lectures 15–18)",
     "level": "Hard",
     "question": "Partition the sequence 3, 1, 4, 1, 5, 9, 2, 6 into 3 contiguous ranges minimising the largest range sum. Give the optimum and prove no better value exists.",
-    "answer": "14, for example 3 1 4 1 | 5 9 | 2 6 (sums 9, 14, 8). Why not 13 or less: the first range may include at most 3 1 4 1 (sum 9), since adding 5 gives 14. The second range then starts at 5, and 5 + 9 = 14 exceeds 13, so it would be {5} alone, leaving 9 2 6 = 17 for the third range. Every alternative fails, so 14 is optimal. The recurrence M[n, k] = min over i of max(M[i, k − 1], sum of the rest) finds the same."
+    "answer": "The optimum is 14: 3,1,4,1 | 5,9 | 2,6 has sums 9,14,8. To rule out 13, greedily pack each range as far as possible under that cap: [3,1,4,1], [5], [9,2], [6]. Four ranges are needed. For positive entries, cutting an earlier range sooner cannot let any later range end farther right than this maximal packing, so three ranges cannot achieve cap 13. Hence 14 is optimal.",
+    "source_answer": "14, for example 3 1 4 1 | 5 9 | 2 6 (sums 9, 14, 8). Why not 13 or less: the first range may include at most 3 1 4 1 (sum 9), since adding 5 gives 14. The second range then starts at 5, and 5 + 9 = 14 exceeds 13, so it would be {5} alone, leaving 9 2 6 = 17 for the third range. Every alternative fails, so 14 is optimal. The recurrence M[n, k] = min over i of max(M[i, k − 1], sum of the rest) finds the same."
   },
   {
     "id": 165,
@@ -1403,14 +1423,16 @@
     "block": "Block F — NP-completeness (Lectures 19–22)",
     "level": "Medium",
     "question": "Write the integer-programming constraints that encode the clause (x ∨ ¬y ∨ z) in the reduction from SAT.",
-    "answer": "variables X, X̄, Y, Ȳ, Z, Z̄, each constrained 0 ≤ · ≤ 1; X + X̄ = 1, Y + Ȳ = 1, Z + Z̄ = 1 (exactly one of each pair is “true”); and the clause constraint X + Ȳ + Z ≥ 1."
+    "answer": "Use integer variables X, X̄, Y, Ȳ, Z, Z̄ in {0,1}. Require X + X̄ = Y + Ȳ = Z + Z̄ = 1 and X + Ȳ + Z ≥ 1. The last inequality says at least one literal is true. Integrality is essential: allowing arbitrary fractions in [0,1] would not encode Boolean truth values.",
+    "source_answer": "variables X, X̄, Y, Ȳ, Z, Z̄, each constrained 0 ≤ · ≤ 1; X + X̄ = 1, Y + Ȳ = 1, Z + Z̄ = 1 (exactly one of each pair is “true”); and the clause constraint X + Ȳ + Z ≥ 1."
   },
   {
     "id": 193,
     "block": "Block F — NP-completeness (Lectures 19–22)",
     "level": "Medium",
     "question": "Someone hands you a graph and a colouring of its vertices with three colours. How quickly can you check whether it is a proper colouring, and what does that say about the 3-colouring problem?",
-    "answer": "look at each edge once and check its endpoints differ: O(n + m). A polynomial check of a proposed solution is exactly what puts 3-colouring in NP. (Finding a 3-colouring is NP-complete.)"
+    "answer": "Check that every vertex is assigned one of the three allowed colours, then check each edge has differently coloured endpoints: O(n + m). This puts the decision problem in NP. Deciding whether such a colouring exists is NP-complete; finding a colouring is the associated search task.",
+    "source_answer": "look at each edge once and check its endpoints differ: O(n + m). A polynomial check of a proposed solution is exactly what puts 3-colouring in NP. (Finding a 3-colouring is NP-complete.)"
   },
   {
     "id": 194,
@@ -1470,7 +1492,8 @@
     "block": "Block F — NP-completeness (Lectures 19–22)",
     "level": "Hard",
     "question": "Two-colouring is easy (BFS, Lecture 11) but three-colouring is NP-complete. Explain why the BFS approach breaks down for three colours.",
-    "answer": "with two colours there is never a choice: once the first vertex of a component is coloured, every neighbour’s colour is forced, and so on, so BFS either succeeds or finds a contradiction. With three colours each neighbour has two legal options, and those choices interact across the whole graph; a wrong early choice may only show up much later, forcing backtracking over exponentially many combinations."
+    "answer": "With two colours, choosing a component’s first colour forces every neighbour to use the other colour; BFS can detect a conflict. With three colours, a neighbour can have two choices, and those choices affect later edges. The simple forced-colouring argument therefore fails. Backtracking may explore exponentially many choices, but that is not a proof that every possible algorithm must take exponential time.",
+    "source_answer": "with two colours there is never a choice: once the first vertex of a component is coloured, every neighbour’s colour is forced, and so on, so BFS either succeeds or finds a contradiction. With three colours each neighbour has two legal options, and those choices interact across the whole graph; a wrong early choice may only show up much later, forcing backtracking over exponentially many combinations."
   },
   {
     "id": 202,
@@ -1491,7 +1514,8 @@
     "block": "Block F — NP-completeness (Lectures 19–22)",
     "level": "Hard",
     "question": "SAT is in NP because a satisfying assignment is a short certificate. Is “this formula is unsatisfiable” obviously in NP? Explain.",
-    "answer": "no. To convince someone that no assignment works, there is no obvious short certificate: you would seem to have to show that all 2ⁿ assignments fail. Problems whose no-answers have short certificates form the class co-NP, and whether NP = co-NP is another open question. This asymmetry is why NP is defined in terms of checking yes-answers."
+    "answer": "No general polynomial-size, polynomially checkable certificate for unsatisfiability is known. Such certificates do exist for some restricted formulas. UNSAT is in co-NP because its no-instances have satisfying assignments as certificates. Whether UNSAT is also in NP is equivalent to NP = co-NP and remains open; exhaustive enumeration is one method, not a proven necessity.",
+    "source_answer": "no. To convince someone that no assignment works, there is no obvious short certificate: you would seem to have to show that all 2ⁿ assignments fail. Problems whose no-answers have short certificates form the class co-NP, and whether NP = co-NP is another open question. This asymmetry is why NP is defined in terms of checking yes-answers."
   },
   {
     "id": 205,

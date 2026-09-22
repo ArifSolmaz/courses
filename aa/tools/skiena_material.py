@@ -84,10 +84,12 @@ WEEK_NOTES = {
 def exercise(number):
     x=EXERCISES[number]; ident=f'skiena-ex-{number:03d}'
     answer=html.escape(x['answer']);question=html.escape(x['question'])
+    from question_bank import scaffold
+    start, worked = scaffold('written', number)
     context = CONTEXT.get(number, '')
     context_html = f'<p class="source-context">{html.escape(context)}</p>' if context else ''
     attribution=f"Source exercise {number} · {x['level'].lower()}"
-    return f'''<article class="source-exercise" id="{ident}"><p class="source-label">{attribution}</p><p>{question}</p>{context_html}<details class="solution"><summary>Show reasoning</summary><div><p>{answer}</p></div></details></article>'''
+    return f'''<article class="source-exercise" id="{ident}"><p class="source-label">{attribution}</p><p>{question}</p>{context_html}{start}<details class="solution question-answer"><summary>Show reasoning</summary><div>{worked}<p>{answer}</p></div></details></article>'''
 
 
 def exercise_choice(number):
@@ -101,10 +103,9 @@ def weekly_material(num):
     lecture_label = 'Lecture' if len(lectures) == 1 else 'Lectures'
     notes=f'''<section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · {lecture_label} {', '.join(map(str,lectures))}</p><h3>{title}</h3>{body}<p class="engineering-transfer"><strong>Engineering use.</strong> {transfer}</p></section>'''
     ids=WEEK_EXERCISES[num]
-    focus=f'''<section class="source-focus" id="skiena-practice"><h3>One problem to investigate</h3><p>Draw or follow your answer step by step before revealing the reasoning. Use this within the class workshop; it is not an extra assignment.</p>{exercise(ids[0])}<p><strong>Write down:</strong> {evidence}</p><p lang="tr" class="source-hint">Önce tahmin et, küçük bir örneği elle izle, sonra çözümle karşılaştır. Varsayımını ve bulduğun kanıtı açıkla.</p></section>'''
+    from question_bank import bank, WEEK_MCQ
+    focus=bank(WEEK_MCQ[num], ids)
     more=''
-    if len(ids)>1:
-        more='<details class="path-reference source-bank" id="skiena-more"><summary>Optional practice from the supplied notes</summary><div><p>Choose a question for review, rather than completing the whole list. Some extend beyond this week’s core; use the later lessons when you have not yet learned a needed idea. Exercise numbers match the source document.</p>'+''.join(exercise_choice(n) for n in ids[1:])+'</div></details>'
     if num==14:
         more+='<details class="path-reference"><summary>Optional next topics: graphs, dynamic programming &amp; hard problems</summary><div><p>These are extensions beyond the 14-week sequence, with explanations and further source exercises. There is no additional submission.</p><a href="../extensions/">Explore one extension →</a></div></details>'
     return notes,focus,more
@@ -162,9 +163,9 @@ CONTEXT = {
 
 def extension_body():
     intro='''<div class="hero"><p class="eyebrow">Optional · after the core sequence</p><h1>Choose one deeper question.</h1><p class="lede">Networks, repeated subproblems, and the limits of exact algorithms. These topics extend the supplied beginner notes; they do not add weeks, deadlines or required submissions.</p><a href="../w14/#check">← Return to Week 14</a></div>'''
-    nav='<nav class="path-steps" aria-label="Optional topics" hidden>'+''.join(f'<button type="button" data-step-target="{key}" aria-controls="{key}">{title}</button>' for key,title,*_ in EXTENSIONS)+'</nav>'
+    from question_bank import bank, EXTENSION_MCQ
     panels=[]
     for key,title,lectures,ids,focus,notes in EXTENSIONS:
-        bank=''.join(exercise_choice(n) for n in ids if n!=focus)
-        panels.append(f'<section data-step id="{key}"><h2>{title}</h2><p class="source-label">{lectures} · optional extension</p><div class="source-lesson">{notes}</div><h3>Try one example</h3>{exercise(focus)}<details class="path-reference source-bank"><summary>More optional exercises in this topic</summary><div><p>Choose one question that fits your current understanding. The numbers match the supplied exercise document; this is a reference bank, not a completion checklist.</p>{bank}</div></details></section>')
-    return intro+'<div data-learning-path>'+nav+''.join(panels)+'</div>'
+        questions = bank(EXTENSION_MCQ[key], ids, ident=f'{key}-questions')
+        panels.append(f'<section class="extension-chapter" id="{key}"><h2>{title}</h2><p class="source-label">{lectures} · optional extension</p><div class="source-lesson">{notes}</div>{questions}</section>')
+    return intro+'<div class="continuous-lesson">'+''.join(panels)+'</div>'
