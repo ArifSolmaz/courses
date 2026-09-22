@@ -32,14 +32,14 @@ def scaffold(kind, number):
 
 GRAPH_W = 'Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Parenthesised numbers are edge weights.'
 
-def test_question(number):
+def test_question(number, display_number):
     x = MCQ[number]; start, worked = scaffold('mcq', number)
     origin = ' · course question' if x.get('origin') == 'course' else ''
     context = f'<p class="source-context">{GRAPH_W}</p>' if number in (73,74,75) else ''
     options = '<ol class="mcq-options" type="a">' + ''.join(f'<li>{html.escape(o)}</li>' for o in x['options']) + '</ol>'
     # Deliberately no correct-option class, colour, checked state or answer in the prompt.
     return f'''<article class="source-exercise test-question" id="skiena-mcq-{number:03d}">
-<p class="source-label">Test {number} · {x['level'].lower()}{origin}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
+<p class="source-label">Question {display_number} · {x['level'].lower()}{origin}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
 <div class="question-answer"><p><strong>Answer: option {x['correct'].upper()}.</strong> {html.escape(x['answer'])}</p>{worked}</div></article>'''
 
 def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice questions'):
@@ -52,6 +52,6 @@ def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice question
 <p class="source-label">{len(tests)} test questions · {len(written)} written questions · {len(tests) + len(written)} total</p>
 <p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
-{''.join(test_question(n) for n in tests)}
-<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Exercise numbers match the supplied written-question document.</p>
-{''.join(exercise(n) for n in written)}</section>'''
+{''.join(test_question(n, i) for i, n in enumerate(tests, 1))}
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
+{''.join(exercise(n, display_number=i) for i, n in enumerate(written, len(tests) + 1))}</section>'''

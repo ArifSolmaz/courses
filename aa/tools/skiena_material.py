@@ -81,14 +81,15 @@ WEEK_NOTES = {
 'A one-page decision note with a trace, description of the work counted, test results and a limitation.'),
 }
 
-def exercise(number):
+def exercise(number, display_number=None):
     x=EXERCISES[number]; ident=f'skiena-ex-{number:03d}'
     answer=html.escape(x['answer']);question=html.escape(x['question'])
     from question_bank import scaffold
     start, worked = scaffold('written', number)
     context = CONTEXT.get(number, '')
     context_html = f'<p class="source-context">{html.escape(context)}</p>' if context else ''
-    attribution=f"Source exercise {number} · {x['level'].lower()}"
+    label = f"Question {display_number}" if display_number is not None else f"Source exercise {number}"
+    attribution=f"{label} · {x['level'].lower()}"
     return f'''<article class="source-exercise" id="{ident}"><p class="source-label">{attribution}</p><p>{question}</p>{context_html}{start}<div class="question-answer"><h5>Answer &amp; reasoning</h5>{worked}<p>{answer}</p></div></article>'''
 
 

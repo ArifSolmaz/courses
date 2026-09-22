@@ -29,11 +29,15 @@ class Scan(HTMLParser):
    assert tag=='div' and 'hidden' not in a;self.visible_answers+=1
   if 'question-hint' in classes:
    assert tag=='p' and 'hidden' not in a;self.hints+=1
+def verify_numbering(source, count):
+ labels = [int(n) for n in re.findall(r'<p class="source-label">Question (\d+) ·', source)]
+ assert labels == list(range(1, count + 1)), labels
 all_mcq=[];all_written=[]
 for n in range(1,15):
  s=(ROOT/f'w{n}/index.html').read_text();p=Scan(s)
  assert sorted(p.tests)==sorted(WEEK_MCQ[n]);assert sorted(p.written)==sorted(WEEK_EXERCISES[n])
  assert p.visible_answers==len(p.tests)+len(p.written)
+ verify_numbering(s, p.visible_answers)
  assert p.hints==sum(MCQ[i]['level']=='Hard' for i in p.tests)+sum(EXERCISES[i]['level']=='Hard' for i in p.written)
  assert s.index('class="source-exercise test-question"')<s.index('id="skiena-ex-')
  # The question bank is on the visible lesson route, not nested in a reference disclosure.
@@ -45,7 +49,7 @@ assert p.visible_answers==len(p.tests)+len(p.written)
 for key,_,_,ids,*_ in EXTENSIONS:
  start=s.index(f'id="{key}-questions"');end=s.find('<section class="extension-chapter"',start)
  chapter=s[start:end if end!=-1 else len(s)]
- scan=Scan(chapter);assert scan.tests==list(EXTENSION_MCQ[key]);assert scan.written==list(ids)
+ scan=Scan(chapter);verify_numbering(chapter, scan.visible_answers);assert scan.tests==list(EXTENSION_MCQ[key]);assert scan.written==list(ids)
  assert chapter.index('id="skiena-mcq-')<chapter.index('id="skiena-ex-')
 all_mcq+=p.tests;all_written+=p.written
 assert sorted(all_mcq)==list(range(1,211))
