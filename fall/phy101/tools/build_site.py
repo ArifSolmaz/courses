@@ -725,10 +725,12 @@ def notebook_body(week, nb):
                 num = f"{week}.{wex_counter[0]}"
                 title = re.sub(r"^\s*(?:Worked [Ee]xample\s*\d*\s*[:—-]?\s*)", "", title).strip()
                 title = title or "Worked example"
+                visible = ' data-solution-visible="true"' if cell.get("metadata", {}).get("solution_visible") else ""
+                example_label = "Textbook practice" if visible else f"Worked example {num}"
                 out.append(f'<section class="wex" id="wex-{week}-{wex_counter[0]}">'
-                           f'<div class="wex-head"><span class="wex-num">Worked example {num}</span>'
+                           f'<div class="wex-head"><span class="wex-num">{example_label}</span>'
                            f"<h3>{title}</h3></div>"
-                           f'<div class="wex-body">{rest}</div></section>')
+                           f'<div class="wex-body"{visible}>{rest}</div></section>')
 
         # --- checkpoints -----------------------------------------------------
         elif "checkpoint" in head_l:
@@ -782,6 +784,8 @@ def head_html(title, desc, week, has_anim):
     if has_anim:
         scripts = ('<script defer src="../assets/anim.js?v=20260921"></script>\n'
                    f'<script defer src="../assets/anim-w{week}.js?v=20260921"></script>\n')
+    if week == 2:
+        scripts += '<link rel="stylesheet" href="../assets/week02-practice.css"><script defer src="../assets/week02-practice.js"></script>\n'
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -903,6 +907,7 @@ STAGE_OF = {
     "concepts-demonstrations-and-worked-examples": "learn",
     "more-worked-examples-from-the-question-bank": "practise",  # old heading compatibility
     "engineering-practice-examples": "practise",
+    "selected-textbook-questions-20-complete-solution": "practise",
     "bridging-problem-and-variation-problems": "practise",
     "optional-extension": "practise",
     "exit-check": "check",
@@ -921,6 +926,8 @@ def split_by_h2(body):
     return [(sl, h) for sl, h in parts if h.strip()]
 
 
+# Deliberately match only bodies without data-solution-visible: authored teaching
+# sets marked in notebook metadata keep their complete solutions on the page.
 WEX_RE = re.compile(r'<section class="wex" id="([^"]+)">(<div class="wex-head">.*?</div>)'
                     r'<div class="wex-body">(.*?)</div></section>', re.S)
 
@@ -1073,6 +1080,9 @@ def week_page(wk, nb, known=None):
     <a class="btn" href="{COLAB}/notebooks/Week_{num:02d}.ipynb">Problem set in Colab</a>
   </div>
 </div>"""
+
+    if num == 2:
+        problems = problems.replace("The problem set for this week", "The additional course problem set for this week")
 
     hero = f"""<div class="hero">
   <div class="eyebrow">Week {num:02d} &middot; {month_day(wk['start'])}&ndash;{month_day(wk['end'])} 2026</div>
