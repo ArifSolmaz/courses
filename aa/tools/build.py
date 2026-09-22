@@ -205,7 +205,8 @@ def week_page(meta, body):
     animation_styles = '<link rel="stylesheet" href="../assets/anim.css">'
     animation_scripts = '<script src="../assets/anim.js?v=13"></script>'
     if num == 1:
-        animation_styles += '<link rel="stylesheet" href="../assets/week1-visual.css?v=1">'
+        animation_styles += '<link rel="stylesheet" href="../assets/week1-visual.css?v=1"><link rel="stylesheet" href="../assets/week1-stories.css?v=1">'
+        animation_scripts += '<script src="../assets/week1-stories.js?v=1"></script>'
         animation_scripts = animation_scripts.replace('anim.js?v=13', 'anim.js?v=14')
     if num > 1:
         animation_styles += '<link rel="stylesheet" href="../assets/visual-lesson.css?v=1">'
