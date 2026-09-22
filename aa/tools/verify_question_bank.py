@@ -8,9 +8,11 @@ from question_bank import MCQ,WEEK_MCQ,EXTENSION_MCQ
 from materials.question_guidance import WRITTEN,MCQ as GUIDED_MCQ
 from skiena_material import EXERCISES,WEEK_EXERCISES,EXTENSIONS
 ROOT=Path(__file__).resolve().parent.parent
-assert set(MCQ)==set(range(1,121))
+assert set(MCQ)==set(range(1,211))
 assert set(WRITTEN)=={n for n,x in EXERCISES.items() if x['level']=='Hard'}
 assert set(GUIDED_MCQ)=={n for n,x in MCQ.items() if x['level']=='Hard'}
+assert all(len(ids)>=10 for ids in [*WEEK_MCQ.values(),*EXTENSION_MCQ.values()])
+assert len({(x['question'],tuple(x['options'])) for x in MCQ.values()})==len(MCQ), 'duplicate prompts'
 for x in MCQ.values():
  assert len(x['options'])==4 and len(set(x['options']))==4
  assert x['correct'] in 'abcd' and x['answer']
@@ -46,7 +48,7 @@ for key,_,_,ids,*_ in EXTENSIONS:
  scan=Scan(chapter);assert scan.tests==list(EXTENSION_MCQ[key]);assert scan.written==list(ids)
  assert chapter.index('id="skiena-mcq-')<chapter.index('id="skiena-ex-')
 all_mcq+=p.tests;all_written+=p.written
-assert sorted(all_mcq)==list(range(1,121))
+assert sorted(all_mcq)==list(range(1,211))
 assert sorted(all_written)==list(range(1,206))
 # A named registry makes clear which computations are independently checked.
 checks=[]
@@ -173,4 +175,61 @@ var=['x','nx','y','ny','z','nz'];c1=['c1x','c1y','c1nz'];c2=['c2nx','c2y','c2z']
 gadget=[('x','nx'),('y','ny'),('z','nz')]+list(it.combinations(c1,2))+list(it.combinations(c2,2))+list(zip(c1,['x','y','nz']))+list(zip(c2,['nx','y','z']))
 cover={'x','y','z','c1y','c1nz','c2nx','c2z'}
 check('written 205 SAT cover',len(var+c1+c2)==12 and len(cover)==7 and all(u in cover or v in cover for u,v in gadget))
-print(f'PASS: 120 tests + 205 written questions, exact-once chapter placement, tests first, 325 visible answers, all 57 hard-question scaffolds, {len(checks)} independent fixture checks.')
+# Added course questions: compute outputs independently and bind them to selected options.
+def selected(number):return MCQ[number]['options']['abcd'.index(MCQ[number]['correct'])]
+def numeric_option(number,value):check(f'course test {number} output',selected(number)==str(value))
+x=4;x=x+3;numeric_option(126,x)
+numeric_option(127,2**3)
+check('course test 128 strings',selected(128)=='4'+'5')
+check('course test 129 conversion',int('12')+2==14 and selected(129)=='int("12") + 2')
+numeric_option(131,7//2);numeric_option(132,7%2)
+x=2;y=x;x=9;numeric_option(133,y)
+numeric_option(135,len(range(4)));numeric_option(136,sum(range(1,4)))
+x=1;count=0
+while x<8:x*=2;count+=1
+numeric_option(137,count)
+numeric_option(138,sum(1 for i in range(3) for j in range(4)))
+numeric_option(139,sum(1 for i in range(3) for j in range(i)))
+numeric_option(141,len(range(2,9,2)))
+count=0
+for value in [4,7,2,9]:
+ count+=1
+ if value==2:break
+numeric_option(142,count)
+numeric_option(143,[10,20,30][1])
+a=[2,4];a.append(6);check('course test 144 append',selected(144)==str(a))
+a=[1,2];b=a;b.append(3);check('course test 146 alias',selected(146)==str(a))
+check('course test 147 slice',selected(147)==str([8,6,4,2][1:3]))
+numeric_option(148,sum(1 for _ in [1,2,3,4,5]))
+check('course test 149 elapsed',math.isclose(10.29-10.25,.04) and selected(149)=='0.04 seconds')
+check('course test 152 batch',.2/100==.002 and selected(152)=='0.002 seconds')
+def no_return():pass
+check('course test 153 implicit return',str(no_return())==selected(153))
+def double(x):return x*2
+numeric_option(154,double(5))
+numeric_option(158,200//100);numeric_option(159,300**2//100**2)
+check('course test 160 linear observations',[6/3,12/6]==[2,2] and selected(160)=='linear')
+check('course test 161 quadratic observations',[8/2,32/8]==[4,4] and selected(161)=='quadratic')
+check('course test 162 overhead',math.isclose((5+.01*200)/(5+.01*100),7/6) and selected(162)=='7/6, about 1.17')
+check('course test 163 nlogn',math.isclose(16*math.log2(16)/(8*math.log2(8)),8/3) and selected(163)=='8/3')
+check('course test 164 residual',47-40==7 and selected(164)=='7 ms')
+numeric_option(169,6-1);numeric_option(170,len(list(it.combinations(range(5),2))))
+check('course test 177 constants',all(2*n+5<=3*n for n in range(5,1000)) and selected(177)=='c = 3, n₀ = 5')
+from collections import Counter
+check('course test 180 multiplicity',set('aab')==set('abb') and Counter('aab')!=Counter('abb'))
+check('course test 181 anagrams',Counter('listen')==Counter('silent') and selected(181)=='listen and silent')
+c=Counter('aab');c.subtract('ab');check('course test 185 remaining count',c['a']==1 and c['b']==0 and selected(185)=='a: 1')
+check('course test 193 capacity',selected(193)=='length 9, capacity 16' and 8+1==9 and 2*8==16)
+counts={'a':2};numeric_option(194,counts.get('b',0));check('course test 194 no mutation','b' not in counts)
+numeric_option(195,len(set([2,2,3,3,3])))
+def binary_checks(a,target):
+ lo,hi,count=0,len(a)-1,0
+ while lo<=hi:
+  mid=(lo+hi)//2;count+=1
+  if a[mid]==target:return count
+  if a[mid]<target:lo=mid+1
+  else:hi=mid-1
+ return count
+numeric_option(198,max(binary_checks(list(range(15)),x) for x in range(15)))
+check('course test 209 preprocessing',1000+20*10==1200<20*100==2000 and selected(209)=='preprocessing: 1,200 versus 2,000')
+print(f'PASS: 210 tests + 205 written questions, exact-once chapter placement, tests first, 415 visible answers, all 57 hard-question scaffolds, {len(checks)} independent fixture checks.')

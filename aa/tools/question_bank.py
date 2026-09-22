@@ -14,6 +14,13 @@ WEEK_MCQ = {
 }
 EXTENSION_MCQ = {'graphs':list(range(61,81)), 'dynamic':list(range(81,101)), 'limits':list(range(101,121))}
 assert sorted(i for ids in WEEK_MCQ.values() for i in ids) == list(range(1,61))
+# Preserve all source IDs; additions are explicitly authored course questions.
+COURSE_MCQ = json.loads((HERE/'materials/course_mcq.json').read_text())
+for item in COURSE_MCQ:
+    assert item['id'] not in MCQ
+    MCQ[item['id']] = item
+    WEEK_MCQ[item['week']].append(item['id'])
+assert all(len(ids) >= 10 for ids in [*WEEK_MCQ.values(), *EXTENSION_MCQ.values()])
 
 def scaffold(kind, number):
     data = (WRITTEN if kind == 'written' else MCQ_GUIDANCE).get(number)
@@ -27,11 +34,12 @@ GRAPH_W = 'Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C�
 
 def test_question(number):
     x = MCQ[number]; start, worked = scaffold('mcq', number)
+    origin = ' · course question' if x.get('origin') == 'course' else ''
     context = f'<p class="source-context">{GRAPH_W}</p>' if number in (73,74,75) else ''
     options = '<ol class="mcq-options" type="a">' + ''.join(f'<li>{html.escape(o)}</li>' for o in x['options']) + '</ol>'
     # Deliberately no correct-option class, colour, checked state or answer in the prompt.
     return f'''<article class="source-exercise test-question" id="skiena-mcq-{number:03d}">
-<p class="source-label">Test {number} · {x['level'].lower()}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
+<p class="source-label">Test {number} · {x['level'].lower()}{origin}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
 <div class="question-answer"><p><strong>Answer: option {x['correct'].upper()}.</strong> {html.escape(x['answer'])}</p>{worked}</div></article>'''
 
 def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice questions'):

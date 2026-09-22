@@ -59,3 +59,13 @@ Existing AA checks also cover the 205 exercise renderings, local links, reproduc
 ## Visible-answer follow-up
 
 Chapter counts now include their total. All 325 imported answers and 57 hints are visible without clicking; MCQ-first ordering and the hard-question steps are preserved. Earlier disclosure tests above describe the initial version, now superseded by visible-answer checks.
+
+## Minimum ten tests per chapter — 22 September 2026
+
+Added 90 original course questions, labelled “course question” and stored separately in `course_mcq.json`. The supplied 120 tests and 205 written exercises remain intact. There are now 210 tests and 205 written exercises (415 question/answer pairs). Weeks 1–12 and 14 each have ten tests; Week 13 and each of the three optional chapters each retain twenty.
+
+The additions address the weekly learning goals: precise instructions, Python values, loop traces, lists, measurement, growth ratios, operation counts, bounds, anagrams, list costs, hashing, binary search and practical algorithm selection. New questions use easy/medium tasks and explained answers; existing hard-question scaffolds remain. No assignments, deadlines or assessment weights changed.
+
+Review checked each new option set for one intended correct answer and stated model assumptions. Executable checks now include the new Python outputs, aliasing/slicing, loop counts, timing arithmetic, growth ratios, character multiplicities, binary-search counts and preprocessing totals. Coverage checks enforce the ten-question minimum, no duplicate question-and-option sets, exact-once placement, and visible answers. The full suite passes 350 independent fixture checks.
+
+Python behaviour was cross-checked against the official [language introduction](https://docs.python.org/3/tutorial/introduction.html) and [data structures tutorial](https://docs.python.org/3/tutorial/datastructures.html).

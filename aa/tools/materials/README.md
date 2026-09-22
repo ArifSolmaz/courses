@@ -77,3 +77,10 @@ python3 aa/tools/verify_guide.py
 The integration check verifies coverage, question IDs, rendered answers, local
 links, reproducible weekly output and selected mathematical fixtures. It does not
 claim to mechanically prove every prose answer.
+
+## Minimum question count
+
+`course_mcq.json` adds 90 explicitly labelled course-authored tests (IDs 121–210).
+Every weekly/optional chapter now contains at least ten tests. Sorting and the
+three advanced chapters retain twenty. Together with the supplied material,
+there are 210 tests and 205 written exercises, all with visible answers.
