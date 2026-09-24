@@ -1091,7 +1091,7 @@ def week_page(wk, nb, known=None):
 
 </div>"""
     if num == 1:
-        problems += '<div class="callout blue"><h3>Chapter 1 recap: two integrated vector problems</h3><p>Step-by-step solution reveals, dot and cross products, measurement checks, and animated edge cases in two and three dimensions.</p><p><a href="recap.html">Open the animated Week 1 recap →</a></p></div>'
+        problems += '<div class="callout blue"><h3>Chapter 1 recap: two integrated vector problems</h3><p>Why sine or cosine? Animated projections and area, followed by step-by-step vector problems, measurement checks, and edge cases in two and three dimensions.</p><p><a href="recap.html">Open the animated Week 1 recap →</a></p></div>'
     summary = summary_card(num, meta["equations"])
     staged = stage_layout(body, intro, lab_box, summary, problems)
     if staged:
