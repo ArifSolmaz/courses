@@ -7,5 +7,6 @@ head=head_html('Week 01 recap — two vector problems','Two solved Chapter 1 rec
 head=head.replace('</head>','<link rel="stylesheet" href="../assets/week01-recap.css?v=4">\n<script defer src="../assets/week01-recap.js?v=4"></script>\n<script defer src="../assets/week01-trig.js?v=2"></script>\n</head>')
 head=head.replace('<article class="col">','<article class="col recap">')
 body=(ROOT/'tools/materials/week01-recap.html').read_text()
-(ROOT/'w1/recap.html').write_text(head+body+FOOT)
-print('Built w1/recap.html')
+(ROOT/'w1/worked-solutions.html').write_text(head+body+FOOT)
+(ROOT/'w1/recap.html').write_text((ROOT/'tools/materials/week01-vector-lab.html').read_text())
+print('Built w1/recap.html and w1/worked-solutions.html')
