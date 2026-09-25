@@ -1,0 +1,936 @@
+/* ============================================================
+   AA — Algorithm Analysis
+   course.css — the one shared presentation layer for every
+   sub-page: w1–w14, scope/, review/, textbook-problems/.
+
+   Replaces, in full:
+     assets/learning.css            (78 rules)
+     assets/questions.css           (18 rules)
+     assets/aligned.css            (144 rules)
+     ../assets/learning-path.css    (30 rules)
+     ../assets/course-navigation.css (47 rules)
+
+   Loads AFTER assets/style.css, which stays the base layer and
+   keeps ownership of: the design tokens, base typography, the
+   site header and footer, tables, <pre>/code blocks and the
+   growth widget. Nothing here redefines a token.
+
+   Untouched by this file: every assets/anim*.css bundle and
+   week1-stories.css. Every selector compact.js and the animation
+   scripts bind to is preserved — .week-tabs button[data-week-tab],
+   .week-panel, .source-exercise, .chapter-question-bank,
+   .question-answer, .practice-controls, .animation-drawer,
+   .animation-panel, #animation-choice, [data-anim].
+
+   One type ladder, one spacing scale. The three competing ladders
+   (style.css h1 7rem / aligned.css h2 1.6rem / questions.css h3
+   1.7rem) are resolved here.
+   ============================================================ */
+
+/* ---------- 1. load-bearing utilities ----------
+   compact.js and the answer toggles hide things with the [hidden]
+   attribute; these rules must outrank every display: flex/grid below. */
+[hidden] { display: none !important; }
+.aligned .question-answer[hidden],
+.week-panel[hidden],
+.source-exercise[hidden],
+.animation-panel[hidden] { display: none !important; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.aligned a:focus-visible,
+.aligned button:focus-visible,
+.aligned select:focus-visible,
+.aligned summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- 2. layout ---------- */
+.aligned {
+  --measure: 72ch;          /* prose line length */
+  --gap: 1.6rem;            /* rhythm between blocks */
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: clamp(1.4rem, 4vw, 2.6rem) clamp(1rem, 4vw, 2rem) 5rem;
+}
+.aligned section { margin: 0 0 var(--gap); }
+.aligned > section:last-child { margin-bottom: 0; }
+
+/* prose stays readable; figures, tables and animations use the full column */
+.aligned p, .aligned li { max-width: var(--measure); line-height: 1.75; }
+.aligned figure, .aligned .table-wrap, .aligned .widget,
+.aligned .animation-panel, .aligned pre, .aligned table { max-width: none; }
+
+/* ---------- 3. type ladder ---------- */
+.aligned h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -.03em;
+  color: var(--heading);
+  margin: 0 0 .7rem;
+  max-width: 30ch;
+}
+.aligned h2 {
+  font-family: var(--font-body);
+  font-weight: 650;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: -.018em;
+  color: var(--heading);
+  margin: 2.4rem 0 .8rem;
+  max-width: 44ch;
+}
+.aligned h3 {
+  font-family: var(--font-body);
+  font-weight: 650;
+  font-size: 1.14rem;
+  line-height: 1.4;
+  letter-spacing: -.01em;
+  color: var(--heading);
+  margin: 1.8rem 0 .6rem;
+  max-width: 48ch;
+}
+.aligned h4 {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: .76rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 1.9rem 0 .7rem;
+}
+.aligned h5 {
+  font-family: var(--font-body);
+  font-weight: 650;
+  font-size: .95rem;
+  margin: 1.1rem 0 .4rem;
+  color: var(--heading);
+}
+.aligned p { margin: 0 0 .95rem; }
+.aligned ul, .aligned ol { margin: 0 0 1.1rem; padding-left: 1.4rem; }
+.aligned li { margin-bottom: .4rem; }
+.aligned li::marker { color: var(--muted); }
+.aligned code {
+  font-family: var(--font-mono);
+  font-size: .88em;
+  padding: .1em .3em;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+.aligned pre {
+  font-family: var(--font-mono);
+  font-size: .84rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+.aligned pre code { background: none; padding: 0; }
+.aligned figure { margin: 1.5rem 0; }
+.aligned figure svg { max-width: 100%; height: auto; display: block; }
+.aligned figure svg text { font-family: var(--font-mono); font-size: 13px; fill: var(--text); }
+.aligned figure svg line, .aligned figure svg path { stroke: currentColor; }
+.aligned figcaption {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: .6rem;
+  line-height: 1.55;
+}
+.aligned .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin: 1.4rem 0; }
+.aligned .table-wrap table { margin: 0; min-width: 0; }
+.aligned table { font-size: .88rem; }
+.aligned th, .aligned td { padding: .6rem .8rem; vertical-align: top; }
+.aligned th {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- 4. week chrome ---------- */
+.week-heading { margin: 0 0 1.6rem; }
+.week-heading .eyebrow {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 .9rem;
+}
+.week-heading > p:not(.eyebrow):not(.week-links) {
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: var(--text);
+  max-width: 62ch;
+}
+.week-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0 0; max-width: none; }
+.week-links a {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-decoration: none;
+  color: var(--muted);
+  padding: .35rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
+}
+.week-links a:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* sticky segmented control: Lesson / Practice / Notes */
+.week-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  gap: .3rem;
+  margin: 0 0 1.8rem;
+  padding: .45rem 0;
+  scroll-margin-top: 70px;
+  background: var(--header-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.week-tabs button {
+  flex: 0 1 auto;
+  padding: .55rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
+.week-tabs button:hover { color: var(--text); background: var(--surface-2); }
+.week-tabs button[aria-selected="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.week-panel { margin: 0; }
+.week-panel > :first-child { margin-top: 0; }
+
+.week-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  justify-content: space-between;
+  margin: 3.5rem 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+}
+.week-nav a {
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  text-decoration: none;
+  color: var(--muted);
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: color .16s ease, border-color .16s ease;
+}
+.week-nav a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* chip row used on review/, scope/ and textbook-problems/ */
+.page-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1.4rem 0 2rem; max-width: none; }
+.page-links a {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  text-decoration: none;
+  color: var(--muted);
+  padding: .3rem .65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
+}
+.page-links a:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- 5. bilingual text ----------
+   Turkish and English alternate paragraph by paragraph. Quieting the
+   Turkish lets a reader of either language skip the other without the
+   two blocks looking like a repetition bug. The language control in
+   course.js hides one side outright. */
+.aligned .turkish {
+  color: var(--muted);
+  font-size: .96em;
+  border-left: 2px solid var(--border-strong);
+  padding-left: .85rem;
+  margin-left: -.1rem;
+}
+.aligned tr.turkish { border-left: 0; padding-left: 0; }
+.aligned tr.turkish td { color: var(--muted); font-size: .94em; }
+.aligned pre.turkish { border-left-width: 3px; border-left-color: var(--border-strong); }
+html.reading-en .aligned .turkish { display: none !important; }
+html.reading-tr .aligned [data-en] { display: none !important; }
+html.reading-tr .aligned .turkish {
+  color: var(--text);
+  border-left: 0;
+  padding-left: 0;
+  font-size: 1em;
+}
+
+/* ---------- 6. lesson components ---------- */
+.objectives {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  background: var(--surface);
+  padding: 1.3rem 1.5rem 1.1rem;
+  margin: 0 0 2.2rem;
+}
+.objectives h2 {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 .9rem;
+  max-width: none;
+}
+.objectives ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .55rem; }
+.objectives li { position: relative; padding-left: 1.5rem; margin: 0; line-height: 1.6; }
+.objectives li::before {
+  content: "";
+  position: absolute; left: 0; top: .55em;
+  width: 9px; height: 5px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.worked-example {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.4rem 1.5rem 1.2rem;
+  margin: 2.2rem 0;
+}
+.worked-example > h2, .worked-example > h3 { margin-top: 0; }
+.example-number, .example-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .45rem;
+}
+.problem {
+  border-left: 3px solid var(--blue);
+  background: var(--blue-soft);
+  border-radius: 0 8px 8px 0;
+  padding: .85rem 1.1rem;
+  margin: 0 0 1.2rem;
+  font-size: .95rem;
+  max-width: none;
+}
+
+/* worked solution steps: numbered ladder, step label kept visible */
+.trace { margin: 1.4rem 0; }
+.trace article {
+  position: relative;
+  padding: 0 0 1.2rem 1.6rem;
+  border-left: 1px solid var(--border-strong);
+}
+.trace article:last-child { border-left-color: transparent; padding-bottom: 0; }
+.trace article::before {
+  content: "";
+  position: absolute; left: -4.5px; top: .45rem;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.trace article span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .2rem;
+}
+.trace article p { margin: 0 0 .5rem; }
+.trace article p:last-child { margin-bottom: 0; }
+
+.formula {
+  margin: 1.2rem 0 1.2rem .5rem;
+  padding: .8rem 1.1rem;
+  overflow-x: auto;
+  font: italic 1.08em/1.9 "Times New Roman", Georgia, serif;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--surface-2);
+}
+/* math sub-constructs: reproduced unchanged — these are load-bearing */
+.formula .turkish { display: block; font-style: normal; font-size: .95em; border: 0; padding: 0; margin: 0 0 .3rem; }
+.formula .sum { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 3px; line-height: 1.05; font-style: normal; }
+.formula .sum sup, .formula .sum sub { font-size: .62em; vertical-align: baseline; position: static; }
+.formula .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 3px; line-height: 1.15; font-size: .95em; }
+.formula .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 3px; }
+.formula .binom { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.05; padding: 0 4px; border-left: 1px solid currentColor; border-right: 1px solid currentColor; border-radius: 8px; margin: 0 3px; }
+
+.transfer, .mini-problem, .theory, .edge {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.2rem 1.4rem 1rem;
+  margin: 1.8rem 0;
+}
+.transfer h3, .mini-problem h3, .theory h2 { margin-top: 0; }
+.theory h2 { font-size: 1.24rem; }
+.theory article + article { margin-top: 1.4rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
+.edge { border-left: 3px solid var(--red); border-radius: 0 12px 12px 0; }
+.mini-problem summary, .compact-week details summary { cursor: pointer; }
+.scope-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: 999px;
+  padding: .12rem .55rem;
+  margin: 0 0 .9rem;
+}
+.ladder { font-family: var(--font-mono); font-size: .88rem; }
+
+/* folded material: one treatment for every <details> on the page */
+.aligned details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: .1rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.aligned details[open] { padding-bottom: .9rem; }
+.aligned details summary {
+  cursor: pointer;
+  list-style: none;
+  padding: .8rem 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .92rem;
+  color: var(--heading);
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+.aligned details summary::-webkit-details-marker { display: none; }
+.aligned details summary::before {
+  content: "";
+  flex: none;
+  width: 6px; height: 6px;
+  border-right: 1.5px solid var(--accent);
+  border-bottom: 1.5px solid var(--accent);
+  transform: rotate(-45deg);
+  transition: transform .18s ease;
+}
+.aligned details[open] > summary::before { transform: rotate(45deg); }
+.aligned details details { background: none; border-color: var(--border); margin: .7rem 0; }
+
+.reading-card { border-left: 3px solid var(--blue); border-radius: 0 10px 10px 0; }
+.reading-card summary::before { border-color: var(--blue); }
+.reading-card ul { margin-top: .4rem; }
+.reading-reference { border-left: 3px solid var(--border-strong); border-radius: 0 10px 10px 0; }
+.reading, .reading-reference > summary + p, .source-context {
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.reading a { color: var(--accent); }
+.textbook-link {
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  margin: 1.6rem 0 0;
+  max-width: none;
+}
+.textbook-link a { color: var(--accent); }
+
+/* ---------- 7. animation shells (the bundles own everything inside) ---------- */
+.animation-drawer { border-left: 3px solid var(--green); border-radius: 0 10px 10px 0; }
+.animation-drawer summary::before { border-color: var(--green); }
+.animation-drawer > label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  color: var(--muted);
+  margin: .8rem 0 .4rem;
+}
+#animation-choice, .practice-controls select {
+  font-family: var(--font-body);
+  font-size: .86rem;
+  color: var(--text);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: .5rem .7rem;
+  max-width: 100%;
+}
+.animation-panel { margin: 1.2rem 0 0; }
+.compact-week .widget {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.2rem 1.3rem;
+  margin: 1.4rem 0;
+}
+
+/* ---------- 8. practice ---------- */
+.chapter-question-bank { margin: 0 0 2rem; min-width: 0; }
+.chapter-question-bank > h3 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  margin: 0 0 .6rem;
+}
+.chapter-question-bank > h4 {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 2.4rem 0 .8rem;
+}
+.source-exercise {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.2rem 1.35rem 1.1rem;
+  margin: .9rem 0;
+}
+.source-label {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .7rem;
+}
+.question-prompt {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--heading);
+  margin: 0 0 .9rem;
+}
+.mcq-options { list-style: lower-alpha; margin: 0 0 .2rem; padding-left: 1.6rem; }
+.mcq-options li {
+  margin: 0 0 .4rem;
+  padding: .35rem .6rem;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  line-height: 1.6;
+}
+.mcq-options li::marker { font-family: var(--font-mono); color: var(--accent); }
+.question-plain, .question-hint { font-size: .95rem; }
+.question-hint { color: var(--muted); font-style: italic; }
+.reasoning-steps { margin: .6rem 0 0; padding-left: 1.5rem; }
+.reasoning-steps li { margin-bottom: .3rem; }
+.question-answer {
+  margin-top: 1rem;
+  padding: 1rem 1.15rem .3rem;
+  border: 1px solid color-mix(in srgb, var(--green) 30%, var(--border));
+  border-left: 3px solid var(--green);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg-soft);
+}
+.question-answer > :first-child { margin-top: 0; }
+.question-answer h5 { color: var(--green); }
+
+.answer-controls {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.2rem;
+}
+.answers-toggle, .answer-toggle {
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .5rem 1rem;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
+.answer-toggle { font-weight: 500; font-size: .78rem; padding: .35rem .8rem; margin-top: .9rem; }
+.answers-toggle:hover, .answer-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.answers-toggle[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.answer-note { font-family: var(--font-mono); font-size: .7rem; color: var(--muted); }
+
+/* injected by compact.js: Previous 5 / group select / Next 5 */
+.practice-controls {
+  position: sticky;
+  top: 3.4rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.2rem;
+  padding: .7rem 0;
+  background: var(--header-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 70px;
+}
+.practice-controls button {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .45rem .9rem;
+  cursor: pointer;
+}
+.practice-controls button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.practice-controls button:disabled { opacity: .4; cursor: default; }
+.practice-controls select { font-family: var(--font-mono); font-size: .74rem; padding: .4rem .6rem; }
+.practice-controls [role="status"] {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+.paged .chapter-question-bank > h3,
+.paged .chapter-question-bank > h4 { margin-top: 1.4rem; }
+
+/* ---------- 9. scope/ ---------- */
+.scope-week {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.3rem 1.4rem 1.1rem;
+  margin: 1rem 0;
+}
+.scope-week h3 { margin-top: 0; }
+.scope-week > .reading { margin: -.2rem 0 1rem; }
+.scope-table { font-size: .9rem; }
+.scope-table th:last-child, .scope-table td:last-child { width: 9rem; white-space: nowrap; }
+.scope-table td:last-child {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* course.js tags each status cell so Core and Reading-only read apart at a glance */
+.scope-table td.is-core { color: var(--accent); }
+.scope-table td.is-reading { color: var(--muted); }
+.sample-question {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 12px 12px 0;
+  background: var(--surface);
+  padding: 1.2rem 1.4rem 1rem;
+  margin: 1.6rem 0;
+}
+.sample-question h3 { margin-top: 0; }
+.marking { list-style: none; padding: 0; margin: .4rem 0 0; }
+.marking li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: .9rem;
+  color: var(--muted);
+}
+.marking li::before {
+  content: "+";
+  position: absolute; left: 0;
+  font-family: var(--font-mono);
+  color: var(--green);
+}
+
+/* ---------- 10. review/ ---------- */
+.review-week {
+  border-top: 1px solid var(--border);
+  padding-top: 1.8rem;
+  margin: 2.4rem 0 0;
+}
+.review-week h2 { margin-top: 0; }
+.review-week > .reading { margin: -.3rem 0 1.2rem; }
+.retrieve { list-style: none; padding: 0; margin: .6rem 0 1.2rem; display: grid; gap: .6rem; }
+.retrieve li {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: .85rem 1.05rem;
+  margin: 0;
+  max-width: none;
+  font-size: .95rem;
+}
+.retrieve li a {
+  display: inline-block;
+  margin-top: .35rem;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+.retrieve li a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.review-page .source-exercise { background: none; }
+
+/* ---------- 11. textbook-problems/ ----------
+   53 problems, each: h3 + .tag, then .ask / .body / .answer / .why
+   rows introduced by a .lab label. These had no styling at all. */
+.textbook-group { margin: 0 0 3rem; }
+.textbook-group > h2 {
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--border);
+}
+.compact-week .prob {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.3rem 1.45rem 1.1rem;
+  margin: 1rem 0;
+}
+.compact-week .prob > h3 {
+  display: flex;
+  align-items: baseline;
+  gap: .7rem;
+  flex-wrap: wrap;
+  margin: 0 0 .9rem;
+}
+.compact-week .prob .body { margin: 0; }
+.compact-week .prob .body > :first-child { margin-top: 0; }
+.tag {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: 999px;
+  padding: .15rem .6rem;
+  white-space: nowrap;
+}
+.lab {
+  display: inline-block;
+  margin-right: .5rem;
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  font-weight: 500;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: .08em;
+}
+.ask, .answer, .why {
+  padding: .8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 .8rem;
+  max-width: none;
+  line-height: 1.7;
+}
+.ask    { border-left: 3px solid var(--blue);   background: var(--blue-soft); }
+.answer { border-left: 3px solid var(--green);  background: var(--green-soft); }
+.why    { border-left: 3px solid var(--border-strong); background: var(--surface-2); font-size: .94rem; }
+.ask .lab    { color: var(--blue); }
+.answer .lab { color: var(--green); }
+
+/* ---------- 12. reading controls (added by course.js) ---------- */
+.reading-bar {
+  display: flex;
+  align-items: center;
+  gap: .7rem 1.2rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.8rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+.lang-switch { display: flex; align-items: center; gap: .45rem; }
+.lang-switch > span {
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lang-switch button {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .3rem .75rem;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
+.lang-switch button:hover { color: var(--text); border-color: var(--border-strong); }
+.lang-switch button[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.lesson-toc { margin-left: auto; position: relative; }
+.lesson-toc > summary {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  padding: .3rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.lesson-toc > summary::-webkit-details-marker { display: none; }
+.lesson-toc[open] > summary { color: var(--accent); border-color: var(--accent); }
+.lesson-toc > div {
+  position: absolute;
+  right: 0; top: calc(100% + .4rem);
+  z-index: 40;
+  min-width: 270px;
+  max-width: min(420px, calc(100vw - 2rem));
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: .7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+}
+.lesson-toc a {
+  display: block;
+  padding: .4rem .55rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  line-height: 1.45;
+  color: var(--text);
+  text-decoration: none;
+}
+.lesson-toc a:hover { background: var(--surface-2); color: var(--accent); }
+
+/* week switcher in the site header */
+.week-switch { margin-left: auto; position: relative; }
+.week-switch > summary {
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  padding: .3rem .7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.week-switch > summary::-webkit-details-marker { display: none; }
+.week-switch[open] > summary { color: var(--accent); border-color: var(--accent); }
+.week-switch > div {
+  position: absolute;
+  right: 0; top: calc(100% + .45rem);
+  z-index: 60;
+  width: 280px;
+  max-width: calc(100vw - 2rem);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: .5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .4);
+}
+.week-switch a {
+  display: flex;
+  gap: .6rem;
+  padding: .4rem .55rem;
+  border-radius: 6px;
+  font-size: .82rem;
+  line-height: 1.4;
+  color: var(--text);
+  text-decoration: none;
+}
+.week-switch a b {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--accent);
+  padding-top: .12rem;
+}
+.week-switch a:hover { background: var(--surface-2); }
+.week-switch a[aria-current="page"] { background: var(--accent-soft); }
+.site-header { gap: .8rem; }
+
+/* ---------- 13. narrow screens ---------- */
+@media (max-width: 720px) {
+  .aligned { padding-left: 1rem; padding-right: 1rem; }
+  .aligned h2 { font-size: 1.32rem; }
+  .aligned h3 { font-size: 1.06rem; }
+  .week-tabs { gap: .2rem; overflow-x: auto; scrollbar-width: none; }
+  .week-tabs button { padding: .5rem .85rem; font-size: .82rem; white-space: nowrap; }
+  .practice-controls { top: 3rem; }
+  .practice-controls [role="status"] { margin-left: 0; flex: 1 1 100%; }
+  .objectives, .worked-example, .transfer, .mini-problem, .theory,
+  .source-exercise, .scope-week, .compact-week .prob, .compact-week .widget {
+    padding-left: 1.05rem; padding-right: 1.05rem;
+  }
+  .lesson-toc { margin-left: 0; }
+  .lesson-toc > div, .week-switch > div { right: auto; left: 0; }
+  .aligned .turkish { padding-left: .65rem; }
+}
+
+/* ---------- 14. print: answers open, chrome gone ---------- */
+@media print {
+  .week-tabs, .practice-controls, .reading-bar, .week-switch,
+  .answer-controls, .answer-toggle, .week-nav { display: none !important; }
+  .week-panel[hidden], .source-exercise[hidden], .question-answer[hidden] { display: block !important; }
+  .aligned { max-width: none; padding: 0; }
+  .aligned details { border: 0; padding: 0; }
+  .aligned p, .aligned li { max-width: none; }
+  .objectives, .worked-example, .source-exercise, .scope-week,
+  .compact-week .prob, .retrieve li, .question-answer {
+    background: none; border-color: #999; break-inside: avoid;
+  }
+  html.reading-en .aligned .turkish { display: revert !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aligned *, .week-switch *, .lesson-toc * { transition: none !important; }
+}
+
+/* ---------- 15. carried forward ----------
+   Rules the replaced sheets owned for markup the animation bundles
+   do not cover. Kept so nothing regresses on those pages. */
+.animation-panel .story-lesson { border: 0; margin: 0; padding: 0; }
+.animation-panel .story-lesson h2 { font-size: 1.14rem; margin-top: 0; }
+.story-lesson, .w1-lesson { margin: 1.2rem 0; }
+.story-diagram { margin: 1rem 0; overflow-x: auto; }
+.story-note {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
