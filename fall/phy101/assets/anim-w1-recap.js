@@ -276,7 +276,9 @@
       P.arrow(0, 0, s2[0], s2[1], { color: blue, width: 2.8 });
       P.arrow(0, 0, f[0], f[1], { color: orange, width: 2.6 });
       P.text(s2[0], s2[1], "s = (4.00, 5.00) m", { color: blue, size: 12, dx: 8, dy: -4 });
-      P.text(f[0], f[1], "F = (−12.0, " + fmt(Fy, 1) + ") N", { color: orange, size: 12, dx: -6, dy: f[1] >= 0 ? -14 : 18, align: "right" });
+      /* centred on the tip and kept inside the frame, so the label never sits on the y-axis ticks */
+      var fy = Math.max(-lim + 1.2, Math.min(lim - 1.2, f[1]));
+      P.text(Math.max(-lim + 4, f[0]), fy, "F = (−12.0, " + fmt(Fy, 1) + ") N", { color: orange, size: 12, dy: f[1] >= 0 ? -14 : 18, align: "center" });
       P.text(proj[0] / 2, proj[1] / 2, "F cos φ", { color: W >= 0 ? green : red, size: 11, dx: 14, dy: 8 });
       P.title("W = F·s = Fx sx + Fy sy = " + sgnfmt(W, 1) + " J");
       sW.set(sgnfmt(W, 1) + " J" + (Math.abs(W - 26) < 0.3 ? "  ← the stated 26.0 J" : ""));

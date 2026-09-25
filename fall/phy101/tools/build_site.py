@@ -779,11 +779,11 @@ def notebook_body(week, nb):
 # ---------------------------------------------------------------- page
 
 def head_html(title, desc, week, has_anim):
-    animcss = '<link rel="stylesheet" href="../assets/anim.css">\n' if has_anim else ""
+    animcss = '<link rel="stylesheet" href="../assets/anim.css?v=20260925">\n' if has_anim else ""
     scripts = ""
     if has_anim:
-        scripts = ('<script defer src="../assets/anim.js?v=20260921"></script>\n'
-                   f'<script defer src="../assets/anim-w{week}.js?v=20260921"></script>\n')
+        scripts = ('<script defer src="../assets/anim.js?v=20260925"></script>\n'
+                   f'<script defer src="../assets/anim-w{week}.js?v=20260925"></script>\n')
     if week == 2:
         scripts += '<link rel="stylesheet" href="../assets/week02-practice.css"><script defer src="../assets/week02-practice.js"></script>\n'
     return f"""<!DOCTYPE html>

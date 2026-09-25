@@ -30,7 +30,7 @@ head = head_html("Week 01 recap — products of vectors",
                  "Chapter 1 review: every worked example on the scalar and vector products, "
                  "with animations to predict against.", 1, True)
 head = head.replace("</head>",
-                    '<script defer src="../assets/anim-w1-recap.js?v=1"></script>\n</head>')
+                    '<script defer src="../assets/anim-w1-recap.js?v=2"></script>\n</head>')
 body = (ROOT / "tools/materials/week01-recap-products.html").read_text(encoding="utf-8")
 nav = ('<nav class="week-nav">\n  <a href="./">&larr; Week 01 notes</a>\n'
        '  <a href="vector-lab.html">Why cosine, why sine? &middot; explorer</a>\n'

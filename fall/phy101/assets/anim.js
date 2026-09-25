@@ -56,7 +56,10 @@
 
   /* ---------- controls ---------- */
   function seg(parent, label, options, value, onChange) {
-    if (label) parent.appendChild(h("span", "lab", esc(label)));
+    /* label + buttons live in one .ctl so a wrapping control row never splits them */
+    var wrap = h("span", "ctl");
+    parent.appendChild(wrap);
+    if (label) wrap.appendChild(h("span", "lab", esc(label)));
     var s = h("span", "seg");
     s.setAttribute("role", "group");
     if (label) s.setAttribute("aria-label", label);
@@ -69,7 +72,7 @@
       b.setAttribute("aria-pressed", String(o[0] === value));
       s.appendChild(b);
     });
-    parent.appendChild(s);
+    wrap.appendChild(s);
     return {
       el: s,
       set: function (v) {
@@ -82,9 +85,12 @@
 
   function slider(parent, label, o, onInput) {
     var id = "sl" + Math.random().toString(36).slice(2, 8);
+    /* label + range + readout live in one .ctl so the readout can never wrap below its slider */
+    var wrap = h("span", "ctl");
+    parent.appendChild(wrap);
     var lab = h("label", "lab", esc(label));
     lab.setAttribute("for", id);
-    parent.appendChild(lab);
+    wrap.appendChild(lab);
     var r = h("input");
     r.type = "range";
     r.id = id;
@@ -96,8 +102,8 @@
       out.innerHTML = "<b>" + esc(o.text ? o.text(v) : v) + "</b>";
       onInput(v);
     });
-    parent.appendChild(r);
-    parent.appendChild(out);
+    wrap.appendChild(r);
+    wrap.appendChild(out);
     return {
       el: r,
       value: function () { return parseFloat(r.value); },
