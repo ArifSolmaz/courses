@@ -43,7 +43,7 @@ def shell(B,title,body,base):
  body=body.replace('<main ', '<div ').replace('</main>', '</div>')
  head=B.HEAD.format(title=E(title)+' — AA',desc=E(title),base=base)
  head=re.sub(r'<nav class="header-nav">.*?</nav>', '<button class="hlink" data-theme-toggle type="button">Light / dark</button>', head, flags=re.S)
- return head.replace('</head>',f'<link rel="stylesheet" href="{base}assets/aligned.css?v=compact"><script defer src="{base}assets/compact.js?v=1"></script></head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
+ return head.replace('</head>',f'<link rel="stylesheet" href="{base}assets/aligned.css?v=formulas"><script defer src="{base}assets/compact.js?v=1"></script></head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
 
 def build(B):
  Q=configure()
