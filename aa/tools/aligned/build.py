@@ -2,6 +2,7 @@ from pathlib import Path
 import html,json,re,sys
 from .course import WEEKS
 from .visuals import figure, CODES
+from .compact import animation_content, consolidate_routes
 E=html.escape
 ROOT=Path(__file__).resolve().parents[2]
 DATA=Path(__file__).parent
@@ -40,14 +41,16 @@ def configure():
 
 def shell(B,title,body,base):
  body=body.replace('<main ', '<div ').replace('</main>', '</div>')
- return B.HEAD.format(title=E(title)+' — AA',desc=E(title),base=base).replace('</head>',f'<link rel="stylesheet" href="{base}assets/aligned.css"></head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
+ head=B.HEAD.format(title=E(title)+' — AA',desc=E(title),base=base)
+ head=re.sub(r'<nav class="header-nav">.*?</nav>', '<button class="hlink" data-theme-toggle type="button">Light / dark</button>', head, flags=re.S)
+ return head.replace('</head>',f'<link rel="stylesheet" href="{base}assets/aligned.css?v=compact"><script defer src="{base}assets/compact.js?v=1"></script></head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
 
 def build(B):
  Q=configure()
  rows=[]
  for n,(title,lectures,summary,question,example,steps,edge,python) in enumerate(WEEKS,1):
   reading='Lectures '+', '.join(map(str,lectures)) if len(lectures)>1 else f'Lecture {lectures[0]}'
-  rows.append(f'<tr><td>{n:02}</td><td><strong>{E(title)}</strong><small>{E(summary)}</small><small class="reading">Document: {reading}</small></td><td><a href="w{n}/">Open →</a></td></tr>')
+  rows.append(f'<tr><td>{n:02}</td><td><strong>{E(title)}</strong><small class="reading">Document: {reading}</small></td><td><a href="w{n}/">Open →</a></td></tr>')
   core=[];depth=[]
   for l in lectures:
    sections=LECTURES[str(l)]['sections']
@@ -68,26 +71,27 @@ def build(B):
   # Preserve original cross-references even though visible question numbering is weekly.
   homes={q:w for w,qs in WRITTEN.items() for q in qs}
   bank=re.sub(r'(?i)exercise (\d+)',lambda m: f'<a href="../w{homes[int(m[1])]}/#skiena-ex-{int(m[1]):03}">source exercise {m[1]}</a>' if int(m[1]) in homes else m[0],bank)
-  body=f'''<main class="aligned"><div class="hero"><p class="eyebrow">Week {n:02} · {reading}</p><h1>{E(title)}</h1><p>{E(summary)}</p></div>
-<section class="reading-card"><h2>Read alongside the document</h2><p>Use the lecture headings below in the English–Turkish notes. Document lecture numbers and course week numbers are different.</p><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual notes</a></p>{'<p>Core: the worked example below and the named introductory sections. Further applications and proof details are optional reference.</p>' if n>=12 else ''}</section>
-<section><h2>{E(question)}</h2><p class="problem">{E(example)}</p>{figure(n)}<div class="trace" aria-label="Worked solution steps">{''.join(f'<article><span>Step {i}</span><p>{E(s)}</p></article>' for i,s in enumerate(steps,1))}</div><p class="edge"><strong>Change the case.</strong> {E(edge)}</p></section>
-<section><h2>Explain before coding</h2><p>State the input and required output. Trace a small example. Explain why each step is valid, count the work under a stated model, and test an edge case.</p><details><summary>Python support for this week</summary><p>{E(python)}</p><pre><code>{E(CODES[n])}</code></pre><p>Run this small demonstration after predicting its result. It illustrates the selected example; its input assumptions are part of the example.</p><p><a href="../python/">Open the optional Python support library</a>. Programming fluency is not required to complete the paper trace.</p></details></section>
-<details class="reading-reference"><summary>Read the related bilingual explanations here</summary><p>Sections from the supplied lecture notes. Turkish paragraphs appear in red. Use this as a reference after the worked example.</p>{''.join(depth)}</details>
-<p class="practice-note">Begin with the easy tests and the worked example. Remaining questions provide repeated teaching practice; hard questions are optional depth. Some tests revisit earlier prerequisites. Answers stay visible.</p>{bank}
-<nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">Course dashboard</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
-  if n==1:
-   # Retain the tested robot-tour and scheduling demonstrations on their topic week.
-   from learning_path import sections
-   story=''.join(x for x in sections((ROOT/'tools/weeks/w01.html').read_text()) if 'w1-lesson' in x)
-   body=body.replace('<section><h2>Explain before coding',story+'<section><h2>Explain before coding')
-  page=shell(B,title,body,'../')
-  if n==1:page=page.replace('</head>','<link rel="stylesheet" href="../assets/week1-visual.css"><link rel="stylesheet" href="../assets/week1-stories.css"></head>').replace('</body>','<script src="../assets/week1-stories.js?v=1"></script></body>')
+  animations,assets=animation_content(n)
+  # Additional textbook solutions stay inside their topic week, not a separate site.
+  textbook=json.loads((DATA/'textbook-problems.json').read_text())
+  def textbook_week(article):
+   match=re.search(r'id="p2-(\d+)"',article)
+   k=int(match[1]) if match else 53
+   return 3 if k<=6 or 25<=k<=42 else 2 if k<=24 else 14
+  more=''.join(x for x in textbook if textbook_week(x)==n)
+  if more:more='<details><summary>Additional textbook problems with solutions</summary>'+more+'</details>'
+  body=f'''<main class="aligned compact-week"><header class="week-heading"><p class="eyebrow">Week {n:02} · {reading}</p><h1>{E(title)}</h1><p>{E(summary)}</p></header>
+<nav class="week-tabs" aria-label="Weekly content"><button id="tab-lesson" data-week-tab="lesson">Lesson</button><button id="tab-practice" data-week-tab="practice">Practice</button><button id="tab-notes" data-week-tab="notes">Notes</button></nav>
+<section id="lesson" class="week-panel"><h2>{E(question)}</h2><p class="problem">{E(example)}</p>{figure(n)}<div class="trace" aria-label="Worked solution steps">{''.join(f'<article><span>Step {i}</span><p>{E(step)}</p></article>' for i,step in enumerate(steps,1))}</div><p class="edge"><strong>Change the case.</strong> {E(edge)}</p>{animations}</section>
+<section id="practice" class="week-panel"><p>Questions and answers are together. Hard questions are optional; some tests revisit earlier ideas.</p>{bank}</section>
+<section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(CODES[n])}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
+<nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
+  page=shell(B,title,body,'../').replace('</head>',assets+'</head>')
   (ROOT/f'w{n}/index.html').write_text(page)
   target=ROOT/f'guide/w{n:02}/index.html'
   target.write_text(f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=../../w{n}/"><title>Week {n} — AA</title><p>The current lesson and its bilingual explanations are together: <a href="../../w{n}/">Open Week {n}</a>.</p>')
- home=f'''<main class="course-dashboard"><header class="dashboard-intro"><p class="eyebrow">AA · 14 weeks · Dr. Arif Solmaz</p><h1>Algorithm Analysis</h1><p>Follow the same topic sequence as the Skiena lecture notes. Start with drawings and small traces, explain correctness and cost, then use Python to check your reasoning.</p><p>No prior Python knowledge is required. Document lectures are grouped into 14 teaching weeks.</p></header><section><h2>Course resource</h2><a href="resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">English–Turkish lecture notes</a></section><section class="course-schedule" id="weeks"><h2>Weekly lessons and document readings</h2><table><thead><tr><th>Week</th><th>Topic and reading</th><th>Lesson</th></tr></thead><tbody>{''.join(rows)}</tbody></table></section><details id="course-info"><summary>Course information and Python support</summary><p>Assessment: midterm 50%, final 50%. Weekly practice is ungraded and requires no upload. Exam scope follows the taught core topics and is confirmed in class; optional proofs are enrichment.</p><p>Each three-hour class combines a paper trace, explanation of correctness and cost, a worked variation, and practice with answers. Python is introduced only as needed. Weeks 8 and 14 include cumulative review.</p><p><a href="python/">Python support library</a> · <a href="skiena/">Additional textbook solutions</a></p><p>Source: the supplied bilingual Skiena CSE 373 notes. Lecture 1–22 numbering is preserved. Later combined weeks use selected introductory sections; the rest remains optional depth.</p></details></main>'''
+ home=f'''<main class="course-dashboard compact-dashboard"><header class="dashboard-intro"><p class="eyebrow">AA · Dr. Arif Solmaz</p><h1>Algorithm Analysis</h1><p>Choose your week. Its lesson, animations, questions and notes are all on one page.</p></header><section class="course-schedule" id="weeks"><table><thead><tr><th>Week</th><th>Topic · Skiena reading</th><th></th></tr></thead><tbody>{''.join(rows)}</tbody></table></section><details id="course-info"><summary>Course information</summary><p>No prior Python knowledge is required. Python help is inside each week’s Notes view. Document lectures 1–22 are grouped into 14 weeks.</p><p>Assessment: midterm 50%, final 50%. Weekly practice is ungraded, with no upload required. Optional challenges are enrichment; exam scope is confirmed in class.</p><p><a href="resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual course document</a></p></details></main>'''
  (ROOT/'index.html').write_text(shell(B,'Algorithm Analysis',home,''))
- (ROOT/'guide/index.html').write_text(shell(B,'Course reference', '<main class="aligned"><h1>Course reference</h1><p>The current weekly lessons include the matching bilingual readings, worked examples and answers.</p><p><a href="../">Open the weekly schedule</a> · <a href="../python/">Python support library</a></p></main>','../'))
- (ROOT/'extensions/index.html').write_text(shell(B,'Further practice','<div class="aligned"><h1>Further practice is now with its topic</h1><p>Graphs are Weeks 9–11, dynamic programming Weeks 12–13, and computational limits Week 14. Each lesson contains core practice and optional harder questions.</p><a href="../">Open the course schedule</a></div>','../'))
- (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x[0]} — document lectures {", ".join(map(str,x[1]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Former Python-first lessons are retained under python/.\n')
+ consolidate_routes()
+ (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x[0]} — document lectures {", ".join(map(str,x[1]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Older library addresses redirect to that route.\n')
  print('Built 14 aligned lessons, dashboard and reference routes.')

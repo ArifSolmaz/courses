@@ -39,3 +39,15 @@ for n in range(1,15):
    assert re.search(r'id=[\"\']'+re.escape(u.fragment)+r'[\"\']',target.read_text()),(p,url,'missing anchor')
  print(f'Week {n:02}: {len(TESTS[n])} tests + {len(WRITTEN[n])} written; links, numbering and code passed')
 print('22 lectures, all 120 original tests and all 205 written exercises accounted for.')
+
+# The student route is only dashboard plus weekly pages; old libraries redirect.
+for n in range(1,15):
+ s=(root/f'w{n}/index.html').read_text()
+ assert all(f'id="{x}"' in s for x in ('lesson','practice','notes'))
+ assert not re.search(r'href="\.\./(?:python|guide|skiena|extensions)/',s)
+old=set(re.findall(r'data-anim="([^"]+)"',''.join(p.read_text() for p in (root/'tools/weeks').glob('w*.html'))))
+new=set(re.findall(r'data-anim="([^"]+)"',''.join((root/f'w{n}/index.html').read_text() for n in range(1,15))))
+assert old<=new,(old-new)
+for folder in ('python','guide'):
+ for p in (root/folder).rglob('index.html'):assert 'http-equiv="refresh"' in p.read_text(),p
+print(f'One weekly route verified; all {len(old)} prior general animations retained inline.')

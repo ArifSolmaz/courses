@@ -10,3 +10,7 @@ Run `python3 aa/tools/build.py`, then `python3 aa/tools/verify_alignment.py`.
 The earlier generated course and guide were preserved under `aa/python/` with rewritten relative links. These are deliberately labelled as the former sequence, not current teaching weeks. The old source generator is retained as `build_legacy.py` for reference; do not run it into the published current routes. Earlier verifier scripts that assert the former sequence are historical checks; `verify_alignment.py` checks the current route. The unchanged Week 1 animation maths checks still apply.
 
 Weeks 12–14 explicitly select introductory sections. Advanced exercises are teaching reserves, not a demand to cover all source lectures in full during one class. Assessment weighting remains 50% midterm and 50% final; optional material is not introduced as assessed scope.
+
+## Compact route update
+
+`compact.py` maps existing demonstrations to topic weeks and consolidates earlier URLs into redirects. `textbook-problems.json` preserves the 53 articles from the former textbook companion; these are now embedded under Notes in Weeks 2, 3 and 14. `assets/compact.js` provides accessible in-page views, five-question pagination and hash-link handling. The earlier snapshot pages under `python/` have been replaced by redirects; their content remains in Git history and original authoring files. Run the alignment verifier to check complete animation retention and absence of links to the retired libraries.
