@@ -4,7 +4,7 @@ The aim is to turn a problem into small steps that you can explain, write in Pyt
 
 **Türkçe:** Amaç bütün komutları ezberlemek değil; problemi küçük adımlara ayırmak, her adımı açıklamak ve sonucu kontrol etmektir.
 
-## Engineering experiences for mechatronics
+## Engineering experiences
 
 [Open the course and choose a weekly lesson](web/CP1_Course_Dashboard.html). Each companion starts from a physical question and ends with a small engineering handover: a prediction, an independent check, a boundary or fault case, and a limitation. The browser cases use prepared teaching data; three lessons also include adjustable models. No hardware or AI account is required.
 
@@ -18,9 +18,15 @@ Every weekly lesson now has an explanation tied to its actual Python topic: what
 
 State what a variable represents after each important step. Draw name-to-object arrows for shared lists, input/output arrows for functions, and a pipeline for the sensor report. These representations explain why the code should work; running examples then checks particular cases. A successful run alone does not establish correctness for every input.
 
-At the end of the course, the sensor example connects to [AA’s comparison of two reporting methods](../../aa/w14/#meaning-before-analysis). CP1 establishes the behaviour and validation rules; AA compares methods that preserve those rules. Neither course requires enrolment in the other.
+
 
 **Türkçe:** Önce işlemin anlamını ve küçük bir örnekte durumun nasıl değiştiğini açıkla. Çalıştırmadan tahmin et; sonra bir girdiyi değiştirip gerekçeni yeniden dene.
+
+## Already know some programming?
+
+Some students join CP1 in their second year or with earlier programming experience. The core exercises are still worth doing quickly as a check, but aim for the optional exercises (9–12) each week — Exercise 12 is a Challenge — and for Weeks 13 and 14, which introduce NumPy, matplotlib and a complete data pipeline. Weeks 1–7 are examined in the midterm, so do not skip their vocabulary.
+
+**Türkçe:** Daha önce programlama yaptıysanız temel alıştırmaları hızlıca kontrol amaçlı çözün; her hafta 9–12 numaralı seçmeli alıştırmalara ve 13–14. haftalara odaklanın.
 
 ## Your weekly routine
 
@@ -43,14 +49,14 @@ The notebooks contain four concept checkpoints, four short breaks, core practice
 | 03 · Decisions | Which path should this input take? | Draw the branches and test both sides of a boundary. Sınır değerini ve iki yanını dene. |
 | 04 · `for` loops | What step repeats a known number of times? | Trace `range()` and an accumulator one iteration at a time. Her tur için bir satır kullan. |
 | 05 · `while` loops | When should repetition stop? | Identify the starting state, condition, update and stopping case. Döngünün nasıl biteceğini açıkla. |
-| 06 · Patterns | Is this a sum, count, search, minimum or maximum? | Choose the pattern before coding; compare sum and count. Önce çözüm kalıbını seç. |
-| 07 · Lists | How do I manage many values together? | Separate an index from its value, and mutation from a returned result. İndis ile değer aynı değildir. |
-| 08 · Tables | Which row and column am I processing? | Trace a 2×3 table before using a larger grid. Önce küçük bir tabloyu elle gez. |
-| 09 · Strings | How can text become useful data? | Split a single line, inspect its pieces, then convert a value. Önce parçala, sonra dönüştür. |
-| 10 · Functions | Which steps deserve a reusable name? | Distinguish parameters, arguments, `print()` and `return`. Ekrana yazmak ile değer döndürmek farklıdır. |
-| 11 · Scope and composition | How do small functions cooperate? | Review rebinding, list mutation, dictionaries and tuple returns before combining functions. Verinin nereden gelip nereye gittiğini izle. |
-| 12 · Errors and validation | What should happen with invalid input? | Test valid, invalid, boundary and nonfinite values. Hatalı girdiye verilecek cevabı önceden belirle. |
-| 13 · Files | How do I read and save a result? | Read a small file, inspect rows, then write and reopen the output. Yazdığın dosyayı yeniden okuyup kontrol et. |
+| 06 · Lists and patterns | How do I keep many readings and summarise them? | Separate an index from its value; choose sum, count, min/max or search before coding. İndis ile değer aynı değildir; önce kalıbı seç. |
+| 07 · Dictionaries and tuples | How do I find a value by name instead of position? | Distinguish a key from an index; decide what a missing key should do. Anahtar ile indis farklıdır. |
+| 08 · Strings | How can text become useful data? | Split a single line, inspect its pieces, then convert a value. Önce parçala, sonra dönüştür. |
+| 09 · Functions | Which steps deserve a reusable name? | Distinguish parameters, arguments, `print()` and `return`. Ekrana yazmak ile değer döndürmek farklıdır. |
+| 10 · Scope and composition | How do small functions cooperate? | Review rebinding, list mutation, dictionaries and tuple returns before combining functions. Verinin nereden gelip nereye gittiğini izle. |
+| 11 · Errors and validation | What should happen with invalid input? | Test valid, invalid, boundary and nonfinite values. Hatalı girdiye verilecek cevabı önceden belirle. |
+| 12 · Files | How do I read and save a result? | Read a small file, inspect rows, then write and reopen the output. Yazdığın dosyayı yeniden okuyup kontrol et. |
+| 13 · Tables, NumPy and plots | How do I summarise a whole table and show it? | Check the shape first; compare a loop result with the NumPy result; read a plot as evidence. Önce boyutu kontrol et. |
 | 14 · Sensor project | Can I explain and test the entire process? | Read → validate → summarize → save → demonstrate. Her aşamanın girdisini ve çıktısını açıkla. |
 
 Weeks 1–13 have eight core exercises each. Week 14 has ten core milestones, including saving the text report and assembling the program; its two bonus tasks are optional. The supplied dataset setup is the first milestone. The project uses `sensor_data.csv` and produces `sensor_data_clean.csv` plus `sensor_report.txt`.

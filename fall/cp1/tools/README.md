@@ -76,7 +76,9 @@ in the HTML lesson and the second notebook cell. Edit it there, then run
 verifier checks that the two versions agree.
 
 The fourteen weeks progress through **Describe and decide** (1–5), **Organise
-observations** (6–9), and **Build a checkable report** (10–14). These are stages of
+observations** (6–9), and **Build a checkable report** (10–14). The same three
+stage labels appear in notebook titles, solution titles and `content.md`; do not
+reintroduce a separate phase scheme. These are stages of
 understanding, not an extra continuous hardware project or new assessment. The
 small examples retain their own supplied data. Objectives, participation rules
 and class schedules remain in the notebooks as expandable reference sections.
@@ -85,7 +87,7 @@ and class schedules remain in the notebooks as expandable reference sections.
 
 Each weekly HTML page has one **See the Colab code run** workspace with four
 notebook topics. The 56 topics map to actual notebook Part headings and related
-exercise IDs; 159 contrasting cases cover normal, boundary and faulty behavior.
+exercise IDs; 160 contrasting cases cover normal, boundary and faulty behavior.
 The engineering introductions remain separate.
 
 - Author code, cases and mappings in `lessons/notebook_labs.py`.
@@ -122,3 +124,13 @@ layouts at 1280×720 and 1366×768 when changing this UI.
 ## Meaning and state-tracing explanations
 
 `lessons/reasoning.json` authors one topic-specific bridge for each of the 14 weeks: meaning, representation, prediction, worked steps, explanation, transfer question and Turkish support. `render_experiences.py` publishes it in the weekly HTML and synchronises the matching `cp1-reasoning-NN` notebook cell. Edit the JSON and run the normal preparation/synchronisation workflow; do not hand-edit generated explanations. Existing exercise IDs, code cells, animation fixtures and assessment weights stay unchanged. `verify_experiences.py` checks that the two versions agree.
+
+## September 2026 redesign
+
+The sequence changed: lists moved before dictionaries (Week 6 merges the former
+"patterns" and "lists" weeks), Week 7 is new (dictionaries and tuples), the former
+2D-lists week was absorbed into the new Week 13 (tables, NumPy and matplotlib),
+strings/functions/scope/exceptions/files shifted from 9–13 to 8–12, and the Week 14
+capstone was simplified to what a beginner can build in one session. The retired
+notebooks are kept in `archive/old_sequence/` for reference and are not published.
+Weeks 13 and 14 need `numpy` and `matplotlib` in the execution environment.

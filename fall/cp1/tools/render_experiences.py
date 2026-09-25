@@ -21,12 +21,12 @@ def shell(title, body, week=0):
     lab_assets = (f'<link rel="stylesheet" href="cp1-lab.css?v=3"><script src="lab-data/week-{week:02d}.js?v=2" defer></script><script src="cp1-lab.js?v=3" defer></script>' if week else '')
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="CP1 weekly lessons for mechatronics: physical problems, clear explanations, worked examples and companion Python notebooks.">
+<meta name="description" content="CP1 weekly lessons for first-year engineering students: physical problems, clear explanations, worked examples and companion Python notebooks.">
 <title>{esc(title)} · CP1 Engineering Experiences</title>
 <link rel="stylesheet" href="cp1-experiences.css?v=4"><script src="cp1-experiences.js?v=3" defer></script>{lab_assets}<link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script src="../../../assets/learning-path.js?v=1" defer></script></head>
 <body data-week="{week}"><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="brand" href="CP1_Course_Dashboard.html">CP1 <span>/ COURSE HOME</span></a><nav aria-label="Course"><details class="path-menu"><summary>Settings</summary><div><button type="button" id="theme-toggle" hidden>Dark theme</button></div></details></nav></header>
-{body}<footer><p>Computer Programming I · Mechatronics Engineering · Dr. Arif Solmaz</p></footer></body></html>'''
+{body}<footer><p>Computer Programming I · ISTUN Engineering · Dr. Arif Solmaz</p></footer></body></html>'''
 
 def introduction_markdown(lesson):
     intro = lesson['intro']
@@ -93,7 +93,7 @@ def sync_introductions(write):
             if '<details>' in text:
                 continue
             label = ('Learning objectives' if 'Learning Objectives' in text else
-                     'Class participation and assessment' if 'Mechatronics Learning Contract' in text else
+                     'Class participation and assessment' if 'Learning Contract' in text else
                      'Class schedule and checkpoints' if 'Roadmap' in text else None)
             if label:
                 cell['source'] = (f'<details><summary>{label}</summary>\n\n'

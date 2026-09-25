@@ -44,21 +44,23 @@ Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index]
 | 03 | [Turn an operating rule into a decision](web/Week_03.html) | [Conditionals & Decision Making](notebooks/Week_03.ipynb) | [Complete solutions](solutions/Week_03_Solutions.ipynb) | 8 / 4 |
 | 04 | [Observe a signal over time](web/Week_04.html) | [for Loops & range -- Repetition](notebooks/Week_04.ipynb) | [Complete solutions](solutions/Week_04_Solutions.ipynb) | 8 / 4 |
 | 05 | [Give a search a stopping rule](web/Week_05.html) | [while Loops, break & continue](notebooks/Week_05.ipynb) | [Complete solutions](solutions/Week_05_Solutions.ipynb) | 8 / 4 |
-| 06 | [Choose a useful summary](web/Week_06.html) | [Problem-Solving Patterns](notebooks/Week_06.ipynb) | [Complete solutions](solutions/Week_06_Solutions.ipynb) | 8 / 4 |
-| 07 | [Keep the original observations](web/Week_07.html) | [Lists Fundamentals](notebooks/Week_07.ipynb) | [Complete solutions](solutions/Week_07_Solutions.ipynb) | 8 / 4 |
-| 08 | [Find a reading in a grid](web/Week_08.html) | [2D Lists & Nested Loops](notebooks/Week_08.ipynb) | [Complete solutions](solutions/Week_08_Solutions.ipynb) | 8 / 4 |
-| 09 | [Read a device message](web/Week_09.html) | [String Processing](notebooks/Week_09.ipynb) | [Complete solutions](solutions/Week_09_Solutions.ipynb) | 8 / 4 |
-| 10 | [Convert a sensor reading into a force](web/Week_10.html) | [Functions — Basics](notebooks/Week_10.ipynb) | [Complete solutions](solutions/Week_10_Solutions.ipynb) | 8 / 4 |
-| 11 | [Use the same function with two sensors](web/Week_11.html) | [Scope & Mini-Library](notebooks/Week_11.ipynb) | [Complete solutions](solutions/Week_11_Solutions.ipynb) | 8 / 4 |
-| 12 | [Separate a missing reading from zero](web/Week_12.html) | [Error Handling](notebooks/Week_12.ipynb) | [Complete solutions](solutions/Week_12_Solutions.ipynb) | 8 / 4 |
-| 13 | [Save a report someone can check](web/Week_13.html) | [File I/O & CSV](notebooks/Week_13.ipynb) | [Complete solutions](solutions/Week_13_Solutions.ipynb) | 8 / 4 |
+| 06 | [Keep the original observations](web/Week_06.html) | [Lists and Accumulator Patterns](notebooks/Week_06.ipynb) | [Complete solutions](solutions/Week_06_Solutions.ipynb) | 8 / 4 |
+| 07 | [Look a reading up by name](web/Week_07.html) | [Dictionaries and Tuples](notebooks/Week_07.ipynb) | [Complete solutions](solutions/Week_07_Solutions.ipynb) | 8 / 4 |
+| 08 | [Read a device message](web/Week_08.html) | [String Processing](notebooks/Week_08.ipynb) | [Complete solutions](solutions/Week_08_Solutions.ipynb) | 8 / 4 |
+| 09 | [Convert a sensor reading into a force](web/Week_09.html) | [Functions — Basics](notebooks/Week_09.ipynb) | [Complete solutions](solutions/Week_09_Solutions.ipynb) | 8 / 4 |
+| 10 | [Use the same function with two sensors](web/Week_10.html) | [Scope & Mini-Library](notebooks/Week_10.ipynb) | [Complete solutions](solutions/Week_10_Solutions.ipynb) | 8 / 4 |
+| 11 | [Separate a missing reading from zero](web/Week_11.html) | [Error Handling](notebooks/Week_11.ipynb) | [Complete solutions](solutions/Week_11_Solutions.ipynb) | 8 / 4 |
+| 12 | [Save a report someone can check](web/Week_12.html) | [File I/O & CSV](notebooks/Week_12.ipynb) | [Complete solutions](solutions/Week_12_Solutions.ipynb) | 8 / 4 |
+| 13 | [Summarise a whole table at once](web/Week_13.html) | [Tables, NumPy and Plotting](notebooks/Week_13.ipynb) | [Complete solutions](solutions/Week_13_Solutions.ipynb) | 8 / 4 |
 | 14 | [Bring the sensor report together](web/Week_14.html) | [Mini Project — Sensor Log Summary](notebooks/Week_14.ipynb) | [Complete solutions](solutions/Week_14_Solutions.ipynb) | 10 / 2 |
 <!-- END CP1 GENERATED INDEX -->
 
 ## 14-Week Topic Plan (CP1)
 
-### PHASE 1: Learning the Vocabulary (Weeks 1-2)
-*"These are the building blocks for expressing your solution steps"*
+The course has three stages of understanding. They are the same labels used in the notebook titles, the solution notebooks and the weekly pages.
+
+### STAGE 1: Describe and decide (Weeks 1–5)
+*Give a quantity a name, report it, decide from it, repeat an observation.*
 
 ### Week 01 — Your First Steps: Variables, Types & print()
 **Core mastery link:** Before you can solve problems with code, you need to know how to store data and show results.
@@ -78,9 +80,6 @@ Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index]
 - f-string formatting: `.2f`, alignment, `%`
 - `input()` function, string operations
 - 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 03
-
-### PHASE 2: Expressing Decisions & Repetition (Weeks 3-5)
-*"These are how you express choices and repetition in your solution steps"*
 
 ### Week 03 — Making Decisions: Conditionals (if/elif/else)
 **Core mastery link:** Most problems require decisions — "if this, do that." Conditionals let your program choose different paths.
@@ -110,61 +109,51 @@ Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index]
 - Common mistakes and debugging
 - 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 06
 
-### PHASE 3: Recognizing & Applying Patterns (Week 6)
-*"Experienced problem-solvers recognize recurring patterns — now you will too"*
+### STAGE 2: Organise observations (Weeks 6–9)
+*Keep many readings, find them by name, and parse them from text.*
 
-### Week 06 — The Problem-Solver's Toolbox: Patterns
-**Core mastery link:** This is the heart of the course. You learn to *recognize* which pattern fits a problem, then *apply* it. Sum, count, min/max, search — these are reusable solution templates.
-- Sum, count, min/max accumulator patterns
-- Average and search/scan patterns
-- Combining multiple patterns in one loop
-- Working with data lists
-- Building summary reports
+### Week 06 — Organizing Data: Lists and Accumulator Patterns
+**Core mastery link:** Most real problems involve many readings, not one. Lists keep them; the accumulator patterns (sum, count, average, min/max, search) summarise them.
+- Creating lists, indexing, negative indexing, slicing
+- Changing, adding and removing elements
+- Iterating with `for` and `enumerate()`
+- Accumulator patterns: sum, count, average, min/max with index
+- Search, filter and transform; list comprehension as the short filter loop
+- Aliasing versus copying a list
 - 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 07
 
-### PHASE 4: Working with Collections (Weeks 7-9)
-*"Real problems involve collections of data — lists, tables, text"*
-
-### Week 07 — Organizing Data: Lists
-**Core mastery link:** Most real problems involve many data points, not just one. Lists let your solution steps work with collections.
-- Creating lists, indexing, slicing
-- Modifying: `append()`, `insert()`, `pop()`, `remove()`
-- List operations: `len()`, `in`, `sorted()`, `+`, `*`
-- Iterating: `for`, `range`, `enumerate`
-- Common list patterns and methods
+### Week 07 — Finding by Name: Dictionaries and Tuples
+**Core mastery link:** A position answers *when*; a key answers *which sensor*. Dictionaries look values up by name, tuples keep a small record together.
+- Creating dictionaries, `d[key]`, `KeyError`, `in`, `.get()`
+- Adding, updating and deleting entries; insertion order
+- Iterating with `.items()`, `.keys()`, `.values()`; counting with a dictionary
+- Grouping: dictionary of lists, nested dictionaries
+- Tuples as fixed records, unpacking, tuples as keys
+- Choosing list, dictionary or tuple
 - 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 08
 
-### Week 08 — Tabular Data: 2D Lists & Nested Loops
-**Core mastery link:** Many real-world datasets are tables (rows × columns). 2D lists + nested loops let you process tabular data.
-- 2D lists as matrices, row/column access
-- Nested `for` loops for 2D traversal
-- Row/column statistics: sum, min, max, avg
-- Building and modifying 2D lists
-- Practical: grades tables, temperature grids
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 09
-
-### Week 09 — Text as Data: String Processing
+### Week 08 — Text as Data: String Processing
 **Core mastery link:** Text is data too. Parsing, splitting, and searching strings lets you solve problems involving text input.
 - String methods: `split`, `join`, `strip`, `replace`, `find`
 - Character iteration and searching
 - Parsing structured text and CSV-like lines
 - Building strings with concatenation and `join`
 - Practical: log line parsing
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 10
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 09
 
-### PHASE 5: Naming & Reusing Steps (Weeks 10-11)
-*"Functions let you name groups of steps and reuse them — the key to solving bigger problems"*
-
-### Week 10 — Naming Your Steps: Functions
+### Week 09 — Naming Your Steps: Functions
 **Core mastery link:** As problems grow, you need to name and reuse groups of steps. Functions turn your solution patterns into reusable tools.
 - `def`, parameters, arguments, `return`
 - Single/multiple parameters and return values
 - Default parameters, keyword arguments
 - `print()` vs `return` distinction
 - Docstrings, built-in functions review
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 11
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 10
 
-### Week 11 — Building Your Toolkit: Scope & Composition
+### STAGE 3: Build a checkable report (Weeks 10–14)
+*Reusable calculations, failures handled, results saved, summarised and plotted, then joined into one report.*
+
+### Week 10 — Building Your Toolkit: Scope & Composition
 **Core mastery link:** Real solutions combine many functions. Understanding scope and composition lets you build larger programs from small, reliable pieces.
 - Local vs global scope, variable lifetime
 - The `global` keyword (when to avoid it)
@@ -173,38 +162,44 @@ Start with the [simple course guide](STUDY_GUIDE.md) and [worked-solution index]
 - Refactoring scripts into function libraries
 - Dictionary creation, key access, updates and iteration before their use in exercises
 - Tuple returns/unpacking; local rebinding versus mutation of a passed list
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 12
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 11
 
-### PHASE 6: Real-World Robustness (Weeks 12-13)
-*"Real-world problems have messy input and persistent data — errors and files handle that"*
-
-### Week 12 — Handling the Unexpected: Error Handling
+### Week 11 — Handling the Unexpected: Error Handling
 **Core mastery link:** Real-world data is messy. Error handling makes your solutions robust — they handle bad input gracefully instead of crashing.
 - Syntax vs Runtime vs Logical errors
 - `try`/`except` basics, specific exceptions
 - `else` and `finally` clauses
 - Input validation with `try`/`except`
 - Defensive programming patterns, finite-number checks and boundary cases
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 13
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 12
 
-### Week 13 — Persistent Data: File I/O & CSV
+### Week 12 — Persistent Data: File I/O & CSV
 **Core mastery link:** Real problems need to read data from files and save results. File I/O connects your programs to persistent, real-world data.
 - `open()`, read, write with `with` statement
 - File modes: `r`, `w`, `a`
 - CSV concept, manual parsing with `split()`
 - Writing CSV data and summary files
 - Practical: student grades, temperature logs
-- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 14
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 13
 
-### PHASE 7: Proving Mastery (Week 14)
-*"You solve a complete real-world problem from scratch — step by step"*
+### Week 13 — Tables, NumPy and Plotting
+**Core mastery link:** Engineers summarise whole columns at once and show them. A table as a list of lists leads to NumPy arrays and one clear matplotlib plot.
+- A table as a list of lists: row and column access, why it gets clumsy
+- `numpy` arrays: shape, dtype, indexing and slicing
+- Vectorised arithmetic and statistics (`mean`, `min`, `max`, `std`, `axis`)
+- Boolean masks: counting and selecting out-of-tolerance readings
+- From a CSV file to an array; `np.loadtxt`
+- `matplotlib.pyplot`: a labelled line plot, several series, `savefig`
+- Reading a plot as evidence
+- 12 exercises: 8 core + 4 optional + bridge walkthrough to Week 14
 
 ### Week 14 — Capstone: Sensor Log Summary
 **Core mastery link:** This is the proof. You take a real problem, decompose it into steps, and build a complete working solution using everything you've learned.
 - Read sensor CSV data (timestamp, sensor, value)
-- Validate row shape, known sensors, finite numbers and sensor-specific ranges
-- State behavior for empty input and empty sensor groups
+- Validate each value with `float()` in `try/except` and a sensor-specific range
 - Compute statistics per sensor (min/max/mean/count)
 - Generate formatted summary report
 - Write clean data + report to files
+- Optional: plot each sensor with matplotlib (Week 13)
 - 12 exercises: 10 core + 2 optional; the two bonuses are included in the optional count
+

@@ -9,7 +9,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
-HELPER = '''# Run this setup once. These small tools give local study feedback.
+HELPER = '''#@title Study tools — run this cell once (the code is hidden; you do not need to read it)
+# These small tools give local study feedback.
 _checkpoint_results = {}
 
 def check_answer(number, answer, expected, explanation):

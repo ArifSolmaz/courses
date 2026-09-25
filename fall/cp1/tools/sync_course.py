@@ -89,7 +89,7 @@ def load_week(week):
     candidates = [(i, value) for i, value in enumerate(text) if cells[i]["cell_type"] == "code"
                   and 40 <= len(value) <= 1300 and not any(marker in value for marker in
                   ("check_answer(", "exercise_checkpoint(", "[EX", "input(", "%%", "_checkpoint_results"))]
-    if week == 13:
+    if week == 12:
         candidates = [(i, value) for i, value in candidates if 'open("output.txt", "w")' in value or "open('output.txt', 'w')" in value] or candidates
     snippet = candidates[0][1] if candidates else ""
     return {"week": week, "title": plain(title), "objectives": objectives, "lessons": lessons,
