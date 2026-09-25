@@ -386,6 +386,12 @@ def records_to_tables(src):
 
 
 def md_to_html(text, heading_shift=0):
+    """Markdown to HTML; notebook HTML tables get the same scrolling wrapper as pipe tables."""
+    html_out = _md_to_html(text, heading_shift)
+    return re.sub(r'(?<!<div class="tablewrap">)(<table\b.*?</table>)', r'<div class="tablewrap">\1</div>', html_out, flags=re.S)
+
+
+def _md_to_html(text, heading_shift=0):
     math, code = [], []
     text = protect(text, r"```.*?```", CODE_TOKEN, code, re.S)
     text = protect(text, r"`[^`\n]+`", CODE_TOKEN, code)
@@ -856,7 +862,7 @@ def head_html(title, desc, week, has_anim):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script defer src="../../../assets/learning-path.js?v=1"></script>
+<link rel="stylesheet" href="../assets/site.css?v=2"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script defer src="../../../assets/learning-path.js?v=1"></script>
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/contrib/auto-render.min.js" integrity="{SRI_AUTO}" crossorigin="anonymous"></script>

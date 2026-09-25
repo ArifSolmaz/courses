@@ -64,7 +64,7 @@ Use 10–15-minute prerequisite checks within Weeks 03, 08 and 10 and short entr
 
 The canonical calendar data is `calendar.json`, including the extension-notebook list. The dashboard, syllabus, course outline and release mapping must be checked against it whenever dates or assignments change (`tools/sync_calendar.py --check --public-only`). See [the teaching handoff](TEACHING_HANDOFF.md) for the final four weeks.
 
-**Verification, 12 September 2026 (single-notebook edition):** all 13 weekly and 5 extension notebooks validate and execute in fresh kernels; every demonstration panel redraws after a control change. See [REVIEW_REPORT.md](REVIEW_REPORT.md).
+**Verification, 12 September 2026 (single-notebook edition):** all 13 weekly and 5 extension notebooks validate and execute in fresh kernels; every demonstration panel redraws after a control change. See [REVIEW_REPORT.md](archive/REVIEW_REPORT_2026-09.md).
 
 **Revision, 17 September 2026.** Added: the laboratory strand (8 briefs plus the uncertainty toolkit); the
 common-exam and fixed-sequence constraint in `calendar.json`, enforced by `sync_calendar.py`; a numeric

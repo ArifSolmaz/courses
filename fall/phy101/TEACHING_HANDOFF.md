@@ -1,6 +1,6 @@
 # PHY101 — Teaching handoff for calendar Weeks 10–13
 
-The course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students in one class. Use the weekly notebooks below; each one is complete for its week and follows the adopted lecture schedule. The final four weeks pose each physical model as an application question from all three departments.
+The course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students in one class. Use the weekly notebooks below; each one is complete for its week and follows the adopted lecture schedule. Every teaching week from Week 02 to Week 13 opens its engineering practice section with a “Same physics, three departments / Aynı fizik, üç bölüm” cell (two short worked examples, Chemical and Computer Engineering, beside the existing mechatronics-style examples; the cell texts are kept in `tools/materials/department_examples.json`). Weeks 10–13 additionally pose each physical model as an application question from all three departments in their opening recap.
 
 The shared learning standard is **draw → choose a law → rearrange to the symbolic answer → check a limiting case → substitute with units → interpret**. The limiting-case step was added on 17 September 2026 and is required in every worked example, problem and laboratory prediction; see [COURSE_POLICY.md](COURSE_POLICY.md) §3. A physical explanation and a paper calculation come before any optional simulation. Students may use either discipline’s application context.
 

@@ -266,10 +266,32 @@ node fall/phy101/tools/verify_week01_animations.cjs
 python fall/phy101/tools/verify_week01_notebook.py --output-dir /tmp/phy101-week01-qa
 ```
 
-The animation check covers all slider settings and six addition orders at five sizes. The notebook check executes its source, exercises all three graphical panels and every converter unit pair, rejects unknown dimensional symbols and saves boundary plots for visual inspection. Numerical checks supplement browser and plot inspection; they do not replace it. See `../WEEK01_REVIEW.md` for the audit and repair record.
+The animation check covers all slider settings and six addition orders at five sizes. The notebook check executes its source, exercises all three graphical panels and every converter unit pair, rejects unknown dimensional symbols and saves boundary plots for visual inspection. Numerical checks supplement browser and plot inspection; they do not replace it. See `../archive/WEEK01_REVIEW_2026-09.md` for the audit and repair record.
 
 ### Illustrated textbook solutions through Exercise 1.44
 
 The 22 selected textbook exercises through 1.44 have full numerical working and original drawings in the canonical Week 01 notebook. The two later exercises (1.47 and 1.48) retain their existing solutions. Answers were cross-checked against the supplied Chapter 1 instructor manual; Exercise 1.32 documents its transposed intermediate x-component.
 
 Regenerate the drawings with `python fall/phy101/tools/draw_week01_solutions.py` (NumPy and Matplotlib required), then rebuild Week 01 with `python fall/phy101/tools/build_site.py 1`. The notebook uses published image URLs for Colab; the site builder converts these to relative asset paths for local previews and deployment. Inspect the drawings and rendered mathematics at desktop and phone widths after changes.
+
+## September 2026 redesign notes
+
+- Tables are tables again: `notebook_tables.py` no longer reflows wide tables into labelled
+  records, the 165 record blocks in the weekly notebooks were converted back, and
+  `build_site.py` wraps every notebook HTML table in `.tablewrap` so it scrolls on a phone
+  (`site.css` also lets grid columns shrink and long tokens wrap).
+- Week 03 carries a full Newton's-laws half-week (`w03-newton-*`, `w03-fbd-procedure`); the
+  air-resistance and target demos sit under "Optional: projectile extras (not examined)".
+- Week 04 teaches uniform circular motion as core (`w04-circular*`, P11, P12); the extension
+  notebook now points back to it.
+- Week 06 is an exam-format review: format and marking rules, two sample midterm questions
+  with marking schemes, eight mixed L2/L3 problems, common errors (all under `w06-problems`,
+  so they stay in the notebook and off the public page as COURSE_POLICY §7 requires).
+- Every teaching week 02–13 opens its engineering practice with "Same physics, three
+  departments" (a Chemical Engineering and a Computer Engineering worked example); the texts
+  live in `tools/materials/department_examples.json` and were inserted as `wXX-departments`.
+- Vector notation is `\vec{A}` throughout (the Week 01/02 `\vec{\mathbf A}` form was normalised).
+- Lab 04's aim now matches its analysis (the intercept is a diagnostic, not a delay measurement).
+- `build_site.py` keeps `records_to_tables()` for any notebook that still uses labelled records;
+  the weekly notebooks themselves now hold real tables.
+- Internal review notes moved to `archive/`. `History of Physics/` is untouched.

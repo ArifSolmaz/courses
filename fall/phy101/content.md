@@ -19,7 +19,7 @@ On the [course dashboard](web/PHY101_Course_Dashboard.html), choose **Open in Co
 
 **Türkçe:** Her hafta için tek bir not vardır ve o haftanın tamamını kapsar: konu anlatımı, etkileşimli grafikler, çözümlü örnekler ve adım adım yanıtlı problem seti aynı dosyadadır. Ders sayfasındaki **Open in Colab** bağlantısı notu tarayıcıda açar; **Download notebook** dosyayı bilgisayarınıza indirir. Kod yazmak öğrenme hedefi değildir.
 
-**Audience:** the course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students together. The physical laws, algebra and standards of explanation are the same for all three departments; the application questions in Weeks 10–13 are posed from each department’s perspective.
+**Audience:** the course is delivered to **Mechatronics Engineering, Computer Engineering and Chemical Engineering** students together. The physical laws, algebra and standards of explanation are the same for all three departments; every teaching week from Week 02 to Week 13 has a “Same physics, three departments / Aynı fizik, üç bölüm” cell at the start of its engineering practice section, with one Chemical Engineering and one Computer Engineering worked example beside the mechatronics-style ones (cell texts in `tools/materials/department_examples.json`); Weeks 10–13 also open with application questions posed from each department’s perspective.
 
 **Learning sequence:** draw → explain the physical meaning and choose a law → rearrange symbolically → check a limiting case → substitute with units → interpret. Predict a sign, direction or trend before calculation; connect the operation to geometry and an engineering example. See [the teaching approach and full topic map](TEACHING_APPROACH.md). English explanations include short Turkish support. Students can solve on paper; Python and interactive plots are optional ways to check a prediction.
 
@@ -87,7 +87,7 @@ is a laboratory requirement and is **not** examined in the common exams; the phy
 | --- | --- | --- | --- | --- |
 | 02 | Laboratuvar Tanıtımı | [Lab 02](labs/Lab_02_Introduction.ipynb) | [Laboratuvar Tanıtımı](labs/Lab_02_Introduction.ipynb) | Safety, logbook discipline, first honest result |
 | 03 | Ölçme Cihazları | [Lab 03](labs/Lab_03_Measuring_Instruments.ipynb) | [Ölçme Cihazları](labs/Lab_03_Measuring_Instruments.ipynb) | Caliper and micrometer; density with propagated uncertainty (Week 01) |
-| 04 | Bir Boyutta Hareket – Serbest Düşme | [Lab 04](labs/Lab_04_Free_Fall.ipynb) | [Bir Boyutta Hareket - Serbest Düşme](labs/Lab_04_Free_Fall.ipynb) | $g$ from $h$ against $t^2$; the release delay read off the intercept (Week 02) |
+| 04 | Bir Boyutta Hareket – Serbest Düşme | [Lab 04](labs/Lab_04_Free_Fall.ipynb) | [Bir Boyutta Hareket - Serbest Düşme](labs/Lab_04_Free_Fall.ipynb) | $g$ from $h$ against $t^2$; the intercept read as a diagnostic of a timing systematic (a delay biases the slope too, so it is not read off the intercept) (Week 02) |
 | 05 | Eğik Atış – Sürtünme | [Lab 05](labs/Lab_05_Projectile_Friction.ipynb) | [Eğik Atış - Sürtünme](labs/Lab_05_Projectile_Friction.ipynb) | Predicted vs measured range; $\mu_s = \tan\alpha_c$ (Week 03) |
 | 09 | Bir Boyutta Çarpışma | [Lab 09](labs/Lab_09_Collision_1D.ipynb) | [Bir Boyutta Çarpışma](labs/Lab_09_Collision_1D.ipynb) | Momentum conserved, kinetic energy not (Week 09) |
 | 10 | Katı Cisimlerin Dönmesi | [Lab 10](labs/Lab_10_Rotation.ipynb) | [Katı Cisimlerin Dönmesi](labs/Lab_10_Rotation.ipynb) | Angular kinematics; $v = R\omega$ two ways (Week 10) |
@@ -108,4 +108,4 @@ twin is Final_Review §3. See [the concept-inventory protocol](CONCEPT_INVENTORY
 
 See [the course policy](COURSE_POLICY.md), [the textbook and laboratory map](TEXTBOOK_MAP.md),
 [schedule implementation](SCHEDULE_ALIGNMENT.md), [the final-four-week teaching handoff](TEACHING_HANDOFF.md),
-[the maintenance guide](tools/README.md) and [the review and verification record](REVIEW_REPORT.md).
+[the maintenance guide](tools/README.md) and [the review and verification record](archive/REVIEW_REPORT_2026-09.md).
