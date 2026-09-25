@@ -105,7 +105,7 @@
       /* --- x-t --- */
       var Px = s.plot({
         y: 0, w: s.w, h: panelH, xlim: [0, M.tmax], ylim: L.x,
-        xticks: ticks, yticks: [Math.round(L.x[0]), Math.round(L.x[1])],
+        xticks: ticks, yticks: [Math.round(L.x[0]), L.x[0] < 0 && L.x[1] > 0 ? 0 : Math.round((L.x[0] + L.x[1]) / 2), Math.round(L.x[1])],
         ylabel: "x (m)", pad: { l: 52, r: 16, t: 20, b: 24 }
       });
       Px.frame(); Px.title("position");

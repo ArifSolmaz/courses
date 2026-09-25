@@ -330,12 +330,13 @@ acceleration arrow points down and has the same length.</desc>
         {
             "after": "Braking Distance",
             "slug": "fig-w2-vsquared",
-            "caption": "Stopping distance goes as the square of the speed, because the kinetic "
+            "caption": "Braking distance goes as the square of the speed, because the kinetic "
                        "energy that has to be removed does. Twice the speed is four times the "
-                       "distance, not twice — the single most useful consequence of this week.",
-            "caption_tr": "Durma mesafesi süratin karesiyle artar, çünkü yok edilmesi gereken "
+                       "braking distance, not twice — the reaction distance only doubles, which is "
+                       "why the total above went from 20 m to 60 m, not 80 m.",
+            "caption_tr": "Fren mesafesi süratin karesiyle artar, çünkü yok edilmesi gereken "
                           "kinetik enerji de öyle artar. İki kat sürat, iki kat değil dört kat "
-                          "mesafe demektir — bu haftanın en işe yarar sonucu.",
+                          "fren mesafesi demektir; tepki mesafesi yalnızca ikiye katlanır.",
             # bar widths are exactly 38 * (1, 4, 9)
             "svg": """<svg viewBox="0 0 440 156" role="img" aria-labelledby="t-vs d-vs">
 <title id="t-vs">Stopping distance at one, two and three times a reference speed</title>

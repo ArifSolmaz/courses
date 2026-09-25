@@ -42,7 +42,7 @@ function setup(host){
    for(const x of [lo,hi])b+=line(X(x),174,X(x),186)+text(X(x)-20,252,`${x} m`);
    if(key==='route')b+=line(X(0),174,X(0),186)+text(X(0)-6,211,'0');
    b+=`<circle cx="${X(S.x)}" cy="165" r="12" fill="#145e96"/>`;
-   b+=text(30,60,key==='route'?'East →     ← West':'Prescribed motion: 0–16 s')+text(30,110,`Position: ${f(S.x)} m`);
+   b+=text(30,60,key==='route'?'← West · East →':'Prescribed motion: 0–16 s')+text(30,110,`Position: ${f(S.x)} m`);
    if(Math.abs(S.v)>.00001){const dir=Math.sign(S.v),x=X(S.x),u=x+dir*30;b+=line(x,143,u,143,'#145e96')+`<path d="M${u-dir*8},137 L${u},143 L${u-dir*8},149" fill="none" stroke="#145e96" stroke-width="3"/>`;}
   }
   host.querySelector('.w2-scene').innerHTML=`<svg viewBox="0 0 560 350" role="img" aria-label="${esc(M.title)} at ${f(t)} seconds"><rect width="560" height="350" rx="12" fill="#f6f8fb"/><g font-family="Arial, sans-serif">${b}</g></svg>`;

@@ -346,6 +346,45 @@ def pipe_table(rows):
 TR_START = re.compile(r"^\s*(?:<strong>)?(?:TR|Türkçe|Turkish)\b", re.I)
 
 
+RECORD = re.compile(r"<p><strong>([^<]+?):</strong> (.*?)</p>\n<ul>\n((?:<li><p><strong>[^<]+?:</strong> .*?</p></li>\n)+)</ul>")
+ITEM = re.compile(r"<li><p><strong>([^<]+?):</strong> (.*?)</p></li>")
+
+
+def records_to_tables(src):
+    """The notebook stores text-heavy tables as labelled records, because Colab
+    truncates every table cell to one line. The web page has no such limit, so a
+    run of records sharing the same labels becomes one table again."""
+    matches = list(RECORD.finditer(src))
+    if not matches:
+        return src
+    runs, run = [], [matches[0]]
+    for m in matches[1:]:
+        prev = run[-1]
+        same = src[prev.end():m.start()].strip() == "" and m.group(1) == prev.group(1)
+        (run.append(m) if same else (runs.append(run), run := [m]))
+    runs.append(run)
+    pieces, pos = [], 0
+    for run in runs:
+        head = [run[0].group(1)] + [i.group(1) for i in ITEM.finditer(run[0].group(3))]
+        rows = [[m.group(2)] + [i.group(2) for i in ITEM.finditer(m.group(3))] for m in run]
+        if any(len(r) != len(head) for r in rows):
+            continue
+        first = max(12, min(30, 100 // len(head)))
+        rest = (100 - first) // (len(head) - 1)
+        widths = [first] + [rest] * (len(head) - 1)
+        tbl = ['<table width="100%">', "<thead>", "<tr>"]
+        tbl += [f'<th align="left" scope="col" width="{w}%">{h}</th>' for h, w in zip(head, widths)]
+        tbl += ["</tr>", "</thead>", "<tbody>"]
+        for r in rows:
+            tbl += ["<tr>"] + [f"<td>{c}</td>" for c in r] + ["</tr>"]
+        tbl += ["</tbody>", "</table>"]
+        pieces.append(src[pos:run[0].start()])
+        pieces.append("\n".join(tbl))
+        pos = run[-1].end()
+    pieces.append(src[pos:])
+    return "".join(pieces)
+
+
 def md_to_html(text, heading_shift=0):
     math, code = [], []
     text = protect(text, r"```.*?```", CODE_TOKEN, code, re.S)
@@ -538,8 +577,9 @@ def to_key_equations(body, week, counter, collected, allow=True):
         if not allow or "\\boxed" not in tex or looks_like_an_answer(tex):
             return m.group(0)
         counter[0] += 1
-        num = (f"1.{[9, 14, 16, 19, 20, 25][counter[0] - 1]}"
-               if week == 1 and counter[0] <= 6 else f"{week}.{counter[0]}")
+        # label with the textbook's own equation number where the week boxes Y&F equations in order
+        yf = YF_EQUATIONS.get(week, [])
+        num = f"{week}.{yf[counter[0] - 1]}" if counter[0] <= len(yf) else f"{week}.{counter[0]}"
         shown = unbox(tex)
         collected.append((num, shown))
         return (f'<div class="keyeq" id="eq-{week}-{counter[0]}">'
@@ -569,6 +609,12 @@ def split_heading(body):
 NON_ASCII = re.compile(r"[^\x00-\x7f]")
 
 
+# Y&F 15e equation numbers, in the order each week's notebook boxes them
+YF_EQUATIONS = {1: [9, 14, 16, 19, 20, 25], 2: [8, 12, 13, 14]}
+# Turkish function words: a right-hand half made only of ASCII letters can still be Turkish
+TR_WORDS = {"ve", "bu", "bir", "ile", "hafta", "sonra", "olarak", "nedir"}
+
+
 def split_bilingual(title):
     """"Before you start / Baslamadan once" -> (English, Turkish).
 
@@ -578,7 +624,8 @@ def split_bilingual(title):
     if " / " not in title:
         return title, ""
     left, right = title.rsplit(" / ", 1)
-    if (NON_ASCII.search(right) and not NON_ASCII.search(left)) or right.strip() == "Standartlar ve birimler":
+    turkish = NON_ASCII.search(right) or (set(re.findall(r"[a-z]+", right.lower())) & TR_WORDS)
+    if turkish and not NON_ASCII.search(left):
         return left.strip(), right.strip()
     return title, ""
 
@@ -694,7 +741,7 @@ def notebook_body(week, nb):
             and not is_examples_header(head_probe)
         ) or "checkpoint" in head_probe
 
-        body = md_to_html(src, heading_shift=0)
+        body = md_to_html(records_to_tables(src), heading_shift=0)
         body = to_key_equations(body, week, eq_counter, equations, allow=not in_example)
         body = to_cautions(body)
         body = to_margin_notes(body)

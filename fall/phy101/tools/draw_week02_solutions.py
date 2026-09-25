@@ -21,7 +21,7 @@ def graph(title,f,tmax,ymin,ymax,yticks,ylabel,offset=0,extra=''):
  left,right,top,bottom=80,510,55+offset,250+offset
  X=lambda t:left+(right-left)*t/tmax
  Y=lambda v:bottom-(v-ymin)/(ymax-ymin)*(bottom-top)
- b=txt(24,28+offset,title,22)+txt(28,50+offset,ylabel,16)
+ b=txt(24,28+offset,title,22)+txt(28,43+offset,ylabel,16)
  for v in yticks:b+=line(left,Y(v),right,Y(v),'#cbd5df')+txt(left-10,Y(v)+6,f'{v:g}',16,anchor='end')
  b+=line(left,top,left,bottom)+line(left,Y(0) if ymin<=0<=ymax else bottom,right,Y(0) if ymin<=0<=ymax else bottom)
  for t in [0,tmax/2,tmax]:b+=txt(X(t),278+offset,f'{t:.3g}',16,anchor='middle')
@@ -63,9 +63,9 @@ b=graph('Ramp car vs steady traffic',lambda t:20*t/12,12,0,24,[0,10,20],'vₓ (m
 save(24,b,320)
 b=txt(24,32,'Distance s is measured along the incline',21)+line(75,75,490,260)+line(95,78,510,263,BLUE,arrow=True)+txt(105,66,'s = 0; v = 0',18)+txt(295,95,'s = 3.40 m',18)+txt(295,122,'v = 2.69 m/s',18,BLUE)+txt(340,294,'6.80 m; 3.80 m/s',18)+f'<rect x="274" y="153" width="23" height="23" fill="{BLUE}" transform="rotate(24 285 164)"/>'+txt(24,328,'Schematic slope angle; not specified by the question.',16)
 save(30,b,350)
-b=txt(24,32,'Up is positive; ground is y = 0',22)+line(75,280,75,55,arrow=True)+txt(38,65,'+y',18)+line(75,280,520,280)+txt(320,307,'Street: 0 m',18)+line(80,155,265,155,'#98a8b9',True)+txt(90,181,'Roof: 30.0 m',18)+line(300,155,300,65,BLUE,arrow=True)+txt(330,115,'Launch: +22.0 m/s',18,BLUE)+line(315,70,315,272,RED,arrow=True)+txt(332,235,'Impact: −32.7 m/s',18,RED)+txt(90,55,'Apex: 54.7 m',18)
+b=txt(24,32,'Up is positive; ground is y = 0',22)+line(75,280,75,55,arrow=True)+txt(38,65,'+y',18)+line(75,280,520,280)+txt(320,307,'Street: 0 m',18)+line(80,155,265,155,'#98a8b9',True)+txt(90,181,'Roof: 30.0 m',18)+line(300,155,300,65,BLUE,arrow=True)+txt(330,115,'Launch: +22.0 m/s',18,BLUE)+line(315,70,315,272,RED,arrow=True)+txt(332,235,'Impact: −32.8 m/s',18,RED)+txt(90,55,'Apex: 54.7 m',18)
 save(32,b,335)
-save(37,graph('Velocity changes sign; gravity does not',lambda t:24-9.8*t,4,-20,26,[-15.2,0,24],'vᵧ (m/s)')+graph('Acceleration throughout free flight',lambda t:-9.8,4,-12,0,[-9.8,0],'aᵧ (m/s²)',320),640)
-T=(5+math.sqrt(809))/9.8
-save(42,graph('Height: rise, turn, then fall',lambda t:40+5*t-4.9*t*t,T,0,45,[0,20,40],'y (m)')+graph('Velocity: zero at t = 0.510 s',lambda t:5-9.8*t,T,-30,10,[-28.44,0,5],'vᵧ (m/s)',320)+graph('Acceleration: constant until impact',lambda t:-9.8,T,-12,0,[-9.8,0],'aᵧ (m/s²)',640),960)
+save(37,graph('Velocity changes sign; gravity does not',lambda t:24-9.81*t,4,-20,26,[-15.2,0,24],'vᵧ (m/s)')+graph('Acceleration throughout free flight',lambda t:-9.81,4,-12,0,[-9.81,0],'aᵧ (m/s²)',320),640)
+T=(5+math.sqrt(809.8))/9.81
+save(42,graph('Height: rise, turn, then fall',lambda t:40+5*t-4.905*t*t,T,0,45,[0,20,40],'y (m)')+graph('Velocity: zero at t = 0.510 s',lambda t:5-9.81*t,T,-30,10,[-28.46,0,5],'vᵧ (m/s)',320)+graph('Acceleration: constant until impact',lambda t:-9.81,T,-12,0,[-9.81,0],'aᵧ (m/s²)',640),960)
 print('Wrote 20 original SVG figures')
