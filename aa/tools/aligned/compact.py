@@ -19,6 +19,10 @@ def animation_content(n):
   from learning_path import sections
   stories=[s for s in sections((ROOT/'tools/weeks/w01.html').read_text()) if 'story-lesson' in s]
   items=[('robot','Robot tour',stories[0]),('film','Movie-star scheduling',stories[1])]+items
+ # Hook: demonstrations authored later drop in per week without editing this module.
+ from .animations_extra import ANIMATIONS_EXTRA
+ extra=list(ANIMATIONS_EXTRA.get(n,[]))
+ items+=[(slug,title,body) for slug,title,body,_ in extra]
  if not items:return '', ''
  options=''.join(f'<option value="{i}">{E(title)}</option>' for i,(_,title,_) in enumerate(items))
  content='<details class="animation-drawer"><summary>Explore the animations</summary><p>Each demonstration states its own input and code. Check its loop bounds before comparing counts with the worked example.</p><label for="animation-choice">Choose a demonstration</label><select id="animation-choice">'+options+'</select>'+''.join(f'<div class="animation-panel" data-animation-panel="{i}"'+(' hidden' if i else '')+'>'+body+'</div>' for i,(_,_,body) in enumerate(items))+'</details>'
@@ -26,6 +30,8 @@ def animation_content(n):
  for old in sorted(modules):
   if old>1:assets+=f'<link rel="stylesheet" href="../assets/anim-w{old}.css"><script defer src="../assets/anim-w{old}.js?v=10"></script>'
  if n==1:assets+='<link rel="stylesheet" href="../assets/week1-stories.css"><script defer src="../assets/week1-stories.js?v=1"></script>'
+ for _,_,_,extra_assets in extra:
+  if extra_assets and extra_assets not in assets:assets+=extra_assets
  return content,assets
 
 def redirect(path,destination):
@@ -42,5 +48,5 @@ def consolidate_routes():
     target=ROOT/f'w{week}/index.html'
    else:target=ROOT/'index.html'
    redirect(path,os.path.relpath(target,path.parent)+('#notes' if m else ''))
- for route,week in [('extensions',9),('skiena',2),('engineering',14)]:
+ for route,week in [('extensions',8),('skiena',2),('engineering',14)]:
   redirect(ROOT/route/'index.html',f'../w{week}/#notes')

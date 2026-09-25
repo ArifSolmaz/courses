@@ -23,3 +23,14 @@ Older `guide/wNN/` addresses lead to the current weekly lessons. Auxiliary libra
 The student route is the dashboard plus 14 weekly pages. Each week has three in-page views: Lesson, Practice and Notes. Practice paginates in groups of five, with each answer visible beside its question. Hash links open the correct view and question group. Keyboard tab navigation and a complete print view are supported.
 
 All 81 prior general demonstrations and the two Week 1 stories are embedded by topic, selected with one animation chooser. Long bilingual readings, Python explanations and additional textbook problems are contained in Notes. Earlier `python/`, `guide/`, `skiena/`, `extensions/` and capstone landing addresses redirect into this single route. Earlier source material remains in the repository history and authoring sources; no separate student support library is presented.
+
+## September 2026 redesign
+
+- The 23 displayed equations that the DOCX stores as images are typed in `tools/aligned/formulas.json` and restored into the Notes by `tools/aligned/extract_notes.py` (re-run it after any DOCX change; it fails if an image has no entry).
+- Calendar: Week 7 now covers lectures 8–9 (sorting II) and a new **solving recurrences** unit; Weeks 8–11 follow lectures 10–11, 12, 13, 14 one per week; Week 14 is NP-completeness only. The cumulative review is `review/`, the 53 textbook problems are `textbook-problems/`, and `scope/` ("What the exams cover") lists the examinable topics per week with four sample exam questions and marking notes (`tools/aligned/sample_questions.py`).
+- Each week has learning objectives (`course.py`), a Theory section where the course makes a correctness or cost claim (`tools/aligned/theory.py`: invariants, amortised analysis, recurrences, BFS/Dijkstra/cut-property arguments, Bellman–Ford), and a "Where an engineer meets this" section with one mechatronics MCQ and one written item (`tools/aligned/transfer.py`). All of it is core and examinable.
+- Practice answers are hidden until asked for (per question or per page; remembered in the browser; always printed). Difficulty labels were audited (`tools/materials/DIFFICULTY_AUDIT_2026-09.md`); cross-references now read "Week w, Question k".
+- Ten algorithm-specific animations in `assets/anim-aa.js` (growth table, nested loop, array insertion, linear probing, heap, recursion tree, BFS grid, Kruskal, Dijkstra grid, edit-distance table); checks in `tools/verify_anim_aa.cjs` (`node`).
+- Legacy generators and review notes are in `archive/`.
+
+Build and check: `python3 tools/build.py && python3 tools/verify_alignment.py && node tools/verify_animation_math.cjs && node tools/verify_week1_stories.cjs && node tools/verify_anim_aa.cjs`.

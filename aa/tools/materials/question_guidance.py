@@ -1,5 +1,9 @@
 """Small, question-specific scaffolds; hints never require another page."""
 # Each entry: plain-language task, starting hint, then a sequence of reasoning steps.
+# Difficulty audit 2026-09 (DIFFICULTY_AUDIT_2026-09.md) relabelled these scaffolded items
+# below Hard; their scaffolds are kept deliberately. Written: 30, 62, 92, 96, 166, 167,
+# 168, 201, 204, 205 (now Medium). MCQ: 19, 40, 59, 60, 79, 80, 99, 119, 120 (Medium);
+# 20, 39, 100 (Easy).
 WRITTEN = {
 27: ('Show that two eventual upper bounds can be chained.', 'Write the two inequalities and choose a point where both are valid.', ['Transitive means that f being bounded by g, and g by h, also bounds f by h.', 'Beyond n₁, f ≤ c₁g. Beyond n₂, g ≤ c₂h. Choose n ≥ max(n₁,n₂).', 'Substitute the second inequality into the first: f ≤ c₁c₂h. The new constant is c₁c₂.']),
 28: ('Compare a logarithm with even a tiny positive power.', 'Replace n by 2ᵐ so the logarithm becomes m.', ['Take logarithms in base 2; another fixed base changes only a constant.', 'Now log₂ n = m and nᵏ = 2^(km). Since k > 0, this is an exponential with base greater than 1.', 'When m doubles, the linear part merely doubles, while the exponential part is squared. Repeating this makes m / 2^(km) tend to zero. A tiny k delays this behaviour but does not change the eventual result.']),

@@ -50,7 +50,7 @@ def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice question
     written=sorted(written_ids,key=lambda n:(rank[EXERCISES[n]['level']],n))
     return f'''<section class="chapter-question-bank" id="{ident}"><h3>{html.escape(title)}</h3>
 <p class="source-label">{len(tests)} test questions · {len(written)} written questions · {len(tests) + len(written)} total</p>
-<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
+<p>Each question is followed by its answer and explanation. Some questions include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
 {''.join(test_question(n, i) for i, n in enumerate(tests, 1))}
 <h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
