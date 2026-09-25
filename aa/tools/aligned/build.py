@@ -3,7 +3,7 @@ import html,json,re,sys
 from .course import WEEKS
 from .visuals import figure, CODES
 from .sample_questions import MIDTERM,FINAL
-from .compact import animation_content, consolidate_routes
+from .compact import animation_content, consolidate_routes, redirect
 from . import theory, transfer
 E=html.escape
 ROOT=Path(__file__).resolve().parents[2]
@@ -100,11 +100,16 @@ def configure():
    S.EXERCISES[item['id']]=item
  return Q
 
-def shell(B,title,body,base):
+def shell(B,title,body,base,assets='',sheets=('course.css?v=1',),scripts=('compact.js?v=1','course.js?v=1')):
+ """One page. `sheets`/`scripts` are the page's own layer (course.* for the
+ lessons and reference pages, home.* for the dashboard); `assets` carries the
+ per-week animation bundles, which must load before compact.js and course.js."""
  body=body.replace('<main ', '<div ').replace('</main>', '</div>')
  head=B.HEAD.format(title=E(title)+' — AA',desc=E(title),base=base)
  head=re.sub(r'<nav class="header-nav">.*?</nav>', '<button class="hlink" data-theme-toggle type="button">Light / dark</button>', head, flags=re.S)
- return head.replace('</head>',f'<link rel="stylesheet" href="{base}assets/aligned.css?v=weeks14"><script defer src="{base}assets/compact.js?v=1"></script></head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
+ extra=''.join(f'<link rel="stylesheet" href="{base}assets/{s}">' for s in sheets)+assets \
+      +''.join(f'<script defer src="{base}assets/{s}"></script>' for s in scripts)
+ return head.replace('</head>',extra+'</head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
 
 def reading_label(lectures):
  return 'Lectures '+', '.join(map(str,lectures)) if len(lectures)>1 else f'Lecture {lectures[0]}'
@@ -141,6 +146,22 @@ def render_example(n,item,i,count):
  heading=f'<h2 id="example-{n}-{i}">{E(item["question"])}</h2>' if count==1 else f'<h2 id="example-{n}-{i}"><span class="example-number">Worked example {i}</span>{E(item["question"])}</h2>'
  steps=''.join(f'<article><span>Step {k}</span><p>{E(step)}</p></article>' for k,step in enumerate(item['steps'],1))
  return f'<article class="worked-example">{heading}{label}<p class="problem">{E(item["example"])}</p>{example_figure(n,item)}<div class="trace" aria-label="Worked solution steps">{steps}</div><p class="edge"><strong>Change the case.</strong> {E(item["edge"])}</p></article>'
+
+def week_card(n,title,reading):
+ """One card on the dashboard. The tick and the progress bar are driven by
+ assets/home.js through data-week/data-tick; without JavaScript the card is
+ simply a link."""
+ return (f'<li class="wk" data-week="w{n}"><a class="wk-link" href="w{n}/">'
+         f'<span class="wk-num">Week {n:02}</span><span class="wk-title">{E(title)}</span>'
+         f'<span class="wk-read">Document &middot; {reading}</span></a>'
+         f'<button class="wk-tick" type="button" data-tick="w{n}" aria-pressed="false">'
+         f'<span class="wk-tick-mark" aria-hidden="true"></span>'
+         f'<span class="visually-hidden">Mark week {n:02} as done</span></button></li>')
+
+def term_block(label,note,cards,start):
+ items=''.join(week_card(*c) for c in cards)
+ return (f'<div class="term"><h3 class="term-head">{label} <span>{note}</span></h3>'
+         f'<ol class="weeks"{f" start={chr(34)}{start}{chr(34)}" if start>1 else ""}>{items}</ol></div>')
 
 def objectives_html(w):
  return '<div class="objectives"><h2>By the end of this week you can…</h2><ul>'+''.join(f'<li>{E(x)}</li>' for x in w['objectives'])+'</ul></div>'
@@ -227,7 +248,7 @@ def build(B):
  for n,w in enumerate(WEEKS,1):
   title,lectures,summary,python=w['title'],w['lectures'],w['summary'],w['python']
   reading=reading_label(lectures)
-  rows.append(f'<tr><td>{n:02}</td><td><strong>{E(title)}</strong><small class="reading">Document: {reading}</small></td><td><a href="w{n}/">Open →</a></td></tr>')
+  rows.append((n,title,reading))
   core=[];depth=[]
   for l in lectures:
    sections=LECTURES[str(l)]['sections']
@@ -258,14 +279,45 @@ def build(B):
 <section id="practice" class="week-panel">{transfer.TRANSFER.get(n,'')}<p>Questions and answers are together. Hard questions are optional; some tests revisit earlier ideas. Practice is ungraded.</p>{bank}</section>
 <section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(week_code(n))}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
 <nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a><a href="../review/#review-w{n}">Review</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
-  page=shell(B,title,body,'../').replace('</head>',assets+'</head>')
+  page=shell(B,title,body,'../',assets)
   (ROOT/f'w{n}/index.html').write_text(page)
-  target=ROOT/f'guide/w{n:02}/index.html'
-  target.write_text(f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=../../w{n}/"><title>Week {n} — AA</title><p>The current lesson and its bilingual explanations are together: <a href="../../w{n}/">Open Week {n}</a>.</p>')
+  redirect(ROOT/f'guide/w{n:02}/index.html',f'../../w{n}/',
+           message='The current lesson and its bilingual explanations are together.',
+           link=f'Open Week {n}',title=f'Week {n} — AA')
  for folder,page in (('scope',scope_page(B)),('review',review_page(B,Q,tests,homes,display)),('textbook-problems',textbook_page(B))):
   (ROOT/folder).mkdir(exist_ok=True);(ROOT/folder/'index.html').write_text(page)
- home=f'''<main class="course-dashboard compact-dashboard"><header class="dashboard-intro"><p class="eyebrow">AA · Dr. Arif Solmaz</p><h1>Algorithm Analysis</h1><p>Choose your week. Its lesson, animations, questions and notes are all on one page.</p></header><nav class="page-links course-links" aria-label="Course pages"><a href="scope/">What the exams cover</a><a href="review/">Cumulative review</a><a href="textbook-problems/">Additional textbook problems</a></nav><section class="course-schedule" id="weeks"><table><thead><tr><th>Week</th><th>Topic · Skiena reading</th><th></th></tr></thead><tbody>{''.join(rows)}</tbody></table></section><details id="course-info"><summary>Course information</summary><p>No prior Python knowledge is required. Python help is inside each week’s Notes view. Document lectures 1–22 are grouped into 14 weeks.</p><p>Assessment: midterm 50% (weeks 1–7), final 50% (weeks 1–14, emphasis on weeks 8–14). Weekly practice is ungraded, with no upload required. Optional challenges are enrichment; the <a href="scope/">exam scope page</a> lists core and reading-only topics.</p><p><a href="resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual course document</a></p></details></main>'''
- (ROOT/'index.html').write_text(shell(B,'Algorithm Analysis',home,''))
+ probs=sum(1 for arts in groups.values() for a in arts if 'class="ask"' in a)
+ home=f'''<main class="home" id="main">
+<section class="hero">
+<div class="hero-text">
+<p class="eyebrow">Algorithm Analysis &middot; Dr. Arif Solmaz</p>
+<h1>Fourteen weeks,<br>one page each.</h1>
+<p class="lede">Every week holds its lesson, animations, practice questions and notes on a single page. Pick the week you are on — or carry on from where you stopped.</p>
+<p class="hero-actions"><a class="btn btn-primary" href="w1/" data-resume>Start with week 01 <span aria-hidden="true">&rarr;</span></a><a class="btn" href="#schedule">See all weeks</a></p>
+</div>
+<aside class="facts" aria-labelledby="facts-title">
+<h2 class="facts-title" id="facts-title">How the course is assessed</h2>
+<dl><div><dt>Midterm</dt><dd><b>50%</b> &middot; weeks 1&ndash;7</dd></div><div><dt>Final</dt><dd><b>50%</b> &middot; weeks 1&ndash;14, emphasis on 8&ndash;14</dd></div><div><dt>Weekly practice</dt><dd>Ungraded. Nothing to upload.</dd></div><div><dt>Prerequisite</dt><dd>No prior Python. Python help sits in each week&rsquo;s Notes view.</dd></div></dl>
+<a class="doc-link" href="resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned"><span class="doc-icon" aria-hidden="true">&darr;</span><span><b>Course document</b><small>Bilingual English &middot; Turkish, .docx — lectures 1&ndash;22</small></span></a>
+</aside>
+</section>
+<section class="schedule" id="schedule" aria-labelledby="schedule-title">
+<div class="section-head"><h2 id="schedule-title">The schedule</h2>
+<div class="progress" data-progress hidden><div class="progress-track"><div class="progress-fill"></div></div><p class="progress-label"><span data-progress-label></span> <button class="progress-reset" type="button" data-progress-reset>Clear</button></p></div></div>
+{term_block("Weeks 01&ndash;07","Midterm scope",[c for c in rows if c[0] in MIDTERM_WEEKS],1)}
+{term_block("Weeks 08&ndash;14","Final emphasis",[c for c in rows if c[0] in FINAL_EMPHASIS],8)}
+<p class="term-note">Ticking a week is for your own bookkeeping only. It is stored in this browser, is never uploaded, and has no effect on your grade.</p>
+</section>
+<section class="resources" aria-labelledby="resources-title">
+<h2 id="resources-title">When you revise</h2>
+<ul class="res-grid">
+<li><a href="scope/"><h3>What the exams cover</h3><p>Core topics and reading-only topics, exam by exam.</p><span class="res-go" aria-hidden="true">Open &rarr;</span></a></li>
+<li><a href="review/"><h3>Cumulative review</h3><p>One pass over the whole course: what you should be able to do each week, the worked problems to retrieve from memory, and the quick checks later weeks reuse.</p><span class="res-go" aria-hidden="true">Open &rarr;</span></a></li>
+<li><a href="textbook-problems/"><h3>Additional textbook problems</h3><p>{probs} problems from the textbook&rsquo;s analysis chapter, restated in plain words and solved in full. Not homework.</p><span class="res-go" aria-hidden="true">Open &rarr;</span></a></li>
+</ul>
+</section>
+</main>'''
+ (ROOT/'index.html').write_text(shell(B,'Algorithm Analysis',home,'',sheets=('home.css?v=1',),scripts=('home.js?v=1',)))
  consolidate_routes()
  (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x["title"]} — document lectures {", ".join(map(str,x["lectures"]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Exam scope: scope/. Cumulative review: review/. Additional textbook problems: textbook-problems/. Older library addresses redirect to that route.\n')
  print('Built 14 aligned lessons, dashboard, scope, review, textbook-problems and reference routes.')

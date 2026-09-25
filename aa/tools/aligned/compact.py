@@ -34,9 +34,27 @@ def animation_content(n):
   if extra_assets and extra_assets not in assets:assets+=extra_assets
  return content,assets
 
-def redirect(path,destination):
+STUB=('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+ '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+ '<meta http-equiv="refresh" content="0;url={destination}">'
+ '<title>{title}</title><link rel="canonical" href="{destination}">'
+ '<style>:root{{color-scheme:dark light}}'
+ 'body{{margin:0;min-height:100vh;display:grid;place-items:center;padding:2rem;text-align:center;'
+ 'background:#081018;color:#dce5e2;font:400 1rem/1.7 Manrope,system-ui,-apple-system,sans-serif}}'
+ 'p{{max-width:44ch;margin:0 0 1.4rem}}'
+ 'a{{display:inline-block;padding:.6rem 1.25rem;border:1px solid #ff9e80;border-radius:999px;'
+ 'color:#ff9e80;text-decoration:none;font-weight:600}}'
+ '@media(prefers-color-scheme:light){{body{{background:#f2f1eb;color:#263633}}'
+ 'a{{color:#b64f32;border-color:#b64f32}}}}'
+ '</style></head><body><main><p>{message}</p><a href="{destination}">{link}</a></main></body></html>')
+
+def redirect(path,destination,message='This material is now inside its weekly lesson.',
+             link='Open the lesson',title='AA weekly lesson'):
+ """An old address. The refresh fires immediately, so this page is only ever
+ seen on a slow connection or with scripting restrictions - it carries its own
+ styling inline rather than pulling the site stylesheets for one line of text."""
  path.parent.mkdir(parents=True,exist_ok=True)
- path.write_text(f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url={destination}"><title>AA weekly lesson</title><link rel="canonical" href="{destination}"><p>This material is now inside its weekly lesson. <a href="{destination}">Open the lesson</a>.</p></html>')
+ path.write_text(STUB.format(destination=destination,message=message,link=link,title=title))
 
 def consolidate_routes():
  import os

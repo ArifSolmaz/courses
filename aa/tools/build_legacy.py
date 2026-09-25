@@ -147,11 +147,11 @@ HEAD = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="{desc}">
 <title>{title}</title>
+<script>try{{var t=localStorage.getItem("aa_theme");if(!t)t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)}}catch(e){{}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{base}assets/style.css"><link rel="stylesheet" href="{base}../assets/learning-path.css?v=1"><link rel="stylesheet" href="{base}assets/learning.css?v=2"><link rel="stylesheet" href="{base}../assets/course-navigation.css?v=2"><script defer src="{base}../assets/course-navigation.js?v=1"></script>
-<link rel="stylesheet" href="{base}assets/questions.css?v=2">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{base}assets/style.css">
 </head>
 <body>
 <header class="site-header">
