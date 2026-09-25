@@ -1,3 +1,5 @@
+<div id="ch1-summary"></div>
+
 ### Chapter 1 summary: what this week builds on / 1. Bölüm özeti
 
 The textbook's own one-page summary of Chapter 1, kept here so it is the first thing you meet in Week 02. Every equation number is the textbook's. If any line below is not obvious, the [Week 01 notes](Week_01.ipynb) and the [products-of-vectors review](../w1/recap.html) are where to go before continuing.
