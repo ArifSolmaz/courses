@@ -3,656 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="append vs insert(0), pop() vs pop(0), + vs comprehension — measured, not guessed.">
-<title>Week 10: What Python Lists Really Cost — AA</title>
+<meta name="description" content="DFS and minimum spanning trees">
+<title>DFS and minimum spanning trees — AA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2"><link rel="stylesheet" href="../../assets/course-navigation.css?v=2"><script defer src="../../assets/course-navigation.js?v=1"></script>
 <link rel="stylesheet" href="../assets/questions.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w10.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/aligned.css"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Settings</summary><div>
+    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
 <main class="wrap">
+<div class="aligned"><div class="hero"><p class="eyebrow">Week 10 · Lectures 12, 13</p><h1>DFS and minimum spanning trees</h1><p>Trace depth-first exploration and distinguish a traversal tree from a minimum-weight connecting tree. Introduce topological order and greedy MST choices.</p></div>
+<section class="reading-card"><h2>Read alongside the document</h2><p>Use the lecture headings below in the English–Turkish notes. Document lecture numbers and course week numbers are different.</p><ul><li><strong>Lecture 12: Depth-First Search</strong><br>Warm-up: edge types in BFS; DFS; What DFS does to the edges; Application: finding a cycle; Application: articulation vertices; Topological sorting; Strongly connected components.</li><li><strong>Lecture 13: Minimum Spanning Trees</strong><br>Warm-up: lining up children who hate each other; Weighted graphs and spanning trees; Prim’s algorithm; Kruskal’s algorithm; Union-find.</li></ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual notes</a></p></section>
+<section><h2>Does any tree connecting all vertices have the smallest total weight?</h2><p class="problem">A triangle has undirected edge weights AB=1, BC=2, AC=3. Apply Kruskal’s algorithm.</p><figure><svg viewBox="0 0 780 220" role="img" aria-label="Kruskal chooses AB and BC, joining all vertices with total weight 3."><line x1="130" y1="160" x2="370" y2="35"/><text x="250.0" y="85.5" text-anchor="middle">1</text><line x1="370" y1="35" x2="610" y2="160"/><text x="490.0" y="85.5" text-anchor="middle">2</text><line x1="130" y1="160" x2="610" y2="160"/><text x="370.0" y="148.0" text-anchor="middle">3</text><circle cx="130" cy="160" r="21" fill="#d4e4dc"/><text x="130" y="166" text-anchor="middle">A</text><circle cx="370" cy="35" r="21" fill="#d4e4dc"/><text x="370" y="41" text-anchor="middle">B</text><circle cx="610" cy="160" r="21" fill="#d4e4dc"/><text x="610" y="166" text-anchor="middle">C</text></svg><figcaption>Kruskal chooses AB and BC, joining all vertices with total weight 3.</figcaption></figure><div class="trace" aria-label="Worked solution steps"><article><span>Step 1</span><p>Sort the edges by weight: AB, BC, AC.</p></article><article><span>Step 2</span><p>Accept AB: it joins different components.</p></article><article><span>Step 3</span><p>Accept BC: all three vertices are now connected. Total weight is 3.</p></article><article><span>Step 4</span><p>Reject AC because it closes a cycle. The cut property justifies choosing a lightest edge across a cut.</p></article></div><p class="edge"><strong>Change the case.</strong> An MST minimises total tree weight, not every pairwise path. Here its A-to-C path weighs 3; change AC to 2.5 and the MST stays AB,BC although the direct path is shorter.</p></section>
+<section><h2>Explain before coding</h2><p>State the input and required output. Trace a small example. Explain why each step is valid, count the work under a stated model, and test an edge case.</p><details><summary>Python support for this week</summary><p>DFS uses recursion or an explicit stack. Track visited vertices. Union–find is a separate tool for Kruskal’s cycle checks.</p><pre><code>g = {1:[2,3], 2:[1,4], 3:[1,4], 4:[2,3,5], 5:[4]}
+seen = set()
+def dfs(u):
+    seen.add(u)
+    print(u)
+    for v in g[u]:
+        if v not in seen:
+            dfs(v)
+dfs(1)  # 1, 2, 4, 3, 5</code></pre><p>Run this small demonstration after predicting its result. It illustrates the selected example; its input assumptions are part of the example.</p><p><a href="../python/">Open the optional Python support library</a>. Programming fluency is not required to complete the paper trace.</p></details></section>
+<details class="reading-reference"><summary>Read the related bilingual explanations here</summary><p>Sections from the supplied lecture notes. Turkish paragraphs appear in red. Use this as a reference after the worked example.</p><details><summary>Lecture 12 · Warm-up: edge types in BFS</summary><p class="turkish" lang="tr">Hazırlık: BFS’de kenar türleri</p><p>Claim: in a BFS of an undirected graph, every edge is either a tree edge (it discovered a vertex) or a cross edge (joining two vertices neither of which is an ancestor of the other). Why: if edge (x, y) joined an ancestor x to a descendant y two or more levels down, then x was processed before y’s parent, and x’s edge to y would have discovered y first, making (x, y) a tree edge. So non-tree edges only join vertices at the same level or adjacent levels, and those are cross edges.</p><p class="turkish" lang="tr">İddia: Yönsüz bir çizgenin BFS’sinde her kenar ya ağaç kenarıdır (bir tepeyi keşfetmiştir) ya da çapraz kenardır (hiçbiri diğerinin atası olmayan iki tepeyi birleştirir). Nedeni: (x, y) kenarı, x atasını iki veya daha fazla düzey aşağıdaki y torununa bağlasaydı x, y’nin ebeveyninden önce işlenmiş olurdu. x’ten y’ye giden kenar y’yi önce keşfeder ve (x, y) bir ağaç kenarı olurdu. Dolayısıyla ağaç dışı kenarlar yalnızca aynı düzeydeki veya komşu düzeylerdeki tepeleri birleştirir; bunlar çapraz kenarlardır.</p></details><details><summary>Lecture 12 · DFS</summary><p class="turkish" lang="tr">DFS</p><p>DFS has a tidy recursive form; the recursion itself acts as the stack, so no explicit stack is needed. It records an entry time when a vertex is discovered and an exit time when it is finished, using a global clock:</p><p class="turkish" lang="tr">DFS’nin düzenli bir özyinelemeli biçimi vardır; özyinelemenin kendisi yığın görevini üstlenir, dolayısıyla ayrıca açık bir yığın gerekmez. Küresel bir saat kullanarak bir tepe keşfedildiğinde giriş zamanını, tamamlandığında ise çıkış zamanını kaydeder:</p><pre><code>dfs(G, v):
+    discovered[v] = true
+    time = time + 1; entry_time[v] = time
+    process_vertex_early(v)
+    for each edge (v, y):
+        if not discovered[y]:
+            parent[y] = v
+            process_edge(v, y)
+            dfs(G, y)
+        else if (not processed[y] and parent[v] != y) or G is directed:
+            process_edge(v, y)
+    process_vertex_late(v)
+    time = time + 1; exit_time[v] = time
+    processed[v] = true</code></pre><pre class="turkish" lang="tr"><code>dfs(G, v):
+    discovered[v] = true
+    time = time + 1; entry_time[v] = time
+    process_vertex_early(v)
+    for her (v, y) kenarı:
+        if not discovered[y]:
+            parent[y] = v
+            process_edge(v, y)
+            dfs(G, y)
+        else if (not processed[y] and parent[v] != y) or G yönlü ise:
+            process_edge(v, y)
+    process_vertex_late(v)
+    time = time + 1; exit_time[v] = time
+    processed[v] = true</code></pre><p>The condition parent[v] != y stops an undirected tree edge from being reported a second time when we look back at our own parent. A global finished flag (omitted above) lets a search stop early once it has found what it wanted.</p><p class="turkish" lang="tr">parent[v] != y koşulu, kendi ebeveynimize geri baktığımızda yönsüz bir ağaç kenarının ikinci kez bildirilmesini engeller. Küresel finished bayrağı (yukarıda gösterilmemiştir), aramanın aradığını bulduğunda erken sonlanmasını sağlar.</p><p>DFS is the same idea as backtracking (Lecture 15): advance whenever you can, back up as soon as there is nowhere new to go. Both are most naturally recursive.</p><p class="turkish" lang="tr">DFS, geri izleme (Ders 15) ile aynı fikirdir: ilerleyebildiğiniz sürece ilerleyin, gidilecek yeni bir yer kalmadığı anda geri dönün. Her ikisinin de en doğal biçimi özyinelemelidir.</p></details><details><summary>Lecture 12 · What DFS does to the edges</summary><p class="turkish" lang="tr">DFS kenarlara ne yapar?</p><p>A DFS gives every edge of an undirected graph a direction: from the vertex that was being explored when the edge was first met. It then falls into one of four classes:</p><p class="turkish" lang="tr">DFS, yönsüz çizgenin her kenarına bir yön verir: kenarla ilk karşılaşıldığında araştırılmakta olan tepeden başlayan yön. Ardından kenar dört sınıftan birine girer:</p><div class="table-wrap"><table><tr><td>Class</td><td>Meaning</td><td>How the code recognises it when looking at (x, y)</td></tr><tr class="turkish" lang="tr"><td>Sınıf</td><td>Anlamı</td><td>Kod, (x, y)’ye bakarken bunu nasıl tanır?</td></tr><tr><td>Tree edge</td><td>The edge that discovered y</td><td>parent[y] == x</td></tr><tr class="turkish" lang="tr"><td>Ağaç kenarı</td><td>y’yi keşfeden kenar</td><td>parent[y] == x</td></tr><tr><td>Back edge</td><td>y is an ancestor of x, still being explored</td><td>y discovered but not yet processed</td></tr><tr class="turkish" lang="tr"><td>Geri kenar</td><td>y, x’in henüz araştırılmakta olan bir atasıdır</td><td>y keşfedilmiş, fakat henüz işlenmemiştir</td></tr><tr><td>Forward edge</td><td>y is a descendant of x, already finished</td><td>y processed and entry_time[y] &gt; entry_time[x]</td></tr><tr class="turkish" lang="tr"><td>İleri kenar</td><td>y, x’in işlemi tamamlanmış bir torunudur</td><td>y işlenmiştir ve entry_time[y] &gt; entry_time[x]</td></tr><tr><td>Cross edge</td><td>y is in a different, already finished part</td><td>y processed and entry_time[y] &lt; entry_time[x]</td></tr><tr class="turkish" lang="tr"><td>Çapraz kenar</td><td>y, işlemi tamamlanmış başka bir bölümde bulunur</td><td>y işlenmiştir ve entry_time[y] &lt; entry_time[x]</td></tr></table></div><p>The reason DFS is so important: in an undirected graph, every edge is either a tree edge or a back edge. Forward edges cannot happen because we would have met the edge from the descendant’s side first, when it was still being explored, which makes it a back edge. Cross edges cannot happen because when we were exploring the earlier vertex we would have discovered the other endpoint through that very edge, making it a tree edge. (In directed graphs all four classes can occur.)</p><p class="turkish" lang="tr">DFS’nin çok önemli olmasının nedeni şudur: yönsüz çizgede her kenar ya ağaç kenarı ya da geri kenardır. İleri kenarlar oluşamaz; çünkü kenarla önce torun tarafından, o hâlâ araştırılırken karşılaşırdık ve bu onu geri kenar yapardı. Çapraz kenarlar da oluşamaz; çünkü önceki tepeyi araştırırken diğer ucu tam bu kenar üzerinden keşfederdik ve bu da onu ağaç kenarı yapardı. (Yönlü çizgelerde dört sınıfın tamamı görülebilir.)</p></details><details><summary>Lecture 12 · Application: finding a cycle</summary><p class="turkish" lang="tr">Uygulama: Döngü bulma</p><p>Back edges are exactly what cycles look like to DFS. A back edge from x to an ancestor y, together with the tree path from y down to x, forms a cycle. So an undirected graph has a cycle if and only if a DFS meets a back edge:</p><p class="turkish" lang="tr">Geri kenarlar, döngülerin DFS’ye görünen biçimidir. x’ten y atasına giden bir geri kenar, y’den x’e inen ağaç yoluyla birlikte bir döngü oluşturur. Dolayısıyla yönsüz bir çizgede döngü bulunması için ve ancak bunun için DFS’nin bir geri kenarla karşılaşması gerekir:</p><pre><code>process_edge(x, y):
+    if parent[y] != x:            (not a tree edge, so a back edge)
+        print &quot;Cycle from&quot;, y, &quot;to&quot;, x
+        find_path(y, x, parent)
+        finished = true</code></pre><pre class="turkish" lang="tr"><code>process_edge(x, y):
+    if parent[y] != x:      (ağaç kenarı değil, dolayısıyla geri kenar)
+        print &quot;Döngü:&quot;, y, &quot;→&quot;, x
+        find_path(y, x, parent)
+        finished = true</code></pre></details><details><summary>Lecture 12 · Application: articulation vertices</summary><p class="turkish" lang="tr">Uygulama: Eklem tepeleri</p><p>An articulation vertex (or cut vertex) of a connected graph is a vertex whose removal disconnects the graph; the phone exchange that, if it failed, would split the network in two. Network designers want to know where these weak points are.</p><p class="turkish" lang="tr">Bağlı bir çizgenin eklem tepesi (veya kesme tepesi), çıkarılması çizgenin bağlantısını koparan tepedir; arızalandığında ağı ikiye bölen bir telefon santrali gibi. Ağ tasarımcıları bu zayıf noktaların nerede olduğunu bilmek ister.</p><p>The obvious algorithm deletes each vertex in turn and checks with a DFS whether the rest is still connected: n searches of O(n + m) each, O(n(n + m)).</p><p class="turkish" lang="tr">İlk akla gelen algoritma, her tepeyi sırayla siler ve kalan kısmın hâlâ bağlı olup olmadığını DFS ile denetler: her biri O(n + m) olan n arama, yani O(n(n + m)).</p><p>One DFS suffices, O(n + m). In the DFS tree, a non-root vertex v is an articulation vertex exactly when v is not a leaf and some subtree below v has no back edge reaching above v. Such a subtree’s only connection to the rest of the graph runs through v. The slides name the cases: the root is a cut vertex if it has two or more children; a vertex whose child’s subtree sends no back edge up is a bridge cut vertex; a vertex whose subtree’s highest back edge reaches only its parent is a parent cut vertex. Leaves are never articulation vertices.</p><p class="turkish" lang="tr">Tek bir DFS yeterlidir: O(n + m). DFS ağacında kök olmayan bir v tepesi, ancak ve ancak yaprak değilse ve altındaki bir alt ağacın v’nin üstüne ulaşan hiçbir geri kenarı yoksa eklem tepesidir. Böyle bir alt ağacın çizgenin geri kalanıyla tek bağlantısı v üzerinden geçer. Slaytlarda durumlar şöyle adlandırılır: kökün iki veya daha fazla çocuğu varsa kök bir kesme tepesidir; çocuğunun alt ağacı yukarıya hiçbir geri kenar göndermeyen tepe bir köprü kesme tepesidir; alt ağacının en yükseğe çıkan geri kenarı yalnızca ebeveynine ulaşan tepe bir ebeveyn kesme tepesidir. Yapraklar hiçbir zaman eklem tepesi değildir.</p></details><details><summary>Lecture 12 · Topological sorting</summary><p class="turkish" lang="tr">Topolojik sıralama</p><p>A directed acyclic graph (DAG) has no directed cycles. A topological sort of a DAG is an ordering of its vertices such that every edge points from left to right. The slides’ example DAG orders as G, A, B, C, F, E, D. Every DAG has at least one topological sort, and only DAGs do: a cycle can never be laid out left-to-right.</p><p class="turkish" lang="tr">Yönlü döngüsüz çizge (DAG), yönlü döngü içermez. Bir DAG’nin topolojik sıralaması, her kenar soldan sağa yönelecek biçimde tepelerinin sıralanmasıdır. Slaytlardaki örnek DAG, G, A, B, C, F, E, D biçiminde sıralanır. Her DAG’nin en az bir topolojik sıralaması vardır ve bu özellik yalnızca DAG’lerde bulunur: bir döngü hiçbir zaman soldan sağa yerleştirilemez.</p><p>Topological sorting is the tool for scheduling under precedence constraints: which tasks must come before which. Getting dressed is a DAG (socks before shoes, shirt before jacket). Another example from the slides: assembling DNA fragments, where overlaps constrain each fragment to lie left or right of others; build the DAG of constraints, and any topological sort is a consistent assembly, while a cycle proves the data contains errors.</p><p class="turkish" lang="tr">Topolojik sıralama, öncelik kısıtları altında çizelgelemenin aracıdır: hangi işler hangilerinden önce gelmelidir? Giyinmek bir DAG’dir (çoraplar ayakkabılardan, gömlek ceketten önce). Slaytlardan başka bir örnek DNA parçalarının birleştirilmesidir: örtüşmeler, her parçanın diğerlerinin solunda veya sağında bulunmasını gerektirir. Kısıtların DAG’sini kurun; herhangi bir topolojik sıralama tutarlı bir birleştirme verirken bir döngü, veride hata bulunduğunu kanıtlar.</p><p>Via DFS. A directed graph is a DAG if and only if a DFS finds no back edges. And listing the vertices in reverse order of finishing (reverse of exit time) gives a topological sort. Why? Consider any edge (x, y) as it is met while exploring x:</p><p class="turkish" lang="tr">DFS ile. Yönlü bir çizge, ancak ve ancak DFS hiçbir geri kenar bulmazsa DAG’dir. Tepeleri tamamlanma sırasının tersinde (çıkış zamanının tersinde) listelemek topolojik sıralamayı verir. Neden? x araştırılırken karşılaşılan herhangi bir (x, y) kenarını düşünün:</p><p>If y is undiscovered, we immediately DFS into y, so y finishes before x. Reversing finishing order puts x before y, as required.</p><p class="turkish" lang="tr">y keşfedilmemişse hemen y üzerinde DFS’ye geçeriz; böylece y, x’ten önce tamamlanır. Tamamlanma sırasını ters çevirmek, gerektiği gibi x’i y’den önceye koyar.</p><p>If y is discovered but not finished, (x, y) is a back edge, impossible in a DAG.</p><p class="turkish" lang="tr">y keşfedilmiş ama tamamlanmamışsa (x, y) bir geri kenardır; DAG’de bu mümkün değildir.</p><p>If y is already finished, it finished before x, so again x precedes y in the reversed order.</p><p class="turkish" lang="tr">y zaten tamamlanmışsa x’ten önce tamamlanmıştır; dolayısıyla ters sırada yine x, y’den önce gelir.</p><p>Implementation: push each vertex onto a stack in process_vertex_late, warn if process_edge ever sees a back edge, and pop the stack at the end:</p><p class="turkish" lang="tr">Gerçekleme: process_vertex_late içinde her tepeyi bir yığına ekleyin, process_edge bir geri kenar görürse uyarı verin ve sonunda yığını boşaltın:</p><pre><code>topsort(G):
+    for each vertex i:
+        if not discovered[i]: dfs(G, i)
+    pop and print the stack     (reverse finishing order)</code></pre><pre class="turkish" lang="tr"><code>topsort(G):
+    for her i tepesi:
+        if not discovered[i]: dfs(G, i)
+    yığından çıkar ve yazdır    (tamamlanma sırasının tersi)</code></pre><p>Via repeatedly removing a vertex with no incoming edges. Compute the in-degree (number of incoming edges) of every vertex. Put every vertex with in-degree 0 in a queue. Repeatedly take a vertex from the queue, output it, and decrement the in-degree of everything it points to; any vertex whose in-degree drops to 0 joins the queue. If fewer than n vertices come out, the graph had a cycle. Both methods are O(n + m).</p><p class="turkish" lang="tr">Gelen kenarı olmayan bir tepeyi tekrar tekrar çıkararak. Her tepenin giriş derecesini (gelen kenar sayısını) hesaplayın. Giriş derecesi 0 olan her tepeyi kuyruğa koyun. Kuyruktan sırayla bir tepe alın, çıktıya yazın ve onun işaret ettiği tüm tepelerin giriş derecelerini bir azaltın; giriş derecesi 0’a düşen her tepe kuyruğa katılır. Çıktıda n’den az tepe varsa çizgede döngü vardır. Her iki yöntem de O(n + m)’dir.</p></details><details><summary>Lecture 12 · Strongly connected components</summary><p class="turkish" lang="tr">Güçlü bağlı bileşenler</p><p>A directed graph is strongly connected if there is a directed path between every ordered pair of vertices. Its strongly connected components are the maximal subsets of vertices that are strongly connected among themselves. No vertex can belong to two maximal components, so the components partition the vertices. There is an elegant O(n + m) algorithm based on DFS (closely related to the articulation-vertex algorithm) that finds them; the slides show an example where eight vertices fall into components such as {1, 2, 3, 4, 8} and smaller ones.</p><p class="turkish" lang="tr">Her sıralı tepe çifti arasında yönlü bir yol varsa yönlü çizge güçlü bağlıdır. Güçlü bağlı bileşenleri, kendi içlerinde güçlü bağlı olan maksimal tepe alt kümeleridir. Hiçbir tepe iki maksimal bileşene ait olamaz; dolayısıyla bileşenler tepeleri bölümlere ayırır. Bunları bulan, DFS’ye dayalı (eklem tepesi algoritmasıyla yakından ilişkili) zarif bir O(n + m) algoritması vardır. Slaytlarda sekiz tepenin {1, 2, 3, 4, 8} gibi bir bileşene ve daha küçük bileşenlere ayrıldığı bir örnek gösterilir.</p></details><details><summary>Lecture 13 · Warm-up: lining up children who hate each other</summary><p class="turkish" lang="tr">Hazırlık: Birbirinden nefret eden çocukları sıraya dizme</p><p>You have n children and m statements “i hates j”. Child i must not stand behind j, or i will throw something.</p><p class="turkish" lang="tr">n çocuk ve “i, j’den nefret ediyor” biçiminde m ifade var. i çocuğu j’nin arkasında durmamalıdır; aksi hâlde i bir şey fırlatacaktır.</p><p>One straight line in O(m + n): make a directed graph with an edge i → j for each “i hates j”, meaning i must stand in front of j. A valid line is a topological sort (Lecture 12), and a cycle means no line is possible.</p><p class="turkish" lang="tr">O(m + n) sürede tek bir sıra: Her “i, j’den nefret ediyor” ifadesi için i’nin j’nin önünde durması gerektiğini belirten i → j kenarını içeren yönlü bir çizge kurun. Geçerli sıra bir topolojik sıralamadır (Ders 12); döngü varsa böyle bir sıra mümkün değildir.</p><p>Fewest rows, with i in a lower-numbered row than j whenever i hates j: put every child with no incoming edge in row 1, remove them, put the newly source-free children in row 2, and so on. Equivalently, each child’s row number is 1 plus the length of the longest path leading into it, which DFS computes on a DAG in O(m + n). The number of rows is the length of the longest path plus one.</p><p class="turkish" lang="tr">i, j’den nefret ettiğinde i’nin daha küçük numaralı sırada bulunacağı en az sayıda sıra: Gelen kenarı olmayan bütün çocukları 1. sıraya koyup çıkarın; bunun ardından gelen kenarı kalmayanları 2. sıraya koyun ve sürdürün. Eşdeğer olarak, her çocuğun sıra numarası, ona gelen en uzun yolun uzunluğunun 1 fazlasıdır; DFS bunu bir DAG üzerinde O(m + n) sürede hesaplar. Sıra sayısı, en uzun yolun uzunluğunun bir fazlasıdır.</p></details><details><summary>Lecture 13 · Weighted graphs and spanning trees</summary><p class="turkish" lang="tr">Ağırlıklı çizgeler ve kapsayan ağaçlar</p><p>Beyond BFS and DFS lies a whole world of algorithms for graphs whose edges carry weights (lengths, costs, times). The adjacency-list structure from Lecture 10 already has a weight field in each edge node, so nothing changes in the representation.</p><p class="turkish" lang="tr">BFS ve DFS’nin ötesinde, kenarları ağırlık (uzunluk, maliyet, süre) taşıyan çizgeler için geniş bir algoritmalar dünyası vardır. Ders 10’daki komşuluk listesi yapısında her kenar düğümünde zaten bir weight alanı bulunduğundan, gösterimde hiçbir şey değişmez.</p><p>A tree is a connected graph with no cycles. A spanning tree of G is a subgraph that contains all the vertices of G and is a tree; it uses exactly n − 1 edges. A minimum spanning tree is a spanning tree whose edge weights add up to the smallest possible total. There may be several (think of a graph where all weights are equal).</p><p class="turkish" lang="tr">Ağaç, döngüsü olmayan bağlı çizgedir. G’nin kapsayan ağacı, G’nin bütün tepelerini içeren ve bir ağaç olan alt çizgedir; tam n − 1 kenar kullanır. Minimum kapsayan ağaç, kenar ağırlıklarının toplamı mümkün olan en küçük değeri veren kapsayan ağaçtır. Birden fazla olabilir (bütün ağırlıkların eşit olduğu bir çizgeyi düşünün).</p><p>MSTs are taught because they arise everywhere, because the greedy algorithm provably works, and because clever data structures are needed to make it fast. The first MST algorithm dates from 1926.</p><p class="turkish" lang="tr">MST’ler her yerde ortaya çıktıkları, açgözlü algoritmanın çalıştığı kanıtlanabildiği ve onu hızlandırmak için akıllıca veri yapıları gerektiği için öğretilir. İlk MST algoritması 1926’ya uzanır.</p><p>Applications. Building networks: connect a set of sites with the least total wire. Clustering: points joined by an MST fall into natural groups, and deleting the longest MST edges partitions the points into compact clusters (the textbook has a war story about this). The travelling salesman problem: for points in the plane, the optimal tour is at most twice the MST’s length, so walking around the MST gives a decent heuristic tour.</p><p class="turkish" lang="tr">Uygulamalar. Ağ kurma: bir yerleşimler kümesini toplam kablo uzunluğu en az olacak biçimde bağlayın. Kümeleme: MST ile bağlanan noktalar doğal gruplara ayrılır; en uzun MST kenarlarını silmek noktaları sıkı kümelere böler (ders kitabında buna ilişkin bir uygulama öyküsü vardır). Gezgin satıcı problemi: düzlemdeki noktalar için optimal turun uzunluğu, MST uzunluğunun en fazla iki katıdır; dolayısıyla MST’nin çevresinde yürümek makul bir sezgisel tur verir.</p></details><details><summary>Lecture 13 · Prim’s algorithm</summary><p class="turkish" lang="tr">Prim algoritması</p><p>Start with a single vertex as the tree. Repeatedly add the cheapest edge that connects a tree vertex to a non-tree vertex, together with that vertex. During the run, each vertex is in the tree, on the fringe (one edge from the tree) or unseen.</p><p class="turkish" lang="tr">Ağaç olarak tek bir tepeyle başlayın. Ağaç içindeki bir tepeyi ağaç dışındaki bir tepeye bağlayan en ucuz kenarı, o tepeyle birlikte tekrar tekrar ekleyin. Çalışma sırasında her tepe ya ağacın içinde, ya sınırda (ağaçtan bir kenar uzakta) ya da henüz görülmemiş durumdadır.</p><pre><code>Prim(G):
+    pick any start vertex s; tree = {s}
+    while some vertex is not in the tree:
+        pick the minimum-weight edge (x, y) with x in the tree and y not
+        add (x, y) and y to the tree</code></pre><pre class="turkish" lang="tr"><code>Prim(G):
+    herhangi bir s başlangıç tepesi seç; tree = {s}
+    while ağaç dışında bir tepe varsa:
+        x ağaçta, y ağaç dışında olacak şekilde
+            minimum ağırlıklı (x, y) kenarını seç
+        (x, y) kenarını ve y’yi ağaca ekle</code></pre><p>This always yields a spanning tree, since adding an edge to a new vertex can never close a cycle. But is it a minimum one?</p><p class="turkish" lang="tr">Bu yöntem her zaman kapsayan ağaç üretir; çünkü yeni bir tepeye kenar eklemek asla bir döngüyü kapatamaz. Peki bu ağaç minimum mudur?</p><p>Proof that Prim is correct (by contradiction). Suppose Prim fails on some graph. Then there is a first edge (x, y) it adds such that the partial tree can no longer be extended to any MST. Take an actual MST. It does not contain (x, y), but being connected it contains a path from x to y, and that path must at some point leave the partial tree along some edge (v₁, v₂) with exactly one end inside. Swap: remove (v₁, v₂) and add (x, y). The result is still a spanning tree, and since Prim chose (x, y) as the cheapest edge leaving the partial tree, w(x, y) ≤ w(v₁, v₂). If strictly less, the “MST” was not minimum: contradiction. If equal, the new tree is also an MST that contains (x, y), so adding (x, y) was not a fatal mistake after all: contradiction again.</p><p class="turkish" lang="tr">Prim’in doğruluğunun kanıtı (çelişki yoluyla). Prim’in bir çizgede başarısız olduğunu varsayın. O zaman, eklendikten sonra kısmi ağacın artık hiçbir MST’ye genişletilemediği ilk bir (x, y) kenarı vardır. Gerçek bir MST alın. Bu ağaç (x, y)’yi içermez; fakat bağlı olduğu için x’ten y’ye bir yol içerir. Bu yol bir noktada, uçlarından tam biri içeride olan bir (v₁, v₂) kenarı üzerinden kısmi ağacın dışına çıkmalıdır. Değiş tokuş yapın: (v₁, v₂)’yi çıkarın, (x, y)’yi ekleyin. Sonuç hâlâ kapsayan ağaçtır. Prim, (x, y)’yi kısmi ağaçtan çıkan en ucuz kenar olarak seçtiğinden w(x, y) ≤ w(v₁, v₂)’dir. Kesin olarak küçükse “MST” minimum değildir: çelişki. Eşitse yeni ağaç da (x, y)’yi içeren bir MST’dir; dolayısıyla (x, y)’yi eklemek geri dönülmez bir hata değildir: yine çelişki.</p><p>Cost. The naive implementation rescans all edges for the cheapest fringe edge each round: n rounds × O(m) = O(nm). The standard implementation keeps, for every non-tree vertex w, distance[w] = the weight of the cheapest edge from the tree to w, and parent[w] = the tree endpoint of that edge:</p><p class="turkish" lang="tr">Maliyet. Naif gerçekleme, her turda en ucuz sınır kenarı için bütün kenarları yeniden tarar: n tur × O(m) = O(nm). Standart gerçekleme, ağaç dışındaki her w tepesi için distance[w] = ağaçtan w’ye giden en ucuz kenarın ağırlığı ve parent[w] = bu kenarın ağaç içindeki ucu bilgilerini tutar:</p><pre><code>prim(G, start):
+    for every vertex i: intree[i] = false; distance[i] = ∞; parent[i] = −1
+    distance[start] = 0; v = start
+    while v is not in the tree:
+        intree[v] = true              (v joins the tree via edge (parent[v], v))
+        for each edge (v, w) with weight wt:
+            if not intree[w] and distance[w] &gt; wt:
+                distance[w] = wt; parent[w] = v
+        v = the non-tree vertex with the smallest distance[]</code></pre><pre class="turkish" lang="tr"><code>prim(G, start):
+    for her i tepesi:
+        intree[i] = false; distance[i] = ∞; parent[i] = −1
+    distance[start] = 0; v = start
+    while v ağaçta değilse:
+        intree[v] = true    (v, (parent[v], v) kenarıyla ağaca katılır)
+        for ağırlığı wt olan her (v, w) kenarı:
+            if not intree[w] and distance[w] &gt; wt:
+                distance[w] = wt; parent[w] = v
+        v = distance[] değeri en küçük olan ağaç dışı tepe</code></pre><p>Each round costs O(n) to update the neighbours’ distances and O(n) to scan for the minimum, and there are n rounds: O(n²). That is independent of m, which makes Prim ideal for dense graphs (where m is about n² anyway; every edge must be looked at, so O(n²) is optimal there).</p><p class="turkish" lang="tr">Her turda komşuların uzaklıklarını güncellemek O(n), minimumu tarayarak bulmak O(n) sürer ve n tur vardır: O(n²). Bu maliyet m’den bağımsızdır; dolayısıyla Prim yoğun çizgeler için idealdir (buralarda m zaten yaklaşık n²’dir; her kenara bakılmak zorunda olduğundan O(n²) optimaldir).</p></details><details><summary>Lecture 13 · Kruskal’s algorithm</summary><p class="turkish" lang="tr">Kruskal algoritması</p><p>On sparse graphs a different greedy order wins. Kruskal considers all the edges from cheapest to most expensive, and adds each one to the growing forest unless it would create a cycle:</p><p class="turkish" lang="tr">Seyrek çizgelerde farklı bir açgözlü sıra üstün gelir. Kruskal bütün kenarları en ucuzdan en pahalıya doğru ele alır ve döngü oluşturmadığı sürece her birini büyüyen ormana ekler:</p><pre><code>Kruskal(G):
+    sort the edges by weight
+    for each edge (x, y) in that order:
+        if x and y are in different trees of the forest:
+            add (x, y), merging the two trees</code></pre><pre class="turkish" lang="tr"><code>Kruskal(G):
+    kenarları ağırlıklarına göre sırala
+    for bu sıradaki her (x, y) kenarı:
+        if x ve y ormanın farklı ağaçlarındaysa:
+            iki ağacı birleştirerek (x, y)’yi ekle</code></pre><p>The slides run both algorithms on the same 7-vertex graph and, as they must, arrive at the same minimum weight, though the two algorithms add edges in different orders.</p><p class="turkish" lang="tr">Slaytlarda iki algoritma aynı 7 tepeli çizgede çalıştırılır. Kenarları farklı sıralarla ekleseler de, gerektiği gibi aynı minimum ağırlığa ulaşırlar.</p><p>Proof that Kruskal is correct. Again suppose there is a first edge (x, y) that Kruskal adds which cannot be extended to an MST. When it was added, x and y were in different trees, so any true MST plus (x, y) contains a cycle through (x, y). Some other edge of that cycle joins the same two pieces, and it was still available when Kruskal chose (x, y); since Kruskal takes edges in increasing order, that edge is at least as heavy. Delete it from the MST and keep (x, y): a spanning tree no heavier than the MST, containing (x, y). Contradiction.</p><p class="turkish" lang="tr">Kruskal’ın doğruluğunun kanıtı. Yine Kruskal’ın eklediği, bir MST’ye genişletilemeyen ilk (x, y) kenarı bulunduğunu varsayın. Eklendiğinde x ve y farklı ağaçlardadır; dolayısıyla herhangi bir gerçek MST’ye (x, y) eklemek, (x, y)’den geçen bir döngü oluşturur. Bu döngünün başka bir kenarı aynı iki parçayı birleştirir ve Kruskal (x, y)’yi seçtiğinde hâlâ kullanılabilir durumdadır. Kruskal kenarları artan sırayla aldığı için bu kenar en az onun kadar ağırdır. Onu MST’den silip (x, y)’yi tutun: MST’den daha ağır olmayan ve (x, y)’yi içeren bir kapsayan ağaç elde edilir. Çelişki.</p><p>Cost. Sorting the edges costs O(m log m). The question is how to test “are x and y already connected?” quickly. A BFS through the forest per edge costs O(n), for O(mn) in total. Better: notice that Kruskal is really maintaining connected components, and an edge closes a cycle exactly when both endpoints are already in the same component. So we need a structure supporting two operations:</p><p class="turkish" lang="tr">Maliyet. Kenarları sıralamak O(m log m) sürer. Soru, “x ve y zaten bağlı mı?” sınamasının nasıl hızla yapılacağıdır. Her kenar için ormanda BFS yapmak O(n), toplamda O(mn) maliyetlidir. Daha iyi yaklaşım: Kruskal’ın aslında bağlı bileşenleri tuttuğunu ve bir kenarın ancak iki ucu zaten aynı bileşendeyse döngü kapattığını fark edin. İki işlemi destekleyen bir yapıya ihtiyacımız var:</p><p>same_component(v₁, v₂): are these two vertices in the same component?</p><p class="turkish" lang="tr">same_component(v₁, v₂): Bu iki tepe aynı bileşende mi?</p><p>merge_components(C₁, C₂): join two components into one.</p><p class="turkish" lang="tr">merge_components(C₁, C₂): İki bileşeni tek bileşende birleştir.</p><p>With both in O(log n), Kruskal runs in O(m log m). (Is O(m log n) better than O(m log m)? No: m ≤ n², so log m ≤ 2 log n, and they are the same within a constant.)</p><p class="turkish" lang="tr">Her iki işlem O(log n) olduğunda Kruskal O(m log m) sürede çalışır. (O(m log n), O(m log m)’den daha mı iyidir? Hayır: m ≤ n² olduğundan log m ≤ 2 log n’dir ve sabit çarpan dışında aynıdırlar.)</p></details><details><summary>Lecture 13 · Union-find</summary><p class="turkish" lang="tr">Birleştir-bul (union-find)</p><p>Union-find maintains a collection of disjoint sets with two operations: Find(i) returns a label identifying the set containing i, and Union(i, j) merges the sets containing i and j. Each set is stored as a tree of parent pointers whose root is the set’s label; an array p[i] holds the parent of element i (with p[root] = root), and size[i] holds the number of elements under i.</p><p class="turkish" lang="tr">Union-find, iki işlemle ayrık kümeler topluluğunu tutar: Find(i), i’yi içeren kümeyi tanımlayan etiketi döndürür; Union(i, j), i ve j’yi içeren kümeleri birleştirir. Her küme, kökü kümenin etiketi olan bir ebeveyn işaretçileri ağacı olarak saklanır. p[i] dizisi i elemanının ebeveynini tutar (p[root] = root); size[i] ise i’nin altındaki eleman sayısını tutar.</p><pre><code>find(x):
+    if p[x] == x: return x
+    return find(p[x])                (walk up to the root)
 
-<div class="hero">
-  <div class="eyebrow">Week 10 &middot; Phase 4 · Choosing well</div>
-  <h1>What Python Lists Really Cost</h1>
-  <p class="lede">append vs insert(0), pop() vs pop(0), + vs comprehension — measured, not guessed.</p>
-  <p class="path-question"><strong>Which everyday list operations are cheap, and which quietly cost a fortune?</strong></p>
-</div>
+union(a, b):
+    r1 = find(a); r2 = find(b)
+    if r1 == r2: return              (already in the same set)
+    hang the smaller tree under the larger one&#x27;s root, and add the sizes</code></pre><pre class="turkish" lang="tr"><code>find(x):
+    if p[x] == x: return x
+    return find(p[x])          (köke doğru yukarı yürü)
 
-<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Removing the front shifts the rest</h2><figure class="vl-figure" style="--trace-columns:4"><figcaption>pop(0) on [A, B, C, D]</figcaption><div class="vl-trace"><b>before</b><div class="vl-cards" style="--row-columns:4"><span>A</span><span>B</span><span>C</span><span>D</span></div></div><div class="vl-trace"><b>after</b><div class="vl-cards" style="--row-columns:3"><span>B ←</span><span>C ←</span><span>D ←</span></div></div></figure><div class="vl-equation"><span>Remove every item from the front</span><strong>(n − 1) + (n − 2) + … + 1 = n(n − 1)/2 shifts</strong></div><p>A Python list stores references in an array. Access by index is O(1). Removing its last item avoids shifting the others; repeatedly removing the first creates quadratic work.</p></section><section class="vl-lesson"><h2>An occasional expensive append can average out</h2><figure class="vl-figure"><figcaption>A simplified capacity-doubling model, not exact Python capacities</figcaption><div class="vl-trace"><b>capacity</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span></div></div><div class="vl-trace"><b>copy on growth</b><div class="vl-cards" style="--row-columns:5"><span>—</span><span>1</span><span>2</span><span>4</span><span>8</span></div></div></figure><div class="vl-equation"><span>Over n appends, geometric copying stays linear</span><strong>1 + 2 + 4 + … &lt; 2n</strong></div><p>Most appends place one reference; a resize copies many. Spread all resizing work over the whole sequence: append costs O(1) amortised. An individual append can still take O(n). Python uses its own overallocation rule.</p></section><section class="vl-lesson"><h2>Choose the operation before the container</h2><div class="vl-table"><table><thead><tr><th scope="col">Operation</th><th scope="col">list</th><th scope="col">collections.deque</th></tr></thead><tbody><tr><td>Read a middle index</td><td>O(1)</td><td>O(n)</td></tr><tr><td>Append at an end</td><td>O(1) amortised</td><td>O(1)</td></tr><tr><td>Remove from the front</td><td>O(n)</td><td>O(1)</td></tr><tr><td>Search for a value</td><td>O(n)</td><td>O(n)</td></tr></tbody></table></div><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from collections import deque
-queue = deque([&quot;A&quot;, &quot;B&quot;, &quot;C&quot;])
-queue.append(&quot;D&quot;)
-first = queue.popleft()
-print(first, list(queue))</code></pre></div><p>A deque fits a queue: add at the back, remove at the front. It does not make arbitrary searches constant-time.</p></section><section class="vl-lesson"><h2>Repeated copying can hide inside short code</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>parts = [&quot;algorithm&quot;, &quot;analysis&quot;, &quot;with&quot;, &quot;Python&quot;]
-text = &quot; &quot;.join(parts)
-print(text)</code></pre></div><div class="vl-equation"><span>Naïve repeated prefix copying, n equal-size pieces</span><strong>1 + 2 + … + n = n(n + 1)/2 units</strong></div><p><code>join</code> builds the final text in work proportional to total output length. Some Python string-concatenation patterns are optimised, so timings may vary; use the copying model only when each step really copies the prefix. Repeated list <code>result = result + [x]</code> does copy the growing list.</p></section></section>
-<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
-<p class="source-label">10 test questions · 9 written questions · 19 total</p>
+union(a, b):
+    r1 = find(a); r2 = find(b)
+    if r1 == r2: return        (zaten aynı kümedeler)
+    küçük ağacı büyük ağacın kökünün altına bağla
+    ve boyutları topla</code></pre><p>Why hang the smaller under the larger? Without that rule the tree can degenerate into a chain: union(1, 2), union(2, 3), … followed by repeated find(1) costs O(n) each. With the rule, a tree’s height only grows when two trees of equal height are merged, so a tree of height h contains at least 2ʰ elements. Hence after any sequence of unions every tree of k nodes has height at most ⌊lg k⌋ (proof by induction on k: merging trees of heights d₁ and d₂ with k₁ ≥ k₂ nodes gives height at most max(d₁, d₂ + 1) ≤ ⌊lg(k₁ + k₂)⌋). So both operations cost O(log n), which is all Kruskal needs.</p><p class="turkish" lang="tr">Küçüğü neden büyüğün altına bağlarız? Bu kural olmadan ağaç bir zincire dönüşebilir: union(1, 2), union(2, 3), … ardından tekrarlanan find(1) çağrılarının her biri O(n) sürer. Kural uygulandığında bir ağacın yüksekliği yalnızca eşit yükseklikte iki ağaç birleştirildiğinde artar; dolayısıyla yüksekliği h olan bir ağaç en az 2ʰ eleman içerir. Böylece herhangi bir birleştirme dizisinden sonra k düğümlü her ağacın yüksekliği en fazla ⌊lg k⌋ olur (k üzerinde tümevarımla kanıt: yükseklikleri d₁ ve d₂, düğüm sayıları k₁ ≥ k₂ olan ağaçların birleştirilmesi en fazla max(d₁, d₂ + 1) ≤ ⌊lg(k₁ + k₂)⌋ yükseklik verir). Dolayısıyla iki işlem de O(log n) maliyetlidir; Kruskal’ın ihtiyacı olan budur.</p><p>Path compression. The ideal tree has depth 1, with every element pointing straight at the root. Since a find walks up a path anyway, why not re-point every node on that path directly to the root as we go? With this trick a sequence of n operations costs O(n α(n)), where α is the inverse Ackermann function, a function that grows so slowly that α(number of atoms in the universe) = 5. For every practical purpose union-find with path compression is linear.</p><p class="turkish" lang="tr">Yol sıkıştırma. İdeal ağacın derinliği 1’dir ve her eleman doğrudan kökü gösterir. find zaten bir yol boyunca yukarı yürüdüğüne göre, ilerlerken o yoldaki her düğümü doğrudan köke yönlendirmeyelim mi? Bu teknikle n işlemden oluşan bir dizinin maliyeti O(n α(n)) olur. Buradaki α, ters Ackermann fonksiyonudur; o kadar yavaş büyür ki α(evrendeki atom sayısı) = 5’tir. Pratikte her amaç için, yol sıkıştırmalı union-find doğrusaldır.</p></details></details>
+<p class="practice-note">Begin with the easy tests and the worked example. Remaining questions provide repeated teaching practice; hard questions are optional depth. Some tests revisit earlier prerequisites. Answers stay visible.</p><p>Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Parenthesised numbers are edge weights.</p><section class="chapter-question-bank" id="skiena-practice"><h3>Practice with answers</h3>
+<p class="source-label">10 test questions · 18 written questions · 28 total</p>
 <p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
-<article class="source-exercise test-question" id="skiena-mcq-024">
-<p class="source-label">Question 1 · easy</p><p class="question-prompt">Inserting a key into a packed sorted array may require shifting items. What is the tightest listed worst-case upper bound?</p><ol class="mcq-options" type="a"><li> O(1)</li><li> O(log n)</li><li> O(n)</li><li> O(n log n)</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Finding the spot is O(log n), but shifting the later items over is O(n).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-029">
-<p class="source-label">Question 2 · easy</p><p class="question-prompt">A dynamic array starts with capacity 1 and doubles only when full. How many doublings are needed to hold 5,000 items?</p><ol class="mcq-options" type="a"><li> 5 times</li><li> 13 times</li><li> 50 times</li><li> 5,000 times</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> 2¹² = 4,096 is too small and 2¹³ = 8,192 is enough.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-031">
-<p class="source-label">Question 3 · medium</p><p class="question-prompt">Growing a full dynamic array from capacity 1 to capacity 1,024 by doubling copies exactly how many existing items in total?</p><ol class="mcq-options" type="a"><li>1,024 items</li><li>1,023 items</li><li>10,240 items</li><li>1,048,576 items</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> 1 + 2 + 4 + … + 512 = 1,023, less than n.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-032">
-<p class="source-label">Question 4 · medium</p><p class="question-prompt">If the array instead grows by 100 slots each time it fills, inserting n items costs in total:</p><ol class="mcq-options" type="a"><li> Θ(n)</li><li> Θ(n log n)</li><li> Θ(n²)</li><li> Θ(1)</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> About n/100 expansions, each copying up to n items.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-188">
-<p class="source-label">Question 5 · medium · course question</p><p class="question-prompt">In a packed array-backed list of n items, inserting at the front shifts how many existing items?</p><ol class="mcq-options" type="a"><li>n</li><li>1</li><li>0</li><li>n²</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> Every existing item moves one slot to make room. This gives linear work for a front insertion.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-189">
-<p class="source-label">Question 6 · medium · course question</p><p class="question-prompt">For an ordinary array-backed list, what is the tight worst-case cost of reading an existing index?</p><ol class="mcq-options" type="a"><li>Θ(n)</li><li>Θ(log n)</li><li>Θ(n²)</li><li>Θ(1)</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> The slot address is computed directly from the index under the standard RAM model. No scan of preceding items is needed.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-190">
-<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">Why is a single append sometimes slower than most other appends to a dynamic array?</p><ol class="mcq-options" type="a"><li>the array must sort itself</li><li>its capacity may be full, requiring allocation and copying</li><li>append must always shift every existing item</li><li>the new item must be the smallest</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> When capacity is exhausted, resizing can copy existing items. Most appends use an already available slot, giving constant amortised cost with geometric growth.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-191">
-<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">A slice copies k references from an ordinary Python list into a new list. What is the tight time bound in k?</p><ol class="mcq-options" type="a"><li>Θ(1)</li><li>Θ(log k)</li><li>Θ(k)</li><li>Θ(k²)</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> The operation must place k references in the new list. Copying references is different from recursively copying the referred-to objects.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-192">
-<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">Build a new list by repeatedly replacing result with result + [x] for n items. If each concatenation copies the growing list, what is the total copied-item growth?</p><ol class="mcq-options" type="a"><li>Θ(n²)</li><li>Θ(n)</li><li>Θ(log n)</li><li>Θ(1)</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> The copies have lengths 1,2,…,n. Their sum n(n+1)/2 grows quadratically; repeated append avoids copying the entire prefix on every step.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-193">
-<p class="source-label">Question 10 · medium · course question</p><p class="question-prompt">A dynamic array has capacity 8 and currently holds 8 items. It doubles capacity before storing one more. What are its new length and capacity?</p><ol class="mcq-options" type="a"><li>length 16, capacity 16</li><li>length 8, capacity 9</li><li>length 9, capacity 9</li><li>length 9, capacity 16</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> Only one new item is added, so length becomes 9. Doubling the allocated space changes capacity from 8 to 16.</p></div></article>
+<article class="source-exercise test-question" id="skiena-mcq-066">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">A tree with 12 vertices has how many edges?</p><ol class="mcq-options" type="a"><li> 11</li><li> 12</li><li> 13</li><li> 66</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Always n − 1.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-068">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">A directed graph has a topological sort if and only if it is:</p><ol class="mcq-options" type="a"><li> connected</li><li> acyclic</li><li> complete</li><li> bipartite</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> A cycle can never be laid out left to right.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-1131">
+<p class="source-label">Question 3 · easy · course question</p><p class="question-prompt">Kruskal rejects an edge when it:</p><ol class="mcq-options" type="a"><li>Has positive weight.</li><li>Joins vertices already in the same component.</li><li>Has the smallest weight.</li><li>Touches the start vertex.</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> That edge would form a cycle with the accepted edges.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-1132">
+<p class="source-label">Question 4 · easy · course question</p><p class="question-prompt">An MST minimises:</p><ol class="mcq-options" type="a"><li>Every pairwise path simultaneously.</li><li>The total weight of a spanning tree.</li><li>The number of vertices.</li><li>The BFS discovery order.</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Minimum total connecting weight is different from a shortest-path objective.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-072">
+<p class="source-label">Question 5 · medium</p><p class="question-prompt">On the undirected graph with edges 1–2, 1–3, 2–4, 3–4, 4–5, run recursive DFS from 1, visiting neighbours in increasing order. What is the discovery order?</p><ol class="mcq-options" type="a"><li> 1, 2, 4, 3, 5</li><li> 1, 2, 3, 4, 5</li><li> 1, 3, 4, 2, 5</li><li> 1, 2, 4, 5, 3</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> From 4 the smallest undiscovered neighbour is 3, so 3 comes before 5.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-073">
+<p class="source-label">Question 6 · medium</p><p class="question-prompt">The weight of the minimum spanning tree of graph W is:</p><p class="source-context">Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Parenthesised numbers are edge weights.</p><ol class="mcq-options" type="a"><li> 10</li><li> 11</li><li> 12</li><li> 14</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Edges A–C (1), B–C (2), D–E (3) and B–D (5).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-075">
+<p class="source-label">Question 7 · medium</p><p class="question-prompt">Running Kruskal’s algorithm on graph W, the first edge REJECTED is:</p><p class="source-context">Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Parenthesised numbers are edge weights.</p><ol class="mcq-options" type="a"><li> A–B</li><li> B–D</li><li> C–D</li><li> D–E</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> After A–C, B–C and D–E are accepted, A–B (weight 4) would close the cycle A–C–B.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-076">
+<p class="source-label">Question 8 · medium</p><p class="question-prompt">In recursive DFS of a simple undirected graph, classify each undirected edge once. Every non-tree edge connects a descendant to an ancestor, so it is a:</p><ol class="mcq-options" type="a"><li> back edges only</li><li> forward edges only</li><li> cross edges only</li><li> any of the three kinds</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> DFS explores an entire active branch before finishing it. A non-tree edge therefore joins a descendant to an ancestor. The reverse direction is the same undirected edge, not a separate forward edge.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-077">
+<p class="source-label">Question 9 · medium</p><p class="question-prompt">For the DAG with edges 1→2, 1→3, 2→4, 3→4, which is a valid topological order?</p><ol class="mcq-options" type="a"><li> 2, 1, 3, 4</li><li> 1, 3, 4, 2</li><li> 1, 3, 2, 4</li><li> 4, 3, 2, 1</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> In (a) 2 precedes 1, in (b) 4 precedes 2, and (d) is fully reversed.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-078">
+<p class="source-label">Question 10 · medium</p><p class="question-prompt">The articulation vertices of the path 1–2–3–4–5 are:</p><ol class="mcq-options" type="a"><li> 1 and 5</li><li> 2, 3 and 4</li><li> 3 only</li><li> none</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Removing any interior vertex disconnects the path; removing an endpoint does not.</p></div></article>
 <h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
-<article class="source-exercise" id="skiena-ex-035"><p class="source-label">Question 11 · easy</p><p>List the seven dictionary operations.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search, insert, delete, minimum, maximum, predecessor, successor.</p></div></article><article class="source-exercise" id="skiena-ex-036"><p class="source-label">Question 12 · easy</p><p>In a sorted array, what do search and insert cost, and why is insert slow?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search O(log n) by binary search; insert O(n), because after finding the right spot every later item must shift one place to make room.</p></div></article><article class="source-exercise" id="skiena-ex-043"><p class="source-label">Question 13 · easy</p><p>Starting with a dynamic array of size 1 and doubling whenever it fills, how many doublings are needed before it can hold 1,000 items?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>10, since 2¹⁰ = 1,024 ≥ 1,000; in general ⌈lg n⌉.</p></div></article><article class="source-exercise" id="skiena-ex-045"><p class="source-label">Question 14 · medium</p><p>A dynamic array holds n = 2ᵏ items after growing from size 1 by doubling. How many item-copies were made in total over all the doublings? Show the total is less than n.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the doublings copied 1, 2, 4, …, 2ᵏ⁻¹ items, totalling 2ᵏ − 1 = n − 1 &lt; n. So the copying costs O(n) in total, or O(1) per item on average (“amortised”).</p></div></article><article class="source-exercise" id="skiena-ex-046"><p class="source-label">Question 15 · medium</p><p>Suppose the array grows by adding 10 slots each time it fills, instead of doubling. What does inserting n items cost in total?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Θ(n²). About n/10 expansions copy 10, 20, 30, … items, whose sum grows quadratically. A multiplicative factor greater than 1, such as 1.5 or 2, gives linear total copying instead; doubling is convenient but not essential.</p></div></article><article class="source-exercise" id="skiena-ex-047"><p class="source-label">Question 16 · medium</p><p>You hold a pointer to a node x in a singly linked list, x is not the last node, and you have no pointer to the head. Delete x’s value from the list in O(1).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>copy the next node’s item into x, then splice out the next node: x.next = x.next.next. The list now contains the same values minus x’s original one, and no predecessor search was needed.</p></div></article><article class="source-exercise" id="skiena-ex-048"><p class="source-label">Question 17 · medium</p><p>Build a queue out of two stacks so that every operation is O(1) on average.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>enqueue pushes onto stack In. Dequeue pops from stack Out; if Out is empty, first pop everything from In and push it onto Out (which reverses the order). Each item is moved at most twice in its lifetime, so n operations cost O(n) in total.</p></div></article><article class="source-exercise" id="skiena-ex-061"><p class="source-label">Question 18 · hard</p><p>Design a stack that supports push, pop and get-minimum, all in O(1).</p><p class="question-plain"><strong>In simpler words:</strong> Keep the smallest stack value available without searching.</p><p class="question-hint"><strong>Starting hint:</strong> Remember the minimum after every push.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Push 5,3,7. The main stack is [5,3,7]; the minimum stack is [5,3,3].</li><li>Each minimum entry describes the main-stack prefix ending at the same depth.</li><li>Pop both stacks together. The new minimum is still at the top. On the first push use x itself; handle empty-stack queries explicitly.</li></ol><p>keep a second stack of running minima. On push(x), push x onto the main stack and push min(x, current top of the min stack) onto the min stack. On pop, pop both. The top of the min stack is always the minimum of the main stack.</p></div></article><article class="source-exercise" id="skiena-ex-063"><p class="source-label">Question 19 · hard</p><p>Design a cache that holds at most k items and evicts the least recently used one, with get and put both in O(1).</p><p class="question-plain"><strong>In simpler words:</strong> Evict the item that has gone longest without a recent use.</p><p class="question-hint"><strong>Starting hint:</strong> Use a hash map to find an item and a linked list to record recency.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The list front is most recent; the back is least recent. Map each key directly to its list node.</li><li>For a successful get or an update, detach the node and move it to the front using its two links.</li><li>For a new item at capacity, remove the back node and its map entry. Hash lookup is expected O(1); list changes are O(1). Define the k=0 case as storing nothing.</li></ol><p>Use a doubly linked list ordered by recency and a hash map from keys to nodes. Get moves a found node to the front. Put inserts or updates at the front; if capacity is exceeded, unlink the tail and remove its map entry. Pointer changes are worst-case O(1); the combined operations are expected O(1) with suitable hashing, not a universal worst-case guarantee.</p></div></article></section>
-<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Draw each pop(0) while emptying four items. Count shifts.</p><details class="solution"><summary>Check your reasoning</summary><div><p>3 + 2 + 1 + 0 = 6 shifts.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>How many shifts occur when emptying 1,000 items from the front?</p><details class="solution"><summary>Check your reasoning</summary><div><p>1,000 × 999 / 2 = 499,500.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Replace a list queue with deque. Which operation changes, and which stays linear?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Use popleft() for O(1) front removal. Searching for an arbitrary value still costs O(n).</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">10.9</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — verify the table</span>
-    <p>
-      Design and run a doubling experiment for each of these, and state the class you
-      measured: <code>data[n // 2]</code>, <code>data.append(1)</code>,
-      <code>data.pop(0)</code>, <code>x in data</code> (for a missing x),
-      <code>data[:]</code> (a full copy).
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — run the doubling experiment on all five operations</summary>
-      <div class="widget anim" data-anim="w10-verify"></div>
-    </details><details class="solution"><summary>Hint on method</summary>
-      <p>
-        For the O(1) operations one call is far too fast to time — repeat the operation
-        100 000 times inside the timed region and divide, keeping the list size fixed
-        between repeats. For <code>pop(0)</code>, rebuild the list before each timing.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — fix a slow function</span>
-    <p>Here is a real-shaped piece of slow code. Find both problems and rewrite it.</p>
-    <div class="code"><div class="code-head"><span class="dot"></span>slow.py</div><pre><code>def unique_reversed(data):
-    result = []
-    for item in data:
-        if item not in result:          <span class="c"># problem 1</span>
-            result = [item] + result    <span class="c"># problem 2</span>
-    return result</code></pre></div>
-    <details class="solution anim-wrap"><summary>Animate it — step through slow.py and fast.py and count the work</summary>
-      <div class="widget anim" data-anim="w10-fixslow"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <p>
-        Problem 1: <code>not in result</code> is an O(n) scan inside an O(n) loop → O(n²).
-        Problem 2: building a new list every round is another O(n) per item. Fixed version,
-        using a set for the membership test (week 11) and appending at the cheap end:
-      </p>
-      <div class="code"><div class="code-head"><span class="dot"></span>fast.py</div><pre><code>def unique_reversed(data):
-    seen = set()
-    result = []
-    for item in data:
-        if item not in seen:      <span class="c"># O(1)</span>
-            seen.add(item)
-            result.append(item)   <span class="c"># O(1)</span>
-    result.reverse()              <span class="c"># O(n), once</span>
-    return result</code></pre></div>
-      <p>From O(n²) to O(n). At 100 000 items that is minutes down to milliseconds — measure both to see it.</p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 3 — the string version</span>
-    <p>
-      Build a string of 50 000 words by repeated <code>+=</code>, then by collecting into a
-      list and calling <code>join</code>. Time both, and report the ratio at 25 000 and
-      50 000 to investigate the observed scaling, including any interpreter optimisation.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — watch += copy the text while join writes it once</summary>
-      <div class="widget anim" data-anim="w10-strings"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        If every concatenation rebuilds the growing text, expect a near-four doubling ratio; if the interpreter optimises this loop, it may instead be near two. Joining fixed-length pieces once has linear total-character work. Report the measured outcome rather than forcing the illustrative §10.5 numbers.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 4 — see the amortised jumps</span>
-    <p>
-      Adapt <code>watch_capacity.py</code> from §10.3 to append 1 000 items and record the
-      length at every capacity jump. Roughly how does each new capacity compare with the
-      previous one, and how does that explain "O(1) amortised"?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — append 1 000 items and record every capacity jump</summary>
-      <div class="widget anim" data-anim="w10-capacity"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        Each jump lands at roughly (a bit more than) the previous capacity — the list grows
-        by a near-constant factor, so the gaps between jumps get wider as n grows. Because
-        each expensive copy buys room for proportionally more cheap appends, the copying
-        cost spread across all appends averages to a constant: O(1) amortised.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — list or deque?</span>
-    <p>
-      For each scenario, say whether you would store the data in a list or a
-      <code>deque</code>, and why in one sentence: (a) a to-do queue you always take from
-      the front and add to the back; (b) a table of scores you look up by row number
-      thousands of times; (c) a browser history where you add to one end and occasionally
-      pop the other.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — pick list or deque, then run the scenario on both</summary>
-      <div class="widget anim" data-anim="w10-deque"></div>
-    </details><details class="solution"><summary>Answers</summary>
-      <p>
-        (a) deque — both hot operations are at the ends, O(1) each; a list would be O(n) per
-        <code>pop(0)</code>. (b) list — random indexing by position is O(1) on a list but
-        O(n) on a deque. (c) deque — adds and pops at the two ends are what a deque is for.
-      </p>
-    </details>
-  </div>
-</section></div></details></section>
-<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
-  <h2><span class="num">10.10</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="2">
-      <p>Why is <code>data.pop(0)</code> O(n) while <code>data.pop()</code> is O(1)?</p>
-      <button class="opt">Because removing from the front needs a search</button>
-      <button class="opt">Because Python lists are stored backwards</button>
-      <button class="opt">Because every remaining item must shift one place to close the gap at the front</button>
-      <button class="opt">They are actually the same cost</button>
-      <div class="why">A list is a contiguous row of slots. Removing from the end leaves no gap; removing from the front leaves one that must be closed.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p><code>result = result + [i]</code> inside a loop of n items is:</p>
-      <button class="opt">O(n), the same as append</button>
-      <button class="opt">O(n²), because each round copies the whole list into a new one</button>
-      <button class="opt">O(log n)</button>
-      <button class="opt">O(1)</button>
-      <div class="why">Copying a list of length k costs k. Doing that for k = 1, 2, 3 … n adds up to about n²/2.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>You keep taking jobs from the front of a very long queue. The right change is:</p>
-      <button class="opt">Buy more memory</button>
-      <button class="opt">Sort the list first</button>
-      <button class="opt">Use <code>data.remove(job)</code> instead</button>
-      <button class="opt">Use <code>collections.deque</code> and <code>popleft()</code></button>
-      <div class="why">A deque is designed for cheap operations at both ends: O(1) per removal instead of O(n).</div>
-    </div>
-    <div class="q" data-answer="0">
-      <p>"append is O(1) amortised" means:</p>
-      <button class="opt">Usually cheap; the occasional resize copy is rare enough to average out to a constant</button>
-      <button class="opt">It is always exactly one step, with no exceptions</button>
-      <button class="opt">It is O(n) in disguise</button>
-      <button class="opt">It depends on how much memory you have</button>
-      <div class="why">Growing the list copies everything, but that happens rarely and each copy buys room for many cheap appends, so the average per append is constant.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>To turn a quadratic <code>text += word</code> loop into a linear one, you should:</p>
-      <button class="opt">Use <code>text = word + text</code> instead</button>
-      <button class="opt">Add the words to the front of the string</button>
-      <button class="opt">Append the words to a list and call <code>"".join(pieces)</code> once at the end</button>
-      <button class="opt">Sort the words first</button>
-      <div class="why">Strings get copied on every <code>+=</code>. Collecting pieces and joining once does the whole build in a single linear pass.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>On a <code>deque</code>, reading a middle position <code>dq[i]</code> is:</p>
-      <button class="opt">O(1), the same as a list</button>
-      <button class="opt">O(n) — a deque is fast at the ends, not in the middle</button>
-      <button class="opt">O(log n)</button>
-      <button class="opt">Impossible — deques cannot be indexed</button>
-      <div class="why">A deque trades cheap middle indexing for cheap end operations. Use a list when you index into the middle a lot.</div>
-    </div>
-  </div>
-</section>
-</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
-  <h2><span class="num">10.1</span>What a list really is</h2>
-  <p>
-    Picture a row of numbered lockers, side by side, with no gaps. That is a Python list:
-    a block of slots in order, each holding a reference to a value.
-  </p>
-  <p>Two consequences follow from the "no gaps" part, and they explain everything else:</p>
-  <ul>
-    <li>
-      <strong>Reading a position is instant.</strong> To find item 4 719, the computer
-      computes where the slot is and goes there. Length is irrelevant: <code>O(1)</code>.
-    </li>
-    <li>
-      <strong>Inserting or removing at the front is expensive.</strong> If you take out the
-      first locker, everything behind it has to shuffle forward one place to close the gap.
-      That is n moves: <code>O(n)</code>.
-    </li>
-  </ul>
-  <div class="note blue">
-    <span class="label">The mental picture to keep</span>
-    <p>
-      Adding at the <em>end</em> is like putting a book on the end of a shelf. Adding at the
-      <em>front</em> is like inserting a book at the start of a full shelf: every other book
-      moves. Same act, entirely different price.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">10.2</span>The cost table</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Operation</th><th>Example</th><th>Cost</th><th>Why</th></tr></thead>
-      <tbody>
-        <tr><td>index read / write</td><td><code>data[i]</code></td><td>O(1)</td><td>Jump straight to the slot</td></tr>
-        <tr><td>length</td><td><code>len(data)</code></td><td>O(1)</td><td>Python keeps a running count</td></tr>
-        <tr><td>append</td><td><code>data.append(x)</code></td><td>O(1)*</td><td>Write into the next free slot</td></tr>
-        <tr><td>pop from end</td><td><code>data.pop()</code></td><td>O(1) amortised</td><td>No tail shifts; occasional resizing may occur</td></tr>
-        <tr><td>insert at front</td><td><code>data.insert(0, x)</code></td><td>O(n)</td><td>Everything shifts right</td></tr>
-        <tr><td>pop from front</td><td><code>data.pop(0)</code></td><td>O(n)</td><td>Everything shifts left</td></tr>
-        <tr><td>membership</td><td><code>x in data</code></td><td>O(n)</td><td>Look at items until found</td></tr>
-        <tr><td>delete by value</td><td><code>data.remove(x)</code></td><td>O(n)</td><td>Find it, then shift</td></tr>
-        <tr><td>slice</td><td><code>data[a:b]</code></td><td>O(k)</td><td>Copies k items into a new list</td></tr>
-        <tr><td>concatenate</td><td><code>a + b</code></td><td>O(n+m)</td><td>Builds a whole new list</td></tr>
-        <tr><td>sort</td><td><code>data.sort()</code></td><td>O(n log n)</td><td>See week 13</td></tr>
-        <tr><td>min / max / sum</td><td><code>max(data)</code></td><td>O(n)</td><td>Must inspect everything</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:.9rem;color:var(--muted)">
-    * <code>append</code> is O(1) <em>amortised</em>: occasionally Python has to move the
-    whole list into a bigger block of memory, which costs O(n), but it reserves extra capacity
-    so total resizing work across many appends remains linear. The exact growth policy depends on the implementation. The next
-    section watches that happen.
-  </p>
-</section>
-<section>
-  <h2><span class="num">10.3</span>Amortised append: watching the list grow</h2>
-  <p>
-    The lockers picture has one loose end: what happens when the row is full and you append
-    one more? There is no free slot behind the last one. Python's answer is to rent a
-    <em>bigger</em> row with spare capacity, potentially copy the existing references across,
-    and then write the new one. That copy is O(n). So how can we call append cheap?
-  </p>
-  <p>
-    Because the expensive copies are <strong>rare</strong>, and they get rarer as the list
-    grows. Use an <strong>idealised doubling model</strong> with capacities 1, 2, 4, 8, 16 …; this is not Python's literal allocation policy. For n items where n is a power of two, copying costs 1 + 2 + … + n/2 = n − 1. Together with n new writes, that is 2n − 1 units: a constant amortised cost per append. Other n also give linear total work. Sharing
-    the cost of the rare big events across the many cheap ones is called
-    <strong>amortising</strong>, and it is why we quote append as O(1).
-  </p>
-  <p>
-    You can see the capacity jumps directly. <code>sys.getsizeof</code> reports how many
-    bytes a list occupies; watch it step up in chunks, not smoothly, as we append:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>watch_capacity.py</div><pre><code>import sys
-
-data = []
-last = -1
-for i in range(17):
-    size = sys.getsizeof(data)
-    if size != last:                       <span class="c"># only print when it jumps</span>
-        print(f"len={len(data):&gt;2}   {size} bytes  &lt;- grew here")
-        last = size
-    else:
-        print(f"len={len(data):&gt;2}   {size} bytes")
-    data.append(i)</code></pre></div>
-  <div class="out">len= 0   56 bytes  &lt;- grew here
-len= 1   88 bytes  &lt;- grew here
-len= 2   88 bytes
-len= 3   88 bytes
-len= 4   88 bytes
-len= 5   120 bytes  &lt;- grew here
-len= 6   120 bytes
-len= 7   120 bytes
-len= 8   120 bytes
-len= 9   184 bytes  &lt;- grew here
-len=10   184 bytes
-len=11   184 bytes
-len=12   184 bytes
-len=13   184 bytes
-len=14   184 bytes
-len=15   184 bytes
-len=16   184 bytes</div>
-  <p>
-    Most appends land in already-rented space and cost nothing extra — those are the flat
-    stretches. Only at a jump does Python copy the list into a bigger block, and each block
-    lasts longer than the last, so the jumps thin out. Averaged over the whole run, the
-    cost per append settles to a constant. That is exactly what "O(1) amortised" means:
-    <em>usually cheap, occasionally dear, constant on average</em>.
-  </p>
-  <div class="note">
-    <span class="label">The word to reach for</span>
-    <p>
-      "Amortised" is the honest word for "individual calls can spike, but the long-run
-      average is constant". It bounds the total work of a sequence rather than relying on random inputs. An individual
-      resizing append can still have O(n) worst-case cost; that and O(1) amortised cost are compatible.
-      This does not promise identical wall-clock time for every call. When someone asks the cost of append, "O(1) amortised" is the
-      full and correct answer.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">10.4</span>Measuring it: front versus back</h2>
-  <p>
-    Test the model yourself. These builders use the same values but produce opposite orders: append preserves their arrival order, while front insertion reverses it. If order matters, include a final O(n) reversal when comparing equivalent outputs.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>append vs insert(0)</div><pre><code>import time
-
-def build_append(n):
-    data = []
-    for i in range(n):
-        data.append(i)          <span class="c"># cheap end</span>
-    return data
-
-def build_insert_front(n):
-    data = []
-    for i in range(n):
-        data.insert(0, i)       <span class="c"># expensive end</span>
-    return data
-
-for n in [10000, 20000, 40000, 80000]:
-    start = time.perf_counter(); build_append(n)
-    t_app = time.perf_counter() - start
-
-    start = time.perf_counter(); build_insert_front(n)
-    t_ins = time.perf_counter() - start
-
-    print(f"n={n:&gt;6}  append {t_app:.4f}s   insert(0) {t_ins:.4f}s   ratio {t_ins/t_app:,.0f}x")</code></pre></div>
-  <div class="out">n= 10000  append 0.0008s   insert(0) 0.0221s   ratio 27x
-n= 20000  append 0.0016s   insert(0) 0.0872s   ratio 55x
-n= 40000  append 0.0031s   insert(0) 0.3510s   ratio 113x
-n= 80000  append 0.0062s   insert(0) 1.4102s   ratio 227x</div>
-  <p>
-    Read the ratio column: it doubles every time n doubles. That is the fingerprint of one
-    method being O(n) overall while the other is O(n²) — because n insertions at
-    <code>O(n)</code> each is <code>n × n</code>. The two loops look almost identical on
-    the page. One of them is a bomb with a slow fuse.
-  </p>
-</section>
-<section>
-  <h2><span class="num">10.5</span>Building strings and lists the fast way</h2>
-  <p>
-    The same trap appears when you build a list or a string by repeated concatenation.
-    <code>result = result + [x]</code> creates a <em>whole new list</em> each round.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>four ways to build the same list</div><pre><code>import time
-
-def by_concat(n):
-    result = []
-    for i in range(n):
-        result = result + [i]        <span class="c"># new list every time: O(n) each</span>
-    return result
-
-def by_append(n):
-    result = []
-    for i in range(n):
-        result.append(i)             <span class="c"># O(1) each</span>
-    return result
-
-def by_comprehension(n):
-    return [i for i in range(n)]     <span class="c"># same work, less Python overhead</span>
-
-def by_list_range(n):
-    return list(range(n))            <span class="c"># all the work happens in C</span>
-
-for func in [by_concat, by_append, by_comprehension, by_list_range]:
-    start = time.perf_counter()
-    func(20000)
-    print(f"{func.__name__:&gt;18}: {time.perf_counter() - start:.5f}s")</code></pre></div>
-  <div class="out">          by_concat: 0.41230s
-          by_append: 0.00151s
-   by_comprehension: 0.00062s
-      by_list_range: 0.00031s</div>
-  <p>
-    A factor of over a thousand between the first and the last, for code that produces an
-    identical result. The first is O(n²); the other three are O(n) with progressively
-    smaller constants. Note the two different kinds of improvement on display: the jump
-    from <code>by_concat</code> to <code>by_append</code> is a <em>class</em> change and it
-    grows with n; the jump from <code>by_append</code> to <code>list(range(n))</code> is a
-    <em>constant factor</em> and it does not.
-  </p>
-  <div class="note red">
-    <span class="label">Same trap, with text</span>
-    <p>
-      Repeated string concatenation can be quadratic when every step copies the growing result. Some Python interpreter contexts optimise this pattern, so a particular <code>+=</code> benchmark need not show quadratic growth. Collect the pieces in a list and use
-      <code>"".join(pieces)</code> once at the end. That single habit has rescued more
-      slow scripts than any other tip in this course.
-    </p>
-  </div>
-  <div class="code"><div class="code-head"><span class="dot"></span>+= vs join, side by side</div><pre><code>import time
-
-def by_plus(n):
-    text = ""
-    for i in range(n):
-        text += "word "        <span class="c"># repeated concatenation; runtime optimisations may affect scaling</span>
-    return text
-
-def by_join(n):
-    pieces = []
-    for i in range(n):
-        pieces.append("word ")  <span class="c"># O(1) each</span>
-    return "".join(pieces)      <span class="c"># one linear pass at the end</span>
-
-for n in [25000, 50000, 100000]:
-    start = time.perf_counter(); by_plus(n)
-    p = time.perf_counter() - start
-    start = time.perf_counter(); by_join(n)
-    j = time.perf_counter() - start
-    print(f"n={n:&gt;6}   += {p:.4f}s   join {j:.4f}s   ratio {p/j:,.0f}x")</code></pre></div>
-  <div class="out">n= 25000   += 0.0480s   join 0.0018s   ratio 27x
-n= 50000   += 0.1910s   join 0.0035s   ratio 55x
-n=100000   += 0.7640s   join 0.0069s   ratio 111x</div>
-  <p>
-    These illustrative timings show the repeated-copy model; they are not a guaranteed output of this interpreter-dependent experiment. Record your actual ratios, even if <code>+=</code> scales nearly linearly. Building pieces and joining once gives a predictable linear construction in the total number of characters.
-  </p>
-</section>
-<section>
-  <h2><span class="num">10.6</span>When you need a fast front: deque</h2>
-  <p>
-    Sometimes you genuinely need to add and remove at both ends — a queue of jobs, a
-    history of moves. Python has a structure built for it.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>list vs deque at the front</div><pre><code>from collections import deque
-import time
-
-n = 100000
-
-data = list(range(n))
-start = time.perf_counter()
-while data:
-    data.pop(0)                      <span class="c"># O(n) each → O(n²) total</span>
-print(f"list.pop(0):    {time.perf_counter() - start:.3f}s")
-
-data = deque(range(n))
-start = time.perf_counter()
-while data:
-    data.popleft()                   <span class="c"># O(1) each → O(n) total</span>
-print(f"deque.popleft(): {time.perf_counter() - start:.3f}s")</code></pre></div>
-  <div class="out">list.pop(0):    1.812s
-deque.popleft(): 0.006s</div>
-  <p>
-    Three hundred times faster, and the gap widens with n. You do not need to know how a
-    deque works internally to use it. You do need the habit of asking "is there a structure
-    designed for the operation I keep repeating?" — which is the whole of next week.
-  </p>
-  <div class="note blue">
-    <span class="label">When a list is still right</span>
-    <p>
-      A deque is not a free upgrade: reading a middle position, <code>dq[i]</code>, is O(n)
-      on a deque but O(1) on a list. Use a list when you index into the middle a lot; reach
-      for a deque when your hot operations are at the <em>ends</em>. Right tool, right job —
-      which needs the cost table for both.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">10.7</span>Measuring every operation at once</h2>
-  <p>
-    You have measured a few operations one pair at a time. Here is a single harness that
-    times all the headline operations at a fixed size, so the O(1) rows and the O(n) rows
-    sit next to each other and the difference is impossible to miss. The O(1) operations are
-    far too fast to time once, so we repeat each many times inside the timed region and
-    report the time per operation. Each repeat gets fresh input. Append grows its list, while pop removes 50 000 of the available 100 000 items; these are averages over changing sizes, not fixed-size single-operation measurements. The front-removal row drains its 2 000-item list exactly once. The output below is illustrative, and sorting this already sorted input exercises the adaptive best case.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>cost_of_every_operation.py</div><pre><code>import time
-
-n = 100000
-base = list(range(n))
-
-def time_op(setup, op, repeats):
-    """Best-of-3 total time for running op() `repeats` times."""
-    best = None
-    for _ in range(3):
-        data = setup()
-        start = time.perf_counter()
-        for _ in range(repeats):
-            op(data)
-        t = time.perf_counter() - start
-        if best is None or t &lt; best:
-            best = t
-    return best / repeats            <span class="c"># seconds per single operation</span>
-
-fresh = lambda: list(range(n))
-
-rows = [
-    ("index read   data[n//2]", fresh, lambda d: d[n // 2],        200000),
-    ("append       d.append(0)", fresh, lambda d: d.append(0),     200000),
-    ("pop end      d.pop()",     fresh, lambda d: d.pop(),          50000),
-    ("insert(0)    d.insert(0,0)", lambda: list(range(2000)), lambda d: d.insert(0, 0), 2000),
-    ("pop(0)       d.pop(0)",    lambda: list(range(2000)), lambda d: d.pop(0),      2000),
-    ("membership   -1 in d",     fresh, lambda d: (-1 in d),          200),
-    ("sort         sorted(d)",   fresh, lambda d: sorted(d),           50),
-]
-
-print(f"{'operation':&gt;26}   {'sec / op':&gt;12}")
-for label, setup, op, reps in rows:
-    per = time_op(setup, op, reps)
-    print(f"{label:&gt;26}   {per*1e9:&gt;9,.0f} ns")</code></pre></div>
-  <div class="out">                 operation       sec / op
-   index read   data[n//2]          38 ns
-   append       d.append(0)         52 ns
-   pop end      d.pop()             49 ns
-   insert(0)    d.insert(0,0)    1,120 ns
-   pop(0)       d.pop(0)           980 ns
-   membership   -1 in d      1,410,000 ns
-   sort         sorted(d)    6,900,000 ns</div>
-  <p>
-    Read it as three tiers. The O(1) operations — index, append, pop from the end — all sit
-    around a few dozen nanoseconds, flat and cheap. The front operations
-    <code>insert(0)</code> and <code>pop(0)</code> are twenty to fifty times dearer even on
-    a much shorter list, because each one shifts the whole tail. The O(n) scans
-    (<code>in</code> a missing value) and the sort of this already ordered list are in a different world
-    entirely — a missing-value membership test on 100 000 items is nearly forty thousand
-    times slower than an index read. The numbers on your machine will differ; the work models explain the expected trends, but precise relative tiers can vary.
-  </p>
-  <div class="note">
-    <span class="label">One size is a snapshot, not a class</span>
-    <p>
-      This table pins n and compares operations. It shows you which operations are
-      expensive <em>right now</em>, but a single size cannot reveal a class — for that you
-      need the doubling harness from weeks 5–7, watching how each number responds when n
-      doubles. Use both: the snapshot to spot the costly operation, the doubling run to name
-      its class.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">10.8</span>Common mistakes</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
-      <tbody>
-        <tr><td><code>result = result + [x]</code> in a loop</td><td>Copies the whole list each round → O(n²). Use <code>append</code>.</td></tr>
-        <tr><td>Repeated string concatenation</td><td>Can copy the growing text repeatedly; interpreter optimisations affect measurements. Collect pieces and join once for predictable linear construction.</td></tr>
-        <tr><td>Using a list as a queue with <code>pop(0)</code></td><td>Each removal shifts the tail → O(n²) over the queue. Use <code>deque.popleft()</code>.</td></tr>
-        <tr><td><code>if x in my_list</code> inside a loop</td><td>A hidden O(n) scan under your O(n) loop → O(n²). Use a set for membership (week 11).</td></tr>
-        <tr><td>"append is O(n) because of the resize"</td><td>The resize is O(n) but rare; averaged over all appends it is O(1) amortised.</td></tr>
-        <tr><td>"a deque is just a faster list"</td><td>Middle indexing on a deque is O(n); it wins only at the ends.</td></tr>
-        <tr><td>Slicing to copy inside a loop, <code>data[:]</code></td><td>Each copy is O(n); doing it once per item is another accidental O(n²).</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>Occasional expensive work can hide in an average</h3><p>A dynamic array is an array that can grow; it keeps some empty slots for new items. In the simplified doubling model, growth copies 1, 2, 4, … items into successively larger arrays. To reach n = 2ᵏ stored items from capacity 1, the copies total n − 1, even though the final resize alone is expensive.</p><p>This gives constant copying cost per append when the total is spread over the whole sequence (amortised cost). It does not make every individual append constant-time. Growing by only ten slots instead repeatedly copies nearly all the items already stored, producing quadratic total copying.</p><p>The exact way Python reserves extra slots depends on its implementation; the doubling model explains the idea rather than specifying its precise behaviour. Keep “amortised over a sequence” separate from “expected over random choices” and “worst case for one operation”.</p><p class="engineering-transfer"><strong>Engineering use.</strong> A data logger may tolerate occasional slow appends. A controller with a strict deadline may not tolerate the pause when storage grows.</p></section></div></details>
-<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
-  <div class="objectives">
-    <span class="eyebrow">By the end of this week you can</span>
-    <ul>
-      <li>say what the common list operations cost, and why;</li>
-      <li>explain why <code>append</code> is cheap and <code>insert(0, x)</code> is not;</li>
-      <li>explain what "amortised O(1)" means and why append earns it;</li>
-      <li>measure the difference yourself instead of taking my word for it;</li>
-      <li>rewrite a slow list-building loop into a fast one;</li>
-      <li>read a cost table for a data structure and use it to make a choice.</li>
-    </ul>
-  </div>
-</section>
-<section class="studio-contract">
-  <div class="note blue">
-    <span class="label">Three-hour interactive studio</span>
-    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
-    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
-    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
-    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
-    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
-    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
-  </div>
-</section>
-</div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w10/">Open the English + Türkçe reference guide</a>.</p>
-<details class="path-reference"><summary>Optional extra practice</summary><div><section>
-  <h2><span class="num">10.11</span>Optional Studio Extension</h2>
-  <div class="task">
-    <span class="label">Optional practice · no submission or deadline</span>
-    <ol>
-      <li>Create <code>AA_Week10.ipynb</code> and complete Tasks 1–5.</li>
-      <li>Reproduce §10.4 and §10.5 on your own machine and put all three ratio columns (insert-vs-append, and += vs join) in one table.</li>
-      <li>Run <code>watch_capacity.py</code> from §10.3 up to 1 000 items and note the lengths at which the size jumped; write two sentences linking what you saw to the phrase "O(1) amortised".</li>
-      <li>Run the §10.7 all-operations harness on your machine and paste the table; write one sentence naming the three tiers you see and which operations fall in each.</li>
-      <li>Produce one labelled figure comparing <code>append</code> and <code>insert(0, …)</code> across four sizes.</li>
-      <li>Write five sentences: you inherit a script that took 20 minutes on 10 000 rows and now must run on 100 000. Based on this week, name the two things you would look for first, and what you would expect the runtime to become if the culprit is quadratic.</li>
-    </ol>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
-  <h2><span class="num">10.12</span>Words from this week</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
-      <tbody>
-        <tr><td>contiguous storage</td><td>Items kept in one unbroken row of slots — the reason indexing is instant.</td></tr>
-        <tr><td>shifting</td><td>Moving every later item to close or open a gap; the hidden cost at the front.</td></tr>
-        <tr><td>amortised O(1)</td><td>Usually constant, occasionally expensive, cheap on average over many calls.</td></tr>
-        <tr><td>resize / capacity</td><td>The bigger block a list rents when it fills up; the rare O(n) copy behind append.</td></tr>
-        <tr><td>accidentally quadratic</td><td>An O(n) operation used once per item, giving O(n²) without any visible nested loop.</td></tr>
-        <tr><td>deque</td><td>A structure with cheap adds and removes at <em>both</em> ends, but O(n) middle indexing.</td></tr>
-        <tr><td>join</td><td><code>"".join(pieces)</code> — the linear way to build a big string.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section></div></details>
-
-<div class="note blue">
-  <span class="label">Where this leads</span>
-  <p>You learned that a full list search and a front insertion cost O(n). Week 11 introduces average O(1) lookup with dictionaries and sets, under the usual hashing assumptions.</p>
-</div>
-</div></details></div>
-</main>
+<article class="source-exercise" id="skiena-ex-102"><p class="source-label">Question 11 · easy</p><p>Same graph, DFS from vertex 1 with neighbours in increasing order. In what order are vertices discovered?</p><p class="source-context">Use the undirected graph with edges 1–2, 1–3, 2–4, 3–4, 4–5; visit neighbours in increasing order.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>1, 2, 4, 3, 5: from 1 go to 2, from 2 to 4, from 4 to 3 (its smallest undiscovered neighbour), 3 has nothing new, back to 4, then 5.</p></div></article><article class="source-exercise" id="skiena-ex-104"><p class="source-label">Question 12 · easy</p><p>How many edges does a tree with n vertices have? What happens if you add one more edge between two of its vertices?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>n − 1; the new edge closes exactly one cycle, since the tree already contains one path between its endpoints.</p></div></article><article class="source-exercise" id="skiena-ex-107"><p class="source-label">Question 13 · easy</p><p>List every topological sort of the DAG with edges A→B, B→C and A→C.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>only A, B, C. A must come before B and C, and B before C.</p></div></article><article class="source-exercise" id="skiena-ex-108"><p class="source-label">Question 14 · easy</p><p>What is the weight of the minimum spanning tree of a triangle whose edges weigh 1, 2 and 3?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>3, using the edges of weight 1 and 2. A spanning tree of three vertices has exactly two edges.</p></div></article><article class="source-exercise" id="skiena-ex-111"><p class="source-label">Question 15 · easy</p><p>What is a DAG, and what kind of vertex must every DAG contain?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>A DAG is a directed graph with no directed cycle. Every nonempty finite DAG has a vertex with in-degree zero: otherwise repeatedly follow an incoming edge backwards; finiteness forces a repeated vertex and hence a directed cycle.</p></div></article><article class="source-exercise" id="skiena-ex-112"><p class="source-label">Question 16 · medium</p><p>Run Prim’s algorithm on graph W starting from A. Give the order in which edges are added and the total weight.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>A–C (1), then C–B (2), then B–D (5) (cheaper than C–D at 8 and C–E at 10), then D–E (3). Total 1 + 2 + 5 + 3 = 11.</p></div></article><article class="source-exercise" id="skiena-ex-113"><p class="source-label">Question 17 · medium</p><p>Run Kruskal’s algorithm on graph W. List the edges in the order considered and say which are accepted or rejected.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>A–C (1) accepted; B–C (2) accepted; D–E (3) accepted; A–B (4) rejected, it would close the cycle A–C–B; B–D (5) accepted, joining {A, B, C} to {D, E}; four edges are now in, so C–D (8) and C–E (10) are not needed. Total 11, the same tree as Prim’s.</p></div></article><article class="source-exercise" id="skiena-ex-115"><p class="source-label">Question 18 · medium</p><p>Does a minimum spanning tree always contain the shortest path between every pair of vertices? Prove or give a counterexample.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>no. Triangle A–B (2), B–C (2), A–C (3): the MST is A–B, B–C with weight 4. The shortest path from A to C in the graph is the direct edge of weight 3, but in the tree the path A–B–C has weight 4.</p></div></article><article class="source-exercise" id="skiena-ex-117"><p class="source-label">Question 19 · medium</p><p>Run the DFS-based topological sort on the DAG with edges 1→2, 1→3, 2→4, 3→4, 4→5, 3→5, starting from 1 and exploring neighbours in increasing order. Give the finishing order and the resulting topological order.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>1 → 2 → 4 → 5; 5 finishes, 4 finishes, 2 finishes; back at 1, go to 3; its neighbours 4 and 5 are done, so 3 finishes; then 1. Finishing order 5, 4, 2, 3, 1; reversed: 1, 3, 2, 4, 5. Check: every edge points left to right.</p></div></article><article class="source-exercise" id="skiena-ex-118"><p class="source-label">Question 20 · medium</p><p>Run the in-degree-zero-removal method on the same DAG, with the queue processed in increasing order.</p><p class="source-context">Use the DAG with edges 1→2, 1→3, 2→4, 3→4, 4→5, 3→5.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>in-degrees are 1:0, 2:1, 3:1, 4:2, 5:2. Output 1, reducing 2 and 3 to zero. Output 2 (4 drops to 1), output 3 (4 drops to 0, 5 to 1), output 4 (5 drops to 0), output 5. Order 1, 2, 3, 4, 5, also valid; a DAG may have several topological sorts.</p></div></article><article class="source-exercise" id="skiena-ex-119"><p class="source-label">Question 21 · medium</p><p>How do you test whether a directed graph contains a cycle? Give two methods.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>run DFS and watch for a back edge (an edge to a vertex that is discovered but not yet finished); or run the in-degree removal method and check whether fewer than n vertices come out.</p></div></article><article class="source-exercise" id="skiena-ex-121"><p class="source-label">Question 22 · medium</p><p>Which vertices are articulation vertices in the path 1–2–3–4? In the cycle 1–2–3–4–1?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>in the path, 2 and 3 (removing either disconnects it); the endpoints are not. In the cycle, none: removing any single vertex leaves a path, still connected.</p></div></article><article class="source-exercise" id="skiena-ex-125"><p class="source-label">Question 23 · medium</p><p>Process the edges (1, 2), (3, 4), (2, 3), (5, 6), (1, 4) with union-find, in that order. What are the sets after each step, and which edge would Kruskal reject?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>{1,2} {3} {4} {5} {6}; then {1,2} {3,4} {5} {6}; then {1,2,3,4} {5} {6}; then {1,2,3,4} {5,6}; finally (1, 4): find(1) = find(4) already, so nothing merges; Kruskal would reject this edge as cycle-forming.</p></div></article><article class="source-exercise" id="skiena-ex-127"><p class="source-label">Question 24 · hard · optional challenge</p><p>Prove that in a depth-first search of an undirected graph every non-tree edge is a back edge, so there are no forward or cross edges.</p><p class="question-plain"><strong>In simpler words:</strong> Explain why an undirected DFS edge cannot jump between finished branches.</p><p class="question-hint"><strong>Starting hint:</strong> DFS examines every neighbour before finishing a vertex.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Let x be discovered before y, with edge {x,y}.</li><li>If y is still undiscovered when this edge is examined, DFS descends toward y before finishing x.</li><li>Thus the two endpoints lie on an ancestor–descendant chain. A non-tree edge is viewed upward as a back edge; its reverse is not a second edge.</li></ol><p>For an undirected edge {x,y}, suppose x is discovered first. DFS cannot finish x while y remains undiscovered, because it examines every neighbour before finishing; that edge would discover y. Thus y is discovered while x is active and lies in its DFS subtree. Every undirected edge therefore connects ancestor and descendant. If it is not the discovery edge, classify it as a back edge when viewed from descendant toward ancestor. The reverse view is the same undirected edge, not a separate forward edge.</p></div></article><article class="source-exercise" id="skiena-ex-130"><p class="source-label">Question 25 · hard · optional challenge</p><p>Prove that if all edge weights in a connected graph are distinct, the minimum spanning tree is unique.</p><p class="question-plain"><strong>In simpler words:</strong> Show that two different cheapest trees cannot coexist with distinct weights.</p><p class="question-hint"><strong>Starting hint:</strong> Exchange one carefully chosen edge between the two trees.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Choose the lightest edge e that appears in exactly one proposed MST, say T₁.</li><li>Adding e to T₂ creates a cycle. That cycle contains an edge f outside T₁; otherwise T₁ would contain a cycle too.</li><li>Because weights are distinct and e was lightest among differing edges, f is heavier. Replacing f by e makes T₂ cheaper, a contradiction.</li></ol><p>suppose T₁ ≠ T₂ are both minimum. Let e be the lightest edge that is in one of them but not both, say e ∈ T₁ \ T₂. Adding e to T₂ closes a cycle, which must contain an edge f not in T₁ (otherwise T₁ would contain a cycle). f is in T₂ but not T₁, and since e was the lightest such edge and weights are distinct, w(f) &gt; w(e). Then T₂ − f + e is a spanning tree lighter than T₂, contradicting minimality.</p></div></article><article class="source-exercise" id="skiena-ex-131"><p class="source-label">Question 26 · hard · optional challenge</p><p>Show that a minimum spanning tree also minimises the heaviest edge among all spanning trees.</p><p class="question-plain"><strong>In simpler words:</strong> Show that an MST also makes its largest edge as small as possible.</p><p class="question-hint"><strong>Starting hint:</strong> Remove a largest MST edge and look at the two resulting parts.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Call that edge weight B. Suppose another spanning tree uses only edges lighter than B.</li><li>That other tree must cross the cut between the two parts using some edge f of weight below B.</li><li>Substitute f for the removed edge: the original MST would become cheaper. The contradiction proves no spanning tree has a smaller bottleneck.</li></ol><p>suppose some spanning tree S has maximum edge weight w less than the MST’s maximum edge weight, and let e be an MST edge with w(e) &gt; w. Removing e splits the MST into two parts; S is connected, so it contains an edge f crossing between those parts with w(f) ≤ w &lt; w(e). Then MST − e + f is a lighter spanning tree, contradicting minimality. (Kruskal’s order makes this vivid: it never adds an edge heavier than necessary to connect.)</p></div></article><article class="source-exercise" id="skiena-ex-133"><p class="source-label">Question 27 · hard · optional challenge</p><p>You are given a graph and its minimum spanning tree T. Describe how to find the second-best spanning tree (the lightest spanning tree different from T), and give a running time.</p><p class="question-plain"><strong>In simpler words:</strong> Find the cheapest tree that differs from a given MST.</p><p class="question-hint"><strong>Starting hint:</strong> Add one unused edge, then remove an edge from its newly formed cycle.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Each non-tree edge e creates exactly one cycle with T.</li><li>Remove a heaviest edge on that cycle to get the cheapest tree obtainable with this e. Record its weight, even if tied with T.</li><li>Try every non-tree edge and keep the best. A standard tree-exchange argument guarantees a best alternative among these swaps. Finding each tree path by a scan costs O(n), for O(nm) overall.</li></ol><p>Assume a connected graph and seek the lightest spanning tree different from the given MST T; it may have equal weight. There exists a best alternative obtainable by one swap. For each non-tree edge e, find the unique tree path between its endpoints, remove a maximum-weight edge f on that path, and evaluate T − f + e. Keep the cheapest alternative. Scanning each path takes O(n), giving O(nm). If there is no non-tree edge, no alternative spanning tree exists. “Strictly heavier second-best” is a different problem when weights tie.</p></div></article><article class="source-exercise" id="skiena-ex-134"><p class="source-label">Question 28 · hard · optional challenge</p><p>Prove by induction that every tree with n vertices has exactly n − 1 edges.</p><p class="question-plain"><strong>In simpler words:</strong> Remove one leaf, use the smaller tree, then add the leaf back.</p><p class="question-hint"><strong>Starting hint:</strong> A finite tree with at least two vertices has a leaf.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>For one vertex there are zero edges, matching n−1.</li><li>Remove a leaf and its single incident edge. Remaining vertices still form a tree.</li><li>By induction that smaller tree has n−2 edges. Restoring one edge gives n−1.</li></ol><p>base case n = 1: no edges. For n ≥ 2, a tree has a leaf (a vertex of degree 1): start anywhere and keep walking along unused edges; you cannot revisit a vertex because there are no cycles, so the walk ends at a vertex with no other edge, a leaf. Remove that leaf and its edge; the rest is still connected and acyclic, so it is a tree with n − 1 vertices and, by the hypothesis, n − 2 edges. Adding the leaf’s edge back gives n − 1.</p></div></article></section>
+<nav class="week-nav"><a href="../w9/">← Week 9</a><a href="../">Course dashboard</a><a href="../w11/">Week 11 →</a></nav></div></main>
 <footer class="site-footer">
-  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis &middot; Dr. Arif Solmaz</span>
 
 </footer>
 <script src="../assets/app.js?v=2"></script><script src="../../assets/learning-path.js?v=1"></script>
-<script src="../assets/anim.js?v=13"></script><script src="../assets/anim-w10.js?v=10"></script><script src="../assets/anim-workspace.js?v=11"></script></body>
+</body>
 </html>

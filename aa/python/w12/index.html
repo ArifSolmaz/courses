@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guess-the-number, the phone book trick, and why log n barely grows.">
+<title>Week 12: Searching: Linear vs Binary — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../assets/learning.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/questions.css?v=2">
+<link rel="stylesheet" href="../../assets/anim.css"><link rel="stylesheet" href="../../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../../assets/anim-w12.css"><link rel="stylesheet" href="../../assets/anim-workspace.css?v=17"></head>
+<body><div style="padding:16px;background:#fff1ce;color:#302a19">Python support library · former lesson sequence. <a href="../../">Current AA schedule</a></div>
+<header class="site-header">
+  <a class="brand" href="../../index.html">AA <span>/ course home</span></a>
+  <nav class="header-nav">
+    <details class="path-menu"><summary>Settings</summary><div>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 12 &middot; Phase 4 · Choosing well</div>
+  <h1>Searching: Linear vs Binary</h1>
+  <p class="lede">Guess-the-number, the phone book trick, and why log n barely grows.</p>
+  <p class="path-question"><strong>How do you find something in a million items with only 20 looks?</strong></p>
+</div>
+
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Sorted order makes discarding safe</h2><figure class="vl-figure"><figcaption>Find 33 in a sorted list, using inclusive bounds</figcaption><div class="vl-trace"><b>index</b><div class="vl-cards" style="--row-columns:8"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div></div><div class="vl-trace"><b>value</b><div class="vl-cards" style="--row-columns:8"><span>3</span><span>7</span><span>9</span><span>14</span><span>21</span><span>28</span><span>33</span><span>40</span></div></div><div class="vl-trace"><b>check 1</b><div class="vl-cards" style="--row-columns:2"><span>mid 3: 14 &lt; 33</span><span>keep indices 4…7</span></div></div><div class="vl-trace"><b>check 2</b><div class="vl-cards" style="--row-columns:2"><span>mid 5: 28 &lt; 33</span><span>keep indices 6…7</span></div></div><div class="vl-trace"><b>check 3</b><div class="vl-cards" style="--row-columns:2"><span>mid 6: 33</span><span>found</span></div></div></figure><p>Each failed comparison removes the middle item and one side. Without sorted order, the discarded side might contain the target.</p></section><section class="vl-lesson"><h2>Make the interval shrink every time</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def binary_search(a, target):
+    low, high = 0, len(a) - 1
+    while low &lt;= high:
+        mid = (low + high) // 2
+        if a[mid] == target:
+            return mid
+        if a[mid] &lt; target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1</code></pre></div><div class="vl-equation"><span>Worst-case middle checks, n > 0</span><strong>⌊log₂ n⌋ + 1</strong></div><p>Empty input makes high = −1, so the loop never runs. With duplicates, this version returns a matching index, not necessarily the first. The +1 and −1 prevent checking the same middle forever.</p></section><section class="vl-lesson"><h2>Include the price of preparing the data</h2><div class="vl-table"><table><thead><tr><th scope="col">q queries on initially unsorted n values</th><th scope="col">Total work model</th></tr></thead><tbody><tr><td>Scan each time</td><td>O(qn)</td></tr><tr><td>Sort once, then binary search</td><td>O(n log n + q log n)</td></tr><tr><td>Build a set once, membership only</td><td>O(n + q) average</td></tr></tbody></table></div><p>For one query, sorting may cost more than scanning. A set is suitable for membership; sorted order also supports ranges. Constants and required outputs decide which model fits.</p></section><section class="vl-lesson"><h2>Test boundaries; use insertion positions for ranges</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from bisect import bisect_left, bisect_right
+a = [2, 4, 4, 7, 9]
+count = bisect_right(a, 7) - bisect_left(a, 4)
+print(count)  # 3 values in the inclusive range [4, 7]</code></pre></div><figure class="vl-figure"><figcaption>Boundary test set</figcaption><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>empty</span><span>one hit</span><span>one miss</span></div></div><div class="vl-trace"><b>test</b><div class="vl-cards" style="--row-columns:3"><span>first hit</span><span>last hit</span><span>interior gap</span></div></div></figure><p><code>bisect_left</code> finds the first allowed position; <code>bisect_right</code> goes after equal values. Finding a position is logarithmic; inserting into a list can still shift n items.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
+<p class="source-label">10 test questions · 10 written questions · 20 total</p>
+<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
+<h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
+<article class="source-exercise test-question" id="skiena-mcq-025">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">In a binary search tree the minimum key is found by:</p><ol class="mcq-options" type="a"><li> repeatedly going right</li><li> repeatedly going left</li><li> looking at the root</li><li> a hash lookup</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Smaller keys always lie to the left.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-026">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">An in-order traversal of a BST prints the keys:</p><ol class="mcq-options" type="a"><li> level by level</li><li> in the order they were inserted</li><li> in sorted order</li><li> in reverse sorted order</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Left subtree, node, right subtree.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-027">
+<p class="source-label">Question 3 · easy</p><p class="question-prompt">Insert distinct keys 1, 2, …, n into a plain, unbalanced BST, for n ≥ 3. Counting edges from root to deepest leaf, its height is:</p><ol class="mcq-options" type="a"><li> about log n</li><li> n − 1</li><li> 1</li><li> about √n</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Each key becomes the right child of the previous one: a chain.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-033">
+<p class="source-label">Question 4 · medium</p><p class="question-prompt">Using the successor-based deletion method, a BST node with two children is replaced by:</p><ol class="mcq-options" type="a"><li> its parent</li><li> its left child</li><li> its in-order successor (the minimum of its right subtree)</li><li> the root</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> The successor has at most one child, so it is easy to remove from its old place.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-034">
+<p class="source-label">Question 5 · medium</p><p class="question-prompt">The successor of a BST node that has a right child is:</p><ol class="mcq-options" type="a"><li> the minimum of its right subtree</li><li> the maximum of its right subtree</li><li> its parent</li><li> the maximum of its left subtree</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The next larger key is the smallest key that is larger.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-038">
+<p class="source-label">Question 6 · medium</p><p class="question-prompt">Which structure gives the best guaranteed worst-case bound on all seven dictionary operations?</p><ol class="mcq-options" type="a"><li> a hash table</li><li> an unsorted array</li><li> a balanced binary search tree</li><li> a sorted linked list</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> A balanced BST supports each ordered-dictionary operation in O(log n) worst-case time. An ordinary hash table does not maintain key order, and its worst-case lookup can be linear.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-198">
+<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">A sorted list has 15 items. Binary search checks one middle item per iteration and stops on equality. What is the maximum number of checks needed for a successful search?</p><ol class="mcq-options" type="a"><li>15</li><li>7</li><li>4</li><li>3</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> A search with four checks can cover up to 2⁴−1=15 items. Three checks cover at most seven.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-199">
+<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">Binary search uses inclusive bounds lo and hi. After comparing a middle value smaller than the target in an ascending list, what update is correct?</p><ol class="mcq-options" type="a"><li>lo = mid + 1</li><li>hi = mid − 1</li><li>lo = mid</li><li>hi = mid</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The middle value and everything before it are too small. Excluding the checked middle position also guarantees progress.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-200">
+<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">With inclusive bounds, which condition means a binary search has exhausted all candidates?</p><ol class="mcq-options" type="a"><li>lo == hi</li><li>mid == 0</li><li>the target is positive</li><li>lo &gt; hi</li></ol>
+<div class="question-answer"><p><strong>Answer: option D.</strong> When lo exceeds hi, the candidate interval is empty. With lo == hi there is still one candidate to check.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-201">
+<p class="source-label">Question 10 · medium · course question</p><p class="question-prompt">You will perform one search in an unsorted list. Which statement compares a scan with sorting first correctly?</p><ol class="mcq-options" type="a"><li>sorting first is always faster</li><li>include the sorting cost; one linear scan can require less total work</li><li>binary search needs no sorted order</li><li>ignore preprocessing because it happens before the search</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> For a single query, linear scanning takes O(n), while comparison sorting plus binary search generally costs O(n log n). Repeated queries may justify preprocessing.</p></div></article>
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
+<article class="source-exercise" id="skiena-ex-037"><p class="source-label">Question 11 · easy</p><p>In a binary search tree, where is the largest key? The smallest?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>largest: start at the root and keep going right until you cannot. Smallest: keep going left.</p></div></article><article class="source-exercise" id="skiena-ex-038"><p class="source-label">Question 12 · easy</p><p>Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its height.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>50 is the root; 30 is its left child and 70 its right child; 20 and 40 hang under 30; 60 and 80 hang under 70. Three levels, height 2. It is perfectly balanced.</p></div></article><article class="source-exercise" id="skiena-ex-039"><p class="source-label">Question 13 · easy</p><p>What does an in-order traversal of the tree in exercise 38 print?</p><p class="source-context">Exercise 38 uses the BST obtained by inserting 50, 30, 70, 20, 40, 60, 80 in that order.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>20 30 40 50 60 70 80, the keys in sorted order.</p></div></article><article class="source-exercise" id="skiena-ex-040"><p class="source-label">Question 14 · easy</p><p>Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cost?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>each key goes to the right of the previous one, giving a chain of height 4; search costs O(n), no better than a linked list.</p></div></article><article class="source-exercise" id="skiena-ex-049"><p class="source-label">Question 15 · medium</p><p>In a BST, node x has no right child. Where is its successor?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>walk up from x until you arrive at an ancestor from its left child; that ancestor is the successor (the next key in in-order). If you reach the root without ever coming up from a left child, x is the maximum.</p></div></article><article class="source-exercise" id="skiena-ex-050"><p class="source-label">Question 16 · medium</p><p>When deleting a BST node with two children, which node takes its place, and why is that node guaranteed to have at most one child?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>its successor, the minimum of the right subtree (the predecessor works symmetrically). Being a minimum, it cannot have a left child, so it has at most a right child and can be removed with the one-child case.</p></div></article><article class="source-exercise" id="skiena-ex-051"><p class="source-label">Question 17 · medium</p><p>How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>For distinct keys and a strict BST ordering rule, traverse in order and check that successive keys are strictly increasing. Visit every node once: O(n) time. If duplicate keys are allowed, specify which subtree may contain them and enforce that policy with lower and upper bounds during traversal; a nondecreasing traversal alone cannot enforce a one-sided duplicate policy.</p></div></article><article class="source-exercise" id="skiena-ex-052"><p class="source-label">Question 18 · medium</p><p>Binary search on a sorted array costs O(log n). Why does the same idea not work on a sorted linked list?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>binary search needs to jump to the middle element in O(1); a linked list can only reach the middle by walking n/2 pointers, which already costs O(n).</p></div></article><article class="source-exercise" id="skiena-ex-057"><p class="source-label">Question 19 · medium</p><p>What is the height of a perfectly balanced BST holding 1,023 keys?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>9. A full tree of height h has 2ʰ⁺¹ − 1 nodes, and 2¹⁰ − 1 = 1,023, so there are 10 levels and 9 edges from root to leaf.</p></div></article><article class="source-exercise" id="skiena-ex-059"><p class="source-label">Question 20 · hard</p><p>Prove that an in-order traversal of any BST outputs its keys in sorted order.</p><p class="question-plain"><strong>In simpler words:</strong> Explain why left–root–right prints a search tree in order.</p><p class="question-hint"><strong>Starting hint:</strong> Assume each smaller subtree already prints correctly.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>For an empty tree, the output is empty and sorted.</li><li>For distinct keys, every left-subtree key is below the root and every right-subtree key is above it.</li><li>By induction, each subtree output is sorted. Joining sorted-left, root, sorted-right creates a sorted whole.</li></ol><p>induction on the number of nodes. An empty tree prints nothing, which is sorted. For a tree with root r, by the induction hypothesis the left subtree prints its keys sorted and so does the right subtree. Every left key is &lt; r &lt; every right key by the BST property, so “left output, then r, then right output” is sorted.</p></div></article></section>
+<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Search for 30 in [3, 7, 9, 14, 21, 28, 33, 40]. Record middle values.</p><details class="solution"><summary>Check your reasoning</summary><div><p>14 → 28 → 33; then low = 6, high = 5, so return −1.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>What is the worst-case number of middle checks for 1,023 sorted items?</p><details class="solution"><summary>Check your reasoning</summary><div><p>⌊log₂ 1023⌋ + 1 = 10.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>In the range example, change the interval to [4, 4]. Predict the answer.</p><details class="solution"><summary>Check your reasoning</summary><div><p>bisect_right(a, 4) − bisect_left(a, 4) = 3 − 1 = 2. Both copies count.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">12.9</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — count the halvings</span>
+    <p>
+      Use the <code>steps</code> value returned by <code>binary_search</code> to fill a
+      table for n = 1 000, 10 000, 100 000, 1 000 000, 10 000 000 (worst case: search for a
+      missing value). What is the pattern?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch the window halve, then fill the table</summary>
+      <div class="widget anim" data-anim="w12-halvings"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        For a missing target larger than every item: 10, 14, 17, 20, 24. Other missing targets can take fewer steps. Each ten-fold increase in data adds roughly three or four
+        steps. That is what "logarithmic" feels like from the inside.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — break it deliberately</span>
+    <p>
+      Run <code>binary_search</code> on an <em>unsorted</em> list and find a value it fails
+      to locate even though it is present. Then explain in two sentences why no error was
+      raised.
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — pick a value and watch binary search miss it</summary>
+      <div class="widget anim" data-anim="w12-unsorted"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 3 — the crossover with sorting included</span>
+    <p>
+      For a list of 1 000 000 unsorted items, compare total time for q searches, q = 1, 10,
+      100, 1 000, 10 000, under three strategies: (a) linear each time, (b) sort once then
+      binary, (c) build a set once then look up. At what q does each strategy win?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — predict the winner, then race three strategies</summary>
+      <div class="widget anim" data-anim="w12-crossover"></div>
+    </details><details class="solution"><summary>What you should find</summary>
+      <p>
+        For a single search, linear scanning avoids preparation and is often preferable; the actual winner depends on the input and implementation.
+        The set overtakes very quickly (usually within a handful of queries) because building
+        it is only one pass. Sorting pays off later than the set for pure membership, but it
+        is the only one of the three that also answers range questions.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — a question a set cannot answer</span>
+    <p>
+      Given a sorted list of a million timestamps, use <code>bisect</code> to count how many
+      fall between two given values, in O(log n). Then try to do the same with a set and
+      describe why it degrades to O(n).
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — count a range with bisect, then with a set</summary>
+      <div class="widget anim" data-anim="w12-range"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <div class="code"><div class="code-head"><span class="dot"></span>range count</div><pre><code>import bisect
+count = bisect.bisect_right(data, high) - bisect.bisect_left(data, low)</code></pre></div>
+      <p>
+        Two O(log n) lookups and a subtraction. A set has no notion of order, so the only
+        option is to examine every element — O(n). This is the reason sorted structures still
+        exist in a world with hash tables.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — trace it on paper</span>
+    <p>
+      By hand, trace <code>binary_search([3, 7, 9, 14, 21, 28, 33, 40], 33)</code>, writing
+      <code>low</code>, <code>high</code> and <code>middle</code> at each step. How many steps?
+      Then trace a search for <code>10</code> (absent) the same way.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — check your paper trace, or fill the table yourself</summary>
+      <div class="widget anim" data-anim="w12-paper-trace"></div>
+    </details><details class="solution"><summary>Answer</summary>
+      <p>
+        Finding 33 (indices 0–7): mid 3 → data[3]=14, 33&gt;14, low=4; mid 5 → data[5]=28,
+        33&gt;28, low=6; mid 6 → data[6]=33, match. <strong>3 steps.</strong> Searching for 10:
+        mid 3 → 14, 10&lt;14, high=2; mid 1 → 7, 10&gt;7, low=2; mid 2 → 9, 10&gt;9, low=3; now
+        low 3 &gt; high 2, return −1. <strong>3 steps, then the crossing.</strong>
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — pass the six tests</span>
+    <p>
+      Write your own binary search and run it against all six boundary cases from §12.5: an
+      empty list, a one-item list, a two-item list, the first element, the last element, and a
+      missing value. Fix anything that fails. Which case caught the most bugs for you?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — run the six tests on five versions</summary>
+      <div class="widget anim" data-anim="w12-six-tests"></div>
+    </details><details class="solution"><summary>What to watch for</summary>
+      <p>
+        The two-item list and the "missing value just past the end" case are the usual
+        culprits — they are exactly where a stray <code>&lt;</code> instead of <code>&lt;=</code>,
+        or a missing <code>−1</code>, shows itself. If all six pass, the loop condition and the
+        two narrowing steps are consistent.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">12.10</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Binary search on 1 000 000 sorted items needs at most about:</p>
+      <button class="opt">1 000 000 steps</button>
+      <button class="opt">1 000 steps</button>
+      <button class="opt">20 steps</button>
+      <button class="opt">2 steps</button>
+      <div class="why">Each step halves the range; a million halves to one in about twenty steps.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>You have unsorted data and need exactly one search. The right choice is:</p>
+      <button class="opt">Linear search — sorting first would cost more than the scan</button>
+      <button class="opt">Sort, then binary search</button>
+      <button class="opt">Build a set, then look up</button>
+      <button class="opt">Binary search directly on the unsorted list</button>
+      <div class="why">Preparation only pays off when its preparation cost is spread over many searches. And the last option is silently wrong, which is worse than slow.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Binary search on unsorted data:</p>
+      <button class="opt">Raises an error</button>
+      <button class="opt">Returns wrong answers with no warning</button>
+      <button class="opt">Works, but slowly</button>
+      <button class="opt">Sorts the data first automatically</button>
+      <div class="why">It happily discards the half containing your item. Silent wrongness is the most dangerous failure mode in software.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>When is a sorted list with <code>bisect</code> better than a set?</p>
+      <button class="opt">When you only ask "is this present?"</button>
+      <button class="opt">When memory is unlimited</button>
+      <button class="opt">Never — sets are always better</button>
+      <button class="opt">When you need order: nearest value, next larger, or everything in a range</button>
+      <div class="why">Hash tables destroy order by design. Order questions need an ordered structure.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A binary search that writes <code>high = middle</code> instead of <code>high = middle - 1</code> risks:</p>
+      <button class="opt">Sorting the data twice</button>
+      <button class="opt">Using too much memory</button>
+      <button class="opt">Looping forever, because the window can stop shrinking</button>
+      <button class="opt">Nothing — the two are equivalent</button>
+      <div class="why">If the window never narrows, <code>low</code> and <code>high</code> never cross and the <code>while</code> loop never ends. Always move past the middle.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Why is the loop condition <code>while low &lt;= high</code> rather than <code>&lt;</code>?</p>
+      <button class="opt">So a one-element window (<code>low == high</code>) is still examined</button>
+      <button class="opt">To make it run faster</button>
+      <button class="opt">Because <code>&lt;</code> is invalid Python</button>
+      <button class="opt">It makes no difference which you use</button>
+      <div class="why">With <code>&lt;</code>, the last remaining candidate is never checked, so a value sitting there is missed. The trace in §12.4 ends exactly when <code>low</code> passes <code>high</code>.</div>
+    </div>
+  </div>
+</section>
+</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+  <h2><span class="num">12.1</span>The game you already played</h2>
+  <p>
+    In week 1 you guessed a number between 1 and 100 by always choosing the middle of the
+    remaining range, and it took at most seven guesses. That is
+    <strong>binary search</strong>, and it is the second most useful algorithm a beginner
+    can learn (the first is "put it in a dictionary").
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Range size</th><th>Guessing one by one</th><th>Halving</th></tr></thead>
+      <tbody>
+        <tr><td>100</td><td>up to 100</td><td>7</td></tr>
+        <tr><td>1 000</td><td>up to 1 000</td><td>10</td></tr>
+        <tr><td>1 000 000</td><td>up to 1 000 000</td><td>20</td></tr>
+        <tr><td>1 000 000 000</td><td>up to a billion</td><td>30</td></tr>
+        <tr><td>the world's population</td><td>8 billion</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Thirty-three questions to find one person on Earth. That column is why
+    <code>O(log n)</code> is treated as "practically free": between a thousand items and a
+    billion, it grows from 10 to 30.
+  </p>
+</section>
+<section>
+  <h2><span class="num">12.2</span>Linear search, for reference</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>linear_search.py</div><pre><code>def linear_search(data, target):
+    """Return the position of target, or -1. Works on any list."""
+    for i in range(len(data)):
+        if data[i] == target:
+            return i
+    return -1</code></pre></div>
+  <p>
+    Worst case n comparisons: <code>O(n)</code>. Its virtues are that it needs no
+    preparation and works on unsorted data, which is exactly what you usually have.
+  </p>
+</section>
+<section>
+  <h2><span class="num">12.3</span>Binary search</h2>
+  <p>
+    The rule: look in the middle; if the target is smaller, throw away the right half;
+    if larger, throw away the left half; repeat.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>binary_search.py — data must be sorted</div><pre><code>def binary_search(data, target):
+    low = 0
+    high = len(data) - 1
+    steps = 0
+
+    while low &lt;= high:
+        steps += 1
+        middle = (low + high) // 2
+
+        if data[middle] == target:
+            return middle, steps
+        elif target &lt; data[middle]:
+            high = middle - 1          <span class="c"># drop the right half</span>
+        else:
+            low = middle + 1           <span class="c"># drop the left half</span>
+
+    return -1, steps</code></pre></div>
+  <div class="code"><div class="code-head"><span class="dot"></span>see the steps for yourself</div><pre><code>data = list(range(1000000))          <span class="c"># already sorted</span>
+
+print(binary_search(data, 999999))   <span class="c"># (999999, 20)</span>
+print(binary_search(data, 0))        <span class="c"># (0, 19)</span>
+print(binary_search(data, -5))       <span class="c"># (-1, 19)</span></code></pre></div>
+  <p>
+    At most twenty middle inspections in this million-item list. These exact calls use twenty for the far-end hit and nineteen for the near-end hit and the miss. Compare with linear search, which needs up to a million.
+  </p>
+  <div class="note red">
+    <span class="label">The two ways to get this wrong</span>
+    <ol>
+      <li><strong>Unsorted data.</strong> Binary search on unsorted data does not error — it silently returns wrong answers. That is worse than crashing.</li>
+      <li><strong>Off-by-one.</strong> <code>while low &lt;= high</code>, and <code>middle ± 1</code> when narrowing. Get either wrong and you loop forever or miss the last item. Test with a 1-item list, a 2-item list, the first element, the last, and a missing value.</li>
+    </ol>
+  </div>
+</section>
+<section>
+  <h2><span class="num">12.4</span>Watch it run: a step-by-step trace</h2>
+  <p>
+    The code is short, but short code hides its behaviour. The cure is to trace it once by
+    hand, writing down <code>low</code>, <code>high</code> and <code>middle</code> at every
+    turn. Take this ten-item sorted list (indices along the top) and search for
+    <strong>23</strong>:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>index</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead>
+      <tbody>
+        <tr><td>value</td><td>2</td><td>5</td><td>8</td><td>12</td><td>16</td><td><strong>23</strong></td><td>38</td><td>56</td><td>72</td><td>91</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>step</th><th>low</th><th>high</th><th>middle</th><th>data[middle]</th><th>decision</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0</td><td>9</td><td>4</td><td>16</td><td>23 &gt; 16 → search right, <code>low = 5</code></td></tr>
+        <tr><td>2</td><td>5</td><td>9</td><td>7</td><td>56</td><td>23 &lt; 56 → search left, <code>high = 6</code></td></tr>
+        <tr><td>3</td><td>5</td><td>6</td><td>5</td><td>23</td><td>match → return (5, 3)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Three steps, and each one threw away roughly half of what was left: ten candidates, then
+    five, then two. Now trace a <em>miss</em> — search for <strong>40</strong>, which is not
+    in the list:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>step</th><th>low</th><th>high</th><th>middle</th><th>data[middle]</th><th>decision</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0</td><td>9</td><td>4</td><td>16</td><td>40 &gt; 16 → <code>low = 5</code></td></tr>
+        <tr><td>2</td><td>5</td><td>9</td><td>7</td><td>56</td><td>40 &lt; 56 → <code>high = 6</code></td></tr>
+        <tr><td>3</td><td>5</td><td>6</td><td>5</td><td>23</td><td>40 &gt; 23 → <code>low = 6</code></td></tr>
+        <tr><td>4</td><td>6</td><td>6</td><td>6</td><td>38</td><td>40 &gt; 38 → <code>low = 7</code></td></tr>
+        <tr><td>5</td><td>7</td><td>6</td><td>—</td><td>—</td><td><code>low &gt; high</code> → return (−1, 4)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The loop ends the instant <code>low</code> overtakes <code>high</code>: the window has
+    closed to nothing, so the value cannot be present. That crossing is the whole reason the
+    condition is <code>while low &lt;= high</code> and not <code>&lt;</code> — with
+    <code>&lt;</code>, a one-element window (<code>low == high</code>) is never examined, and a
+    value sitting there is missed.
+  </p>
+  <div class="note blue">
+    <span class="label">Counting the halvings</span>
+    <p>
+      Each mismatch at least halves the remaining candidate count. For this inclusive-boundary implementation, the maximum number of middle inspections is <code>floor(log₂ n) + 1</code> for n &gt; 0, and zero for n = 0. This is 4 at n = 8 or 10 and 20 at n = 1 000 000. Actual hits and misses can use fewer steps; reaching one candidate is not the same as checking it.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">12.5</span>The off-by-one minefield</h2>
+  <p>
+    Binary search is famous for being easy to describe and hard to get exactly right. Almost
+    every bug is one of three kinds. Here is a version with the classic mistake planted in it —
+    predict what it does before reading on:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>buggy_binary_search.py — do not ship this</div><pre><code>def buggy_search(data, target):
+    low, high = 0, len(data) - 1
+    while low &lt;= high:
+        middle = (low + high) // 2
+        if data[middle] == target:
+            return middle
+        elif target &lt; data[middle]:
+            high = middle              <span class="c"># BUG: should be middle - 1</span>
+        else:
+            low = middle + 1
+    return -1</code></pre></div>
+  <p>
+    Run it on <code>[10, 20]</code> searching for <code>5</code>. Step 1: low 0, high 1,
+    middle 0, <code>data[0]</code> is 10, and 5 &lt; 10, so <code>high = middle = 0</code>. Step
+    2: low 0, high 0, middle 0, still 5 &lt; 10, so <code>high = 0</code> again. Nothing has
+    changed. It loops <strong>forever</strong>. The fix — <code>high = middle - 1</code> —
+    guarantees the window shrinks on every branch, so <code>low</code> and <code>high</code>
+    must eventually cross.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Symptom</th><th>The rule</th></tr></thead>
+      <tbody>
+        <tr><td><code>while low &lt; high</code></td><td>Misses a value sitting in a one-element window</td><td>Use <code>&lt;=</code> so <code>low == high</code> is still checked</td></tr>
+        <tr><td><code>high = middle</code> (no −1)</td><td>Infinite loop when the window will not shrink</td><td>Always move <em>past</em> the middle: <code>middle − 1</code> / <code>middle + 1</code></td></tr>
+        <tr><td>Searching unsorted data</td><td>Wrong answer, no error</td><td>Sort first, or use a set — precondition, not optional</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The defence is not cleverness, it is a fixed set of tests. Any binary search you write
+    should be tried on: an empty list, a one-item list, a two-item list, the very first
+    element, the very last element, and a value that is absent. Passing these tests is useful evidence, not proof. Justify correctness by showing that all possible answers stay inside the window and that every mismatch strictly shrinks it.
+  </p>
+  <p>
+    A useful cousin returns not "is it here?" but "where would it go?" — the
+    <strong>insertion point</strong>. This is what powers <code>bisect</code> in the next
+    section, and it never needs the equality branch at all:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>insertion_point.py</div><pre><code>def insertion_point(data, target):
+    """First index i such that everything left of i is &lt; target."""
+    low, high = 0, len(data)          <span class="c"># note: high starts at len, not len-1</span>
+    while low &lt; high:
+        middle = (low + high) // 2
+        if data[middle] &lt; target:
+            low = middle + 1
+        else:
+            high = middle
+    return low
+
+data = [10, 20, 30, 40, 50]
+print(insertion_point(data, 30))      <span class="c"># 2  — 30 belongs at index 2</span>
+print(insertion_point(data, 35))      <span class="c"># 3  — between 30 and 40</span>
+print(insertion_point(data, 99))      <span class="c"># 5  — past the end</span></code></pre></div>
+  <div class="out">2
+3
+5</div>
+  <p>
+    Notice the deliberately different shape: <code>high</code> starts at <code>len(data)</code>
+    and the loop is <code>while low &lt; high</code> with <code>high = middle</code> (no −1).
+    The two idioms are not interchangeable — each is internally consistent, and mixing pieces of
+    one into the other is how the bugs above are born. Learn one of each and keep them separate.
+  </p>
+</section>
+<section>
+  <h2><span class="num">12.6</span>But sorting is not free</h2>
+  <p>
+    Binary search costs O(log n) — <em>if</em> the data is already sorted. Sorting costs
+    O(n log n), which is more than a single linear scan. So the arithmetic depends entirely
+    on how many searches you will do.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation</th><th>Best choice</th><th>Total cost</th></tr></thead>
+      <tbody>
+        <tr><td>One search, unsorted data</td><td>Linear search</td><td>O(n) — sorting first would cost more</td></tr>
+        <tr><td>Many searches, data stays put</td><td>Sort once, then binary search</td><td>O(n log n) once + O(log n) each</td></tr>
+        <tr><td>Many searches, you only ask "is it there?"</td><td>Build a set</td><td>O(n) once + O(1) each</td></tr>
+        <tr><td>Data already sorted for other reasons</td><td>Binary search</td><td>O(log n) each</td></tr>
+        <tr><td>You need neighbours, ranges, "next larger"</td><td>Sorted list + <code>bisect</code></td><td>O(log n) to locate boundaries or a neighbour; returning k range items adds O(k)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Notice row three: for repeated plain membership, a set offers average O(1) query time, while binary search offers O(log n); measured constants and preparation still matter. Binary search earns
+    its place when you need <em>order</em> — the nearest value, everything between two
+    dates, the next larger measurement. That is a question a hash table cannot answer at
+    all.
+  </p>
+  <p>
+    The crossover is worth doing on the back of an envelope. Say sorting a list costs about
+    <code>n log₂ n</code> and each linear scan costs <code>n</code>. Sorting-then-searching for
+    q queries costs roughly <code>n log₂ n + q log₂ n</code>; scanning q times costs
+    <code>q n</code>. For n = 1 000 000, log₂ n ≈ 20, so sorting pays for itself once q climbs
+    past about 20 — after that the scan is throwing away the same million items over and over,
+    while binary search never looks at more than twenty.
+  </p>
+</section>
+<section>
+  <h2><span class="num">12.7</span>Do not write it yourself</h2>
+  <p>
+    Python ships with a tested implementation. Use it in real work; write your own only to
+    understand it, as you did above.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>bisect</div><pre><code>import bisect
+
+data = [10, 20, 30, 40, 50]
+
+i = bisect.bisect_left(data, 30)
+print(i, i &lt; len(data) and data[i] == 30)   <span class="c"># 2 True; boundary check also handles empty/missing inputs</span>
+
+print(bisect.bisect_left(data, 35))   <span class="c"># 3 — where 35 would go</span>
+bisect.insort(data, 35)               <span class="c"># insert and keep sorted</span>
+print(data)                           <span class="c"># [10, 20, 30, 35, 40, 50]</span></code></pre></div>
+  <p>
+    <code>bisect_left</code> is O(log n). <code>insort</code> finds the spot in O(log n) but
+    still has to shift items, so the insertion itself is O(n) — the week 10 lesson has not
+    gone away.
+  </p>
+  <div class="note">
+    <span class="label">bisect_left vs bisect_right</span>
+    <p>
+      When the value is already present, <code>bisect_left</code> returns the index of the
+      first copy and <code>bisect_right</code> the index just after the last. Their difference,
+      <code>bisect_right(data, x) - bisect_left(data, x)</code>, is exactly how many copies of
+      <code>x</code> the list holds — an O(log n) count, no scanning. You will use this in
+      Task 4.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">12.8</span>The benchmark</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>three strategies, one job</div><pre><code>import time, random, bisect
+
+def bench(n, queries=1000):
+    data = list(range(n))
+    targets = [random.randrange(n) for _ in range(queries)]
+
+    start = time.perf_counter()
+    for t in targets:
+        linear_search(data, t)
+    t_lin = time.perf_counter() - start
+
+    start = time.perf_counter()
+    for t in targets:
+        bisect.bisect_left(data, t)
+    t_bin = time.perf_counter() - start
+
+    lookup = set(data)
+    start = time.perf_counter()
+    for t in targets:
+        t in lookup
+    t_set = time.perf_counter() - start
+
+    print(f"n={n:&gt;8}  linear {t_lin:8.4f}s   binary {t_bin:7.5f}s   set {t_set:7.5f}s")
+
+for n in [10000, 100000, 1000000]:
+    bench(n)</code></pre></div>
+  <div class="out">n=   10000  linear   0.4120s   binary 0.00081s   set 0.00007s
+n=  100000  linear   4.1932s   binary 0.00098s   set 0.00007s
+n= 1000000  linear  42.0517s   binary 0.00119s   set 0.00007s</div>
+  <p>
+    Three completely different behaviours in one table: linear multiplies by ten each row,
+    binary creeps up by a fifth (that is log n at work), and the set does not move. Everything
+    in this course is visible in those three columns.
+  </p>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 4, 5</p><h3>Binary search needs more than sorted values</h3><p>Binary search repeatedly discards half the positions that might still contain the answer. Its O(log n) search cost requires reaching the middle position in constant time. A sorted array supports that access; a linked list has to walk through links to reach the middle.</p><p>With one candidate, a search may still need a comparison. For a conventional successful binary search on n ≥ 1 array items, the worst comparison count is floor(log₂ n) + 1. “About log n” is useful for growth, but an exact count needs an implementation and a rule for what counts as one comparison.</p><p>A balanced search tree offers a different route: follow one link per level, keeping the number of levels proportional to log n. An ordinary unbalanced tree can become a chain. Sorted data, random insertion order and guaranteed balance are not interchangeable conditions.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Choose between an array of calibration points and a linked record chain by examining the actual access operations.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>write linear search and binary search yourself;</li>
+      <li>trace a binary search by hand, following <code>low</code>, <code>high</code> and <code>middle</code>;</li>
+      <li>name the off-by-one bugs that make binary search loop forever or miss an item, and test against them;</li>
+      <li>explain why binary search needs sorted data, and what that costs;</li>
+      <li>show that log n grows so slowly it is almost constant in practice;</li>
+      <li>decide between scanning, sorting-then-searching, and building a set;</li>
+      <li>use Python's <code>bisect</code> module instead of writing your own.</li>
+    </ul>
+  </div>
+</section>
+<section class="studio-contract">
+  <div class="note blue">
+    <span class="label">Three-hour interactive studio</span>
+    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
+    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
+    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
+    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
+    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
+    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
+  </div>
+</section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w12">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional extra practice</summary><div><section>
+  <h2><span class="num">12.11</span>Optional Studio Extension</h2>
+  <div class="task">
+    <span class="label">Optional practice · no submission or deadline</span>
+    <ol>
+      <li>Create <code>AA_Week12.ipynb</code> and complete Tasks 1–6.</li>
+      <li>Reproduce §12.8 at four sizes and plot all three strategies on one log–log figure.</li>
+      <li>Write the five-sentence interpretation for the plot, naming the class of each line from its slope.</li>
+      <li>Take your working binary search from Task 6 and add an assertion or comment documenting each of the six boundary cases it survives. Keep it — you may reuse it in the final project.</li>
+      <li>Choose your final-project problem (see the course home page) and write one paragraph: the task, the data, the two approaches you intend to compare.</li>
+    </ol>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
+  <h2><span class="num">12.12</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>linear search</td><td>Check items one at a time. O(n), no preparation needed.</td></tr>
+        <tr><td>binary search</td><td>Halve the sorted range each step. O(log n).</td></tr>
+        <tr><td>precondition</td><td>Something that must be true for an algorithm to be correct — here, "the data is sorted".</td></tr>
+        <tr><td>off-by-one</td><td>A boundary error — a stray ±1 or the wrong comparison — that misses an item or loops forever.</td></tr>
+        <tr><td>insertion point</td><td>The index where a value would go to keep the list sorted; what <code>bisect</code> returns.</td></tr>
+        <tr><td>preprocessing</td><td>Work done once up front (sorting, building a set) to make later queries cheap.</td></tr>
+        <tr><td>bisect</td><td>Python's built-in binary search, including "where would this go?".</td></tr>
+        <tr><td>range query</td><td>"Everything between x and y" — answerable with order, not with hashing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
+  <h2><span class="num">12.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    Binary search runs on logarithms, so this is the natural week to meet the log rules and a
+    cluster of Skiena's puzzles that all turn on the same idea: <em>halving</em>, and the number
+    of times you can do it. Throughout, <code>lg</code> means log base 2.
+  </p>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-39 · proving the logarithm rules</span>
+    <p>
+      Give an accessible argument for each identity: (a) log<sub>a</sub>(xy) = log<sub>a</sub> x +
+      log<sub>a</sub> y; (b) log<sub>a</sub>(x<sup>y</sup>) = y · log<sub>a</sub> x; (c) the
+      change-of-base rule log<sub>a</sub> x = log<sub>b</sub> x / log<sub>b</sub> a; and
+      (d) x<sup>log<sub>b</sub> y</sup> = y<sup>log<sub>b</sub> x</sup>.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The one fact behind all four: a logarithm is just "the exponent you need". If
+        <code>log<sub>a</sub> x = p</code>, that is only shorthand for <code>x = a<sup>p</sup></code>.
+        Keep swapping between those two ways of writing the same thing and the rules fall out.
+      </p>
+      <p>
+        <strong>(a) log<sub>a</sub>(xy) = log<sub>a</sub> x + log<sub>a</sub> y.</strong> Write
+        x = a<sup>p</sup> and y = a<sup>q</sup>. When you multiply powers of the same base you
+        <em>add</em> the exponents: xy = a<sup>p+q</sup>. So the exponent for xy is p + q, i.e.
+        log<sub>a</sub>(xy) = p + q = log<sub>a</sub> x + log<sub>a</sub> y. (This is exactly why
+        old slide rules turned multiplication into addition.)
+      </p>
+      <p>
+        <strong>(b) log<sub>a</sub>(x<sup>y</sup>) = y · log<sub>a</sub> x.</strong> With
+        x = a<sup>p</sup>, raising to the y-th power multiplies the exponent: x<sup>y</sup> =
+        a<sup>py</sup>. So the exponent for x<sup>y</sup> is py = y · log<sub>a</sub> x.
+      </p>
+      <p>
+        <strong>(c) change of base.</strong> Start from x = a<sup>p</sup> where p = log<sub>a</sub> x.
+        Take log base b of both sides and use rule (b): log<sub>b</sub> x = p · log<sub>b</sub> a.
+        Divide across: p = log<sub>b</sub> x / log<sub>b</sub> a. That is the rule.
+      </p>
+      <p>
+        <strong>(d) x<sup>log<sub>b</sub> y</sup> = y<sup>log<sub>b</sub> x</sup>.</strong> Two
+        things are equal when their logs are equal. Take log base b of each side (rule b):
+        the left gives log<sub>b</sub> y · log<sub>b</sub> x, the right gives
+        log<sub>b</sub> x · log<sub>b</sub> y. Same product, so the two sides are equal.
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>check_log_rules.py</div><pre><code>import math
+
+x, a, b = 50, 2, 10
+print(math.log(x, a))                    <span class="c"># log base 2 of 50</span>
+print(math.log(x, b) / math.log(a, b))   <span class="c"># change of base — same value</span>
+
+<span class="c"># identity (d): x**(log_b y) should equal y**(log_b x)</span>
+print(3 ** math.log(8, 10))              <span class="c"># 2.6968...</span>
+print(8 ** math.log(3, 10))              <span class="c"># 2.6968... — equal</span></code></pre></div>
+      <div class="out">5.643856189774724
+5.643856189774724
+2.696844...
+2.696844...</div>
+      <p>
+        <strong>Answer:</strong> all four hold, and each is just the exponent rules read through
+        the "log = exponent" lens. Rule (c) is the one you will use most: it says any two bases
+        differ only by the constant factor 1 / log<sub>b</sub> a. That constant vanishes inside
+        Big-O — which is <em>why the base of the log never matters for complexity</em>, and why we
+        can write O(log n) without ever naming a base.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-40 · ⌈lg(n+1)⌉ = ⌊lg n⌋ + 1</span>
+    <p>
+      Show that the ceiling of lg(n+1) equals the floor of lg n, plus one, for every integer
+      n ≥ 1.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Both sides are secretly counting the same thing: <strong>how many bits n needs</strong>
+        (equivalently, how many times you halve n before reaching 1). The interesting action is
+        all at the powers of two, so tabulate a few values and watch the two columns agree:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>lg n</th><th>⌊lg n⌋ + 1</th><th>lg(n+1)</th><th>⌈lg(n+1)⌉</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>0.00</td><td>1</td><td>1.00</td><td>1</td></tr>
+            <tr><td>2</td><td>1.00</td><td>2</td><td>1.58</td><td>2</td></tr>
+            <tr><td>3</td><td>1.58</td><td>2</td><td>2.00</td><td>2</td></tr>
+            <tr><td>4</td><td>2.00</td><td>3</td><td>2.32</td><td>3</td></tr>
+            <tr><td>5</td><td>2.32</td><td>3</td><td>2.58</td><td>3</td></tr>
+            <tr><td>6</td><td>2.58</td><td>3</td><td>2.81</td><td>3</td></tr>
+            <tr><td>7</td><td>2.81</td><td>3</td><td>3.00</td><td>3</td></tr>
+            <tr><td>8</td><td>3.00</td><td>4</td><td>3.17</td><td>4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Why it works: for any n with 2<sup>k−1</sup> ≤ n &lt; 2<sup>k</sup>, the floor ⌊lg n⌋ is
+        k−1, so the left-hand side is k. On the same range n+1 sits in (2<sup>k−1</sup>,
+        2<sup>k</sup>], so lg(n+1) is just above k−1 and at most exactly k, and its ceiling is
+        also k. Both sides are k. The only place to be careful is the boundary n = 2<sup>k</sup>:
+        there lg n is exactly k so the left side is k+1, and n+1 = 2<sup>k</sup>+1 pushes lg(n+1)
+        just above k so its ceiling is k+1 too — they still agree (look at the n = 2, 4, 8 rows).
+      </p>
+      <p>
+        <strong>Answer:</strong> both sides count the number of bits of n, so ⌈lg(n+1)⌉ =
+        ⌊lg n⌋ + 1 for all n ≥ 1, the two ways of writing "how many halvings to reach 1".
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-41 · how many bits does n need?</span>
+    <p>
+      Prove that the binary representation of an integer n ≥ 1 has exactly ⌊lg n⌋ + 1 bits.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The largest number you can write with b bits is <code>2<sup>b</sup> − 1</code> (all ones):
+        1 bit reaches 1, 2 bits reach 3, 3 bits reach 7, 8 bits reach 255. So a number n needs
+        exactly b bits when it fits in b bits but not in b−1:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        2<sup>b−1</sup> ≤ n &lt; 2<sup>b</sup>
+      </p>
+      <p>
+        Take lg of that double inequality (lg is increasing, so it preserves order):
+        b − 1 ≤ lg n &lt; b. The only integer in the half-open interval [lg n, lg n + 1) whose
+        floor sits at the bottom is b − 1 = ⌊lg n⌋, so b = ⌊lg n⌋ + 1. A small table confirms it:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>binary</th><th>bits</th><th>⌊lg n⌋ + 1</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td><td>0 + 1 = 1</td></tr>
+            <tr><td>2</td><td>10</td><td>2</td><td>1 + 1 = 2</td></tr>
+            <tr><td>4</td><td>100</td><td>3</td><td>2 + 1 = 3</td></tr>
+            <tr><td>255</td><td>11111111</td><td>8</td><td>7 + 1 = 8</td></tr>
+            <tr><td>256</td><td>100000000</td><td>9</td><td>8 + 1 = 9</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Answer:</strong> ⌊lg n⌋ + 1 bits. This is the same quantity as problem 2-40, and
+        it is exactly why binary search takes about lg n steps — each comparison learns one bit
+        about where the target sits, and a number in a list of n needs ⌊lg n⌋ + 1 bits to pin
+        down.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-42 · a sort in O(n log √n)?</span>
+    <p>
+      Someone shows you a sorting algorithm that runs in O(n log √n). Sorting is known to need
+      Ω(n log n) comparisons in the worst case. How can both be true?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        It looks like a contradiction until you simplify the log. Using rule (b) from 2-39,
+        √n = n<sup>1/2</sup>, so:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        log √n = log(n<sup>1/2</sup>) = ½ · log n
+      </p>
+      <p>
+        Therefore O(n log √n) = O(n · ½ log n) = O(½ · n log n) = O(n log n) — the one-half is a
+        constant factor, and Big-O throws constant factors away.
+      </p>
+      <p>
+        <strong>Answer:</strong> nothing is broken. O(n log √n) is <em>the very same class</em> as
+        O(n log n), just written in a disguise. It does not beat the Ω(n log n) lower bound — it
+        sits right on it. A tidy reminder that "log √n" and "½ log n" are the same thing, and that
+        constant factors never change the class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-46 · marbles and a 100-storey building</span>
+    <p>
+      You want the lowest floor of a 100-storey building from which a dropped marble breaks. How
+      few drops do you need (a) with a plentiful supply of identical marbles, and (b) with only
+      <strong>two</strong> marbles?
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        <strong>(a) Plenty of marbles → binary search.</strong> A broken marble is no loss, so
+        you can gamble on the middle floor every time: drop from 50. If it breaks, the answer is
+        below 50; if not, above. Each drop halves the range, so you need ⌈lg 100⌉ = <strong>7
+        drops</strong> — the same halving as every other week-12 idea.
+      </p>
+      <p>
+        <strong>(b) Only two marbles → you cannot binary search.</strong> If your first marble
+        breaks at floor 50, you have one marble left and no choice but to walk it up one floor at
+        a time from where you last knew it was safe — a linear scan. So a reckless first jump
+        risks up to 49 further drops. The cure is to make the <em>first</em> marble take smaller
+        and smaller steps, so that whichever gap it breaks in, the linear finish with the second
+        marble is short. Drop the first marble at floors 14, then 27, 39, 50, 60, 69, 77, 84, 90,
+        95, 99, 100 — gaps of 14, 13, 12, … shrinking by one each time.
+      </p>
+      <p>
+        Why 14? If the first marble breaks on drop number d, you have already spent d drops and
+        the remaining gap to scan is 14 − d floors, for a total of about 14 every time. You want
+        the first gap k big enough that k + (k−1) + … + 1 = k(k+1)/2 covers all 100 floors: the
+        smallest such k is 14, because 14 × 15 / 2 = 105 ≥ 100 while 13 × 14 / 2 = 91 falls short.
+      </p>
+      <p>
+        <strong>Answer:</strong> 7 drops with unlimited marbles (binary search); about
+        <strong>14 drops</strong> worst case with just two, using the shrinking-gap (triangular-
+        number) strategy. Two marbles cost you the logarithm — you drop from lg n to roughly √n.
+      </p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-47 · ten bags, one weighing</span>
+    <p>
+      You have 10 bags of coins. Nine hold genuine 10-gram coins; one bag holds only 9-gram
+      forgeries. With a digital scale that reads exact grams, identify the bad bag in a
+      <strong>single</strong> weighing.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The trick is to make each bag contribute a <em>different, recognisable</em> amount to one
+        pile. Number the bags 1 to 10, and take 1 coin from bag 1, 2 coins from bag 2, 3 from bag
+        3, …, 10 from bag 10 — 55 coins in all. If every coin were genuine the pile would weigh
+        55 × 10 = 550 grams. Each forged coin is 1 gram light, and bag k contributed exactly k
+        coins, so a light bag k makes the pile read <code>550 − k</code> grams. The number of
+        grams missing <em>is</em> the guilty bag's number.
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>coin_bags.py</div><pre><code>weights = [10] * 10          <span class="c"># ten bags, all 10-gram coins to start</span>
+weights[6] = 9               <span class="c"># bag number 7 secretly holds 9-gram coins</span>
+
+<span class="c"># take (i+1) coins from bag i (0-indexed) and weigh them all together</span>
+total = sum((i + 1) * weights[i] for i in range(10))
+print(550 - total)           <span class="c"># 7  -> the light bag is number 7</span></code></pre></div>
+      <div class="out">7</div>
+      <p>
+        <strong>Answer:</strong> take k coins from bag k, weigh all 55 together, and read off
+        <code>550 − (reading)</code> — that difference is the light bag's number. One weighing,
+        no searching: a positional-counting trick that packs ten answers into a single number.
+      </p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-48 · eight balls, two weighings</span>
+    <p>
+      You have 8 balls that look identical, but one is slightly heavier. Using a balance scale
+      only <strong>twice</strong>, find the heavy one.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        A balance has <em>three</em> outcomes each time — left heavier, right heavier, or level —
+        so two weighings can distinguish up to 3 × 3 = 9 possibilities, and 9 ≥ 8. That count
+        tells you it must be doable; here is how. Split the 8 balls into groups of
+        <strong>3, 3 and 2</strong>.
+      </p>
+      <ol>
+        <li><strong>Weighing 1:</strong> put the two groups of 3 on the pans.
+          <ul>
+            <li>If they <em>balance</em>, the heavy ball is one of the 2 set aside. Weigh those
+              two against each other — the heavier pan shows it. Done in two.</li>
+            <li>If one side is <em>heavier</em>, the heavy ball is among those 3.</li>
+          </ul>
+        </li>
+        <li><strong>Weighing 2</strong> (when the heavy ball is in a group of 3): take that group
+          and weigh any 1 against another 1. If one is heavier, that is it; if they balance, it is
+          the third ball you did not place.</li>
+      </ol>
+      <p>
+        <strong>Answer:</strong> split 3 / 3 / 2 and you always finish in two weighings. It works
+        because each weighing yields three outcomes, so two weighings carry 3² = 9 distinguishable
+        results — comfortably more than the 8 balls you must tell apart. (The same reasoning shows
+        you could handle up to 9 balls in two weighings, but not 10.)
+      </p>
+    </details>
+  </div>
+</section></div></details>
+
+<div class="note blue">
+  <span class="label">Where this leads</span>
+  <p>Binary search only works on sorted data. Week 13 asks what sorting itself costs, and why the sort you invent is so much slower than the built-in one.</p>
+</div>
+</div></details></div>
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+
+</footer>
+<script src="../../assets/app.js?v=2"></script><script src="../../../assets/learning-path.js?v=1"></script>
+<script src="../../assets/anim.js?v=13"></script><script src="../../assets/anim-w12.js?v=10"></script><script src="../../assets/anim-workspace.js?v=11"></script></body>
+</html>

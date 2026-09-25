@@ -3,571 +3,107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Wrap work in a function, then time it honestly with perf_counter and repeats.">
-<title>Week 5: Functions and the Stopwatch — AA</title>
+<meta name="description" content="Search trees and hashing">
+<title>Search trees and hashing — AA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2"><link rel="stylesheet" href="../../assets/course-navigation.css?v=2"><script defer src="../../assets/course-navigation.js?v=1"></script>
 <link rel="stylesheet" href="../assets/questions.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w5.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/aligned.css"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Settings</summary><div>
+    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
 <main class="wrap">
-
-<div class="hero">
-  <div class="eyebrow">Week 05 &middot; Phase 2 · Measuring for real</div>
-  <h1>Functions and the Stopwatch</h1>
-  <p class="lede">Wrap work in a function, then time it honestly with perf_counter and repeats.</p>
-  <p class="path-question"><strong>How long does my code actually take?</strong></p>
-</div>
-
-<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Give a repeated method a name</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def contains(values, target):
-    for x in values:
-        if x == target:
-            return True
-    return False
-
-print(contains([4, 7, 9], 7))</code></pre></div><figure class="vl-figure"><figcaption>Function call</figcaption><ol class="vl-flow"><li>inputs: [4, 7, 9], 7</li><li>check 4 → check 7</li><li>return True; stop</li></ol></figure><p>A parameter names an input. <code>return</code> sends a result back and ends the call; <code>print</code> only displays it. The final <code>return False</code> belongs after the loop, so all candidates get a chance.</p></section><section class="vl-lesson"><h2>Time only the work you are comparing</h2><figure class="vl-figure"><figcaption>Benchmark boundary</figcaption><ol class="vl-flow"><li>build data<small>outside timer</small></li><li>start = perf_counter()</li><li>call the method</li><li>elapsed = perf_counter() − start</li></ol></figure><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from time import perf_counter
-values = list(range(100_000))
-start = perf_counter()
-found = contains(values, -1)
-elapsed = perf_counter() - start
-print(found, elapsed)</code></pre></div><p>The missing target forces a full scan. Compare methods on the same data and target. Keep printing and data creation outside the timed region unless those are part of the question.</p></section><section class="vl-lesson"><h2>Repeat before trusting a number</h2><p>Illustrative timings for five runs:</p><div class="vl-table"><table><thead><tr><th scope="col">Run</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th></tr></thead><tbody><tr><td>Time (ms)</td><td>4.0</td><td>4.1</td><td>7.2</td><td>4.0</td><td>4.2</td></tr></tbody></table></div><div class="vl-equation"><span>Same method, five trials</span><strong>minimum = 4.0 ms; mean = 4.7 ms</strong></div><p>The minimum can approximate an uninterrupted run; the mean includes interruptions. Report which you use. Warm up once, then repeat; background work and timer resolution can overwhelm tiny measurements.</p><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from timeit import repeat
-samples = repeat(lambda: contains(values, -1),
-                 number=100, repeat=5)
-seconds_per_call = min(samples) / 100
-print(seconds_per_call)</code></pre></div></section><section class="vl-lesson"><h2>Keep evidence separate from a claim</h2><div class="vl-table"><table><thead><tr><th scope="col">Record</th><th scope="col">Example</th></tr></thead><tbody><tr><td>Input family</td><td>n distinct integers; target absent</td></tr><tr><td>Correctness check</td><td>returns False</td></tr><tr><td>Work model</td><td>n equality checks</td></tr><tr><td>Measurement</td><td>seconds per call, repetitions and machine</td></tr><tr><td>Limit</td><td>Does not describe early matches</td></tr></tbody></table></div><p>A faster run is evidence about this experiment. It does not prove that a method is faster for every input or every machine.</p></section></section>
-<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
-<p class="source-label">10 test questions · 1 written questions · 11 total</p>
+<div class="aligned"><div class="hero"><p class="eyebrow">Week 05 · Lectures 5, 6</p><h1>Search trees and hashing</h1><p>Use trees and hash tables to implement dictionaries. Relate tree height, collisions and load factor to the actual search cost.</p></div>
+<section class="reading-card"><h2>Read alongside the document</h2><p>Use the lecture headings below in the English–Turkish notes. Document lecture numbers and course week numbers are different.</p><ul><li><strong>Lecture 5: Dictionaries</strong><br>Warm-up: dictionaries built from linked lists; Binary trees and binary search trees; Searching; Minimum, maximum, predecessor, successor; In-order traversal: visiting every key in sorted order; Insertion; Deletion: three cases; Balance: the height decides everything; Where the log comes from.</li><li><strong>Lecture 6: Hashing</strong><br>Warm-up: sorting with a dictionary; The idea of a hash table; Collisions; What makes a good hash function; The birthday paradox: collisions are certain; Performance summary; Hashing beyond dictionaries; Rabin-Karp: string matching with hashing.</li></ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual notes</a></p></section>
+<section><h2>What assumptions make a lookup fast?</h2><p class="problem">Insert 10,15,3,20 into five hash slots using h(k)=k mod 5 and linear probing.</p><figure><svg viewBox="0 0 780 220" role="img" aria-label="Five hash slots after linear probing: 10, 15 and 20 share the same initial hash."><rect x="10.0" y="42" width="140.0" height="68" rx="8" fill="#e2eaf0"/><text x="80.0" y="82" text-anchor="middle">0: 10</text><rect x="162.0" y="42" width="140.0" height="68" rx="8" fill="#e2eaf0"/><text x="232.0" y="82" text-anchor="middle">1: 15</text><rect x="314.0" y="42" width="140.0" height="68" rx="8" fill="#e2eaf0"/><text x="384.0" y="82" text-anchor="middle">2: 20</text><rect x="466.0" y="42" width="140.0" height="68" rx="8" fill="#e2eaf0"/><text x="536.0" y="82" text-anchor="middle">3: 3</text><rect x="618.0" y="42" width="140.0" height="68" rx="8" fill="#e2eaf0"/><text x="688.0" y="82" text-anchor="middle">4: empty</text></svg><figcaption>Five hash slots after linear probing: 10, 15 and 20 share the same initial hash.</figcaption></figure><div class="trace" aria-label="Worked solution steps"><article><span>Step 1</span><p>10 enters slot 0.</p></article><article><span>Step 2</span><p>15 also hashes to 0; slot 1 is the first free slot.</p></article><article><span>Step 3</span><p>3 enters slot 3.</p></article><article><span>Step 4</span><p>20 probes 0,1,2 and enters slot 2. A lookup must use the same probing rule.</p></article></div><p class="edge"><strong>Change the case.</strong> Deleting 10 by making slot 0 look never-used can break a later search for 20. Use a tombstone or a correct repair scheme. Expected constant lookup is conditional, not a worst-case guarantee.</p></section>
+<section><h2>Explain before coding</h2><p>State the input and required output. Trace a small example. Explain why each step is valid, count the work under a stated model, and test an edge case.</p><details><summary>Python support for this week</summary><p>A dictionary stores key–value pairs. Python dict syntax is a demonstration; draw the slots before running code.</p><pre><code>slots = [None] * 5
+for key in [10, 15, 3, 20]:
+    i = key % 5
+    while slots[i] is not None:
+        i = (i + 1) % 5
+    slots[i] = key
+print(slots)  # [10, 15, 20, 3, None]</code></pre><p>Run this small demonstration after predicting its result. It illustrates the selected example; its input assumptions are part of the example.</p><p><a href="../python/">Open the optional Python support library</a>. Programming fluency is not required to complete the paper trace.</p></details></section>
+<details class="reading-reference"><summary>Read the related bilingual explanations here</summary><p>Sections from the supplied lecture notes. Turkish paragraphs appear in red. Use this as a reference after the worked example.</p><details><summary>Lecture 5 · Warm-up: dictionaries built from linked lists</summary><p class="turkish" lang="tr">Hazırlık: bağlı listelerden kurulan sözlükler</p><p>The problem of the day asks for the worst-case cost of each dictionary operation when the set is stored in a linked list, in four variants:</p><p class="turkish" lang="tr">Günün problemi, kümenin bağlı listede tutulduğu dört farklı durumda her sözlük işleminin en kötü durum maliyetini sorar:</p><div class="table-wrap"><table><tr><td>Operation</td><td>Singly linked, unsorted</td><td>Doubly linked, unsorted</td><td>Singly linked, sorted</td><td>Doubly linked, sorted</td></tr><tr class="turkish" lang="tr"><td>İşlem</td><td>Tek bağlı, sırasız</td><td>Çift bağlı, sırasız</td><td>Tek bağlı, sıralı</td><td>Çift bağlı, sıralı</td></tr><tr><td>Search</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr><tr class="turkish" lang="tr"><td>Arama</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr><tr><td>Insert</td><td>O(1)</td><td>O(1)</td><td>O(n)</td><td>O(n)</td></tr><tr class="turkish" lang="tr"><td>Ekleme</td><td>O(1)</td><td>O(1)</td><td>O(n)</td><td>O(n)</td></tr><tr><td>Delete</td><td>O(n)*</td><td>O(1)</td><td>O(n)*</td><td>O(1)</td></tr><tr class="turkish" lang="tr"><td>Silme</td><td>O(n)*</td><td>O(1)</td><td>O(n)*</td><td>O(1)</td></tr><tr><td>Successor</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr><tr class="turkish" lang="tr"><td>Ardıl</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr><tr><td>Predecessor</td><td>O(n)</td><td>O(n)</td><td>O(n)*</td><td>O(1)</td></tr><tr class="turkish" lang="tr"><td>Öncül</td><td>O(n)</td><td>O(n)</td><td>O(n)*</td><td>O(1)</td></tr><tr><td>Minimum</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr><tr class="turkish" lang="tr"><td>Minimum</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr><tr><td>Maximum</td><td>O(n)</td><td>O(n)</td><td>O(1)*</td><td>O(1)</td></tr><tr class="turkish" lang="tr"><td>Maksimum</td><td>O(n)</td><td>O(n)</td><td>O(1)*</td><td>O(1)</td></tr></table></div><p>The entries marked * hide a small idea each:</p><p class="turkish" lang="tr">* ile işaretlenen girdilerin her biri küçük bir ayrıntı içerir:</p><p>Delete in a singly linked list is O(n) because you must walk from the head to find the node before the one being deleted; with a prev pointer that becomes O(1).</p><p class="turkish" lang="tr">Tek bağlı listede silme O(n)’dir; çünkü silinecek düğümün öncesindeki düğümü bulmak için baştan ilerlemelisiniz. prev işaretçisiyle bu O(1) olur.</p><p>Predecessor in a sorted singly linked list is O(n) for the same reason: the list only points forward.</p><p class="turkish" lang="tr">Sıralı tek bağlı listede öncül işlemi aynı nedenle O(n)’dir: liste yalnızca ileriye işaret eder.</p><p>Maximum in a sorted singly linked list can be O(1) if you keep an extra pointer to the tail and update it on each change.</p><p class="turkish" lang="tr">Kuyruğa ek bir işaretçi tutar ve her değişiklikte güncellerseniz sıralı tek bağlı listede maksimum işlemi O(1) olabilir.</p><p>Even sorted lists cannot beat O(n) for search, because there is no way to jump to the middle of a linked list the way binary search jumps to the middle of an array. That is the gap trees fill.</p><p class="turkish" lang="tr">Sıralı listeler bile aramada O(n)’den daha iyi olamaz; çünkü ikili aramanın dizinin ortasına atladığı gibi bağlı listenin ortasına atlamanın bir yolu yoktur. Ağaçların doldurduğu boşluk budur.</p></details><details><summary>Lecture 5 · Binary trees and binary search trees</summary><p class="turkish" lang="tr">İkili ağaçlar ve ikili arama ağaçları</p><p>A binary tree is a rooted tree in which every node has at most two children, distinguished as the left child and the right child. A binary search tree (BST) is a binary tree with one extra rule, the search-tree property: for every node x, every key in x’s left subtree is smaller than x’s key, and every key in x’s right subtree is larger.</p><p class="turkish" lang="tr">İkili ağaç, her düğümün sol çocuk ve sağ çocuk olarak ayrılan en fazla iki çocuğa sahip olduğu köklü bir ağaçtır. İkili arama ağacı (BST), ek bir kurala, arama ağacı özelliğine, sahip ikili ağaçtır: her x düğümü için x’in sol alt ağacındaki her anahtar x’in anahtarından küçük, sağ alt ağacındaki her anahtar ise büyüktür.</p><p>A node is stored as:</p><p class="turkish" lang="tr">Bir düğüm şöyle saklanır:</p><pre><code>node:
+    item      (the key and data)
+    left      (pointer to left child, or NULL)
+    right     (pointer to right child, or NULL)
+    parent    (pointer to parent; optional, since a stack of visited nodes can play the same role)</code></pre><pre class="turkish" lang="tr"><code>node:
+    item      (anahtar ve veri)
+    left      (sol çocuğa işaretçi veya NULL)
+    right     (sağ çocuğa işaretçi veya NULL)
+    parent    (ebeveyne işaretçi; isteğe bağlıdır, çünkü ziyaret edilen
+               düğümlerden oluşan bir yığın aynı görevi üstlenebilir)</code></pre><p>The search-tree property tells you where any key must be. Standing at a node, compare the key you want with the node’s key: smaller means go left, larger means go right, equal means found.</p><p class="turkish" lang="tr">Arama ağacı özelliği, bir anahtarın nerede bulunması gerektiğini söyler. Bir düğümdeyken aradığınız anahtarı düğümün anahtarıyla karşılaştırın: küçükse sola gidin, büyükse sağa gidin, eşitse buldunuz.</p></details><details><summary>Lecture 5 · Searching</summary><p class="turkish" lang="tr">Arama</p><pre><code>search_tree(node, x):
+    if node is NULL: return NULL          (not in the tree)
+    if x == node.item: return node        (found)
+    if x &lt; node.item: return search_tree(node.left, x)
+    else: return search_tree(node.right, x)</code></pre><pre class="turkish" lang="tr"><code>search_tree(node, x):
+    if node is NULL: return NULL          (ağaçta yok)
+    if x == node.item: return node        (bulundu)
+    if x &lt; node.item: return search_tree(node.left, x)
+    else: return search_tree(node.right, x)</code></pre><p>This works because the left and right subtrees of a BST are themselves BSTs: a recursive structure invites a recursive algorithm. Each step moves one level down, so the cost is proportional to the height h of the tree: O(h).</p><p class="turkish" lang="tr">Bu yöntem çalışır; çünkü bir BST’nin sol ve sağ alt ağaçlarının kendileri de BST’dir: özyinelemeli bir yapı, özyinelemeli bir algoritmayı davet eder. Her adım bir düzey aşağı ilerler; dolayısıyla maliyet ağacın h yüksekliğiyle orantılıdır: O(h).</p></details><details><summary>Lecture 5 · Minimum, maximum, predecessor, successor</summary><p class="turkish" lang="tr">Minimum, maksimum, öncül, ardıl</p><p>The smallest key is found by starting at the root and walking left until you cannot go left any more. The largest is found by walking right. Both cost O(h).</p><p class="turkish" lang="tr">En küçük anahtar, kökten başlayıp daha fazla sola gidilemeyene kadar sola ilerleyerek bulunur. En büyük anahtar sağa ilerleyerek bulunur. İkisinin maliyeti de O(h)’dir.</p><p>The predecessor of a node x (the next smaller key) and the successor (the next larger key):</p><p class="turkish" lang="tr">Bir x düğümünün öncülü (bir sonraki küçük anahtar) ve ardılı (bir sonraki büyük anahtar):</p><p>If x has a left child, its predecessor is the maximum of its left subtree. Symmetrically, if x has a right child, its successor is the minimum of its right subtree.</p><p class="turkish" lang="tr">x’in sol çocuğu varsa öncülü, sol alt ağacının maksimumudur. Simetrik olarak, x’in sağ çocuğu varsa ardılı, sağ alt ağacının minimumudur.</p><p>If x has no left child, its predecessor is the nearest ancestor from which you last turned right on the way down to x (its “first left ancestor”). The successor of a node with no right child is found the mirror-image way.</p><p class="turkish" lang="tr">x’in sol çocuğu yoksa öncülü, x’e doğru inerken son kez sağa döndüğünüz en yakın atasıdır (“ilk sol atası”). Sağ çocuğu olmayan bir düğümün ardılı, bunun ayna görüntüsü olan yöntemle bulunur.</p><p>Why these rules are right becomes obvious from the in-order traversal below.</p><p class="turkish" lang="tr">Bu kuralların neden doğru olduğu, aşağıdaki kök-ortada dolaşımdan açıkça anlaşılır.</p></details><details><summary>Lecture 5 · In-order traversal: visiting every key in sorted order</summary><p class="turkish" lang="tr">Kök-ortada dolaşım: bütün anahtarları sıralı olarak ziyaret etme</p><pre><code>traverse(node):
+    if node is not NULL:
+        traverse(node.left)
+        process(node.item)
+        traverse(node.right)</code></pre><pre class="turkish" lang="tr"><code>traverse(node):
+    if node is not NULL:
+        traverse(node.left)
+        process(node.item)
+        traverse(node.right)</code></pre><p>“Left subtree, then me, then right subtree” visits the keys in sorted order, because everything in the left subtree is smaller than the node and everything in the right subtree is larger. It spends O(1) at each of the n nodes, so it costs O(n). Predecessor and successor are simply the nodes visited immediately before and after x in this traversal.</p><p class="turkish" lang="tr">“Sol alt ağaç, sonra ben, sonra sağ alt ağaç” düzeni, anahtarları sıralı olarak ziyaret eder; çünkü sol alt ağaçtaki her şey düğümden küçük, sağ alt ağaçtaki her şey büyüktür. n düğümün her birinde O(1) zaman harcar; toplam maliyet O(n)’dir. Öncül ve ardıl, bu dolaşımda x’ten hemen önce ve hemen sonra ziyaret edilen düğümlerdir.</p></details><details><summary>Lecture 5 · Insertion</summary><p class="turkish" lang="tr">Ekleme</p><p>Do a search for the new key. The search ends at a NULL pointer, which is exactly where the key belongs. Replace that NULL with a new node. Cost O(h), like a search.</p><p class="turkish" lang="tr">Yeni anahtarı arayın. Arama, anahtarın tam olarak ait olduğu yerdeki bir NULL işaretçisinde sona erer. Bu NULL’ı yeni bir düğümle değiştirin. Maliyet, aramada olduğu gibi O(h)’dir.</p><pre><code>insert_tree(node_link, x, parent):
+    if node_link is NULL:
+        create a new node holding x, with no children, parent = parent
+        make node_link point to it
+        return
+    if x &lt; node.item: insert_tree(node.left, x, node)
+    else: insert_tree(node.right, x, node)</code></pre><pre class="turkish" lang="tr"><code>insert_tree(node_link, x, parent):
+    if node_link is NULL:
+        x&#x27;i tutan, çocuksuz ve parent = parent olan yeni bir düğüm oluştur
+        node_link işaretçisini bu düğüme yönlendir
+        return
+    if x &lt; node.item: insert_tree(node.left, x, node)
+    else: insert_tree(node.right, x, node)</code></pre></details><details><summary>Lecture 5 · Deletion: three cases</summary><p class="turkish" lang="tr">Silme: üç durum</p><p>Deletion is trickier than insertion because the doomed node may have children that must be kept:</p><p class="turkish" lang="tr">Silme, eklemeden daha zordur; çünkü kaldırılacak düğümün korunması gereken çocukları olabilir:</p><p>The node is a leaf (no children). Just set its parent’s child pointer to NULL.</p><p class="turkish" lang="tr">Düğüm yapraktır (çocuğu yoktur). Ebeveyninin ilgili çocuk işaretçisini NULL yapmanız yeterlidir.</p><p>The node has one child. Cut the node out by connecting its parent directly to its only child. The search-tree property survives.</p><p class="turkish" lang="tr">Düğümün bir çocuğu vardır. Ebeveynini doğrudan tek çocuğuna bağlayarak düğümü aradan çıkarın. Arama ağacı özelliği korunur.</p><p>The node has two children. Find its successor, which is the minimum of its right subtree. That successor has at most one child (it cannot have a left child, or it would not be the minimum). Copy the successor’s key into the doomed node, then delete the successor using case 1 or 2.</p><p class="turkish" lang="tr">Düğümün iki çocuğu vardır. Sağ alt ağacının minimumu olan ardılını bulun. Bu ardılın en fazla bir çocuğu vardır (sol çocuğu olamaz; olsaydı minimum olmazdı). Ardılın anahtarını silinecek düğüme kopyalayın, ardından 1. veya 2. durumu kullanarak ardılı silin.</p><p>The slides’ example tree (2 at the root, 1 on the left, 7 on the right, with 4 and 8 below 7 and 3, 6, 5 below 4) walks through all three: deleting the leaf 3, deleting 6 (one child, 5), and deleting 4 (two children: its successor 5 takes its place).</p><p class="turkish" lang="tr">Slaytlardaki örnek ağaç (kökte 2, solda 1, sağda 7; 7’nin altında 4 ve 8, 4’ün altında 3, 6, 5), üçünü de adım adım gösterir: yaprak olan 3’ün silinmesi, 6’nın silinmesi (tek çocuğu 5) ve 4’ün silinmesi (iki çocuk: yerini ardılı 5 alır).</p><p>Every operation costs O(h). So the whole question of how good a BST is comes down to one thing: how tall is it?</p><p class="turkish" lang="tr">Her işlem O(h) maliyetlidir. Dolayısıyla bir BST’nin ne kadar iyi olduğu tek bir soruya indirgenir: yüksekliği ne kadar?</p></details><details><summary>Lecture 5 · Balance: the height decides everything</summary><p class="turkish" lang="tr">Denge: her şeyi yükseklik belirler</p><p>A perfectly balanced tree on n nodes has height about lg n, because each level can hold twice as many nodes as the one above (1 + 2 + 4 + … ≈ n). That would make every dictionary operation O(log n).</p><p class="turkish" lang="tr">n düğümlü, kusursuz dengeli bir ağacın yüksekliği yaklaşık lg n’dir; çünkü her düzey bir üst düzeyin iki katı kadar düğüm tutabilir (1 + 2 + 4 + … ≈ n). Bu, her sözlük işlemini O(log n) yapardı.</p><p>But nothing forces a BST to be balanced. Insert the keys A, B, C, D in that order and each key goes to the right of the last: the “tree” is a chain of height n, and every operation degrades to O(n), no better than a linked list.</p><p class="turkish" lang="tr">Fakat bir BST’yi dengeli olmaya zorlayan hiçbir şey yoktur. A, B, C, D anahtarlarını bu sırayla ekleyin; her anahtar bir öncekinin sağına gider. “Ağaç”, yüksekliği n olan bir zincirdir ve her işlemin maliyeti O(n)’ye kötüleşir; bağlı listeden daha iyi değildir.</p><p>Two pieces of good news:</p><p class="turkish" lang="tr">İki iyi haber var:</p><p>If keys are inserted in random order, the expected height is Θ(log n). Half the time the new key lands nearer the middle of the range than the ends, which keeps things roughly even. The quicksort analysis in Lecture 8 makes this precise.</p><p class="turkish" lang="tr">Anahtarlar rastgele sırayla eklenirse beklenen yükseklik Θ(log n) olur. Yeni anahtar, durumların yarısında aralığın uçlarından çok ortasına yakın düşer ve yapı kabaca dengeli kalır. Ders 8’deki hızlı sıralama analizi bunu kesinleştirir.</p><p>Keeping the tree perfectly balanced would be too expensive (inserting one key into the perfectly balanced example on the slide forces every node to move, Θ(n) work), but keeping it roughly balanced is cheap.</p><p class="turkish" lang="tr">Ağacı kusursuz dengeli tutmak çok pahalı olurdu (slayttaki kusursuz dengeli örneğe tek anahtar eklemek her düğümün taşınmasını, yani Θ(n) iş yapılmasını gerektirir); ancak yaklaşık dengeli tutmak ucuzdur.</p><p>A balanced search tree means any tree whose height is guaranteed to stay O(log n). Insertion and deletion do a little rearranging whenever the tree gets lopsided. Red-black trees, AVL trees, 2-3 trees, splay trees and B-trees are the standard examples; the details differ, the guarantee is the same: all seven dictionary operations in O(log n) worst case. No comparison-based structure can beat Θ(log n) worst case on all of them.</p><p class="turkish" lang="tr">Dengeli arama ağacı, yüksekliğinin O(log n) olarak kalması garanti edilen herhangi bir ağaç demektir. Ekleme ve silme, ağaç bir tarafa yığıldığında küçük düzenlemeler yapar. Kırmızı-siyah ağaçlar, AVL ağaçları, 2-3 ağaçları, splay ağaçları ve B-ağaçları standart örneklerdir. Ayrıntıları farklıdır, garantileri aynıdır: yedi sözlük işleminin tamamı en kötü durumda O(log n). Karşılaştırmaya dayalı hiçbir yapı, bütün işlemler için en kötü durumdaki Θ(log n) sınırından daha iyi olamaz.</p></details><details><summary>Lecture 5 · Where the log comes from</summary><p class="turkish" lang="tr">Logaritma nereden gelir?</p><p>When an analysis produces an O(log n) term, it usually comes from one of two places: many operations on a balanced search tree used as a dictionary, or, more generally, from the idea of a balanced binary tree, splitting the items into smaller and smaller halves and doing a little work on each of log n levels. Binary search is the purest example, and it will reappear in mergesort (Lecture 8) and in many other places.</p><p class="turkish" lang="tr">Bir analiz O(log n) terimi ürettiğinde, bu genellikle iki kaynaktan birinden gelir: sözlük olarak kullanılan dengeli bir arama ağacındaki çok sayıda işlemden veya daha genel olarak, elemanları giderek küçülen yarılara ayırıp log n düzeyin her birinde az miktarda iş yapan dengeli ikili ağaç fikrinden. İkili arama bunun en yalın örneğidir; birleştirmeli sıralamada (Ders 8) ve birçok başka yerde yeniden karşımıza çıkacaktır.</p></details><details><summary>Lecture 6 · Warm-up: sorting with a dictionary</summary><p class="turkish" lang="tr">Hazırlık: sözlük kullanarak sıralama</p><p>Suppose you have a balanced dictionary where every operation costs O(log n). Three ways to sort n numbers in O(n log n), each using only a few of the operations:</p><p class="turkish" lang="tr">Her işlemin O(log n) maliyetli olduğu dengeli bir sözlüğünüz olduğunu varsayalım. Yalnızca birkaç işlemi kullanarak n sayıyı O(n log n) sürede sıralamanın üç yolu:</p><p>Using minimum, successor, insert, search: insert all n numbers (n × O(log n)). Find the minimum, print it, then repeatedly print its successor until there is none. Each step costs O(log n), so the whole thing is O(n log n).</p><p class="turkish" lang="tr">Minimum, ardıl, ekleme ve arama kullanarak: n sayının tamamını ekleyin (n × O(log n)). Minimumu bulun, yazdırın; ardından ardıl kalmayana kadar sürekli ardılı yazdırın. Her adım O(log n) tutar; dolayısıyla tüm işlem O(n log n)’dir.</p><p>Using minimum, insert, delete, search: insert everything, then repeatedly find the minimum, print it, and delete it. Again n rounds of O(log n).</p><p class="turkish" lang="tr">Minimum, ekleme, silme ve arama kullanarak: her şeyi ekleyin; ardından minimumu bulup yazdırın ve silin; bunu tekrarlayın. Yine O(log n) maliyetli n tur.</p><p>Using insert and in-order traversal: insert everything, then do one in-order traversal (Lecture 5), which visits the keys in sorted order in O(n). Total O(n log n) for the insertions plus O(n) for the walk.</p><p class="turkish" lang="tr">Ekleme ve kök-ortada dolaşım kullanarak: her şeyi ekleyin, sonra anahtarları O(n) sürede sıralı olarak ziyaret eden tek bir kök-ortada dolaşım (Ders 5) yapın. Toplam, eklemeler için O(n log n) ve dolaşım için O(n)’dir.</p><p>The point: a balanced dictionary is at least as powerful as a sorting algorithm. This will be echoed in Lecture 7, where sorting is treated as the fundamental tool.</p><p class="turkish" lang="tr">Ana fikir: dengeli bir sözlük en az bir sıralama algoritması kadar güçlüdür. Sıralamanın temel araç olarak ele alındığı Ders 7’de bu fikir yeniden karşımıza çıkacaktır.</p></details><details><summary>Lecture 6 · The idea of a hash table</summary><p class="turkish" lang="tr">Karma tablosu fikri</p><p>Looking up an array slot by its index costs Θ(1). If only every key were an index. A hash function h makes it so: it maps each key to an integer between 0 and m − 1, and the item is stored in slot h(key) of an array of size m (the table). To search for a key, compute h(key) and look in that slot.</p><p class="turkish" lang="tr">Bir dizi gözüne indisiyle erişmek Θ(1) tutar. Keşke her anahtar bir indis olsaydı. h karma fonksiyonu bunu sağlar: her anahtarı 0 ile m − 1 arasında bir tam sayıya eşler ve eleman, m boyutlu dizinin (tablonun) h(key) gözünde saklanır. Bir anahtarı aramak için h(key)’i hesaplayın ve o göze bakın.</p></details><details><summary>Lecture 6 · Collisions</summary><p class="turkish" lang="tr">Çakışmalar</p><p>Two different keys may hash to the same slot. This is a collision, and it is unavoidable: there are far more possible keys than slots. If the hash function spreads keys evenly, each slot receives only a few keys, and a few keys are easy to search through. Two standard ways to store the colliding keys:</p><p class="turkish" lang="tr">İki farklı anahtar aynı göze karmalanabilir. Bu bir çakışmadır ve kaçınılmazdır: olası anahtar sayısı, göz sayısından çok daha fazladır. Karma fonksiyonu anahtarları dengeli dağıtırsa her göze yalnızca birkaç anahtar düşer; birkaç anahtar arasında arama kolaydır. Çakışan anahtarları saklamanın iki standart yolu vardır:</p><p>Chaining. Each slot holds a linked list of all keys hashed to it. Insert, delete and search reduce to the same operations on a short list. If n keys are spread evenly over m slots, each list has about n/m keys, so each operation costs O(n/m), which is O(1) when the table is about as big as the number of keys. The cost is memory: every item carries a pointer that could instead have been used to make the table bigger.</p><p class="turkish" lang="tr">Zincirleme. Her göz, kendisine karmalanan bütün anahtarların bağlı listesini tutar. Ekleme, silme ve arama, kısa bir listedeki aynı işlemlere indirgenir. n anahtar m göze eşit dağılmışsa her listede yaklaşık n/m anahtar bulunur; dolayısıyla her işlem O(n/m) tutar. Tablo, anahtar sayısı kadar büyük olduğunda bu O(1)’dir. Bedeli bellektir: her eleman, yerine tabloyu büyütmek için kullanılabilecek bir işaretçi alanı taşır.</p><p>Open addressing. No pointers at all; everything lives in the array itself. If slot h(key) is taken, try another slot according to a fixed rule until a free one appears:</p><p class="turkish" lang="tr">Açık adresleme. Hiç işaretçi yoktur; her şey dizinin kendisinde bulunur. h(key) gözü doluysa, boş bir göz bulana kadar sabit bir kurala göre başka gözleri deneyin:</p><p>Linear probing: try h, h+1, h+2, …</p><p class="turkish" lang="tr">Doğrusal yoklama: h, h+1, h+2, … konumlarını deneyin.</p><p>Quadratic probing: try h, h+1², h+2², h+3², …</p><p class="turkish" lang="tr">Karesel yoklama: h, h+1², h+2², h+3², … konumlarını deneyin.</p><p>Stride probing: try h, h+k, h+2k, h+3k, …</p><p class="turkish" lang="tr">Sabit adımlı yoklama: h, h+k, h+2k, h+3k, … konumlarını deneyin.</p><p>Searching follows the same probe sequence until it finds the key or an empty slot. Deletion is ugly under open addressing: emptying a slot can break the chain of probes that leads to items inserted later, making them unreachable. (The usual fix is to mark the slot “deleted” rather than empty.)</p><p class="turkish" lang="tr">Arama, anahtarı veya boş bir gözü bulana kadar aynı yoklama dizisini izler. Açık adreslemede silme sorunludur: bir gözü boşaltmak, sonradan eklenen elemanlara götüren yoklama zincirini koparıp bu elemanları erişilemez hâle getirebilir. (Yaygın çözüm, gözü boş bırakmak yerine “silindi” diye işaretlemektir.)</p></details><details><summary>Lecture 6 · What makes a good hash function</summary><p class="turkish" lang="tr">İyi bir karma fonksiyonunun özellikleri</p><p>A good hash function is cheap to compute and uses every slot from 0 to m − 1 with about equal frequency. The usual recipe has two steps:</p><p class="turkish" lang="tr">İyi bir karma fonksiyonunun hesaplanması ucuzdur ve 0’dan m − 1’e kadar her gözü yaklaşık eşit sıklıkla kullanır. Yaygın tarif iki adımdan oluşur:</p><p>Turn the key into a big integer. For a string, treat it as a number written in base 128 (or whatever the alphabet size is): h = Σ 128ⁱ × char(key[i]) over the characters.</p><p class="turkish" lang="tr">Anahtarı büyük bir tam sayıya dönüştürün. Bir dizeyi 128 tabanında (veya alfabe boyutu neyse o tabanda) yazılmış sayı olarak ele alın: karakterler üzerinden h = Σ 128ⁱ × char(key[i]).</p><p>Squash that big integer into the table’s range with modular arithmetic: h(k) = k mod M, where M is the table size. M should be a large prime, and not one close to a power of two (like 2ⁱ − 1), because that would effectively ignore the high-order bits of the key.</p><p class="turkish" lang="tr">Bu büyük tam sayıyı modüler aritmetik kullanarak tablonun aralığına sıkıştırın: h(k) = k mod M; burada M tablo boyutudur. M büyük bir asal olmalı; ikinin bir kuvvetine yakın bir asal (örneğin 2ⁱ − 1) olmamalıdır. Çünkü bu durum, anahtarın yüksek anlamlı bitlerini fiilen göz ardı eder.</p><p>The mod step works on the same principle as a roulette wheel: a large number “spins” around the wheel of M slots and lands somewhere that looks random.</p><p class="turkish" lang="tr">mod adımı bir rulet çarkıyla aynı ilkeye dayanır: büyük bir sayı, M gözlü çarkın çevresinde “döner” ve rastgele görünen bir yere düşer.</p><p>A real example of good versus bad: hashing people by the first three digits of a US Social Security Number is bad, because those digits encode where the number was issued, so everyone from one state piles into the same slots. The last three digits are effectively random and spread evenly.</p><p class="turkish" lang="tr">İyi ve kötü seçime gerçek bir örnek: insanları ABD Sosyal Güvenlik Numaralarının ilk üç basamağına göre karmalamak kötüdür; çünkü bu basamaklar numaranın nerede verildiğini kodlar ve aynı eyaletteki herkes aynı gözlere yığılır. Son üç basamak ise fiilen rastgeledir ve dengeli dağılır.</p></details><details><summary>Lecture 6 · The birthday paradox: collisions are certain</summary><p class="turkish" lang="tr">Doğum günü paradoksu: çakışmalar kaçınılmazdır</p><p>However good the hash function, collisions come sooner than intuition expects. The probability of no collision after n insertions into a table with m slots is</p><p class="turkish" lang="tr">Karma fonksiyonu ne kadar iyi olursa olsun, çakışmalar sezgimizin beklediğinden daha erken ortaya çıkar. m gözlü bir tabloya n eklemeden sonra hiç çakışma olmama olasılığı şöyledir:</p><p>With m = 366 (birthdays), this probability drops below 1/2 at n = 23 and is essentially 0 by n = 50. Put 23 people in a room and it is more likely than not that two share a birthday. So a hash table must always be prepared to handle collisions; the question is only how well.</p><p class="turkish" lang="tr">m = 366 (doğum günleri) için bu olasılık n = 23’te 1/2’nin altına düşer; n = 50’de ise neredeyse 0’dır. Bir odaya 23 kişi koyduğunuzda, iki kişinin aynı doğum gününe sahip olması, olmamasından daha olasıdır. Dolayısıyla bir karma tablosu her zaman çakışmaları ele almaya hazır olmalıdır; soru yalnızca bunu ne kadar iyi yaptığıdır.</p></details><details><summary>Lecture 6 · Performance summary</summary><p class="turkish" lang="tr">Performans özeti</p><p>With either chaining or open addressing:</p><p class="turkish" lang="tr">Hem zincirleme hem açık adresleme için:</p><div class="table-wrap"><table><tr><td>Operation</td><td>Expected</td><td>Worst case</td></tr><tr class="turkish" lang="tr"><td>İşlem</td><td>Beklenen</td><td>En kötü durum</td></tr><tr><td>Search, Insert, Delete</td><td>O(1)</td><td>O(n) (everything collides)</td></tr><tr class="turkish" lang="tr"><td>Arama, ekleme, silme</td><td>O(1)</td><td>O(n) (her şey çakışır)</td></tr><tr><td>Min, Max, Predecessor, Successor</td><td>Θ(n + m)</td><td>Θ(n + m) (must scan the whole table)</td></tr><tr class="turkish" lang="tr"><td>Minimum, maksimum, öncül, ardıl</td><td>Θ(n + m)</td><td>Θ(n + m) (tüm tablo taranmalıdır)</td></tr></table></div><p>In practice a hash table is usually the best way to maintain a dictionary. Its weakness is the unpredictable worst case: an adversary who knows the hash function, or just bad luck, can force everything into one slot. When a guaranteed bound is required, balanced binary trees (Lecture 5) win. Skiena’s rule: use hashing for everything, except worst-case analysis.</p><p class="turkish" lang="tr">Uygulamada sözlük tutmanın en iyi yolu genellikle karma tablosudur. Zayıf noktası, öngörülemez en kötü durumudur: karma fonksiyonunu bilen bir hasım veya yalnızca kötü şans, her şeyi tek göze yığabilir. Garanti edilmiş bir sınır gerektiğinde dengeli ikili ağaçlar (Ders 5) üstün gelir. Skiena’nın kuralı: en kötü durum analizi dışında her şey için karmalama kullanın.</p></details><details><summary>Lecture 6 · Hashing beyond dictionaries</summary><p class="turkish" lang="tr">Sözlüklerin ötesinde karmalama</p><p>Udi Manber, then head of engineering at Google, said the three most important algorithms at Google are “hashing, hashing, and hashing”. A hash code is a short, distinctive fingerprint of a large object, which enables tricks like:</p><p class="turkish" lang="tr">O dönemde Google’ın mühendislikten sorumlu yöneticisi olan Udi Manber, Google’daki en önemli üç algoritmanın “karmalama, karmalama ve karmalama” olduğunu söylemiştir. Karma kodu, büyük bir nesnenin kısa ve ayırt edici parmak izidir; şu tür yöntemleri mümkün kılar:</p><p>Is this document new? Hash it and compare against the hash codes of every document in the collection, instead of comparing full texts.</p><p class="turkish" lang="tr">Bu belge yeni mi? Tam metinleri karşılaştırmak yerine belgenin karma kodunu hesaplayıp koleksiyondaki her belgenin karma koduyla karşılaştırın.</p><p>Is part of this document plagiarised? Hash every window of w consecutive words in both the document and the collection. Matching hash codes flag a possible copied passage.</p><p class="turkish" lang="tr">Bu belgenin bir kısmında intihal var mı? Hem belgedeki hem koleksiyondaki ardışık w sözcüklük her pencerenin karma kodunu hesaplayın. Eşleşen karma kodları, kopyalanmış olabilecek bir bölümü işaretler.</p><p>Has this file been tampered with? Keep the cryptographic hash of the original; any change to the file changes the hash.</p><p class="turkish" lang="tr">Bu dosya değiştirilmiş mi? Özgün dosyanın kriptografik özetini saklayın; dosyadaki herhangi bir değişiklik özeti değiştirir.</p><p>Bucketing by a canonical form. Hash each word by its sorted letters (skiena → aeikns): now anagrams like dog and god collide on purpose, and “which five letters make the most words?” becomes a question about the biggest bucket. Proximity-preserving hash functions extend the idea to put similar items in the same bucket.</p><p class="turkish" lang="tr">Kanonik biçime göre kovalama. Her sözcüğü sıralanmış harflerine göre karmalayın (skiena → aeikns). Artık dog ve god gibi anagramlar kasıtlı olarak çakışır; “hangi beş harf en çok sözcüğü oluşturur?” sorusu, en büyük kovaya ilişkin bir soruya dönüşür. Yakınlığı koruyan karma fonksiyonları bu fikri genişleterek benzer elemanları aynı kovaya yerleştirir.</p></details><details><summary>Lecture 6 · Rabin-Karp: string matching with hashing</summary><p class="turkish" lang="tr">Rabin–Karp: karmalama ile dize eşleştirme</p><p>The substring matching problem: given a text t of length n and a pattern p of length m, does p occur inside t, and where? (Skiena’s example: is “Skiena” in the Bible?)</p><p class="turkish" lang="tr">Alt dize eşleştirme problemi: uzunluğu n olan t metni ve uzunluğu m olan p örüntüsü verildiğinde, p, t’nin içinde bulunur mu; bulunuyorsa nerede? (Skiena’nın örneği: Kutsal Kitap’ta “Skiena” geçiyor mu?)</p><p>Brute force slides the pattern along the text, one position at a time, and compares it character by character at each position: O(nm).</p><p class="turkish" lang="tr">Kaba kuvvet, örüntüyü metin boyunca birer konum kaydırır ve her konumda karakter karakter karşılaştırır: O(nm).</p><p>The hashing idea. Compute the hash of p, and the hash of each m-character window of t. If two strings are identical their hashes are identical; if they differ, their hashes almost certainly differ. So only compare characters when the hashes agree, which should be rare (a false alarm costs O(m) to dismiss).</p><p class="turkish" lang="tr">Karmalama fikri. p’nin ve t’nin m karakterlik her penceresinin karma değerini hesaplayın. İki dize özdeşse karma değerleri özdeştir; farklılarsa karma değerleri de neredeyse kesin olarak farklıdır. Bu nedenle yalnızca karma değerleri eşleştiğinde karakterleri karşılaştırın; bunun nadiren olması beklenir (yanlış alarmı elemek O(m) tutar).</p><p>The catch. There are n − m + 1 windows, and hashing an m-character window costs O(m). That is O(nm) again.</p><p class="turkish" lang="tr">Pürüz. n − m + 1 pencere vardır ve m karakterlik bir pencereyi karmalamak O(m) tutar. Yine O(nm).</p><p>The trick: rolling hashes. Write the hash of the window starting at position j as</p><p class="turkish" lang="tr">Püf noktası: kayan karma değerleri (rolling hashes). j konumunda başlayan pencerenin karma değerini şöyle yazın:</p><p>Sliding the window one step right drops the first character and appends a new one, and a little algebra shows</p><p class="turkish" lang="tr">Pencereyi bir adım sağa kaydırmak ilk karakteri çıkarır ve yeni bir karakter ekler. Biraz cebirle şu sonuç elde edilir:</p><p>So from one window’s hash you get the next window’s hash with two multiplications, one subtraction and one addition: O(1). All n windows are hashed in O(n), and the whole search runs in expected O(n + m).</p><p class="turkish" lang="tr">Böylece bir pencerenin karma değerinden sonrakini iki çarpma, bir çıkarma ve bir toplamayla elde edersiniz: O(1). n pencerenin tamamının karma değeri O(n) sürede hesaplanır ve bütün arama beklenen O(n + m) sürede çalışır.</p></details></details>
+<p class="practice-note">Begin with the easy tests and the worked example. Remaining questions provide repeated teaching practice; hard questions are optional depth. Some tests revisit earlier prerequisites. Answers stay visible.</p><section class="chapter-question-bank" id="skiena-practice"><h3>Practice with answers</h3>
+<p class="source-label">12 test questions · 23 written questions · 35 total</p>
 <p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
-<article class="source-exercise test-question" id="skiena-mcq-006">
-<p class="source-label">Question 1 · easy</p><p class="question-prompt">The worst-case running time of an algorithm is:</p><ol class="mcq-options" type="a"><li> its time on a typical input</li><li> the maximum steps over all inputs of size n</li><li> the minimum steps over all inputs of size n</li><li> its time on the first input tried</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> It is a guarantee, which is why the course uses it by default.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-149">
-<p class="source-label">Question 2 · medium · course question</p><p class="question-prompt">If start = 10.25 and end = 10.29 are stopwatch readings in seconds, approximately how much time elapsed?</p><ol class="mcq-options" type="a"><li>0.04 seconds</li><li>10.29 seconds</li><li>20.54 seconds</li><li>4 seconds</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> Elapsed time is end − start = 0.04 seconds, or about 40 milliseconds. Floating-point representation can introduce a tiny rounding difference.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-150">
-<p class="source-label">Question 3 · medium · course question</p><p class="question-prompt">Which timing placement measures the operation f(data) itself, excluding setup?</p><ol class="mcq-options" type="a"><li>start; build data; f(data); end</li><li>f(data); start; end</li><li>build data; start; f(data); end</li><li>start; end; f(data)</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Prepare the data first, then record the start, run the operation and record the end. Otherwise setup is mixed into the measured interval.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-151">
-<p class="source-label">Question 4 · medium · course question</p><p class="question-prompt">Why repeat a short timing measurement?</p><ol class="mcq-options" type="a"><li>to prove correctness</li><li>to force every run to be identical</li><li>to change the algorithm’s growth class</li><li>to see variation and reduce reliance on one noisy run</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> Other processes, caches and clock resolution can affect measurements. Repeated observations help reveal this variation; they do not by themselves prove a complexity bound.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-152">
-<p class="source-label">Question 5 · medium · course question</p><p class="question-prompt">A batch of 100 calls takes 0.2 seconds. Ignoring loop overhead, what is the mean time per call?</p><ol class="mcq-options" type="a"><li>20 seconds</li><li>0.002 seconds</li><li>0.2 seconds</li><li>500 seconds</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> Divide the batch time by the number of calls: 0.2 / 100 = 0.002 seconds, or 2 milliseconds.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-153">
-<p class="source-label">Question 6 · medium · course question</p><p class="question-prompt">A Python function reaches its end without executing a return statement. What value does it return?</p><ol class="mcq-options" type="a"><li>0</li><li>an empty string</li><li>None</li><li>the last value it printed</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> The implicit return value is None. Printing a value displays it but does not make it the function’s return value.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-154">
-<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">A function contains return x * 2. When called with x = 5, what value does it return?</p><ol class="mcq-options" type="a"><li>10</li><li>5</li><li>25</li><li>None</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> Substitute 5 for x: 5 × 2 = 10. return gives that value back to the caller.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-155">
-<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">You time an in-place sorting function twice on the same list. Why might the second run be an unfair comparison?</p><ol class="mcq-options" type="a"><li>the second clock cannot work</li><li>sorting always doubles the list</li><li>the list becomes a set</li><li>the first run may have left the input already sorted</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> If the operation changes its input, later runs may receive a different input case. Prepare an equivalent fresh input for each comparison and decide whether copying belongs inside the timed interval.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-156">
-<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">Which statement is justified by a largest observed runtime of 8 ms over 20 trials?</p><ol class="mcq-options" type="a"><li>the algorithm always finishes within 8 ms</li><li>8 ms was the largest time in those trials</li><li>every other computer will be faster</li><li>its worst-case complexity is constant</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> Measurements describe the runs you performed. A finite set of trials does not establish a universal deadline or an asymptotic complexity class.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-157">
-<p class="source-label">Question 10 · medium · course question</p><p class="question-prompt">Which pair is most suitable for comparing two algorithms’ work fairly?</p><ol class="mcq-options" type="a"><li>different inputs and different machines</li><li>only each algorithm’s fastest observed input</li><li>the same input cases and a consistent measurement method</li><li>one timed run compared with the other’s source-code length</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Hold relevant conditions constant and include the same categories of work. Otherwise differences may come from setup, inputs or measurement rather than the algorithms.</p></div></article>
+<article class="source-exercise test-question" id="skiena-mcq-025">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">In a binary search tree the minimum key is found by:</p><ol class="mcq-options" type="a"><li> repeatedly going right</li><li> repeatedly going left</li><li> looking at the root</li><li> a hash lookup</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Smaller keys always lie to the left.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-026">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">An in-order traversal of a BST prints the keys:</p><ol class="mcq-options" type="a"><li> level by level</li><li> in the order they were inserted</li><li> in sorted order</li><li> in reverse sorted order</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Left subtree, node, right subtree.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-027">
+<p class="source-label">Question 3 · easy</p><p class="question-prompt">Insert distinct keys 1, 2, …, n into a plain, unbalanced BST, for n ≥ 3. Counting edges from root to deepest leaf, its height is:</p><ol class="mcq-options" type="a"><li> about log n</li><li> n − 1</li><li> 1</li><li> about √n</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Each key becomes the right child of the previous one: a chain.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-028">
+<p class="source-label">Question 4 · easy</p><p class="question-prompt">With fixed-size keys, suitable uniform hashing and bounded load factor, what is the tightest listed expected search bound?</p><ol class="mcq-options" type="a"><li> O(1)</li><li> O(log n)</li><li> O(n)</li><li> O(n log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> With those assumptions, the expected number of inspected entries stays bounded, so expected search cost is O(1). Bad collisions can still make the worst case linear.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-033">
+<p class="source-label">Question 5 · medium</p><p class="question-prompt">Using the successor-based deletion method, a BST node with two children is replaced by:</p><ol class="mcq-options" type="a"><li> its parent</li><li> its left child</li><li> its in-order successor (the minimum of its right subtree)</li><li> the root</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> The successor has at most one child, so it is easy to remove from its old place.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-034">
+<p class="source-label">Question 6 · medium</p><p class="question-prompt">The successor of a BST node that has a right child is:</p><ol class="mcq-options" type="a"><li> the minimum of its right subtree</li><li> the maximum of its right subtree</li><li> its parent</li><li> the maximum of its left subtree</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The next larger key is the smallest key that is larger.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-035">
+<p class="source-label">Question 7 · medium</p><p class="question-prompt">With h(k) = k mod 8, the keys 8, 16, 24 and 32:</p><ol class="mcq-options" type="a"><li> spread evenly over the table</li><li> all collide in slot 0</li><li> produce exactly two collisions</li><li> cannot be inserted</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> All are multiples of 8; a table size that shares structure with the keys is a bad choice.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-036">
+<p class="source-label">Question 8 · medium</p><p class="question-prompt">Hash keys independently and uniformly into 365 slots. At about how many keys does the probability of at least one collision first exceed one half?</p><ol class="mcq-options" type="a"><li> 23 keys</li><li> 183 keys</li><li> 365 keys</li><li> 730 keys</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The birthday paradox.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-037">
+<p class="source-label">Question 9 · medium</p><p class="question-prompt">Using fixed-word modular arithmetic and a precomputed outgoing-character multiplier, what is the tightest bound for updating a Rabin–Karp window hash by one character?</p><ol class="mcq-options" type="a"><li> O(m)</li><li> O(1)</li><li> O(log m)</li><li> O(n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Subtract the outgoing contribution, multiply by the base and add the incoming character, all modulo a fixed-word modulus. This is constant work; confirming an actual match can still require comparing the window characters.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-038">
+<p class="source-label">Question 10 · medium</p><p class="question-prompt">Which structure gives the best guaranteed worst-case bound on all seven dictionary operations?</p><ol class="mcq-options" type="a"><li> a hash table</li><li> an unsorted array</li><li> a balanced binary search tree</li><li> a sorted linked list</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> A balanced BST supports each ordered-dictionary operation in O(log n) worst-case time. An ordinary hash table does not maintain key order, and its worst-case lookup can be linear.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-039">
+<p class="source-label">Question 11 · hard · optional challenge</p><p class="question-prompt">A table of size 5 uses linear probing with h(k) = k mod 5. Insert 10, 15, 3, 20 in that order. Key 20 ends up in slot:</p><ol class="mcq-options" type="a"><li> 0</li><li> 1</li><li> 2</li><li> 4</li></ol><p class="question-plain"><strong>In simpler words:</strong> Trace each insertion into the first available slot.</p><p class="question-hint"><strong>Starting hint:</strong> Start at k mod 5 and move right if occupied.</p>
+<div class="question-answer"><p><strong>Answer: option C.</strong> 10 takes slot 0, 15 probes 0 then takes 1, 3 takes 3, and 20 probes 0, 1 and settles in 2.</p><h5>Step by step</h5><ol class="reasoning-steps"><li>10 takes 0; 15 probes 0 and takes 1; 3 takes 3.</li><li>20 probes 0, then 1, then finds 2 empty. So the answer is slot 2.</li></ol></div></article><article class="source-exercise test-question" id="skiena-mcq-040">
+<p class="source-label">Question 12 · hard · optional challenge</p><p class="question-prompt">For distinct keys and ordinary implementations without extra cached minima, which statement is FALSE?</p><ol class="mcq-options" type="a"><li> a doubly linked list deletes a node you already hold in O(1)</li><li> a sorted array finds a key’s predecessor in O(1) once the key is located</li><li> a BST of height h answers a search in O(h)</li><li> a hash table finds the minimum key in O(1) expected time</li></ol><p class="question-plain"><strong>In simpler words:</strong> Separate location-based operations from ordered searches.</p><p class="question-hint"><strong>Starting hint:</strong> An ordinary hash table does not keep keys in numeric order.</p>
+<div class="question-answer"><p><strong>Answer: option D.</strong> Hashing scatters keys, so finding the minimum means scanning the whole table.</p><h5>Step by step</h5><ol class="reasoning-steps"><li>A known linked-list node can be spliced out directly; a located sorted-array key has its predecessor next door; a BST search follows one height-h path.</li><li>The hash table must examine stored keys to find the minimum unless it maintains extra information. That makes (d) false.</li></ol></div></article>
 <h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
-<article class="source-exercise" id="skiena-ex-008"><p class="source-label">Question 11 · easy</p><p>Define worst-case running time in one sentence, and say why the course prefers it.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Worst-case running time is the maximum cost over all legal inputs of a fixed size n, under the stated cost model. It provides an upper guarantee, useful when a controller has a deadline. It need not be close to average-case cost. A bound on operation count is not by itself a measured or certified time bound on a real controller.</p></div></article></section>
-<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Call contains([4, 7, 9], 7), then contains([4, 7, 9], 2). Count equality checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>True after 2 checks; False after 3 checks.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>A batch of 100 calls takes 0.42 seconds. What is the time per call?</p><details class="solution"><summary>Check your reasoning</summary><div><p>0.42 / 100 = 0.0042 seconds = 4.2 ms.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Move the target from absent to the first item. What changes in the experiment?</p><details class="solution"><summary>Check your reasoning</summary><div><p>The scan now makes one equality check. This is a different input case, so record it separately.</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">5.7</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — functions from last week</span>
-    <p>
-      Turn the linear search from week 4 into <code>def contains(data, target)</code> that
-      returns <code>True</code> or <code>False</code>. Test it on a small list.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — follow two calls and an early return</summary>
-      <div class="widget anim" data-anim="w5-contains"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>contains.py</div><pre><code>def contains(data, target):
-    for item in data:
-        if item == target:
-            return True      <span class="c"># return leaves the function immediately</span>
-    return False
-
-print(contains([3, 9, 4], 9), contains([3, 9, 4], 5))</code></pre></div>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — time the worst case</span>
-    <p>
-      Time <code>contains</code> searching for a missing item in lists of 100 000,
-      200 000, 400 000 and 800 000 items. Build each list <em>before</em> starting the
-      clock. Report the ratio column.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — build the ratio column at doubling sizes</summary>
-      <div class="widget anim" data-anim="w5-worst"></div>
-    </details><details class="solution"><summary>What you should see</summary>
-      <p>
-        Ratios close to 2.0. A missing item forces a full pass, so the time follows the
-        length of the list exactly. If your ratios are wild (0.4, 6.1), your n is too small
-        or you timed the list construction.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 3 — a deliberately dishonest benchmark</span>
-    <p>
-      Move the line that builds the test list <em>inside</em> the timed region and re-run
-      Task 2. What happens to the numbers, and why does this no longer isolate search time?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — move the list-building into the timed region</summary>
-      <div class="widget anim" data-anim="w5-dishonest"></div>
-    </details><details class="solution"><summary>Answer</summary>
-      <p>
-        Times may increase while the ratios still look roughly linear. You are now measuring
-        "build a list of n items" plus search. That is a valid end-to-end measurement if
-        labelled accordingly, but it cannot isolate search cost. State exactly what is
-        inside the timed region.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 4 — see the warm-up for yourself</span>
-    <p>
-      Time <code>sum_to(2000000)</code> eight times in a row with a plain
-      <code>perf_counter</code> loop, printing each run. Then print the fastest and the mean
-      of all eight, and the fastest and the mean of runs 2–8 only (dropping the first). Which
-      statistic changed the most when you dropped run 1, and why?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — drop run 1 and watch the fastest and the mean</summary>
-      <div class="widget anim" data-anim="w5-warmup"></div>
-    </details><details class="solution"><summary>What to look for</summary>
-      <p>
-        If the first run is unusually slow, removing it lowers the mean and leaves the minimum
-        unchanged. If it is the fastest, the minimum changes too. Report what your samples
-        actually show; a minimum is not a substitute for an explicit warm-up policy.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — perf_counter vs timeit</span>
-    <p>
-      Measure the cost of one call to <code>sum_to(1000)</code> two ways: once with a single
-      <code>perf_counter</code> pair around one call, and once with
-      <code>timeit.timeit("sum_to(1000)", globals=globals(), number=10000)</code> divided by
-      10 000. Which gives the steadier answer across three repeats, and why?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — compare single readings with a timeit batch</summary>
-      <div class="widget anim" data-anim="w5-timeit"></div>
-    </details><details class="solution"><summary>Answer</summary>
-      <p>
-        The single <code>perf_counter</code> reading jumps around — a 41-microsecond call is
-        only a few hundred times the measurement overhead, so a single interruption swamps
-        it. The <code>timeit</code> batch can be steadier because repeating 10 000 runs
-        turns each fixed disturbance into a tiny percentage (§5.6, "noise is a percentage").
-        For calls this fast, <code>timeit</code> is the correct instrument.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 6 — relative noise shrinks with n</span>
-    <p>
-      For n = 1 000 and again for n = 2 000 000, time <code>sum_to(n)</code> ten times and
-      report the spread as a percentage: <code>(slowest − fastest) / fastest × 100</code>.
-      Explain the two numbers using the idea from §5.6.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — see a fixed disturbance shrink to a rounding error</summary>
-      <div class="widget anim" data-anim="w5-noise"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        A disturbance of a fixed duration is a smaller percentage of a longer run. Your
-        measured spreads need not decrease monotonically: background work and cache or
-        frequency changes may differ between runs. Report the actual percentages and use
-        repetition to judge whether a ratio is stable.
-      </p>
-    </details>
-  </div>
-</section></div></details></section>
-<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
-  <h2><span class="num">5.8</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="2">
-      <p>A function without a <code>return</code> statement gives back:</p>
-      <button class="opt">The last value it computed</button>
-      <button class="opt">Zero</button>
-      <button class="opt">None</button>
-      <button class="opt">An error</button>
-      <div class="why">It runs happily and hands back None. Printing inside a function is not the same as returning.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>Why take the fastest of several runs rather than the slowest?</p>
-      <button class="opt">The fastest run is the only correct one</button>
-      <button class="opt">Interruptions often add delay, so the minimum estimates a lightly interrupted run</button>
-      <button class="opt">Because Python speeds up as it warms</button>
-      <button class="opt">It makes the numbers look better in reports</button>
-      <div class="why">Interruptions can add delay, but changing machine state and measurement overhead still matter. The minimum is a summary, not a guaranteed intrinsic cost.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>Your benchmark reports 0.00002 s for n = 10 and 0.00003 s for n = 20. What should you do?</p>
-      <button class="opt">Report that the algorithm is roughly linear</button>
-      <button class="opt">Report that it is constant time</button>
-      <button class="opt">Switch to a faster computer</button>
-      <button class="opt">Increase n until the runs take tens of milliseconds — these numbers are noise</button>
-      <div class="why">At this scale you are measuring the clock and the loop overhead, not the algorithm. Grow n until the signal is well above the noise.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>The very first of five identical timed runs is noticeably slower than the other four. The usual reason is:</p>
-      <button class="opt">A bug that only shows up once</button>
-      <button class="opt">One-off warm-up costs — cold cache and fresh allocation — which is why the first run is discarded, or why we take the fastest</button>
-      <button class="opt">perf_counter is broken until it is called twice</button>
-      <button class="opt">Python runs faster later in the day</button>
-      <div class="why">A slow first call may include start-up costs. An explicit untimed warm-up is appropriate for steady-state studies; the minimum alone is not a guarantee.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>You want to measure one call to a snippet that takes about 40 microseconds. The best tool is:</p>
-      <button class="opt">time.time() around a single call</button>
-      <button class="opt">A single perf_counter pair — one reading is enough for tiny code</button>
-      <button class="opt">timeit, which runs it thousands of times and disables the garbage collector</button>
-      <button class="opt">A wall clock and a keen eye</button>
-      <div class="why">At tens of microseconds a single reading is mostly overhead. timeit repeats the snippet many times so each fixed disturbance becomes a negligible percentage.</div>
-    </div>
-  </div>
-</section>
-</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
-  <h2><span class="num">5.1</span>A function is a named piece of work</h2>
-  <p>
-    Up to now, changing <code>n</code> meant editing the code and running it again. A
-    <strong>function</strong> lets you say "do that job, with this input" as many times as
-    you like.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>def, parameter, return</div><pre><code>def sum_to(n):
-    total = 0
-    for number in range(1, n + 1):
-        total = total + number
-    return total
-
-print(sum_to(10))
-print(sum_to(1000))</code></pre></div>
-  <div class="out">55
-500500</div>
-  <p>Three parts, and each has a job:</p>
-  <ul>
-    <li><code>def sum_to(n):</code> — the name and the <strong>parameter</strong> it expects.</li>
-    <li>the indented block — the work, which can use <code>n</code> as if it were a variable.</li>
-    <li><code>return total</code> — hand the answer back. Without it, the function gives back <code>None</code>, which is the most common cause of "why is my result empty?"</li>
-  </ul>
-  <p>
-    A useful picture: a function is a <em>recipe card</em>. Writing the card teaches the
-    kitchen a dish; it does not cook anything. You only get food when someone reads the card
-    and follows it — that is a <strong>call</strong>. The parameter <code>n</code> is the
-    blank on the card that says "however many portions you asked for", filled in fresh each
-    time the card is used.
-  </p>
-  <div class="note">
-    <span class="label">Defining is not running</span>
-    <p>
-      Running the <code>def</code> block produces no output — it only teaches Python the
-      word. Nothing happens until you <em>call</em> it: <code>sum_to(10)</code>.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">5.2</span>The stopwatch</h2>
-  <p>
-    Python's <code>time</code> module has a high-resolution clock. Read it before, read it
-    after, subtract.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>timing pattern — memorise this</div><pre><code>import time
-
-start = time.perf_counter()
-result = sum_to(1000000)
-elapsed = time.perf_counter() - start
-
-print(f"result {result}, took {elapsed:.4f} seconds")</code></pre></div>
-  <div class="out">result 500000500000, took 0.0521 seconds</div>
-  <p>
-    Your number will differ from mine, and from your own number thirty seconds from now.
-    That is not a flaw in the method — it is the first thing you have to learn to handle.
-  </p>
-  <div class="note red">
-    <span class="label">Use perf_counter, not the clock on the wall</span>
-    <p>
-      <code>time.perf_counter()</code> is designed for measuring short intervals. Do not
-      use <code>time.time()</code> for benchmarks — it can jump when the system clock
-      adjusts. The number it returns is meaningless on its own; only the difference
-      matters.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">5.3</span>One measurement is not a measurement</h2>
-  <p>
-    Your computer is doing dozens of other things while it runs your loop. Time the same
-    call five times and you will get five different answers:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>repeat and take the best</div><pre><code>import time
-
-def time_it(func, n, repeats=5):
-    """Run func(n) several times, return the fastest time in seconds."""
-    best = None
-    for _ in range(repeats):
-        start = time.perf_counter()
-        func(n)
-        elapsed = time.perf_counter() - start
-        if best is None or elapsed &lt; best:
-            best = elapsed
-    return best
-
-print(f"{time_it(sum_to, 1000000):.4f} s")</code></pre></div>
-  <p>
-    This little <code>time_it</code> is the harness the whole course leans on. Every week
-    from here on hands it a function and a size and reads back a trustworthy number, so it
-    is worth understanding line by line now.
-  </p>
-  <p>
-    Why the <em>fastest</em> run? Interruptions often add delay, so the minimum can estimate a
-    lightly interrupted run. It is not a guaranteed true cost: cache state, CPU frequency,
-    measurement overhead and the chosen input also matter. Report the individual samples
-    and say whether you used a minimum, median or mean.
-  </p>
-  <div class="note blue">
-    <span class="label">The three ways a benchmark lies</span>
-    <ol>
-      <li><strong>Too small.</strong> Very short individual runs can be dominated by measurement overhead and variation. For this classroom harness, aim for roughly 0.05 s or batch repeated calls; inspect the spread rather than treating a fixed threshold as a guarantee.</li>
-      <li><strong>Something else was running.</strong> Close the video tab. On Colab, other people's load can bleed in — repeat and take the best.</li>
-      <li><strong>You measured the wrong thing.</strong> Building a million-item test list inside the timed block measures list-building plus your algorithm. Build the data <em>before</em> <code>start</code>.</li>
-    </ol>
-  </div>
-</section>
-<section>
-  <h2><span class="num">5.4</span>Your first benchmark table</h2>
-  <p>
-    Now the pattern that every remaining week of this course uses. Same function, several
-    sizes, one table:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>benchmark.py</div><pre><code>sizes = [100000, 200000, 400000, 800000]
-
-print(f"{'n':&gt;10} {'seconds':&gt;12} {'ratio':&gt;8}")
-previous = None
-for n in sizes:
-    t = time_it(sum_to, n)
-    ratio = t / previous if previous else 1.0
-    print(f"{n:&gt;10} {t:&gt;12.5f} {ratio:&gt;8.2f}")
-    previous = t</code></pre></div>
-  <div class="out">         n      seconds    ratio
-    100000      0.00512     1.00
-    200000      0.01031     2.01
-    400000      0.02064     2.00
-    800000      0.04119     2.00</div>
-  <p>
-    Read both the <em>ratio</em> and seconds columns. Ratios can reveal a growth pattern when
-    machine effects approximately cancel, but they still depend on the measured conditions.
-    Near-doubling times support the linear model here; the loop count explains it for all n.
-    Next week you will use ratios as evidence when distinguishing growth patterns.
-  </p>
-</section>
-<section>
-  <h2><span class="num">5.5</span>Two functions, one job</h2>
-  <p>
-    There is a closed-form formula for the same sum: n(n+1)/2. Same answer, different
-    method:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>loop vs formula</div><pre><code>def sum_formula(n):
-    return n * (n + 1) // 2
-
-for n in [1000, 100000, 10000000]:
-    a = time_it(sum_to, n)
-    b = time_it(sum_formula, n)
-    print(f"n={n:&gt;9}  loop {a:.6f}s   formula {b:.9f}s   x{a/b:,.0f} faster")</code></pre></div>
-  <div class="out">n=     1000  loop 0.000041s   formula 0.000000160s   x256 faster
-n=   100000  loop 0.004900s   formula 0.000000170s   x28824 faster
-n= 10000000  loop 0.512000s   formula 0.000000180s   x2844444 faster</div>
-  <p>
-    Look at the formula column: it barely moves. The loop's time grows with n; the
-    formula performs a fixed number of arithmetic operations when each arithmetic operation counts as one step.
-    Python's arbitrarily large integers make individual arithmetic costs grow with bit length. And notice the last column growing too — the gap
-    between the two methods widens with the data. <em>That</em> is the thing this course
-    teaches you to see coming, before you write the slow one.
-  </p>
-</section>
-<section>
-  <h2><span class="num">5.6</span>Going deeper: warm-up, resolution and timeit</h2>
-  <p>
-    You have a working stopwatch. Three refinements separate a rough timing from one you
-    would stake a grade — or a production decision — on.
-  </p>
-
-  <h3>The first run is a little lie</h3>
-  <p>
-    Time the same call five times in a row and watch the very first number:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>watch the first run</div><pre><code>import time
-
-data = list(range(1000000))          <span class="c"># built once, before timing</span>
-
-for run in range(5):
-    start = time.perf_counter()
-    total = sum(data)
-    print(f"run {run}: {time.perf_counter() - start:.5f} s")</code></pre></div>
-  <div class="out">run 0: 0.01204 s
-run 1: 0.00781 s
-run 2: 0.00773 s
-run 3: 0.00772 s
-run 4: 0.00774 s</div>
-  <p>
-    The first run may be slower because of one-off setup, cold caches or runtime warm-up.
-    This is not guaranteed. A deliberately untimed first call is a <strong>warm-up</strong>;
-    use and report it when the intended measurement is steady-state performance.
-  </p>
-  <div class="note green">
-    <span class="label">Why our harness already survives this</span>
-    <p>
-      Look again at <code>time_it</code>: it takes the <em>fastest</em> of the repeats. The
-      first run may be slow, but taking the minimum does not guarantee that warm-up effects
-      have disappeared. For steady-state measurements, add an explicit untimed warm-up call
-      before the loop (<code>func(n)</code> on its own, result ignored), then repeat and
-      report your summary policy. Keep setup costs when they are part of the real task.
-    </p>
-  </div>
-
-  <h3>How fine is the ruler?</h3>
-  <p>
-    A stopwatch that ticks in whole seconds cannot measure a 3-millisecond event. Every
-    clock has a smallest step it can see, its <strong>resolution</strong>. Ask Python what
-    yours is:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>clock info</div><pre><code>import time
-
-info = time.get_clock_info("perf_counter")
-print("resolution:", info.resolution, "seconds")
-print("monotonic:", info.monotonic)</code></pre></div>
-  <div class="out">resolution: 1e-09 seconds
-monotonic: True</div>
-  <p>
-    A nanosecond sounds plenty fine, and the raw clock is. But the practical floor is much
-    higher: the overhead of calling a Python function and reading the clock twice is itself
-    hundreds of nanoseconds, and that is your real smallest trustworthy interval. This is
-    the arithmetic behind the rule from §5.3 — if a run lasts only a few times the smallest
-    step you can measure, the trailing digits are decoration. Grow <code>n</code> until the
-    time is a comfortable multiple of the resolution.
-    (<code>monotonic: True</code> confirms the clock only ever moves forwards, which is why
-    a difference can never come out negative.)
-  </p>
-
-  <h3>Let the standard library do it: timeit</h3>
-  <p>
-    For a very fast snippet — a single arithmetic expression, a one-line call —
-    <code>perf_counter</code> around one call measures mostly its own overhead. The
-    <code>timeit</code> module exists for exactly this: it runs the snippet many times,
-    reports the total, and turns off the garbage collector during timing to remove one
-    source of noise.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>timeit for tiny snippets</div><pre><code>import timeit
-
-<span class="c"># run sum_to(1000) ten thousand times, get the total, divide back</span>
-total = timeit.timeit("sum_to(1000)", globals=globals(), number=10000)
-per_call = total / 10000
-print(f"{per_call * 1e6:.2f} microseconds per call")</code></pre></div>
-  <div class="out">41.30 microseconds per call</div>
-  <p>
-    Use the right tool for the scale. For the tiny, use <code>timeit</code>; for the
-    doubling experiments in the rest of the course — where each input size takes tens of
-    milliseconds and you want its own number and a ratio — the <code>time_it</code> harness
-    is the better fit. Both read the same underlying <code>perf_counter</code>; they just
-    package it differently.
-  </p>
-
-  <h3>Why noise is a percentage, not an amount</h3>
-  <p>
-    When the operating system steals the CPU to service the network card, it takes a
-    roughly <em>fixed</em> slice of time — say a quarter of a millisecond. On a 0.5 ms run
-    that is a 50% error; on a 2-second run it is 0.0125% (0.25 ms / 2 000 ms × 100). The interruption is the same
-    size; what changes is its share of your measurement. That is the deep reason we grow
-    <code>n</code>: not to make the algorithm slower for its own sake, but to make every
-    fixed disturbance shrink to a rounding error <em>relative</em> to the signal.
-  </p>
-  <div class="note blue">
-    <span class="label">Report noise the honest way</span>
-    <p>
-      "It varied by 0.3 ms" tells nobody anything. "It varied by 40% at n = 1 000 but under
-      1% at n = 1 000 000" tells the whole story — and shows you understand where your
-      numbers are trustworthy and where they are not.
-    </p>
-  </div>
-</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>A stopwatch answers a question about an input</h3><p>The notes separate best, worst and average cost over inputs of the same size. A timing measurement is one observation on one machine, implementation and input. One run does not tell you the best, worst or average time across all inputs of that size.</p><p>Searching a hundred readings can stop at the first reading, stop at the last, or exhaust the list without finding the target. Keep n fixed and compare those cases. Repeat measurements and record what setup work you included. The worst observed time is evidence about your trials, not proof of the worst possible time.</p><p>Counting how many operations the method needs helps explain the measured time. A real controller deadline additionally depends on the computer, memory access and other tasks running at the same time.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Write “largest time in these trials” rather than “guaranteed maximum” unless you have established that guarantee.</p></section></div></details>
-<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
-  <div class="objectives">
-    <span class="eyebrow">By the end of this week you can</span>
-    <ul>
-      <li>write a function with <code>def</code>, give it inputs and get a value back;</li>
-      <li>time a piece of code with <code>time.perf_counter()</code>;</li>
-      <li>explain why one measurement is never enough;</li>
-      <li>run the same function at several input sizes and put the results in a table;</li>
-      <li>spot the three things that make a benchmark lie;</li>
-      <li>know why the first timed run is usually thrown away, and how fine your stopwatch really is;</li>
-      <li>choose between <code>perf_counter</code> and the <code>timeit</code> module for a given job.</li>
-    </ul>
-  </div>
-  <p><strong>Reading the timing examples:</strong> displayed seconds and fitted slopes are illustrative output, not measurements from your machine. Run the experiment, retain the actual samples, and report the input and measurement conditions. Exact operation-count formulas are separate mathematical claims.</p>
-</section>
-<section class="studio-contract">
-  <div class="note blue">
-    <span class="label">Three-hour interactive studio</span>
-    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
-    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
-    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
-    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
-    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
-    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
-  </div>
-</section>
-</div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w05/">Open the English + Türkçe reference guide</a>.</p>
-<details class="path-reference"><summary>Optional extra practice</summary><div><section>
-  <h2><span class="num">5.9</span>Optional Studio Extension</h2>
-  <div class="task">
-    <span class="label">Optional practice · no submission or deadline</span>
-    <ol>
-      <li>Create <code>AA_Week05.ipynb</code>, define <code>time_it</code>, and solve Tasks 1–6.</li>
-      <li>Benchmark three functions at four sizes each: <code>sum_to</code>, <code>sum_formula</code>, and <code>contains</code> (worst case). One table each, with a ratio column.</li>
-      <li>Add a step counter to <code>contains</code> and report both steps and seconds for each size.</li>
-      <li>Run the warm-up demonstration from §5.6 and Task 4 on your own machine or Colab. Paste your eight run times and state, in one sentence, whether taking the fastest saved you from the cold first run.</li>
-      <li>Measure the relative noise (Task 6) at your smallest and largest size, and quote both percentages.</li>
-      <li>Write five sentences: where do the step counts and the seconds agree, and where does the timing wobble? Which of the three ways to lie (§5.3) did you have to guard against, and did growing <code>n</code> shrink your relative noise as §5.6 predicts?</li>
-    </ol>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
-  <h2><span class="num">5.10</span>Words from this week</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
-      <tbody>
-        <tr><td>function</td><td>A named block of work you can call with different inputs.</td></tr>
-        <tr><td>parameter / argument</td><td>The name in the definition / the value you pass in.</td></tr>
-        <tr><td>return</td><td>Hand a value back to whoever called the function, and stop.</td></tr>
-        <tr><td>benchmark</td><td>A measurement of how long code takes, done carefully enough to trust.</td></tr>
-        <tr><td>perf_counter</td><td>Python's high-resolution stopwatch; only differences are meaningful.</td></tr>
-        <tr><td>warm-up run</td><td>A first, discarded run that pays one-off costs so the timed runs are fair.</td></tr>
-        <tr><td>resolution</td><td>The smallest interval a clock can distinguish; times near it are untrustworthy.</td></tr>
-        <tr><td>timeit</td><td>A standard-library tool that batches repeated snippets to reduce relative measurement overhead; results can still vary.</td></tr>
-        <tr><td>noise</td><td>Variation in timings caused by everything else the machine is doing.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section></div></details>
-
-<div class="note blue">
-  <span class="label">Where this leads</span>
-  <p>You can time one input size. Week 6 times several sizes at once and reads the pattern in the numbers — the doubling experiment.</p>
-</div>
-</div></details></div>
-</main>
+<article class="source-exercise" id="skiena-ex-035"><p class="source-label">Question 13 · easy</p><p>List the seven dictionary operations.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search, insert, delete, minimum, maximum, predecessor, successor.</p></div></article><article class="source-exercise" id="skiena-ex-036"><p class="source-label">Question 14 · easy</p><p>In a sorted array, what do search and insert cost, and why is insert slow?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search O(log n) by binary search; insert O(n), because after finding the right spot every later item must shift one place to make room.</p></div></article><article class="source-exercise" id="skiena-ex-037"><p class="source-label">Question 15 · easy</p><p>In a binary search tree, where is the largest key? The smallest?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>largest: start at the root and keep going right until you cannot. Smallest: keep going left.</p></div></article><article class="source-exercise" id="skiena-ex-038"><p class="source-label">Question 16 · easy</p><p>Insert 50, 30, 70, 20, 40, 60, 80 in that order into an empty BST. Describe the tree and give its height.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>50 is the root; 30 is its left child and 70 its right child; 20 and 40 hang under 30; 60 and 80 hang under 70. Three levels, height 2. It is perfectly balanced.</p></div></article><article class="source-exercise" id="skiena-ex-039"><p class="source-label">Question 17 · easy</p><p>What does an in-order traversal of the tree in <a href="../w5/#skiena-ex-038">source exercise 38</a> print?</p><p class="source-context"><a href="../w5/#skiena-ex-038">source exercise 38</a> uses the BST obtained by inserting 50, 30, 70, 20, 40, 60, 80 in that order.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>20 30 40 50 60 70 80, the keys in sorted order.</p></div></article><article class="source-exercise" id="skiena-ex-040"><p class="source-label">Question 18 · easy</p><p>Insert 1, 2, 3, 4, 5 in that order into an empty BST. What is its height, and what does a search cost?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>each key goes to the right of the previous one, giving a chain of height 4; search costs O(n), no better than a linked list.</p></div></article><article class="source-exercise" id="skiena-ex-041"><p class="source-label">Question 19 · easy</p><p>What is a collision in a hash table, and what are the two standard ways to handle collisions?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>two different keys hashing to the same slot. Chaining (a linked list per slot) and open addressing (probe other slots by a fixed rule).</p></div></article><article class="source-exercise" id="skiena-ex-042"><p class="source-label">Question 20 · easy</p><p>Why is the worst-case cost of a hash-table search O(n)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>an unlucky (or adversarial) set of keys can all hash to the same slot, so the search walks a list of all n keys.</p></div></article><article class="source-exercise" id="skiena-ex-049"><p class="source-label">Question 21 · medium</p><p>In a BST, node x has no right child. Where is its successor?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>walk up from x until you arrive at an ancestor from its left child; that ancestor is the successor (the next key in in-order). If you reach the root without ever coming up from a left child, x is the maximum.</p></div></article><article class="source-exercise" id="skiena-ex-050"><p class="source-label">Question 22 · medium</p><p>When deleting a BST node with two children, which node takes its place, and why is that node guaranteed to have at most one child?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>its successor, the minimum of the right subtree (the predecessor works symmetrically). Being a minimum, it cannot have a left child, so it has at most a right child and can be removed with the one-child case.</p></div></article><article class="source-exercise" id="skiena-ex-051"><p class="source-label">Question 23 · medium</p><p>How can you check in O(n) time whether a given binary tree with keys satisfies the BST property?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>For distinct keys and a strict BST ordering rule, traverse in order and check that successive keys are strictly increasing. Visit every node once: O(n) time. If duplicate keys are allowed, specify which subtree may contain them and enforce that policy with lower and upper bounds during traversal; a nondecreasing traversal alone cannot enforce a one-sided duplicate policy.</p></div></article><article class="source-exercise" id="skiena-ex-052"><p class="source-label">Question 24 · medium</p><p>Binary search on a sorted array costs O(log n). Why does the same idea not work on a sorted linked list?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>binary search needs to jump to the middle element in O(1); a linked list can only reach the middle by walking n/2 pointers, which already costs O(n).</p></div></article><article class="source-exercise" id="skiena-ex-053"><p class="source-label">Question 25 · medium</p><p>With h(k) = k mod 10 and keys 12, 22, 32, 42, what happens? What if the table size is 11 instead?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Modulo 10 sends all four keys to slot 2. Modulo 11 sends 12, 22, 32, 42 to 1, 0, 10, 9. The changed modulus fixes this particular pattern; choosing a prime alone does not guarantee a good distribution for every key set. Expected constant-time lookup requires suitable hashing and controlled load.</p></div></article><article class="source-exercise" id="skiena-ex-054"><p class="source-label">Question 26 · medium</p><p>Keys are hashed at random into a table of 365 slots. Roughly how many keys can you insert before a collision becomes more likely than not?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Assuming independent uniform slots, the no-collision probability is the product of (365−i)/365 for i = 0,…,n−1. At n = 23, collision probability is about 0.507; at n = 50 it is about 0.970. A collision is likely long before the table is full, so collision handling is essential.</p></div></article><article class="source-exercise" id="skiena-ex-055"><p class="source-label">Question 27 · medium</p><p>Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>With a fixed-word modulus and a precomputed α^(m−1) modulo that modulus, remove the outgoing character contribution, multiply by α, then add the incoming character, all modulo the modulus. That uses constant word operations. Without bounded arithmetic or the precomputed power, this constant-time claim needs qualification; confirming a hash match still compares characters.</p></div></article><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Question 28 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></article><article class="source-exercise" id="skiena-ex-057"><p class="source-label">Question 29 · medium</p><p>What is the height of a perfectly balanced BST holding 1,023 keys?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>9. A full tree of height h has 2ʰ⁺¹ − 1 nodes, and 2¹⁰ − 1 = 1,023, so there are 10 levels and 9 edges from root to leaf.</p></div></article><article class="source-exercise" id="skiena-ex-058"><p class="source-label">Question 30 · medium</p><p>Describe two ways to sort n numbers with a balanced BST, and their cost.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Insert all records into a balanced BST in O(n log n), keeping a multiplicity count or list for duplicate keys. Then an in-order traversal outputs all n records in O(n). Alternatively, repeatedly find and delete a minimum, costing O(n log n) overall. A set-like tree that silently discards duplicates would not correctly sort the original sequence.</p></div></article><article class="source-exercise" id="skiena-ex-059"><p class="source-label">Question 31 · hard · optional challenge</p><p>Prove that an in-order traversal of any BST outputs its keys in sorted order.</p><p class="question-plain"><strong>In simpler words:</strong> Explain why left–root–right prints a search tree in order.</p><p class="question-hint"><strong>Starting hint:</strong> Assume each smaller subtree already prints correctly.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>For an empty tree, the output is empty and sorted.</li><li>For distinct keys, every left-subtree key is below the root and every right-subtree key is above it.</li><li>By induction, each subtree output is sorted. Joining sorted-left, root, sorted-right creates a sorted whole.</li></ol><p>induction on the number of nodes. An empty tree prints nothing, which is sorted. For a tree with root r, by the induction hypothesis the left subtree prints its keys sorted and so does the right subtree. Every left key is &lt; r &lt; every right key by the BST property, so “left output, then r, then right output” is sorted.</p></div></article><article class="source-exercise" id="skiena-ex-060"><p class="source-label">Question 32 · hard · optional challenge</p><p>Design a set of distinct fixed-size keys supporting insert, delete and a uniformly random stored key in expected amortised O(1) time.</p><p class="question-plain"><strong>In simpler words:</strong> Support fast deletion without leaving holes in the array.</p><p class="question-hint"><strong>Starting hint:</strong> The array need not stay sorted: replace a removed item with the last one.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Store [A,B,C] and a map A→0, B→1, C→2.</li><li>Delete B by moving C into slot 1, changing C→1, and popping the old last slot. Remove B from the map.</li><li>A uniform random index selects each stored key equally often. Hashing is expected constant time; resizing makes the array cost amortised, meaning averaged over a sequence of operations.</li></ol><p>Use a dynamic array A and a hash map from each key to its array index. Insert a missing key by appending it and recording its index. To delete x at i, move the last key to i, update that key’s map entry, pop the last slot and remove x from the map. Choose a uniform random index for get-random; report empty if no key is stored. Hashing gives expected costs and array resizing gives amortised costs, assuming bounded load and constant-size records.</p></div></article><article class="source-exercise" id="skiena-ex-062"><p class="source-label">Question 33 · hard · optional challenge</p><p>A hash table of size 7 uses open addressing with linear probing and h(k) = k mod 7. Insert 7, 14, 21, 1 in that order and give each key’s slot. Then delete 14 by simply emptying its slot and search for 21. What goes wrong, and what is the fix?</p><p class="question-plain"><strong>In simpler words:</strong> Explain why a deleted hash slot must not look unused.</p><p class="question-hint"><strong>Starting hint:</strong> Searching stops at a never-used slot, but must continue past a deleted one.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The four inserted keys occupy slots 0,1,2,3 respectively.</li><li>If slot 1 becomes ordinary empty, searching for 21 stops there and misses slot 2.</li><li>A tombstone means “used before, keep searching.” Insertion may reuse it, but must still check for an existing duplicate key if the interface is a set.</li></ol><p>7 → slot 0; 14 hashes to 0, taken, so slot 1; 21 hashes to 0, then 1, taken, so slot 2; 1 hashes to 1, then 2, taken, so slot 3. After emptying slot 1, a search for 21 probes slot 0 (7, not it), then slot 1, finds it empty and stops: 21 is reported missing although it is in slot 2. Fix: mark deleted slots with a special “deleted” marker (a tombstone) that searches skip over but insertions may reuse.</p></div></article><article class="source-exercise" id="skiena-ex-063"><p class="source-label">Question 34 · hard · optional challenge</p><p>Design a cache that holds at most k items and evicts the least recently used one, with get and put both in O(1).</p><p class="question-plain"><strong>In simpler words:</strong> Evict the item that has gone longest without a recent use.</p><p class="question-hint"><strong>Starting hint:</strong> Use a hash map to find an item and a linked list to record recency.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The list front is most recent; the back is least recent. Map each key directly to its list node.</li><li>For a successful get or an update, detach the node and move it to the front using its two links.</li><li>For a new item at capacity, remove the back node and its map entry. Hash lookup is expected O(1); list changes are O(1). Define the k=0 case as storing nothing.</li></ol><p>Use a doubly linked list ordered by recency and a hash map from keys to nodes. Get moves a found node to the front. Put inserts or updates at the front; if capacity is exceeded, unlink the tail and remove its map entry. Pointer changes are worst-case O(1); the combined operations are expected O(1) with suitable hashing, not a universal worst-case guarantee.</p></div></article><article class="source-exercise" id="skiena-ex-064"><p class="source-label">Question 35 · hard · optional challenge</p><p>Show that no comparison-based dictionary can support both insert and delete-minimum in o(log n) worst-case time each.</p><p class="question-plain"><strong>In simpler words:</strong> Use a hypothetical faster dictionary to build an impossibly fast sort.</p><p class="question-hint"><strong>Starting hint:</strong> Insert everything, then repeatedly remove the smallest.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Little-o(log n) means a cost whose ratio to log n tends to zero, not just a small constant factor.</li><li>If both operations had that worst-case cost, n insertions and n removals would use o(n log n) comparisons.</li><li>The removals print sorted order. This contradicts the comparison-sorting lower bound, so the two assumed bounds cannot both hold.</li></ol><p>Otherwise, insert n distinct keys and delete the minimum n times to sort them using o(n log n) comparisons in total. This contradicts the comparison-sorting lower bound. Thus both operations cannot simultaneously have o(log n) worst-case cost. The claim concerns this pair of operations, not every dictionary operation individually.</p></div></article></section>
+<nav class="week-nav"><a href="../w4/">← Week 4</a><a href="../">Course dashboard</a><a href="../w6/">Week 6 →</a></nav></div></main>
 <footer class="site-footer">
-  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis &middot; Dr. Arif Solmaz</span>
 
 </footer>
 <script src="../assets/app.js?v=2"></script><script src="../../assets/learning-path.js?v=1"></script>
-<script src="../assets/anim.js?v=13"></script><script src="../assets/anim-w5.js?v=10"></script><script src="../assets/anim-workspace.js?v=11"></script></body>
+</body>
 </html>

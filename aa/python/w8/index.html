@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="One short symbol for a growth story: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).">
+<title>Week 8: Big-O Notation — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../assets/learning.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/questions.css?v=2">
+<link rel="stylesheet" href="../../assets/anim.css"><link rel="stylesheet" href="../../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../../assets/anim-w8.css"><link rel="stylesheet" href="../../assets/anim-workspace.css?v=17"></head>
+<body><div style="padding:16px;background:#fff1ce;color:#302a19">Python support library · former lesson sequence. <a href="../../">Current AA schedule</a></div>
+<header class="site-header">
+  <a class="brand" href="../../index.html">AA <span>/ course home</span></a>
+  <nav class="header-nav">
+    <details class="path-menu"><summary>Settings</summary><div>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 08 &middot; Phase 3 · The language of growth</div>
+  <h1>Big-O Notation</h1>
+  <p class="lede">One short symbol for a growth story: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).</p>
+  <p class="path-question"><strong>How can we describe how the work grows with more input?</strong></p>
+</div>
+
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Big-O is an upper bound</h2><div class="vl-equation"><span>A concrete bound, for n ≥ 1</span><strong>3n + 2 ≤ 5n ⇒ 3n + 2 is O(n)</strong></div><figure class="vl-figure"><figcaption>At each n, the bound stays above the count</figcaption><div class="vl-trace"><b>n</b><div class="vl-cards" style="--row-columns:4"><span>1</span><span>2</span><span>4</span><span>8</span></div></div><div class="vl-trace"><b>3n + 2</b><div class="vl-cards" style="--row-columns:4"><span>5</span><span>8</span><span>14</span><span>26</span></div></div><div class="vl-trace"><b>5n</b><div class="vl-cards" style="--row-columns:4"><span>5</span><span>10</span><span>20</span><span>40</span></div></div></figure><p>T(n) is O(g(n)) when some constants c > 0 and n₀ make T(n) ≤ c g(n) for every n ≥ n₀. Here c = 5 and n₀ = 1. Big-O does not mean an exact time.</p></section><section class="vl-lesson"><h2>Use a tight description when you can</h2><div class="vl-table"><table><thead><tr><th scope="col">Notation</th><th scope="col">What it promises</th><th scope="col">Example</th></tr></thead><tbody><tr><td>O(g)</td><td>eventual upper bound</td><td>3n + 2 is O(n), also O(n²)</td></tr><tr><td>Ω(g)</td><td>eventual lower bound</td><td>3n + 2 is Ω(n)</td></tr><tr><td>Θ(g)</td><td>both bounds, same growth</td><td>3n + 2 is Θ(n)</td></tr></tbody></table></div><figure class="vl-figure"><figcaption>Common growth classes, increasing eventually</figcaption><ol class="vl-flow"><li>1</li><li>log n</li><li>n</li><li>n log n</li><li>n²</li><li>2ⁿ</li></ol></figure><p>Keep the fastest-growing term; constant factors do not change Θ. Changing the base of a logarithm changes only a constant factor.</p></section><section class="vl-lesson"><h2>Name the case before the bound</h2><div class="vl-table"><table><thead><tr><th scope="col">Linear search, n > 0</th><th scope="col">Equality checks</th></tr></thead><tbody><tr><td>Best: first item matches</td><td>1</td></tr><tr><td>Worst: absent or last</td><td>n</td></tr><tr><td>Average: target present, each position equally likely</td><td>(n + 1)/2</td></tr></tbody></table></div><div class="vl-equation"><span>Average under that stated assumption</span><strong>(1 + 2 + … + n)/n = (n + 1)/2</strong></div><p>Big-O itself does not mean “worst case”. You can bound the best, average or worst-case count. An average needs a model of which inputs occur.</p></section><section class="vl-lesson"><h2>Count memory separately</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def doubled(values):
+    return [2 * x for x in values]</code></pre></div><div class="vl-equation"><span>n values, fixed-size arithmetic</span><strong>Θ(n) time; Θ(n) result storage</strong></div><p>This function creates n new entries. A loop that only keeps a running sum uses Θ(1) extra storage under the fixed-size-number model. State whether output storage is included.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
+<p class="source-label">10 test questions · 11 written questions · 21 total</p>
+<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
+<h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
+<article class="source-exercise test-question" id="skiena-mcq-007">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">Which statement about 5n² + 3n is TRUE?</p><ol class="mcq-options" type="a"><li> it is O(n)</li><li> it is Θ(n³)</li><li> it is O(n³)</li><li> it is Ω(n³)</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> n³ is a valid, if loose, upper bound; the tight bound is Θ(n²).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-008">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">The Big-Theta of 4n³ + 100n² + 7 is:</p><ol class="mcq-options" type="a"><li> Θ(n²)</li><li> Θ(n³)</li><li> Θ(100n²)</li><li> Θ(n⁴)</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Keep the fastest-growing term and drop its constant.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-011">
+<p class="source-label">Question 3 · medium</p><p class="question-prompt">Which pair of constants proves 3n² + 10n = O(n²)?</p><ol class="mcq-options" type="a"><li> c = 3, n₀ = 1</li><li> c = 4, n₀ = 10</li><li> c = 1, n₀ = 100</li><li> c = 10, n₀ = 0</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> 3n² + 10n ≤ 4n² exactly when n ≥ 10. (a) never holds, (c) never holds, and (d) fails at n = 1.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-014">
+<p class="source-label">Question 4 · medium</p><p class="question-prompt">Which function eventually grows fastest as n tends to infinity?</p><ol class="mcq-options" type="a"><li> n¹⁰⁰</li><li> 2ⁿ</li><li> n log n</li><li> n^1.5</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> An exponential dominates every polynomial, however high its degree.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-174">
+<p class="source-label">Question 5 · medium · course question</p><p class="question-prompt">What does f(n) = O(g(n)) state for nonnegative cost functions?</p><ol class="mcq-options" type="a"><li>f(n) equals g(n) at every n</li><li>f(n) is eventually at most a fixed constant times g(n)</li><li>f(n) is always faster in seconds</li><li>f(n) is the best-case cost</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Big-O is an eventual upper bound: there are constants c and n₀ such that f(n) ≤ c·g(n) whenever n ≥ n₀.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-175">
+<p class="source-label">Question 6 · medium · course question</p><p class="question-prompt">What is the tight growth class of 8n + 100?</p><ol class="mcq-options" type="a"><li>Θ(1)</li><li>Θ(log n)</li><li>Θ(n²)</li><li>Θ(n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option D.</strong> The linear term controls eventual growth. A fixed coefficient and a fixed additive cost do not change Θ(n).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-176">
+<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">Which statement distinguishes Big-O from Big-Theta correctly?</p><ol class="mcq-options" type="a"><li>Big-O is an upper bound; Big-Theta gives matching upper and lower growth bounds</li><li>Big-O always means worst case and Big-Theta always means average case</li><li>Big-O gives seconds and Big-Theta gives memory</li><li>they always express exact equality</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Both notations can describe a selected best-, average- or worst-case cost function. Their difference is upper-only versus matching two-sided growth bounds.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-177">
+<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">Which pair proves 2n + 5 ≤ c*n for every integer n ≥ n₀?</p><ol class="mcq-options" type="a"><li>c = 2, n₀ = 1</li><li>c = 1, n₀ = 100</li><li>c = 3, n₀ = 5</li><li>c = 0, n₀ = 5</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> With c=3 the inequality becomes 5 ≤ n, so n₀=5 works. The other coefficients cannot bound 2n+5 for all sufficiently large n.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-178">
+<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">Two algorithms have costs n² and 100n. What is justified as n grows without bound?</p><ol class="mcq-options" type="a"><li>n² is always smaller</li><li>100n eventually becomes smaller</li><li>the costs stay equal</li><li>Big-O cannot compare their eventual growth</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> For n &gt; 100, n² &gt; 100n. Constants can matter for small inputs, but eventual growth still separates these functions.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-019">
+<p class="source-label">Question 10 · hard</p><p class="question-prompt">Which statement is FALSE?</p><ol class="mcq-options" type="a"><li> n! dominates 2ⁿ</li><li> n log n dominates n</li><li> log² n dominates √n</li><li> n^1.5 dominates n log n</li></ol><p class="question-plain"><strong>In simpler words:</strong> Compare eventual growth, not values at one small input.</p><p class="question-hint"><strong>Starting hint:</strong> Any fixed positive power of n eventually beats any fixed power of log n.</p>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Any positive power of n, including √n, dominates every power of log n.</p><h5>Step by step</h5><ol class="reasoning-steps"><li>Option (c) reverses this rule: (log n)²/√n tends to zero.</li><li>The other comparisons follow the ladder: logarithms, powers, exponentials, then factorials.</li></ol></div></article>
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
+<article class="source-exercise" id="skiena-ex-009"><p class="source-label">Question 11 · easy</p><p>True or false: 5n² + 3n = O(n³).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>true. Big-O is an upper bound, and n³ is a valid (though not tight) upper bound; the tight statement is 5n² + 3n = Θ(n²).</p></div></article><article class="source-exercise" id="skiena-ex-010"><p class="source-label">Question 12 · easy</p><p>Is 100n = O(n²)? Is n² = O(100n)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>yes (100n ≤ n² once n ≥ 100); no (n² eventually exceeds any constant multiple of n).</p></div></article><article class="source-exercise" id="skiena-ex-011"><p class="source-label">Question 13 · easy</p><p>Give the Big-Theta of 7n³ − 2n² + 40, and of 3n log n + 50n.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Θ(n³) and Θ(n log n). Keep the fastest-growing term, drop its constant.</p></div></article><article class="source-exercise" id="skiena-ex-014"><p class="source-label">Question 14 · easy</p><p>Order these from slowest-growing to fastest: 2ⁿ, n log n, n!, log n, n², n, 1.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>1, log n, n, n log n, n², 2ⁿ, n!.</p></div></article><article class="source-exercise" id="skiena-ex-015"><p class="source-label">Question 15 · medium</p><p>Find constants c and n₀ that prove 3n² + 10n = O(n²).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>c = 4 and n₀ = 10 work: 3n² + 10n ≤ 4n² is the same as 10n ≤ n², which holds whenever n ≥ 10. (Many other pairs work too, such as c = 13, n₀ = 1.)</p></div></article><article class="source-exercise" id="skiena-ex-016"><p class="source-label">Question 16 · medium</p><p>Prove that n² is not O(n).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>suppose n² ≤ c·n for all n ≥ n₀. Dividing by n gives n ≤ c for all n ≥ n₀, which is false for any n larger than both c and n₀. So no constants exist.</p></div></article><article class="source-exercise" id="skiena-ex-021"><p class="source-label">Question 17 · medium</p><p>Which grows faster: n^1.01 or n log n? And 2ⁿ or n¹⁰⁰?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>n^1.01 eventually grows faster than n log n because log n / n^0.01 tends to zero. Also 2ⁿ eventually exceeds n¹⁰⁰. Near n = 1,000 they are close; for integer n ≥ 1, the final crossover is at n = 997. These are eventual-growth statements, not rankings at every small n.</p></div></article><article class="source-exercise" id="skiena-ex-025"><p class="source-label">Question 18 · medium</p><p>If f(n) = O(n²) and g(n) = O(n log n), what can you say about f(n) + g(n) and about f(n) · g(n)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>f + g = O(n²) (the bigger term wins in a sum) and f · g = O(n³ log n) (products multiply).</p></div></article><article class="source-exercise" id="skiena-ex-027"><p class="source-label">Question 19 · hard</p><p>Prove that Big-O is transitive: if f(n) = O(g(n)) and g(n) = O(h(n)), then f(n) = O(h(n)).</p><p class="question-plain"><strong>In simpler words:</strong> Show that two eventual upper bounds can be chained.</p><p class="question-hint"><strong>Starting hint:</strong> Write the two inequalities and choose a point where both are valid.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Transitive means that f being bounded by g, and g by h, also bounds f by h.</li><li>Beyond n₁, f ≤ c₁g. Beyond n₂, g ≤ c₂h. Choose n ≥ max(n₁,n₂).</li><li>Substitute the second inequality into the first: f ≤ c₁c₂h. The new constant is c₁c₂.</li></ol><p>there are c₁, n₁ with f(n) ≤ c₁ g(n) for n ≥ n₁, and c₂, n₂ with g(n) ≤ c₂ h(n) for n ≥ n₂. For n ≥ max(n₁, n₂), f(n) ≤ c₁ g(n) ≤ c₁ c₂ h(n). So the constant c₁c₂ and threshold max(n₁, n₂) witness f = O(h).</p></div></article><article class="source-exercise" id="skiena-ex-028"><p class="source-label">Question 20 · hard</p><p>Explain why log n grows slower than nᵏ for every k &gt; 0, however small k is.</p><p class="question-plain"><strong>In simpler words:</strong> Compare a logarithm with even a tiny positive power.</p><p class="question-hint"><strong>Starting hint:</strong> Replace n by 2ᵐ so the logarithm becomes m.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Take logarithms in base 2; another fixed base changes only a constant.</li><li>Now log₂ n = m and nᵏ = 2^(km). Since k &gt; 0, this is an exponential with base greater than 1.</li><li>When m doubles, the linear part merely doubles, while the exponential part is squared. Repeating this makes m / 2^(km) tend to zero. A tiny k delays this behaviour but does not change the eventual result.</li></ol><p>write n = 2ᵐ. Then log n = m while nᵏ = 2ᵏᵐ = (2ᵏ)ᵐ, an exponential in m with base 2ᵏ &gt; 1. An exponential in m always dominates the linear function m, so the ratio log n / nᵏ tends to 0.</p></div></article><article class="source-exercise" id="skiena-ex-031"><p class="source-label">Question 21 · hard</p><p>Let H(n) = 1 + 1/2 + 1/3 + … + 1/n (the harmonic number from the quicksort analysis). Show without calculus that H(n) = Θ(log n).</p><p class="question-plain"><strong>In simpler words:</strong> Estimate 1 + 1/2 + … + 1/n without adding each term.</p><p class="question-hint"><strong>Starting hint:</strong> Group denominators between consecutive powers of two.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>For n = 8, use blocks 1; 1/2; 1/3+1/4; 1/5+…+1/8.</li><li>A block ending at 2ᵏ has 2^(k−1) terms, each between 1/2ᵏ and 1/2^(k−1). Its sum lies between 1/2 and 1.</li><li>There are about log₂ n such blocks. Constant work per block gives matching upper and lower bounds proportional to log n. A final incomplete block does not change that growth.</li></ol><p>group the terms into blocks: (1), (1/2), (1/3 + 1/4), (1/5 + … + 1/8), …, the k-th block holding the 2ᵏ⁻¹ terms from 1/(2ᵏ⁻¹ + 1) to 1/2ᵏ. Each block’s terms are each at most 1/2ᵏ⁻¹ and at least 1/2ᵏ, so each block sums to at most 1 and at least 1/2. There are about lg n blocks, so H(n) is between roughly (lg n)/2 and lg n + 1: Θ(log n).</p></div></article></section>
+<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>For T(n) = 3n + 2, verify the bound 5n at n = 1, 2 and 10.</p><details class="solution"><summary>Check your reasoning</summary><div><p>T = 5, 8, 32; bounds = 5, 10, 50. Algebra 2 ≤ 2n proves it for all n ≥ 1.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>Find average equality checks for a present target uniformly placed in 9 items.</p><details class="solution"><summary>Check your reasoning</summary><div><p>(9 + 1)/2 = 5. This depends on the stated distribution.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Change a running-sum function to return all prefix sums. What happens to result storage?</p><details class="solution"><summary>Check your reasoning</summary><div><p>It grows from one result to n results: Θ(n) storage, assuming fixed-size numbers.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">8.10</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — classify</span>
+    <p>Give the Big-O class of each, in terms of the length of <code>data</code>:</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>classify these</div><pre><code>a = len(data)
+b = data[len(data) // 2]
+c = max(data)
+d = sorted(data)
+e = [x * 2 for x in data]
+f = [(x, y) for x in data for y in data]</code></pre></div>
+    <details class="solution anim-wrap"><summary>Animate it — classify each line, then watch the work as n doubles</summary>
+      <div class="widget anim" data-anim="w8-classify"></div>
+    </details><details class="solution"><summary>Answers</summary>
+      <p>
+        <code>a</code> O(1) — Python stores the length. <code>b</code> O(1) — arithmetic plus
+        one lookup. <code>c</code> O(n) — must inspect every item. <code>d</code> O(n log n).
+        <code>e</code> O(n). <code>f</code> O(n²) — and it builds a list of n² pairs, so it
+        eats memory at the same rate.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — from measurement to notation</span>
+    <p>
+      Take the four ratio columns you measured in week 6 and write the Big-O class each
+      one implies. Then look at the code and confirm the class from its shape. Any
+      disagreement is a finding worth a paragraph.
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — read a ratio column, name the class, check the code</summary>
+      <div class="widget anim" data-anim="w8-ratio-class"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 3 — predict in seconds</span>
+    <p>
+      Assume a quadratic time model T(n) = c n² takes 1.0 second at n = 10 000. Predict its time at n = 40 000,
+      then test the prediction on a bounded implementation. Do the same for a linear model T(n) = c n. Big-O upper bounds alone do not determine these ratios.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — race the two stopwatches to n = 40 000</summary>
+      <div class="widget anim" data-anim="w8-seconds"></div>
+    </details><details class="solution"><summary>Answers</summary>
+      <p>
+        Four times the data on a quadratic curve is sixteen times the work: about 16 seconds.
+        The linear one goes to about 4 seconds. Expect real measurements a bit above the
+        prediction — memory effects usually work against the bigger run.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — price the receipt</span>
+    <p>
+      Give the overall time class of each function, showing the per-region receipt you added
+      up. Then say the space class of the second one.
+    </p>
+    <div class="code"><div class="code-head"><span class="dot"></span>receipts.py</div><pre><code>def one(data):
+    s = sum(data)                 <span class="c"># ?</span>
+    data.sort()                   <span class="c"># ?</span>
+    return s, data[0]
+
+def two(data):
+    seen = []
+    for x in data:                <span class="c"># ?</span>
+        if x not in seen:         <span class="c"># ?</span>
+            seen.append(x)
+    return seen</code></pre></div>
+    <details class="solution anim-wrap"><summary>Animate it — fill in the receipt, then watch the hidden loop in two()</summary>
+      <div class="widget anim" data-anim="w8-receipt"></div>
+    </details><details class="solution"><summary>Answers</summary>
+      <p>
+        <code>one</code>: <code>sum</code> is O(n), <code>sort</code> is O(n log n), the
+        return is O(1). Add and keep the biggest → <strong>O(n log n)</strong>.
+        <code>two</code>: the loop runs n times, and <code>not in seen</code> is itself an
+        O(n) scan, so it is O(n) × O(n) = <strong>O(n²)</strong> time. Its space is
+        <strong>O(n)</strong> because <code>seen</code> can grow to the size of the input.
+        (Week 11's set turns that membership test into O(1) and the whole thing into O(n).)
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — best, worst, average by hand</span>
+    <p>
+      For the <code>find</code> function in §8.6, and a list of 1 000 items, give the exact
+      number of comparisons in the best case, the worst case, and the average case when the
+      target is present and equally likely to be anywhere. Then say the Big-O of each.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — count the comparisons in each case</summary>
+      <div class="widget anim" data-anim="w8-cases"></div>
+    </details><details class="solution"><summary>Answers</summary>
+      <p>
+        Best: 1 comparison, O(1). Worst: 1 000 comparisons, O(n). Average: the target is at
+        position 1 to 1 000 with equal chance, so the exact mean is (1 + 1 000) / 2 = 500.5
+        comparisons — still O(n) once the ½ constant is dropped.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">8.11</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>T(n) = 7n + 300. Which is the conventional simplified notation after removing constants and lower-order terms?</p>
+      <button class="opt">O(7n)</button>
+      <button class="opt">O(300)</button>
+      <button class="opt">O(n)</button>
+      <button class="opt">O(n + 300)</button>
+      <div class="why">Drop the constant multiplier and the lower-order term: the shape is linear.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>Which grows fastest as n becomes large?</p>
+      <button class="opt">O(n log n)</button>
+      <button class="opt">O(n²)</button>
+      <button class="opt">O(n)</button>
+      <button class="opt">O(log n)</button>
+      <div class="why">Order from best to worst: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ).</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>You write <code>for item in queries:</code> and inside it <code>if item in big_list:</code>. If both hold n items, the class is:</p>
+      <button class="opt">O(n) — there is only one loop written</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1) — <code>in</code> is a single operation</button>
+      <button class="opt">O(n²) — <code>in</code> on a list is itself a loop over n</button>
+      <div class="why">This is the hidden-loop trap. One visible loop plus one hidden loop is still nesting, and week 11 shows the one-line fix.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>Under this course’s default convention, "this search is O(n)" refers to which case?</p>
+      <button class="opt">The worst case</button>
+      <button class="opt">The best case</button>
+      <button class="opt">The average case</button>
+      <button class="opt">Whichever the author prefers</button>
+      <div class="why">We use worst-case time as a course convention. Big-O is an upper bound and does not inherently specify an input case.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A function does one O(n) loop, then a separate O(n²) double loop, then returns. Its conventional simplified upper bound is:</p>
+      <button class="opt">O(n³) — you multiply the two</button>
+      <button class="opt">O(n) — the smaller one wins</button>
+      <button class="opt">O(n²) — sequential parts add, so keep the biggest</button>
+      <button class="opt">O(n + n²) — you must write both</button>
+      <div class="why">Statements in sequence add; adding O(n) and O(n²) keeps the dominant O(n²). Only nested loops multiply.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>A function walks a list once keeping a single running maximum. Its time and space are:</p>
+      <button class="opt">O(n) time, O(n) space</button>
+      <button class="opt">O(n) time, O(1) space</button>
+      <button class="opt">O(1) time, O(1) space</button>
+      <button class="opt">O(n²) time, O(n) space</button>
+      <div class="why">One pass is O(n) time; storing a single number regardless of n is O(1) extra space. Time and space are separate questions.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>An inner loop written as <code>for j in range(10):</code> sits inside a loop over n items. The pair is:</p>
+      <button class="opt">O(n²) — any nested loop is quadratic</button>
+      <button class="opt">O(10n²)</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(n) — the inner bound is a constant, not n</button>
+      <div class="why">A loop whose length does not grow with the data is a constant factor. O(n) × O(10) = O(n).</div>
+    </div>
+  </div>
+</section>
+</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+  <h2><span class="num">8.1</span>The notation</h2>
+  <p>
+    Last week you learned to reduce a step count to its dominant term with the constants
+    stripped off. Big-O is just the standard way of writing that result down:
+  </p>
+  <p style="font-family:var(--font-mono);font-size:1.05rem;color:var(--accent)">
+    T(n) = 5n² + 200n + 3000 &nbsp;&rarr;&nbsp; O(n²)
+  </p>
+  <p>
+    Read it aloud as "oh of n squared" or "order n squared". It means an <em>eventual upper bound</em>: for some fixed c &gt; 0 and n₀, the
+    cost is at most c n² for every n ≥ n₀. It need not grow exactly in proportion to n²;
+    linear cost is also O(n²). Use Θ(n²) for matching quadratic upper and lower bounds.
+    A bound describes growth under a stated cost model, not a duration in seconds.
+  </p>
+  <div class="note blue">
+    <span class="label">What Big-O deliberately ignores</span>
+    <p>
+      The multiplier, the smaller terms, your CPU, your programming language, and whether
+      n is small. It answers exactly one question: <strong>how does the cost respond to
+      more data?</strong> Every other question needs the stopwatch as well.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.2</span>The six you need</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Notation</th><th>Name</th><th>In plain words</th><th>Everyday example</th><th>n doubles ⇒ time</th></tr></thead>
+      <tbody>
+        <tr><td><code>O(1)</code></td><td>constant</td><td>Cost does not depend on the input size at all</td><td>Reading <code>data[5]</code>; a formula</td><td>unchanged</td></tr>
+        <tr><td><code>O(log n)</code></td><td>logarithmic</td><td>Each doubling of the data adds one step</td><td>The dictionary halving trick</td><td>+1 step</td></tr>
+        <tr><td><code>O(n)</code></td><td>linear</td><td>One visit per item</td><td>Summing a list; searching for a missing item</td><td>×2</td></tr>
+        <tr><td><code>O(n log n)</code></td><td>linearithmic</td><td>A pass over the data, repeated log n times</td><td>Good sorting: <code>sorted()</code></td><td>slightly more than ×2</td></tr>
+        <tr><td><code>O(n²)</code></td><td>quadratic</td><td>Every item meets every item</td><td>Comparing all pairs; bubble sort</td><td>×4</td></tr>
+        <tr><td><code>O(2ⁿ)</code></td><td>exponential</td><td>Each extra item doubles the total work</td><td>Trying every combination</td><td>squared — hopeless</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The rows illustrate growth models such as T(n) = c n and T(n) = c n². Their
+    doubling responses describe those models, not every function satisfying the listed
+    upper bound. Drag the slider to explore hypothetical durations at ten million
+    equal-cost steps per second; these are model calculations, not benchmarks:
+  </p>
+  <div class="widget" id="growth8" data-growth="time"></div>
+  <p>
+    At n = 1 000 000 in this model, n steps take 0.1 s, while n² steps take
+    100 000 s, about 27.8 hours. That million-fold difference shows why the algorithmic
+    strategy can matter much more than a modest hardware speedup.
+  </p>
+</section>
+<section>
+  <h2><span class="num">8.3</span>Why we drop constants and lower terms</h2>
+  <p>
+    This is the step people take on faith at first, so it is worth doing once with real
+    numbers. Take a made-up step count with a fat constant and a big linear term bolted on:
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = 3n² + 500n + 8000</p>
+  <p>
+    Watch which term actually decides the total as n grows. The table shows what each term
+    contributes and, in the last column, the share the n² term takes:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>3n²</th><th>500n</th><th>8000</th><th>share from 3n²</th></tr></thead>
+      <tbody>
+        <tr><td>10</td><td>300</td><td>5 000</td><td>8 000</td><td>2%</td></tr>
+        <tr><td>100</td><td>30 000</td><td>50 000</td><td>8 000</td><td>34%</td></tr>
+        <tr><td>1 000</td><td>3 000 000</td><td>500 000</td><td>8 000</td><td>85%</td></tr>
+        <tr><td>10 000</td><td>300 000 000</td><td>5 000 000</td><td>8 000</td><td>98%</td></tr>
+        <tr><td>1 000 000</td><td>3 × 10¹²</td><td>5 × 10⁸</td><td>8 000</td><td>99.98%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    At small n the constant 8000 is the biggest thing on the row and the "slow" n² term is
+    invisible. But every column except the first eventually surrenders to n²: the constant
+    never moves, the linear term is left in the dust, and by n = 1 000 000 the squared term
+    <em>is</em> the answer to two decimal places. Big-O reports the term that wins this
+    race, because that is the term that decides what happens when the data grows — which is
+    the only question Big-O is asked.
+  </p>
+  <p>
+    And the multiplier? Drop it because it does not change the <em>shape</em>. Double the
+    input on any n² curve — whether it is <code>n²</code>, <code>3n²</code> or
+    <code>1000n²</code> — and the time goes up four-fold. The 3 sets the height of the
+    curve; the n² sets its bend. Big-O is a claim about the bend.
+  </p>
+  <div class="note">
+    <span class="label">A one-line rule you can trust</span>
+    <p>
+      To go from T(n) to Big-O: <strong>keep the fastest-growing term, throw away its
+      multiplier.</strong> <code>7n + 3</code> → O(n). <code>n²/2 − n</code> → O(n²).
+      <code>4n log n + 90n</code> → O(n log n). Everything else on the line is noise once
+      n is large.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.4</span>Reading code and naming its class</h2>
+  <p>Four questions, in order. They resolve most everyday code:</p>
+  <ol>
+    <li><strong>Is there a loop over the data at all?</strong> No → <code>O(1)</code>.</li>
+    <li><strong>One loop over n?</strong> → <code>O(n)</code>.</li>
+    <li><strong>A loop inside a loop, both over n?</strong> → <code>O(n²)</code>.</li>
+    <li><strong>Does the problem halve each round?</strong> → <code>O(log n)</code>, or <code>O(n log n)</code> if that halving happens inside a pass over the data.</li>
+  </ol>
+  <div class="code"><div class="code-head"><span class="dot"></span>name each one</div><pre><code><span class="c"># A</span>
+def first_item(data):
+    return data[0]
+
+<span class="c"># B</span>
+def total(data):
+    result = 0
+    for x in data:
+        result += x
+    return result
+
+<span class="c"># C</span>
+def any_duplicate(data):
+    for i in range(len(data)):
+        for j in range(i + 1, len(data)):
+            if data[i] == data[j]:
+                return True
+    return False
+
+<span class="c"># D</span>
+def halvings(n):
+    count = 0
+    while n &gt; 1:
+        n = n // 2
+        count += 1
+    return count</code></pre></div>
+  <details class="solution"><summary>Answers</summary>
+    <p>
+      A is <code>O(1)</code>: one shelf lookup, whatever the length. B is <code>O(n)</code>:
+      one visit each. C is <code>O(n²)</code>: every pair, in the worst case — note that
+      "return True early" helps only when duplicates exist. We are explicitly bounding
+      worst-case time here; Big-O itself does not choose an input case.
+      D is <code>O(log n)</code>: the value halves every round.
+    </p>
+  </details>
+  <div class="note red">
+    <span class="label">Hidden loops</span>
+    <p>
+      Some innocent-looking lines contain a loop inside Python itself. <code>x in my_list</code>
+      is <code>O(n)</code>. <code>sorted(data)</code> is <code>O(n log n)</code>.
+      <code>data.insert(0, x)</code> is <code>O(n)</code>. Put any of those inside your own
+      loop and you have quietly written nested loops. This is the single most common way
+      beginners produce accidentally quadratic code, and weeks 10–11 are devoted to it.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.5</span>Reading Big-O off code, line by line</h2>
+  <p>
+    When the shape is not obvious at a glance, fall back on two mechanical rules and add the
+    costs up like a shopping receipt:
+  </p>
+  <ul>
+    <li><strong>Statements in sequence add.</strong> A + B + C → keep the biggest.
+      O(n) then O(n) then O(1) is O(n).</li>
+    <li><strong>Nested loops multiply.</strong> A loop that runs n times, doing O(n) work
+      each time, is O(n) × O(n) = O(n²).</li>
+  </ul>
+  <p>Here is a function built to exercise both rules. Price it one region at a time:</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>price_each_region.py</div><pre><code>def report(data):                      <span class="c"># n = len(data)</span>
+    n = len(data)                      <span class="c"># O(1)  — length is stored</span>
+
+    total = 0
+    for x in data:                     <span class="c"># O(n)  — one pass</span>
+        total += x
+
+    biggest_gap = 0
+    for i in range(n):                 <span class="c"># outer runs n times…</span>
+        for j in range(n):             <span class="c"># …inner runs n times each → O(n²)</span>
+            gap = abs(data[i] - data[j])
+            if gap &gt; biggest_gap:
+                biggest_gap = gap
+
+    top10 = sorted(data)[-10:]         <span class="c"># O(n log n) sort, then O(1) slice</span>
+
+    return total, biggest_gap, top10</code></pre></div>
+  <p>
+    Reading top to bottom, the receipt is:
+    <span style="font-family:var(--font-mono);color:var(--accent)">O(1) + O(n) + O(n²) + O(n log n)</span>.
+    Sequential parts add, so we keep the biggest — and <code>n²</code> beats
+    <code>n log n</code> beats <code>n</code> beats <code>1</code>. The whole function is
+    <strong>O(n²)</strong>, and the culprit is the one nested loop. Everything else is along
+    for the ride.
+  </p>
+  <div class="note blue">
+    <span class="label">Two loops side by side are not nested</span>
+    <p>
+      The first loop and the double loop are written one after another, so they
+      <em>add</em>: <code>O(n) + O(n²)</code>, which is still O(n²). Only loops written
+      <em>inside</em> each other multiply. It is worth pointing at the indentation and
+      saying which rule applies — that habit alone prevents most misreadings.
+    </p>
+  </div>
+  <details class="solution"><summary>What if the inner loop were <code>for j in range(10):</code>?</summary>
+    <p>
+      Assuming n ≥ 10 so those indices exist (or using <code>range(min(10, n))</code>),
+      the inner loop has at most ten steps, so the double loop is
+      <code>O(n) × O(10) = O(10n) = O(n)</code>. The whole function would drop to
+      <code>O(n log n)</code>, decided by the sort. A loop bound that does not grow with the
+      data is a constant, and constants leave.
+    </p>
+  </details>
+</section>
+<section>
+  <h2><span class="num">8.6</span>Best, worst and average case</h2>
+  <p>Searching a list of n items for a value:</p>
+  <ul>
+    <li><strong>Best case</strong> — it is the first item. One step. <code>O(1)</code>.</li>
+    <li><strong>Worst case</strong> — it is last, or absent. n steps. <code>O(n)</code>.</li>
+    <li><strong>Average case</strong> — roughly n/2 steps, which is still <code>O(n)</code> once constants go.</li>
+  </ul>
+  <p>
+    In this course, an unqualified running-time statement uses the <strong>worst case</strong>
+    by convention. Big-O itself means an upper bound, and can be applied to best-case,
+    worst-case or expected cost. State the case; for an average, also state the input
+    distribution, such as a successful target uniformly distributed over the positions.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>the three cases, on one function</div><pre><code>def find(data, target):
+    for i, x in enumerate(data):
+        if x == target:
+            return i          <span class="c"># stops the moment it hits</span>
+    return -1
+
+nums = list(range(1000))
+print(find(nums, 0))          <span class="c"># best case: 1 comparison</span>
+print(find(nums, 999))        <span class="c"># worst case: 1000 comparisons</span>
+print(find(nums, -1))         <span class="c"># worst case: 1000 comparisons, absent</span></code></pre></div>
+  <div class="out">0
+999
+-1</div>
+  <p>
+    Same function, three wildly different amounts of work, and the input alone decides
+    which you get. When you report "linear search is O(n)", you are quoting the middle and
+    third lines — the promise that holds even for the unlucky user.
+  </p>
+  <div class="note green">
+    <span class="label">Why worst case is the professional default</span>
+    <p>
+      Systems fail at their worst moments, not their average ones. A search that is
+      normally instant but occasionally scans ten million rows will be discovered by your
+      users at the busiest hour of the year.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.7</span>A space-complexity teaser</h2>
+  <p>
+    Big-O is not only about time. The same notation describes how much <em>extra memory</em>
+    a method needs as the input grows — its <strong>space complexity</strong>. When you
+    quote a cost, it is fair to ask which one you mean, because a method can be cheap in one
+    and dear in the other.
+  </p>
+  <p>"Extra" is the key word: it means memory <em>beyond</em> the input you were handed.</p>
+  <div class="code"><div class="code-head"><span class="dot"></span>same job, different space</div><pre><code>def reverse_in_place(data):
+    i, j = 0, len(data) - 1
+    while i &lt; j:                    <span class="c"># swaps ends inward</span>
+        data[i], data[j] = data[j], data[i]
+        i += 1
+        j -= 1
+    <span class="c"># uses two index variables, whatever n is → O(1) extra space</span>
+
+def reverse_copy(data):
+    result = []
+    for x in data:
+        result = [x] + result      <span class="c"># copies the growing result and adds one item</span>
+    return result                  <span class="c"># → O(n) extra space</span></code></pre></div>
+  <p>
+    The first reverses the supplied list in place and returns <code>None</code>; its extra
+    space is <strong>O(1)</strong> and its time is O(n). The second returns a new reversed
+    list, leaving the input unchanged, with <strong>O(n)</strong> peak extra space. Its
+    repeated prepending copies 1 + 2 + … + n references, so this particular copying
+    implementation takes Θ(n²) time. Time and peak memory are different accounts.
+  </p>
+  <div class="note">
+    <span class="label">A cheap watch for space</span>
+    <p>
+      Every time your code builds a new list, string or dictionary whose size follows n,
+      that is O(n) space. The list comprehension <code>[(x, y) for x in data for y in
+      data]</code> from earlier is O(n²) in <em>both</em> time and space — it constructs n²
+      pairs and has to hold them all. Week 9's counting solution spends O(1) extra space
+      (two fixed 26-slot lists) to buy O(n) time; that is the trade named in full next
+      week.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.8</span>Name that complexity — a gallery</h2>
+  <p>
+    Cover the answers and call each one before you read on. These are the shapes you will
+    meet again and again; the goal is to name them on sight.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>gallery.py</div><pre><code><span class="c"># 1</span>
+def middle(data):
+    return data[len(data) // 2]
+
+<span class="c"># 2</span>
+def pair_sums(data):
+    out = []
+    for x in data:
+        for y in data:
+            out.append(x + y)
+    return out
+
+<span class="c"># 3</span>
+def count_down(n):
+    while n &gt; 1:
+        n = n // 2
+        print(n)
+
+<span class="c"># 4</span>
+def has_common(a, b):
+    for x in a:              <span class="c"># len(a) = n</span>
+        if x in b:           <span class="c"># 'in' on a list = O(len(b))</span>
+            return True
+    return False
+
+<span class="c"># 5</span>
+def sort_then_scan(data):
+    data = sorted(data)      <span class="c"># O(n log n)</span>
+    for x in data:           <span class="c"># O(n)</span>
+        print(x)
+
+<span class="c"># 6</span>
+def first_three(data):
+    return data[0], data[1], data[2]</code></pre></div>
+  <details class="solution"><summary>Answers</summary>
+    <p>
+      <strong>1</strong> — O(1): one division, one lookup, length is free.
+      <strong>2</strong> — O(n²) in time <em>and</em> O(n²) in space; it stores every pair.
+      <strong>3</strong> — O(log n): the value halves each round.
+      <strong>4</strong> — O(n × m), and if both lists are length n that is O(n²): the
+      hidden loop inside <code>in</code> nests under the visible loop.
+      <strong>5</strong> — O(n log n): sort dominates the later linear scan.
+      <strong>6</strong> — O(1): three fixed lookups, no dependence on length.
+    </p>
+  </details>
+</section>
+<section>
+  <h2><span class="num">8.9</span>Common mistakes</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
+      <tbody>
+        <tr><td>"O(2n) is worse than O(n)"</td><td>They are the same class. Constants are dropped.</td></tr>
+        <tr><td>"O(n²) is always slower than O(n)"</td><td>Upper bounds alone do not guarantee a crossover. Under tight linear versus quadratic models, constants determine where eventual growth dominates.</td></tr>
+        <tr><td>"Nested loops are always O(n²)"</td><td>Two full n-iteration loops with constant-cost bodies give n² work. Other nested bounds require counting; a fixed inner length 10 contributes a constant factor.</td></tr>
+        <tr><td>"Two loops in a row is O(n²)"</td><td>Sequential loops add, not multiply: O(n) + O(n) = O(n). Only nested loops multiply.</td></tr>
+        <tr><td>"Big-O tells me how many seconds"</td><td>It tells you the shape of the curve, not a point on it. You still need the stopwatch.</td></tr>
+        <tr><td>"My code has no loops, so it is O(1)"</td><td>Check the built-in calls: <code>in</code>, <code>sorted</code>, <code>max</code>, <code>sum</code>, slicing and copying all walk the data.</td></tr>
+        <tr><td>"O(n) time means O(n) memory"</td><td>Different questions. A pass that keeps one running total is O(n) time but O(1) space.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section>
+  <h2><span class="num">8.12</span>Midterm revision checklist</h2>
+  <div class="note">
+    <span class="label">Weeks 1–8 in one list</span>
+    <ul>
+      <li>Define "algorithm" and give the four properties (week 1).</li>
+      <li>Write a loop, a nested loop and a halving loop from memory (weeks 3–4).</li>
+      <li>Add a step counter to any function and predict what it will print (week 3).</li>
+      <li>Time a function correctly, with repeats, and say what could distort the result (week 5).</li>
+      <li>Run a doubling experiment and name the pattern from the ratio column (week 6).</li>
+      <li>Write T(n) for a short snippet and simplify it to a dominant term (week 7).</li>
+      <li>Convert T(n) to Big-O, and explain the class in plain words (week 8).</li>
+      <li>Read the class off a function by adding sequential parts and multiplying nested loops (week 8).</li>
+      <li>Explain best / worst / average case for linear search (weeks 4, 8).</li>
+      <li>Tell time cost from space cost, and quote both for a short function (week 8).</li>
+      <li>Explain the crossover between 100n and n², with a number (week 7).</li>
+    </ul>
+  </div>
+  <p>
+    The midterm gives you short code snippets and measurement tables. You will count steps,
+    name classes, and justify each answer in one sentence. Nothing needs to be memorised
+    that is not in this checklist.
+  </p>
+</section>
+<section>
+  <h2><span class="num">8.15</span>Three cousins of Big-O: Ω, Θ, o, ω in plain words</h2>
+  <p>
+    So far O has done all the work, and for everyday code it is all you need. But the
+    textbook — and the exercises below — use four relatives of O, written with Greek
+    letters. They sound intimidating and mean something very simple. Big-O only ever
+    says "grows <em>no faster than</em>" — it is a ceiling. The cousins fill in the other
+    directions: a floor, an exact match, and two strict versions.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Symbol</th><th>Say it</th><th>In plain words</th><th>Everyday analogy</th></tr></thead>
+      <tbody>
+        <tr><td><code>O(g)</code></td><td>"big-oh"</td><td>grows <strong>no faster than</strong> g — an upper bound, a ceiling</td><td>a speed limit: you never go above it</td></tr>
+        <tr><td><code>&Omega;(g)</code></td><td>"big-omega"</td><td>grows <strong>no slower than</strong> g — a lower bound, a floor</td><td>a minimum wage: you never earn below it</td></tr>
+        <tr><td><code>&Theta;(g)</code></td><td>"big-theta"</td><td>grows at <strong>exactly the same rate</strong> as g — ceiling and floor at once</td><td>two runners who stay side by side the whole race</td></tr>
+        <tr><td><code>o(g)</code></td><td>"little-oh"</td><td>grows <strong>strictly slower than</strong> g — falls hopelessly behind</td><td>a pedestrian next to a car: the gap only widens</td></tr>
+        <tr><td><code>&omega;(g)</code></td><td>"little-omega"</td><td>grows <strong>strictly faster than</strong> g — pulls away without limit</td><td>the car, seen from the pedestrian's side</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Two of these you already understand. <code>O</code> is the ceiling you have used all
+    week; <code>&Theta;</code> (theta) is the honest one — it says "same shape, up to a
+    constant", which is what you mean when you say a function "really is" quadratic. The
+    difference between the big and little versions is the word <em>strictly</em>:
+    <code>n = O(n)</code> is true (n grows no faster than itself), but
+    <code>n = o(n)</code> is false (n does not grow strictly slower than itself). Little-o
+    and little-&omega; are for when one function leaves the other in the dust for good.
+  </p>
+  <div class="note blue">
+    <span class="label">A one-line way to hold all five</span>
+    <p>
+      Think of comparing two numbers. <code>O</code> is like &le; (at most),
+      <code>&Omega;</code> is &ge; (at least), <code>&Theta;</code> is = (equal),
+      <code>o</code> is &lt; (strictly less), and <code>&omega;</code> is &gt; (strictly
+      greater) — but applied to <em>growth rates</em> as n heads to infinity, ignoring
+      constant multipliers. If <code>f = &Theta;(g)</code> then automatically
+      <code>f = O(g)</code> and <code>f = &Omega;(g)</code>, exactly as "equal" implies
+      both "at most" and "at least".
+    </p>
+  </div>
+  <p>
+    Every exercise below is really the same skill: line the two functions up against a
+    fixed ladder of growth rates and see which rung each one lands on. Here is that ladder,
+    slowest on the left, and it is worth memorising — <code>&Lt;</code> here means "grows
+    strictly slower than":
+  </p>
+  <p style="font-family:var(--font-mono);color:var(--accent);font-size:1.02rem">
+    1 &Lt; log n &Lt; &radic;n &Lt; n &Lt; n log n &Lt; n&sup2; &Lt; n&sup3; &Lt; 2&#8319; &Lt; 3&#8319; &Lt; n!
+  </p>
+  <p>
+    Read left to right, each item is little-o of everything to its right and little-&omega;
+    of everything to its left. Anything at the same rung (only differing by a constant
+    factor) is &Theta; of its neighbour on that rung. Almost every "which grows faster?"
+    question is answered by pointing at this line. Two facts do most of the heavy lifting:
+    <strong>any polynomial beats any logarithm</strong>, and <strong>any exponential beats
+    any polynomial</strong>.
+  </p>
+</section>
+<section>
+  <h2><span class="num">8.17</span>Two more ordering puzzles (Skiena 2-26, 2-27)</h2>
+  <p>
+    These finish the ordering problems from the chapter. They look scary because sums and
+    odd exponents appear — but each piece collapses to something on the growth ladder from
+    §8.15. The trick is always the same: <strong>replace each expression by the simplest
+    thing it grows like, then line them up.</strong>
+  </p>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-26 · put four functions in increasing order</span>
+    <p>Order these from slowest- to fastest-growing:</p>
+    <ul>
+      <li><code>f1 = n&sup2; log&#8322; n</code></li>
+      <li><code>f2 = n (log&#8322; n)&sup2;</code></li>
+      <li><code>f3 = 2&#8304; + 2&sup1; + &hellip; + 2&#8319;</code> (a sum of powers of two)</li>
+      <li><code>f4 = log&#8322;(2&#8304; + 2&sup1; + &hellip; + 2&#8319;)</code></li>
+    </ul>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>First simplify the two that hide a sum:</p>
+      <ul>
+        <li><code>f3</code> is a geometric sum: <code>1 + 2 + 4 + &hellip; + 2&#8319; = 2&#8319;&#8314;&sup1; &minus; 1</code>, which grows like <strong>2&#8319;</strong> (exponential).</li>
+        <li><code>f4</code> is the log of that, and <code>log&#8322;(2&#8319;&#8314;&sup1;) = n + 1</code>, which grows like <strong>n</strong> (linear).</li>
+      </ul>
+      <p>Now compare the four simplified shapes: <code>n</code>, <code>n(log n)&sup2;</code>, <code>n&sup2; log n</code>, <code>2&#8319;</code>.
+        To compare <code>f2 = n(log n)&sup2;</code> with <code>f1 = n&sup2; log n</code>, divide both by <code>n log n</code>: you get <code>log n</code> versus <code>n</code> &mdash; and <code>log n</code> is far smaller, so <code>f2 &lt; f1</code>.</p>
+      <p><strong>Answer:</strong> <code>f4 (&asymp; n) &nbsp;&lt;&nbsp; f2 (n log&sup2; n) &nbsp;&lt;&nbsp; f1 (n&sup2; log n) &nbsp;&lt;&nbsp; f3 (2&#8319;)</code>.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-27 · order four functions, noting any ties</span>
+    <p>Order these from slowest- to fastest-growing, and say if any are the same order:</p>
+    <ul>
+      <li><code>f1 = &radic;1 + &radic;2 + &hellip; + &radic;n</code> (a sum of square roots)</li>
+      <li><code>f2 = (&radic;n)<sup>log n</sup></code></li>
+      <li><code>f3 = n<sup>&radic;(log n)</sup></code></li>
+      <li><code>f4 = 12&middot;n<sup>3/2</sup> + 4n</code></li>
+    </ul>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>Simplify each:</p>
+      <ul>
+        <li><code>f1</code>: adding up <code>&radic;i</code> for <code>i = 1..n</code> is like the area under <code>&radic;x</code>, which grows like <strong>n<sup>3/2</sup></strong> (about <code>&#8532;&middot;n<sup>3/2</sup></code>).</li>
+        <li><code>f4 = 12 n<sup>3/2</sup> + 4n</code> &mdash; keep the top term: also <strong>n<sup>3/2</sup></strong>. So <code>f1</code> and <code>f4</code> are the <strong>same order</strong>.</li>
+        <li><code>f2 = (&radic;n)<sup>log n</sup> = n<sup>(log&#8322; n)/2</sup></code> &mdash; the exponent itself grows with <code>n</code>, so this beats every fixed power of <code>n</code>.</li>
+        <li><code>f3 = n<sup>&radic;(log n)</sup></code> &mdash; the exponent <code>&radic;(log n)</code> also grows, so this too beats every fixed power &mdash; but more slowly than <code>f2</code>, because <code>(log n)/2</code> eventually dwarfs <code>&radic;(log n)</code>.</li>
+      </ul>
+      <p><strong>Answer:</strong> <code>f1 = f4 (both n<sup>3/2</sup>) &nbsp;&lt;&nbsp; f3 (n<sup>&radic;log n</sup>) &nbsp;&lt;&nbsp; f2 (n<sup>(log n)/2</sup>)</code>. The key idea: a fixed power like <code>n<sup>3/2</sup></code> is always beaten by <code>n</code> raised to a power that itself keeps growing.</p>
+    </details>
+  </div>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 2, 3</p><h3>Show where a growth limit starts to hold</h3><p>Big-O gives an upper limit on growth once the input is large enough. To show 2n² + 6n is O(n²), choose c = 3 and n₀ = 6. For n ≥ 6, the linear term 6n is at most n², so the whole expression is at most 3n².</p><p>Big-Omega gives a lower limit on growth for large enough inputs. Big-Theta means the upper and lower limits have the same growth pattern. A quadratic function is also O(n³), but that upper bound is loose. Naming a bound is different from selecting a best, average or worst input case: apply the notation to the input case and type of work you chose to count.</p><p>Test your reasoning with a claim that fails. If n² were O(n), then n² ≤ cn would imply n ≤ c for every sufficiently large n. No fixed c can satisfy that.</p><p class="engineering-transfer"><strong>Engineering use.</strong> When an AI labels a loop O(n), require it to define n, identify the repeated operation and justify the bound.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>read and write Big-O notation for the six patterns that cover most code;</li>
+      <li>translate a step-count formula into a Big-O class in one line;</li>
+      <li>say what each class means in plain words and in real time;</li>
+      <li>read the class straight off a function, line by line, without measuring;</li>
+      <li>distinguish best, worst and average case, and say which one to quote;</li>
+      <li>tell time cost from space cost, and quote both;</li>
+      <li>revise everything from weeks 1–7 for the midterm.</li>
+    </ul>
+  </div>
+</section>
+<section class="studio-contract">
+  <div class="note blue">
+    <span class="label">Three-hour interactive studio</span>
+    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
+    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
+    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
+    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
+    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
+    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
+  </div>
+</section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w08">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional extra practice</summary><div><section>
+  <h2><span class="num">8.13</span>Optional Studio Extension</h2>
+  <div class="task">
+    <span class="label">Optional practice · no submission or deadline</span>
+    <ol>
+      <li>Create <code>AA_Week08.ipynb</code> and complete Tasks 1–5.</li>
+      <li>Build a personal reference table of the six classes: notation, plain-words meaning, a code example you wrote yourself, and a measured timing from your own notebooks.</li>
+      <li>Take the <code>report</code> function from §8.5, type it into Colab, and add a comment above every region naming its class. Then change the inner loop bound from <code>n</code> to <code>10</code> and write one sentence on how the overall class changes and why.</li>
+      <li>Find one example of a hidden loop in code you wrote in an earlier week. Name its true class and describe how you would test that claim.</li>
+      <li>Pick any function you have written and state <em>both</em> its time class and its extra-space class, with a sentence of justification for each.</li>
+      <li>Write five sentences answering: "Why do we say O(n²) is worse than O(n) even though a particular O(n²) program might run faster today?"</li>
+    </ol>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
+  <h2><span class="num">8.14</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>Big-O</td><td>A short label for how cost grows with input size.</td></tr>
+        <tr><td>constant / logarithmic / linear</td><td>O(1) / O(log n) / O(n).</td></tr>
+        <tr><td>linearithmic</td><td>O(n log n) — the speed of good sorting.</td></tr>
+        <tr><td>quadratic / exponential</td><td>O(n²) — every pair. O(2ⁿ) — every combination; unusable beyond tiny n.</td></tr>
+        <tr><td>dominant term</td><td>The fastest-growing part of T(n); the one Big-O keeps.</td></tr>
+        <tr><td>worst case</td><td>The most work the method can be forced to do; the default meaning of a Big-O claim.</td></tr>
+        <tr><td>space complexity</td><td>How the <em>extra</em> memory a method needs grows with the input.</td></tr>
+        <tr><td>hidden loop</td><td>A built-in operation that walks the data even though you wrote no loop.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Chapter problem set — Skiena 2.10 · Big-O</summary><div><section>
+  <h2><span class="num">8.16</span>Chapter problem set &mdash; Skiena 2.10 &middot; Big-O</h2>
+  <p>
+    These are the Big-O exercises from Chapter 2 of Steven Skiena's <em>The Algorithm
+    Design Manual</em>, worked here at first-year level. Skiena writes <code>lg</code> for
+    the base-2 logarithm and <code>ln</code> for the natural one; for Big-O purposes the
+    base changes a logarithm by a constant multiplier. This preserves its own growth
+    class, but a logarithm inside an exponent requires more care; use base 2 for
+    unspecified logs in these exercises. A formal proof must justify its inequality
+    for every input beyond a fixed threshold. Numerical examples illustrate that
+    argument but cannot replace it. Cover each answer and try it first.
+  </p>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-3 &middot; count the loops</span>
+    <p>How many times is <code>r</code> incremented, and what is the running time in Big-O?</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>prestiferous.py</div><pre><code>r = 0
+for i in range(1, n + 1):
+    for j in range(1, i + 1):
+        for k in range(j, i + j + 1):
+            for l in range(1, (i + j - k) + 1):
+                r += 1</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Do not panic at the messy bounds. Count the loops: there are <strong>four</strong>,
+        nested one inside the other, and each one runs a number of times that is at worst
+        proportional to n. Every extra nested loop that ranges up to about n multiplies the
+        total count by another factor of about n, so four of them give roughly n &times; n
+        &times; n &times; n = n&#8308;. The exact starting points shift the constant in
+        front but not the shape.
+      </p>
+      <p>The clean test is to count the increments and double n. If it is really n&#8308;, doubling n should multiply the count by about 2&#8308; = 16:</p>
+      <div class="code"><div class="code-head"><span class="dot"></span>step_counter_2_3.py</div><pre><code>def prestiferous(n):
+    r = 0
+    for i in range(1, n + 1):
+        for j in range(1, i + 1):
+            for k in range(j, i + j + 1):
+                for l in range(1, (i + j - k) + 1):
+                    r += 1
+    return r
+
+prev = None
+for n in [5, 10, 20, 40, 80]:
+    r = prestiferous(n)
+    ratio = "-" if prev is None else f"{r / prev:.2f}x"
+    print(f"n={n:&gt;3}  r={r:&gt;12,}  ratio={ratio}")
+    prev = r</code></pre></div>
+      <div class="out">n=  5  r=         140  ratio=-
+n= 10  r=       1,705  ratio=12.18x
+n= 20  r=      23,485  ratio=13.77x
+n= 40  r=     347,270  ratio=14.79x
+n= 80  r=   5,335,740  ratio=15.36x</div>
+      <p>
+        The ratio climbs steadily towards 16 &mdash; the unmistakable fingerprint of
+        n&#8308;. (It approaches 16 from below rather than sitting on it exactly because of
+        the lower-order terms, just as the doubling harness behaved in weeks 5&ndash;7.)
+      </p>
+      <p style="font-size:.9rem;color:var(--muted)">
+        Optional challenge: the exact closed form can be worked out with the summation
+        techniques of &sect;8.16's later problems, but the marks are for the class, not the
+        formula.
+      </p>
+      <p><strong>Answer:</strong> peeling the loops from the inside gives the exact value <code>r = n(n+1)(n+2)(3n+1)/24</code>, so the running time is <strong>&Theta;(n&#8308;)</strong>. (The loop <em>depth</em> only hints at the class; summing the loops proves it.)</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-4 &middot; count the loops</span>
+    <p>How many times is <code>r</code> incremented, and what is the worst-case running time?</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>conundrum.py</div><pre><code>r = 0
+for i in range(1, n + 1):
+    for j in range(i + 1, n + 1):
+        for k in range(i + j - 1, n + 1):
+            r += 1</code></pre></div>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Again, ignore the awkward starting points and count the loops: <strong>three</strong>,
+        nested, each ranging over a stretch that is at worst about n long. Three full n-sized loops would give n³ work, but dependent bounds can change
+        the growth rate. Here the sum derived below establishes a cubic leading term.
+        That predicts doubling n will eventually multiply the count by about
+        2&sup3; = 8:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>step_counter_2_4.py</div><pre><code>def conundrum(n):
+    r = 0
+    for i in range(1, n + 1):
+        for j in range(i + 1, n + 1):
+            for k in range(i + j - 1, n + 1):
+                r += 1
+    return r
+
+prev = None
+for n in [10, 20, 40, 80, 160]:
+    r = conundrum(n)
+    ratio = "-" if prev is None else f"{r / prev:.2f}x"
+    print(f"n={n:&gt;3}  r={r:&gt;10,}  ratio={ratio}")
+    prev = r</code></pre></div>
+      <div class="out">n= 10  r=        95  ratio=-
+n= 20  r=       715  ratio=7.53x
+n= 40  r=     5,530  ratio=7.73x
+n= 80  r=    43,460  ratio=7.86x
+n=160  r=   344,520  ratio=7.93x</div>
+      <p>The ratio settles towards 8 &mdash; cubic confirmed by arithmetic, no stopwatch needed.</p>
+      <p><strong>Answer:</strong> the moving start points empty many iterations, leaving the exact count <code>r = &Sigma;<sub>i=1</sub><sup>&lfloor;n/2&rfloor;</sup> (n&minus;2i+1)(n&minus;2i+2)/2</code> (a closed form <code>m(m+1)(4m&minus;1)/6</code> for even <code>n = 2m</code>), so the worst-case running time is <strong>&Theta;(n&sup3;)</strong>. Depth alone would not prove this &mdash; the ranges must be summed.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-7 &middot; true or false</span>
+    <p>(a) Is <code>2&#8319;&#8314;&sup1; = O(2&#8319;)</code>? &nbsp; (b) Is <code>2&sup2;&#8319; = O(2&#8319;)</code>?</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <strong>True.</strong> <code>2&#8319;&#8314;&sup1; = 2 &middot; 2&#8319;</code> &mdash;
+        that is just <code>2&#8319;</code> with a constant factor of 2 bolted on, and Big-O
+        ignores constant factors. Take <code>c = 2</code> and <code>2&#8319;&#8314;&sup1;
+        &le; 2 &middot; 2&#8319;</code> holds for every n.
+      </p>
+      <p>
+        (b) <strong>False.</strong> <code>2&sup2;&#8319; = (2&#8319;)&sup2; = 4&#8319;</code>,
+        which is a completely different, faster exponential. The ratio
+        <code>4&#8319; / 2&#8319; = 2&#8319;</code> shoots off to infinity, so no fixed
+        constant <code>c</code> can ever keep <code>4&#8319; &le; c &middot; 2&#8319;</code>.
+        Doubling the exponent is not a constant factor &mdash; it changes the base.
+      </p>
+      <p><strong>Answer:</strong> (a) true; (b) false.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-8 &middot; O, &Omega; or &Theta;?</span>
+    <p>For each pair, is <code>f = O(g)</code>, <code>f = &Omega;(g)</code>, or <code>f = &Theta;(g)</code>? (When both O and &Omega; hold, the honest answer is &Theta;.)</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>Read each pair straight off the ladder.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>f</th><th>g</th><th>Verdict</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>(a)</td><td><code>log(n&sup2;)</code></td><td><code>log n + 5</code></td><td>&Theta;</td><td><code>log n&sup2; = 2 log n</code>; both are log n up to a constant</td></tr>
+            <tr><td>(b)</td><td><code>&radic;n</code></td><td><code>log(n&sup2;) = 2 log n</code></td><td>&Omega;</td><td>&radic;n beats any logarithm</td></tr>
+            <tr><td>(c)</td><td><code>(log n)&sup2;</code></td><td><code>log n</code></td><td>&Omega;</td><td>squaring a growing thing makes it grow faster</td></tr>
+            <tr><td>(d)</td><td><code>n</code></td><td><code>(log n)&sup2;</code></td><td>&Omega;</td><td>a polynomial beats any power of a logarithm</td></tr>
+            <tr><td>(e)</td><td><code>n log n + n</code></td><td><code>log n</code></td><td>&Omega;</td><td>n log n is far above log n</td></tr>
+            <tr><td>(f)</td><td><code>10</code></td><td><code>log 10</code></td><td>&Theta;</td><td>both are fixed constants &mdash; neither grows</td></tr>
+            <tr><td>(g)</td><td><code>2&#8319;</code></td><td><code>10 n&sup2;</code></td><td>&Omega;</td><td>an exponential beats any polynomial</td></tr>
+            <tr><td>(h)</td><td><code>2&#8319;</code></td><td><code>3&#8319;</code></td><td>O</td><td><code>2&#8319;</code> grows slower than <code>3&#8319;</code> (ratio (2/3)&#8319;&rarr;0)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Answer:</strong> (a) &Theta; &middot; (b) &Omega; &middot; (c) &Omega; &middot; (d) &Omega; &middot; (e) &Omega; &middot; (f) &Theta; &middot; (g) &Omega; &middot; (h) O.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-9 &middot; which is O of which?</span>
+    <p>For each pair decide whether <code>f = O(g)</code>, <code>g = O(f)</code>, or both (which is &Theta;).</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>f</th><th>g</th><th>Verdict</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>(a)</td><td><code>(n&sup2; &minus; n)/2</code></td><td><code>6n</code></td><td><code>g = O(f)</code></td><td>f is quadratic (&asymp; n&sup2;/2), g is only linear</td></tr>
+            <tr><td>(b)</td><td><code>n + 2&radic;n</code></td><td><code>n&sup2;</code></td><td><code>f = O(g)</code></td><td>f &asymp; n, well below n&sup2;</td></tr>
+            <tr><td>(c)</td><td><code>n log n</code></td><td><code>n&radic;n / 2</code></td><td><code>f = O(g)</code></td><td>&radic;n grows faster than log n, so n&radic;n beats n log n</td></tr>
+            <tr><td>(d)</td><td><code>n + log n</code></td><td><code>&radic;n</code></td><td><code>g = O(f)</code></td><td>f &asymp; n, above &radic;n</td></tr>
+            <tr><td>(e)</td><td><code>2 &middot; (log n)&sup2;</code></td><td><code>log n + 1</code></td><td><code>g = O(f)</code></td><td>(log n)&sup2; grows faster than log n</td></tr>
+            <tr><td>(f)</td><td><code>4n log n + n</code></td><td><code>(n&sup2; &minus; n)/2</code></td><td><code>f = O(g)</code></td><td>n log n is below n&sup2;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>None of these pairs is a tie, so &Theta; never applies here. <strong>Answer:</strong> (a) g=O(f) &middot; (b) f=O(g) &middot; (c) f=O(g) &middot; (d) g=O(f) &middot; (e) g=O(f) &middot; (f) f=O(g).</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-10 &middot; prove a &Theta;</span>
+    <p>Show that <code>n&sup3; &minus; 3n&sup2; &minus; n + 1 = &Theta;(n&sup3;)</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        &Theta;(n&sup3;) means "sandwiched between two constant multiples of n&sup3; once n is
+        large". The clean trick is to divide the whole expression by n&sup3; and watch what
+        happens as n grows:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">(n&sup3; &minus; 3n&sup2; &minus; n + 1) / n&sup3; = 1 &minus; 3/n &minus; 1/n&sup2; + 1/n&sup3;</p>
+      <p>
+        Each of the trailing fractions heads to 0 as n grows, so the whole ratio heads to
+        <strong>1</strong>. That means for large enough n the expression is close to n&sup3;
+        &mdash; certainly between, say, <code>0.5 n&sup3;</code> and <code>1 &middot; n&sup3;</code>.
+        For every n ≥ 10, 3/n ≤ 0.3 and 1/n² ≤ 0.01, so the ratio is at least
+        1 − 0.3 − 0.01 = 0.69 ≥ 0.5. Also −3n² − n + 1 ≤ 0 for n ≥ 1, giving
+        the upper bound n³. Thus c₁ = 0.5, c₂ = 1 and n₀ = 10 work for all later n.
+        At n = 10 the value 691 lies between 500 and 1000; this is a check, not the proof.
+      </p>
+      <p><strong>Answer:</strong> <code>&Theta;(n&sup3;)</code>.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-11 &middot; prove an O</span>
+    <p>Show that <code>n&sup2; = O(2&#8319;)</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        This is the headline fact of the ladder: an exponential eventually overtakes any
+        polynomial and never looks back. To prove <code>n&sup2; = O(2&#8319;)</code> we just
+        need <em>one</em> constant <code>c</code> and a starting point <code>n&#8320;</code>
+        such that <code>n&sup2; &le; c &middot; 2&#8319;</code> for all <code>n &ge;
+        n&#8320;</code>. Watch the two race:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>8</th><th>10</th></tr></thead>
+          <tbody>
+            <tr><td><code>n&sup2;</code></td><td>1</td><td>4</td><td>9</td><td>16</td><td>25</td><td>36</td><td>64</td><td>100</td></tr>
+            <tr><td><code>2&#8319;</code></td><td>2</td><td>4</td><td>8</td><td>16</td><td>32</td><td>64</td><td>256</td><td>1024</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        At n = 4, n² = 2ⁿ = 16. Suppose n² ≤ 2ⁿ for an integer n ≥ 4.
+        Then (n+1)² ≤ 2n² because n² − 2n − 1 ≥ 0, and hence
+        (n+1)² ≤ 2n² ≤ 2 · 2ⁿ = 2ⁿ⁺¹. Induction establishes the inequality
+        for every integer n ≥ 4. Thus c = 1 and n₀ = 4 are valid witnesses;
+        the displayed table is a check on this argument.
+      </p>
+      <p><strong>Answer:</strong> <code>n&sup2; = O(2&#8319;)</code>, witnessed by c = 1, n&#8320; = 4.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-12 &middot; find a constant</span>
+    <p>For each pair, find a positive constant <code>c</code> with <code>f(n) &le; c &middot; g(n)</code> for all <code>n &gt; 1</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>The tactic each time: bound every term of f by a copy of the leading term, then compare with g.</p>
+      <p>
+        (a) <code>f = n&sup2; + n + 1</code>, <code>g = 2n&sup3;</code>. For <code>n &gt; 1</code>
+        each of <code>n</code> and <code>1</code> is at most <code>n&sup2;</code>, so
+        <code>f &le; 3n&sup2;</code>. And <code>3n&sup2; &le; 4n&sup3; = 2 &middot; 2n&sup3;</code>
+        for <code>n &gt; 1</code>. So <strong>c = 2</strong> works comfortably.
+      </p>
+      <p>
+        (b) <code>f = n&radic;n + n&sup2; = n<sup>1.5</sup> + n&sup2;</code>, <code>g = n&sup2;</code>.
+        For <code>n &gt; 1</code>, <code>n<sup>1.5</sup> &le; n&sup2;</code>, so
+        <code>f &le; n&sup2; + n&sup2; = 2n&sup2;</code>. So <strong>c = 2</strong>.
+      </p>
+      <p>
+        (c) <code>f = n&sup2; &minus; n + 1</code>, <code>g = n&sup2;/2</code>. Since
+        <code>&minus;n + 1 &le; 0</code> for <code>n &ge; 1</code>, we have
+        <code>f &le; n&sup2; = 2 &middot; (n&sup2;/2)</code>. So <strong>c = 2</strong>.
+      </p>
+      <p><strong>Answer:</strong> <code>c = 2</code> works in all three (many other constants work too &mdash; any single witness proves the bound).</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-13, 2-14, 2-15 &middot; the sum and product rules</span>
+    <p>
+      Suppose <code>f&#8321; = O(g&#8321;)</code> and <code>f&#8322; = O(g&#8322;)</code>. Show
+      (2-13) <code>f&#8321; + f&#8322; = O(g&#8321; + g&#8322;)</code>; (2-15)
+      <code>f&#8321; &middot; f&#8322; = O(g&#8321; &middot; g&#8322;)</code>; and (2-14) the same
+      two rules hold with &Omega; in place of O.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        These are the rules that let us analyse code one piece at a time &mdash; price each
+        region, then add or multiply &mdash; so they are worth seeing once. "<code>f = O(g)</code>"
+        just means there is a constant <code>c</code> with <code>f &le; c &middot; g</code> for
+        large n. So write <code>f&#8321; &le; c&#8321; g&#8321;</code> and <code>f&#8322; &le;
+        c&#8322; g&#8322;</code>.
+      </p>
+      <p>
+        <strong>Sum (2-13).</strong> Add the two inequalities:
+        <code>f&#8321; + f&#8322; &le; c&#8321; g&#8321; + c&#8322; g&#8322;</code>. Let
+        <code>c</code> be the bigger of <code>c&#8321;</code> and <code>c&#8322;</code>; then the
+        right side is at most <code>c(g&#8321; + g&#8322;)</code>. So
+        <code>f&#8321; + f&#8322; = O(g&#8321; + g&#8322;)</code>. This is why sequential blocks
+        of code add up, and keeping the biggest is just simplifying the sum.
+      </p>
+      <p>
+        <strong>Product (2-15).</strong> Multiply the two inequalities (all quantities
+        positive): <code>f&#8321; &middot; f&#8322; &le; c&#8321; c&#8322; &middot; g&#8321;
+        &middot; g&#8322;</code>. The single constant <code>c&#8321; c&#8322;</code> does the
+        job, so <code>f&#8321; f&#8322; = O(g&#8321; g&#8322;)</code>. This is why a loop that
+        runs O(g&#8321;) times doing O(g&#8322;) work each time costs the product.
+      </p>
+      <p>
+        <strong>&Omega; versions (2-14).</strong> Identical argument with the inequalities
+        flipped: <code>f &ge; c &middot; g</code>. Adding lower bounds gives a lower bound on
+        the sum; multiplying lower bounds gives a lower bound on the product. So both rules
+        hold for &Omega; too &mdash; and since &Theta; is just O and &Omega; together, they
+        hold for &Theta; as well.
+      </p>
+      <p><strong>Answer:</strong> both rules hold; they are the formal licence for the "add sequential parts, multiply nested loops" recipe from &sect;8.5.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-16 &middot; any polynomial is O(n<sup>k</sup>)</span>
+    <p>Prove that a polynomial <code>a<sub>k</sub> n<sup>k</sup> + a<sub>k&minus;1</sub> n<sup>k&minus;1</sup> + &hellip; + a<sub>1</sub> n + a<sub>0</sub></code> of degree <code>k</code> is <code>O(n<sup>k</sup>)</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>This is the formal version of "keep the highest power". Every term <code>a<sub>i</sub> n<sup>i</sup></code> with <code>i &le; k</code> satisfies <code>|a<sub>i</sub> n<sup>i</sup>| &le; |a<sub>i</sub>| n<sup>k</sup></code> once <code>n &ge; 1</code>, because a lower power of <code>n</code> is no larger than the top power. Add the terms up:</p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">|a<sub>k</sub> n<sup>k</sup> + &hellip; + a<sub>0</sub>| &le; (|a<sub>k</sub>| + &hellip; + |a<sub>0</sub>|) &middot; n<sup>k</sup></p>
+      <p>The bracket <code>c = |a<sub>k</sub>| + &hellip; + |a<sub>0</sub>|</code> is a fixed constant &mdash; it does not depend on <code>n</code>. So the whole polynomial is at most <code>c &middot; n<sup>k</sup></code>, which is precisely <code>O(n<sup>k</sup>)</code>.</p>
+      <p><strong>Answer:</strong> <code>O(n<sup>k</sup>)</code>, with the constant being the sum of the absolute values of the coefficients.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-17 &middot; shifting by a constant does not matter</span>
+    <p>Show that <code>(n + a)&#7495; = &Theta;(n&#7495;)</code> for any constants <code>a</code> and <code>b &gt; 0</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Intuition first: when n is large, adding a fixed number <code>a</code> barely nudges
+        it &mdash; <code>1 000 000 + 7</code> is, for growth purposes, still a million. So
+        <code>(n + a)</code> and <code>n</code> grow at the same rate, and raising both to
+        the same power <code>b</code> keeps them at the same rate. Formally, look at the ratio:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">(n + a)&#7495; / n&#7495; = (1 + a/n)&#7495; &rarr; 1<sup>b</sup> = 1 &nbsp;as n &rarr; &infin;</p>
+      <p>
+        Because that ratio approaches 1, for large n it stays trapped between two fixed
+        constants (say between &frac12; and 2). That traps <code>(n + a)&#7495;</code> between
+        <code>&frac12; n&#7495;</code> and <code>2 n&#7495;</code> &mdash; the sandwich that
+        defines &Theta;.
+      </p>
+      <p><strong>Answer:</strong> <code>(n + a)&#7495; = &Theta;(n&#7495;)</code>.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-18 &middot; order Skiena's 16 functions</span>
+    <p>List these from slowest- to fastest-growing, marking ties (Skiena's own set):</p>
+    <p style="font-family:var(--font-mono);color:var(--accent)">n &nbsp; 2<sup>n</sup> &nbsp; n lg n &nbsp; ln n &nbsp; n&minus;n<sup>3</sup>+7n<sup>5</sup> &nbsp; lg n &nbsp; &radic;n &nbsp; e<sup>n</sup> &nbsp; n<sup>2</sup>+lg n &nbsp; n<sup>2</sup> &nbsp; 2<sup>n&minus;1</sup> &nbsp; lg lg n &nbsp; n<sup>3</sup> &nbsp; (lg n)<sup>2</sup> &nbsp; n! &nbsp; n<sup>1+&epsilon;</sup> (0&lt;&epsilon;&lt;1)</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>Tidy each into its shape first: <code>n&minus;n<sup>3</sup>+7n<sup>5</sup> &rarr; n<sup>5</sup></code>; <code>n<sup>2</sup>+lg n &rarr; n<sup>2</sup></code> (ties with <code>n<sup>2</sup></code>); <code>ln n</code> ties <code>lg n</code>; <code>2<sup>n&minus;1</sup> = &frac12;&middot;2<sup>n</sup></code> ties <code>2<sup>n</sup></code>; <code>e<sup>n</sup></code> is above <code>2<sup>n</sup></code> (since <code>e&gt;2</code>); and <code>n<sup>1+&epsilon;</sup></code> sits between <code>n lg n</code> and <code>n<sup>2</sup></code>. Then walk the ladder &mdash; remembering any real power of <code>n</code> beats any power of a logarithm.</p>
+      <p><strong>Answer (braces = ties):</strong> <code>lg lg n &lt; {ln n = lg n} &lt; (lg n)<sup>2</sup> &lt; &radic;n &lt; n &lt; n lg n &lt; n<sup>1+&epsilon;</sup> &lt; {n<sup>2</sup> = n<sup>2</sup>+lg n} &lt; n<sup>3</sup> &lt; n<sup>5</sup> &lt; {2<sup>n&minus;1</sup> = 2<sup>n</sup>} &lt; e<sup>n</sup> &lt; n!</code></p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-19 &middot; order Skiena's trickier 18 functions</span>
+    <p>Same task, with a function that <em>shrinks</em> and a constant hidden in the list:</p>
+    <p style="font-family:var(--font-mono);color:var(--accent)">&radic;n &nbsp; n &nbsp; 2<sup>n</sup> &nbsp; n log n &nbsp; n&minus;n<sup>3</sup>+7n<sup>5</sup> &nbsp; n<sup>2</sup>+log n &nbsp; n<sup>2</sup> &nbsp; n<sup>3</sup> &nbsp; log n &nbsp; n<sup>1/3</sup>+log n &nbsp; (log n)<sup>2</sup> &nbsp; n! &nbsp; ln n &nbsp; n/log n &nbsp; log log n &nbsp; (1/3)<sup>n</sup> &nbsp; (3/2)<sup>n</sup> &nbsp; 6</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>The traps: <code>(1/3)<sup>n</sup></code> shrinks to 0 (smallest of all); <code>6</code> is a constant; and the sneaky pair <code>(log n)<sup>2</sup></code> vs <code>n<sup>1/3</sup></code> &mdash; a squared logarithm is still a logarithm, and any real power of <code>n</code> (even 1/3) eventually wins, so <code>(log n)<sup>2</sup> &lt; n<sup>1/3</sup></code>. Also <code>n/log n</code> sits just below <code>n</code>, and <code>(3/2)<sup>n</sup> &lt; 2<sup>n</sup></code>.</p>
+      <p><strong>Answer (braces = ties):</strong> <code>(1/3)<sup>n</sup> &lt; 6 &lt; log log n &lt; {log n = ln n} &lt; (log n)<sup>2</sup> &lt; n<sup>1/3</sup> &lt; &radic;n &lt; n/log n &lt; n &lt; n log n &lt; {n<sup>2</sup> = n<sup>2</sup>+log n} &lt; n<sup>3</sup> &lt; n<sup>5</sup> &lt; (3/2)<sup>n</sup> &lt; 2<sup>n</sup> &lt; n!</code></p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-20 &middot; find functions, or explain why you cannot</span>
+    <p>Give functions <code>f</code> and <code>g</code> satisfying each condition, or argue that none exist.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <code>f = o(g)</code> and <code>f &ne; &Theta;(g)</code>. <strong>Easy:</strong>
+        take <code>f = n</code>, <code>g = n&sup2;</code>. n grows strictly slower than n&sup2;
+        (so little-o holds), and they are not the same rate (so not &Theta;). In fact little-o
+        <em>always</em> rules out &Theta;, so any little-o example works.
+      </p>
+      <p>
+        (b) <code>f = &Theta;(g)</code> and <code>f = o(g)</code>. <strong>Impossible.</strong>
+        &Theta; says "same rate"; little-o says "strictly slower". A function cannot be both
+        exactly as fast and strictly slower than another. No such pair exists.
+      </p>
+      <p>
+        (c) <code>f = &Theta;(g)</code> and <code>f &ne; O(g)</code>. <strong>Impossible.</strong>
+        &Theta; is O and &Omega; together, so <code>f = &Theta;(g)</code> already forces
+        <code>f = O(g)</code>. You cannot have the first without the second.
+      </p>
+      <p>
+        (d) <code>f = &Omega;(g)</code> and <code>f &ne; O(g)</code>. <strong>Easy:</strong>
+        take <code>f = n&sup2;</code>, <code>g = n</code>. n&sup2; grows at least as fast as n
+        (&Omega; holds), but it is not bounded above by n (so not O). This is the usual
+        picture of a strict lower bound.
+      </p>
+      <p><strong>Answer:</strong> (a) e.g. n, n&sup2; &middot; (b) none &middot; (c) none &middot; (d) e.g. n&sup2;, n.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-21 &middot; true or false</span>
+    <p>Decide each, giving a one-line reason from the ladder.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Claim</th><th>Verdict</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>(a)</td><td><code>2n&sup2; + 1 = O(n&sup2;)</code></td><td>True</td><td>a constant factor plus a lower term; still n&sup2;</td></tr>
+            <tr><td>(b)</td><td><code>&radic;n = O(log n)</code></td><td>False</td><td>&radic;n grows faster than log n, not slower</td></tr>
+            <tr><td>(c)</td><td><code>log n = O(&radic;n)</code></td><td>True</td><td>a logarithm is below any power of n</td></tr>
+            <tr><td>(d)</td><td><code>n&sup2;(1 + &radic;n) = O(n&sup2; log n)</code></td><td>False</td><td>the left side is &asymp; n&sup2;&middot;&radic;n = n<sup>2.5</sup>, above n&sup2; log n</td></tr>
+            <tr><td>(e)</td><td><code>3n&sup2; + &radic;n = O(n&sup2;)</code></td><td>True</td><td>&radic;n is a lower term; n&sup2; dominates</td></tr>
+            <tr><td>(f)</td><td><code>&radic;n log n = O(n)</code></td><td>True</td><td>&radic;n&middot;log n grows slower than &radic;n&middot;&radic;n = n</td></tr>
+            <tr><td>(g)</td><td><code>log n = O(n<sup>&minus;1/2</sup>)</code></td><td>False</td><td>log n &rarr; &infin; while <code>n<sup>&minus;1/2</sup> = 1/&radic;n &rarr; 0</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Answer:</strong> (a) T &middot; (b) F &middot; (c) T &middot; (d) F &middot; (e) T &middot; (f) T &middot; (g) F.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-22 &middot; O, &Omega;, &Theta; or none?</span>
+    <p>State the tightest relationship of <code>f</code> to <code>g</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <code>f = n&sup2; + 3n + 4</code>, <code>g = 6n + 7</code>. f is quadratic, g is
+        linear, so f grows faster: <code>f = &Omega;(g)</code> (and definitely not O(g)).
+      </p>
+      <p>
+        (b) <code>f = n&radic;n = n<sup>1.5</sup></code>, <code>g = n&sup2; &minus; n</code>.
+        g is &asymp; n&sup2;, above n<sup>1.5</sup>, so f is the smaller one:
+        <code>f = O(g)</code>.
+      </p>
+      <p>
+        (c) <code>f = 2&#8319; &minus; n&sup2;</code>, <code>g = n&#8308; + n&sup2;</code>. The
+        <code>2&#8319;</code> term swamps the <code>&minus;n&sup2;</code> (which is a rounding
+        error beside it), so f grows like <code>2&#8319;</code> &mdash; an exponential, above
+        the polynomial g: <code>f = &Omega;(g)</code>.
+      </p>
+      <p><strong>Answer:</strong> (a) &Omega; &middot; (b) O &middot; (c) &Omega;.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-23 &middot; what Big-O does and does not forbid</span>
+    <p>Answer yes or no, with a one-line reason.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        The key idea: <code>O</code> is only a <em>ceiling</em> on the worst case &mdash; it
+        never forbids an algorithm from being faster. <code>&Theta;</code> on the worst case
+        is stronger: it says the worst case really does reach that height.
+      </p>
+      <p>
+        (a) Worst case <code>O(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on some
+        inputs? <strong>Yes.</strong> Individual inputs (like a best case) can finish far
+        faster; the ceiling only caps the slowest.
+      </p>
+      <p>
+        (b) Worst case <code>O(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on
+        <em>all</em> inputs? <strong>Yes.</strong> <code>O(n&sup2;)</code> is just an upper
+        bound; an algorithm that is actually linear everywhere is still (loosely) O(n&sup2;).
+        O does not claim the bound is tight.
+      </p>
+      <p>
+        (c) Worst case <code>&Theta;(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on
+        <em>some</em> inputs? <strong>Yes.</strong> &Theta; pins the <em>worst</em> case at
+        quadratic, but the best case (some inputs) can still be linear or better.
+      </p>
+      <p>
+        (d) Worst case <code>&Theta;(n&sup2;)</code> &mdash; can it be <code>O(n)</code> on
+        <em>all</em> inputs? <strong>No.</strong> &Theta;(n&sup2;) worst case means some
+        inputs genuinely force quadratic work, so not every input can be linear.
+      </p>
+      <p>
+        (e) Is <code>f(n) = &Theta;(n&sup2;)</code> where <code>f = 100n&sup2;</code> for even
+        n and <code>f = 20n&sup2; &minus; n log&sup2; n</code> for odd n? <strong>Yes.</strong>
+        Every value, even or odd, sits between constant multiples of n&sup2; (roughly between
+        <code>19 n&sup2;</code> and <code>100 n&sup2;</code> for large n), so the whole
+        function is &Theta;(n&sup2;) regardless of which branch it takes.
+      </p>
+      <p><strong>Answer:</strong> (a) yes &middot; (b) yes &middot; (c) yes &middot; (d) no &middot; (e) yes.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-24 &middot; yes, no, or can't tell?</span>
+    <p>For each, answer with a reason. Recall <code>log(a&#8319;) = n log a</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <code>3&#8319; = O(2&#8319;)</code>? <strong>No.</strong> The ratio
+        <code>3&#8319; / 2&#8319; = (3/2)&#8319; = 1.5&#8319;</code> races off to infinity, so
+        no constant can cap it. Different bases are not a constant factor apart.
+      </p>
+      <p>
+        (b) <code>log 3&#8319; = O(log 2&#8319;)</code>? <strong>Yes.</strong> Take logs:
+        <code>log 3&#8319; = n log 3</code> and <code>log 2&#8319; = n log 2</code>. Their
+        ratio is the fixed constant <code>log 3 / log 2 &asymp; 1.585</code> &mdash; a
+        constant factor &mdash; so each is O of the other. (Taking the log tamed the
+        exponential into a linear function of n.)
+      </p>
+      <p>
+        (c) <code>3&#8319; = &Omega;(2&#8319;)</code>? <strong>Yes.</strong> &Omega; asks
+        whether 3&#8319; grows <em>at least</em> as fast as 2&#8319; &mdash; and it grows much
+        faster, so certainly at least as fast.
+      </p>
+      <p>
+        (d) <code>log 3&#8319; = &Omega;(log 2&#8319;)</code>? <strong>Yes.</strong> Same
+        constant-ratio picture as (b): <code>n log 3</code> versus <code>n log 2</code>. Since
+        they are a constant factor apart, each is both O and &Omega; of the other.
+      </p>
+      <p><strong>Answer:</strong> (a) no &middot; (b) yes &middot; (c) yes &middot; (d) yes.</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-25 &middot; summation asymptotics</span>
+    <p>Give the growth class of each sum for <code>i</code> running from 1 to n.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <code>&sum; 1/i</code>. This is the harmonic number, and it is famously
+        &asymp; <code>ln n</code> &mdash; add the terms up and they creep towards the natural
+        log. So it is <strong>&Theta;(log n)</strong>. A quick numerical check confirms the
+        gap <code>H&#8345; &minus; ln n</code> settles at a constant (about 0.577, Euler's
+        constant):
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>harmonic_check.py</div><pre><code>import math
+for n in [10, 100, 1000, 10000]:
+    H = sum(1.0 / i for i in range(1, n + 1))
+    print(f"n={n:&gt;6}  H={H:.4f}  ln n={math.log(n):.4f}  gap={H - math.log(n):.4f}")</code></pre></div>
+      <div class="out">n=    10  H=2.9290  ln n=2.3026  gap=0.6264
+n=   100  H=5.1874  ln n=4.6052  gap=0.5822
+n=  1000  H=7.4855  ln n=6.9078  gap=0.5777
+n= 10000  H=9.7876  ln n=9.2103  gap=0.5773</div>
+      <p>
+        The gap stops moving, which means <code>H</code> and <code>ln n</code> stay a
+        constant apart &mdash; the signature of &Theta;(log n).
+      </p>
+      <p>
+        (b) <code>&sum; &lceil;1/i&rceil;</code>. For every <code>i &ge; 1</code>, the value
+        <code>1/i</code> lies in <code>(0, 1]</code>, so its ceiling <code>&lceil;1/i&rceil;</code>
+        is exactly 1. Adding 1 a total of n times gives n. So the sum is <strong>&Theta;(n)</strong>.
+      </p>
+      <p>
+        (c) <code>&sum; log i</code>. Summing logs is the log of the product:
+        <code>&sum; log i = log(1 &middot; 2 &middot; &hellip; &middot; n) = log(n!)</code>,
+        which is <strong>&Theta;(n log n)</strong> (see part d).
+      </p>
+      <p>
+        (d) <code>log(n!)</code>. Half of the n factors are at least n/2, so
+        <code>n!</code> is at least <code>(n/2)<sup>n/2</sup></code>, giving
+        <code>log(n!) &ge; (n/2) log(n/2)</code> &mdash; on the order of <code>n log n</code>.
+        And <code>n!</code> is at most <code>n<sup>n</sup></code>, giving
+        <code>log(n!) &le; n log n</code>. Trapped both sides: <strong>&Theta;(n log n)</strong>.
+      </p>
+      <p><strong>Answer:</strong> (a) &Theta;(log n) &middot; (b) &Theta;(n) &middot; (c) &Theta;(n log n) &middot; (d) &Theta;(n log n).</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-28 &middot; simplify each sum to a &Theta;</span>
+    <p>For each sum over <code>i = 1 &hellip; n</code>, give a simple <code>g</code> with the sum <code>= &Theta;(g)</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Two facts do all the work. A sum of n terms whose largest is a power <code>i&#7495;</code>
+        behaves like <code>&Theta;(n&#7495;&#8314;&sup1;)</code> (n copies of the top term,
+        roughly). And a <strong>geometric</strong> sum &mdash; each term a fixed multiple of the
+        last, like <code>4&#8305;</code> &mdash; is dominated by its final term, so it is
+        &Theta; of that last term.
+      </p>
+      <p>
+        (a) <code>&sum; (3i&#8308; + 2i&sup3; &minus; 19i + 20)</code>. The top piece is
+        <code>i&#8308;</code>, and <code>&sum; i&#8308; = &Theta;(n&#8309;)</code>. So
+        <strong>&Theta;(n&#8309;)</strong>.
+      </p>
+      <p>
+        (b) <code>&sum; (3 &middot; 4&#8305; + 2 &middot; 3&#8305; &minus; i&sup1;&#8313; + 20)</code>.
+        The geometric <code>4&#8305;</code> term outgrows everything, and a geometric sum is
+        &Theta; of its last term <code>4&#8319;</code>. So <strong>&Theta;(4&#8319;)</strong>.
+      </p>
+      <p>
+        (c) <code>&sum; (5i + 3 &middot; 2&#8305;)</code>. The geometric <code>2&#8305;</code>
+        term dominates the linear one; the sum is &Theta; of its last term. So
+        <strong>&Theta;(2&#8319;)</strong>.
+      </p>
+      <p><strong>Answer:</strong> (a) &Theta;(n&#8309;) &middot; (b) &Theta;(4&#8319;) &middot; (c) &Theta;(2&#8319;).</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-29 &middot; a geometric sum</span>
+    <p>
+      Let <code>S = &sum;<sub>i=1..n</sub> 3&#8305;</code>. Which are true?
+      (a) <code>S = &Theta;(3<sup>n&minus;1</sup>)</code> &middot;
+      (b) <code>S = &Theta;(3&#8319;)</code> &middot;
+      (c) <code>S = &Theta;(3<sup>n+1</sup>)</code>.
+    </p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        A geometric series sums to <code>S = 3 + 3&sup2; + &hellip; + 3&#8319; =
+        (3<sup>n+1</sup> &minus; 3) / 2</code>, which is about <code>3<sup>n+1</sup>/2</code>.
+        The whole thing is dominated by its last term, so <code>S = &Theta;(3&#8319;)</code>.
+      </p>
+      <p>
+        Now the trick: <code>3<sup>n&minus;1</sup></code>, <code>3&#8319;</code> and
+        <code>3<sup>n+1</sup></code> differ only by a factor of 3 each way &mdash; and a
+        constant factor of 3 is invisible to &Theta;. So <code>&Theta;</code> of any one of
+        them is <code>&Theta;</code> of all of them. <strong>All three are true.</strong>
+      </p>
+      <p><strong>Answer:</strong> (a), (b) and (c) are all correct &mdash; they name the same growth class up to a constant.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Problem 2-30 &middot; keep the fastest-growing term</span>
+    <p>For each <code>f</code>, give a simple <code>g</code> with <code>f = &Theta;(g)</code>.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>The rule is the same one from &sect;8.3: throw away everything except the fastest-growing term (and drop its constant).</p>
+      <p>
+        (a) <code>f = 1000 &middot; 2&#8319; + 4&#8319;</code>. <code>4&#8319; = (2&#8319;)&sup2;</code>
+        dwarfs <code>2&#8319;</code> no matter how big the constant 1000 is. So
+        <strong>&Theta;(4&#8319;)</strong>.
+      </p>
+      <p>
+        (b) <code>f = n + n log n + &radic;n</code>. Of the three, <code>n log n</code> grows
+        fastest. So <strong>&Theta;(n log n)</strong>.
+      </p>
+      <p>
+        (c) <code>f = log(n&sup2;&#8304;) + (log n)&sup1;&#8304;</code>. The first term is
+        <code>20 log n</code> (using <code>log n&sup2;&#8304; = 20 log n</code>) &mdash; just a
+        constant times log n. The second, <code>(log n)&sup1;&#8304;</code>, is a much higher
+        power of log n and wins. So <strong>&Theta;((log n)&sup1;&#8304;)</strong>.
+      </p>
+      <p>
+        (d) <code>f = (0.99)&#8319; + n&sup1;&#8304;&#8304;</code>. A base below 1 means
+        <code>(0.99)&#8319;</code> <em>shrinks</em> towards 0 as n grows, so it contributes
+        nothing; <code>n&sup1;&#8304;&#8304;</code> is the whole story. So
+        <strong>&Theta;(n&sup1;&#8304;&#8304;)</strong>.
+      </p>
+      <p><strong>Answer:</strong> (a) &Theta;(4&#8319;) &middot; (b) &Theta;(n log n) &middot; (c) &Theta;((log n)&sup1;&#8304;) &middot; (d) &Theta;(n&sup1;&#8304;&#8304;).</p>
+    </details>
+  </div>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-31 &middot; which of O, o, &Omega;, &omega;, &Theta; hold?</span>
+    <p>For each pair <code>(A, B)</code>, list every relationship that holds. (Remember: if A is strictly slower than B, then both <code>A = O(B)</code> and the stronger <code>A = o(B)</code> hold.)</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        (a) <code>A = n&sup1;&#8304;&#8304;</code>, <code>B = 2&#8319;</code>. A polynomial is
+        strictly slower than an exponential, so <code>A = O(B)</code> and
+        <code>A = o(B)</code>.
+      </p>
+      <p>
+        (b) <code>A = (lg n)&sup1;&sup2;</code>, <code>B = &radic;n</code>. Any power of a
+        logarithm is strictly slower than any power of n, so <code>A = O(B)</code> and
+        <code>A = o(B)</code>.
+      </p>
+      <p>
+        (c) <code>A = &radic;n</code>, <code>B = n<sup>cos(&pi;n/8)</sup></code>. The exponent
+        <code>cos(&pi;n/8)</code> oscillates forever between &minus;1 and +1, so B keeps
+        swinging from <code>1/n</code> up to <code>n</code> and back. Sometimes B is far above
+        A, sometimes far below &mdash; no single relationship holds for all large n.
+        <strong>None</strong> of O, o, &Omega;, &omega;, &Theta; apply (a genuine
+        "can't compare" case).
+      </p>
+      <p>
+        (d) <code>A = 10&#8319;</code>, <code>B = 100&#8319;</code>. Different bases with
+        <code>100 &gt; 10</code>: the ratio <code>(10/100)&#8319; = 0.1&#8319; &rarr; 0</code>,
+        so A is strictly slower: <code>A = O(B)</code> and <code>A = o(B)</code>.
+      </p>
+      <p>
+        (e) <code>A = n<sup>lg n</sup></code>, <code>B = (lg n)&#8319;</code>. Compare their
+        logs: <code>lg A = (lg n)&sup2;</code>, while <code>lg B = n &middot; lg lg n</code>.
+        The second grows far faster (it has a factor of n), so B outgrows A:
+        <code>A = O(B)</code> and <code>A = o(B)</code>.
+      </p>
+      <p>
+        (f) <code>A = lg(n!)</code>, <code>B = n lg n</code>. From Problem 2-25,
+        <code>lg(n!) = &Theta;(n lg n)</code> &mdash; same rate. So <code>A = &Theta;(B)</code>
+        (and therefore also <code>A = O(B)</code> and <code>A = &Omega;(B)</code>, but not the
+        strict little versions).
+      </p>
+      <p><strong>Answer:</strong> (a) O, o &middot; (b) O, o &middot; (c) none &middot; (d) O, o &middot; (e) O, o &middot; (f) &Theta; (with O and &Omega;).</p>
+    </details>
+  </div>
+
+  <div class="note green">
+    <span class="label">The one habit behind every answer above</span>
+    <p>
+      Not one of these problems needed a limit computed from scratch or an epsilon chased.
+      Every single one came down to: <strong>place both functions on the growth ladder,
+      strip constants, and read off which is higher</strong> &mdash; with two facts on
+      speed-dial (a polynomial beats any logarithm; an exponential beats any polynomial),
+      one trick for taming exponentials (take logs), and one for sums (a sum is &Theta; of
+      n copies of its top term, or of its last term when it is geometric). That is the whole
+      of asymptotic reasoning at this level.
+    </p>
+  </div>
+</section></div></details>
+
+<div class="note blue">
+  <span class="label">Where this leads</span>
+  <p>You can read a Big-O class off code. Week 9 puts it to work: one problem, solved four ways, landing in four completely different classes.</p>
+</div>
+</div></details></div>
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+
+</footer>
+<script src="../../assets/app.js?v=2"></script><script src="../../../assets/learning-path.js?v=1"></script>
+<script src="../../assets/anim.js?v=13"></script><script src="../../assets/anim-w8.js?v=10"></script><script src="../../assets/anim-workspace.js?v=11"></script></body>
+</html>

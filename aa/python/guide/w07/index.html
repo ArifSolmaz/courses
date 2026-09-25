@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Week 07 — Exact operation counts and dominant growth | Algorithm Analysis Guide</title>
+  <link rel="stylesheet" href="../../../assets/guide.css?v=2" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2325665c'/%3E%3Ctext x='32' y='41' font-size='28' text-anchor='middle' fill='white' font-family='Arial'%3EAA%3C/text%3E%3C/svg%3E" />
+</head>
+<body><div style="padding:16px;background:#fff1ce;color:#302a19">Python support library · former lesson sequence. <a href="../../">Current AA schedule</a></div>
+  <a class="skip-link" href="#content">Skip to guide content</a>
+  <header class="guide-header">
+    <a class="brand" href="../../..">Algorithm Analysis <span>course guide</span></a>
+    <nav class="header-actions">
+      <button id="theme" type="button">Dark theme</button>
+      <button id="print" type="button">Print</button>
+    </nav>
+  </header>
+  <main class="guide-layout" id="content">
+    <article class="reading">
+      <section class="guide-intro">
+        <span>Week 07</span>
+        <h1 id="week-07-exact-operation-counts-and-dominant-growth">Week 07 — Exact operation counts and dominant growth</h1>
+<p class="lesson-return">This is supporting reference material. <a href="../../../w7">Return to Week 07 lesson →</a></p>
+        <details><summary>About this reference</summary><p>Detailed teacher notes, original lesson link, analysis prompts, model solutions, and added timed-practice material.</p></details>
+      </section>
+      <details class="reference-toc"><summary>Find a topic in this reference</summary><div class="page-toc"><strong>On this page</strong><nav><a href="#the-question-for-this-week">The question for this week</a>
+<a href="#prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</a>
+<a href="#1-declare-the-counted-operation">1. Declare the counted operation</a>
+<a href="#2-sequential-rectangular-fixed-and-triangular-loops">2. Sequential, rectangular, fixed, and triangular loops</a>
+<a href="#3-a-dominant-term-describes-large-input-behavior">3. A dominant term describes large-input behavior</a>
+<a href="#4-adding-a-constant-versus-shrinking-by-a-factor">4. Adding a constant versus shrinking by a factor</a>
+<a href="#5-optional-deepening-after-the-core-check-dependent-loops">5. Optional deepening — after the core check: dependent loops</a>
+<a href="#6-optional-deepening-polynomial-evaluation">6. Optional deepening — polynomial evaluation</a>
+<a href="#7-graduated-practice-with-complete-solutions">7. Graduated practice with complete solutions</a>
+<a href="#misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</a>
+<a href="#draw-the-work-before-writing-its-formula">Draw the work before writing its formula</a>
+<a href="#additional-analysis-laboratory">Additional analysis laboratory</a></nav></div></details>
+      <section class="guide-chapter">
+        <h2 id="the-question-for-this-week">The question for this week</h2>
+<p><strong>Can we explain an algorithm&#x27;s work without depending on the speed of the computer that runs it?</strong></p>
+<p>Week 6 supplied observational evidence. This week develops an explicit model. We choose what to count, read loop bounds carefully, derive a formula, and then simplify its growth. The exact formula and the growth description answer different questions. Keep both until you understand why terms can be ignored for one purpose but not the other.</p>
+<p>You should finish able to count a linear scan, distinguish sequential from nested work, derive a triangular sum, handle a fixed inner bound, compare constant factors, recognize halving, and use the RAM model honestly. The later chapter problems extend the same tools to dependent triple loops and polynomial evaluation.</p>
+<p class="turkish"><strong>Türkçe:</strong> Süre ölçümü bilgisayardan etkilenir. İşlem sayısı için önce neyi “bir işlem” saydığımızı belirleriz. Tam formül ile büyüme sınıfı aynı şey değildir: biri belirli n için sayıyı, diğeri n büyürken davranışı anlatır.</p>
+<h2 id="prerequisite-warm-up-with-answers">Prerequisite warm-up, with answers</h2>
+<ol>
+<li>How often does <code>range(5)</code> run? <strong>Answer:</strong> five times, for 0 through 4.</li>
+<li>How many integers are in the inclusive interval 3 through 7? <strong>Answer:</strong> 7−3+1 = 5. Subtract endpoints and add one.</li>
+<li>If one loop performs 4 operations and a later loop performs 6, how many altogether? <strong>Answer:</strong> 4+6 = 10, not 24.</li>
+<li>If each of 4 outer iterations performs 6 inner operations, how many altogether? <strong>Answer:</strong> 4×6 = 24.</li>
+<li>What happens to 3n² when n doubles? <strong>Answer:</strong> 3(2n)² = 12n², four times the original 3n².</li>
+</ol>
+<p>If the second answer was not immediate, trace inclusive and exclusive ranges on paper before tackling dependent loops. Most errors below come from endpoints rather than advanced mathematics.</p>
+<h2 id="1-declare-the-counted-operation">1. Declare the counted operation</h2>
+<p>Let n denote input size and T(n) denote a chosen operation count. For <code>sum_to(n)</code>, the original lesson first counts assignments:</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def sum_to(n):
+    total = 0
+    for number in range(1, n + 1):
+        total = total + number
+    return total
+
+assert sum_to(5) == 15
+print(sum_to(5))</code></pre></div>
+<p>There is one initialization of <code>total</code>, n assignments to the loop variable <code>number</code>, and n assignments updating <code>total</code>. Under that declared convention, T(n) = 1+2n. For n = 5, this is 11 assignments. If we count only additions instead, the count is n = 5. Neither number is “the exact cost” without its counting convention.</p>
+<p>The unit-cost <strong>Random Access Machine</strong>, or RAM model, treats ordinary operations on machine-sized values as constant-cost steps. Arithmetic, comparisons, assignments and array access receive fixed costs. This helps compare algorithmic structure without choosing a particular laptop. It does not claim a real division and addition take identical nanoseconds.</p>
+<p>Be careful with the word “ordinary.” Comparing arbitrarily long strings can inspect many characters. Multiplying huge Python integers can depend on their bit lengths. Calling <code>sorted</code> is not one constant-time sorting operation merely because it occupies one source line. The model must describe the work that matters.</p>
+<p>Different representative operations often yield the same growth class when each iteration performs a bounded amount of work. Counting only the final <code>return</code> would miss an expensive loop completely. Choose a count that actually represents the expensive region.</p>
+<h2 id="2-sequential-rectangular-fixed-and-triangular-loops">2. Sequential, rectangular, fixed, and triangular loops</h2>
+<h3 id="worked-example-1-four-loop-shapes">Worked example 1 — four loop shapes</h3>
+<p>Count <strong>body updates only</strong>, excluding setup and loop-control assignments. Use n = 4 first.</p>
+<div class="table-scroll"><table><thead><tr><th>Shape</th><th>Body work</th><th>At n = 4</th><th>General count</th></tr></thead><tbody><tr><td>Two separate loops</td><td>n updates, then n more</td><td>4+4 = 8</td><td>2n</td></tr><tr><td>Full nested loops</td><td>n inner updates per outer iteration</td><td>4×4 = 16</td><td>n²</td></tr><tr><td>Fixed inner loop</td><td>10 updates per outer iteration</td><td>4×10 = 40</td><td>10n</td></tr><tr><td>Triangular loop</td><td>i updates for outer index i</td><td>0+1+2+3 = 6</td><td>n(n−1)/2</td></tr></tbody></table></div>
+<p>The fixed-inner case is the important trap. Ten is independent of n. Multiplying n by ten changes the multiplier, not the power of n. In the rectangular case, both dimensions grow with n, so their product is quadratic.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">n = 4
+sequential = 0
+for i in range(n):
+    sequential += 1
+for j in range(n):
+    sequential += 1
+
+rectangle = 0
+fixed_inner = 0
+triangle = 0
+for i in range(n):
+    for j in range(n):
+        rectangle += 1
+    for j in range(10):
+        fixed_inner += 1
+    for j in range(i):
+        triangle += 1
+
+print(sequential, rectangle, fixed_inner, triangle)
+assert (sequential, rectangle, fixed_inner, triangle) == (8, 16, 40, 6)</code></pre></div>
+<p>This program verifies four specific counts; the formulas explain all n. If we instead count all assignments in the rectangular loop, the initializer contributes 1, the outer loop variable n, the inner loop variable n², and the body counter n². That gives 1+n+2n². It is not the same exact formula as n², but both have quadratic dominant growth. Differences between conventions need not be only one or two operations.</p>
+<h3 id="derive-the-triangular-formula-slowly">Derive the triangular formula slowly</h3>
+<p>For the triangular loop, i takes 0, 1, …, n−1, and the inner loop runs i times. Write the sum forward and backward:</p>
+<div class="guide-code"><div class="code-label">text</div><pre><code class="language-text">S = 0 + 1 + 2 + ... + (n−1)
+S = (n−1) + (n−2) + ... + 0
+2S = (n−1) + (n−1) + ... + (n−1), with n terms
+2S = n(n−1)
+S = n(n−1)/2 = n²/2 − n/2.</code></pre></div>
+<p>The factor one-half does not remove the square. At n = 10 the count is 10×9/2 = 45. At n = 20 it is 20×19/2 = 190. The ratio 190/45 ≈ 4.222 is not exactly 4 because the linear term still matters. Ratios approach 4 as n grows.</p>
+<p class="turkish"><strong>Türkçe:</strong> İç döngü her seferinde n kez çalışmıyorsa doğrudan n×n yazmayın. Önce her dış tur için iç tur sayısını bulun, sonra toplayın. 0+1+…+(n−1), kare büyümenin yarısıdır; doğrusal büyüme değildir.</p>
+<h2 id="3-a-dominant-term-describes-large-input-behavior">3. A dominant term describes large-input behavior</h2>
+<p>Consider T(n) = 5n²+200n+3000.</p>
+<div class="table-scroll"><table><thead><tr><th>n</th><th>5n²</th><th>200n</th><th>3000</th><th>Total</th></tr></thead><tbody><tr><td>10</td><td>500</td><td>2000</td><td>3000</td><td>5500</td></tr><tr><td>100</td><td>50000</td><td>20000</td><td>3000</td><td>73000</td></tr><tr><td>1000</td><td>5000000</td><td>200000</td><td>3000</td><td>5203000</td></tr></tbody></table></div>
+<p>At n = 10, the constant contributes more than the squared term. At n = 1000, the squared term contributes about 96.1% of the total. Dividing the formula by n² makes the reason visible: T(n)/n² = 5 + 200/n + 3000/n². The last two terms shrink toward zero; the ratio approaches 5.</p>
+<p>For growth classification, keep n². For predicting actual operation totals at n = 10, keep all terms. Small inputs can matter in engineering, especially if a small task runs millions of times. “Ignore lower terms” is a rule for asymptotic simplification, not permission to erase them from every calculation.</p>
+<h3 id="worked-example-2-solve-a-crossover">Worked example 2 — solve a crossover</h3>
+<p>Method A costs 100n operations; method B costs n². For positive n, equality requires:</p>
+<div class="guide-code"><div class="code-label">text</div><pre><code class="language-text">100n = n²
+100 = n, after dividing both sides by n.</code></pre></div>
+<div class="table-scroll"><table><thead><tr><th>n</th><th>A: 100n</th><th>B: n²</th><th>Smaller modeled count</th></tr></thead><tbody><tr><td>50</td><td>5000</td><td>2500</td><td>B</td></tr><tr><td>100</td><td>10000</td><td>10000</td><td>tie</td></tr><tr><td>1000</td><td>100000</td><td>1000000</td><td>A</td></tr></tbody></table></div>
+<p>For n &gt; 0, B/A = n²/(100n) = n/100. At n = 1000, B uses ten times the modeled work. The operation-model crossover is exactly 100. A measured time crossover can differ because the two implementations&#x27; operations have different real costs.</p>
+<p class="turkish"><strong>Türkçe:</strong> Sabit çarpan küçük girdilerde sonucu değiştirebilir. Ancak 100n ile n² karşılaştırmasında n/100 oranı sınırsız büyür. Önce eşitlik noktasını hesaplayın, sonra bu noktanın hangi tarafında olduğunuzu belirleyin.</p>
+<h2 id="4-adding-a-constant-versus-shrinking-by-a-factor">4. Adding a constant versus shrinking by a factor</h2>
+<p>A loop that changes i from 0 toward n using <code>i += 1</code> runs n times. A loop beginning at n and applying <code>i //= 2</code> while i &gt; 1 shrinks much faster.</p>
+<p>For n = 20, the halving states are 20 → 10 → 5 → 2 → 1, giving four iterations. For n = 16 they are 16 → 8 → 4 → 2 → 1, also four. For integer n ≥ 1, this floor-halving loop has floor(log₂n) iterations. For powers of two, n = 2ᵏ, the count is exactly k.</p>
+<p>The phrase “multiply means logarithmic” needs context. Multiplying the <strong>progress variable</strong> by a fixed factor can make the iteration count logarithmic. An algorithm that creates twice as many recursive subproblems each level can instead produce exponential total work. Identify what quantity changes, its stopping condition, and the work per iteration.</p>
+<h2 id="5-optional-deepening-after-the-core-check-dependent-loops">5. Optional deepening — after the core check: dependent loops</h2>
+<p>First check that you can explain the four simple loop shapes in Section 2. The following chapter problems preserve the original lesson’s deeper material; their cubic formulas are not prerequisites for Week 8. Return after the core check, using the same method: start at the innermost loop, find its length, then add over the surrounding choices.</p>
+<h3 id="mystery-group-by-the-middle-index">Mystery: group by the middle index</h3>
+<p>In the mystery function, i runs from 1 to n−1; j runs from i+1 to n; k runs from 1 to j. For a fixed j, there are j−1 possible i values and j inner iterations. Thus that j contributes j(j−1).</p>
+<p>Adding over j = 2 through n gives the sum of j² minus the sum of j. Using the standard sums:</p>
+<div class="guide-code"><div class="code-label">text</div><pre><code class="language-text">r = n(n+1)(2n+1)/6 − n(n+1)/2
+  = n(n+1)[(2n+1)−3]/6
+  = n(n+1)(n−1)/3
+  = (n³−n)/3.</code></pre></div>
+<p>At n = 5, r = (125−5)/3 = 40. The dominant term is cubic. This grouping argument is stronger than merely noticing three visible loops.</p>
+<h3 id="pesky-cancel-the-lower-endpoint">Pesky: cancel the lower endpoint</h3>
+<p>Here i runs 1 through n; j runs 1 through i; k runs j through i+j <strong>inclusive</strong>. The inner length is (i+j)−j+1 = i+1. Its starting position changes with j, but its length does not.</p>
+<p>There are i choices of j, giving i(i+1) updates for each i. Summing i²+i yields n(n+1)(n+2)/3. At n = 5, the result is 5×6×7/3 = 70. The lower-degree terms explain why small-input doubling ratios are below 8; this is not timing noise, because these are exact counts.</p>
+<h3 id="foobar-a-shrinking-interval-still-has-cubic-total-work">Foobar: a shrinking interval still has cubic total work</h3>
+<p>Take even n = 2m. The outer i runs 1 through m, j runs i through 2m−i, and the inner loop runs j times. Summing j over that interval gives its average m multiplied by its length 2m−2i+1.</p>
+<p>Therefore the whole count is m times the sum <code>(2m−1)+(2m−3)+…+1</code>. The first m odd numbers sum to m², so total updates = m×m² = m³ = n³/8. For n = 4, there are 8 updates; for n = 10, 125. Doubling even n multiplies this exact formula by 8.</p>
+<h2 id="6-optional-deepening-polynomial-evaluation">6. Optional deepening — polynomial evaluation</h2>
+<p>The source evaluates a₀+a₁x+…+aₙxⁿ using a running power of x. Each of n iterations updates the power with one multiplication, then multiplies by a coefficient and adds to the result. Total: <strong>2n multiplications and n additions</strong>. With no data-dependent early exit, those counts do not change between best, average and worst coefficient values under this model.</p>
+<p>Horner&#x27;s method rewrites the expression as a₀+x(a₁+x(a₂+…)). Work from the highest coefficient downward. For 2−3x+x²+4x³ at x = 2:</p>
+<div class="table-scroll"><table><thead><tr><th>Step</th><th>Horner calculation</th><th>New running value</th></tr></thead><tbody><tr><td>Start</td><td>highest coefficient</td><td>4</td></tr><tr><td>Include x² coefficient</td><td>4×2+1</td><td>9</td></tr><tr><td>Include x coefficient</td><td>9×2−3</td><td>15</td></tr><tr><td>Include constant</td><td>15×2+2</td><td>32</td></tr></tbody></table></div>
+<p>Direct substitution agrees: 2−6+4+32 = 32. Horner uses n multiplications and n additions: half the multiplications of this particular running-power method. Both are linear in the number of coefficients. The “naive” method here does not recompute every power from scratch; that would be a different implementation with different counts.</p>
+<h2 id="7-graduated-practice-with-complete-solutions">7. Graduated practice with complete solutions</h2>
+<h3 id="practice-1-exact-count-versus-growth">Practice 1 — exact count versus growth</h3>
+<p>Count body updates for two sequential loops of lengths n and 3n, followed by one fixed loop of length 7. Evaluate n = 5 and simplify the growth.</p>
+<h4 id="solution-1">Solution 1</h4>
+<p>Sequential regions add: n+3n+7 = 4n+7 updates. At n = 5, that is 20+7 = 27. The dominant term is linear. The exact value 27 depends on including the final seven updates; the growth class does not.</p>
+<h3 id="practice-2-implement-and-verify-the-triangle">Practice 2 — implement and verify the triangle</h3>
+<p>Count <code>count += 1</code> in an outer <code>range(n)</code> and inner <code>range(i)</code>. Verify n = 0, 1, 4, 8, and explain the ratio from 4 to 8.</p>
+<h4 id="solution-2">Solution 2</h4>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">def triangular_count(n):
+    count = 0
+    for i in range(n):
+        for j in range(i):
+            count += 1
+    return count
+
+for n, expected in [(0, 0), (1, 0), (4, 6), (8, 28)]:
+    actual = triangular_count(n)
+    assert actual == n * (n - 1) // 2 == expected
+    print(n, actual)
+print(&#x27;Ratio from 4 to 8:&#x27;, 28 / 6)</code></pre></div>
+<p>The ratio is 28/6 ≈ 4.667. The formula has a negative linear term, so the small-size ratio is not exactly four. Do not calculate ratios whose denominator is zero, such as the count at n = 1.</p>
+<h3 id="practice-3-optional-challenge-verify-horner-s-arithmetic-and-savings">Practice 3 — optional challenge: verify Horner&#x27;s arithmetic and savings</h3>
+<p>Evaluate coefficients <code>[2, -3, 1, 4]</code> at x = 2 using Horner, count multiplications, and compare with the lesson&#x27;s running-power method. State what n means.</p>
+<h4 id="solution-3">Solution 3</h4>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">coefficients = [2, -3, 1, 4]
+x = 2
+degree = len(coefficients) - 1
+value = coefficients[-1]
+multiplications = additions = 0
+for i in range(degree - 1, -1, -1):
+    value = value * x + coefficients[i]
+    multiplications += 1
+    additions += 1
+print(value, multiplications, additions)
+assert (value, multiplications, additions) == (32, 3, 3)</code></pre></div>
+<p>Here n is polynomial degree 3, and there are n+1 = 4 coefficients. The running-power method uses 6 multiplications and 3 additions. Horner saves 3 multiplications. The result and the asymptotic class are unchanged; the operation count improves.</p>
+<h2 id="misconceptions-glossary-and-readiness">Misconceptions, glossary, and readiness</h2>
+<div class="table-scroll"><table><thead><tr><th>Misconception</th><th>Correction</th></tr></thead><tbody><tr><td>Two loops always mean n²</td><td>Bounds and nesting determine the count</td></tr><tr><td>Every operation choice is equally informative</td><td>The count must represent the expensive work</td></tr><tr><td>A factor of one-half makes a quadratic linear</td><td>A constant multiplier does not change the exponent</td></tr><tr><td>An exact counter&#x27;s nonideal ratio must be noise</td><td>Lower-order terms can explain it exactly</td></tr><tr><td>Theory disagreeing with timing is automatically wrong</td><td>Inspect the model, implementation and measurement conditions</td></tr></tbody></table></div>
+<div class="table-scroll"><table><thead><tr><th>English</th><th>Türkçe</th><th>Meaning</th></tr></thead><tbody><tr><td>Basic operation</td><td>Temel işlem</td><td>The operation explicitly being counted</td></tr><tr><td>Dominant term</td><td>Baskın terim</td><td>Fastest-growing part of a cost formula</td></tr><tr><td>Constant factor</td><td>Sabit çarpan</td><td>Multiplier independent of input size</td></tr><tr><td>Triangular sum</td><td>Üçgensel toplam</td><td>A sum of consecutive increasing counts</td></tr><tr><td>RAM model</td><td>RAM hesaplama modeli</td><td>Constant-cost operations on machine-sized values</td></tr><tr><td>Horner&#x27;s method</td><td>Horner yöntemi</td><td>Nested multiply-and-add polynomial evaluation</td></tr></tbody></table></div>
+<p>You are ready when you can derive 2n, n², 10n and n(n−1)/2 without guessing from indentation alone. If not, trace n = 4 and label the counted update. The dependent triple-loop proofs and Horner challenge can wait. When revisiting them, redo the inclusive-length warm-up and the pesky cancellation. If exact counts and growth labels are mixed together, keep two separate columns in your answers.</p>
+<p><strong>Bridge to Week 8:</strong> now that you can justify a cost formula, you are ready to express an upper bound precisely and distinguish it from a tight description of growth.</p>
+<h2 id="draw-the-work-before-writing-its-formula">Draw the work before writing its formula</h2>
+<p>Add counts for tasks done one after another. Multiply when every item is paired with every item. If an inner loop runs a different number of times on each round, add those actual counts. Seeing two loops is not enough to decide how the work grows.</p>
+<p><strong>Draw or trace.</strong> Draw a 4 by 4 grid for every ordered pair. Then mark only pairs with column less than row: row lengths are 0, 1, 2, 3. These dots represent actual visits.</p>
+<p><strong>Predict before checking.</strong> How many visits occur in the square and triangle? Why does the triangle represent each unordered pair of distinct indices once?</p>
+<h3 id="worked-reasoning">Worked reasoning</h3>
+<p>The square has 16 visits; the triangle has 6. For n items, the triangle gives 0 + 1 + ... + (n − 1) = n(n − 1)/2. Each pair of different positions appears once, without counting the reversed pair again. Two such triangles count both orders. Two separate full scans take n + n visits, not n squared. To use visits as a time estimate, assume each visit does a fixed amount of work.</p>
+<div class="guide-code"><div class="code-label">python</div><pre><code class="language-python">for n in (0, 1, 4, 10):
+    pairs = [(i, j) for i in range(n) for j in range(i)]
+    assert len(pairs) == n * (n - 1) // 2
+print(&quot;Four items give&quot;, len([(i, j) for i in range(4) for j in range(i)]), &quot;pairs&quot;)</code></pre></div>
+<p><strong>Change one thing.</strong> Make the inner loop always run three times. There are still two loops, but now there are 3n body visits. State what changed geometrically.</p>
+<p class="turkish"><strong>Türkçe:</strong> Döngü sayısını değil ziyaret edilen işi say. Ardışık işler toplanır; değişen iç döngü uzunlukları bir toplam oluşturur.</p>
+<h2 id="additional-analysis-laboratory">Additional analysis laboratory</h2>
+<p>Exact counting is where students learn to slow down. The safest method is to write the loop shape before simplifying.</p>
+<div class="table-scroll"><table><thead><tr><th>Shape</th><th>Exact count</th><th>Growth</th></tr></thead><tbody><tr><td>one loop over n items</td><td>n</td><td>linear</td></tr><tr><td>two consecutive full loops</td><td>n + n = 2n</td><td>linear</td></tr><tr><td>full nested loops</td><td>n * n = n^2</td><td>quadratic</td></tr><tr><td>triangular nested loop</td><td>0 + 1 + ... + (n - 1)</td><td>quadratic</td></tr><tr><td>loop that halves the remaining candidates</td><td>about log2 n rounds</td><td>logarithmic</td></tr></tbody></table></div>
+<p>Extra exam-style prompt: A program first scans n readings to compute a maximum, then compares every pair of readings. Give the exact pair-comparison count and the total growth.</p>
+<p>Solution: The first scan contributes n visits or n - 1 comparisons depending on the chosen count. The pair phase has n(n - 1)/2 unordered comparisons if each distinct pair is checked once. The total is linear plus quadratic, so the dominant growth is quadratic.</p>
+<p class="turkish"><strong>Turkce:</strong> Ard arda gelen isleri topluyoruz. Ic ice ve her kombinasyonu deneyen islerde carpma veya toplam cikiyor. Son adimda en buyuk terim buyume davranisini belirler.</p>
+      </section>
+      <details class="reference-toc"><summary>Other reference chapters</summary><nav class="reference-index"><div class="nav-group-title">Start</div>
+<a href="../../../guide">Guide Hub</a>
+<a href="../toolkit">Toolkit</a>
+<a href="../bridges">Bridge Notes</a>
+<div class="nav-group-title">Weekly Guide Pages</div>
+<a href="../w01">Week 01</a>
+<a href="../w02">Week 02</a>
+<a href="../w03">Week 03</a>
+<a href="../w04">Week 04</a>
+<a href="../w05">Week 05</a>
+<a href="../w06">Week 06</a>
+<a href="." aria-current="page">Week 07</a>
+<a href="../w08">Week 08</a>
+<a href="../w09">Week 09</a>
+<a href="../w10">Week 10</a>
+<a href="../w11">Week 11</a>
+<a href="../w12">Week 12</a>
+<a href="../w13">Week 13</a>
+<a href="../w14">Week 14</a>
+<div class="nav-group-title">Review</div>
+<a href="../reviews">Reviews</a></nav></details>
+    </article>
+  </main>
+  <script src="../../../assets/guide.js"></script>
+</body>
+</html>

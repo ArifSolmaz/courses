@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Bubble and selection sort by hand, then Python's sorted() — n² vs n log n on a plot.">
+<title>Week 13: Sorting: Why Some Sorts Are Slow — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../assets/learning.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/questions.css?v=2">
+<link rel="stylesheet" href="../../assets/anim.css"><link rel="stylesheet" href="../../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../../assets/anim-w13.css"><link rel="stylesheet" href="../../assets/anim-workspace.css?v=17"></head>
+<body><div style="padding:16px;background:#fff1ce;color:#302a19">Python support library · former lesson sequence. <a href="../../">Current AA schedule</a></div>
+<header class="site-header">
+  <a class="brand" href="../../index.html">AA <span>/ course home</span></a>
+  <nav class="header-nav">
+    <details class="path-menu"><summary>Settings</summary><div>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 13 &middot; Phase 4 · Choosing well</div>
+  <h1>Sorting: Why Some Sorts Are Slow</h1>
+  <p class="lede">Bubble and selection sort by hand, then Python's sorted() — n² vs n log n on a plot.</p>
+  <p class="path-question"><strong>Why is the sort you invent yourself so much slower than the built-in one?</strong></p>
+</div>
+
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Watch neighbouring swaps move the maximum</h2><figure class="vl-figure"><figcaption>Bubble sort: shorten the unsorted part after each pass</figcaption><div class="vl-trace"><b>start</b><div class="vl-cards" style="--row-columns:5"><span>5</span><span>1</span><span>4</span><span>2</span><span>8</span></div></div><div class="vl-trace"><b>pass 1</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>4</span><span>2</span><span>5</span><span>8</span></div></div><div class="vl-trace"><b>pass 2</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>5</span><span>8</span></div></div><div class="vl-trace"><b>pass 3</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>5</span><span>8</span></div></div></figure><div class="vl-table"><table><thead><tr><th scope="col">Pass</th><th scope="col">Comparisons</th><th scope="col">Swaps</th></tr></thead><tbody><tr><td>1</td><td>4</td><td>3</td></tr><tr><td>2</td><td>3</td><td>1</td></tr><tr><td>3</td><td>2</td><td>0 → stop</td></tr></tbody></table></div><p>This version stops after a pass with no swaps: 9 comparisons and 4 swaps here. A different stopping rule can change the count.</p></section><section class="vl-lesson"><h2>Different methods exploit different structure</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Best time</th><th scope="col">Worst time</th><th scope="col">What moves</th></tr></thead><tbody><tr><td>Bubble, with early stop</td><td>Θ(n)</td><td>Θ(n²)</td><td>Adjacent out-of-order pairs</td></tr><tr><td>Selection</td><td>Θ(n²)</td><td>Θ(n²)</td><td>Choose the smallest remaining item</td></tr><tr><td>Insertion</td><td>Θ(n)</td><td>Θ(n²)</td><td>Insert into a sorted prefix</td></tr></tbody></table></div><div class="vl-equation"><span>Selection comparisons, regardless of initial order</span><strong>(n − 1) + … + 1 = n(n − 1)/2</strong></div><p>Insertion sort does little work on nearly sorted input. In its usual shifting version, every shift removes one inversion: a pair whose order is wrong.</p></section><section class="vl-lesson"><h2>Merge: divide the list, then combine sorted halves</h2><figure class="vl-figure"><figcaption>Merge sort example</figcaption><div class="vl-trace"><b>split</b><div class="vl-cards" style="--row-columns:2"><span>[5, 1]</span><span>[4, 2]</span></div></div><div class="vl-trace"><b>sort halves</b><div class="vl-cards" style="--row-columns:2"><span>[1, 5]</span><span>[2, 4]</span></div></div><div class="vl-trace"><b>merge</b><div class="vl-cards" style="--row-columns:4"><span>1</span><span>2</span><span>4</span><span>5</span></div></div></figure><div class="vl-equation"><span>For n = 2ᵏ: k merge levels, linear work per level</span><strong>T(n) = Θ(n log₂ n)</strong></div><p>Merging repeatedly takes the smaller front item. A typical array implementation uses O(n) extra storage. Unequal halves for other n do not change the growth class.</p></section><section class="vl-lesson"><h2>Use keys; preserve ties when needed</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>students = [(&quot;Ada&quot;, 80), (&quot;Lin&quot;, 70), (&quot;Sam&quot;, 80)]
+ranked = sorted(students, key=lambda pair: pair[1])
+print(ranked)</code></pre></div><figure class="vl-figure"><figcaption>Stable score sort: Ada stays before Sam</figcaption><div class="vl-trace"><b>result</b><div class="vl-cards" style="--row-columns:3"><span>Lin: 70</span><span>Ada: 80</span><span>Sam: 80</span></div></div></figure><p><code>sorted</code> returns a new list. <code>list.sort()</code> changes that list and returns <code>None</code>. <code>lambda pair: pair[1]</code> selects the second field (the score). Python sorting is stable: equal keys keep their original order. Its adaptive sort has O(n log n) worst-case time and can exploit existing order.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
+<p class="source-label">20 test questions · 30 written questions · 50 total</p>
+<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
+<h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
+<article class="source-exercise test-question" id="skiena-mcq-041">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">Which array (positions 1 to 5) is a valid min-heap?</p><ol class="mcq-options" type="a"><li> [1, 3, 2, 5, 4]</li><li> [1, 5, 2, 3, 4]</li><li> [2, 1, 3, 4, 5]</li><li> [1, 2, 3, 1, 0]</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> In (b) the 5 at position 2 is bigger than its child 3; in (c) the root exceeds a child; in (d) position 2’s child 1 is smaller than 2.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-042">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">In the array layout of a heap, the parent of position 9 is position:</p><ol class="mcq-options" type="a"><li> 3</li><li> 4</li><li> 5</li><li> 18</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Parent of k is ⌊k/2⌋.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-043">
+<p class="source-label">Question 3 · easy</p><p class="question-prompt">The root of a max-heap holds:</p><ol class="mcq-options" type="a"><li> the minimum</li><li> the median</li><li> the maximum</li><li> an arbitrary key</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Every parent is at least as large as its children.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-044">
+<p class="source-label">Question 4 · easy</p><p class="question-prompt">What is the tightest listed worst-case upper bound for standard heapsort?</p><ol class="mcq-options" type="a"><li> O(n)</li><li> O(n log n)</li><li> O(n²)</li><li> O(log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Linear build plus n extractions at O(log n).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-045">
+<p class="source-label">Question 5 · easy</p><p class="question-prompt">Ignoring rounding and constant factors, which recurrence models mergesort, with T(1) constant?</p><ol class="mcq-options" type="a"><li> T(n) = T(n/2) + 1</li><li> T(n) = 2T(n/2) + n</li><li> T(n) = T(n − 1) + n</li><li> T(n) = 2T(n − 1) + 1</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Two halves plus a linear merge; (a) is binary search and (c) is selection sort.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-046">
+<p class="source-label">Question 6 · easy</p><p class="question-prompt">For n distinct keys and standard two-way last-element-pivot quicksort, which input order guarantees Θ(n²) work?</p><ol class="mcq-options" type="a"><li>every randomly shuffled input</li><li>already sorted input</li><li>every input with distinct keys</li><li>only arrays of fixed small size</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Every pivot is then an extreme element and one side of the partition is empty.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-047">
+<p class="source-label">Question 7 · easy</p><p class="question-prompt">Which is the strongest valid lower bound listed for worst-case comparison sorting of n distinct keys?</p><ol class="mcq-options" type="a"><li> Ω(n)</li><li> Ω(n log n)</li><li> Ω(n²)</li><li> Ω(log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> The decision tree needs n! leaves, so height at least lg(n!).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-048">
+<p class="source-label">Question 8 · easy</p><p class="question-prompt">Which listed sorting method naturally supports an external-memory implementation using sequential runs and merges?</p><ol class="mcq-options" type="a"><li> quicksort</li><li> heapsort</li><li> mergesort</li><li> insertion sort</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> It streams data sequentially, which suits disks.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-049">
+<p class="source-label">Question 9 · easy</p><p class="question-prompt">In least-significant-digit-first radix sort, each digit pass must be:</p><ol class="mcq-options" type="a"><li> stable</li><li> recursive</li><li> in place</li><li> randomised</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Ties on the current digit must keep the order established by earlier passes.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-050">
+<p class="source-label">Question 10 · easy</p><p class="question-prompt">What is the tightest listed upper bound for building a binary heap using bottom-up heapify?</p><ol class="mcq-options" type="a"><li> O(n)</li><li> O(n log n)</li><li> O(n²)</li><li> O(log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Most nodes are near the bottom and cost almost nothing to bubble down.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-016">
+<p class="source-label">Question 11 · medium</p><p class="question-prompt">The best-case running time of insertion sort is:</p><ol class="mcq-options" type="a"><li> Θ(n)</li><li> Θ(n log n)</li><li> Θ(n²)</li><li> Θ(1)</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> On already sorted input, each outer iteration performs a constant amount of work and no shifting. There are n − 1 such iterations, giving Θ(n). The inner condition is still checked.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-051">
+<p class="source-label">Question 12 · medium</p><p class="question-prompt">Insert 1 into the min-heap [2, 4, 3]. The final array is:</p><ol class="mcq-options" type="a"><li> [2, 4, 3, 1]</li><li> [1, 2, 3, 4]</li><li> [1, 4, 3, 2]</li><li> [1, 3, 2, 4]</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> 1 lands at position 4 under 4, swaps up to position 2, then swaps with the root 2.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-052">
+<p class="source-label">Question 13 · medium</p><p class="question-prompt">Extract the minimum from the min-heap [1, 3, 2, 7, 4]. The remaining heap is:</p><ol class="mcq-options" type="a"><li> [2, 3, 4, 7]</li><li> [3, 2, 4, 7]</li><li> [2, 4, 3, 7]</li><li> [3, 7, 2, 4]</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The last element 4 moves to the root, then swaps with its smaller child 2.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-053">
+<p class="source-label">Question 14 · medium</p><p class="question-prompt">Apply Lomuto partition to [4, 9, 1, 7, 3]: scan left to right, move keys strictly below the last pivot 3 into the next low slot, then swap the pivot into that slot. What is the result?</p><ol class="mcq-options" type="a"><li> [1, 3, 4, 7, 9]</li><li> [1, 3, 9, 4, 7]</li><li> [3, 1, 4, 7, 9]</li><li> [1, 9, 4, 7, 3]</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Only 1 is smaller than the pivot; it is swapped to the front, then the pivot is swapped into position 1, giving [1, 3, 4, 7, 9].</p></div></article><article class="source-exercise test-question" id="skiena-mcq-054">
+<p class="source-label">Question 15 · medium</p><p class="question-prompt">In the worst case over two nonempty sorted lists with 10 items in total, how many key comparisons does the standard merge need?</p><ol class="mcq-options" type="a"><li> 5</li><li> 9</li><li> 10</li><li> 45</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> n − 1: the last element is copied without a comparison.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-055">
+<p class="source-label">Question 16 · medium</p><p class="question-prompt">For n distinct keys and uniformly random pivots, the leading term of quicksort’s expected comparison count is:</p><ol class="mcq-options" type="a"><li> n²/2</li><li> 1.39 n lg n</li><li> n</li><li> 2ⁿ</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> The exact expectation is 2(n + 1)Hₙ − 4n. Its leading term is 2n ln n = (2 ln 2)n lg n ≈ 1.386n lg n; lower-order terms are omitted.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-056">
+<p class="source-label">Question 17 · medium</p><p class="question-prompt">The median-of-three pivot rule takes:</p><ol class="mcq-options" type="a"><li> the mean of three values</li><li> the median of the first, middle and last elements</li><li> a random element</li><li> the last element</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> The median is an actual element and is not dragged around by one extreme value.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-057">
+<p class="source-label">Question 18 · medium</p><p class="question-prompt">Using Θ(n) buckets and insertion sort within each bucket, which distribution assumption gives expected O(n) bucket-sort time?</p><ol class="mcq-options" type="a"><li>all keys enter one bucket in arbitrary order</li><li>keys are independent and uniform over a known fixed interval</li><li>keys arrive already sorted but all enter one bucket</li><li>no assumption is needed</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Independent uniform keys give bounded expected bucket occupancy and O(n) expected total local-sorting work. It is not a worst-case linear guarantee for arbitrary keys.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-058">
+<p class="source-label">Question 19 · medium</p><p class="question-prompt">Radix sort is run on 170, 45, 75, 90, 802, 24. After the first pass (on the units digit) the order is:</p><ol class="mcq-options" type="a"><li> 170, 90, 802, 24, 45, 75</li><li> 24, 45, 75, 90, 170, 802</li><li> 90, 170, 802, 24, 45, 75</li><li> 802, 24, 45, 75, 170, 90</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Units digits 0, 0, 2, 4, 5, 5; the stable pass keeps 170 before 90 and 45 before 75.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-059">
+<p class="source-label">Question 20 · hard</p><p class="question-prompt">For n ≥ 2, sort n integers in [0, n³ − 1] using word-RAM radix sort in base n. How many stable counting-sort passes suffice for O(n) total time?</p><ol class="mcq-options" type="a"><li> 1 pass</li><li> 2 passes</li><li> 3 passes</li><li> log n passes</li></ol><p class="question-plain"><strong>In simpler words:</strong> Count digits in base n instead of base ten.</p><p class="question-hint"><strong>Starting hint:</strong> The biggest allowed integer is just below n³.</p>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Each number has three base-n digits, and each pass is a linear-time stable bucket sort.</p><h5>Step by step</h5><ol class="reasoning-steps"><li>Write x=d₂n²+d₁n+d₀, with each digit in 0,…,n−1.</li><li>Three stable counting-sort passes handle d₀, d₁, d₂. Each costs O(n+n), so the total is O(n).</li></ol></div></article>
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
+<article class="source-exercise" id="skiena-ex-066"><p class="source-label">Question 21 · easy</p><p>Is the array [3, 5, 4, 10, 8, 7] (positions 1 to 6) a valid min-heap?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>yes. Position 1 (3) has children 5 and 4; position 2 (5) has children 10 and 8; position 3 (4) has child 7. Every parent is ≤ its children.</p></div></article><article class="source-exercise" id="skiena-ex-067"><p class="source-label">Question 22 · easy</p><p>In the array layout of a heap, where are the children of position 6, and where is the parent of position 13?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>children at 12 and 13; parent of 13 is ⌊13/2⌋ = 6.</p></div></article><article class="source-exercise" id="skiena-ex-068"><p class="source-label">Question 23 · easy</p><p>What sits at the root of a max-heap, and where could the smallest element be?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>The root holds a largest key. With distinct keys, a smallest key must be a leaf and can be at any leaf. If duplicates are allowed, a minimum can also occur at an internal node; for example, an all-equal heap.</p></div></article><article class="source-exercise" id="skiena-ex-069"><p class="source-label">Question 24 · easy</p><p>Insert 2 into the min-heap [3, 5, 4, 10, 8, 7]. Show the bubble-up steps and the final array.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>append 2 at position 7 (child of position 3, which holds 4). 4 &gt; 2, swap: [3, 5, 2, 10, 8, 7, 4]. Its parent is now position 1 (3); 3 &gt; 2, swap: [2, 5, 3, 10, 8, 7, 4]. At the root, stop.</p></div></article><article class="source-exercise" id="skiena-ex-070"><p class="source-label">Question 25 · easy</p><p>Extract the minimum from [2, 5, 3, 10, 8, 7, 4]. Show the steps and the resulting heap.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>remove 2, move the last element 4 to the root: [4, 5, 3, 10, 8, 7]. Children of 4 are 5 and 3; the smaller, 3, is smaller than 4, so swap: [3, 5, 4, 10, 8, 7]. Position 3 (4) now has child 7 only; 7 &gt; 4, stop.</p></div></article><article class="source-exercise" id="skiena-ex-071"><p class="source-label">Question 26 · easy</p><p>Write the recurrence for mergesort’s running time and its solution.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>T(n) = 2T(n/2) + Θ(n), so T(n) = Θ(n log n): linear merging on each of lg n levels.</p></div></article><article class="source-exercise" id="skiena-ex-072"><p class="source-label">Question 27 · easy</p><p>Merge [1, 4, 9] and [2, 3, 10]. Give the output and count the comparisons.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>1, 2, 3, 4, 9, 10. Comparisons: 1 vs 2, 4 vs 2, 4 vs 3, 4 vs 10, 9 vs 10; five comparisons, then 10 is copied with none. That is n − 1 = 5 for n = 6.</p></div></article><article class="source-exercise" id="skiena-ex-073"><p class="source-label">Question 28 · easy</p><p>What input makes quicksort with the last element as pivot take Θ(n²)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>an already sorted (or reverse sorted) array: every pivot is the largest or smallest element, so one side of every partition is empty.</p></div></article><article class="source-exercise" id="skiena-ex-074"><p class="source-label">Question 29 · easy</p><p>Bucketsort can run in O(n). Why does that not contradict the Ω(n log n) lower bound?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the bound applies to comparison-based sorting only. Bucketsort uses the numeric value of a key to pick its bucket directly, which is not a comparison, and it relies on an assumption about the distribution of the keys.</p></div></article><article class="source-exercise" id="skiena-ex-075"><p class="source-label">Question 30 · easy</p><p>Which O(n log n) sort is preferred when the data does not fit in memory, and why?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>mergesort, because it reads and writes data in long sequential streams, which is what disks do well, instead of jumping around.</p></div></article><article class="source-exercise" id="skiena-ex-076"><p class="source-label">Question 31 · easy</p><p>What two operations does heapsort consist of, and what does each cost?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>build a heap from all n items once (O(n) with heapify), then extract the minimum n times (O(log n) each). Total O(n log n).</p></div></article><article class="source-exercise" id="skiena-ex-023"><p class="source-label">Question 32 · medium</p><p>Compare the best-case running times of selection sort and insertion sort and explain the difference.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>selection sort is Θ(n²) even in the best case, because it scans the whole remaining array to find each minimum regardless of the input. Insertion sort is Θ(n) on an already-sorted input, because its inner while-loop stops immediately for every item.</p></div></article><article class="source-exercise" id="skiena-ex-058"><p class="source-label">Question 33 · medium</p><p>Describe two ways to sort n numbers with a balanced BST, and their cost.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Insert all records into a balanced BST in O(n log n), keeping a multiplicity count or list for duplicate keys. Then an in-order traversal outputs all n records in O(n). Alternatively, repeatedly find and delete a minimum, costing O(n log n) overall. A set-like tree that silently discards duplicates would not correctly sort the original sequence.</p></div></article><article class="source-exercise" id="skiena-ex-077"><p class="source-label">Question 34 · medium</p><p>Partition the array [8, 3, 6, 1, 9, 2, 5] around the pivot 5 (the last element) using the partition routine from Lecture 8. Show the array after each swap and the pivot’s final index.</p><p class="source-context">Use zero-based Lomuto partitioning: scan all items before the last pivot, swapping each item strictly less than the pivot into the next low slot, then swap the pivot into that slot.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>firsthigh starts at index 0. 8 stays. 3 &lt; 5: swap with index 0 → [3, 8, 6, 1, 9, 2, 5], firsthigh 1. 6 stays. 1 &lt; 5: swap with index 1 → [3, 1, 6, 8, 9, 2, 5], firsthigh 2. 9 stays. 2 &lt; 5: swap with index 2 → [3, 1, 2, 8, 9, 6, 5], firsthigh 3. Finally swap the pivot into index 3 → [3, 1, 2, 5, 9, 6, 8]. Everything left of 5 is smaller and everything right is larger.</p></div></article><article class="source-exercise" id="skiena-ex-078"><p class="source-label">Question 35 · medium</p><p>Turn [9, 4, 7, 1, 3, 8, 2] into a min-heap with the linear-time heapify (bubble down positions 3, 2, 1 in that order). Show the array after each position.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>position 3 holds 7 with children 8 and 2; swap with 2 → [9, 4, 2, 1, 3, 8, 7]. Position 2 holds 4 with children 1 and 3; swap with 1 → [9, 1, 2, 4, 3, 8, 7]. Position 1 holds 9 with children 1 and 2; swap with 1 → [1, 9, 2, 4, 3, 8, 7]; 9 now at position 2 has children 4 and 3; swap with 3 → [1, 3, 2, 4, 9, 8, 7]. Done, and every parent is ≤ its children.</p></div></article><article class="source-exercise" id="skiena-ex-079"><p class="source-label">Question 36 · medium</p><p>Each bubble-down can cost O(log n), and heapify calls it n/2 times. Why is heapify O(n) rather than O(n log n)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the cost of a bubble-down is the height of the node, not log n. Half the nodes are leaves (height 0, cost nothing), a quarter have height 1, an eighth height 2, and so on. The total is n × Σ h/2ʰ⁺¹, and Σ h/2ʰ converges to 2, so the total is at most about 2n.</p></div></article><article class="source-exercise" id="skiena-ex-080"><p class="source-label">Question 37 · medium</p><p>Why is the guarantee of randomised quicksort stronger than the statement “quicksort runs in Θ(n log n) on random inputs”?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>For distinct keys, random pivots give expected Θ(n log n) work for every fixed input, with expectation over the algorithm’s random choices. This does not require the input itself to be random. The worst case remains Θ(n²). With many duplicates, a two-way partition can still be quadratic even with random pivots; use a three-way partition and analyse that implementation separately.</p></div></article><article class="source-exercise" id="skiena-ex-081"><p class="source-label">Question 38 · medium</p><p>When choosing a pivot as the “median of three” (first, middle, last), why take the median rather than the mean of the three values?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the median is one of the actual elements, so it can be swapped into place and it splits the values around it. The mean may not be an element at all, and one extreme value drags it far from the middle of the data.</p></div></article><article class="source-exercise" id="skiena-ex-082"><p class="source-label">Question 39 · medium</p><p>Prove that merging two sorted lists with n elements in total needs at most n − 1 comparisons.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>every comparison moves exactly one element to the output. Once one list is empty, the rest of the other is copied without comparisons, so at least the last element costs nothing; therefore at most n − 1 comparisons occur.</p></div></article><article class="source-exercise" id="skiena-ex-084"><p class="source-label">Question 40 · medium</p><p>Buckets numbered 1–10 cover 1–10, 11–20, …, 91–100. Which bucket contains 37? What happens if all ten values lie between 91 and 100?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>37 goes into bucket 4. Values 91–100 all go into bucket 10. Insertion-sorting one crowded bucket can take Θ(n²) work in the worst case. Expected linear bucket sorting needs an appropriate distribution assumption and a linear number of buckets; it is not a guarantee for arbitrary inputs.</p></div></article><article class="source-exercise" id="skiena-ex-085"><p class="source-label">Question 41 · medium</p><p>Radix-sort 329, 457, 657, 839, 436, 720, 355 by units, then tens, then hundreds. Show the order after each pass.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>after the units pass (stable): 720, 355, 436, 457, 657, 329, 839. After the tens pass: 720, 329, 436, 839, 355, 457, 657. After the hundreds pass: 329, 355, 436, 457, 657, 720, 839. Each pass must be stable so earlier passes break ties.</p></div></article><article class="source-exercise" id="skiena-ex-086"><p class="source-label">Question 42 · medium</p><p>How many comparisons does any algorithm need in the worst case to sort 3 items? Can that bound be achieved?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the decision tree needs at least 3! = 6 leaves, and a tree of height 2 has at most 4, so some input needs at least 3 comparisons. Three do suffice: compare a and b, compare the larger with c, and one more comparison places the remaining element.</p></div></article><article class="source-exercise" id="skiena-ex-064"><p class="source-label">Question 43 · hard</p><p>Show that no comparison-based dictionary can support both insert and delete-minimum in o(log n) worst-case time each.</p><p class="question-plain"><strong>In simpler words:</strong> Use a hypothetical faster dictionary to build an impossibly fast sort.</p><p class="question-hint"><strong>Starting hint:</strong> Insert everything, then repeatedly remove the smallest.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Little-o(log n) means a cost whose ratio to log n tends to zero, not just a small constant factor.</li><li>If both operations had that worst-case cost, n insertions and n removals would use o(n log n) comparisons.</li><li>The removals print sorted order. This contradicts the comparison-sorting lower bound, so the two assumed bounds cannot both hold.</li></ol><p>Otherwise, insert n distinct keys and delete the minimum n times to sort them using o(n log n) comparisons in total. This contradicts the comparison-sorting lower bound. Thus both operations cannot simultaneously have o(log n) worst-case cost. The claim concerns this pair of operations, not every dictionary operation individually.</p></div></article><article class="source-exercise" id="skiena-ex-089"><p class="source-label">Question 44 · hard</p><p>Prove that lg(n!) = Θ(n log n).</p><p class="question-plain"><strong>In simpler words:</strong> Trap the logarithm of n! between two n log n expressions.</p><p class="question-hint"><strong>Starting hint:</strong> For the lower bound, keep only the largest half of the factors.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Upper bound: each of the n factors is at most n, so n! ≤ nⁿ.</li><li>Lower bound: at least n/2 factors are at least n/2, so n! ≥ (n/2)^(n/2), ignoring harmless integer rounding.</li><li>Taking logs gives (n/2)log₂(n/2) ≤ log₂(n!) ≤ n log₂ n. Both sides grow as n log n.</li></ol><p>upper bound: n! ≤ nⁿ, so lg(n!) ≤ n lg n. Lower bound: the largest n/2 factors of n! are each at least n/2, so n! ≥ (n/2)^(n/2) and lg(n!) ≥ (n/2) lg(n/2) = (n/2)(lg n − 1), which is Ω(n log n). Together, Θ(n log n).</p></div></article><article class="source-exercise" id="skiena-ex-091"><p class="source-label">Question 45 · hard</p><p>Sort n integers, each between 0 and n² − 1, in O(n) time.</p><p class="question-plain"><strong>In simpler words:</strong> Sort bounded integers using two digits instead of pairwise comparisons.</p><p class="question-hint"><strong>Starting hint:</strong> Write x as high·n + low.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>For 0 ≤ x &lt; n², high = floor(x/n) and low = x mod n, each in 0,…,n−1.</li><li>Stable counting sort first by low, then by high. Stability preserves the low-digit order within a high-digit tie.</li><li>Each pass scans n items and n counters: O(n). Two passes remain O(n), assuming the integers fit in a constant number of machine words.</li></ol><p>write each number in base n; it has exactly two digits, each between 0 and n − 1. Radix sort with two passes, each a stable bucket sort into n buckets, costs O(n) per pass. Comparison sorting would need Ω(n log n); the trick is that the keys are bounded.</p></div></article><article class="source-exercise" id="skiena-ex-092"><p class="source-label">Question 46 · hard</p><p>Explain how heapsort sorts an array into ascending order in place, without a second array.</p><p class="question-plain"><strong>In simpler words:</strong> Use the unused end of the same array as the sorted output.</p><p class="question-hint"><strong>Starting hint:</strong> A max-heap already puts the largest remaining item at its root.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Build a max-heap in the array.</li><li>Swap its root with the last active slot; that slot now contains its final sorted value.</li><li>Shorten the active heap, then bubble the new root down. Repeat; the sorted suffix grows and needs no second array.</li></ol><p>build a max-heap inside the array. The largest item is at position 1; swap it with the last item, shrink the heap by one, and bubble the new root down. Repeat. Each round moves the current maximum into the final, still-unsorted position at the end, so the array fills with sorted items from the back.</p></div></article><article class="source-exercise" id="skiena-ex-093"><p class="source-label">Question 47 · hard</p><p>Numbers arrive one at a time. Design a structure that reports the current median after each arrival in O(log n) per number.</p><p class="question-plain"><strong>In simpler words:</strong> Keep the middle values at the tops of two heaps.</p><p class="question-hint"><strong>Starting hint:</strong> Separate the smaller half from the larger half.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The smaller half is a max-heap, so its largest item is visible. The larger half is a min-heap, so its smallest is visible.</li><li>After insertion, move a root across if the sizes differ by more than one. Keep every lower-half value ≤ every upper-half value.</li><li>For odd size, report the larger heap’s root. For even size, report the mean of both roots. Each insertion needs only a constant number of O(log n) heap operations.</li></ol><p>keep a max-heap of the smaller half and a min-heap of the larger half, with sizes differing by at most one. Insert into the appropriate heap, then move one root across if the sizes get out of balance. The median is the root of the bigger heap (or the average of the two roots when sizes are equal). Each step is a constant number of heap operations.</p></div></article><article class="source-exercise" id="skiena-ex-094"><p class="source-label">Question 48 · hard</p><p>Merge k nonempty sorted lists containing n elements in total, for 2 ≤ k ≤ n, in O(n log k) time.</p><p class="question-plain"><strong>In simpler words:</strong> Repeatedly choose the smallest of the current list heads.</p><p class="question-hint"><strong>Starting hint:</strong> Only one candidate from each list needs to be in the heap.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Put the first item of each nonempty list into a min-heap, remembering its list.</li><li>Remove the smallest, output it, then add the next item from the same list.</li><li>The heap never exceeds k entries. Each of n outputs costs O(log k); bottom-up heap construction costs O(k).</li></ol><p>put the first element of each list into a min-heap of size k. Repeatedly extract the minimum, append it to the output, and insert the next element from the list it came from. Each of the n elements passes through the heap once at O(log k).</p></div></article><article class="source-exercise" id="skiena-ex-095"><p class="source-label">Question 49 · hard</p><p>Prove that any algorithm that sorts by swapping only adjacent elements (insertion sort, bubble sort) needs Ω(n²) swaps in the worst case.</p><p class="question-plain"><strong>In simpler words:</strong> Measure how many out-of-order pairs an adjacent swap can fix.</p><p class="question-hint"><strong>Starting hint:</strong> Start with a reverse-sorted array of distinct keys.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>An inversion is a pair of positions i &lt; j whose values satisfy a[i] &gt; a[j].</li><li>Reverse order contains n(n−1)/2 inversions.</li><li>Swapping neighbours changes only their mutual order, removing at most one inversion. Reaching zero therefore needs Ω(n²) swaps in this case.</li></ol><p>call a pair of elements in the wrong order an inversion. A reverse-sorted array has n(n − 1)/2 inversions. Swapping two adjacent elements changes the order of only that pair, so it removes at most one inversion. Hence at least n(n − 1)/2 = Ω(n²) swaps are needed on that input.</p></div></article><article class="source-exercise" id="skiena-ex-096"><p class="source-label">Question 50 · hard</p><p>Run quicksort with the partition routine of Lecture 8 on an array where all n keys are equal. What happens, and how would you fix it?</p><p class="source-context">Use the two-way partition described in Exercise 77: only values strictly less than the last-element pivot enter the low partition.</p><p class="question-plain"><strong>In simpler words:</strong> Trace what happens when the partition never finds a smaller key.</p><p class="question-hint"><strong>Starting hint:</strong> With all keys equal, every strict “less than pivot” test fails.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The pivot moves to one end and the remaining subproblem has n−1 keys.</li><li>Work is proportional to n+(n−1)+…+1, so it is quadratic.</li><li>Three-way partition collects equal keys into a middle block. No recursion is needed on that block; all-equal data is handled in one linear scan.</li></ol><p>no element is strictly less than the pivot, so every element stays on the “high” side; each partition removes only the pivot and the recursion depth becomes n, giving Θ(n²). Fix: a three-way partition into “less than”, “equal to” and “greater than” the pivot, and recurse only on the outer two parts; the all-equal case then finishes in O(n).</p></div></article></section>
+<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Draw the first bubble pass on [5, 1, 4, 2, 8]. Mark every swap.</p><details class="solution"><summary>Check your reasoning</summary><div><p>5 swaps with 1, then 4, then 2; no swap with 8. Result [1, 4, 2, 5, 8].</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>How many comparisons does selection sort make for n = 8?</p><details class="solution"><summary>Check your reasoning</summary><div><p>8 × 7 / 2 = 28, even if the input is already sorted.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Reverse the order of Ada and Sam in the input. Sort by score again.</p><details class="solution"><summary>Check your reasoning</summary><div><p>Sam now stays before Ada among the equal score-80 records. Stability preserves input order for ties.</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">13.9</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — on paper first</span>
+    <p>
+      Sort <code>[5, 1, 4, 2, 8]</code> by hand with bubble sort, writing out the list after
+      each pass, and count comparisons and swaps. Then run the code and check that your
+      numbers match its output exactly (9 comparisons, 4 swaps).
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — check your paper trace, or be the machine</summary>
+      <div class="widget anim" data-anim="w13-bubble-paper"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 2 — confirm the class</span>
+    <p>
+      Run <code>bubble_sort</code> and <code>selection_sort</code> at n = 500, 1 000, 2 000,
+      4 000 on random data. Record comparisons and seconds for each, and compute the ratio
+      column for both.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — double n and watch the ratio column</summary>
+      <div class="widget anim" data-anim="w13-doubling"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        Selection comparisons follow n(n−1)/2, whose doubling ratio approaches four rather than equalling it exactly. Bubble comparisons also depend on early exit. Times may approximately quadruple on comparable difficult inputs. Selection sort usually
+        wins slightly on time despite identical comparison counts, because it does far fewer
+        swaps — a constant-factor difference within the same class.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — best and worst case</span>
+    <p>
+      Run bubble sort on (a) already sorted data, (b) reverse-sorted data, (c) random data,
+      at n = 2 000. Explain the three comparison counts.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — sorted, reversed and random, side by side</summary>
+      <div class="widget anim" data-anim="w13-cases"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        (a) about 2 000 — one clean pass, then the early exit fires: O(n). (b) about 2 million
+        — every comparison and every swap: the worst case. (c) roughly the worst case too,
+        because a random list needs nearly all the passes. Selection sort shows no such
+        variation at all.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — the honest comparison plot</span>
+    <p>
+      Plot bubble sort, selection sort, insertion sort and <code>sorted()</code> on one
+      log–log figure across four sizes. Report the slope of each line in words, and state the
+      largest n you would be willing to hand each one.
+    </p>
+  <details class="solution anim-wrap"><summary>Animate it — build the log–log plot one size at a time</summary>
+      <div class="widget anim" data-anim="w13-loglog"></div>
+    </details></div>
+
+  <div class="task">
+    <span class="label">Task 5 — insertion sort loves order</span>
+    <p>
+      Run <code>insertion_sort</code> on (a) already-sorted, (b) reverse-sorted, and (c) random
+      data at n = 2 000, reporting comparisons for each. Which input is its best case, and why
+      is the reverse-sorted input its worst?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch each card slide into place</summary>
+      <div class="widget anim" data-anim="w13-insertion"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        (a) about 1 999 — every item is already in place, so each inner <code>while</code> stops
+        after a single comparison: O(n), its best case. (b) about 2 million — every item must
+        travel all the way to the front, shifting everything: the worst case, O(n²). (c) roughly
+        half the worst case. This sensitivity to how sorted the input already is is exactly why
+        Timsort reaches for insertion sort on short, nearly-ordered runs.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 6 — stability you can see</span>
+    <p>
+      Build a list of <code>(name, grade)</code> tuples where several people share a grade.
+      Sort it by grade with <code>sorted(..., key=lambda p: p[1])</code> and confirm that
+      same-grade people keep their input order. Then sort by <code>(grade, name)</code> and
+      describe, in one sentence, what changed and why.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch the ties keep their order</summary>
+      <div class="widget anim" data-anim="w13-stability"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        With the single key, ties keep input order (that is stability). With the tuple key,
+        ties are now broken by name alphabetically, because the second element of the tuple is
+        consulted whenever the first is equal. Same sort, richer key.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">13.10</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="1">
+      <p>Bubble sort on 4 000 random items does about 8 million comparisons. At 8 000 items, expect about:</p>
+      <button class="opt">16 million</button>
+      <button class="opt">32 million</button>
+      <button class="opt">8 million</button>
+      <button class="opt">64 million</button>
+      <div class="why">Quadratic dominant growth: doubling n approximately quadruples the full-pass comparison count; the exact count is n(n−1)/2.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>Where does the "log n" in n log n come from?</p>
+      <button class="opt">From comparing every pair of items</button>
+      <button class="opt">From the number of swaps</button>
+      <button class="opt">From the number of times a list can be split in half</button>
+      <button class="opt">From Python's internal optimisations</button>
+      <div class="why">Split, sort halves, merge: log n levels of splitting, each doing O(n) merging work.</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p><code>data = data.sort()</code> leaves <code>data</code> holding:</p>
+      <button class="opt">None — sort() sorts in place and returns nothing</button>
+      <button class="opt">The sorted list</button>
+      <button class="opt">The original unsorted list</button>
+      <button class="opt">A copy of the sorted list</button>
+      <div class="why">Use <code>data.sort()</code> alone, or <code>data = sorted(data)</code>. This bug appears in every beginner cohort.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>Bubble sort and selection sort do the same number of comparisons. Why is selection sort often faster in practice?</p>
+      <button class="opt">It is written in C</button>
+      <button class="opt">It has a better complexity class</button>
+      <button class="opt">It skips items</button>
+      <button class="opt">It performs far fewer swaps — a smaller constant factor in the same class</button>
+      <div class="why">Same class, different constant. This is exactly why we report both the class and the measurement.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>In the doubling table, <code>sorted()</code>'s time multiplies by about 2.1 each time n doubles. That ratio is the fingerprint of:</p>
+      <button class="opt">O(n²)</button>
+      <button class="opt">O(n log n)</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1)</button>
+      <div class="why">A pure O(n) line would double (2.0×); O(n²) would quadruple (4×). Just above 2 is the signature of n log n.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>A <em>stable</em> sort guarantees that:</p>
+      <button class="opt">It never crashes</button>
+      <button class="opt">It always runs in O(n log n)</button>
+      <button class="opt">Items comparing equal keep their original order</button>
+      <button class="opt">It uses no extra memory</button>
+      <div class="why">Stability is about ties, not speed. It is what lets you sort by several keys in stages, each pass preserving the last.</div>
+    </div>
+  </div>
+</section>
+</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+  <h2><span class="num">13.1</span>Why study slow sorts?</h2>
+  <p>
+    You will never ship bubble sort. You study it because it is the clearest example in all
+    of computing of a genuine trade: two methods, both obviously correct, separated by a
+    complexity class you can feel on a laptop within thirty seconds.
+  </p>
+  <p>
+    Sorting also underpins week 12 (binary search needs sorted data), week 9 (the sort-and-
+    compare anagram solution) and any report you will ever produce from data.
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.2</span>Bubble sort</h2>
+  <p>
+    Walk along the row comparing neighbours; swap them if they are out of order. Each full
+    pass drags the largest remaining value to the end — it "bubbles up". Repeat until a
+    pass makes no swaps.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>bubble_sort.py</div><pre><code>def bubble_sort(data):
+    """Sorts a copy of data. Returns (sorted list, comparisons, swaps)."""
+    items = data[:]                      <span class="c"># work on a copy</span>
+    comparisons = swaps = 0
+    n = len(items)
+
+    for end in range(n - 1, 0, -1):      <span class="c"># shrinking unsorted region</span>
+        swapped = False
+        for i in range(end):
+            comparisons += 1
+            if items[i] &gt; items[i + 1]:
+                items[i], items[i + 1] = items[i + 1], items[i]
+                swaps += 1
+                swapped = True
+        if not swapped:                  <span class="c"># already sorted — stop early</span>
+            break
+
+    return items, comparisons, swaps
+
+print(bubble_sort([5, 1, 4, 2, 8]))</code></pre></div>
+  <div class="out">([1, 2, 4, 5, 8], 9, 4)</div>
+  <p>
+    <strong>Worst-case cost.</strong> When all passes are needed, their lengths sum to (n−1) + (n−2) + … + 1 = n(n−1)/2 comparisons —
+    <code>O(n²)</code>. The early exit gives a best case of <code>O(n)</code> on data that
+    is already sorted, which is bubble sort's only redeeming feature. (Here the early exit
+    fires after the third pass finds nothing to swap, so it stops at 9 comparisons instead of
+    the full 10.)
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.3</span>Selection sort</h2>
+  <p>
+    Find the smallest item, put it first. Find the smallest of the rest, put it second.
+    Continue. This is what most people do with a hand of cards.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>selection_sort.py</div><pre><code>def selection_sort(data):
+    items = data[:]
+    comparisons = swaps = 0
+
+    for start in range(len(items)):
+        smallest = start
+        for i in range(start + 1, len(items)):
+            comparisons += 1
+            if items[i] &lt; items[smallest]:
+                smallest = i
+        if smallest != start:
+            items[start], items[smallest] = items[smallest], items[start]
+            swaps += 1
+
+    return items, comparisons, swaps</code></pre></div>
+  <p>
+    Same n(n−1)/2 comparisons — <code>O(n²)</code> in every case, best included, because it
+    cannot know it is finished early. But it performs at most n−1 <em>swaps</em>, against
+    bubble sort's possible n²/2. If moving items is expensive and comparing them is cheap,
+    that matters. Two algorithms in the same class can still differ in ways worth measuring.
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.4</span>Insertion sort, and all three by hand</h2>
+  <p>
+    The third classic completes the set. Take each item and slide it back into its correct
+    place among the already-sorted items on its left — the way most people order a hand of
+    playing cards as they pick them up.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>insertion_sort.py</div><pre><code>def insertion_sort(data):
+    items = data[:]
+    comparisons = shifts = 0
+
+    for i in range(1, len(items)):
+        current = items[i]               <span class="c"># the card in your hand</span>
+        j = i - 1
+        while j &gt;= 0:
+            comparisons += 1
+            if items[j] &gt; current:       <span class="c"># make room by shifting right</span>
+                items[j + 1] = items[j]
+                shifts += 1
+                j -= 1
+            else:
+                break
+        items[j + 1] = current           <span class="c"># drop it into the gap</span>
+
+    return items, comparisons, shifts
+
+print(insertion_sort([5, 1, 4, 2, 8]))</code></pre></div>
+  <div class="out">([1, 2, 4, 5, 8], 7, 4)</div>
+  <p>
+    Insertion sort is O(n²) in the worst case, but genuinely fast on nearly-sorted data — on
+    an already-sorted list every item drops straight in after a single comparison, giving
+    O(n). That is why real sorting libraries use it for small chunks.
+  </p>
+  <p>
+    Now the point of this section: sort <code>[5, 1, 4, 2, 8]</code> by hand with each method,
+    writing the list after every pass, and confirm your counts against the three outputs above.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Bubble — after each pass</th><th>Selection — after each round</th><th>Insertion — after each insert</th></tr></thead>
+      <tbody>
+        <tr><td>start [5,1,4,2,8]</td><td>start [5,1,4,2,8]</td><td>start [5,1,4,2,8]</td></tr>
+        <tr><td>pass 1 → [1,4,2,5,8]</td><td>put smallest first → [1,5,4,2,8]</td><td>insert 1 → [1,5,4,2,8]</td></tr>
+        <tr><td>pass 2 → [1,2,4,5,8]</td><td>next smallest → [1,2,4,5,8]</td><td>insert 4 → [1,4,5,2,8]</td></tr>
+        <tr><td>pass 3 → no swaps, stop</td><td>rest already in place</td><td>insert 2 → [1,2,4,5,8]; insert 8 → done</td></tr>
+        <tr><td><strong>9 comparisons, 4 swaps</strong></td><td><strong>10 comparisons, 2 swaps</strong></td><td><strong>7 comparisons, 4 shifts</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Three correct answers, three different amounts of work on the very same five numbers. Each function begins with <code>data[:]</code>, so these copy-returning implementations require O(n) extra space. Their in-place sorting cores need only O(1) extra storage.
+    Selection sort always does its full 10 comparisons; bubble sort's early exit saves it one;
+    insertion sort does the fewest here because the data was not badly scrambled. The class is
+    the same for all three — the constants are not.
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.5</span>Where n log n comes from</h2>
+  <p>
+    All three sorts above compare, in the worst case, every item with essentially every other.
+    The better sorts refuse to do that, using a divide-and-conquer idea:
+  </p>
+  <ol>
+    <li>Split the list into two halves.</li>
+    <li>Sort each half (by the same method, on smaller pieces).</li>
+    <li><strong>Merge</strong> the two sorted halves by repeatedly taking the smaller front item — one pass, O(n).</li>
+  </ol>
+  <p>
+    How many times can you split a list of n items in half? <strong>log n</strong> times —
+    the same halving from weeks 1 and 12. Each of those levels does O(n) work merging. So
+    the total is <strong>n × log n</strong>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n</th><th>n² growth units</th><th>n log₂ n growth units</th><th>How much better</th></tr></thead>
+      <tbody>
+        <tr><td>100</td><td>10 000</td><td>664</td><td>15×</td></tr>
+        <tr><td>1 000</td><td>1 000 000</td><td>9 966</td><td>100×</td></tr>
+        <tr><td>10 000</td><td>100 000 000</td><td>132 877</td><td>753×</td></tr>
+        <tr><td>1 000 000</td><td>10¹²</td><td>19 931 569</td><td>50 000×</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    You will not implement merge sort in this course — writing it well needs recursion,
+    which belongs to the follow-on course. What you need is the intuition ("split, sort,
+    merge — log n levels of n work each") and the ability to recognise its 2.1–2.2 ratio in
+    a doubling experiment.
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.6</span>Python's sorted(), and how far ahead it is</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>your sort vs the real one</div><pre><code>import time, random
+
+for n in [1000, 2000, 4000, 8000]:
+    data = [random.randrange(1000000) for _ in range(n)]
+
+    start = time.perf_counter()
+    result_b, comps, swaps = bubble_sort(data)
+    t_bubble = time.perf_counter() - start
+
+    start = time.perf_counter()
+    result_p = sorted(data)
+    t_python = time.perf_counter() - start
+
+    print(f"n={n:&gt;5}  bubble {t_bubble:8.4f}s ({comps:,} comparisons)"
+          f"   sorted() {t_python:.5f}s   {t_bubble/t_python:,.0f}x")
+    assert result_b == result_p          <span class="c"># both are correct!</span></code></pre></div>
+  <div class="out">n= 1000  bubble   0.0921s (499,500 comparisons)   sorted() 0.00023s   401x
+n= 2000  bubble   0.3701s (1,999,000 comparisons)   sorted() 0.00048s   771x
+n= 4000  bubble   1.4890s (7,998,000 comparisons)   sorted() 0.00104s   1,432x
+n= 8000  bubble   5.9612s (31,996,000 comparisons)   sorted() 0.00228s   2,615x</div>
+  <p>
+    The <code>assert</code> line matters: both produce identical output. The difference is
+    entirely in how the answer is reached. Read the two time columns down the page as a
+    doubling experiment, exactly as in weeks 5–7:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>n doubles</th><th>bubble time × …</th><th>sorted() time × …</th><th>what the ratio says</th></tr></thead>
+      <tbody>
+        <tr><td>1000 → 2000</td><td>0.37 / 0.09 ≈ 4.0×</td><td>0.00048 / 0.00023 ≈ 2.1×</td><td>4× is n²; 2.1× is n log n</td></tr>
+        <tr><td>2000 → 4000</td><td>1.49 / 0.37 ≈ 4.0×</td><td>0.00104 / 0.00048 ≈ 2.2×</td><td>same story, one class down</td></tr>
+        <tr><td>4000 → 8000</td><td>5.96 / 1.49 ≈ 4.0×</td><td>0.00228 / 0.00104 ≈ 2.2×</td><td>and it holds every row</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A near-four doubling ratio supports quadratic growth; a ratio a little above two can support n log n over this range. Ratios are evidence to compare with operation counts, not a proof by themselves. The illustrative measurements suggest a growing speedup. Extrapolating the displayed bubble time to n = 100 000 gives about 5 000 million comparisons and roughly fifteen minutes under the same model; actual timings, especially for adaptive built-in sorting, must be measured on the stated workload.
+  </p>
+  <div class="note green">
+    <span class="label">What Python actually uses</span>
+    <p>
+      An algorithm called Timsort: merge sort combined with insertion sort for small runs,
+      plus a trick that detects stretches of data that are already in order. It is
+      O(n log n) in the worst case and O(n) on already-sorted data — and it is written in C.
+      That is your baseline. Beating it is a research project, not routine practice.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">13.7</span>Using sorting properly</h2>
+  <div class="code"><div class="code-head"><span class="dot"></span>the everyday toolkit</div><pre><code>data = [5, 2, 9, 1]
+
+new = sorted(data)              <span class="c"># returns a new list, leaves data alone</span>
+data.sort()                     <span class="c"># sorts in place, returns None</span>
+
+names = ["Cem", "ada", "Bilal"]
+print(sorted(names))                          <span class="c"># capitals first — probably not what you want</span>
+print(sorted(names, key=str.lower))           <span class="c"># case-insensitive</span>
+
+students = [("Ada", 88), ("Bilal", 72), ("Cem", 91)]
+print(sorted(students, key=lambda s: s[1], reverse=True))   <span class="c"># by grade, best first</span></code></pre></div>
+  <div class="note red">
+    <span class="label">The classic beginner bug</span>
+    <p>
+      <code>data = data.sort()</code> throws your list away and leaves you holding
+      <code>None</code>. Use <code>data.sort()</code> on its own line, or
+      <code>data = sorted(data)</code> — never both at once.
+    </p>
+  </div>
+  <p>
+    One more cost worth knowing: sorting inside a loop is a classic accidental disaster.
+    Sorting a list of n items m times is O(m · n log n) when sorting once outside the loop
+    would have done. Ask yourself every time: does this need to happen again?
+  </p>
+</section>
+<section>
+  <h2><span class="num">13.8</span>Stability, and sorting by more than one key</h2>
+  <p>
+    A sort is <strong>stable</strong> when items that compare equal keep their original order.
+    Python's <code>sorted</code> and <code>list.sort</code> are stable — a guarantee, not an
+    accident — and it is more useful than it first sounds.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>equal keys keep their order</div><pre><code>scores = [("Ada", 88), ("Bilal", 88), ("Cem", 72)]
+
+print(sorted(scores, key=lambda p: p[1], reverse=True))</code></pre></div>
+  <div class="out">[('Ada', 88), ('Bilal', 88), ('Cem', 72)]</div>
+  <p>
+    Ada and Bilal both scored 88, and Ada stays ahead of Bilal because she came first in the
+    input. An <em>unstable</em> sort would be free to swap them, and you would have no way to
+    predict the order of ties.
+  </p>
+  <p>
+    Stability is what lets you sort by several keys in stages: sort by the <em>least</em>
+    important key first, then by the most important, and the earlier order survives inside each
+    group. Or, more directly, hand <code>key</code> a tuple and let Python compare left to right:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>two keys at once</div><pre><code>students = [
+    ("maths",   "Bilal"),
+    ("art",     "Cem"),
+    ("maths",   "Ada"),
+    ("art",     "Ada"),
+]
+
+<span class="c"># by subject A→Z, then by name A→Z within each subject</span>
+print(sorted(students, key=lambda s: (s[0], s[1])))</code></pre></div>
+  <div class="out">[('art', 'Ada'), ('art', 'Cem'), ('maths', 'Ada'), ('maths', 'Bilal')]</div>
+  <p>
+    The tuple <code>(subject, name)</code> is compared position by position: subjects first,
+    and names only to break a tie on subject. To mix directions — say subject ascending but
+    grade descending — sort in two stable passes (grade first with <code>reverse=True</code>,
+    then subject). For numeric grades, a single tuple key such as <code>(subject, -grade)</code> also expresses subject ascending and grade descending.
+  </p>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 3, 7, 8, 9</p><h3>Merge first, then explain the full sort</h3><p>Merging two sorted lists only compares their next items that have not yet been copied. Each comparison chooses one item to copy to the result. When one list empties, copy the rest without more key comparisons. With n items in total, at most n − 1 comparisons are needed when both lists start nonempty.</p><p>Mergesort merges all n items at each level, across about log₂ n levels. Quicksort splits items around a chosen value, called the pivot, instead: choosing pivots randomly gives expected O(n log n) comparisons in the usual analysis, but repeatedly splitting into very unequal parts can be quadratic. Equal values need care. Three-way partitioning makes separate groups smaller than, equal to and larger than the pivot.</p><p>The lower bound for sorts based only on comparisons does not apply to every kind of sort. Counting sort uses counts within a known value range; radix sort groups values by digits. Check the key range, whether equal-value records must keep their original order and memory cost before claiming a faster solution.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Merge timestamped sensor streams and keep equal-time records in a defined order.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>perform bubble, selection and insertion sort by hand on paper;</li>
+      <li>implement all three, count their comparisons and swaps, and confirm the n² pattern;</li>
+      <li>explain in plain words where n log n comes from, and see it beat n² in a measured table;</li>
+      <li>measure the gap between your sort and Python's <code>sorted()</code>;</li>
+      <li>use <code>sort</code>, <code>sorted</code> and <code>key=</code> properly, and explain what a <em>stable</em> sort buys you.</li>
+    </ul>
+  </div>
+</section>
+<section class="studio-contract">
+  <div class="note blue">
+    <span class="label">Three-hour interactive studio</span>
+    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
+    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
+    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
+    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
+    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
+    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
+  </div>
+</section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w13">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional extra practice</summary><div><section>
+  <h2><span class="num">13.11</span>Optional Studio Extension</h2>
+  <div class="task">
+    <span class="label">Optional practice · no submission or deadline</span>
+    <ol>
+      <li>Create <code>AA_Week13.ipynb</code> and complete Tasks 1–6.</li>
+      <li>Add insertion sort's comparison counts to the Task 4 figure so all three hand-written sorts and <code>sorted()</code> appear together.</li>
+      <li>Reproduce the doubling table from §13.6 with your own timings, and state the ratio each algorithm settles on. Compare the observed ratios with the operation analysis and state the input case; ratios alone do not prove the class.</li>
+      <li>Write the five-sentence interpretation for the Task 4 figure, including a prediction of bubble sort's runtime at n = 50 000 (do not run it — say how you extrapolated from the 4× ratio).</li>
+      <li>Bring a working draft of your final project: both approaches implemented, at least one benchmark table produced. Week 14 is a workshop.</li>
+    </ol>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
+  <h2><span class="num">13.12</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>bubble sort</td><td>Repeatedly swap out-of-order neighbours. O(n²), O(n) on sorted data.</td></tr>
+        <tr><td>selection sort</td><td>Repeatedly pick the smallest remaining item. O(n²) always, few swaps.</td></tr>
+        <tr><td>insertion sort</td><td>Slide each item back into its place. O(n²) worst, O(n) on already-sorted data.</td></tr>
+        <tr><td>divide and conquer</td><td>Split the problem, solve the parts, combine — the source of log n levels.</td></tr>
+        <tr><td>merge</td><td>Combine two sorted lists into one in a single pass.</td></tr>
+        <tr><td>Timsort</td><td>Python's built-in sort: O(n log n) worst case, O(n) on already-ordered data.</td></tr>
+        <tr><td>stable sort</td><td>One that keeps equal items in their original order — lets you sort by keys in stages.</td></tr>
+        <tr><td>in place</td><td>Modifies the original container. This does not promise constant workspace: Python list sorting may use O(n) extra memory.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
+  <h2><span class="num">13.13</span>Chapter problem set — Skiena 2.10</h2>
+  <p>
+    Sorting rested on a summation — adding up n(n−1)/2 comparisons — so this is a good week to
+    practise reading a pattern and pinning down the expression behind it. Here is one of
+    Skiena's, solved the way this course likes: spot the pattern, then say <em>why</em>.
+  </p>
+
+  <div class="task challenge">
+    <span class="label">Problem 2-33 · a self-referential triangle</span>
+    <p>
+      Build a triangle in which every entry is the sum of the three entries directly above it
+      (above-left, above, above-right — treat any missing neighbour as 0). It begins:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>row</th><th colspan="7">entries</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td colspan="7">1</td></tr>
+          <tr><td>2</td><td colspan="7">1&nbsp;&nbsp;1&nbsp;&nbsp;1</td></tr>
+          <tr><td>3</td><td colspan="7">1&nbsp;&nbsp;2&nbsp;&nbsp;3&nbsp;&nbsp;2&nbsp;&nbsp;1</td></tr>
+          <tr><td>4</td><td colspan="7">1&nbsp;&nbsp;3&nbsp;&nbsp;6&nbsp;&nbsp;7&nbsp;&nbsp;6&nbsp;&nbsp;3&nbsp;&nbsp;1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Find an expression for the sum of the entries in the i-th row, and justify it.</p>
+    <details class="solution"><summary>Worked solution</summary>
+      <p>
+        Add up each row first and look for the pattern: row 1 sums to 1, row 2 to 1+1+1 = 3, row
+        3 to 1+2+3+2+1 = 9, row 4 to 1+3+6+7+6+3+1 = 27. That is 1, 3, 9, 27 — the powers of
+        three. So the answer looks like <strong>3<sup>i−1</sup></strong>.
+      </p>
+      <p>
+        Now the <em>why</em>, which is the pretty part. Ask where each entry's value ends up in
+        the next row down. An entry sitting in one row is one of the "three above" for exactly
+        three positions in the row beneath it — the slot below-left of it, the slot directly
+        below, and the slot below-right. So every entry contributes its full value to the next
+        row <em>three times over</em>. Add that up across the whole row and you get:
+      </p>
+      <p style="font-family:var(--font-mono);color:var(--accent)">
+        (sum of next row) = 3 × (sum of this row)
+      </p>
+      <p>
+        The total triples at every step. Row 1 starts at 1, so row i is 1 tripled i−1 times —
+        that is 3<sup>i−1</sup>. A short program confirms both the rows and their tripling totals:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>triangle_rows.py</div><pre><code>def next_row(row):
+    padded = [0, 0] + row + [0, 0]        <span class="c"># room for the row widening by one each side</span>
+    return [padded[i] + padded[i + 1] + padded[i + 2] for i in range(len(row) + 2)]
+
+row = [1]
+for i in range(1, 6):
+    print(f"row {i}: sum {sum(row):>3}   {row}")
+    row = next_row(row)</code></pre></div>
+      <div class="out">row 1: sum   1   [1]
+row 2: sum   3   [1, 1, 1]
+row 3: sum   9   [1, 2, 3, 2, 1]
+row 4: sum  27   [1, 3, 6, 7, 6, 3, 1]
+row 5: sum  81   [1, 4, 10, 16, 19, 16, 10, 4, 1]</div>
+      <p>
+        <strong>Answer:</strong> the i-th row sums to <strong>3<sup>i−1</sup></strong>, because
+        each entry feeds into three entries below it, so the grand total triples with every new
+        row. The sums 1, 3, 9, 27, 81 are exactly the powers of three, and the reasoning — count
+        how many times each value is reused — is the same "count the contributions" move that
+        gave n(n−1)/2 for the sorts.
+      </p>
+    </details>
+  </div>
+</section></div></details>
+
+<div class="note blue">
+  <span class="label">Where this leads</span>
+  <p>You now have the whole toolkit — measuring, naming, choosing, and the cost of the common structures. Week 14 ties it together with a checklist, the classic traps, and your final project.</p>
+</div>
+</div></details></div>
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+
+</footer>
+<script src="../../assets/app.js?v=2"></script><script src="../../../assets/learning-path.js?v=1"></script>
+<script src="../../assets/anim.js?v=13"></script><script src="../../assets/anim-w13.js?v=10"></script><script src="../../assets/anim-workspace.js?v=11"></script></body>
+</html>

@@ -3,789 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="The classic case study — four correct solutions, four completely different costs.">
-<title>Week 9: One Problem, Four Algorithms: The Anagram Story — AA</title>
+<meta name="description" content="Graph representations and BFS">
+<title>Graph representations and BFS — AA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/learning.css?v=2"><link rel="stylesheet" href="../../assets/course-navigation.css?v=2"><script defer src="../../assets/course-navigation.js?v=1"></script>
 <link rel="stylesheet" href="../assets/questions.css?v=2">
-<link rel="stylesheet" href="../assets/anim.css"><link rel="stylesheet" href="../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../assets/anim-w9.css"><link rel="stylesheet" href="../assets/anim-workspace.css?v=17"></head>
+<link rel="stylesheet" href="../assets/aligned.css"></head>
 <body>
 <header class="site-header">
   <a class="brand" href="../index.html">AA <span>/ course home</span></a>
   <nav class="header-nav">
-    <details class="path-menu"><summary>Settings</summary><div>
+    <details class="path-menu"><summary>Course menu</summary><div><a href="../index.html#weeks">All weeks</a><a href="../index.html#course-info">Course info &amp; assessment</a><a href="../../index.html#fall">Other courses</a>
     <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
   </nav>
 </header>
 <main class="wrap">
+<div class="aligned"><div class="hero"><p class="eyebrow">Week 09 · Lectures 10, 11</p><h1>Graph representations and BFS</h1><p>Represent networks with adjacency lists or matrices. Use a queue to discover vertices in increasing number of edges from the start.</p></div>
+<section class="reading-card"><h2>Read alongside the document</h2><p>Use the lecture headings below in the English–Turkish notes. Document lecture numbers and course week numbers are different.</p><ul><li><strong>Lecture 10: Graph Data Structures</strong><br>What a graph is; Flavours of graphs; The friendship graph: vocabulary through an example; Storing a graph: adjacency matrix; Storing a graph: adjacency lists; Which one to use; The adjacency-list implementation used in the course.</li><li><strong>Lecture 11: Breadth-First Search</strong><br>Warm-up: converting between graph representations; Traversal: the general idea; BFS; The BFS tree and shortest paths; Application: connected components; Application: two-colouring (bipartite graphs).</li></ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the bilingual notes</a></p></section>
+<section><h2>Why does BFS find the shortest unweighted path?</h2><p class="problem">Undirected edges: 1–2,1–3,2–4,3–4,4–5. Run BFS from 1, considering neighbours in increasing order.</p><figure><svg viewBox="0 0 780 220" role="img" aria-label="BFS levels from vertex 1. Both 2 and 3 can reach vertex 4."><line x1="90" y1="100" x2="280" y2="45"/><text x="185.0" y="60.5" text-anchor="middle"></text><line x1="90" y1="100" x2="280" y2="155"/><text x="185.0" y="115.5" text-anchor="middle"></text><line x1="280" y1="45" x2="470" y2="100"/><text x="375.0" y="60.5" text-anchor="middle"></text><line x1="280" y1="155" x2="470" y2="100"/><text x="375.0" y="115.5" text-anchor="middle"></text><line x1="470" y1="100" x2="660" y2="100"/><text x="565.0" y="88.0" text-anchor="middle"></text><circle cx="90" cy="100" r="21" fill="#d4e4dc"/><text x="90" y="106" text-anchor="middle">1</text><circle cx="280" cy="45" r="21" fill="#d4e4dc"/><text x="280" y="51" text-anchor="middle">2</text><circle cx="280" cy="155" r="21" fill="#d4e4dc"/><text x="280" y="161" text-anchor="middle">3</text><circle cx="470" cy="100" r="21" fill="#d4e4dc"/><text x="470" y="106" text-anchor="middle">4</text><circle cx="660" cy="100" r="21" fill="#d4e4dc"/><text x="660" y="106" text-anchor="middle">5</text></svg><figcaption>BFS levels from vertex 1. Both 2 and 3 can reach vertex 4.</figcaption></figure><div class="trace" aria-label="Worked solution steps"><article><span>Step 1</span><p>Start with distance(1)=0 and queue [1].</p></article><article><span>Step 2</span><p>Process 1: discover 2 and 3 at distance 1; queue [2,3].</p></article><article><span>Step 3</span><p>Process 2: discover 4 at distance 2. Processing 3 does not rediscover 4.</p></article><article><span>Step 4</span><p>Process 4: discover 5 at distance 3. Discovery order is 1,2,3,4,5; one shortest path is 1–2–4–5.</p></article></div><p class="edge"><strong>Change the case.</strong> BFS minimises edge count; arbitrary edge weights need a different algorithm. Mark vertices when enqueued to avoid repeated insertion.</p></section>
+<section><h2>Explain before coding</h2><p>State the input and required output. Trace a small example. Explain why each step is valid, count the work under a stated model, and test an edge case.</p><details><summary>Python support for this week</summary><p>A dictionary of neighbour lists represents a graph. A deque supports efficient queue removal from the front.</p><pre><code>from collections import deque
+g = {1:[2,3], 2:[1,4], 3:[1,4], 4:[2,3,5], 5:[4]}
+q = deque([1]); distance = {1:0}
+while q:
+    u = q.popleft()
+    for v in g[u]:
+        if v not in distance:
+            distance[v] = distance[u] + 1
+            q.append(v)
+print(distance)  # {1:0, 2:1, 3:1, 4:2, 5:3}</code></pre><p>Run this small demonstration after predicting its result. It illustrates the selected example; its input assumptions are part of the example.</p><p><a href="../python/">Open the optional Python support library</a>. Programming fluency is not required to complete the paper trace.</p></details></section>
+<details class="reading-reference"><summary>Read the related bilingual explanations here</summary><p>Sections from the supplied lecture notes. Turkish paragraphs appear in red. Use this as a reference after the worked example.</p><details><summary>Lecture 10 · What a graph is</summary><p class="turkish" lang="tr">Çizge nedir?</p><p>A graph G = (V, E) consists of a set V of vertices and a set E of edges, where each edge is a pair of vertices. Examples:</p><p class="turkish" lang="tr">G = (V, E) çizgesi, V tepeler kümesi ile E kenarlar kümesinden oluşur; her kenar bir tepe çiftidir. Örnekler:</p><p>Road networks: vertices are cities or junctions, edges are roads (the slide shows Stony Brook, Riverhead, Greenport, Montauk and other Long Island towns).</p><p class="turkish" lang="tr">Yol ağları: tepeler şehirler veya kavşaklar, kenarlar yollardır (slaytta Stony Brook, Riverhead, Greenport, Montauk ve Long Island’daki diğer yerleşimler gösterilir).</p><p>Electronic circuits: junctions are vertices, components are edges.</p><p class="turkish" lang="tr">Elektronik devreler: bağlantı noktaları tepe, devre elemanları kenardır.</p><p>Social networks, the World Wide Web (pages and links), control flow inside a program, and similarity graphs where an edge means two items are alike.</p><p class="turkish" lang="tr">Sosyal ağlar, World Wide Web (sayfalar ve bağlantılar), program içindeki kontrol akışı ve bir kenarın iki nesnenin benzer olduğunu belirttiği benzerlik çizgeleri.</p><p>Throughout the course n is the number of vertices and m the number of edges.</p><p class="turkish" lang="tr">Ders boyunca n tepe sayısını, m ise kenar sayısını gösterir.</p></details><details><summary>Lecture 10 · Flavours of graphs</summary><p class="turkish" lang="tr">Çizge türleri</p><p>Skiena: “learning to talk the talk is an important part of walking the walk.” The flavour decides which algorithms apply.</p><p class="turkish" lang="tr">Skiena: “Bir işin dilini öğrenmek, o işi yapabilmenin önemli bir parçasıdır.” Hangi algoritmaların uygulanabileceğini çizgenin türü belirler.</p><div class="table-wrap"><table><tr><td>Distinction</td><td>Meaning</td><td>Example</td></tr><tr class="turkish" lang="tr"><td>Ayrım</td><td>Anlamı</td><td>Örnek</td></tr><tr><td>Directed vs. undirected</td><td>Undirected: edge (x, y) implies edge (y, x); the line has no arrow. Directed: edges are one-way arrows.</td><td>Roads between cities are undirected; streets within a city are directed because of one-way streets.</td></tr><tr class="turkish" lang="tr"><td>Yönlü / yönsüz</td><td>Yönsüz: (x, y) kenarı (y, x) kenarını da ifade eder; çizginin oku yoktur. Yönlü: kenarlar tek yönlü oklardır.</td><td>Şehirler arasındaki yollar yönsüzdür; şehir içi sokaklar, tek yönlü sokaklar nedeniyle yönlüdür.</td></tr><tr><td>Weighted vs. unweighted</td><td>Weighted: each edge (or vertex) carries a number. Unweighted: all edges are alike.</td><td>Road edges weighted by length, drive time or speed limit.</td></tr><tr class="turkish" lang="tr"><td>Ağırlıklı / ağırlıksız</td><td>Ağırlıklı: her kenar (veya tepe) bir sayı taşır. Ağırlıksız: bütün kenarlar eşdeğerdir.</td><td>Uzunluk, sürüş süresi veya hız sınırıyla ağırlıklandırılmış yol kenarları.</td></tr><tr><td>Simple vs. non-simple</td><td>Simple: no self-loops (an edge from x to x) and no multi-edges (the same pair joined twice).</td><td>“Are you your own friend?” is a self-loop question.</td></tr><tr class="turkish" lang="tr"><td>Basit / basit olmayan</td><td>Basit: öz döngü (x’ten x’e bir kenar) ve çoklu kenar (aynı çiftin iki kez bağlanması) yoktur.</td><td>“Kendinizin arkadaşı mısınız?” bir öz döngü sorusudur.</td></tr><tr><td>Sparse vs. dense</td><td>Sparse: only a small fraction of the possible n(n−1)/2 pairs are joined, so m is roughly linear in n. Dense: m is roughly quadratic.</td><td>Road networks are sparse because a junction only meets a few roads.</td></tr><tr class="turkish" lang="tr"><td>Seyrek / yoğun</td><td>Seyrek: olası n(n−1)/2 çiftin yalnızca küçük bir bölümü bağlıdır; dolayısıyla m, n’ye göre yaklaşık doğrusaldır. Yoğun: m yaklaşık kareseldir.</td><td>Bir kavşakta yalnızca birkaç yol birleştiği için yol ağları seyrektir.</td></tr><tr><td>Cyclic vs. acyclic</td><td>Acyclic: no cycles at all. A tree is a connected acyclic undirected graph. A directed acyclic graph is a DAG.</td><td>DAGs model scheduling, where an edge (x, y) means x must happen before y.</td></tr><tr class="turkish" lang="tr"><td>Döngülü / döngüsüz</td><td>Döngüsüz: hiç döngü yoktur. Ağaç, bağlı, döngüsüz ve yönsüz bir çizgedir. Yönlü döngüsüz çizge, DAG olarak adlandırılır.</td><td>DAG’ler çizelgelemeyi modeller; (x, y) kenarı, x’in y’den önce gerçekleşmesi gerektiğini belirtir.</td></tr><tr><td>Embedded vs. topological</td><td>Embedded: vertices and edges have geometric positions that matter. Topological: only the connections matter.</td><td>Points in the plane for the travelling salesman; grid graphs; planar graphs.</td></tr><tr class="turkish" lang="tr"><td>Gömülü / topolojik</td><td>Gömülü: tepe ve kenarların önem taşıyan geometrik konumları vardır. Topolojik: yalnızca bağlantılar önemlidir.</td><td>Gezgin satıcı için düzlemdeki noktalar; ızgara çizgeleri; düzlemsel çizgeler.</td></tr></table></div></details><details><summary>Lecture 10 · The friendship graph: vocabulary through an example</summary><p class="turkish" lang="tr">Arkadaşlık çizgesi: Bir örnek üzerinden terimler</p><p>Let the vertices be people and join two people by an edge if they are friends. Asking natural questions about it introduces the standard terms:</p><p class="turkish" lang="tr">Tepeler insanlar olsun; iki insan arkadaşsa aralarını bir kenarla birleştirin. Bu yapı hakkında doğal sorular sormak, standart terimleri tanıtır:</p><p>If I am your friend, are you mine? That is asking whether the graph is undirected. The “has heard of” graph is directed (famous people have not heard of Skiena); other relationships are necessarily symmetric.</p><p class="turkish" lang="tr">Ben sizin arkadaşınızsam siz de benim arkadaşım mısınız? Bu, çizgenin yönsüz olup olmadığını sorar. “Adını duymuş olma” çizgesi yönlüdür (ünlü insanlar Skiena’nın adını duymamıştır); başka ilişkiler ise zorunlu olarak simetriktir.</p><p>Am I linked by a chain of friends to a celebrity? A path is a sequence of edges connecting two vertices. Since a short chain is more impressive than a long one, we care about the shortest path.</p><p class="turkish" lang="tr">Bir arkadaş zinciriyle bir ünlüye bağlı mıyım? Yol, iki tepeyi bağlayan bir kenar dizisidir. Kısa bir zincir uzun olandan daha etkileyici olduğundan en kısa yolla ilgileniriz.</p><p>Is there a chain between any two people at all? A graph is connected if there is a path between every pair of vertices. A directed graph is strongly connected if there is a directed path both ways between every pair. “Six degrees of separation” presumes the world’s friendship graph is connected.</p><p class="turkish" lang="tr">Herhangi iki insan arasında bir zincir var mı? Her tepe çifti arasında bir yol varsa çizge bağlıdır. Yönlü bir çizgede her çift arasında her iki yönde de yönlü bir yol varsa çizge güçlü bağlıdır. “Altı derecelik ayrılık” düşüncesi, dünyanın arkadaşlık çizgesinin bağlı olduğunu varsayar.</p><p>Who has the most friends? The degree of a vertex is the number of edges touching it.</p><p class="turkish" lang="tr">En çok kimin arkadaşı var? Bir tepenin derecesi, ona değen kenarların sayısıdır.</p><p>What is the largest group of mutual friends? A clique is a set of vertices every pair of which is joined; the densest possible subgraph. In a friendship graph, big cliques are workplaces, schools, congregations.</p><p class="turkish" lang="tr">Herkesin birbiriyle arkadaş olduğu en büyük grup hangisidir? Klik, her çifti birbirine bağlı bir tepeler kümesidir; mümkün olan en yoğun alt çizgedir. Arkadaşlık çizgesinde büyük klikler iş yerleri, okullar ve cemaatlerdir.</p></details><details><summary>Lecture 10 · Storing a graph: adjacency matrix</summary><p class="turkish" lang="tr">Çizgeyi saklama: Komşuluk matrisi</p><p>Use an n × n table M where M[i, j] = 1 if (i, j) is an edge and 0 otherwise. Checking whether an edge exists is one lookup. The cost is space: n² entries even when the graph has only a few edges. An undirected graph could store only half the matrix (it is symmetric), but a sparse graph still wastes almost all of it.</p><p class="turkish" lang="tr">M[i, j], (i, j) bir kenarsa 1, değilse 0 olacak şekilde n × n boyutlu bir M tablosu kullanın. Bir kenarın varlığını denetlemek tek bir erişim gerektirir. Bedeli bellek alanıdır: çizgede yalnızca birkaç kenar olsa bile n² hücre. Yönsüz çizgede matrisin yalnızca yarısı saklanabilir (matris simetriktir), ancak seyrek bir çizgede bunun da neredeyse tamamı boşa gider.</p></details><details><summary>Lecture 10 · Storing a graph: adjacency lists</summary><p class="turkish" lang="tr">Çizgeyi saklama: Komşuluk listeleri</p><p>Keep an array of n pointers; entry i points to a linked list of the vertices adjacent to i. The slide’s example has vertex 1 adjacent to 2 and 5; vertex 2 to 1, 5, 4, 3; vertex 3 to 2 and 4; vertex 4 to 5, 2, 3; vertex 5 to 1, 2, 4. Notice that every undirected edge appears twice, once in each endpoint’s list.</p><p class="turkish" lang="tr">n işaretçiden oluşan bir dizi tutun; i. giriş, i’ye komşu tepelerin bağlı listesine işaret etsin. Slayttaki örnekte 1 tepesi 2 ve 5’e; 2 tepesi 1, 5, 4, 3’e; 3 tepesi 2 ve 4’e; 4 tepesi 5, 2, 3’e; 5 tepesi 1, 2, 4’e komşudur. Her yönsüz kenarın, uçlarının her birinin listesinde birer kez olmak üzere iki kez yer aldığına dikkat edin.</p><p>To test whether edge (i, j) exists, scan list i for j, which costs O(dᵢ), the degree of i. In a sparse graph dᵢ is much smaller than n. If deletions are needed, the two copies of an edge can be linked to each other by a pointer.</p><p class="turkish" lang="tr">(i, j) kenarının varlığını sınamak için i listesini j’yi arayarak tarayın; bunun maliyeti i’nin derecesi olan O(dᵢ)’dir. Seyrek çizgede dᵢ, n’den çok küçüktür. Silme işlemleri gerekiyorsa bir kenarın iki kopyası bir işaretçiyle birbirine bağlanabilir.</p></details><details><summary>Lecture 10 · Which one to use</summary><p class="turkish" lang="tr">Hangisini kullanmalı?</p><div class="table-wrap"><table><tr><td>Question</td><td>Winner</td></tr><tr class="turkish" lang="tr"><td>Soru</td><td>Üstün olan</td></tr><tr><td>Faster to test whether edge (x, y) exists?</td><td>Matrix</td></tr><tr class="turkish" lang="tr"><td>(x, y) kenarının varlığını sınamada daha hızlı olan?</td><td>Matris</td></tr><tr><td>Faster to find a vertex’s degree?</td><td>Lists</td></tr><tr class="turkish" lang="tr"><td>Bir tepenin derecesini bulmada daha hızlı olan?</td><td>Listeler</td></tr><tr><td>Less memory on small graphs?</td><td>Lists, O(m + n) versus O(n²)</td></tr><tr class="turkish" lang="tr"><td>Küçük çizgelerde daha az bellek kullanan?</td><td>Listeler: O(n²) yerine O(m + n)</td></tr><tr><td>Less memory on big dense graphs?</td><td>Matrix, slightly (no pointers)</td></tr><tr class="turkish" lang="tr"><td>Büyük ve yoğun çizgelerde daha az bellek kullanan?</td><td>Az farkla matris (işaretçi yok)</td></tr><tr><td>Edge insertion or deletion?</td><td>Matrix, O(1)</td></tr><tr class="turkish" lang="tr"><td>Kenar ekleme veya silme?</td><td>Matris, O(1)</td></tr><tr><td>Faster to traverse the whole graph?</td><td>Lists, O(m + n) versus O(n²)</td></tr><tr class="turkish" lang="tr"><td>Bütün çizgeyi dolaşmada daha hızlı olan?</td><td>Listeler: O(n²) yerine O(m + n)</td></tr><tr><td>Better for most problems?</td><td>Lists</td></tr><tr class="turkish" lang="tr"><td>Çoğu problem için daha iyi olan?</td><td>Listeler</td></tr></table></div><p>Both are useful, but adjacency lists win for most problems because most real graphs are sparse and most algorithms traverse rather than look up specific edges. The rest of the course assumes adjacency lists.</p><p class="turkish" lang="tr">İkisi de yararlıdır; fakat gerçek çizgelerin çoğu seyrek ve algoritmaların çoğu belirli kenarları aramak yerine dolaşım yaptığı için komşuluk listeleri çoğu problemde üstündür. Dersin geri kalanında komşuluk listeleri varsayılır.</p></details><details><summary>Lecture 10 · The adjacency-list implementation used in the course</summary><p class="turkish" lang="tr">Derste kullanılan komşuluk listesi gerçeklemesi</p><p>Each edge is a small record and each vertex owns a list of them:</p><p class="turkish" lang="tr">Her kenar küçük bir kayıttır ve her tepe bu kayıtların bir listesine sahiptir:</p><pre><code>edgenode:
+    y        (the other endpoint)
+    weight   (edge weight, if any)
+    next     (next edge in this vertex&#x27;s list)
 
-<div class="hero">
-  <div class="eyebrow">Week 09 &middot; Phase 3 · The language of growth</div>
-  <h1>One Problem, Four Algorithms: The Anagram Story</h1>
-  <p class="lede">The classic case study — four correct solutions, four completely different costs.</p>
-  <p class="path-question"><strong>Same answer, same computer: why is one version a million times slower?</strong></p>
-</div>
+graph:
+    edges[1..n]    (edges[i] = head of vertex i&#x27;s list)
+    degree[1..n]   (number of edges out of each vertex)
+    nvertices, nedges
+    directed       (true or false)</code></pre><pre class="turkish" lang="tr"><code>edgenode:
+    y        (diğer uç tepe)
+    weight   (varsa kenar ağırlığı)
+    next     (bu tepenin listesindeki sonraki kenar)
 
-<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Anagrams have equal letter counts</h2><figure class="vl-figure"><figcaption>listen and silent: order changes, counts do not</figcaption><div class="vl-trace"><b>letter</b><div class="vl-cards" style="--row-columns:6"><span>e</span><span>i</span><span>l</span><span>n</span><span>s</span><span>t</span></div></div><div class="vl-trace"><b>listen</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div><div class="vl-trace"><b>silent</b><div class="vl-cards" style="--row-columns:6"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span></div></div></figure><p>First define the rules: here inputs contain only lowercase English letters, and every character counts. Repeated letters matter: <code>aab</code> and <code>abb</code> are not anagrams.</p></section><section class="vl-lesson"><h2>Four methods, one decision</h2><div class="vl-table"><table><thead><tr><th scope="col">Method</th><th scope="col">Work for length n</th><th scope="col">Main idea</th></tr></thead><tbody><tr><td>Cross off a matching letter</td><td>O(n²)</td><td>Search remaining positions for each letter.</td></tr><tr><td>Sort both strings</td><td>O(n log n)</td><td>Equal sorted sequences have equal counts.</td></tr><tr><td>Try every permutation</td><td>O(n · n!)</td><td>Generate candidates and compare each.</td></tr><tr><td>Count k possible letters</td><td>O(n + k)</td><td>Compare the two frequency arrays.</td></tr></tbody></table></div><p>These are upper bounds. The permutation bound includes up to n work per candidate. Early mismatches can finish sooner. With a fixed alphabet k = 26, counting is linear.</p></section><section class="vl-lesson"><h2>Build a count, then cancel it</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>def anagram(a, b):
-    if len(a) != len(b):
-        return False
-    counts = [0] * 26
-    for ch in a:
-        counts[ord(ch) - ord(&quot;a&quot;)] += 1
-    for ch in b:
-        counts[ord(ch) - ord(&quot;a&quot;)] -= 1
-    return all(c == 0 for c in counts)</code></pre></div><figure class="vl-figure"><figcaption>Trace aab against abb; show only a and b</figcaption><div class="vl-trace"><b>counts for aab</b><div class="vl-cards" style="--row-columns:2"><span>a: 2</span><span>b: 1</span></div></div><div class="vl-trace"><b>subtract abb</b><div class="vl-cards" style="--row-columns:2"><span>a: 1</span><span>b: −1</span></div></div></figure><p>The final nonzero entries show the mismatch. This implementation requires a–z input; validate or normalise first if the input rules differ.</p></section><section class="vl-lesson"><h2>Compare on the same job</h2><div class="vl-equation"><span>Frequency-array work</span><strong>n increments + n decrements + k checks</strong></div><p>Test empty strings, repeated letters, unequal lengths, a valid pair and a same-length non-pair. Time each method on the same families. For general text, a dictionary counter can handle a larger alphabet; its lookup cost is average-case, and case/spacing rules must be explicit.</p></section></section>
-<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
-<p class="source-label">10 test questions · 2 written questions · 12 total</p>
+graph:
+    edges[1..n]    (edges[i] = i tepesinin listesinin başı)
+    degree[1..n]   (her tepeden çıkan kenar sayısı)
+    nvertices, nedges
+    directed      (true veya false)</code></pre><p>Reading a graph from a file: the first line gives n and m, then one edge per line. Each edge is inserted at the head of its list in O(1):</p><p class="turkish" lang="tr">Dosyadan çizge okuma: İlk satır n ve m’yi verir; ardından her satırda bir kenar bulunur. Her kenar, kendi listesinin başına O(1) sürede eklenir:</p><pre><code>insert_edge(g, x, y, directed):
+    create an edgenode p with p.y = y, p.weight = 0
+    p.next = g.edges[x]
+    g.edges[x] = p              (insert at head of x&#x27;s list)
+    g.degree[x] = g.degree[x] + 1
+    if not directed:
+        insert_edge(g, y, x, true)   (add the reverse copy)
+    else:
+        g.nedges = g.nedges + 1</code></pre><pre class="turkish" lang="tr"><code>insert_edge(g, x, y, directed):
+    p.y = y, p.weight = 0 olan bir edgenode p oluştur
+    p.next = g.edges[x]
+    g.edges[x] = p              (x listesinin başına ekle)
+    g.degree[x] = g.degree[x] + 1
+    if not directed:
+        insert_edge(g, y, x, true)   (ters kopyayı ekle)
+    else:
+        g.nedges = g.nedges + 1</code></pre><p>The recursive trick at the end adds the reverse edge for undirected graphs without counting the edge twice.</p><p class="turkish" lang="tr">Sondaki özyineleme tekniği, yönsüz çizgelerde kenarı iki kez saymadan ters kenarı ekler.</p></details><details><summary>Lecture 11 · Warm-up: converting between graph representations</summary><p class="turkish" lang="tr">Hazırlık: Çizge gösterimleri arasında dönüşüm</p><p>For an undirected graph with n vertices and m edges:</p><p class="turkish" lang="tr">n tepeli ve m kenarlı yönsüz bir çizge için:</p><p>Adjacency matrix → adjacency lists. Scan every matrix entry; each 1 becomes a list insertion. O(n²), because the matrix has to be read whole.</p><p class="turkish" lang="tr">Komşuluk matrisi → komşuluk listeleri. Matrisin bütün hücrelerini tarayın; her 1, listeye bir ekleme işlemine dönüşür. Matrisin tamamı okunmak zorunda olduğundan O(n²).</p><p>Adjacency lists → incidence matrix. (An incidence matrix has a row per vertex and a column per edge, with a 1 where the vertex is an endpoint of that edge.) Walk the lists, giving each edge a column number as it is met and marking its two endpoints. Creating the matrix costs O(nm) just to zero it out, which dominates.</p><p class="turkish" lang="tr">Komşuluk listeleri → geliş matrisi. (Geliş matrisinde her tepe için bir satır, her kenar için bir sütun vardır; tepe kenarın uçlarından biriyse hücre 1’dir.) Listeleri dolaşın; karşılaştığınız her kenara bir sütun numarası verin ve iki ucunu işaretleyin. Matrisi oluştururken yalnızca sıfırlamak bile O(nm) maliyetlidir ve baskın terim budur.</p><p>Incidence matrix → adjacency lists. Each column has exactly two 1s; scan each column to find them and insert the edge. O(nm) for scanning the whole matrix.</p><p class="turkish" lang="tr">Geliş matrisi → komşuluk listeleri. Her sütunda tam iki tane 1 vardır; bunları bulmak için her sütunu tarayın ve kenarı ekleyin. Matrisin tamamını taramak O(nm) sürer.</p><p>The theme: a representation costs at least its own size to read or write, so the matrix representations impose their size on every conversion.</p><p class="turkish" lang="tr">Ana fikir: Bir gösterimi okumak veya yazmak en az kendi boyutu kadar maliyetlidir; bu nedenle matris gösterimleri her dönüşüme kendi boyutlarının maliyetini yükler.</p></details><details><summary>Lecture 11 · Traversal: the general idea</summary><p class="turkish" lang="tr">Dolaşım: Genel fikir</p><p>One of the most basic graph problems is to visit every vertex and edge. Two requirements: for efficiency, visit each edge at most twice (once from each endpoint); for correctness, be systematic enough not to miss anything. A maze is a graph, so a traversal algorithm has to be at least strong enough to get you out of any maze.</p><p class="turkish" lang="tr">En temel çizge problemlerinden biri, her tepe ve kenarı ziyaret etmektir. İki gereklilik vardır: verimlilik için her kenarı en fazla iki kez (her ucundan bir kez) ziyaret etmek; doğruluk için hiçbir şeyi atlamayacak kadar sistematik olmak. Labirent bir çizgedir; dolayısıyla dolaşım algoritması sizi herhangi bir labirentten çıkarabilecek kadar güçlü olmalıdır.</p><p>The key idea is to mark vertices as they are found. Every vertex is always in one of three states, and only ever moves forward through them:</p><p class="turkish" lang="tr">Temel fikir, tepeleri bulundukça işaretlemektir. Her tepe her zaman üç durumdan birindedir ve bu durumlar arasında yalnızca ileri yönde hareket eder:</p><p>Undiscovered: never seen.</p><p class="turkish" lang="tr">Keşfedilmemiş: Hiç görülmemiş.</p><p>Discovered: seen, but not all of its edges have been examined yet.</p><p class="turkish" lang="tr">Keşfedilmiş: Görülmüş, fakat bütün kenarları henüz incelenmemiş.</p><p>Processed: all of its edges have been examined.</p><p class="turkish" lang="tr">İşlenmiş: Bütün kenarları incelenmiş.</p><p>We keep a “to-do list” of vertices that are discovered but not yet processed. At the start only the start vertex is discovered. To process a vertex, look at each edge leaving it; whenever an edge leads to an undiscovered vertex, mark that vertex discovered and add it to the to-do list.</p><p class="turkish" lang="tr">Keşfedilmiş ama henüz işlenmemiş tepelerin bir “yapılacaklar listesini” tutarız. Başlangıçta yalnızca başlangıç tepesi keşfedilmiştir. Bir tepeyi işlemek için ondan çıkan her kenara bakın; bir kenar keşfedilmemiş tepeye ulaştığında o tepeyi keşfedilmiş olarak işaretleyin ve yapılacaklar listesine ekleyin.</p><p>Whatever order we take vertices from the to-do list, each edge is looked at exactly twice, once from each endpoint. That order is the only difference between BFS and DFS: BFS keeps the to-do list as a queue (first found, first processed); DFS keeps it as a stack.</p><p class="turkish" lang="tr">Tepeleri yapılacaklar listesinden hangi sırayla alırsak alalım, her kenara her ucundan birer kez olmak üzere tam iki kez bakılır. BFS ve DFS arasındaki tek fark bu sıradır: BFS yapılacaklar listesini kuyruk olarak (ilk bulunan, ilk işlenen), DFS ise yığın olarak tutar.</p><p>Correctness. Every vertex and edge in the start vertex’s connected component is eventually visited. Suppose some vertex u were never visited but had a neighbour v that was. Then v was at some point processed, its edges were examined, and the edge to u would have discovered u. Contradiction.</p><p class="turkish" lang="tr">Doğruluk. Başlangıç tepesinin bağlı bileşenindeki her tepe ve kenar sonunda ziyaret edilir. Bir u tepesinin hiç ziyaret edilmediğini, fakat v komşusunun ziyaret edildiğini varsayın. O hâlde v bir noktada işlenmiş, kenarları incelenmiş ve u’ya giden kenar u’yu keşfetmiş olmalıydı. Çelişki.</p></details><details><summary>Lecture 11 · BFS</summary><p class="turkish" lang="tr">BFS</p><p>BFS uses two boolean arrays, discovered and processed, plus a parent array recording which vertex discovered each vertex. Discovered vertices wait in a FIFO queue, so the oldest, which are closest to the start, are expanded first.</p><p class="turkish" lang="tr">BFS, discovered ve processed adlı iki Boole dizisi ile her tepeyi hangi tepenin keşfettiğini kaydeden parent dizisini kullanır. Keşfedilen tepeler bir FIFO kuyruğunda bekler; bu nedenle başlangıca en yakın olan, en önce keşfedilmiş tepeler önce genişletilir.</p><pre><code>bfs(G, start):
+    queue q = {start}; discovered[start] = true
+    while q is not empty:
+        v = dequeue(q)
+        process_vertex_early(v)
+        processed[v] = true
+        for each edge (v, y):
+            if not processed[y] or G is directed:
+                process_edge(v, y)
+            if not discovered[y]:
+                enqueue(q, y)
+                discovered[y] = true
+                parent[y] = v
+        process_vertex_late(v)</code></pre><pre class="turkish" lang="tr"><code>bfs(G, start):
+    q kuyruğu = {start}; discovered[start] = true
+    while q boş değilse:
+        v = dequeue(q)
+        process_vertex_early(v)
+        processed[v] = true
+        for her (v, y) kenarı:
+            if not processed[y] or G yönlü ise:
+                process_edge(v, y)
+            if not discovered[y]:
+                enqueue(q, y)
+                discovered[y] = true
+                parent[y] = v
+        process_vertex_late(v)</code></pre><p>The test not processed[y] stops an undirected edge being processed twice (it is seen from both ends). The three hooks process_vertex_early, process_edge and process_vertex_late are deliberately left empty: filling them in customises the traversal. Set them to print, and you print each vertex and each edge exactly once.</p><p class="turkish" lang="tr">not processed[y] sınaması, yönsüz bir kenarın iki kez işlenmesini engeller (kenar her iki ucundan da görülür). process_vertex_early, process_edge ve process_vertex_late adlı üç uyarlama noktası bilinçli olarak boş bırakılmıştır; bunları doldurmak dolaşımı özelleştirir. Yazdırma yapacak şekilde tanımlarsanız her tepeyi ve her kenarı tam bir kez yazdırırsınız.</p><p>Cost. Each vertex is enqueued and dequeued once, and each edge is looked at twice: O(n + m) with adjacency lists.</p><p class="turkish" lang="tr">Maliyet. Her tepe bir kez kuyruğa eklenir ve bir kez çıkarılır; her kenara iki kez bakılır: komşuluk listeleriyle O(n + m).</p></details><details><summary>Lecture 11 · The BFS tree and shortest paths</summary><p class="turkish" lang="tr">BFS ağacı ve en kısa yollar</p><p>The parent array defines a tree, rooted at the start vertex, with an edge from each vertex to the vertex that discovered it. This is the BFS tree.</p><p class="turkish" lang="tr">parent dizisi, kökü başlangıç tepesi olan ve her tepeden onu keşfeden tepeye bir kenar içeren bir ağaç tanımlar. Bu, BFS ağacıdır.</p><p>Because BFS discovers vertices in order of increasing distance from the root, the BFS tree has a precious property: the tree path from the root to any vertex x uses the fewest possible edges of any path in the graph. That is, BFS computes shortest paths when every edge counts as 1. (For edges with different lengths, wait for Dijkstra in Lecture 14.)</p><p class="turkish" lang="tr">BFS tepeleri kökten artan uzaklık sırasıyla keşfettiği için BFS ağacının değerli bir özelliği vardır: kökten herhangi bir x tepesine giden ağaç yolu, çizgedeki bütün yollar arasında mümkün olan en az sayıda kenarı kullanır. Yani her kenar 1 sayıldığında BFS en kısa yolları hesaplar. (Uzunlukları farklı kenarlar için Ders 14’teki Dijkstra algoritmasını bekleyin.)</p><p>Reconstructing the path. Parent pointers point towards the root, so you can only walk from x back to the root, not the other way. Walk backwards, or let recursion reverse the order for you:</p><p class="turkish" lang="tr">Yolu yeniden oluşturma. Ebeveyn işaretçileri köke doğru yönelir; bu yüzden yalnızca x’ten köke geri yürüyebilirsiniz, tersi yönde değil. Geriye doğru yürüyün veya özyinelemenin sırayı sizin için tersine çevirmesine izin verin:</p><pre><code>find_path(start, end, parent):
+    if start == end or end == −1:
+        print start
+    else:
+        find_path(start, parent[end], parent)
+        print end</code></pre><pre class="turkish" lang="tr"><code>find_path(start, end, parent):
+    if start == end or end == −1:
+        print start
+    else:
+        find_path(start, parent[end], parent)
+        print end</code></pre><p>The recursive call happens before printing, so the printing comes out root-first.</p><p class="turkish" lang="tr">Özyinelemeli çağrı yazdırmadan önce gerçekleştiği için çıktı kökten başlayarak üretilir.</p></details><details><summary>Lecture 11 · Application: connected components</summary><p class="turkish" lang="tr">Uygulama: Bağlı bileşenler</p><p>The connected components of an undirected graph are its separate pieces: sets of vertices with paths inside each set and no edges between sets. Many complicated-looking questions are really component questions. “Can a Rubik’s cube (or the 15-puzzle) be solved from every position?” asks whether the graph of legal positions, with edges for legal moves, is connected.</p><p class="turkish" lang="tr">Yönsüz bir çizgenin bağlı bileşenleri, birbirinden ayrı parçalarıdır: her kümenin içinde yollar bulunan, fakat kümeler arasında kenar bulunmayan tepe kümeleri. Karmaşık görünen birçok soru aslında bir bileşen sorusudur. “Rubik küpü (veya 15 bulmacası) her konumdan çözülebilir mi?” sorusu, geçerli konumların tepe, geçerli hamlelerin kenar olduğu çizgenin bağlı olup olmadığını sorar.</p><p>Everything discovered by one BFS lies in the same component. So: run BFS from vertex 1, label everything it reaches as component 1; find the next undiscovered vertex and run BFS from it for component 2; repeat until every vertex is discovered.</p><p class="turkish" lang="tr">Tek bir BFS’nin keşfettiği her şey aynı bileşendedir. Dolayısıyla 1 tepesinden BFS çalıştırın ve ulaştığı her şeyi bileşen 1 olarak etiketleyin; keşfedilmemiş sonraki tepeyi bulun ve bileşen 2 için oradan BFS başlatın; bütün tepeler keşfedilene kadar tekrarlayın.</p><pre><code>connected_components(G):
+    c = 0
+    for each vertex i:
+        if not discovered[i]:
+            c = c + 1
+            print &quot;Component&quot;, c
+            bfs(G, i)       (with process_vertex_early printing the vertex)</code></pre><pre class="turkish" lang="tr"><code>connected_components(G):
+    c = 0
+    for her i tepesi:
+        if not discovered[i]:
+            c = c + 1
+            print &quot;Bileşen&quot;, c
+            bfs(G, i)   (process_vertex_early tepeyi yazdırır)</code></pre><p>Total cost O(n + m), since each vertex and edge is touched once over all the searches.</p><p class="turkish" lang="tr">Bütün aramalar boyunca her tepe ve kenara bir kez dokunulduğu için toplam maliyet O(n + m)’dir.</p></details><details><summary>Lecture 11 · Application: two-colouring (bipartite graphs)</summary><p class="turkish" lang="tr">Uygulama: İki renkle boyama (iki parçalı çizgeler)</p><p>Vertex colouring assigns a colour to each vertex so that no edge joins two vertices of the same colour. A graph that can be coloured with only two colours is bipartite. Bipartite graphs are common: students and the courses they take form one (edges only go between a student and a course, never student-student or course-course).</p><p class="turkish" lang="tr">Tepe boyama, hiçbir kenar aynı renkte iki tepeyi birleştirmeyecek biçimde her tepeye bir renk atar. Yalnızca iki renkle boyanabilen çizge iki parçalıdır. İki parçalı çizgeler yaygındır: öğrenciler ve aldıkları dersler böyle bir çizge oluşturur (kenarlar yalnızca öğrenciyle ders arasındadır; öğrenci–öğrenci veya ders–ders arasında asla değildir).</p><p>BFS finds a two-colouring, or proves there is none: whenever a vertex is discovered, colour it the opposite of its parent. Every processed edge is checked; if its endpoints have the same colour the graph is not bipartite.</p><p class="turkish" lang="tr">BFS iki renkli bir boyama bulur veya böyle bir boyama olmadığını kanıtlar: her tepe keşfedildiğinde onu ebeveyninin karşıt rengine boyayın. İşlenen her kenar denetlenir; uçları aynı renkteyse çizge iki parçalı değildir.</p><pre><code>twocolor(G):
+    colour every vertex UNCOLOURED; bipartite = true
+    for each vertex i:
+        if not discovered[i]:
+            colour[i] = WHITE
+            bfs(G, i)
+
+process_edge(x, y):
+    if colour[x] == colour[y]:
+        bipartite = false; report the offending edge (x, y)
+    colour[y] = complement(colour[x])</code></pre><pre class="turkish" lang="tr"><code>twocolor(G):
+    her tepenin rengini UNCOLOURED yap; bipartite = true
+    for her i tepesi:
+        if not discovered[i]:
+            colour[i] = WHITE
+            bfs(G, i)
+
+process_edge(x, y):
+    if colour[x] == colour[y]:
+        bipartite = false; ihlal eden (x, y) kenarını bildir
+    colour[y] = complement(colour[x])</code></pre><p>The first vertex of each component can be given whichever colour we like; the rest is forced. Cost: O(n + m).</p><p class="turkish" lang="tr">Her bileşenin ilk tepesine istediğimiz rengi verebiliriz; geri kalan renkler zorunlu olarak belirlenir. Maliyet: O(n + m).</p></details></details>
+<p class="practice-note">Begin with the easy tests and the worked example. Remaining questions provide repeated teaching practice; hard questions are optional depth. Some tests revisit earlier prerequisites. Answers stay visible.</p><section class="chapter-question-bank" id="skiena-practice"><h3>Practice with answers</h3>
+<p class="source-label">10 test questions · 11 written questions · 21 total</p>
 <p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
 <h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
-<article class="source-exercise test-question" id="skiena-mcq-017">
-<p class="source-label">Question 1 · medium</p><p class="question-prompt">For nonnegative cost functions f(n) = O(n²) and g(n) = O(n), what is the tightest upper bound on f(n)·g(n) guaranteed by this information?</p><ol class="mcq-options" type="a"><li> O(n)</li><li> O(n²)</li><li> O(n³)</li><li> impossible to bound</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Products of bounds multiply.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-179">
-<p class="source-label">Question 2 · medium · course question</p><p class="question-prompt">Two strings are anagrams when they have:</p><ol class="mcq-options" type="a"><li>the same first character</li><li>the same set of distinct characters only</li><li>the same characters with the same multiplicities, in any order</li><li>the same length only</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Multiplicity means the number of occurrences. For example, aab and aba are anagrams, but aab and abb are not.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-180">
-<p class="source-label">Question 3 · medium · course question</p><p class="question-prompt">Why does comparing only set(&quot;aab&quot;) and set(&quot;abb&quot;) give the wrong anagram result?</p><ol class="mcq-options" type="a"><li>sets discard repeated occurrences</li><li>sets reverse strings</li><li>sets require equal input lengths</li><li>sets preserve every occurrence separately</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> Both sets are {a, b}, but the strings contain different counts of a and b. Set equality loses the information needed here.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-181">
-<p class="source-label">Question 4 · medium · course question</p><p class="question-prompt">Which pair is an anagram pair under exact, case-sensitive character matching?</p><ol class="mcq-options" type="a"><li>ab and aa</li><li>A and a</li><li>abc and ab</li><li>listen and silent</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> listen and silent contain the same six characters once each. Case-sensitive matching treats A and a as different characters.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-182">
-<p class="source-label">Question 5 · medium · course question</p><p class="question-prompt">Before counting characters, what can safely reject two strings as non-anagrams?</p><ol class="mcq-options" type="a"><li>different first characters</li><li>different lengths</li><li>different last characters</li><li>different existing order</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> Anagrams preserve every occurrence, so their lengths must agree. Their first, last and intermediate positions may differ.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-183">
-<p class="source-label">Question 6 · medium · course question</p><p class="question-prompt">For exact character matching, which sorting-based test correctly checks anagrams?</p><ol class="mcq-options" type="a"><li>compare the first sorted characters only</li><li>compare the unsorted strings only</li><li>compare the complete sorted character sequences</li><li>compare the number of distinct characters only</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> Sorting places equal characters together while preserving multiplicity. Equal complete sorted sequences therefore encode the same character counts.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-184">
-<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">If both strings have length n, sorting each takes Θ(n log n) and comparing them takes Θ(n). What is the total asymptotic cost?</p><ol class="mcq-options" type="a"><li>Θ(n log n)</li><li>Θ(n² log n)</li><li>Θ(log n)</li><li>Θ(n³)</li></ol>
-<div class="question-answer"><p><strong>Answer: option A.</strong> The phases are consecutive: two sorting costs plus one scan. Add them; the n log n term dominates the linear scan.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-185">
-<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">A count dictionary is built from &quot;aab&quot;. After consuming one a and one b from a second string, what positive count remains?</p><ol class="mcq-options" type="a"><li>b: 1</li><li>a: 2</li><li>none</li><li>a: 1</li></ol>
-<div class="question-answer"><p><strong>Answer: option D.</strong> The original counts are a:2 and b:1. Subtracting one of each leaves a:1 and b:0.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-186">
-<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">To treat spaces and capitalisation as irrelevant to anagrams, what should be done?</p><ol class="mcq-options" type="a"><li>silently remove arbitrary characters only from the first string</li><li>define and apply the same normalisation rule to both strings</li><li>compare only their lengths</li><li>sort only the first string</li></ol>
-<div class="question-answer"><p><strong>Answer: option B.</strong> The definition of equality comes first. Apply the same stated normalisation, such as removing spaces and converting case, to both inputs.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-187">
-<p class="source-label">Question 10 · medium · course question</p><p class="question-prompt">For strings over a fixed 26-letter alphabet, what extra storage does a 26-counter frequency method need as string length n grows?</p><ol class="mcq-options" type="a"><li>Θ(n²) counters</li><li>Θ(n) counters</li><li>Θ(1) counters with respect to n</li><li>no counters</li></ol>
-<div class="question-answer"><p><strong>Answer: option C.</strong> The number of counters stays at 26 regardless of n. This counts fixed-word counters; an unrestricted growing alphabet or bit-level integer analysis changes the assumptions.</p></div></article>
+<article class="source-exercise test-question" id="skiena-mcq-061">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">The maximum number of edges in a simple undirected graph on 5 vertices is:</p><ol class="mcq-options" type="a"><li> 5</li><li> 10</li><li> 20</li><li> 25</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> n(n − 1)/2 = 5 × 4 / 2.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-062">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">An undirected graph has 7 edges. The degrees of its vertices add up to:</p><ol class="mcq-options" type="a"><li> 7</li><li> 14</li><li> 21</li><li> it depends on the graph</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Every edge is counted once at each of its two endpoints.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-063">
+<p class="source-label">Question 3 · easy</p><p class="question-prompt">For an n-vertex graph, what is the tightest listed worst-case space bound for a full adjacency matrix?</p><ol class="mcq-options" type="a"><li> O(n + m)</li><li> O(n²)</li><li> O(m)</li><li> O(n log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> One entry per pair of vertices, edge or not.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-064">
+<p class="source-label">Question 4 · easy</p><p class="question-prompt">Breadth-first search keeps its discovered-but-unprocessed vertices in:</p><ol class="mcq-options" type="a"><li> a stack</li><li> a queue</li><li> a heap</li><li> a hash table</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> First found, first processed, which is why it expands by distance.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-065">
+<p class="source-label">Question 5 · easy</p><p class="question-prompt">Shortest paths in an unweighted graph are found by:</p><ol class="mcq-options" type="a"><li> BFS</li><li> DFS</li><li> Prim’s algorithm</li><li> Kruskal’s algorithm</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The BFS tree path to each vertex uses the fewest possible edges.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-066">
+<p class="source-label">Question 6 · easy</p><p class="question-prompt">A tree with 12 vertices has how many edges?</p><ol class="mcq-options" type="a"><li> 11</li><li> 12</li><li> 13</li><li> 66</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Always n − 1.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-067">
+<p class="source-label">Question 7 · easy</p><p class="question-prompt">A triangle (three mutually adjacent vertices) is:</p><ol class="mcq-options" type="a"><li> bipartite</li><li> not bipartite</li><li> a DAG</li><li> a tree</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> It is an odd cycle, and two colours cannot colour it.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-1129">
+<p class="source-label">Question 8 · easy · course question</p><p class="question-prompt">In BFS, when should a vertex be marked discovered?</p><ol class="mcq-options" type="a"><li>When first enqueued.</li><li>Only after the entire search.</li><li>Every time an edge reaches it.</li><li>Never.</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Marking on enqueue prevents different parents from placing the same vertex into the queue repeatedly.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-1130">
+<p class="source-label">Question 9 · easy · course question</p><p class="question-prompt">BFS distance measures what in an unweighted graph?</p><ol class="mcq-options" type="a"><li>Total arbitrary edge weight.</li><li>Minimum edge count from the source.</li><li>MST total weight.</li><li>DFS finishing time.</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> BFS processes vertices by levels: all distance-k vertices precede distance-(k+1) vertices.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-071">
+<p class="source-label">Question 10 · medium</p><p class="question-prompt">A graph has edges 1–2, 1–3, 2–4, 3–4, 4–5. BFS from 1, taking neighbours in increasing order, discovers vertices in the order:</p><ol class="mcq-options" type="a"><li> 1, 2, 4, 3, 5</li><li> 1, 2, 3, 4, 5</li><li> 1, 3, 2, 4, 5</li><li> 1, 2, 3, 5, 4</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> Distance 1 vertices (2, 3) before distance 2 (4) before distance 3 (5).</p></div></article>
 <h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
-<article class="source-exercise" id="skiena-ex-055"><p class="source-label">Question 11 · medium</p><p>Explain in words why Rabin-Karp can move its window one character to the right in O(1) time.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>With a fixed-word modulus and a precomputed α^(m−1) modulo that modulus, remove the outgoing character contribution, multiply by α, then add the incoming character, all modulo the modulus. That uses constant word operations. Without bounded arithmetic or the precomputed power, this constant-time claim needs qualification; confirming a hash match still compares characters.</p></div></article><article class="source-exercise" id="skiena-ex-056"><p class="source-label">Question 12 · medium</p><p>Given n integers and a target T, decide whether some two of them add up to T. Give an O(n) expected-time method and an O(n log n) worst-case method.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Expected linear method: scan once with an initially empty hash set. For each x, test whether T − x is already present before inserting x, so the same record is never used twice. This permits two distinct records with equal values. For an O(n log n) worst-case comparison method, sort and move pointers inward while their positions differ; advance the left pointer if the sum is too small and the right pointer if it is too large. Include sorting and any required copy in the costs.</p></div></article></section>
-<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Write the a/b counts for aab and aba, then aab and abb.</p><details class="solution"><summary>Check your reasoning</summary><div><p>aab/aba both have a:2, b:1 → True. abb has a:1, b:2 → False.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>For n = 100 and k = 26, count the two character passes plus final count checks.</p><details class="solution"><summary>Check your reasoning</summary><div><p>100 + 100 + 26 = 226, excluding initialisation and loop overhead.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Allow uppercase letters. What must change before using the 26-slot code?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Choose case-sensitive or case-insensitive rules. For case-insensitive English input, lowercase and validate a–z before indexing; otherwise choose a larger mapping.</p></div></details></article></section>
-<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
-  <h2><span class="num">9.9</span>Try it yourself</h2>
-
-  <div class="task">
-    <span class="label">Task 1 — instrument solution 1</span>
-    <p>
-      Add a comparison counter to <code>anagram_checking_off</code> and report it for
-      n = 100, 200, 400 on genuine anagram pairs. Compare the counts with the predicted
-      n(n+1)/2.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — count the comparisons, then scale up to n = 400</summary>
-      <div class="widget anim" data-anim="w9-checkoff"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        Exactly 5 050, 20 100 and 80 200 — with doubling ratios approaching four,
-        just as predicted.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 2 — how far can brute force go?</span>
-    <p>
-      Time <code>anagram_brute_force</code> at n = 6, 7, 8, 9 (stop there, or earlier if slow).
-      Use equal-length non-anagrams to force exhaustion, for example <code>"a" * n</code>
-      and <code>"a" * (n-1) + "b"</code>. Then predict
-      n = 12 from the pattern, and say whether you would wait for it.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — watch every rearrangement, then extrapolate to n = 12</summary>
-      <div class="widget anim" data-anim="w9-brute"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        Under a constant-cost-per-candidate model, 12!/9! = 10 × 11 × 12 = 1 320.
-        An illustrative one-second run at n = 9 predicts 22 minutes at n = 12 and
-        15!/9! = 3 603 600 seconds, about 41.7 days, at n = 15. The full n · n!
-        model adds factors 12/9 and 15/9, giving about 29.3 minutes and 69.5 days.
-        These are extrapolations for exhaustive searches, not guaranteed durations.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 3 — find the crossover</span>
-    <p>
-      Sorting may beat counting at the sizes you test. Increase n within a practical
-      limit (build inputs outside the timer) and look for a crossover. If none occurs,
-      report the tested range and input family rather than inventing a crossover.
-    </p>
-  <details class="solution anim-wrap"><summary>Animate it — race sort against count and report what you see</summary>
-      <div class="widget anim" data-anim="w9-crossover"></div>
-    </details></div>
-
-  <div class="task">
-    <span class="label">Task 4 — a fifth solution</span>
-    <p>
-      Python has <code>collections.Counter</code>. Write <code>anagram_counter(s1, s2)</code>
-      in one line using it, benchmark it against your solution 4, and explain why the class
-      is the same but the time differs.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — run the 26-slot lists and Counter side by side</summary>
-      <div class="widget anim" data-anim="w9-counter"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>one line</div><pre><code>from collections import Counter
-
-def anagram_counter(s1, s2):
-    return Counter(s1) == Counter(s2)</code></pre></div>
-      <p>
-        Expected O(n) time under ordinary hash-table assumptions: Counter visits each
-        character and stores counts for the k distinct characters, using O(k) space.
-        It also supports a broader alphabet than the 26-slot function. Implementation
-        constants can differ; benchmark rather than assume it is faster.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 5 — a variation: are they permutations of digits?</span>
-    <p>
-      Adapt the counting solution to decide whether two lists of integers (each 0–9) are
-      rearrangements of each other — e.g. <code>[3, 1, 4, 1]</code> and
-      <code>[1, 4, 3, 1]</code>. What is the class, and what changed from the letters
-      version?
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — add for a, subtract for b, check for zeros</summary>
-      <div class="widget anim" data-anim="w9-digits"></div>
-    </details><details class="solution"><summary>Solution</summary>
-      <div class="code"><div class="code-head"><span class="dot"></span>digits version</div><pre><code>def same_multiset(a, b):
-    if len(a) != len(b):
-        return False
-    counts = [0] * 10          <span class="c"># one slot per digit 0-9</span>
-    for x in a:
-        counts[x] += 1
-    for x in b:
-        counts[x] -= 1         <span class="c"># cancel out</span>
-    return all(c == 0 for c in counts)</code></pre></div>
-      <p>
-        Still <strong>O(n)</strong>: two passes over the data and a fixed 10-slot check.
-        The only change is a smaller alphabet (10 slots instead of 26) and a tidy trick —
-        add for one list, subtract for the other, and everything should cancel to zero.
-        Same idea, same class.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Task 6 — confirm by counting, not timing</span>
-    <p>
-      Run the operation-counter from §9.7 for the checking-off and counting methods at
-      n = 100, 200, 400, 800. Put the two ratio columns side by side and state, in one
-      sentence each, what class the underlying count formula proves and whether the column agrees — without calling
-      <code>time.perf_counter</code>.
-    </p>
-    <details class="solution anim-wrap"><summary>Animate it — build both ratio columns without a stopwatch</summary>
-      <div class="widget anim" data-anim="w9-count-ratios"></div>
-    </details><details class="solution"><summary>Expected</summary>
-      <p>
-        The checking-off ratios approach 4 and counting ratios approach 2. Deriving
-        n(n+1)/2 and 2n+26 for every genuine length-n anagram establishes Θ(n²)
-        and Θ(n); the finite table checks those formulas rather than proving them alone.
-      </p>
-    </details>
-  </div>
-</section></div></details></section>
-<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
-  <h2><span class="num">9.10</span>Self-check</h2>
-  <div class="quiz" data-quiz>
-    <div class="q" data-answer="1">
-      <p>Why do we use an O(n log n) worst-case sorting upper bound for <code>sorted(s1) == sorted(s2)</code>?</p>
-      <button class="opt">Because comparing two lists is O(n²)</button>
-      <button class="opt">Because sorting itself costs O(n log n), and that dominates the comparison</button>
-      <button class="opt">Because it uses extra memory</button>
-      <button class="opt">It is O(n) — the line is short</button>
-      <div class="why">The cost is inside the built-in. Short code can hide expensive work; always price the built-ins you call.</div>
-    </div>
-    <div class="q" data-answer="3">
-      <p>What buys the counting solution its linear time?</p>
-      <button class="opt">Writing it in fewer lines</button>
-      <button class="opt">Avoiding functions</button>
-      <button class="opt">Using a faster computer</button>
-      <button class="opt">Spending extra memory on two tally lists, so no letter has to be searched for</button>
-      <div class="why">Trading a little space for a lot of time is one of the most reliable moves in computing — and the whole idea behind week 11.</div>
-    </div>
-    <div class="q" data-answer="0">
-      <p>Exhaustively checking all 20! positional permutations at ten million candidates per second is:</p>
-      <button class="opt">Impractical at that stated rate: thousands of years</button>
-      <button class="opt">Slow but usable overnight</button>
-      <button class="opt">Fine, since 20 is a small number</button>
-      <button class="opt">Faster than O(n²) for small n, so acceptable</button>
-      <div class="why">2.4 × 10¹⁸ arrangements is thousands of years at ten million per second. Factorial growth ends the conversation.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>In the benchmark, the O(n log n) version beat the O(n) version at n = 1 000. Does that disprove the analysis?</p>
-      <button class="opt">Yes — measurements always beat theory</button>
-      <button class="opt">Yes — the classes must be wrong</button>
-      <button class="opt">No — implementation and inputs affect measured times; these upper bounds alone do not guarantee a crossover</button>
-      <button class="opt">No — the measurement must have been faulty</button>
-      <div class="why">Report the bound, input family and observed times, including whether any crossover was actually observed.</div>
-    </div>
-    <div class="q" data-answer="1">
-      <p>The checking-off formula n(n+1)/2 produces ratios approaching four when n doubles. Its tight growth is:</p>
-      <button class="opt">O(n) — the count grew</button>
-      <button class="opt">Θ(n²) — the exact formula has a quadratic dominant term</button>
-      <button class="opt">O(log n) — the count is small</button>
-      <button class="opt">Nothing — only timing can prove a class</button>
-      <div class="why">The formula derived for all valid anagram sizes proves the bound. A finite ratio table provides a check rather than a proof by itself.</div>
-    </div>
-    <div class="q" data-answer="2">
-      <p>Inputs are a dozen letters and the check runs a handful of times. Which do you ship, and why?</p>
-      <button class="opt">Brute force — it uses the least memory</button>
-      <button class="opt">Counting — the fastest class always wins</button>
-      <button class="opt">Sort-and-compare — its worse class never bites at that size, and one clear line is easier to trust</button>
-      <button class="opt">Checking-off — it reads like the spoken idea</button>
-      <div class="why">At tiny n the class barely matters; readability and correctness do. The counting version earns its keep only when the data is large or the call is hot.</div>
-    </div>
-  </div>
-</section>
-</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
-  <h2><span class="num">9.1</span>The problem</h2>
-  <p>
-    Two words are <strong>anagrams</strong> if one is a rearrangement of the other:
-    "listen" and "silent"; "python" and "typhon". Write a function that takes two strings
-    of the same length and returns <code>True</code> if they are anagrams.
-  </p>
-  <p>
-    It sounds trivial, and it is — the answer is easy to get right. What makes it the
-    perfect teaching example is that four natural, correct approaches land in four
-    <em>different complexity classes</em>. Same problem, same computer, same programmer:
-    O(n²), O(n log n), O(n · n!) for the full brute-force code, and O(n).
-  </p>
-  <p>
-    For all four we will use the length of the words as <code>n</code>, and to keep the
-    focus on the idea we assume only ASCII letters <code>a</code>–<code>z</code>. The
-    26-slot implementation does not support arbitrary Unicode lowercase characters, spaces
-    or punctuation. It requires validation or an explicit normalization policy at a real
-    interface. Unequal lengths return False; two empty strings are anagrams.
-  </p>
-</section>
-<section>
-  <h2><span class="num">9.2</span>Solution 1 — checking off</h2>
-  <p>
-    The way most people describe it out loud: <em>take each letter of the first word and
-    cross it off in the second; if every letter finds a partner, they are anagrams.</em>
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>solution_1_checking_off.py</div><pre><code>def anagram_checking_off(s1, s2):
-    if len(s1) != len(s2):
-        return False
-
-    letters = list(s2)                <span class="c"># we need to cross letters off</span>
-    for letter in s1:
-        found = False
-        for i in range(len(letters)):     <span class="c"># search for a partner</span>
-            if letters[i] == letter:
-                letters[i] = None         <span class="c"># cross it off</span>
-                found = True
-                break
-        if not found:
-            return False
-    return True
-
-print(anagram_checking_off("listen", "silent"))   <span class="c"># True</span>
-print(anagram_checking_off("listen", "silence"))  <span class="c"># False</span></code></pre></div>
-  <p>
-    <strong>The cost.</strong> For each of the n letters of <code>s1</code> we scan up to n
-    positions of <code>letters</code>. That is a loop inside a loop, both over n:
-  </p>
-  <p style="font-family:var(--font-mono);color:var(--accent)">
-    For a genuine anagram: comparisons = 1 + 2 + … + n = n(n+1)/2 &nbsp;&rarr;&nbsp; Θ(n²)
-  </p>
-  <p>
-    The list does not shrink: crossed-off entries are still inspected. On a genuine
-    anagram, each original position is matched once, so the successful search lengths are
-    exactly 1 through n in some order, even with repeated letters. Rejections may stop
-    earlier. Worst-case time is Θ(n²); the list copy uses Θ(n) extra space.
-  </p>
-</section>
-<section>
-  <h2><span class="num">9.3</span>Solution 2 — sort and compare</h2>
-  <p>
-    A neat observation: two words are anagrams exactly when their letters, sorted, are
-    identical. So sort both and compare.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>solution_2_sort_and_compare.py</div><pre><code>def anagram_sort(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    return sorted(s1) == sorted(s2)</code></pre></div>
-  <p>
-    Three lines, obviously correct, and it looks free — which is the trap. The work has not
-    disappeared, it has moved inside <code>sorted()</code>, which is
-    <strong>O(n log n)</strong> in a usual worst-case comparison-sort bound. Python’s
-    adaptive sorting can do less work on particular inputs. The final comparison is O(n). Adding them and keeping the
-    dominant term:
-  </p>
-  <p style="font-family:var(--font-mono);color:var(--accent)">O(n log n) + O(n) &rarr; O(n log n)</p>
-  <p>
-    Better than solution 1 and much shorter to write. This is the "sensible default"
-    answer, and in most real work it is the right one.
-  </p>
-  <div class="note">
-    <span class="label">The habit to build</span>
-    <p>
-      Short code is not cheap code. Whenever a built-in does the heavy lifting, look up
-      what it costs. The n log n expression is a growth bound, not an exact comparison count.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">9.4</span>Solution 3 — brute force (do not run this on long words)</h2>
-  <p>
-    The "try everything" approach: generate every possible rearrangement of the first word
-    and check whether the second appears among them.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>solution_3_brute_force.py</div><pre><code>from itertools import permutations
-
-def anagram_brute_force(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    for candidate in permutations(s1):
-        if "".join(candidate) == s2:
-            return True
-    return False</code></pre></div>
-  <p>
-    It is correct, but exhaustive enumeration becomes impractical quickly. A word of n
-    positions has <strong>n!</strong> positional permutations. Repeated characters create
-    duplicate strings that <code>permutations</code> still emits. The table assumes an
-    illustrative ten million candidates per second, not a measured rate:
-  </p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Word length n</th><th>Arrangements n!</th><th>Time at 10 million per second</th></tr></thead>
-      <tbody>
-        <tr><td>5</td><td>120</td><td>instant</td></tr>
-        <tr><td>10</td><td>3 628 800</td><td>0.4 seconds</td></tr>
-        <tr><td>15</td><td>1 307 674 368 000</td><td>1.5 days</td></tr>
-        <tr><td>20</td><td>2 432 902 008 176 640 000</td><td>about 7 700 years</td></tr>
-        <tr><td>25</td><td>1.55 × 10²⁵</td><td>about 49 billion years</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>
-    At that hypothetical rate, exhaustive enumeration becomes impractical for large n.
-    The anagram <em>problem</em> is tractable because efficient alternatives exist. For
-    this code, joining each candidate costs Θ(n), making exhaustive worst-case time
-    Θ(n · n!), not O(n!) under a full character-operation count. Early success may stop
-    much sooner. The generator avoids storing every result, but its state and current
-    candidate use O(n) extra storage. Keep experimental runs at very small n.
-  </p>
-</section>
-<section>
-  <h2><span class="num">9.5</span>Solution 4 — count and compare</h2>
-  <p>
-    The winning move is to stop comparing letters with letters. Count how many times each
-    letter occurs in each word, then compare the two tallies.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>solution_4_count_and_compare.py</div><pre><code>def anagram_count(s1, s2):
-    if len(s1) != len(s2):
-        return False
-
-    counts1 = [0] * 26          <span class="c"># one slot per letter a-z</span>
-    counts2 = [0] * 26
-
-    for letter in s1:                          <span class="c"># n steps</span>
-        counts1[ord(letter) - ord('a')] += 1
-    for letter in s2:                          <span class="c"># n steps</span>
-        counts2[ord(letter) - ord('a')] += 1
-
-    for i in range(26):                        <span class="c"># up to 26 checks; all 26 for anagrams</span>
-        if counts1[i] != counts2[i]:
-            return False
-    return True</code></pre></div>
-  <p>
-    <code>ord('a')</code> is 97, <code>ord('c')</code> is 99, so
-    <code>ord(letter) - ord('a')</code> turns a letter into a slot number 0–25. Two passes
-    over the words, then up to 26 comparisons. For a genuine pair, counting only tally
-    updates and final comparisons gives exactly:
-  </p>
-  <p style="font-family:var(--font-mono);color:var(--accent)">T(n) = 2n + 26 &nbsp;&rarr;&nbsp; O(n)</p>
-  <p>
-    Linear in the worst case — optimal in this character-access model, because a correct
-    method must inspect all characters on some inputs. This need not happen on an early rejection. Notice what paid for it: <strong>extra memory</strong> (two lists of 26) and a
-    cleverer question ("how many of each?" instead of "does this one match?"). That
-    trade — spend a little space to save a lot of time — is one of the most reliable moves
-    in all of computing, and week 11 is built entirely on it.
-  </p>
-</section>
-<section>
-  <h2><span class="num">9.6</span>Head to head</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Solution</th><th>Class</th><th>Steps at n = 1 000</th><th>Extra memory</th><th>Verdict</th></tr></thead>
-      <tbody>
-        <tr><td>1. Checking off</td><td>Θ(n²) worst case</td><td>500 500 comparisons for anagrams</td><td>a copy of the word</td><td>Fine for words, hopeless for large data</td></tr>
-        <tr><td>2. Sort and compare</td><td>O(n log n) upper bound</td><td>n log₂ n ≈ 10 000 is a scale estimate, not an exact count</td><td>two sorted copies</td><td>Excellent default: short and fast enough</td></tr>
-        <tr><td>3. Brute force</td><td>Θ(n · n!) worst case</td><td>n! candidates, Θ(n) work each</td><td>O(n) generator state and current candidate</td><td>Only tiny demonstrations</td></tr>
-        <tr><td>4. Count and compare</td><td>Θ(n) worst case</td><td>2 026 selected operations for anagrams</td><td>two 26-slot lists</td><td>Linear model; measure implementation performance</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>
-    Now measure it yourself rather than trusting the table. Long "words" made of random
-    letters stand in for real ones:
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>benchmark_anagrams.py</div><pre><code>import random, string, time
-
-def make_pair(n):
-    """Genuine anagrams; full checks for checking-off/counting, not every method’s worst case."""
-    letters = [random.choice(string.ascii_lowercase) for _ in range(n)]
-    shuffled = letters[:]
-    random.shuffle(shuffled)
-    return "".join(letters), "".join(shuffled)
-
-def time_call(func, s1, s2, repeats=3):
-    best = None
-    for _ in range(repeats):
-        start = time.perf_counter()
-        func(s1, s2)
-        t = time.perf_counter() - start
-        if best is None or t &lt; best:
-            best = t
-    return best
-
-for n in [500, 1000, 2000, 4000]:
-    s1, s2 = make_pair(n)
-    a = time_call(anagram_checking_off, s1, s2)
-    b = time_call(anagram_sort, s1, s2)
-    d = time_call(anagram_count, s1, s2)
-    print(f"n={n:&gt;5}  checking-off {a:.5f}s   sort {b:.5f}s   count {d:.5f}s   speedup {a/d:,.0f}x")</code></pre></div>
-  <div class="out">n=  500  checking-off 0.00832s   sort 0.00006s   count 0.00011s   speedup 76x
-n= 1000  checking-off 0.03310s   sort 0.00013s   count 0.00022s   speedup 150x
-n= 2000  checking-off 0.13245s   sort 0.00028s   count 0.00044s   speedup 301x
-n= 4000  checking-off 0.52901s   sort 0.00061s   count 0.00088s   speedup 601x</div>
-  <p>
-    The displayed timings illustrate possible output; run the code for measurements on
-    your machine. A quadratic-versus-linear model predicts a growing speedup, but the
-    particular factor at n = 40 000 must be measured or labelled as an extrapolation.
-    Built-in sorting may outperform Python-level counting over a measured range because
-    implementation constants and input structure matter. Record those conditions.
-  </p>
-  <div class="note green">
-    <span class="label">The lesson of the last paragraph</span>
-    <p>
-      Tight growth models explain eventual trends under their assumptions; upper bounds
-      alone do not guarantee which implementation wins. Python sorting is adaptive, and
-      the fixed alphabet and input distribution matter. Look for a crossover in the
-      optional extension, but report honestly if none is observed in the tested range.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">9.7</span>Counting operations to confirm the class</h2>
-  <p>
-    Timing is honest but noisy — it mixes in your CPU, the language and whatever else the
-    machine is doing. A code-derived general operation formula can <em>prove</em> a bound under its model.
-    Instrumented counts test that derivation at selected sizes. A tight quadratic model
-    has ratios approaching four; a tight linear model has ratios approaching two.
-    A table of a few ratios cannot prove how the work grows for all large inputs.
-  </p>
-  <p>
-    For checking off we count letter comparisons; for counting we count tally updates
-    plus the final checks (all 26 on genuine anagrams). These selected operations exclude
-    initialization and indexing arithmetic; they are not full Python instruction counts.
-    Because <code>anagram_sort</code> hides its work inside C, we time it separately in the
-    benchmark; here we compare the two we can instrument.
-  </p>
-  <div class="code"><div class="code-head"><span class="dot"></span>count_operations.py</div><pre><code>import random, string
-
-def make_pair(n):
-    letters = [random.choice(string.ascii_lowercase) for _ in range(n)]
-    shuffled = letters[:]
-    random.shuffle(shuffled)
-    return "".join(letters), "".join(shuffled)
-
-def checking_off_ops(s1, s2):
-    if len(s1) != len(s2):
-        return 0
-    ops = 0
-    letters = list(s2)
-    for letter in s1:
-        found = False
-        for i in range(len(letters)):
-            ops += 1                         <span class="c"># one comparison</span>
-            if letters[i] == letter:
-                letters[i] = None
-                found = True
-                break
-        if not found:
-            return ops
-    return ops
-
-def count_ops(s1, s2):
-    if len(s1) != len(s2):
-        return 0
-    ops = 0
-    c1 = [0] * 26
-    c2 = [0] * 26
-    for letter in s1:
-        c1[ord(letter) - ord('a')] += 1; ops += 1
-    for letter in s2:
-        c2[ord(letter) - ord('a')] += 1; ops += 1
-    for i in range(26):
-        ops += 1
-        if c1[i] != c2[i]:
-            return ops
-    return ops
-
-print(f"{'n':&gt;6}  {'checking-off':&gt;14}  {'ratio':&gt;6}   {'count':&gt;8}  {'ratio':&gt;6}")
-prev_a = prev_c = None
-for n in [250, 500, 1000, 2000]:
-    s1, s2 = make_pair(n)
-    a = checking_off_ops(s1, s2)
-    c = count_ops(s1, s2)
-    ra = "-" if prev_a is None else f"{a/prev_a:.1f}x"
-    rc = "-" if prev_c is None else f"{c/prev_c:.1f}x"
-    print(f"{n:&gt;6}  {a:&gt;14,}  {ra:&gt;6}   {c:&gt;8,}  {rc:&gt;6}")
-    prev_a, prev_c = a, c</code></pre></div>
-  <div class="out">     n    checking-off   ratio      count   ratio
-   250          31,375       -        526       -
-   500         125,250    4.0x      1,026    2.0x
-  1000         500,500    4.0x      2,026    2.0x
-  2000       2,001,000    4.0x      4,026    2.0x</div>
-  <p>
-    For these genuine anagrams, the counts are exactly n(n+1)/2 and 2n+26. The first
-    doubling ratio approaches four and the second approaches two; neither is exactly its
-    limiting value at every n. The formulas justify Θ(n²) and Θ(n), and the table checks
-    the implementation. These counts are deterministic for this input family and do not
-    depend on stopwatch noise.
-  </p>
-  <div class="note blue">
-    <span class="label">Two tools, one verdict</span>
-    <p>
-      A derived operation formula and compatible measurements support the model’s
-      relevance. If ratios disagree, investigate noise, input cases, hidden work,
-      lower-order terms and memory effects. A constant multiplier by itself cancels
-      from a doubling ratio; it does not explain every disagreement.
-    </p>
-  </div>
-</section>
-<section>
-  <h2><span class="num">9.8</span>Which would you ship?</h2>
-  <p>
-    "Fastest class" is not automatically "best choice". Real decisions weigh speed against
-    readability, memory, and the size of the data you will actually see. Line the four up
-    against those questions and the answer stops being obvious:
-  </p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Solution</th><th>Reads clearly?</th><th>Extra memory</th><th>Wins when…</th></tr></thead>
-      <tbody>
-        <tr><td>1. Checking off</td><td>yes, mirrors the spoken idea</td><td>O(n)</td><td>useful for tracing a simple matching strategy; usually avoid for large inputs</td></tr>
-        <tr><td>2. Sort and compare</td><td>yes, one obvious line</td><td>O(n)</td><td>ordinary word-sized inputs; you value short, clear code</td></tr>
-        <tr><td>3. Brute force</td><td>simple exhaustive strategy</td><td>O(n)</td><td>tiny demonstrations; factorial work quickly becomes impractical</td></tr>
-        <tr><td>4. Count and compare</td><td>a little more code</td><td>O(1)*</td><td>huge inputs, or the same check run millions of times</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:.9rem;color:var(--muted)">
-    * Two fixed 26-slot lists give O(1) slots under the word model. If alphabet size k
-    varies, initialization and comparison cost O(k), total time is O(n+k), and extra
-    space is O(k). Bit-level storage also depends on the size of the integer counters.
-  </p>
-  <p>
-    So which do you ship? For a word game where inputs are a dozen letters and the check
-    runs occasionally, <strong>solution 2</strong> is the right call: one line, obviously
-    correct, fast enough that its worse class never bites. For a bioinformatics tool
-    comparing million-character sequences, or a service that runs the check millions of
-    times a second, <strong>solution 4</strong> is a strong candidate when the input uses the fixed set of letters the method allows: it has
-    linear worst-case time and constant extra slots. Validate its implementation and
-    measure representative inputs against the actual latency and memory requirements.
-    The professional answer is not a single winner; it is "solution 2 by default, solution
-    4 when the requirements and evidence support it". A crossover may or may not appear
-    in the optional extension’s tested range.
-  </p>
-  <div class="note">
-    <span class="label">Say the trade out loud</span>
-    <p>
-      A good recommendation names what it is optimising for. "I chose sort-and-compare for
-      readability because our words are short" is a decision. "I used sorting because it
-      was first on the page" is an accident that happens to be fine until the data grows.
-    </p>
-  </div>
-</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lectures 6, 7, 8</p><h3>Compare whole strategies, including preparation</h3><p>The notes use sorting and hashing to turn repeated searching into organised work. To find two records whose values sum to T, one strategy sorts then moves pointers inward; another remembers earlier values in a hash set and looks for T − x.</p><p>Preparation matters. Sorting is part of the first method's total cost. Hashing needs extra storage, hashing that spreads keys well across storage slots and a rule that prevents using one record twice. Check the complement before inserting the current record, or track counts explicitly.</p><p>This is the same habit as comparing anagram methods: state the output contract, trace a small case, count the expensive operations, and include setup. A method that is fast on average can still have a slow worst case.</p><p class="engineering-transfer"><strong>Engineering use.</strong> Use paired loads or calibration values as the test case. Include duplicate values and a case with no valid pair.</p></section></div></details>
-<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
-  <div class="objectives">
-    <span class="eyebrow">By the end of this week you can</span>
-    <ul>
-      <li>solve one problem four different ways and compare the solutions properly;</li>
-      <li>see how a change of strategy — not a change of language — buys orders of magnitude;</li>
-      <li>recognise the counting trick that turns comparison into arithmetic;</li>
-      <li>confirm a complexity class by counting operations, not just by timing;</li>
-      <li>explain why factorial candidate enumeration becomes impractical, and include the work per candidate;</li>
-      <li>weigh readability, memory and speed to say which solution you would actually ship;</li>
-      <li>write a comparison report with a table, a plot and a recommendation.</li>
-    </ul>
-  </div>
-  <div class="note blue">
-    <span class="label">Where this comes from</span>
-    <p>
-      This case study is the heart of the classic
-      <a href="https://runestone.academy/ns/books/published/pythonds/AlgorithmAnalysis/AnAnagramDetectionExample.html">Anagram Detection Example</a>
-      from Miller &amp; Ranum's <em>Problem Solving with Algorithms and Data Structures</em>,
-      rewritten here for a first-year audience with counters and benchmarks added.
-    </p>
-  </div>
-</section>
-<section class="studio-contract">
-  <div class="note blue">
-    <span class="label">Three-hour interactive studio</span>
-    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
-    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
-    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
-    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
-    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
-    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
-  </div>
-</section>
-</div></details>
-<p class="vl-reference">Need a slower explanation? <a href="../guide/w09/">Open the English + Türkçe reference guide</a>.</p>
-<details class="path-reference"><summary>Optional extra practice</summary><div><section>
-  <h2><span class="num">9.11</span>Optional Studio Extension</h2>
-  <div class="task">
-    <span class="label">Optional practice · no submission or deadline</span>
-    <ol>
-      <li>Create <code>AA_Week09.ipynb</code> with all five solutions and complete Tasks 1–6.</li>
-      <li>Run the operation-counter from §9.7 and produce a table with the two ratio columns; write one sentence under it naming the class justified by the count formula and checked by that column.</li>
-      <li>Produce one figure with the three usable solutions plotted against n (log–log axes, labelled).</li>
-      <li>Write a one-page comparison report: problem, four approaches, table of classes, your measurements, any crossover observed (or the range in which none was found), and a recommendation for (a) words in a game and (b) million-character biological sequences — say explicitly what each recommendation is optimising for.</li>
-      <li>Answer in five sentences: solution 3 is correct and yet worthless. What does that tell you about "correct" as a standard for software?</li>
-    </ol>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
-  <h2><span class="num">9.12</span>Words from this week</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
-      <tbody>
-        <tr><td>anagram</td><td>A word made of exactly the same letters as another.</td></tr>
-        <tr><td>brute force</td><td>Try every candidate systematically; correctness requires complete coverage and a correct test.</td></tr>
-        <tr><td>factorial n!</td><td>n × (n−1) × … × 1 — the number of positional permutations; grows faster than cⁿ for every fixed c.</td></tr>
-        <tr><td>intractable</td><td>Informally, too expensive for the intended input sizes and resources; a poor algorithm does not make its problem intractable.</td></tr>
-        <tr><td>operation count</td><td>The number of selected steps; a general derived formula proves a bound, while finite measurements check it.</td></tr>
-        <tr><td>space–time trade-off</td><td>Using extra memory to save time, or the reverse.</td></tr>
-        <tr><td>crossover</td><td>The input size at which the better-scaling method overtakes the one with a smaller constant.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section></div></details>
-<details class="path-reference"><summary>Chapter problem set — Skiena 2.10</summary><div><section>
-  <h2><span class="num">9.13</span>Chapter problem set — Skiena 2.10</h2>
-  <p>
-    These two problems from Skiena's <em>The Algorithm Design Manual</em> ask exactly the
-    question week 9 keeps asking — two correct methods, two wildly different costs — but about
-    a problem every child already knows: multiplying two numbers. Read each restated problem,
-    have a go, then open the worked solution.
-  </p>
-
-  <div class="task">
-    <span class="label">Problem 2-37 · multiplication by repeated addition</span>
-    <p>
-      You first learned to multiply as repeated addition: 5 × 4 = 5 + 5 + 5 + 5. What is the
-      time complexity of multiplying two n-digit numbers in base b this way, written as a
-      function of n and b? (Hint: how large can the multiplier get?)
-    </p>
-    <details class="solution"><summary>Worked solution</summary>
-      <p>
-        To compute x × y by repeated addition we add x to a running total y times, so the whole
-        cost hangs on <strong>how big y can be</strong>. An n-digit number in base b is at most
-        b to the power n, minus one — roughly b<sup>n</sup>. In base 10 a 3-digit number reaches
-        999 ≈ 10³; in base 2 a 3-bit number reaches 7 ≈ 2³. So y can force us to perform about
-        b<sup>n</sup> additions.
-      </p>
-      <p>
-        The running product may need up to 2n digits; each digit-by-digit addition still costs O(n) — you add digit by
-        digit, carrying as you go. Multiply the two together:
-      </p>
-      <p style="font-family:var(--font-mono);color:var(--accent)">
-        (about b<sup>n</sup> additions) × (O(n) per addition) &nbsp;&rarr;&nbsp; O(n · b<sup>n</sup>)
-      </p>
-      <p>
-        That b<sup>n</sup> is <em>exponential in n</em> — the same runaway growth week 9 called
-        intractable. A table makes the hopelessness concrete for base 10:
-      </p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Digits n</th><th>Largest value ≈ 10ⁿ</th><th>Additions needed (worst case)</th></tr></thead>
-          <tbody>
-            <tr><td>1</td><td>9</td><td>up to 9</td></tr>
-            <tr><td>3</td><td>999</td><td>up to ~1 000</td></tr>
-            <tr><td>6</td><td>999 999</td><td>up to ~1 000 000</td></tr>
-            <tr><td>10</td><td>~10¹⁰</td><td>up to ~10 billion</td></tr>
-            <tr><td>20</td><td>~10²⁰</td><td>more additions than there are seconds since the Big Bang</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>
-        <strong>Answer:</strong> O(n · b<sup>n</sup>) — exponential in the number of digits.
-        Repeated addition is fine for 5 × 4, but an n-digit multiplier can require nearly
-        bⁿ additions. At twenty decimal digits the worst case approaches 10²⁰ additions,
-        making this method impractical at ordinary processing rates. Correctness alone
-        does not establish suitability for the intended input sizes.
-      </p>
-    </details>
-  </div>
-
-  <div class="task">
-    <span class="label">Problem 2-38 · grade-school long multiplication</span>
-    <p>
-      In grade school you learned to multiply digit by digit — long multiplication, with the
-      partial rows lined up and added. What is the complexity of multiplying two n-digit numbers
-      this way, for a fixed base?
-    </p>
-    <details class="solution"><summary>Worked solution</summary>
-      <p>
-        Long multiplication pairs every digit of one number with every digit of the other. With
-        n digits in each, that is n × n = n² single-digit multiplications. Each produces a small
-        partial result, and we then line those partials up and add them — which is another O(n²)
-        of work to combine (there are n rows, each up to about n digits wide).
-      </p>
-      <p style="font-family:var(--font-mono);color:var(--accent)">
-        n² single-digit products + O(n²) additions to combine &nbsp;&rarr;&nbsp; O(n²)
-      </p>
-      <p>
-        Now stand the two problems side by side — this is the whole point of the pair:
-      </p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Method</th><th>Class</th><th>Multiplying two 20-digit numbers</th></tr></thead>
-          <tbody>
-            <tr><td>2-37 repeated addition</td><td>O(n · b<sup>n</sup>)</td><td>up to nearly 10²⁰ additions, each with O(n) digit work</td></tr>
-            <tr><td>2-38 long multiplication</td><td>O(n²)</td><td>400 single-digit products plus carrying and row addition</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>
-        <strong>Answer:</strong> O(n²). Long multiplication is astronomically better than
-        repeated addition: for 20-digit inputs compare 400 single-digit products plus
-        combining work against up to nearly 10²⁰ multi-digit additions. And notice what bought that gap — a smarter
-        <em>method</em>, on the same machine, not faster hardware.
-      </p>
-      <div class="note">
-        <span class="label">A note for the curious</span>
-        <p>
-          n² is not the end of the story either. Cleverer methods do better still: Karatsuba's
-          algorithm multiplies in about O(n<sup>1.585</sup>) by replacing four sub-multiplications
-          with three, and modern FFT-based methods get close to O(n log n). Those belong to a
-          later course — but it is worth knowing that even the grade-school n² can be beaten.
-        </p>
-      </div>
-    </details>
-  </div>
-</section></div></details>
-
-<div class="note blue">
-  <span class="label">Where this leads</span>
-  <p>You saw that changing <em>strategy</em> — not language or hardware — buys orders of magnitude. Week 10 hunts those costs inside everyday Python list operations.</p>
-</div>
-</div></details></div>
-</main>
+<article class="source-exercise" id="skiena-ex-098"><p class="source-label">Question 11 · easy</p><p>Define the degree of a vertex, a path, and a connected graph.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>For a simple undirected graph, degree is the number of incident edges. A path is a vertex sequence whose consecutive vertices are joined by edges; a simple path has no repeated vertices. A graph is connected when every pair of vertices is joined by a path.</p></div></article><article class="source-exercise" id="skiena-ex-099"><p class="source-label">Question 12 · easy</p><p>What is the maximum number of edges in a simple undirected graph on n vertices? In a simple directed graph (no self-loops)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>n(n − 1)/2, one per unordered pair; n(n − 1), one per ordered pair.</p></div></article><article class="source-exercise" id="skiena-ex-100"><p class="source-label">Question 13 · easy</p><p>In an undirected graph, what do the degrees of all vertices add up to?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>2m, because every edge contributes 1 to the degree of each of its two endpoints.</p></div></article><article class="source-exercise" id="skiena-ex-101"><p class="source-label">Question 14 · easy</p><p>A graph has edges 1–2, 1–3, 2–4, 3–4, 4–5. Run BFS from vertex 1, taking neighbours in increasing order. In what order are vertices discovered, and what is the distance from 1 to 5?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>1, 2, 3, 4, 5. Vertex 5 is at distance 3 (for example 1–2–4–5).</p></div></article><article class="source-exercise" id="skiena-ex-103"><p class="source-label">Question 15 · easy</p><p>A graph on vertices 1 to 6 has edges 1–2, 2–3 and 4–5. How many connected components does it have?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>three: {1, 2, 3}, {4, 5} and {6}. An isolated vertex is a component on its own.</p></div></article><article class="source-exercise" id="skiena-ex-105"><p class="source-label">Question 16 · easy</p><p>Which traversal finds shortest paths in an unweighted graph, and why does the other one not?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>BFS, because it discovers vertices in order of increasing distance from the start. DFS dives deep first and may reach a vertex by a long roundabout route before a short one.</p></div></article><article class="source-exercise" id="skiena-ex-106"><p class="source-label">Question 17 · easy</p><p>Is a triangle bipartite? Is a 4-cycle (a square)?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the triangle is not: three mutually adjacent vertices cannot be two-coloured. The square is: colour opposite corners alike.</p></div></article><article class="source-exercise" id="skiena-ex-124"><p class="source-label">Question 18 · medium</p><p>Two-colour the graph with edges 1–2, 2–3, 3–4, 4–1 and 1–3 using BFS from vertex 1. Is it bipartite?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>colour 1 white; its neighbours 2, 4 and 3 become black; then the edge 2–3 joins two black vertices. Not bipartite: 1–2–3 is a triangle, an odd cycle.</p></div></article><article class="source-exercise" id="skiena-ex-126"><p class="source-label">Question 19 · medium</p><p>Given a directed graph in adjacency-list form, compute the in-degree of every vertex in O(n + m).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>set in[v] = 0 for all v, then walk every adjacency list once and, for each edge x→y encountered, add 1 to in[y]. Each edge is seen exactly once.</p></div></article><article class="source-exercise" id="skiena-ex-128"><p class="source-label">Question 20 · hard · optional challenge</p><p>Prove that the path from the root to any vertex in a BFS tree is a shortest path.</p><p class="question-plain"><strong>In simpler words:</strong> Explain why a BFS parent chain uses the fewest edges.</p><p class="question-hint"><strong>Starting hint:</strong> Think of the queue as distance layers 0,1,2,… .</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The start is layer 0. Its newly discovered neighbours form layer 1.</li><li>All layer-d vertices leave the queue before any layer-(d+1) vertex is processed.</li><li>A vertex first reached from layer d cannot have a shorter undiscovered route: that route’s earlier layer would already have found it. Its parent chain therefore has shortest length d+1.</li></ol><p>claim: BFS discovers all vertices at distance d before any vertex at distance d + 1, and a vertex at distance d + 1 is always discovered from a vertex at distance d. Induction on d: the root is the only vertex at distance 0. Assume the claim up to d. Every vertex at distance d + 1 has a neighbour at distance d; the queue holds all distance-d vertices before any at distance d + 1, so when those are processed each distance-(d + 1) vertex is discovered from a distance-d parent and put in the queue before any distance-(d + 2) vertex. Hence parent pointers step down by exactly one distance unit, and the tree path from the root to v has exactly dist(v) edges.</p></div></article><article class="source-exercise" id="skiena-ex-129"><p class="source-label">Question 21 · hard · optional challenge</p><p>Prove that a graph is bipartite if and only if it contains no cycle of odd length.</p><p class="question-plain"><strong>In simpler words:</strong> Connect two-colouring with even and odd cycles.</p><p class="question-hint"><strong>Starting hint:</strong> Prove both directions separately.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>If an edge always changes colour, a cycle returns to its starting colour only after an even number of edges.</li><li>Conversely, colour BFS levels alternately in each component.</li><li>An edge within the same level would create an odd cycle: take the two tree branches from their last common ancestor, then that edge. With no odd cycle, every edge joins opposite colours.</li></ol><p>if it is bipartite, colours alternate along any cycle, so returning to the start colour needs an even number of steps. Conversely, if there is no odd cycle, BFS from a vertex in each component and colour vertices by the parity of their distance. Any edge joins vertices whose distances differ by at most 1; if an edge joined two vertices at the same distance d, the two tree paths to them plus that edge would form a closed walk of length 2d + 1, which contains an odd cycle. So every edge joins different parities: a valid two-colouring.</p></div></article></section>
+<nav class="week-nav"><a href="../w8/">← Week 8</a><a href="../">Course dashboard</a><a href="../w10/">Week 10 →</a></nav></div></main>
 <footer class="site-footer">
-  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+  <span>Algorithm Analysis &middot; Dr. Arif Solmaz</span>
 
 </footer>
 <script src="../assets/app.js?v=2"></script><script src="../../assets/learning-path.js?v=1"></script>
-<script src="../assets/anim.js?v=13"></script><script src="../assets/anim-w9.js?v=10"></script><script src="../assets/anim-workspace.js?v=11"></script></body>
+</body>
 </html>

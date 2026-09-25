@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="append vs insert(0), pop() vs pop(0), + vs comprehension — measured, not guessed.">
+<title>Week 10: What Python Lists Really Cost — AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../assets/learning.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/questions.css?v=2">
+<link rel="stylesheet" href="../../assets/anim.css"><link rel="stylesheet" href="../../assets/visual-lesson.css?v=1"><link rel="stylesheet" href="../../assets/anim-w10.css"><link rel="stylesheet" href="../../assets/anim-workspace.css?v=17"></head>
+<body><div style="padding:16px;background:#fff1ce;color:#302a19">Python support library · former lesson sequence. <a href="../../">Current AA schedule</a></div>
+<header class="site-header">
+  <a class="brand" href="../../index.html">AA <span>/ course home</span></a>
+  <nav class="header-nav">
+    <details class="path-menu"><summary>Settings</summary><div>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
+  </nav>
+</header>
+<main class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Week 10 &middot; Phase 4 · Choosing well</div>
+  <h1>What Python Lists Really Cost</h1>
+  <p class="lede">append vs insert(0), pop() vs pop(0), + vs comprehension — measured, not guessed.</p>
+  <p class="path-question"><strong>Which everyday list operations are cheap, and which quietly cost a fortune?</strong></p>
+</div>
+
+<div class="continuous-lesson"><section id="understand" class="lesson-part"><h2 class="path-stage-title">Lesson</h2><section class="vl-lesson"><h2>Removing the front shifts the rest</h2><figure class="vl-figure" style="--trace-columns:4"><figcaption>pop(0) on [A, B, C, D]</figcaption><div class="vl-trace"><b>before</b><div class="vl-cards" style="--row-columns:4"><span>A</span><span>B</span><span>C</span><span>D</span></div></div><div class="vl-trace"><b>after</b><div class="vl-cards" style="--row-columns:3"><span>B ←</span><span>C ←</span><span>D ←</span></div></div></figure><div class="vl-equation"><span>Remove every item from the front</span><strong>(n − 1) + (n − 2) + … + 1 = n(n − 1)/2 shifts</strong></div><p>A Python list stores references in an array. Access by index is O(1). Removing its last item avoids shifting the others; repeatedly removing the first creates quadratic work.</p></section><section class="vl-lesson"><h2>An occasional expensive append can average out</h2><figure class="vl-figure"><figcaption>A simplified capacity-doubling model, not exact Python capacities</figcaption><div class="vl-trace"><b>capacity</b><div class="vl-cards" style="--row-columns:5"><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span></div></div><div class="vl-trace"><b>copy on growth</b><div class="vl-cards" style="--row-columns:5"><span>—</span><span>1</span><span>2</span><span>4</span><span>8</span></div></div></figure><div class="vl-equation"><span>Over n appends, geometric copying stays linear</span><strong>1 + 2 + 4 + … &lt; 2n</strong></div><p>Most appends place one reference; a resize copies many. Spread all resizing work over the whole sequence: append costs O(1) amortised. An individual append can still take O(n). Python uses its own overallocation rule.</p></section><section class="vl-lesson"><h2>Choose the operation before the container</h2><div class="vl-table"><table><thead><tr><th scope="col">Operation</th><th scope="col">list</th><th scope="col">collections.deque</th></tr></thead><tbody><tr><td>Read a middle index</td><td>O(1)</td><td>O(n)</td></tr><tr><td>Append at an end</td><td>O(1) amortised</td><td>O(1)</td></tr><tr><td>Remove from the front</td><td>O(n)</td><td>O(1)</td></tr><tr><td>Search for a value</td><td>O(n)</td><td>O(n)</td></tr></tbody></table></div><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>from collections import deque
+queue = deque([&quot;A&quot;, &quot;B&quot;, &quot;C&quot;])
+queue.append(&quot;D&quot;)
+first = queue.popleft()
+print(first, list(queue))</code></pre></div><p>A deque fits a queue: add at the back, remove at the front. It does not make arbitrary searches constant-time.</p></section><section class="vl-lesson"><h2>Repeated copying can hide inside short code</h2><div class="code"><div class="code-head">Run in Colab · predict the result first</div><pre><code>parts = [&quot;algorithm&quot;, &quot;analysis&quot;, &quot;with&quot;, &quot;Python&quot;]
+text = &quot; &quot;.join(parts)
+print(text)</code></pre></div><div class="vl-equation"><span>Naïve repeated prefix copying, n equal-size pieces</span><strong>1 + 2 + … + n = n(n + 1)/2 units</strong></div><p><code>join</code> builds the final text in work proportional to total output length. Some Python string-concatenation patterns are optimised, so timings may vary; use the copying model only when each step really copies the prefix. Repeated list <code>result = result + [x]</code> does copy the growing list.</p></section></section>
+<section id="investigate" class="lesson-part"><h2 class="path-stage-title">Practice</h2><section class="chapter-question-bank" id="skiena-practice"><h3>Practice questions</h3>
+<p class="source-label">10 test questions · 9 written questions · 19 total</p>
+<p>Each question is followed by its answer and explanation. Hard questions also include a starting hint and smaller reasoning steps.</p>
+<h4>Test questions</h4><p class="source-context">Choose one option. Cost questions state their model and whether the bound is tight, expected or worst-case. Here lg means log₂, and heap positions start at 1.</p>
+<article class="source-exercise test-question" id="skiena-mcq-024">
+<p class="source-label">Question 1 · easy</p><p class="question-prompt">Inserting a key into a packed sorted array may require shifting items. What is the tightest listed worst-case upper bound?</p><ol class="mcq-options" type="a"><li> O(1)</li><li> O(log n)</li><li> O(n)</li><li> O(n log n)</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> Finding the spot is O(log n), but shifting the later items over is O(n).</p></div></article><article class="source-exercise test-question" id="skiena-mcq-029">
+<p class="source-label">Question 2 · easy</p><p class="question-prompt">A dynamic array starts with capacity 1 and doubles only when full. How many doublings are needed to hold 5,000 items?</p><ol class="mcq-options" type="a"><li> 5 times</li><li> 13 times</li><li> 50 times</li><li> 5,000 times</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> 2¹² = 4,096 is too small and 2¹³ = 8,192 is enough.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-031">
+<p class="source-label">Question 3 · medium</p><p class="question-prompt">Growing a full dynamic array from capacity 1 to capacity 1,024 by doubling copies exactly how many existing items in total?</p><ol class="mcq-options" type="a"><li>1,024 items</li><li>1,023 items</li><li>10,240 items</li><li>1,048,576 items</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> 1 + 2 + 4 + … + 512 = 1,023, less than n.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-032">
+<p class="source-label">Question 4 · medium</p><p class="question-prompt">If the array instead grows by 100 slots each time it fills, inserting n items costs in total:</p><ol class="mcq-options" type="a"><li> Θ(n)</li><li> Θ(n log n)</li><li> Θ(n²)</li><li> Θ(1)</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> About n/100 expansions, each copying up to n items.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-188">
+<p class="source-label">Question 5 · medium · course question</p><p class="question-prompt">In a packed array-backed list of n items, inserting at the front shifts how many existing items?</p><ol class="mcq-options" type="a"><li>n</li><li>1</li><li>0</li><li>n²</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> Every existing item moves one slot to make room. This gives linear work for a front insertion.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-189">
+<p class="source-label">Question 6 · medium · course question</p><p class="question-prompt">For an ordinary array-backed list, what is the tight worst-case cost of reading an existing index?</p><ol class="mcq-options" type="a"><li>Θ(n)</li><li>Θ(log n)</li><li>Θ(n²)</li><li>Θ(1)</li></ol>
+<div class="question-answer"><p><strong>Answer: option D.</strong> The slot address is computed directly from the index under the standard RAM model. No scan of preceding items is needed.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-190">
+<p class="source-label">Question 7 · medium · course question</p><p class="question-prompt">Why is a single append sometimes slower than most other appends to a dynamic array?</p><ol class="mcq-options" type="a"><li>the array must sort itself</li><li>its capacity may be full, requiring allocation and copying</li><li>append must always shift every existing item</li><li>the new item must be the smallest</li></ol>
+<div class="question-answer"><p><strong>Answer: option B.</strong> When capacity is exhausted, resizing can copy existing items. Most appends use an already available slot, giving constant amortised cost with geometric growth.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-191">
+<p class="source-label">Question 8 · medium · course question</p><p class="question-prompt">A slice copies k references from an ordinary Python list into a new list. What is the tight time bound in k?</p><ol class="mcq-options" type="a"><li>Θ(1)</li><li>Θ(log k)</li><li>Θ(k)</li><li>Θ(k²)</li></ol>
+<div class="question-answer"><p><strong>Answer: option C.</strong> The operation must place k references in the new list. Copying references is different from recursively copying the referred-to objects.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-192">
+<p class="source-label">Question 9 · medium · course question</p><p class="question-prompt">Build a new list by repeatedly replacing result with result + [x] for n items. If each concatenation copies the growing list, what is the total copied-item growth?</p><ol class="mcq-options" type="a"><li>Θ(n²)</li><li>Θ(n)</li><li>Θ(log n)</li><li>Θ(1)</li></ol>
+<div class="question-answer"><p><strong>Answer: option A.</strong> The copies have lengths 1,2,…,n. Their sum n(n+1)/2 grows quadratically; repeated append avoids copying the entire prefix on every step.</p></div></article><article class="source-exercise test-question" id="skiena-mcq-193">
+<p class="source-label">Question 10 · medium · course question</p><p class="question-prompt">A dynamic array has capacity 8 and currently holds 8 items. It doubles capacity before storing one more. What are its new length and capacity?</p><ol class="mcq-options" type="a"><li>length 16, capacity 16</li><li>length 8, capacity 9</li><li>length 9, capacity 9</li><li>length 9, capacity 16</li></ol>
+<div class="question-answer"><p><strong>Answer: option D.</strong> Only one new item is added, so length becomes 9. Doubling the allocated space changes capacity from 8 to 16.</p></div></article>
+<h4>Written questions</h4><p class="source-context">Read each question together with its explanation, trace or proof. Numbering continues from the test questions.</p>
+<article class="source-exercise" id="skiena-ex-035"><p class="source-label">Question 11 · easy</p><p>List the seven dictionary operations.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search, insert, delete, minimum, maximum, predecessor, successor.</p></div></article><article class="source-exercise" id="skiena-ex-036"><p class="source-label">Question 12 · easy</p><p>In a sorted array, what do search and insert cost, and why is insert slow?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>search O(log n) by binary search; insert O(n), because after finding the right spot every later item must shift one place to make room.</p></div></article><article class="source-exercise" id="skiena-ex-043"><p class="source-label">Question 13 · easy</p><p>Starting with a dynamic array of size 1 and doubling whenever it fills, how many doublings are needed before it can hold 1,000 items?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>10, since 2¹⁰ = 1,024 ≥ 1,000; in general ⌈lg n⌉.</p></div></article><article class="source-exercise" id="skiena-ex-045"><p class="source-label">Question 14 · medium</p><p>A dynamic array holds n = 2ᵏ items after growing from size 1 by doubling. How many item-copies were made in total over all the doublings? Show the total is less than n.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>the doublings copied 1, 2, 4, …, 2ᵏ⁻¹ items, totalling 2ᵏ − 1 = n − 1 &lt; n. So the copying costs O(n) in total, or O(1) per item on average (“amortised”).</p></div></article><article class="source-exercise" id="skiena-ex-046"><p class="source-label">Question 15 · medium</p><p>Suppose the array grows by adding 10 slots each time it fills, instead of doubling. What does inserting n items cost in total?</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>Θ(n²). About n/10 expansions copy 10, 20, 30, … items, whose sum grows quadratically. A multiplicative factor greater than 1, such as 1.5 or 2, gives linear total copying instead; doubling is convenient but not essential.</p></div></article><article class="source-exercise" id="skiena-ex-047"><p class="source-label">Question 16 · medium</p><p>You hold a pointer to a node x in a singly linked list, x is not the last node, and you have no pointer to the head. Delete x’s value from the list in O(1).</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>copy the next node’s item into x, then splice out the next node: x.next = x.next.next. The list now contains the same values minus x’s original one, and no predecessor search was needed.</p></div></article><article class="source-exercise" id="skiena-ex-048"><p class="source-label">Question 17 · medium</p><p>Build a queue out of two stacks so that every operation is O(1) on average.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><p>enqueue pushes onto stack In. Dequeue pops from stack Out; if Out is empty, first pop everything from In and push it onto Out (which reverses the order). Each item is moved at most twice in its lifetime, so n operations cost O(n) in total.</p></div></article><article class="source-exercise" id="skiena-ex-061"><p class="source-label">Question 18 · hard</p><p>Design a stack that supports push, pop and get-minimum, all in O(1).</p><p class="question-plain"><strong>In simpler words:</strong> Keep the smallest stack value available without searching.</p><p class="question-hint"><strong>Starting hint:</strong> Remember the minimum after every push.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>Push 5,3,7. The main stack is [5,3,7]; the minimum stack is [5,3,3].</li><li>Each minimum entry describes the main-stack prefix ending at the same depth.</li><li>Pop both stacks together. The new minimum is still at the top. On the first push use x itself; handle empty-stack queries explicitly.</li></ol><p>keep a second stack of running minima. On push(x), push x onto the main stack and push min(x, current top of the min stack) onto the min stack. On pop, pop both. The top of the min stack is always the minimum of the main stack.</p></div></article><article class="source-exercise" id="skiena-ex-063"><p class="source-label">Question 19 · hard</p><p>Design a cache that holds at most k items and evicts the least recently used one, with get and put both in O(1).</p><p class="question-plain"><strong>In simpler words:</strong> Evict the item that has gone longest without a recent use.</p><p class="question-hint"><strong>Starting hint:</strong> Use a hash map to find an item and a linked list to record recency.</p><div class="question-answer"><h5>Answer &amp; reasoning</h5><h5>Step by step</h5><ol class="reasoning-steps"><li>The list front is most recent; the back is least recent. Map each key directly to its list node.</li><li>For a successful get or an update, detach the node and move it to the front using its two links.</li><li>For a new item at capacity, remove the back node and its map entry. Hash lookup is expected O(1); list changes are O(1). Define the k=0 case as storing nothing.</li></ol><p>Use a doubly linked list ordered by recency and a hash map from keys to nodes. Get moves a found node to the front. Put inserts or updates at the front; if capacity is exceeded, unlink the tail and remove its map entry. Pointer changes are worst-case O(1); the combined operations are expected O(1) with suitable hashing, not a universal worst-case guarantee.</p></div></article></section>
+<section class="vl-lesson"><h2>Three core tasks</h2><p>Predict on paper, run the code, then explain any difference. Use the animations below to inspect individual steps.</p><article class="vl-task"><h3>1. Trace</h3><p>Draw each pop(0) while emptying four items. Count shifts.</p><details class="solution"><summary>Check your reasoning</summary><div><p>3 + 2 + 1 + 0 = 6 shifts.</p></div></details></article><article class="vl-task"><h3>2. Calculate</h3><p>How many shifts occur when emptying 1,000 items from the front?</p><details class="solution"><summary>Check your reasoning</summary><div><p>1,000 × 999 / 2 = 499,500.</p></div></details></article><article class="vl-task"><h3>3. Change one thing</h3><p>Replace a list queue with deque. Which operation changes, and which stays linear?</p><details class="solution"><summary>Check your reasoning</summary><div><p>Use popleft() for O(1) front removal. Searching for an arbitrary value still costs O(n).</p></div></details></article></section>
+<details class="path-reference"><summary>Explore the animations &amp; more worked tasks</summary><div><section>
+  <h2><span class="num">10.9</span>Try it yourself</h2>
+
+  <div class="task">
+    <span class="label">Task 1 — verify the table</span>
+    <p>
+      Design and run a doubling experiment for each of these, and state the class you
+      measured: <code>data[n // 2]</code>, <code>data.append(1)</code>,
+      <code>data.pop(0)</code>, <code>x in data</code> (for a missing x),
+      <code>data[:]</code> (a full copy).
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — run the doubling experiment on all five operations</summary>
+      <div class="widget anim" data-anim="w10-verify"></div>
+    </details><details class="solution"><summary>Hint on method</summary>
+      <p>
+        For the O(1) operations one call is far too fast to time — repeat the operation
+        100 000 times inside the timed region and divide, keeping the list size fixed
+        between repeats. For <code>pop(0)</code>, rebuild the list before each timing.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 2 — fix a slow function</span>
+    <p>Here is a real-shaped piece of slow code. Find both problems and rewrite it.</p>
+    <div class="code"><div class="code-head"><span class="dot"></span>slow.py</div><pre><code>def unique_reversed(data):
+    result = []
+    for item in data:
+        if item not in result:          <span class="c"># problem 1</span>
+            result = [item] + result    <span class="c"># problem 2</span>
+    return result</code></pre></div>
+    <details class="solution anim-wrap"><summary>Animate it — step through slow.py and fast.py and count the work</summary>
+      <div class="widget anim" data-anim="w10-fixslow"></div>
+    </details><details class="solution"><summary>Solution</summary>
+      <p>
+        Problem 1: <code>not in result</code> is an O(n) scan inside an O(n) loop → O(n²).
+        Problem 2: building a new list every round is another O(n) per item. Fixed version,
+        using a set for the membership test (week 11) and appending at the cheap end:
+      </p>
+      <div class="code"><div class="code-head"><span class="dot"></span>fast.py</div><pre><code>def unique_reversed(data):
+    seen = set()
+    result = []
+    for item in data:
+        if item not in seen:      <span class="c"># O(1)</span>
+            seen.add(item)
+            result.append(item)   <span class="c"># O(1)</span>
+    result.reverse()              <span class="c"># O(n), once</span>
+    return result</code></pre></div>
+      <p>From O(n²) to O(n). At 100 000 items that is minutes down to milliseconds — measure both to see it.</p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 3 — the string version</span>
+    <p>
+      Build a string of 50 000 words by repeated <code>+=</code>, then by collecting into a
+      list and calling <code>join</code>. Time both, and report the ratio at 25 000 and
+      50 000 to investigate the observed scaling, including any interpreter optimisation.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — watch += copy the text while join writes it once</summary>
+      <div class="widget anim" data-anim="w10-strings"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        If every concatenation rebuilds the growing text, expect a near-four doubling ratio; if the interpreter optimises this loop, it may instead be near two. Joining fixed-length pieces once has linear total-character work. Report the measured outcome rather than forcing the illustrative §10.5 numbers.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 4 — see the amortised jumps</span>
+    <p>
+      Adapt <code>watch_capacity.py</code> from §10.3 to append 1 000 items and record the
+      length at every capacity jump. Roughly how does each new capacity compare with the
+      previous one, and how does that explain "O(1) amortised"?
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — append 1 000 items and record every capacity jump</summary>
+      <div class="widget anim" data-anim="w10-capacity"></div>
+    </details><details class="solution"><summary>Expected</summary>
+      <p>
+        Each jump lands at roughly (a bit more than) the previous capacity — the list grows
+        by a near-constant factor, so the gaps between jumps get wider as n grows. Because
+        each expensive copy buys room for proportionally more cheap appends, the copying
+        cost spread across all appends averages to a constant: O(1) amortised.
+      </p>
+    </details>
+  </div>
+
+  <div class="task">
+    <span class="label">Task 5 — list or deque?</span>
+    <p>
+      For each scenario, say whether you would store the data in a list or a
+      <code>deque</code>, and why in one sentence: (a) a to-do queue you always take from
+      the front and add to the back; (b) a table of scores you look up by row number
+      thousands of times; (c) a browser history where you add to one end and occasionally
+      pop the other.
+    </p>
+    <details class="solution anim-wrap"><summary>Animate it — pick list or deque, then run the scenario on both</summary>
+      <div class="widget anim" data-anim="w10-deque"></div>
+    </details><details class="solution"><summary>Answers</summary>
+      <p>
+        (a) deque — both hot operations are at the ends, O(1) each; a list would be O(n) per
+        <code>pop(0)</code>. (b) list — random indexing by position is O(1) on a list but
+        O(n) on a deque. (c) deque — adds and pops at the two ends are what a deque is for.
+      </p>
+    </details>
+  </div>
+</section></div></details></section>
+<section id="check" class="lesson-part"><h2 class="path-stage-title">Check your understanding</h2><section>
+  <h2><span class="num">10.10</span>Self-check</h2>
+  <div class="quiz" data-quiz>
+    <div class="q" data-answer="2">
+      <p>Why is <code>data.pop(0)</code> O(n) while <code>data.pop()</code> is O(1)?</p>
+      <button class="opt">Because removing from the front needs a search</button>
+      <button class="opt">Because Python lists are stored backwards</button>
+      <button class="opt">Because every remaining item must shift one place to close the gap at the front</button>
+      <button class="opt">They are actually the same cost</button>
+      <div class="why">A list is a contiguous row of slots. Removing from the end leaves no gap; removing from the front leaves one that must be closed.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p><code>result = result + [i]</code> inside a loop of n items is:</p>
+      <button class="opt">O(n), the same as append</button>
+      <button class="opt">O(n²), because each round copies the whole list into a new one</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">O(1)</button>
+      <div class="why">Copying a list of length k costs k. Doing that for k = 1, 2, 3 … n adds up to about n²/2.</div>
+    </div>
+    <div class="q" data-answer="3">
+      <p>You keep taking jobs from the front of a very long queue. The right change is:</p>
+      <button class="opt">Buy more memory</button>
+      <button class="opt">Sort the list first</button>
+      <button class="opt">Use <code>data.remove(job)</code> instead</button>
+      <button class="opt">Use <code>collections.deque</code> and <code>popleft()</code></button>
+      <div class="why">A deque is designed for cheap operations at both ends: O(1) per removal instead of O(n).</div>
+    </div>
+    <div class="q" data-answer="0">
+      <p>"append is O(1) amortised" means:</p>
+      <button class="opt">Usually cheap; the occasional resize copy is rare enough to average out to a constant</button>
+      <button class="opt">It is always exactly one step, with no exceptions</button>
+      <button class="opt">It is O(n) in disguise</button>
+      <button class="opt">It depends on how much memory you have</button>
+      <div class="why">Growing the list copies everything, but that happens rarely and each copy buys room for many cheap appends, so the average per append is constant.</div>
+    </div>
+    <div class="q" data-answer="2">
+      <p>To turn a quadratic <code>text += word</code> loop into a linear one, you should:</p>
+      <button class="opt">Use <code>text = word + text</code> instead</button>
+      <button class="opt">Add the words to the front of the string</button>
+      <button class="opt">Append the words to a list and call <code>"".join(pieces)</code> once at the end</button>
+      <button class="opt">Sort the words first</button>
+      <div class="why">Strings get copied on every <code>+=</code>. Collecting pieces and joining once does the whole build in a single linear pass.</div>
+    </div>
+    <div class="q" data-answer="1">
+      <p>On a <code>deque</code>, reading a middle position <code>dq[i]</code> is:</p>
+      <button class="opt">O(1), the same as a list</button>
+      <button class="opt">O(n) — a deque is fast at the ends, not in the middle</button>
+      <button class="opt">O(log n)</button>
+      <button class="opt">Impossible — deques cannot be indexed</button>
+      <div class="why">A deque trades cheap middle indexing for cheap end operations. Use a list when you index into the middle a lot.</div>
+    </div>
+  </div>
+</section>
+</section><details class="path-resources" id="lesson-resources"><summary>Extra material &amp; reference</summary><div><details class="path-reference"><summary>Optional depth · full technical reference</summary><div><section>
+  <h2><span class="num">10.1</span>What a list really is</h2>
+  <p>
+    Picture a row of numbered lockers, side by side, with no gaps. That is a Python list:
+    a block of slots in order, each holding a reference to a value.
+  </p>
+  <p>Two consequences follow from the "no gaps" part, and they explain everything else:</p>
+  <ul>
+    <li>
+      <strong>Reading a position is instant.</strong> To find item 4 719, the computer
+      computes where the slot is and goes there. Length is irrelevant: <code>O(1)</code>.
+    </li>
+    <li>
+      <strong>Inserting or removing at the front is expensive.</strong> If you take out the
+      first locker, everything behind it has to shuffle forward one place to close the gap.
+      That is n moves: <code>O(n)</code>.
+    </li>
+  </ul>
+  <div class="note blue">
+    <span class="label">The mental picture to keep</span>
+    <p>
+      Adding at the <em>end</em> is like putting a book on the end of a shelf. Adding at the
+      <em>front</em> is like inserting a book at the start of a full shelf: every other book
+      moves. Same act, entirely different price.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">10.2</span>The cost table</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Operation</th><th>Example</th><th>Cost</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>index read / write</td><td><code>data[i]</code></td><td>O(1)</td><td>Jump straight to the slot</td></tr>
+        <tr><td>length</td><td><code>len(data)</code></td><td>O(1)</td><td>Python keeps a running count</td></tr>
+        <tr><td>append</td><td><code>data.append(x)</code></td><td>O(1)*</td><td>Write into the next free slot</td></tr>
+        <tr><td>pop from end</td><td><code>data.pop()</code></td><td>O(1) amortised</td><td>No tail shifts; occasional resizing may occur</td></tr>
+        <tr><td>insert at front</td><td><code>data.insert(0, x)</code></td><td>O(n)</td><td>Everything shifts right</td></tr>
+        <tr><td>pop from front</td><td><code>data.pop(0)</code></td><td>O(n)</td><td>Everything shifts left</td></tr>
+        <tr><td>membership</td><td><code>x in data</code></td><td>O(n)</td><td>Look at items until found</td></tr>
+        <tr><td>delete by value</td><td><code>data.remove(x)</code></td><td>O(n)</td><td>Find it, then shift</td></tr>
+        <tr><td>slice</td><td><code>data[a:b]</code></td><td>O(k)</td><td>Copies k items into a new list</td></tr>
+        <tr><td>concatenate</td><td><code>a + b</code></td><td>O(n+m)</td><td>Builds a whole new list</td></tr>
+        <tr><td>sort</td><td><code>data.sort()</code></td><td>O(n log n)</td><td>See week 13</td></tr>
+        <tr><td>min / max / sum</td><td><code>max(data)</code></td><td>O(n)</td><td>Must inspect everything</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted)">
+    * <code>append</code> is O(1) <em>amortised</em>: occasionally Python has to move the
+    whole list into a bigger block of memory, which costs O(n), but it reserves extra capacity
+    so total resizing work across many appends remains linear. The exact growth policy depends on the implementation. The next
+    section watches that happen.
+  </p>
+</section>
+<section>
+  <h2><span class="num">10.3</span>Amortised append: watching the list grow</h2>
+  <p>
+    The lockers picture has one loose end: what happens when the row is full and you append
+    one more? There is no free slot behind the last one. Python's answer is to rent a
+    <em>bigger</em> row with spare capacity, potentially copy the existing references across,
+    and then write the new one. That copy is O(n). So how can we call append cheap?
+  </p>
+  <p>
+    Because the expensive copies are <strong>rare</strong>, and they get rarer as the list
+    grows. Use an <strong>idealised doubling model</strong> with capacities 1, 2, 4, 8, 16 …; this is not Python's literal allocation policy. For n items where n is a power of two, copying costs 1 + 2 + … + n/2 = n − 1. Together with n new writes, that is 2n − 1 units: a constant amortised cost per append. Other n also give linear total work. Sharing
+    the cost of the rare big events across the many cheap ones is called
+    <strong>amortising</strong>, and it is why we quote append as O(1).
+  </p>
+  <p>
+    You can see the capacity jumps directly. <code>sys.getsizeof</code> reports how many
+    bytes a list occupies; watch it step up in chunks, not smoothly, as we append:
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>watch_capacity.py</div><pre><code>import sys
+
+data = []
+last = -1
+for i in range(17):
+    size = sys.getsizeof(data)
+    if size != last:                       <span class="c"># only print when it jumps</span>
+        print(f"len={len(data):&gt;2}   {size} bytes  &lt;- grew here")
+        last = size
+    else:
+        print(f"len={len(data):&gt;2}   {size} bytes")
+    data.append(i)</code></pre></div>
+  <div class="out">len= 0   56 bytes  &lt;- grew here
+len= 1   88 bytes  &lt;- grew here
+len= 2   88 bytes
+len= 3   88 bytes
+len= 4   88 bytes
+len= 5   120 bytes  &lt;- grew here
+len= 6   120 bytes
+len= 7   120 bytes
+len= 8   120 bytes
+len= 9   184 bytes  &lt;- grew here
+len=10   184 bytes
+len=11   184 bytes
+len=12   184 bytes
+len=13   184 bytes
+len=14   184 bytes
+len=15   184 bytes
+len=16   184 bytes</div>
+  <p>
+    Most appends land in already-rented space and cost nothing extra — those are the flat
+    stretches. Only at a jump does Python copy the list into a bigger block, and each block
+    lasts longer than the last, so the jumps thin out. Averaged over the whole run, the
+    cost per append settles to a constant. That is exactly what "O(1) amortised" means:
+    <em>usually cheap, occasionally dear, constant on average</em>.
+  </p>
+  <div class="note">
+    <span class="label">The word to reach for</span>
+    <p>
+      "Amortised" is the honest word for "individual calls can spike, but the long-run
+      average is constant". It bounds the total work of a sequence rather than relying on random inputs. An individual
+      resizing append can still have O(n) worst-case cost; that and O(1) amortised cost are compatible.
+      This does not promise identical wall-clock time for every call. When someone asks the cost of append, "O(1) amortised" is the
+      full and correct answer.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">10.4</span>Measuring it: front versus back</h2>
+  <p>
+    Test the model yourself. These builders use the same values but produce opposite orders: append preserves their arrival order, while front insertion reverses it. If order matters, include a final O(n) reversal when comparing equivalent outputs.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>append vs insert(0)</div><pre><code>import time
+
+def build_append(n):
+    data = []
+    for i in range(n):
+        data.append(i)          <span class="c"># cheap end</span>
+    return data
+
+def build_insert_front(n):
+    data = []
+    for i in range(n):
+        data.insert(0, i)       <span class="c"># expensive end</span>
+    return data
+
+for n in [10000, 20000, 40000, 80000]:
+    start = time.perf_counter(); build_append(n)
+    t_app = time.perf_counter() - start
+
+    start = time.perf_counter(); build_insert_front(n)
+    t_ins = time.perf_counter() - start
+
+    print(f"n={n:&gt;6}  append {t_app:.4f}s   insert(0) {t_ins:.4f}s   ratio {t_ins/t_app:,.0f}x")</code></pre></div>
+  <div class="out">n= 10000  append 0.0008s   insert(0) 0.0221s   ratio 27x
+n= 20000  append 0.0016s   insert(0) 0.0872s   ratio 55x
+n= 40000  append 0.0031s   insert(0) 0.3510s   ratio 113x
+n= 80000  append 0.0062s   insert(0) 1.4102s   ratio 227x</div>
+  <p>
+    Read the ratio column: it doubles every time n doubles. That is the fingerprint of one
+    method being O(n) overall while the other is O(n²) — because n insertions at
+    <code>O(n)</code> each is <code>n × n</code>. The two loops look almost identical on
+    the page. One of them is a bomb with a slow fuse.
+  </p>
+</section>
+<section>
+  <h2><span class="num">10.5</span>Building strings and lists the fast way</h2>
+  <p>
+    The same trap appears when you build a list or a string by repeated concatenation.
+    <code>result = result + [x]</code> creates a <em>whole new list</em> each round.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>four ways to build the same list</div><pre><code>import time
+
+def by_concat(n):
+    result = []
+    for i in range(n):
+        result = result + [i]        <span class="c"># new list every time: O(n) each</span>
+    return result
+
+def by_append(n):
+    result = []
+    for i in range(n):
+        result.append(i)             <span class="c"># O(1) each</span>
+    return result
+
+def by_comprehension(n):
+    return [i for i in range(n)]     <span class="c"># same work, less Python overhead</span>
+
+def by_list_range(n):
+    return list(range(n))            <span class="c"># all the work happens in C</span>
+
+for func in [by_concat, by_append, by_comprehension, by_list_range]:
+    start = time.perf_counter()
+    func(20000)
+    print(f"{func.__name__:&gt;18}: {time.perf_counter() - start:.5f}s")</code></pre></div>
+  <div class="out">          by_concat: 0.41230s
+          by_append: 0.00151s
+   by_comprehension: 0.00062s
+      by_list_range: 0.00031s</div>
+  <p>
+    A factor of over a thousand between the first and the last, for code that produces an
+    identical result. The first is O(n²); the other three are O(n) with progressively
+    smaller constants. Note the two different kinds of improvement on display: the jump
+    from <code>by_concat</code> to <code>by_append</code> is a <em>class</em> change and it
+    grows with n; the jump from <code>by_append</code> to <code>list(range(n))</code> is a
+    <em>constant factor</em> and it does not.
+  </p>
+  <div class="note red">
+    <span class="label">Same trap, with text</span>
+    <p>
+      Repeated string concatenation can be quadratic when every step copies the growing result. Some Python interpreter contexts optimise this pattern, so a particular <code>+=</code> benchmark need not show quadratic growth. Collect the pieces in a list and use
+      <code>"".join(pieces)</code> once at the end. That single habit has rescued more
+      slow scripts than any other tip in this course.
+    </p>
+  </div>
+  <div class="code"><div class="code-head"><span class="dot"></span>+= vs join, side by side</div><pre><code>import time
+
+def by_plus(n):
+    text = ""
+    for i in range(n):
+        text += "word "        <span class="c"># repeated concatenation; runtime optimisations may affect scaling</span>
+    return text
+
+def by_join(n):
+    pieces = []
+    for i in range(n):
+        pieces.append("word ")  <span class="c"># O(1) each</span>
+    return "".join(pieces)      <span class="c"># one linear pass at the end</span>
+
+for n in [25000, 50000, 100000]:
+    start = time.perf_counter(); by_plus(n)
+    p = time.perf_counter() - start
+    start = time.perf_counter(); by_join(n)
+    j = time.perf_counter() - start
+    print(f"n={n:&gt;6}   += {p:.4f}s   join {j:.4f}s   ratio {p/j:,.0f}x")</code></pre></div>
+  <div class="out">n= 25000   += 0.0480s   join 0.0018s   ratio 27x
+n= 50000   += 0.1910s   join 0.0035s   ratio 55x
+n=100000   += 0.7640s   join 0.0069s   ratio 111x</div>
+  <p>
+    These illustrative timings show the repeated-copy model; they are not a guaranteed output of this interpreter-dependent experiment. Record your actual ratios, even if <code>+=</code> scales nearly linearly. Building pieces and joining once gives a predictable linear construction in the total number of characters.
+  </p>
+</section>
+<section>
+  <h2><span class="num">10.6</span>When you need a fast front: deque</h2>
+  <p>
+    Sometimes you genuinely need to add and remove at both ends — a queue of jobs, a
+    history of moves. Python has a structure built for it.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>list vs deque at the front</div><pre><code>from collections import deque
+import time
+
+n = 100000
+
+data = list(range(n))
+start = time.perf_counter()
+while data:
+    data.pop(0)                      <span class="c"># O(n) each → O(n²) total</span>
+print(f"list.pop(0):    {time.perf_counter() - start:.3f}s")
+
+data = deque(range(n))
+start = time.perf_counter()
+while data:
+    data.popleft()                   <span class="c"># O(1) each → O(n) total</span>
+print(f"deque.popleft(): {time.perf_counter() - start:.3f}s")</code></pre></div>
+  <div class="out">list.pop(0):    1.812s
+deque.popleft(): 0.006s</div>
+  <p>
+    Three hundred times faster, and the gap widens with n. You do not need to know how a
+    deque works internally to use it. You do need the habit of asking "is there a structure
+    designed for the operation I keep repeating?" — which is the whole of next week.
+  </p>
+  <div class="note blue">
+    <span class="label">When a list is still right</span>
+    <p>
+      A deque is not a free upgrade: reading a middle position, <code>dq[i]</code>, is O(n)
+      on a deque but O(1) on a list. Use a list when you index into the middle a lot; reach
+      for a deque when your hot operations are at the <em>ends</em>. Right tool, right job —
+      which needs the cost table for both.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">10.7</span>Measuring every operation at once</h2>
+  <p>
+    You have measured a few operations one pair at a time. Here is a single harness that
+    times all the headline operations at a fixed size, so the O(1) rows and the O(n) rows
+    sit next to each other and the difference is impossible to miss. The O(1) operations are
+    far too fast to time once, so we repeat each many times inside the timed region and
+    report the time per operation. Each repeat gets fresh input. Append grows its list, while pop removes 50 000 of the available 100 000 items; these are averages over changing sizes, not fixed-size single-operation measurements. The front-removal row drains its 2 000-item list exactly once. The output below is illustrative, and sorting this already sorted input exercises the adaptive best case.
+  </p>
+  <div class="code"><div class="code-head"><span class="dot"></span>cost_of_every_operation.py</div><pre><code>import time
+
+n = 100000
+base = list(range(n))
+
+def time_op(setup, op, repeats):
+    """Best-of-3 total time for running op() `repeats` times."""
+    best = None
+    for _ in range(3):
+        data = setup()
+        start = time.perf_counter()
+        for _ in range(repeats):
+            op(data)
+        t = time.perf_counter() - start
+        if best is None or t &lt; best:
+            best = t
+    return best / repeats            <span class="c"># seconds per single operation</span>
+
+fresh = lambda: list(range(n))
+
+rows = [
+    ("index read   data[n//2]", fresh, lambda d: d[n // 2],        200000),
+    ("append       d.append(0)", fresh, lambda d: d.append(0),     200000),
+    ("pop end      d.pop()",     fresh, lambda d: d.pop(),          50000),
+    ("insert(0)    d.insert(0,0)", lambda: list(range(2000)), lambda d: d.insert(0, 0), 2000),
+    ("pop(0)       d.pop(0)",    lambda: list(range(2000)), lambda d: d.pop(0),      2000),
+    ("membership   -1 in d",     fresh, lambda d: (-1 in d),          200),
+    ("sort         sorted(d)",   fresh, lambda d: sorted(d),           50),
+]
+
+print(f"{'operation':&gt;26}   {'sec / op':&gt;12}")
+for label, setup, op, reps in rows:
+    per = time_op(setup, op, reps)
+    print(f"{label:&gt;26}   {per*1e9:&gt;9,.0f} ns")</code></pre></div>
+  <div class="out">                 operation       sec / op
+   index read   data[n//2]          38 ns
+   append       d.append(0)         52 ns
+   pop end      d.pop()             49 ns
+   insert(0)    d.insert(0,0)    1,120 ns
+   pop(0)       d.pop(0)           980 ns
+   membership   -1 in d      1,410,000 ns
+   sort         sorted(d)    6,900,000 ns</div>
+  <p>
+    Read it as three tiers. The O(1) operations — index, append, pop from the end — all sit
+    around a few dozen nanoseconds, flat and cheap. The front operations
+    <code>insert(0)</code> and <code>pop(0)</code> are twenty to fifty times dearer even on
+    a much shorter list, because each one shifts the whole tail. The O(n) scans
+    (<code>in</code> a missing value) and the sort of this already ordered list are in a different world
+    entirely — a missing-value membership test on 100 000 items is nearly forty thousand
+    times slower than an index read. The numbers on your machine will differ; the work models explain the expected trends, but precise relative tiers can vary.
+  </p>
+  <div class="note">
+    <span class="label">One size is a snapshot, not a class</span>
+    <p>
+      This table pins n and compares operations. It shows you which operations are
+      expensive <em>right now</em>, but a single size cannot reveal a class — for that you
+      need the doubling harness from weeks 5–7, watching how each number responds when n
+      doubles. Use both: the snapshot to spot the costly operation, the doubling run to name
+      its class.
+    </p>
+  </div>
+</section>
+<section>
+  <h2><span class="num">10.8</span>Common mistakes</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mistake</th><th>Why it is wrong</th></tr></thead>
+      <tbody>
+        <tr><td><code>result = result + [x]</code> in a loop</td><td>Copies the whole list each round → O(n²). Use <code>append</code>.</td></tr>
+        <tr><td>Repeated string concatenation</td><td>Can copy the growing text repeatedly; interpreter optimisations affect measurements. Collect pieces and join once for predictable linear construction.</td></tr>
+        <tr><td>Using a list as a queue with <code>pop(0)</code></td><td>Each removal shifts the tail → O(n²) over the queue. Use <code>deque.popleft()</code>.</td></tr>
+        <tr><td><code>if x in my_list</code> inside a loop</td><td>A hidden O(n) scan under your O(n) loop → O(n²). Use a set for membership (week 11).</td></tr>
+        <tr><td>"append is O(n) because of the resize"</td><td>The resize is O(n) but rare; averaged over all appends it is O(1) amortised.</td></tr>
+        <tr><td>"a deque is just a faster list"</td><td>Middle indexing on a deque is O(n); it wins only at the ends.</td></tr>
+        <tr><td>Slicing to copy inside a loop, <code>data[:]</code></td><td>Each copy is O(n); doing it once per item is another accidental O(n²).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section><section class="source-lesson" id="skiena-notes"><p class="source-label">From the beginner notes · Lecture 4</p><h3>Occasional expensive work can hide in an average</h3><p>A dynamic array is an array that can grow; it keeps some empty slots for new items. In the simplified doubling model, growth copies 1, 2, 4, … items into successively larger arrays. To reach n = 2ᵏ stored items from capacity 1, the copies total n − 1, even though the final resize alone is expensive.</p><p>This gives constant copying cost per append when the total is spread over the whole sequence (amortised cost). It does not make every individual append constant-time. Growing by only ten slots instead repeatedly copies nearly all the items already stored, producing quadratic total copying.</p><p>The exact way Python reserves extra slots depends on its implementation; the doubling model explains the idea rather than specifying its precise behaviour. Keep “amortised over a sequence” separate from “expected over random choices” and “worst case for one operation”.</p><p class="engineering-transfer"><strong>Engineering use.</strong> A data logger may tolerate occasional slow appends. A controller with a strict deadline may not tolerate the pause when storage grows.</p></section></div></details>
+<details class="path-reference"><summary>Learning goals &amp; class plan</summary><div><section>
+  <div class="objectives">
+    <span class="eyebrow">By the end of this week you can</span>
+    <ul>
+      <li>say what the common list operations cost, and why;</li>
+      <li>explain why <code>append</code> is cheap and <code>insert(0, x)</code> is not;</li>
+      <li>explain what "amortised O(1)" means and why append earns it;</li>
+      <li>measure the difference yourself instead of taking my word for it;</li>
+      <li>rewrite a slow list-building loop into a fast one;</li>
+      <li>read a cost table for a data structure and use it to make a choice.</li>
+    </ul>
+  </div>
+</section>
+<section class="studio-contract">
+  <div class="note blue">
+    <span class="label">Three-hour interactive studio</span>
+    <p><strong>00:00–01:00:</strong> launch, predict–run–explain cycle, questions &nbsp;·&nbsp;
+    <strong>01:00–01:10:</strong> break &nbsp;·&nbsp;
+    <strong>01:10–02:00:</strong> worked variation, peer instruction, questions &nbsp;·&nbsp;
+    <strong>02:00–02:10:</strong> break &nbsp;·&nbsp;
+    <strong>02:10–03:00:</strong> core mechatronics practice, exam bridge, and exit ticket.</p>
+    <p>Ask at any point. Weekly self-checks stay private; optional extensions are not collected.</p>
+  </div>
+</section>
+</div></details>
+<p class="vl-reference">Need a slower explanation? <a href="../guide/w10">Open the English + Türkçe reference guide</a>.</p>
+<details class="path-reference"><summary>Optional extra practice</summary><div><section>
+  <h2><span class="num">10.11</span>Optional Studio Extension</h2>
+  <div class="task">
+    <span class="label">Optional practice · no submission or deadline</span>
+    <ol>
+      <li>Create <code>AA_Week10.ipynb</code> and complete Tasks 1–5.</li>
+      <li>Reproduce §10.4 and §10.5 on your own machine and put all three ratio columns (insert-vs-append, and += vs join) in one table.</li>
+      <li>Run <code>watch_capacity.py</code> from §10.3 up to 1 000 items and note the lengths at which the size jumped; write two sentences linking what you saw to the phrase "O(1) amortised".</li>
+      <li>Run the §10.7 all-operations harness on your machine and paste the table; write one sentence naming the three tiers you see and which operations fall in each.</li>
+      <li>Produce one labelled figure comparing <code>append</code> and <code>insert(0, …)</code> across four sizes.</li>
+      <li>Write five sentences: you inherit a script that took 20 minutes on 10 000 rows and now must run on 100 000. Based on this week, name the two things you would look for first, and what you would expect the runtime to become if the culprit is quadratic.</li>
+    </ol>
+  </div>
+</section></div></details>
+<details class="path-reference"><summary>Optional reference · Words from this week</summary><div><section>
+  <h2><span class="num">10.12</span>Words from this week</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Meaning in plain words</th></tr></thead>
+      <tbody>
+        <tr><td>contiguous storage</td><td>Items kept in one unbroken row of slots — the reason indexing is instant.</td></tr>
+        <tr><td>shifting</td><td>Moving every later item to close or open a gap; the hidden cost at the front.</td></tr>
+        <tr><td>amortised O(1)</td><td>Usually constant, occasionally expensive, cheap on average over many calls.</td></tr>
+        <tr><td>resize / capacity</td><td>The bigger block a list rents when it fills up; the rare O(n) copy behind append.</td></tr>
+        <tr><td>accidentally quadratic</td><td>An O(n) operation used once per item, giving O(n²) without any visible nested loop.</td></tr>
+        <tr><td>deque</td><td>A structure with cheap adds and removes at <em>both</em> ends, but O(n) middle indexing.</td></tr>
+        <tr><td>join</td><td><code>"".join(pieces)</code> — the linear way to build a big string.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section></div></details>
+
+<div class="note blue">
+  <span class="label">Where this leads</span>
+  <p>You learned that a full list search and a front insertion cost O(n). Week 11 introduces average O(1) lookup with dictionaries and sets, under the usual hashing assumptions.</p>
+</div>
+</div></details></div>
+</main>
+<footer class="site-footer">
+  <span>Algorithm Analysis with Python &middot; Dr. Arif Solmaz</span>
+
+</footer>
+<script src="../../assets/app.js?v=2"></script><script src="../../../assets/learning-path.js?v=1"></script>
+<script src="../../assets/anim.js?v=13"></script><script src="../../assets/anim-w10.js?v=10"></script><script src="../../assets/anim-workspace.js?v=11"></script></body>
+</html>
