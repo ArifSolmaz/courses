@@ -36,26 +36,32 @@
   /* Two panes on a wide stage: code, state, stats and message on the left; the visual on the right; the
      option rows and the play bar span both. The widget's own element references stay valid because the
      nodes only move into wrappers inside the same host. Idempotent, so late-added children get placed too. */
+  /* Two panes on a wide stage. Left: the code with its variables and output. Right: the option rows
+     (test / predict), the visual, the stats and the message - the column that otherwise sat half empty.
+     The title and the play bar span both. Widget element references stay valid because nodes only move
+     into wrappers inside the same host; the function is idempotent so late-added children get placed too. */
   function panes(panel){const host=panel.querySelector('[data-anim]');if(!host)return;
    const ct=host.querySelector(':scope > .ct'),bar=host.querySelector(':scope > .anim-controls');if(!ct&&!bar)return;
    let left=host.querySelector(':scope > .anim-left'),right=host.querySelector(':scope > .anim-right');
    if(!left){left=document.createElement('div');left.className='anim-left';right=document.createElement('div');right.className='anim-right';
-    const anchor=ct||[...host.children].find(c=>!(c.classList.contains('anim-title')||c.classList.contains('anim-opts')||c.classList.contains('aa-in-line')))||bar;anchor.before(left,right);}
+    const anchor=[...host.children].find(c=>!c.classList.contains('anim-title'))||bar;anchor.before(left,right);}
    [...host.children].forEach(c=>{if(c===left||c===right)return;const cls=c.classList;
-    if(cls.contains('anim-title')||cls.contains('anim-opts')||cls.contains('aa-in-line')||cls.contains('anim-controls'))return;
-    if(cls.contains('ct')||cls.contains('anim-stats')||cls.contains('anim-msg'))left.append(c);else right.append(c);});
-   if(!right.children.length){right.remove();host.classList.add('anim-single');}
-   host.classList.toggle('anim-thin-left',!left.querySelector('.ct'));
+    if(cls.contains('anim-title')||cls.contains('anim-controls'))return;
+    if(cls.contains('ct'))left.append(c);else right.append(c);});
+   if(!left.children.length){left.remove();host.classList.add('anim-single');}
    host.classList.add('anim-paned');}
   /* Give the two panes exactly the height the stage has left after the title, option rows and play bar,
      so a tall visual scrolls inside its pane instead of pushing the bar off the screen. */
   function fit(){const panel=panels.find(p=>!p.hidden);const host=panel&&panel.querySelector('[data-anim].anim-paned');if(!host)return;
-   const left=host.querySelector(':scope > .anim-left'),right=host.querySelector(':scope > .anim-right');const panesEl=[left,right].filter(Boolean);
-   if(getComputedStyle(host).display!=='grid'){panesEl.forEach(e=>e.style.maxHeight='');return;}
+   const panesEl=[host.querySelector(':scope > .anim-left'),host.querySelector(':scope > .anim-right')].filter(Boolean);
+   panesEl.forEach(e=>{e.style.maxHeight='';e.style.zoom='';});
+   if(getComputedStyle(host).display!=='grid')return;
    let used=0;[...host.children].forEach(c=>{if(!panesEl.includes(c)){const cs=getComputedStyle(c);used+=c.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);}});
    const hs=getComputedStyle(host),gap=parseFloat(hs.rowGap||0)||8;const rows=host.children.length-panesEl.length+1;
    const chrome=used+gap*rows+parseFloat(hs.paddingTop||0)+parseFloat(hs.paddingBottom||0)+40;
-   const avail=Math.max(200,Math.floor(stage.clientHeight-chrome));panesEl.forEach(e=>e.style.maxHeight=avail+'px');}
+   const avail=Math.max(200,Math.floor(stage.clientHeight-chrome));
+   // Scale the panes down (never below 72 %) when their natural height exceeds the space; the remainder scrolls.
+   panesEl.forEach(e=>{const need=e.scrollHeight;const z=need>avail?Math.max(0.72,Math.floor(avail/need*100)/100):1;e.style.zoom=String(z);e.style.maxHeight=Math.floor(avail/z)+'px';});}
   new ResizeObserver(()=>fit()).observe(stage);
   function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));panes(panels[i]);idx.textContent=String(i+1);requestAnimationFrame(fit);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
   choice.onchange=()=>show(Number(choice.value));prev.onclick=()=>show(Number(choice.value)-1,true);next.onclick=()=>show(Number(choice.value)+1,true);
