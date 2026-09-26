@@ -33,82 +33,137 @@
   const panels=[...ws.querySelectorAll('[data-animation-panel]')],idx=ws.querySelector('[data-anim-index]');
   const prev=ws.querySelector('[data-anim-prev]'),next=ws.querySelector('[data-anim-next]'),zoom=ws.querySelector('[data-anim-zoom]'),expand=ws.querySelector('[data-anim-expand]');
   const ZKEY='aa-anim-zoom';
-  /* Two panes on a wide stage: code, state, stats and message on the left; the visual on the right; the
-     option rows and the play bar span both. The widget's own element references stay valid because the
-     nodes only move into wrappers inside the same host. Idempotent, so late-added children get placed too. */
-  /* Two panes on a wide stage. Left: the code with its variables and output, and the play bar under them
-     (the space that used to sit empty). Right: the option rows (test / predict), the visual, stats and message.
-     Widgets that wrap their "watch" mode in an inner container get the same treatment on that container;
-     the Week 1 stories put their text on the left and the story widget on the right. Nodes only move into
-     wrappers inside the same host, so the widgets' element references stay valid; idempotent. */
-  const KEEP=['anim-title','anim-opts','aa-in-line'];
-  function target(host){if(host.classList.contains('anim-paned'))return host;
-   const inner=host.querySelector(':scope > .anim-paned');if(inner)return inner;
-   if(host.querySelector(':scope > .ct')||host.querySelector(':scope > .anim-controls'))return host;
-   return [...host.children].find(c=>c.querySelector(':scope > .ct')&&c.querySelector('.anim-controls'))||(host.querySelector('.anim-controls')?host:null);}
-  function group(box){let left=box.querySelector(':scope > .anim-left'),right=box.querySelector(':scope > .anim-right');
-   if(!right){left=document.createElement('div');left.className='anim-left';right=document.createElement('div');right.className='anim-right';
-    const anchor=[...box.children].find(c=>!c.classList.contains('anim-title'))||null;if(anchor)anchor.before(left,right);else box.append(left,right);}
-   if(!left){left=document.createElement('div');left.className='anim-left';right.before(left);}
-   [...box.children].forEach(c=>{if(c===left||c===right||c.classList.contains('anim-title'))return;
-    if(c.classList.contains('ct')||(c.classList.contains('anim-controls')&&!box.classList.contains('anim-single')))left.append(c);else if(!c.classList.contains('anim-controls'))right.append(c);});
-   const bar=left.querySelector(':scope > .anim-controls');if(bar)left.append(bar);           /* bar last, under code and state */
-   if(!left.querySelector(':scope > .ct')){                                                    /* no code block: bar spans, rest in two columns */
-    if(bar)box.append(bar);[...left.children].forEach(c=>right.append(c));left.remove();box.classList.add('anim-single');}
-   box.classList.add('anim-paned');return box;}
-  function panes(panel){const host=panel.querySelector('[data-anim]');
-   if(host){const box=target(host);if(box){group(box);if(box!==host)host.classList.add('anim-outer');}return;}
+  /* Packing (2026-09, third design). A widget is not split into fixed panes any more: every block it renders
+     (title, option rows, the code, its variables+output, the play bar, each visual, stats, message) becomes an
+     item of one CSS grid on the widget root. Wrappers between the root and a code trace or play bar get
+     display:contents, so a wrapper the widget hides for its other mode hides its blocks. compact.js then tries
+     1–4 columns: it measures every block, gives a block that is wider than a column (a long code line, a wide
+     table) the full width, splits the rest into columns of nearly equal height (the linear-partition DP from
+     Week 13, block order kept) and scales the whole widget with CSS zoom so the tallest column just fills the
+     stage. The column count with the largest zoom wins. Text is one size everywhere in the widget.
+     During playback only the row spans and the zoom follow the frames; the columns stay put. */
+  const UNIT=4,GAP=16,MINCOL=250,ZMIN=0.62,ZMAX=1.7;
+  const set=(e,k,v)=>{if(e.style[k]!==v)e.style[k]=v;};
+  const shown=e=>e.nodeType===1&&!['SCRIPT','STYLE','TEMPLATE','NOSCRIPT'].includes(e.tagName)&&getComputedStyle(e).display!=='none';
+  const hgt=e=>{const cs=getComputedStyle(e);return e.offsetHeight+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);};
+  const rowsOf=h=>Math.max(1,Math.ceil((h+6)/UNIT));
+  /* How much of a block is visible across: 1 when nothing inside it is clipped, else the ratio of a code block, pre
+     or table wrapper that scrolls sideways (it or one of its descendants). */
+  function clipRatio(it){let r=1;[it,...it.querySelectorAll('.ct-code, pre, .anim-table-wrap, .table-wrap')].forEach(e=>{if(e.scrollWidth>e.clientWidth+2)r=Math.min(r,e.clientWidth/e.scrollWidth);});return r;}
+  function flatten(host){host.querySelectorAll('.ct, .anim-controls').forEach(el=>{let p=el.classList.contains('ct')?el:el.parentElement;while(p&&p!==host){p.classList.add('anim-flat');p=p.parentElement;}});}
+  function blocks(host){const out=[];(function walk(el){[...el.children].forEach(c=>{if(!shown(c))return;if(c.classList.contains('anim-flat'))walk(c);else out.push(c);});})(host);return out;}
+  function partition(h,K){const n=h.length;if(!n)return[];K=Math.min(K,n);const pre=[0];h.forEach(x=>pre.push(pre[pre.length-1]+x));
+   const M=Array.from({length:n+1},()=>Array(K+1).fill(Infinity)),D=Array.from({length:n+1},()=>Array(K+1).fill(0));M[0][0]=0;
+   for(let i=1;i<=n;i++)for(let k=1;k<=Math.min(K,i);k++)for(let j=k-1;j<i;j++){const v=Math.max(M[j][k-1],pre[i]-pre[j]);if(v<M[i][k]){M[i][k]=v;D[i][k]=j;}}
+   const cols=[];let i=n;for(let k=K;k>0;k--){const j=D[i][k];cols.unshift([j,i]);i=j;}return cols;}
+  function stageBox(){const sp=getComputedStyle(stage);return{w:stage.clientWidth-parseFloat(sp.paddingLeft||0)-parseFloat(sp.paddingRight||0),h:stage.clientHeight-parseFloat(sp.paddingTop||0)-parseFloat(sp.paddingBottom||0)};}
+  function budget(host){const cs=getComputedStyle(host);const b=stageBox();let used=0;
+   let p=host.parentElement;while(p&&p!==stage){const ps=getComputedStyle(p);used+=parseFloat(ps.paddingTop||0)+parseFloat(ps.paddingBottom||0)+parseFloat(ps.marginTop||0)+parseFloat(ps.marginBottom||0);p=p.parentElement;}
+   const own=parseFloat(cs.paddingTop||0)+parseFloat(cs.paddingBottom||0)+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);   /* css px inside the zoom */
+   const side=parseFloat(cs.paddingLeft||0)+parseFloat(cs.paddingRight||0)+parseFloat(cs.borderLeftWidth||0)+parseFloat(cs.borderRightWidth||0);
+   return{avail:Math.max(160,Math.floor(b.h-used-4)),width:b.w,own,side};}
+  const zcap=()=>zoom.value==='auto'?ZMAX:Math.min(1,Number(zoom.value)||1);
+  const colCss=(bud,K,z)=>(bud.width/z-bud.side-(K-1)*GAP)/K;                          /* one column, css px, at zoom z */
+  const zFor=(bud,K,w)=>bud.width/(K*(w+8)+bud.side+(K-1)*GAP);                      /* zoom at which a block w css px wide fits a column */
+  /* Natural width of each block (css px): measured once in the narrowest column the packer can produce; 0 when
+     the block fits any column (text wraps, canvases scale). A code line or table wider than that is what
+     decides between a full-width band and a smaller zoom. */
+  function naturals(host,items,bud){(host._grown||[]).forEach(e=>e.style.maxHeight='');host._grown=[];set(host,'zoom',String(ZMAX));set(host,'gridTemplateColumns',`repeat(4, minmax(0, 1fr))`);set(host,'gridAutoRows','auto');
+   items.forEach(it=>{set(it,'maxWidth','');set(it,'gridColumn','1');set(it,'gridRow','auto');});
+   return items.map(it=>{const r=clipRatio(it);let w=r<0.98?it.clientWidth/r:0;
+    /* A grid of several equal tracks (cards, lanes, a table drawn with divs) wraps its text rather than
+       overflowing, so it has no measurable minimum: allow 130 css px per track (2–4 tracks; a board of many small cells scales instead). */
+    [it,...it.querySelectorAll('*')].forEach(e=>{if(e.clientWidth<it.clientWidth*0.8)return;const cs=getComputedStyle(e);if(cs.display!=='grid')return;
+     const n=cs.gridTemplateColumns.split(' ').filter(x=>x&&x!=='none').length;if(n>=2&&n<=4)w=Math.max(w,n*130);});
+    return w;});}
+  /* Place the blocks for K columns at zoom z. cols: Map block -> column (0 = full-width band); when absent it is
+     built here: bands are the title and (mode 'band') every block wider than a column, the rest is split into
+     K runs of nearly equal height. Returns the height of the packing in css px and the map. */
+  function place(host,items,K,z,cols,nat,mode,forced){set(host,'zoom',String(z));set(host,'gridTemplateColumns',`repeat(${K}, minmax(0, 1fr))`);set(host,'gridAutoRows','auto');
+   if(!cols){cols=new Map();const cw=colCss(bud_,K,z);
+    items.forEach(it=>{set(it,'gridColumn','1');set(it,'gridRow','auto');set(it,'maxWidth','');});
+    const need=items.map((it,i)=>{const r=clipRatio(it);return Math.max(nat[i],r<0.98?it.clientWidth/r:0);});   /* css px this block wants across */
+    const wide=items.map((it,i)=>it.classList.contains('anim-title')||K>1&&mode==='band'&&(need[i]>cw||forced&&forced.has(it)));if(forced)items.forEach((it,i)=>{if(wide[i])forced.add(it);});
+    items.forEach((it,i)=>{it._need=need[i];});
+    const hs=items.map(hgt);let g=[];const flush=()=>{if(!g.length)return;partition(g.map(i=>hs[i]),K).forEach(([a,b],c)=>{for(let k=a;k<b;k++)cols.set(items[g[k]],c+1);});g=[];};
+    items.forEach((it,i)=>{if(wide[i]){flush();cols.set(it,0);}else g.push(i);});flush();}
+   items.forEach(it=>{const c=cols.get(it);set(it,'gridColumn',c?String(c):'1 / -1');set(it,'gridRow','auto');set(it,'maxWidth',!c&&it._need&&!it.classList.contains('anim-title')?Math.ceil(it._need+8)+'px':'');});
+   const hs=items.map(hgt);let cursor=0,cur=[];
+   items.forEach((it,i)=>{const c=cols.get(it),r=rowsOf(hs[i]);
+    it._rows=r;if(!c){cursor=Math.max(cursor,...cur,0);cur=[];set(it,'gridRow',`${cursor+1} / span ${r}`);cursor+=r;}
+    else{if(cur.length!==K)cur=Array(K).fill(cursor);set(it,'gridRow',`${cur[c-1]+1} / span ${r}`);cur[c-1]+=r;}});
+   cursor=Math.max(cursor,...cur,0);set(host,'gridAutoRows',UNIT+'px');
+   return{total:cursor*UNIT,cols};}
+  let bud_=null;
+  /* Zoom for K columns: the largest value at which the tallest column fits the stage, the narrowest column is
+     still MINCOL css px, and (mode 'cap', or once the columns are fixed) no block in a column is clipped. */
+  function fitZ(host,items,K,cols,z,bud,cap,nat,mode,final){bud_=bud;const keep=!!cols,forced=new Set();let r;
+   for(let pass=0;pass<4;pass++){r=place(host,items,K,z,keep?cols:null,nat,mode,forced);cols=r.cols;
+    const wcap=zFor(bud,K,MINCOL-8);let z2=Math.min(cap,wcap,r.total>0?bud.avail/(r.total+bud.own):cap);
+    if(keep||mode==='cap')items.forEach((it,i)=>{if(!cols.get(it))return;if(nat[i])z2=Math.min(z2,zFor(bud,K,nat[i]));const cr=clipRatio(it);if(cr<0.98)z2=Math.min(z2,z*cr);});
+    z2=Math.max(ZMIN,Math.floor(z2*100)/100);
+    if(Math.abs(z2-z)<0.011){z=z2;break;}z=z2;}
+    if(!keep&&mode==='band')items.forEach(it=>{if(cols.get(it)&&clipRatio(it)<0.98)forced.add(it);});
+   if(!keep)return fitZ(host,items,K,cols,z,bud,cap,nat,mode,final);      /* the zoom these columns really allow */
+   let r2=place(host,items,K,z,cols,nat,mode);
+   if(final){grow(host,items,K,cols,bud.avail/z-bud.own-r2.total);r2=place(host,items,K,z,cols,nat,mode);
+    for(let k=0;k<10&&z>ZMIN&&stage.scrollHeight>stage.clientHeight+1;k++){z=Math.max(ZMIN,Math.round((z-0.03)*100)/100);place(host,items,K,z,cols,nat,mode);}
+    for(let k=0;k<4&&stage.scrollHeight>stage.clientHeight+1;k++){if(!shrink(host,items,cols,(stage.scrollHeight-stage.clientHeight)/z+4))break;place(host,items,K,z,cols,nat,mode);}}
+   return{z,cols,total:r2.total};}
+  /* Still too tall at the smallest zoom (a fifty-line listing): the tallest scroll box in the deepest column
+     gives up the overflow and scrolls, as the widget's own stylesheet would have had it do. */
+  function shrink(host,items,cols,over){const z=parseFloat(host.style.zoom)||1;const bottom=new Map();let deepest=0,col=0;
+   items.forEach(it=>{const c=cols.get(it)||0,b=it.getBoundingClientRect().bottom;bottom.set(c,Math.max(bottom.get(c)||0,b));if(b>deepest){deepest=b;col=c;}});
+   let best=null;items.forEach(it=>{if((cols.get(it)||0)!==col)return;const box=[it,...it.querySelectorAll('*')].find(e=>/auto|scroll/.test(getComputedStyle(e).overflowY)&&e.clientHeight>120);
+    if(box&&(!best||box.clientHeight>best.clientHeight))best=box;});
+   if(!best)return false;best.style.maxHeight=Math.max(96,best.clientHeight-over)+'px';(host._grown=host._grown||[]).push(best);return true;}
+  /* Space left under a column goes to a scroll box in it (a long output, a table the widget capped), so the
+     widget shows more instead of scrolling. Undone at the next packing. */
+  const scroller=it=>[it,...it.querySelectorAll('*')].find(e=>{const cs=getComputedStyle(e);return /auto|scroll/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+2;});
+  function grow(host,items,K,cols,free){if(!(free>24))return;const tall=[];items.forEach(it=>{const b=it.getBoundingClientRect();tall.push(b.bottom);});
+   const colBottom=Array(K+1).fill(0);items.forEach((it,i)=>{const c=cols.get(it)||0;colBottom[c]=Math.max(colBottom[c],tall[i]);});const deepest=Math.max(...colBottom);
+   const z=parseFloat(host.style.zoom)||1;
+   items.forEach(it=>{const c=cols.get(it);if(!c)return;const box=scroller(it);if(!box)return;const room=free+(deepest-colBottom[c])/z;if(room<24)return;
+    box.style.maxHeight=Math.min(box.scrollHeight+4,box.clientHeight+room)+'px';(host._grown=host._grown||[]).push(box);colBottom[c]=deepest;});}
+  function pack(host){const items=blocks(host);if(!items.length)return;host.classList.add('anim-packed');set(host,'display','grid');items.forEach(it=>it.classList.add('anim-item'));
+   const bud=budget(host),cap=zcap(),nat=naturals(host,items,bud);let best=null;const trials=[];
+   for(let K=1;K<=4;K++){if(K>1&&zFor(bud,K,MINCOL-8)<ZMIN)break;
+    for(const mode of (K===1?['cap']:['band','cap'])){const r=fitZ(host,items,K,null,best?best.z:1,bud,cap,nat,mode,false);trials.push([K,mode,r.z,r.total]);if(!best||r.z>best.z+0.02||(r.z>=best.z-0.005&&r.total<best.total-8))best={K,mode,...r};}}
+   const r=fitZ(host,items,best.K,best.cols,best.z,bud,cap,nat,best.mode,true);
+   host._pack={K:best.K,cols:best.cols,items,z:r.z,nat,trials,bud};}
+  /* Between clicks: keep the columns, follow the heights. A block that appeared or vanished means a new packing. */
+  function follow(host){const p=host._pack;if(!p)return pack(host);const items=blocks(host);
+   if(items.length!==p.items.length||items.some((it,i)=>it!==p.items[i]))return pack(host);
+   const bud=budget(host),r=fitZ(host,items,p.K,p.cols,p.z,bud,zcap(),p.nat,'band',true);p.z=r.z;}
+  function unpack(host){if(!host.classList.contains('anim-packed'))return;host.classList.remove('anim-packed');['display','zoom','gridTemplateColumns','gridAutoRows'].forEach(k=>host.style[k]='');
+   host.querySelectorAll('.anim-item').forEach(it=>{it.classList.remove('anim-item');it.style.gridColumn='';it.style.gridRow='';it.style.maxWidth='';});(host._grown||[]).forEach(e=>e.style.maxHeight='');host._grown=[];delete host._pack;}
+  function fitStory(story){const {avail}=budget(story);let z=1;for(let pass=0;pass<3;pass++){set(story,'zoom',String(z));const h=hgt(story);if(h<4)break;z=Math.max(ZMIN,Math.min(zcap(),Math.floor(avail/h*100)/100));}set(story,'zoom',String(z));
+   for(let k=0;k<10&&z>ZMIN&&stage.scrollHeight>stage.clientHeight+1;k++){z=Math.max(ZMIN,Math.round((z-0.03)*100)/100);set(story,'zoom',String(z));}}
+  function prepare(panel){const host=panel.querySelector('[data-anim]');if(host&&!host.classList.contains('anim-flattened')){flatten(host);host.classList.add('anim-flattened');}
    const story=panel.querySelector('.story-lesson');if(story&&!story.classList.contains('anim-paned')){
     const left=document.createElement('div');left.className='anim-left story-text';const right=document.createElement('div');right.className='anim-right';
     [...story.children].forEach(c=>{if(c.tagName==='NOSCRIPT')return;(c.classList.contains('story-widget')?right:left).append(c);});
     story.append(left,right);story.classList.add('anim-paned','anim-story');}}
-  /* Each pane gets the height left under the title (and, for widgets without a code block, above the bar);
-     a pane taller than that is scaled down (never below 62 %) and then scrolls for the remainder. */
   let fitting=false;
-  function fit(){const panel=panels.find(p=>!p.hidden);if(!panel||fitting)return;fitting=true;try{
-   const auto=zoom.value==='auto';
-   const boxes=[...panel.querySelectorAll('.anim-paned')];
-   const sp=getComputedStyle(stage);const stagePad=parseFloat(sp.paddingTop||0)+parseFloat(sp.paddingBottom||0);
-   boxes.forEach(box=>{const panesEl=[box.querySelector(':scope > .anim-left'),box.querySelector(':scope > .anim-right')].filter(Boolean);
-    const set=(e,k,v)=>{if(e.style[k]!==v)e.style[k]=v;};
-    panesEl.forEach(e=>{set(e,'maxHeight','');set(e,'zoom','');});
-    if(getComputedStyle(box).display!=='grid')return;
-    let used=stagePad;[...box.children].forEach(c=>{if(!panesEl.includes(c)){const cs=getComputedStyle(c);used+=c.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);}});
-    const outer=box.closest('[data-anim]');if(outer&&outer!==box){[...outer.children].forEach(c=>{if(c!==box)used+=c.getBoundingClientRect().height+8;});}
-    const hs=getComputedStyle(box),gap=parseFloat(hs.rowGap||0)||8;const rows=box.children.length-panesEl.length+1;
-    const hostPad=(el=>{const cs=getComputedStyle(el);return parseFloat(cs.paddingTop||0)+parseFloat(cs.paddingBottom||0);})(outer||box);
-    let avail=Math.max(200,Math.floor(stage.clientHeight-used-gap*rows-hostPad-parseFloat(hs.paddingTop||0)-parseFloat(hs.paddingBottom||0)-6));
-    const apply=()=>panesEl.forEach(e=>{
-     let z=1;for(let pass=0;pass<3;pass++){set(e,'zoom',String(z));set(e,'maxHeight','');const need=e.getBoundingClientRect().height;
-      if(need<4)break;const want=z*avail/need;z=auto?Math.min(1.5,Math.max(0.62,Math.floor(want*100)/100)):Math.min(1,Math.max(0.62,Math.floor(want*100)/100));}
-     set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');
-     // The reflow at the chosen zoom can still leave a few pixels over: step down until the pane fits or 72 % is reached.
-     for(let k=0;k<12&&z>0.62&&e.scrollHeight>e.clientHeight+1;k++){z=Math.max(0.62,Math.round((z-0.03)*100)/100);set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');}});
-    apply();
-    // Whatever the budget missed shows up as stage overflow: take it off and fit once more.
-    const over=stage.scrollHeight-stage.clientHeight;if(over>1){avail-=over+2;apply();}});
-   // A widget whose other mode (e.g. "price the receipt yourself") is a tall block outside the paned box:
-   // scale that block to the space under the title and option rows.
-   panel.querySelectorAll('[data-anim].anim-outer').forEach(host=>{
-    const set=(e,k,v)=>{if(e.style[k]!==v)e.style[k]=v;};
-    const blocks=[...host.children].filter(c=>!c.classList.contains('anim-title')&&!c.classList.contains('anim-opts')&&!c.classList.contains('anim-paned')&&getComputedStyle(c).display!=='none');
-    if(!blocks.length)return;
-    let used=stagePad+12;[...host.children].forEach(c=>{if(!blocks.includes(c)&&getComputedStyle(c).display!=='none')used+=c.getBoundingClientRect().height+8;});
-    const avail=Math.max(200,Math.floor(stage.clientHeight-used));
-    blocks.forEach(e=>{set(e,'zoom','');set(e,'maxHeight','');set(e,'overflow','');const need=e.getBoundingClientRect().height;if(need<4)return;
-     let z=Math.min(zoom.value==='auto'?1.5:1,Math.max(0.62,Math.floor(avail/need*100)/100));set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');set(e,'overflow','auto');
-     for(let k=0;k<12&&z>0.62&&e.scrollHeight>e.clientHeight+1;k++){z=Math.max(0.62,Math.round((z-0.03)*100)/100);set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');}});});
+  function fit(full){const panel=panels.find(p=>!p.hidden);if(!panel||fitting)return;fitting=true;try{
+   const wide=stageBox().w>=860;
+   const host=panel.querySelector('[data-anim]');if(host){if(!wide)unpack(host);else if(full||!host._pack)pack(host);else follow(host);}
+   const story=panel.querySelector('.story-lesson');if(story){if(!wide)set(story,'zoom','');else fitStory(story);}
   }finally{fitting=false;}}
-  let fitPending=false;function refit(){if(fitPending)return;fitPending=true;requestAnimationFrame(()=>{fitPending=false;fit();});}
-  new ResizeObserver(refit).observe(stage);
-  stage.addEventListener('aa:frame',refit);stage.addEventListener('click',()=>setTimeout(refit,60));stage.addEventListener('input',()=>setTimeout(refit,60));
-  // Anything a widget adds or resizes after it was shown (late-sized graphs, panels that appear) refits too.
-  new MutationObserver(records=>{if(fitting)return;if(records.some(r=>!(r.type==='attributes'&&r.target.classList&&(r.target.classList.contains('anim-left')||r.target.classList.contains('anim-right')))))refit();}).observe(stage,{subtree:true,childList:true,attributes:true,characterData:true});
-  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));panes(panels[i]);idx.textContent=String(i+1);refit();prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
+  let fitPending=0;function refit(full){fitPending=Math.max(fitPending,full?2:1);requestAnimationFrame(()=>{const f=fitPending===2;fitPending=0;fit(f);});}
+  new ResizeObserver(()=>refit(true)).observe(stage);
+  stage.addEventListener('aa:frame',()=>refit(false));stage.addEventListener('click',()=>setTimeout(()=>refit(true),60));stage.addEventListener('input',()=>setTimeout(()=>refit(true),60));
+  // Anything a widget adds or resizes after it was shown (late-sized graphs, panels that appear) is followed too.
+  // Our own placement writes style attributes too: a style change on a placed block only counts when its height no
+  // longer matches the rows it was given (a canvas that resized itself, a panel that grew).
+  new MutationObserver(records=>{if(fitting)return;if(records.some(r=>{if(r.type!=='attributes'||r.attributeName!=='style')return true;const el=r.target;
+   if(el.classList.contains('anim-packed')||el.classList.contains('story-lesson'))return false;
+   if(el.classList.contains('anim-item'))return el._rows!==undefined&&shown(el)&&rowsOf(hgt(el))!==el._rows;return true;}))refit(false);}).observe(stage,{subtree:true,childList:true,attributes:true,characterData:true});
+  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));prepare(panels[i]);idx.textContent=String(i+1);refit(true);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
   choice.onchange=()=>show(Number(choice.value));prev.onclick=()=>show(Number(choice.value)-1,true);next.onclick=()=>show(Number(choice.value)+1,true);
   ws.addEventListener('keydown',keys);function keys(e){const t=e.target;const typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT');if(typing&&e.key!=='Escape')return;
    if((e.key==='ArrowLeft'&&e.altKey)||e.key==='PageUp'){e.preventDefault();prev.click();}if((e.key==='ArrowRight'&&e.altKey)||e.key==='PageDown'){e.preventDefault();next.click();}}
-  function applyZoom(v){stage.style.zoom=v==='auto'?'':v;try{localStorage.setItem(ZKEY,v);}catch(e){}requestAnimationFrame(fit);}
+  function applyZoom(v){try{localStorage.setItem(ZKEY,v);}catch(e){}refit(true);}
   let z='auto';try{z=localStorage.getItem(ZKEY)||'auto';}catch(e){}
   if(![...zoom.options].some(o=>o.value===z))z='auto';zoom.value=z;applyZoom(z);zoom.onchange=()=>applyZoom(zoom.value);
   const m=location.hash.match(/^#animations-(\d+)$/);show(m?Number(m[1])-1:0);
@@ -125,9 +180,9 @@
   dialogHead.addEventListener('mouseenter',()=>showHead(true));dialogHead.addEventListener('mouseleave',()=>showHead(false));
   dialogHead.addEventListener('focusin',()=>showHead(true));dialogHead.addEventListener('focusout',()=>showHead(false));
   strip.addEventListener('click',()=>{showHead(true);choice.focus();});
-  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close ✕';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});showHead(false);requestAnimationFrame(fit);}
+  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close ✕';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});showHead(false);refit(true);}
   function close(){if(!dialog.open)return;dialog.close();}
-  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');dialog.classList.remove('head-open');expand.textContent='Expand ↗';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});requestAnimationFrame(fit);});
+  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');dialog.classList.remove('head-open');expand.textContent='Expand ↗';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});refit(true);});
   dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
   expand.onclick=()=>dialog.open?close():open();
  }

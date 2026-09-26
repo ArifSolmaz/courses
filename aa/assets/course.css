@@ -965,43 +965,31 @@ html.reading-tr .aligned .turkish {
 /* Theory tables (recursion-tree levels, Bellman-Ford rounds) sit in .table-wrap and scroll on a phone. */
 .theory .table-wrap { overflow-x: auto; max-width: 100%; margin: 12px 0; }
 
-/* ---------- animation widgets on a wide stage: two panes instead of one tall stack ----------
-   compact.js groups each widget into .anim-left (code trace with variables and output side by side, then the
-   play bar) and .anim-right (option rows, the visual, stats, message). From 860 px of stage width they sit
-   side by side, each capped to the space left under the title (compact.js measures it), scaled down when
-   taller and scrolling for the remainder. Narrow stages keep the single column. */
+/* ---------- animation widgets on a wide stage: one grid of blocks, packed by compact.js ----------
+   From 860 px of stage width compact.js turns each widget root into a grid (.anim-packed): every block the
+   widget renders is an item (.anim-item); wrappers on the way to a code trace or play bar are .anim-flat
+   (display: contents) so their children pack as blocks. compact.js chooses the column count, places every
+   block (grid-column / grid-row inline) and scales the widget with zoom so the tallest column fills the
+   stage. Narrow stages keep the widget's own single-column flow. */
 .anim-stage { container-type: inline-size; container-name: anim-stage; }
 .anim-left, .anim-right { min-width: 0; }
 @container anim-stage (min-width: 860px) {
-  .anim-stage .anim-paned { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); column-gap: 1.4rem; row-gap: .4rem; align-items: start; }
-  .anim-stage .anim-paned > .anim-title, .anim-stage .anim-paned > .anim-controls { grid-column: 1 / -1; }
-  .anim-stage .anim-paned > .anim-title { margin-bottom: .2rem; }
-  .anim-stage .anim-paned > .anim-left { grid-column: 1; }
-  .anim-stage .anim-paned > .anim-right { grid-column: 2; }
-  .anim-stage .anim-paned > .anim-left, .anim-stage .anim-paned > .anim-right { overflow: auto; align-self: start; padding-right: 2px; }
-  /* left pane: code on top, variables and output side by side, the play bar last (pinned if the pane scrolls) */
-  .anim-stage .anim-paned > .anim-left > .ct { grid-template-columns: minmax(0, 1fr) !important; gap: .5rem; }
-  .anim-stage .anim-paned > .anim-left > .ct > .ct-code { max-height: none; }
-  .anim-stage .anim-paned > .anim-left > .ct > .ct-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: column; grid-template-rows: auto 1fr; column-gap: .6rem; }
-  .anim-stage .anim-paned > .anim-left > .ct > .ct-side > .ct-out { min-height: 2.6rem; max-height: 140px; }
-  .anim-stage .anim-paned > .anim-left > .ct > .ct-side > .ct-vars { min-height: 2.6rem; }
-  .anim-stage .anim-paned > .anim-left > .anim-controls { position: sticky; bottom: 0; margin-top: .7rem; padding-top: .6rem; }
-  .anim-stage .anim-paned > .anim-left > .anim-controls .aa-scrub { flex: 1 1 100%; order: 9; }
-  /* right pane: option rows first, tight */
-  .anim-stage .anim-paned > .anim-right > .anim-opts { margin-bottom: .35rem; }
-  .anim-stage .anim-paned > .anim-right > .aa-in-line { margin: 0 0 .4rem; }
-  .anim-stage .anim-paned > .anim-right > .anim-stats { margin-top: .6rem; }
-  .anim-stage .anim-paned > .anim-right > .anim-msg { min-height: 0; margin-top: .5rem; }
-  .anim-stage .anim-paned > .anim-right > .ct-extra { margin-top: .2rem; }
-  /* widgets without a code block: the pieces flow into two columns, the play bar spans underneath */
-  .anim-stage .anim-paned.anim-single > .anim-right { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: row dense; column-gap: 1.4rem; row-gap: .4rem; align-items: start; }
-  .anim-stage .anim-paned.anim-single > .anim-right > .anim-opts, .anim-stage .anim-paned.anim-single > .anim-right > .aa-in-line, .anim-stage .anim-paned.anim-single > .anim-right > .anim-table-wrap, .anim-stage .anim-paned.anim-single > .anim-right > .w14-lead { grid-column: 1 / -1; }
-  .anim-stage .anim-paned.anim-single > .anim-right > .anim-stats, .anim-stage .anim-paned.anim-single > .anim-right > .anim-msg { grid-column: 1; }
-  .anim-stage .anim-paned.anim-single > .anim-right > * { min-width: 0; justify-self: stretch; width: 100%; box-sizing: border-box; margin-left: 0; margin-right: 0; }
-  /* a widget whose "watch" mode is an inner container: the outer pieces stay a short stack above it */
-  .anim-stage .anim-outer > .anim-opts { margin-bottom: .4rem; }
+  .anim-stage .anim-packed { align-items: start; column-gap: 16px; overflow: visible; margin-top: 0; margin-bottom: 0; padding-bottom: .5rem; }
+  .anim-stage .anim-packed .anim-flat { display: contents; }
+  .anim-stage .anim-packed .anim-item { min-width: 0; max-width: 100%; box-sizing: border-box; margin-left: 0; margin-right: 0; }
+  .anim-stage .anim-packed .anim-title { margin-bottom: .2rem; }
+  .anim-stage .anim-packed .anim-opts, .anim-stage .anim-packed .aa-in-line { margin-top: 0; margin-bottom: .2rem; }
+  /* the code trace: the code block on its own, variables and output side by side under it */
+  .anim-stage .anim-packed .ct-code { max-height: none; }
+  .anim-stage .anim-packed .ct-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: column; grid-template-rows: auto 1fr; column-gap: .6rem; row-gap: .3rem; }
+  .anim-stage .anim-packed .ct-side > .ct-out { min-height: 2.6rem; max-height: 160px; }
+  .anim-stage .anim-packed .ct-side > .ct-vars { min-height: 2.6rem; }
+  .anim-stage .anim-packed .anim-controls { margin-top: .3rem; padding-top: .5rem; }
+  .anim-stage .anim-packed .anim-controls .aa-scrub { flex: 1 1 100%; order: 9; }
+  .anim-stage .anim-packed .anim-stats { margin-top: .3rem; }
+  .anim-stage .anim-packed p.anim-msg { min-height: 0; margin-top: .3rem; }
   /* Week 1 stories: text left, the story widget right */
-  .anim-stage .anim-story { grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); }
+  .anim-stage .anim-story { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); column-gap: 1.4rem; align-items: start; }
   .anim-stage .anim-story > .story-text > h2 { margin-top: 0; font-size: 1.15rem; }
   .anim-stage .anim-story > .story-text > p, .anim-stage .anim-story > .story-text > ol { font-size: .95rem; }
   .anim-stage .anim-story > .anim-right > .story-widget { margin: 0; }
@@ -1015,6 +1003,5 @@ html.reading-tr .aligned .turkish {
 .anim-dialog.head-open .anim-dialog-strip { display: none; }
 .anim-dialog .anim-stage { flex: 1 1 auto; max-height: none; min-height: 0; padding: .9rem clamp(1rem, 3vw, 2.4rem) .6rem; }
 .anim-dialog .anim-stage .widget, .anim-dialog .anim-stage .story-lesson { max-width: none; padding-top: .4rem; }
-.anim-dialog .anim-stage .anim-paned { column-gap: clamp(1.4rem, 3vw, 3rem); }
 
 @media (max-width:859px){.anim-workspace:not(.anim-dialog *) .anim-stage{max-height:none;overflow:visible}}
