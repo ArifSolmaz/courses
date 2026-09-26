@@ -25,7 +25,16 @@ def animation_content(n):
  items+=[(slug,title,body) for slug,title,body,_ in extra]
  if not items:return '', ''
  options=''.join(f'<option value="{i}">{E(title)}</option>' for i,(_,title,_) in enumerate(items))
- content='<details class="animation-drawer"><summary>Explore the animations</summary><p>Each demonstration states its own input and code. Check its loop bounds before comparing counts with the worked example.</p><label for="animation-choice">Choose a demonstration</label><select id="animation-choice">'+options+'</select>'+''.join(f'<div class="animation-panel" data-animation-panel="{i}"'+(' hidden' if i else '')+'>'+body+'</div>' for i,(_,_,body) in enumerate(items))+'</details>'
+ panels=''.join(f'<div class="animation-panel" data-animation-panel="{i}" data-animation-title="{E(title)}"'+(' hidden' if i else '')+'>'+body+'</div>' for i,(_,title,body) in enumerate(items))
+ content=(f'<section class="anim-workspace" id="animations" aria-labelledby="animations-title">'
+  f'<div class="anim-toolbar"><h2 id="animations-title">Animations <span class="anim-count-label"><b data-anim-index>1</b> / {len(items)}</span></h2>'
+  f'<div class="anim-pick"><button type="button" class="anim-nav" data-anim-prev aria-label="Previous animation">&#8249;</button>'
+  f'<label class="visually-hidden" for="animation-choice">Choose a demonstration</label><select id="animation-choice">{options}</select>'
+  f'<button type="button" class="anim-nav" data-anim-next aria-label="Next animation">&#8250;</button></div>'
+  f'<div class="anim-tools"><label class="anim-zoom">Zoom <select data-anim-zoom aria-label="Zoom"><option value="1">100%</option><option value="0.85">85%</option><option value="0.7">70%</option></select></label>'
+  f'<button type="button" class="anim-expand" data-anim-expand aria-expanded="false">Expand &#8599;</button></div></div>'
+  f'<div class="anim-stage" tabindex="0" aria-label="Animation stage">{panels}</div>'
+  f'<p class="anim-hint">Each demonstration states its own input and code. Check its loop bounds before comparing counts with the worked example. The play bar stays at the bottom of the stage; Expand fills the screen and Escape returns.</p></section>')
  assets='<link rel="stylesheet" href="../assets/anim.css"><script defer src="../assets/anim.js?v=14"></script>'
  for old in sorted(modules):
   if old>1:assets+=f'<link rel="stylesheet" href="../assets/anim-w{old}.css"><script defer src="../assets/anim-w{old}.js?v=10"></script>'

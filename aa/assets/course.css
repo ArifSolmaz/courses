@@ -472,18 +472,22 @@ html.reading-tr .aligned .turkish {
 }
 .textbook-link a { color: var(--accent); }
 
-/* ---------- 7. animation shells (the bundles own everything inside) ---------- */
-.animation-drawer { border-left: 3px solid var(--green); border-radius: 0 10px 10px 0; }
-.animation-drawer summary::before { border-color: var(--green); }
-.animation-drawer > label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: .72rem;
-  letter-spacing: .06em;
-  color: var(--muted);
-  margin: .8rem 0 .4rem;
-}
-#animation-choice, .practice-controls select {
+/* ---------- 7. animation workspace (the bundles own everything inside a widget) ----------
+   One demonstration is visible at a time. The stage is bounded to the viewport so the code, the state and
+   the play bar share one screen; the play bar (.anim-controls) sticks to the bottom of the stage while the
+   widget scrolls; Expand moves the toolbar and stage into a full-screen dialog without re-creating them. */
+.anim-workspace { margin: 2rem 0; border: 1px solid var(--border-strong); border-left: 3px solid var(--green); border-radius: 0 12px 12px 0; background: var(--bg); }
+.anim-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg-soft); }
+.anim-toolbar h2 { font-size: 1.05rem; font-weight: 650; margin: 0; display: flex; align-items: baseline; gap: .6rem; }
+.anim-count-label { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
+.anim-count-label b { color: var(--text); }
+.anim-pick { display: flex; align-items: center; gap: .35rem; flex: 1 1 320px; min-width: 0; }
+.anim-pick #animation-choice { flex: 1 1 auto; min-width: 0; }
+.anim-nav { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 8px; width: 2.1rem; height: 2.1rem; font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.anim-nav:disabled { opacity: .4; cursor: default; }
+.anim-tools { display: flex; align-items: center; gap: .8rem; margin-left: auto; }
+.anim-zoom { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+.anim-zoom select, #animation-choice, .practice-controls select {
   font-family: var(--font-body);
   font-size: .86rem;
   color: var(--text);
@@ -493,13 +497,31 @@ html.reading-tr .aligned .turkish {
   padding: .5rem .7rem;
   max-width: 100%;
 }
-.animation-panel { margin: 1.2rem 0 0; }
-.compact-week .widget {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  padding: 1.2rem 1.3rem;
-  margin: 1.4rem 0;
+.anim-zoom select { padding: .3rem .5rem; }
+.anim-expand { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 8px; padding: .45rem .8rem; font: 500 .82rem var(--font-body); cursor: pointer; white-space: nowrap; }
+.anim-expand:hover, .anim-nav:hover:not(:disabled) { border-color: var(--green); }
+.anim-stage { position: relative; max-height: calc(100vh - 180px); min-height: 320px; overflow: auto; padding: 0 1rem; scroll-padding-bottom: 5rem; overscroll-behavior: contain; }
+.anim-stage:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.animation-panel { margin: 0; }
+.animation-panel[hidden] { display: none !important; }
+.compact-week .widget { border: 0; border-radius: 0; background: transparent; padding: 1rem 0 .6rem; margin: 0; }
+.anim-stage .anim-controls, .anim-stage .anim-player-bar { position: sticky; bottom: 0; z-index: 3; background: var(--bg-soft); box-shadow: 0 -10px 14px -12px rgba(0,0,0,.45); margin-top: 0; padding-top: .9rem; padding-bottom: .6rem; }
+.anim-stage .anim-controls + * { padding-top: .5rem; }
+.anim-hint { margin: 0; padding: .6rem 1rem .8rem; font-size: .82rem; color: var(--muted); border-top: 1px solid var(--border); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* expanded: the dialog fills the viewport; the stage takes everything below the toolbar */
+.anim-dialog { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--bg); box-sizing: border-box; color: var(--text); display: none; flex-direction: column; }
+.anim-dialog[open] { display: flex; }
+.anim-dialog::backdrop { background: rgba(0,0,0,.6); }
+.anim-dialog .anim-toolbar { flex: 0 0 auto; border-bottom: 1px solid var(--border-strong); }
+.anim-dialog .anim-stage { flex: 1 1 auto; max-height: none; min-height: 0; padding: 0 clamp(1rem, 4vw, 3rem); }
+.anim-dialog .anim-stage .widget, .anim-dialog .anim-stage .story-lesson { max-width: 1400px; margin-left: auto; margin-right: auto; }
+.anim-workspace.anim-expanded { min-height: 6rem; }
+.anim-workspace.anim-expanded::before { content: "The animation is open in full-screen view. Press Escape or Close to return."; display: block; padding: 1rem; color: var(--muted); font-size: .9rem; }
+@media (max-width: 720px) {
+  .anim-toolbar { padding: .6rem .7rem; }
+  .anim-tools { margin-left: 0; width: 100%; justify-content: space-between; }
+  .anim-stage { max-height: calc(100vh - 120px); padding: 0 .6rem; }
 }
 
 /* ---------- 8. practice ---------- */
@@ -903,7 +925,8 @@ html.reading-tr .aligned .turkish {
     padding-left: 1.05rem; padding-right: 1.05rem;
   }
   .lesson-toc { margin-left: 0; }
-  .lesson-toc > div, .week-switch > div { right: auto; left: 0; }
+  .lesson-toc > div { right: auto; left: 0; }
+  .week-switch > div { right: 0; left: auto; max-width: calc(100vw - 1rem); }
   .aligned .turkish { padding-left: .65rem; }
 }
 
@@ -929,7 +952,7 @@ html.reading-tr .aligned .turkish {
 /* ---------- 15. carried forward ----------
    Rules the replaced sheets owned for markup the animation bundles
    do not cover. Kept so nothing regresses on those pages. */
-.animation-panel .story-lesson { border: 0; margin: 0; padding: 0; }
+.animation-panel .story-lesson { border: 0; margin: 0; padding: 1rem 0 .6rem; }
 .animation-panel .story-lesson h2 { font-size: 1.14rem; margin-top: 0; }
 .story-lesson, .w1-lesson { margin: 1.2rem 0; }
 .story-diagram { margin: 1rem 0; overflow-x: auto; }
@@ -939,3 +962,6 @@ html.reading-tr .aligned .turkish {
   line-height: 1.6;
   color: var(--muted);
 }
+
+/* Theory tables (recursion-tree levels, Bellman-Ford rounds) sit in .table-wrap and scroll on a phone. */
+.theory .table-wrap { overflow-x: auto; max-width: 100%; margin: 12px 0; }

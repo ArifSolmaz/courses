@@ -25,9 +25,31 @@
  tabs.forEach((t,i)=>{t.setAttribute('role','tab');t.setAttribute('aria-controls',t.dataset.weekTab);const panel=document.getElementById(t.dataset.weekTab);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',t.id);t.onclick=()=>{activate(t.dataset.weekTab);history.replaceState(null,'','#'+t.dataset.weekTab);tabbar.scrollIntoView({block:'start'});};t.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const j=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[j].click();tabs[j].focus();}};});
  function followHash(){const id=decodeURIComponent(location.hash.slice(1));const target=document.getElementById(id);const panel=target?.closest('.week-panel');activate(panel?.id||'lesson');if(target&&target!==panel){const q=target.closest('.source-exercise');if(q)showPage(Math.floor(questions.indexOf(q)/size));let p=target.parentElement;while(p){if(p.tagName==='DETAILS')p.open=true;p=p.parentElement;}requestAnimationFrame(()=>target.scrollIntoView({block:'start'}));}}
  addEventListener('hashchange',followHash);followHash();
- document.querySelector('.animation-drawer')?.addEventListener('toggle',e=>{if(!e.target.open)pauseAnimations();});
- const choice=document.getElementById('animation-choice');
- if(choice)choice.onchange=()=>{pauseAnimations();document.querySelectorAll('[data-animation-panel]').forEach(p=>{p.hidden=p.dataset.animationPanel!==choice.value;});};
+ /* Animation workspace (2026-09): one stage bounded to the viewport, prev/next + chooser, zoom, and an
+    Expand button that moves the same stage into a full-screen <dialog> so state (frames, canvases) survives. */
+ const ws=document.querySelector('.anim-workspace');
+ if(ws){
+  const choice=ws.querySelector('#animation-choice'),stage=ws.querySelector('.anim-stage'),toolbar=ws.querySelector('.anim-toolbar');
+  const panels=[...ws.querySelectorAll('[data-animation-panel]')],idx=ws.querySelector('[data-anim-index]');
+  const prev=ws.querySelector('[data-anim-prev]'),next=ws.querySelector('[data-anim-next]'),zoom=ws.querySelector('[data-anim-zoom]'),expand=ws.querySelector('[data-anim-expand]');
+  const ZKEY='aa-anim-zoom';
+  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));idx.textContent=String(i+1);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
+  choice.onchange=()=>show(Number(choice.value));prev.onclick=()=>show(Number(choice.value)-1,true);next.onclick=()=>show(Number(choice.value)+1,true);
+  stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(e.key==='ArrowLeft'&&e.altKey)prev.click();if(e.key==='ArrowRight'&&e.altKey)next.click();});
+  function applyZoom(v){stage.style.zoom=v;try{localStorage.setItem(ZKEY,v);}catch(e){}}
+  let z='1';try{z=localStorage.getItem(ZKEY)||'1';}catch(e){}
+  if(![...zoom.options].some(o=>o.value===z))z='1';zoom.value=z;applyZoom(z);zoom.onchange=()=>applyZoom(zoom.value);
+  const m=location.hash.match(/^#animations-(\d+)$/);show(m?Number(m[1])-1:0);
+  // Expand: a native modal dialog that borrows the toolbar and the stage, then gives them back.
+  const dialog=document.createElement('dialog');dialog.className='anim-dialog';dialog.setAttribute('aria-label','Animation, expanded');
+  const dialogHead=document.createElement('div');dialogHead.className='anim-dialog-head';dialog.append(dialogHead);document.body.append(dialog);
+  const home=document.createComment('anim-workspace home');ws.insertBefore(home,toolbar);
+  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close \u2715';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});}
+  function close(){if(!dialog.open)return;dialog.close();}
+  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');expand.textContent='Expand \u2197';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});});
+  dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
+  expand.onclick=()=>dialog.open?close():open();
+ }
 })();
 
 /* Retrieval practice (added 2026-09): every .question-answer starts hidden. One "Show answers / Hide answers"

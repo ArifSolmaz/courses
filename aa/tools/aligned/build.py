@@ -83,6 +83,10 @@ def crossref(text,homes,display):
   text=text.replace('question 119',f'<a href="../w{n}/#skiena-mcq-119">Week {n}, Question {k}</a>')
  return text
 
+def wrap_tables(html_text):
+ """Tables scroll inside their column on narrow screens."""
+ return re.sub(r'(?<!<div class="table-wrap">)(<table\b.*?</table>)',r'<div class="table-wrap">\1</div>',html_text,flags=re.S)
+
 def configure():
  import question_bank as Q
  import skiena_material as S
@@ -100,7 +104,7 @@ def configure():
    S.EXERCISES[item['id']]=item
  return Q
 
-def shell(B,title,body,base,assets='',sheets=('course.css?v=1',),scripts=('compact.js?v=1','course.js?v=1')):
+def shell(B,title,body,base,assets='',sheets=('course.css?v=2',),scripts=('compact.js?v=2','course.js?v=1')):
  """One page. `sheets`/`scripts` are the page's own layer (course.* for the
  lessons and reference pages, home.* for the dashboard); `assets` carries the
  per-week animation bundles, which must load before compact.js and course.js."""
@@ -275,7 +279,7 @@ def build(B):
   exam_note='Midterm and final' if n in MIDTERM_WEEKS else 'Final (emphasis)'
   body=f'''<main class="aligned compact-week"><header class="week-heading"><p class="eyebrow">Week {n:02} · {reading}</p><h1>{E(title)}</h1><p>{E(summary)}</p><p class="week-links"><a href="../scope/#scope-w{n}">Exam scope: {exam_note}</a><a href="../review/#review-w{n}">Cumulative review</a></p></header>
 <nav class="week-tabs" aria-label="Weekly content"><button id="tab-lesson" data-week-tab="lesson">Lesson</button><button id="tab-practice" data-week-tab="practice">Practice</button><button id="tab-notes" data-week-tab="notes">Notes</button></nav>
-<section id="lesson" class="week-panel">{objectives_html(w)}{examples}{theory.THEORY.get(n,'')}{animations}</section>
+<section id="lesson" class="week-panel">{objectives_html(w)}{examples}{wrap_tables(theory.THEORY.get(n,''))}{animations}</section>
 <section id="practice" class="week-panel">{transfer.TRANSFER.get(n,'')}<p>Questions and answers are together. Hard questions are optional; some tests revisit earlier ideas. Practice is ungraded.</p>{bank}</section>
 <section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(week_code(n))}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
 <nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a><a href="../review/#review-w{n}">Review</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
