@@ -33,7 +33,31 @@
   const panels=[...ws.querySelectorAll('[data-animation-panel]')],idx=ws.querySelector('[data-anim-index]');
   const prev=ws.querySelector('[data-anim-prev]'),next=ws.querySelector('[data-anim-next]'),zoom=ws.querySelector('[data-anim-zoom]'),expand=ws.querySelector('[data-anim-expand]');
   const ZKEY='aa-anim-zoom';
-  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));idx.textContent=String(i+1);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
+  /* Two panes on a wide stage: code, state, stats and message on the left; the visual on the right; the
+     option rows and the play bar span both. The widget's own element references stay valid because the
+     nodes only move into wrappers inside the same host. Idempotent, so late-added children get placed too. */
+  function panes(panel){const host=panel.querySelector('[data-anim]');if(!host)return;
+   const ct=host.querySelector(':scope > .ct'),bar=host.querySelector(':scope > .anim-controls');if(!ct&&!bar)return;
+   let left=host.querySelector(':scope > .anim-left'),right=host.querySelector(':scope > .anim-right');
+   if(!left){left=document.createElement('div');left.className='anim-left';right=document.createElement('div');right.className='anim-right';
+    const anchor=ct||[...host.children].find(c=>!(c.classList.contains('anim-title')||c.classList.contains('anim-opts')||c.classList.contains('aa-in-line')))||bar;anchor.before(left,right);}
+   [...host.children].forEach(c=>{if(c===left||c===right)return;const cls=c.classList;
+    if(cls.contains('anim-title')||cls.contains('anim-opts')||cls.contains('aa-in-line')||cls.contains('anim-controls'))return;
+    if(cls.contains('ct')||cls.contains('anim-stats')||cls.contains('anim-msg'))left.append(c);else right.append(c);});
+   if(!right.children.length){right.remove();host.classList.add('anim-single');}
+   host.classList.toggle('anim-thin-left',!left.querySelector('.ct'));
+   host.classList.add('anim-paned');}
+  /* Give the two panes exactly the height the stage has left after the title, option rows and play bar,
+     so a tall visual scrolls inside its pane instead of pushing the bar off the screen. */
+  function fit(){const panel=panels.find(p=>!p.hidden);const host=panel&&panel.querySelector('[data-anim].anim-paned');if(!host)return;
+   const left=host.querySelector(':scope > .anim-left'),right=host.querySelector(':scope > .anim-right');const panesEl=[left,right].filter(Boolean);
+   if(getComputedStyle(host).display!=='grid'){panesEl.forEach(e=>e.style.maxHeight='');return;}
+   let used=0;[...host.children].forEach(c=>{if(!panesEl.includes(c)){const cs=getComputedStyle(c);used+=c.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);}});
+   const hs=getComputedStyle(host),gap=parseFloat(hs.rowGap||0)||8;const rows=host.children.length-panesEl.length+1;
+   const chrome=used+gap*rows+parseFloat(hs.paddingTop||0)+parseFloat(hs.paddingBottom||0)+40;
+   const avail=Math.max(200,Math.floor(stage.clientHeight-chrome));panesEl.forEach(e=>e.style.maxHeight=avail+'px');}
+  new ResizeObserver(()=>fit()).observe(stage);
+  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));panes(panels[i]);idx.textContent=String(i+1);requestAnimationFrame(fit);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
   choice.onchange=()=>show(Number(choice.value));prev.onclick=()=>show(Number(choice.value)-1,true);next.onclick=()=>show(Number(choice.value)+1,true);
   stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(e.key==='ArrowLeft'&&e.altKey)prev.click();if(e.key==='ArrowRight'&&e.altKey)next.click();});
   function applyZoom(v){stage.style.zoom=v;try{localStorage.setItem(ZKEY,v);}catch(e){}}
@@ -44,9 +68,9 @@
   const dialog=document.createElement('dialog');dialog.className='anim-dialog';dialog.setAttribute('aria-label','Animation, expanded');
   const dialogHead=document.createElement('div');dialogHead.className='anim-dialog-head';dialog.append(dialogHead);document.body.append(dialog);
   const home=document.createComment('anim-workspace home');ws.insertBefore(home,toolbar);
-  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close \u2715';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});}
+  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close \u2715';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});requestAnimationFrame(fit);}
   function close(){if(!dialog.open)return;dialog.close();}
-  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');expand.textContent='Expand \u2197';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});});
+  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');expand.textContent='Expand \u2197';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});requestAnimationFrame(fit);});
   dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
   expand.onclick=()=>dialog.open?close():open();
  }

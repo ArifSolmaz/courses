@@ -101,6 +101,7 @@
 
     function draw() {
       scrub.max = String(Math.max(0, frames.length - 1)); scrub.value = String(i);
+      if (!frames.length) { count.textContent = "no steps yet"; bPlay.innerHTML = "&#9654; play"; return; }   /* e.g. play pressed before the keys were dropped */
       cfg.render(frames[i], i, frames);
       count.textContent = "step " + i + " / " + (frames.length - 1);
       bBack.disabled = bReset.disabled = i === 0;

@@ -35,7 +35,7 @@ def animation_content(n):
   f'<button type="button" class="anim-expand" data-anim-expand aria-expanded="false">Expand &#8599;</button></div></div>'
   f'<div class="anim-stage" tabindex="0" aria-label="Animation stage">{panels}</div>'
   f'<p class="anim-hint">Each demonstration states its own input and code. Check its loop bounds before comparing counts with the worked example. The play bar stays at the bottom of the stage; Expand fills the screen and Escape returns.</p></section>')
- assets='<link rel="stylesheet" href="../assets/anim.css"><script defer src="../assets/anim.js?v=14"></script>'
+ assets='<link rel="stylesheet" href="../assets/anim.css"><script defer src="../assets/anim.js?v=15"></script>'
  for old in sorted(modules):
   if old>1:assets+=f'<link rel="stylesheet" href="../assets/anim-w{old}.css"><script defer src="../assets/anim-w{old}.js?v=10"></script>'
  if n==1:assets+='<link rel="stylesheet" href="../assets/week1-stories.css"><script defer src="../assets/week1-stories.js?v=1"></script>'

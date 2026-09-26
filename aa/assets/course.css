@@ -965,3 +965,28 @@ html.reading-tr .aligned .turkish {
 
 /* Theory tables (recursion-tree levels, Bellman-Ford rounds) sit in .table-wrap and scroll on a phone. */
 .theory .table-wrap { overflow-x: auto; max-width: 100%; margin: 12px 0; }
+
+/* ---------- animation widgets on a wide stage: two panes instead of one tall stack ----------
+   compact.js groups each widget into .anim-left (code, variables/output, stats, message) and .anim-right (the
+   visual). From 860 px of stage width the panes sit side by side, each scrolling on its own if it is taller
+   than the stage; option rows and the play bar span both. Narrow stages keep the single column. */
+.anim-stage { container-type: inline-size; container-name: anim-stage; }
+.anim-left, .anim-right { min-width: 0; }
+.anim-right:empty { display: none; }
+@container anim-stage (min-width: 860px) {
+  .anim-stage .anim-paned { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); grid-template-rows: auto; column-gap: 1.4rem; row-gap: .5rem; align-items: start; }
+  .anim-stage .anim-paned > .anim-title, .anim-stage .anim-paned > .anim-opts, .anim-stage .anim-paned > .aa-in-line, .anim-stage .anim-paned > .anim-controls { grid-column: 1 / -1; }
+  .anim-stage .anim-paned > .anim-opts { margin-bottom: .1rem; }
+  .anim-stage .anim-paned > .anim-left { grid-column: 1; }
+  .anim-stage .anim-paned > .anim-right { grid-column: 2; }
+  .anim-stage .anim-paned.anim-single > .anim-left { grid-column: 1 / -1; }
+  .anim-stage .anim-paned.anim-single .ct { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .anim-stage .anim-paned > .anim-left, .anim-stage .anim-paned > .anim-right { overflow: auto; align-self: start; padding-right: 2px; }
+  .anim-stage .anim-paned > .anim-left > .ct { grid-template-columns: minmax(0, 1fr) !important; }
+  /* widgets whose left side is only the stats and the message: give the visual most of the width */
+  .anim-stage .anim-paned.anim-thin-left { grid-template-columns: minmax(170px, .55fr) minmax(0, 2fr); }
+  .anim-stage .anim-paned .ct > .ct-code { max-height: 280px; }
+  .anim-stage .anim-paned .anim-stats { margin-top: .6rem; }
+  .anim-stage .anim-paned .anim-msg { min-height: 0; margin-top: .5rem; }
+  .anim-stage .anim-paned .anim-right > * { margin-top: 0; }
+}
