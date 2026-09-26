@@ -104,7 +104,7 @@ def configure():
    S.EXERCISES[item['id']]=item
  return Q
 
-def shell(B,title,body,base,assets='',sheets=('course.css?v=3',),scripts=('compact.js?v=3','course.js?v=1')):
+def shell(B,title,body,base,assets='',sheets=('course.css?v=4',),scripts=('compact.js?v=4','course.js?v=1')):
  """One page. `sheets`/`scripts` are the page's own layer (course.* for the
  lessons and reference pages, home.* for the dashboard); `assets` carries the
  per-week animation bundles, which must load before compact.js and course.js."""

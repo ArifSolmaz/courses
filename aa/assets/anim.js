@@ -118,6 +118,7 @@
       while (acc >= 1 && i < frames.length - 1) { i++; acc -= 1; moved = true; }
       if (i >= frames.length - 1) playing = false;
       if (moved || !playing) draw();
+      if (!playing) host.dispatchEvent(new CustomEvent("aa:end", { bubbles: true }));
       if (playing) raf = requestAnimationFrame(loop);
     }
     function play() {

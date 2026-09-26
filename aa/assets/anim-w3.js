@@ -167,8 +167,9 @@
     }
     function drawGrid(fr) {
       var hw = host.clientWidth, narrow = hw > 0 && hw < 560;
-      COLS = narrow ? 20 : 25;
-      var rows = Math.ceil(N / COLS), cell = 28;
+      COLS = N <= 100 ? 10 : narrow ? 20 : 25;          /* 100 numbers make a 10 × 10 square */
+      var labels = !narrow && N <= 100;                 /* 200 or 400 numerals are noise: the colours carry the story */
+      var rows = Math.ceil(N / COLS), cell = labels ? 28 : 18;
       if (cv.width !== COLS * cell || cv.height !== rows * cell) { cv.width = COLS * cell; cv.height = rows * cell; }
       var cDown = U.cssVar(host, "--surface-2"), cSeen = U.cssVar(host, "--border-strong"), cEven = U.cssVar(host, "--green"),
         cCur = U.cssVar(host, "--blue"), cTxt = U.cssVar(host, "--muted"), cBg = U.cssVar(host, "--bg-soft"), cOnTxt = U.cssVar(host, "--bg");
@@ -179,7 +180,7 @@
         var x = ((v - 1) % COLS) * cell, y = Math.floor((v - 1) / COLS) * cell;
         var seen = v <= fr.k, fill = v === fr.k && !fr.finished ? cCur : seen ? (v % 2 === 0 ? cEven : cSeen) : cDown;
         ctx.fillStyle = fill; ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4);
-        if (narrow) continue;             /* numbers would be too small to read on a phone */
+        if (!labels) continue;            /* too small to read on a phone or at n = 200, 400 */
         ctx.fillStyle = seen && (v % 2 === 0 || v === fr.k) ? cOnTxt : cTxt;
         ctx.fillText(String(v), x + cell / 2, y + cell / 2 + 1);
       }

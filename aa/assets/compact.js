@@ -51,10 +51,22 @@
      or table wrapper that scrolls sideways (it or one of its descendants). */
   function clipRatio(it){let r=1;[it,...it.querySelectorAll('.ct-code, pre, .anim-table-wrap, .table-wrap')].forEach(e=>{if(e.scrollWidth>e.clientWidth+2)r=Math.min(r,e.clientWidth/e.scrollWidth);});return r;}
   function flatten(host){host.querySelectorAll('.ct, .anim-controls').forEach(el=>{let p=el.classList.contains('ct')?el:el.parentElement;while(p&&p!==host){p.classList.add('anim-flat');p=p.parentElement;}});}
-  function blocks(host){const out=[];(function walk(el){[...el.children].forEach(c=>{if(!shown(c))return;if(c.classList.contains('anim-flat'))walk(c);else out.push(c);});})(host);return out;}
-  function partition(h,K){const n=h.length;if(!n)return[];K=Math.min(K,n);const pre=[0];h.forEach(x=>pre.push(pre[pre.length-1]+x));
+  /* A tall, plain container (no border, background or padding; several stacked block children — e.g. a
+     .ct-extra holding a grid, a notes table and a chart) is opened up so its children pack separately. */
+  const OWN=['ct-code','ct-side','anim-opts','anim-controls','anim-stats','anim-msg','anim-title','aa-in-line'];
+  function splittable(c){if(OWN.some(k=>c.classList.contains(k))||c.offsetHeight<220)return false;const cs=getComputedStyle(c);
+   if(cs.display!=='block'||parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth)>0)return false;
+   if(!/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor)||cs.backgroundImage!=='none')return false;
+   if(cs.position!=='static')return false;const kids=[...c.children].filter(shown);if(kids.length<2)return false;
+   return kids.every(k=>{const ks=getComputedStyle(k);return ks.position==='static'&&(ks.display==='block'||ks.display==='grid'||ks.display==='flex'||ks.display==='table');});}
+  function blocks(host){const out=[];(function walk(el){[...el.children].forEach(c=>{if(!shown(c))return;
+    if(!c.classList.contains('anim-flat')&&splittable(c))c.classList.add('anim-flat');
+    if(c.classList.contains('anim-flat'))walk(c);else out.push(c);});})(host);return out;}
+  /* Split h (block heights, order kept) into K consecutive runs so that the tallest column is as short as
+     possible; off[c] is what column c already holds. Returns [start,end) per column. */
+  function partition(h,K,off){const n=h.length;if(!n)return[];K=Math.min(K,n);off=off||Array(K).fill(0);const pre=[0];h.forEach(x=>pre.push(pre[pre.length-1]+x));
    const M=Array.from({length:n+1},()=>Array(K+1).fill(Infinity)),D=Array.from({length:n+1},()=>Array(K+1).fill(0));M[0][0]=0;
-   for(let i=1;i<=n;i++)for(let k=1;k<=Math.min(K,i);k++)for(let j=k-1;j<i;j++){const v=Math.max(M[j][k-1],pre[i]-pre[j]);if(v<M[i][k]){M[i][k]=v;D[i][k]=j;}}
+   for(let i=1;i<=n;i++)for(let k=1;k<=Math.min(K,i);k++)for(let j=k-1;j<i;j++){const v=Math.max(M[j][k-1],off[k-1]+pre[i]-pre[j]);if(v<M[i][k]){M[i][k]=v;D[i][k]=j;}}
    const cols=[];let i=n;for(let k=K;k>0;k--){const j=D[i][k];cols.unshift([j,i]);i=j;}return cols;}
   function stageBox(){const sp=getComputedStyle(stage);return{w:stage.clientWidth-parseFloat(sp.paddingLeft||0)-parseFloat(sp.paddingRight||0),h:stage.clientHeight-parseFloat(sp.paddingTop||0)-parseFloat(sp.paddingBottom||0)};}
   function budget(host){const cs=getComputedStyle(host);const b=stageBox();let used=0;
@@ -70,11 +82,14 @@
      decides between a full-width band and a smaller zoom. */
   function naturals(host,items,bud){(host._grown||[]).forEach(e=>e.style.maxHeight='');host._grown=[];set(host,'zoom',String(ZMAX));set(host,'gridTemplateColumns',`repeat(4, minmax(0, 1fr))`);set(host,'gridAutoRows','auto');
    items.forEach(it=>{set(it,'maxWidth','');set(it,'gridColumn','1');set(it,'gridRow','auto');});
+   host._fluid=new Set();
    return items.map(it=>{const r=clipRatio(it);let w=r<0.98?it.clientWidth/r:0;
-    /* A grid of several equal tracks (cards, lanes, a table drawn with divs) wraps its text rather than
-       overflowing, so it has no measurable minimum: allow 130 css px per track (2–4 tracks; a board of many small cells scales instead). */
-    [it,...it.querySelectorAll('*')].forEach(e=>{if(e.clientWidth<it.clientWidth*0.8)return;const cs=getComputedStyle(e);if(cs.display!=='grid')return;
-     const n=cs.gridTemplateColumns.split(' ').filter(x=>x&&x!=='none').length;if(n>=2&&n<=4)w=Math.max(w,n*130);});
+    /* A grid of several equal tracks (cards, lanes, a square with its caption, a table drawn with divs) wraps
+       its text rather than overflowing, so it has no measurable minimum: allow 170 css px per track (2–4
+       tracks; a board of many small cells scales instead). Such a block is fluid: as a band it takes the
+       whole width rather than a measured one. The variables/output pair is small and exempt. */
+    if(!it.classList.contains('ct-side'))[it,...it.querySelectorAll('*')].forEach(e=>{if(e.clientWidth<it.clientWidth*0.8)return;const cs=getComputedStyle(e);if(cs.display!=='grid')return;
+     const n=cs.gridTemplateColumns.split(' ').filter(x=>x&&x!=='none').length;if(n>=2&&n<=4&&n*170>w){w=n*170;host._fluid.add(it);}});
     return w;});}
   /* Place the blocks for K columns at zoom z. cols: Map block -> column (0 = full-width band); when absent it is
      built here: bands are the title and (mode 'band') every block wider than a column, the rest is split into
@@ -84,23 +99,28 @@
     items.forEach(it=>{set(it,'gridColumn','1');set(it,'gridRow','auto');set(it,'maxWidth','');});
     const need=items.map((it,i)=>{const r=clipRatio(it);return Math.max(nat[i],r<0.98?it.clientWidth/r:0);});   /* css px this block wants across */
     const wide=items.map((it,i)=>it.classList.contains('anim-title')||K>1&&mode==='band'&&(need[i]>cw||forced&&forced.has(it)));if(forced)items.forEach((it,i)=>{if(wide[i])forced.add(it);});
-    items.forEach((it,i)=>{it._need=need[i];});
-    const hs=items.map(hgt);let g=[];const flush=()=>{if(!g.length)return;partition(g.map(i=>hs[i]),K).forEach(([a,b],c)=>{for(let k=a;k<b;k++)cols.set(items[g[k]],c+1);});g=[];};
-    items.forEach((it,i)=>{if(wide[i]){flush();cols.set(it,0);}else g.push(i);});flush();}
-   items.forEach(it=>{const c=cols.get(it);set(it,'gridColumn',c?String(c):'1 / -1');set(it,'gridRow','auto');set(it,'maxWidth',!c&&it._need&&!it.classList.contains('anim-title')?Math.ceil(it._need+8)+'px':'');});
-   const hs=items.map(hgt);let cursor=0,cur=[];
-   items.forEach((it,i)=>{const c=cols.get(it),r=rowsOf(hs[i]);
-    it._rows=r;if(!c){cursor=Math.max(cursor,...cur,0);cur=[];set(it,'gridRow',`${cursor+1} / span ${r}`);cursor+=r;}
-    else{if(cur.length!==K)cur=Array(K).fill(cursor);set(it,'gridRow',`${cur[c-1]+1} / span ${r}`);cur[c-1]+=r;}});
-   cursor=Math.max(cursor,...cur,0);set(host,'gridAutoRows',UNIT+'px');
-   return{total:cursor*UNIT,cols};}
-  let bud_=null;
+    /* a wide block spans as many columns as it needs (all of them for the title), the rest flow around it */
+    items.forEach((it,i)=>{it._need=need[i];it._span=it.classList.contains('anim-title')?K:Math.max(2,Math.min(K,Math.ceil((need[i]+8+GAP)/(cw+GAP))));if(wide[i]){set(it,'gridColumn',`1 / span ${it._span}`);set(it,'maxWidth',bandWidth(host,it));}});
+    const hs=items.map(hgt);let g=[];const cur=Array(K).fill(0);
+    const flush=()=>{if(!g.length)return;partition(g.map(i=>hs[i]),K,cur).forEach(([a,b],c)=>{for(let k=a;k<b;k++){cols.set(items[g[k]],c+1);cur[c]+=rowsOf(hs[g[k]]);}});g=[];};
+    items.forEach((it,i)=>{if(wide[i]){flush();cols.set(it,0);const s=it._span,start=Math.max(...cur.slice(0,s));for(let c=0;c<s;c++)cur[c]=start+rowsOf(hs[i]);}else g.push(i);});flush();}
+   items.forEach(it=>{const c=cols.get(it);set(it,'gridColumn',c?String(c):`1 / span ${it.classList.contains('anim-title')?K:Math.min(K,it._span||K)}`);set(it,'gridRow','auto');set(it,'maxWidth',c?'':bandWidth(host,it));});
+   const hs=items.map(hgt);const cur=Array(K).fill(0);
+   items.forEach((it,i)=>{const c=cols.get(it),r=sticky_?Math.max(rowsOf(hs[i]),it._rows||0):rowsOf(hs[i]);it._rows=r;
+    if(!c){const s=it.classList.contains('anim-title')?K:Math.min(K,it._span||K),start=Math.max(...cur.slice(0,s));set(it,'gridRow',`${start+1} / span ${r}`);for(let k=0;k<s;k++)cur[k]=start+r;}
+    else{set(it,'gridRow',`${cur[c-1]+1} / span ${r}`);cur[c-1]+=r;}});
+   set(host,'gridAutoRows',UNIT+'px');
+   return{total:Math.max(...cur)*UNIT,cols};}
+  const bandWidth=(host,it)=>it._need&&!it.classList.contains('anim-title')&&!(host._fluid&&host._fluid.has(it))?Math.ceil(it._need+8)+'px':'';
+  let bud_=null,sticky_=false;
   /* Zoom for K columns: the largest value at which the tallest column fits the stage, the narrowest column is
      still MINCOL css px, and (mode 'cap', or once the columns are fixed) no block in a column is clipped. */
   function fitZ(host,items,K,cols,z,bud,cap,nat,mode,final){bud_=bud;const keep=!!cols,forced=new Set();let r;
    for(let pass=0;pass<4;pass++){r=place(host,items,K,z,keep?cols:null,nat,mode,forced);cols=r.cols;
     const wcap=zFor(bud,K,MINCOL-8);let z2=Math.min(cap,wcap,r.total>0?bud.avail/(r.total+bud.own):cap);
-    if(keep||mode==='cap')items.forEach((it,i)=>{if(!cols.get(it))return;if(nat[i])z2=Math.min(z2,zFor(bud,K,nat[i]));const cr=clipRatio(it);if(cr<0.98)z2=Math.min(z2,z*cr);});
+    if(keep||mode==='cap')items.forEach((it,i)=>{const c=cols.get(it),s=it._span||K;
+     if(!c){if(s<K&&it._need&&!it.classList.contains('anim-title'))z2=Math.min(z2,bud.width/(bud.side+(K-1)*GAP+K*(it._need+8-(s-1)*GAP)/s));return;}   /* a band spanning s of K columns */
+     if(nat[i])z2=Math.min(z2,zFor(bud,K,nat[i]));const cr=clipRatio(it);if(cr<1)z2=Math.min(z2,z*cr);});
     z2=Math.max(ZMIN,Math.floor(z2*100)/100);
     if(Math.abs(z2-z)<0.011){z=z2;break;}z=z2;}
     if(!keep&&mode==='band')items.forEach(it=>{if(cols.get(it)&&clipRatio(it)<0.98)forced.add(it);});
@@ -131,10 +151,15 @@
     for(const mode of (K===1?['cap']:['band','cap'])){const r=fitZ(host,items,K,null,best?best.z:1,bud,cap,nat,mode,false);trials.push([K,mode,r.z,r.total]);if(!best||r.z>best.z+0.02||(r.z>=best.z-0.005&&r.total<best.total-8))best={K,mode,...r};}}
    const r=fitZ(host,items,best.K,best.cols,best.z,bud,cap,nat,best.mode,true);
    host._pack={K:best.K,cols:best.cols,items,z:r.z,nat,trials,bud};}
-  /* Between clicks: keep the columns, follow the heights. A block that appeared or vanished means a new packing. */
+  /* Between clicks (a frame drawn): nothing moves unless it must. Blocks keep their columns and rows; a block
+     that grew past its rows gets more, and the zoom only steps down if the stage would scroll. A block that
+     appeared or vanished means a new packing; so does the end of a run (aa:end) or any click. */
   function follow(host){const p=host._pack;if(!p)return pack(host);const items=blocks(host);
    if(items.length!==p.items.length||items.some((it,i)=>it!==p.items[i]))return pack(host);
-   const bud=budget(host),r=fitZ(host,items,p.K,p.cols,p.z,bud,zcap(),p.nat,'band',true);p.z=r.z;}
+   if(!items.some(it=>rowsOf(hgt(it))>(it._rows||0))&&stage.scrollHeight<=stage.clientHeight+1)return;
+   bud_=budget(host);sticky_=true;try{let z=p.z;place(host,items,p.K,z,p.cols,p.nat,'band');
+    for(let k=0;k<10&&z>ZMIN&&stage.scrollHeight>stage.clientHeight+1;k++){z=Math.max(ZMIN,Math.round((z-0.03)*100)/100);place(host,items,p.K,z,p.cols,p.nat,'band');}
+    p.z=z;}finally{sticky_=false;}}
   function unpack(host){if(!host.classList.contains('anim-packed'))return;host.classList.remove('anim-packed');['display','zoom','gridTemplateColumns','gridAutoRows'].forEach(k=>host.style[k]='');
    host.querySelectorAll('.anim-item').forEach(it=>{it.classList.remove('anim-item');it.style.gridColumn='';it.style.gridRow='';it.style.maxWidth='';});(host._grown||[]).forEach(e=>e.style.maxHeight='');host._grown=[];delete host._pack;}
   function fitStory(story){const {avail}=budget(story);let z=1;for(let pass=0;pass<3;pass++){set(story,'zoom',String(z));const h=hgt(story);if(h<4)break;z=Math.max(ZMIN,Math.min(zcap(),Math.floor(avail/h*100)/100));}set(story,'zoom',String(z));
@@ -152,7 +177,7 @@
   }finally{fitting=false;}}
   let fitPending=0;function refit(full){fitPending=Math.max(fitPending,full?2:1);requestAnimationFrame(()=>{const f=fitPending===2;fitPending=0;fit(f);});}
   new ResizeObserver(()=>refit(true)).observe(stage);
-  stage.addEventListener('aa:frame',()=>refit(false));stage.addEventListener('click',()=>setTimeout(()=>refit(true),60));stage.addEventListener('input',()=>setTimeout(()=>refit(true),60));
+  stage.addEventListener('aa:frame',()=>refit(false));stage.addEventListener('aa:end',()=>refit(true));stage.addEventListener('click',()=>setTimeout(()=>refit(true),60));stage.addEventListener('input',()=>setTimeout(()=>refit(true),60));
   // Anything a widget adds or resizes after it was shown (late-sized graphs, panels that appear) is followed too.
   // Our own placement writes style attributes too: a style change on a placed block only counts when its height no
   // longer matches the rows it was given (a canvas that resized itself, a panel that grew).
