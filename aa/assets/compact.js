@@ -175,7 +175,11 @@
    const host=panel.querySelector('[data-anim]');if(host){if(!wide)unpack(host);else if(full||!host._pack)pack(host);else follow(host);}
    const story=panel.querySelector('.story-lesson');if(story){if(!wide)set(story,'zoom','');else fitStory(story);}
   }finally{fitting=false;}}
-  let fitPending=0;function refit(full){fitPending=Math.max(fitPending,full?2:1);requestAnimationFrame(()=>{const f=fitPending===2;fitPending=0;fit(f);});}
+  /* Damper: a layout that reacts to its own reflow (a line that wraps at one zoom and not at the next) could
+     bounce for ever. Passive refits — from DOM changes and frames — get at most six per second; a click, key,
+     resize, the end of a run or a new demonstration always packs and resets the count. */
+  let fitPending=0,passive=[];function refit(full){if(!full){const now=performance.now();passive=passive.filter(t=>now-t<1000);if(passive.length>=6)return;passive.push(now);}else passive=[];
+   fitPending=Math.max(fitPending,full?2:1);requestAnimationFrame(()=>{const f=fitPending===2;fitPending=0;fit(f);});}
   new ResizeObserver(()=>refit(true)).observe(stage);
   stage.addEventListener('aa:frame',()=>refit(false));stage.addEventListener('aa:end',()=>refit(true));stage.addEventListener('click',()=>setTimeout(()=>refit(true),60));stage.addEventListener('input',()=>setTimeout(()=>refit(true),60));
   // Anything a widget adds or resizes after it was shown (late-sized graphs, panels that appear) is followed too.
