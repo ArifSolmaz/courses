@@ -36,47 +36,98 @@
   /* Two panes on a wide stage: code, state, stats and message on the left; the visual on the right; the
      option rows and the play bar span both. The widget's own element references stay valid because the
      nodes only move into wrappers inside the same host. Idempotent, so late-added children get placed too. */
-  /* Two panes on a wide stage. Left: the code with its variables and output. Right: the option rows
-     (test / predict), the visual, the stats and the message - the column that otherwise sat half empty.
-     The title and the play bar span both. Widget element references stay valid because nodes only move
-     into wrappers inside the same host; the function is idempotent so late-added children get placed too. */
-  function panes(panel){const host=panel.querySelector('[data-anim]');if(!host)return;
-   const ct=host.querySelector(':scope > .ct'),bar=host.querySelector(':scope > .anim-controls');if(!ct&&!bar)return;
-   let left=host.querySelector(':scope > .anim-left'),right=host.querySelector(':scope > .anim-right');
-   if(!left){left=document.createElement('div');left.className='anim-left';right=document.createElement('div');right.className='anim-right';
-    const anchor=[...host.children].find(c=>!c.classList.contains('anim-title'))||bar;anchor.before(left,right);}
-   [...host.children].forEach(c=>{if(c===left||c===right)return;const cls=c.classList;
-    if(cls.contains('anim-title')||cls.contains('anim-controls'))return;
-    if(cls.contains('ct'))left.append(c);else right.append(c);});
-   if(!left.children.length){left.remove();host.classList.add('anim-single');}
-   host.classList.add('anim-paned');}
-  /* Give the two panes exactly the height the stage has left after the title, option rows and play bar,
-     so a tall visual scrolls inside its pane instead of pushing the bar off the screen. */
-  function fit(){const panel=panels.find(p=>!p.hidden);const host=panel&&panel.querySelector('[data-anim].anim-paned');if(!host)return;
-   const panesEl=[host.querySelector(':scope > .anim-left'),host.querySelector(':scope > .anim-right')].filter(Boolean);
-   panesEl.forEach(e=>{e.style.maxHeight='';e.style.zoom='';});
-   if(getComputedStyle(host).display!=='grid')return;
-   let used=0;[...host.children].forEach(c=>{if(!panesEl.includes(c)){const cs=getComputedStyle(c);used+=c.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);}});
-   const hs=getComputedStyle(host),gap=parseFloat(hs.rowGap||0)||8;const rows=host.children.length-panesEl.length+1;
-   const chrome=used+gap*rows+parseFloat(hs.paddingTop||0)+parseFloat(hs.paddingBottom||0)+40;
-   const avail=Math.max(200,Math.floor(stage.clientHeight-chrome));
-   // Scale the panes down (never below 72 %) when their natural height exceeds the space; the remainder scrolls.
-   panesEl.forEach(e=>{const need=e.scrollHeight;const z=need>avail?Math.max(0.72,Math.floor(avail/need*100)/100):1;e.style.zoom=String(z);e.style.maxHeight=Math.floor(avail/z)+'px';});}
-  new ResizeObserver(()=>fit()).observe(stage);
-  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));panes(panels[i]);idx.textContent=String(i+1);requestAnimationFrame(fit);prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
+  /* Two panes on a wide stage. Left: the code with its variables and output, and the play bar under them
+     (the space that used to sit empty). Right: the option rows (test / predict), the visual, stats and message.
+     Widgets that wrap their "watch" mode in an inner container get the same treatment on that container;
+     the Week 1 stories put their text on the left and the story widget on the right. Nodes only move into
+     wrappers inside the same host, so the widgets' element references stay valid; idempotent. */
+  const KEEP=['anim-title','anim-opts','aa-in-line'];
+  function target(host){if(host.classList.contains('anim-paned'))return host;
+   const inner=host.querySelector(':scope > .anim-paned');if(inner)return inner;
+   if(host.querySelector(':scope > .ct')||host.querySelector(':scope > .anim-controls'))return host;
+   return [...host.children].find(c=>c.querySelector(':scope > .ct')&&c.querySelector('.anim-controls'))||(host.querySelector('.anim-controls')?host:null);}
+  function group(box){let left=box.querySelector(':scope > .anim-left'),right=box.querySelector(':scope > .anim-right');
+   if(!right){left=document.createElement('div');left.className='anim-left';right=document.createElement('div');right.className='anim-right';
+    const anchor=[...box.children].find(c=>!c.classList.contains('anim-title'))||null;if(anchor)anchor.before(left,right);else box.append(left,right);}
+   if(!left){left=document.createElement('div');left.className='anim-left';right.before(left);}
+   [...box.children].forEach(c=>{if(c===left||c===right||c.classList.contains('anim-title'))return;
+    if(c.classList.contains('ct')||(c.classList.contains('anim-controls')&&!box.classList.contains('anim-single')))left.append(c);else if(!c.classList.contains('anim-controls'))right.append(c);});
+   const bar=left.querySelector(':scope > .anim-controls');if(bar)left.append(bar);           /* bar last, under code and state */
+   if(!left.querySelector(':scope > .ct')){                                                    /* no code block: bar spans, rest in two columns */
+    if(bar)box.append(bar);[...left.children].forEach(c=>right.append(c));left.remove();box.classList.add('anim-single');}
+   box.classList.add('anim-paned');return box;}
+  function panes(panel){const host=panel.querySelector('[data-anim]');
+   if(host){const box=target(host);if(box){group(box);if(box!==host)host.classList.add('anim-outer');}return;}
+   const story=panel.querySelector('.story-lesson');if(story&&!story.classList.contains('anim-paned')){
+    const left=document.createElement('div');left.className='anim-left story-text';const right=document.createElement('div');right.className='anim-right';
+    [...story.children].forEach(c=>{if(c.tagName==='NOSCRIPT')return;(c.classList.contains('story-widget')?right:left).append(c);});
+    story.append(left,right);story.classList.add('anim-paned','anim-story');}}
+  /* Each pane gets the height left under the title (and, for widgets without a code block, above the bar);
+     a pane taller than that is scaled down (never below 62 %) and then scrolls for the remainder. */
+  let fitting=false;
+  function fit(){const panel=panels.find(p=>!p.hidden);if(!panel||fitting)return;fitting=true;try{
+   const auto=zoom.value==='auto';
+   const boxes=[...panel.querySelectorAll('.anim-paned')];
+   const sp=getComputedStyle(stage);const stagePad=parseFloat(sp.paddingTop||0)+parseFloat(sp.paddingBottom||0);
+   boxes.forEach(box=>{const panesEl=[box.querySelector(':scope > .anim-left'),box.querySelector(':scope > .anim-right')].filter(Boolean);
+    const set=(e,k,v)=>{if(e.style[k]!==v)e.style[k]=v;};
+    panesEl.forEach(e=>{set(e,'maxHeight','');set(e,'zoom','');});
+    if(getComputedStyle(box).display!=='grid')return;
+    let used=stagePad;[...box.children].forEach(c=>{if(!panesEl.includes(c)){const cs=getComputedStyle(c);used+=c.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);}});
+    const outer=box.closest('[data-anim]');if(outer&&outer!==box){[...outer.children].forEach(c=>{if(c!==box)used+=c.getBoundingClientRect().height+8;});}
+    const hs=getComputedStyle(box),gap=parseFloat(hs.rowGap||0)||8;const rows=box.children.length-panesEl.length+1;
+    const hostPad=(el=>{const cs=getComputedStyle(el);return parseFloat(cs.paddingTop||0)+parseFloat(cs.paddingBottom||0);})(outer||box);
+    let avail=Math.max(200,Math.floor(stage.clientHeight-used-gap*rows-hostPad-parseFloat(hs.paddingTop||0)-parseFloat(hs.paddingBottom||0)-6));
+    const apply=()=>panesEl.forEach(e=>{
+     let z=1;for(let pass=0;pass<3;pass++){set(e,'zoom',String(z));set(e,'maxHeight','');const need=e.getBoundingClientRect().height;
+      if(need<4)break;const want=z*avail/need;z=auto?Math.min(1.5,Math.max(0.62,Math.floor(want*100)/100)):Math.min(1,Math.max(0.62,Math.floor(want*100)/100));}
+     set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');
+     // The reflow at the chosen zoom can still leave a few pixels over: step down until the pane fits or 72 % is reached.
+     for(let k=0;k<12&&z>0.62&&e.scrollHeight>e.clientHeight+1;k++){z=Math.max(0.62,Math.round((z-0.03)*100)/100);set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');}});
+    apply();
+    // Whatever the budget missed shows up as stage overflow: take it off and fit once more.
+    const over=stage.scrollHeight-stage.clientHeight;if(over>1){avail-=over+2;apply();}});
+   // A widget whose other mode (e.g. "price the receipt yourself") is a tall block outside the paned box:
+   // scale that block to the space under the title and option rows.
+   panel.querySelectorAll('[data-anim].anim-outer').forEach(host=>{
+    const set=(e,k,v)=>{if(e.style[k]!==v)e.style[k]=v;};
+    const blocks=[...host.children].filter(c=>!c.classList.contains('anim-title')&&!c.classList.contains('anim-opts')&&!c.classList.contains('anim-paned')&&getComputedStyle(c).display!=='none');
+    if(!blocks.length)return;
+    let used=stagePad+12;[...host.children].forEach(c=>{if(!blocks.includes(c)&&getComputedStyle(c).display!=='none')used+=c.getBoundingClientRect().height+8;});
+    const avail=Math.max(200,Math.floor(stage.clientHeight-used));
+    blocks.forEach(e=>{set(e,'zoom','');set(e,'maxHeight','');set(e,'overflow','');const need=e.getBoundingClientRect().height;if(need<4)return;
+     let z=Math.min(zoom.value==='auto'?1.5:1,Math.max(0.62,Math.floor(avail/need*100)/100));set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');set(e,'overflow','auto');
+     for(let k=0;k<12&&z>0.62&&e.scrollHeight>e.clientHeight+1;k++){z=Math.max(0.62,Math.round((z-0.03)*100)/100);set(e,'zoom',String(z));set(e,'maxHeight',Math.floor(avail/z)+'px');}});});
+  }finally{fitting=false;}}
+  let fitPending=false;function refit(){if(fitPending)return;fitPending=true;requestAnimationFrame(()=>{fitPending=false;fit();});}
+  new ResizeObserver(refit).observe(stage);
+  stage.addEventListener('aa:frame',refit);stage.addEventListener('click',()=>setTimeout(refit,60));stage.addEventListener('input',()=>setTimeout(refit,60));
+  // Anything a widget adds or resizes after it was shown (late-sized graphs, panels that appear) refits too.
+  new MutationObserver(records=>{if(fitting)return;if(records.some(r=>!(r.type==='attributes'&&r.target.classList&&(r.target.classList.contains('anim-left')||r.target.classList.contains('anim-right')))))refit();}).observe(stage,{subtree:true,childList:true,attributes:true,characterData:true});
+  function show(i,focus){i=Math.max(0,Math.min(panels.length-1,i));pauseAnimations();choice.value=String(i);panels.forEach(p=>p.hidden=p.dataset.animationPanel!==String(i));panes(panels[i]);idx.textContent=String(i+1);refit();prev.disabled=i===0;next.disabled=i===panels.length-1;stage.scrollTop=0;if(focus)stage.focus({preventScroll:true});}
   choice.onchange=()=>show(Number(choice.value));prev.onclick=()=>show(Number(choice.value)-1,true);next.onclick=()=>show(Number(choice.value)+1,true);
-  stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(e.key==='ArrowLeft'&&e.altKey)prev.click();if(e.key==='ArrowRight'&&e.altKey)next.click();});
-  function applyZoom(v){stage.style.zoom=v;try{localStorage.setItem(ZKEY,v);}catch(e){}}
-  let z='1';try{z=localStorage.getItem(ZKEY)||'1';}catch(e){}
-  if(![...zoom.options].some(o=>o.value===z))z='1';zoom.value=z;applyZoom(z);zoom.onchange=()=>applyZoom(zoom.value);
+  ws.addEventListener('keydown',keys);function keys(e){const t=e.target;const typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT');if(typing&&e.key!=='Escape')return;
+   if((e.key==='ArrowLeft'&&e.altKey)||e.key==='PageUp'){e.preventDefault();prev.click();}if((e.key==='ArrowRight'&&e.altKey)||e.key==='PageDown'){e.preventDefault();next.click();}}
+  function applyZoom(v){stage.style.zoom=v==='auto'?'':v;try{localStorage.setItem(ZKEY,v);}catch(e){}requestAnimationFrame(fit);}
+  let z='auto';try{z=localStorage.getItem(ZKEY)||'auto';}catch(e){}
+  if(![...zoom.options].some(o=>o.value===z))z='auto';zoom.value=z;applyZoom(z);zoom.onchange=()=>applyZoom(zoom.value);
   const m=location.hash.match(/^#animations-(\d+)$/);show(m?Number(m[1])-1:0);
   // Expand: a native modal dialog that borrows the toolbar and the stage, then gives them back.
   const dialog=document.createElement('dialog');dialog.className='anim-dialog';dialog.setAttribute('aria-label','Animation, expanded');
-  const dialogHead=document.createElement('div');dialogHead.className='anim-dialog-head';dialog.append(dialogHead);document.body.append(dialog);
+  const dialogHead=document.createElement('div');dialogHead.className='anim-dialog-head';
+  const strip=document.createElement('button');strip.type='button';strip.className='anim-dialog-strip';strip.setAttribute('aria-label','Show the animation toolbar');strip.innerHTML='<span></span>';
+  dialog.append(dialogHead,strip);document.body.append(dialog);dialog.addEventListener('keydown',keys);
   const home=document.createComment('anim-workspace home');ws.insertBefore(home,toolbar);
-  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close \u2715';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});requestAnimationFrame(fit);}
+  /* The toolbar slides away after a moment so the whole screen is the animation; the top edge, the strip
+     button, keyboard focus inside the toolbar, or Tab bring it back. */
+  let hideTimer=0;function showHead(sticky){dialog.classList.add('head-open');clearTimeout(hideTimer);if(!sticky)hideTimer=setTimeout(()=>{if(!dialogHead.contains(document.activeElement))dialog.classList.remove('head-open');},1800);}
+  dialog.addEventListener('mousemove',e=>{if(e.clientY<=8)showHead(false);});
+  dialogHead.addEventListener('mouseenter',()=>showHead(true));dialogHead.addEventListener('mouseleave',()=>showHead(false));
+  dialogHead.addEventListener('focusin',()=>showHead(true));dialogHead.addEventListener('focusout',()=>showHead(false));
+  strip.addEventListener('click',()=>{showHead(true);choice.focus();});
+  function open(){if(dialog.open)return;dialogHead.append(toolbar);dialog.append(stage);ws.classList.add('anim-expanded');expand.textContent='Close ✕';expand.setAttribute('aria-expanded','true');dialog.showModal();stage.focus({preventScroll:true});showHead(false);requestAnimationFrame(fit);}
   function close(){if(!dialog.open)return;dialog.close();}
-  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');expand.textContent='Expand \u2197';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});requestAnimationFrame(fit);});
+  dialog.addEventListener('close',()=>{ws.insertBefore(toolbar,home.nextSibling);ws.insertBefore(stage,toolbar.nextSibling);ws.classList.remove('anim-expanded');dialog.classList.remove('head-open');expand.textContent='Expand ↗';expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});requestAnimationFrame(fit);});
   dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
   expand.onclick=()=>dialog.open?close():open();
  }

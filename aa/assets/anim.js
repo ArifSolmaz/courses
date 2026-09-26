@@ -104,6 +104,7 @@
       if (!frames.length) { count.textContent = "no steps yet"; bPlay.innerHTML = "&#9654; play"; return; }   /* e.g. play pressed before the keys were dropped */
       cfg.render(frames[i], i, frames);
       count.textContent = "step " + i + " / " + (frames.length - 1);
+      host.dispatchEvent(new CustomEvent("aa:frame", { bubbles: true }));
       bBack.disabled = bReset.disabled = i === 0;
       bStep.disabled = i >= frames.length - 1;
       bPlay.innerHTML = playing ? "&#10074;&#10074; pause" : (i >= frames.length - 1 ? "&#8634; replay" : "&#9654; play");
