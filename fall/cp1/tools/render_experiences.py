@@ -23,7 +23,7 @@ def shell(title, body, week=0):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="CP1 weekly lessons for first-year engineering students: physical problems, clear explanations, worked examples and companion Python notebooks.">
 <title>{esc(title)} · CP1 Engineering Experiences</title>
-<link rel="stylesheet" href="cp1-experiences.css?v=4"><script src="cp1-experiences.js?v=3" defer></script>{lab_assets}<link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script src="../../../assets/learning-path.js?v=1" defer></script></head>
+<link rel="stylesheet" href="cp1-base.css?v=1"><link rel="stylesheet" href="cp1-lesson.css?v=1"><script src="cp1-experiences.js?v=3" defer></script>{lab_assets}<script defer src="../../../assets/course-navigation.js?v=1"></script><script src="../../../assets/learning-path.js?v=1" defer></script></head>
 <body data-week="{week}"><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="brand" href="CP1_Course_Dashboard.html">CP1 <span>/ COURSE HOME</span></a><nav aria-label="Course"><details class="path-menu"><summary>Settings</summary><div><button type="button" id="theme-toggle" hidden>Dark theme</button></div></details></nav></header>
 {body}<footer><p>Computer Programming I · ISTUN Engineering · Dr. Arif Solmaz</p></footer></body></html>'''
@@ -135,5 +135,27 @@ def render(weeks, write):
     for lesson in LESSONS:
         name, content = render_lesson(lesson, by_week[lesson['week']])
         write(ROOT / 'web' / name, content)
-    alias = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="refresh" content="0;url=CP1_Course_Dashboard.html"><title>CP1 weekly lessons</title></head><body><p>The engineering experiences are now the weekly lessons. <a href="CP1_Course_Dashboard.html">Open CP1</a>.</p></body></html>'
+    # An old address. The refresh is immediate, so this is only seen on a slow
+    # connection - it carries its styling inline rather than fetching the course
+    # stylesheets for one line of text.
+    alias = (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<meta http-equiv="refresh" content="0;url=CP1_Course_Dashboard.html">'
+        '<link rel="canonical" href="CP1_Course_Dashboard.html">'
+        '<meta name="robots" content="noindex">'
+        '<title>CP1 weekly lessons</title>'
+        '<style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:2rem;'
+        'text-align:center;background:#f7f6ef;color:#1f342d;'
+        "font:400 1rem/1.7 'Source Serif 4',Charter,Georgia,serif}"
+        'p{max-width:44ch;margin:0 0 1.3rem}'
+        ".tag{font:500 .68rem/1.6 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;"
+        'text-transform:uppercase;color:#315d43}'
+        'a{display:inline-block;padding:.55rem 1.2rem;border-radius:999px;background:#315d43;'
+        "color:#fffef8;text-decoration:none;font-weight:600;font-family:'Syne',system-ui,sans-serif}"
+        '</style></head><body><main>'
+        '<p class="tag">CP1 &middot; Computer Programming I</p>'
+        '<p>The engineering experiences are now the weekly lessons.</p>'
+        '<a href="CP1_Course_Dashboard.html">Open CP1</a>'
+        '</main></body></html>')
     write(ROOT / 'web' / 'CP1_Experiences.html', alias)
