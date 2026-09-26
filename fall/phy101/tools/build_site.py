@@ -862,7 +862,7 @@ def head_html(title, desc, week, has_anim):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css?v=2"><link rel="stylesheet" href="../../../assets/learning-path.css?v=1"><link rel="stylesheet" href="../assets/reading-simple.css?v=2"><link rel="stylesheet" href="../../../assets/course-navigation.css?v=2"><script defer src="../../../assets/course-navigation.js?v=1"></script><script defer src="../../../assets/learning-path.js?v=1"></script>
+<link rel="stylesheet" href="../assets/phy101-base.css?v=1"><link rel="stylesheet" href="../assets/phy101-lesson.css?v=1"><script defer src="../../../assets/course-navigation.js?v=1"></script><script defer src="../../../assets/learning-path.js?v=1"></script>
 {animcss}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.css" integrity="{SRI_CSS}" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/katex.min.js" integrity="{SRI_JS}" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@{KATEX}/dist/contrib/auto-render.min.js" integrity="{SRI_AUTO}" crossorigin="anonymous"></script>
@@ -1164,6 +1164,96 @@ def week_page(wk, nb, known=None):
     return page, skipped, missing_anim, missing_fig, meta
 
 
+def root_index(calendar, built):
+    """fall/phy101/index.html — the course folder had no index, so the bare
+    folder URL returned 404. Week list comes from calendar.json; the History
+    of Physics link keeps its delivered address."""
+    cards = []
+    for wk in calendar["weeks"]:
+        n = wk["week"]
+        has = n in built
+        title = html.escape(wk.get("title_en") or wk.get("title") or f"Week {n}")
+        scope = html.escape(wk.get("scope", ""))
+        href = f"w{n}/" if has else "web/PHY101_Course_Dashboard.html"
+        cards.append(
+            f'<li class="wk-card"><a href="{href}">'
+            f'<span class="wk-n">Week {n:02d}</span>'
+            f'<span class="wk-t">{title}</span>'
+            + (f'<span class="wk-s">{scope}</span>' if scope else "")
+            + ('' if has else '<span class="wk-s">notes on the dashboard</span>')
+            + '</a></li>')
+    return f"""<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHY101 — Physics I</title>
+<meta name="description" content="PHY101 Physics I — weekly notes, syllabus, dashboard and course resources.">
+<script>
+/* Set the theme and language before the first paint, exactly as the week pages do. */
+(function () {{
+  try {{
+    var t = localStorage.getItem("phy101_theme");
+    if (!t) t = "light";
+    document.documentElement.setAttribute("data-theme", t);
+    var l = localStorage.getItem("phy101_lang");
+    if (l) document.documentElement.setAttribute("data-lang", l);
+  }} catch (e) {{}}
+}})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ctext y=%2724%27 x=%273%27 font-size=%2722%27 font-family=%27monospace%27 font-weight=%27700%27 fill=%27%23e65100%27%3EF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{FONTS}" rel="stylesheet">
+<link rel="stylesheet" href="assets/phy101-base.css?v=1">
+<link rel="stylesheet" href="web/phy101-dashboard.css?v=1">
+<script defer src="assets/app.js?v=2"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the weeks</a>
+<header class="topbar">
+  <a class="topbar-logo" href="index.html"><span class="mark" aria-hidden="true">&#934;</span>PHY101&nbsp;<span class="sub">/ Physics I</span></a>
+  <nav class="topbar-nav" aria-label="Course pages">
+    <a href="web/PHY101_Course_Dashboard.html">Dashboard</a>
+    <a href="web/PHY101_Syllabus.html">Syllabus</a>
+    <a href="History%20of%20Physics/index.html">History of Physics</a>
+    <details class="path-menu"><summary>Settings</summary><div>
+    <button class="hlink" data-lang-toggle type="button" aria-pressed="false" title="Hide the Turkish notes">EN + TR</button>
+    <button class="hlink" data-theme-toggle type="button">&#9788; Light</button></div></details>
+  </nav>
+</header>
+<main class="main" id="main">
+  <div class="page-head">
+    <p class="week-tag">{html.escape(calendar.get("term", "PHY101"))} &middot; Dr. Arif Solmaz</p>
+    <h1>Physics I</h1>
+    <p class="subtitle">Thirteen weeks of notes. Each week opens with what to do before class,
+    the worked examples in full, and the figures you can read off.</p>
+    <p class="button-row"><a class="btn" href="w1/">Start with week 01</a>
+    <a class="btn secondary" href="web/PHY101_Course_Dashboard.html">Course dashboard</a></p>
+  </div>
+  <h2 class="section-title" id="weeks">The weeks</h2>
+  <ul class="wk-grid">{"".join(cards)}</ul>
+  <h2 class="section-title" id="more">Also here</h2>
+  <ul class="wk-grid">
+    <li class="wk-card"><a href="web/PHY101_Syllabus.html"><span class="wk-n">Syllabus</span>
+      <span class="wk-t">Outcomes, calendar, assessment</span>
+      <span class="wk-s">What the course covers and how it is graded.</span></a></li>
+    <li class="wk-card"><a href="History%20of%20Physics/index.html"><span class="wk-n">Reading</span>
+      <span class="wk-t">History of Physics</span>
+      <span class="wk-s">The long view, from Aristotle to the present.</span></a></li>
+    <li class="wk-card"><a href="web/PHY101_Course_Dashboard.html#course-info"><span class="wk-n">Resources</span>
+      <span class="wk-t">Notebooks and downloads</span>
+      <span class="wk-s">Every week's notebook, plus the course reference material.</span></a></li>
+  </ul>
+</main>
+<footer class="site-footer">
+  <span>{SITE} &middot; Dr. Arif Solmaz &middot; &#304;ST&#220;N</span>
+</footer>
+</body>
+</html>
+"""
+
+
 def main(argv):
     calendar = json.loads((ROOT / "calendar.json").read_text(encoding="utf-8"))
     if argv and argv[0] == "all":
@@ -1203,6 +1293,9 @@ def main(argv):
         "// Generated by tools/build_site.py - the weeks that have a notes page.\n"
         f"window.PHY101_NOTES = {json.dumps(built)};\n", encoding="utf-8")
     print(f"  wrote {manifest.relative_to(ROOT)}  (weeks {built})")
+
+    (ROOT / "index.html").write_text(root_index(calendar, set(built)), encoding="utf-8")
+    print(f"  wrote index.html  (course landing page; {len(calendar['weeks'])} weeks)")
 
     if failures:
         print("\nFAILED: an ANIMS or FIGURES anchor matched no cell "

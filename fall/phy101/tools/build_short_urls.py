@@ -26,12 +26,15 @@ TEMPLATE = """<!DOCTYPE html>
 <meta http-equiv="refresh" content="0; url={dest}">
 <meta name="robots" content="noindex">
 <script>location.replace("{dest}");</script>
-<style>body{{font-family:system-ui,sans-serif;margin:3rem auto;max-width:34rem;padding:0 1rem;line-height:1.6}}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{{color-scheme:light dark}}body{{margin:0;min-height:100vh;display:grid;place-items:center;padding:2rem;text-align:center;background:#fbfaf8;color:#22201d;font:400 1rem/1.7 'Source Serif 4',Georgia,serif}}p{{max-width:44ch;margin:0 0 1.2rem}}.tag{{font:500 .68rem/1.6 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#c2410c}}a{{display:inline-block;padding:.55rem 1.2rem;border:1px solid #c2410c;border-radius:999px;color:#c2410c;text-decoration:none;font-weight:600;font-family:'Syne',system-ui,sans-serif}}@media(prefers-color-scheme:dark){{body{{background:#12130f;color:#e4e2d9}}a,.tag{{color:#fb923c}}a{{border-color:#fb923c}}}}</style>
 </head>
 <body>
-<p>PHY101 · Week {n:02d} — <strong>{title}</strong></p>
-<p>Redirecting to the week notes. If nothing happens,
-<a href="{dest}">open Week {n:02d}</a>.</p>
+<main>
+<p class="tag">PHY101 &middot; Week {n:02d}</p>
+<p><strong>{title}</strong><br>Taking you to the week notes.</p>
+<a href="{dest}">Open Week {n:02d}</a>
+</main>
 </body>
 </html>
 """
