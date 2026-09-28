@@ -76,6 +76,7 @@
   function Player(host, cfg) {
     var bar = h("div", "anim-controls");
     var frames = [], i = 0, playing = false, raf = 0, last = 0, acc = 0, speed = 1;
+    var root = host.closest("[data-anim]") || host;
     var bReset = btn("&#8634;", "", function () { stop(); i = 0; draw(); }, "Back to start");
     var bBack  = btn("&#8249; step", "", function () { stop(); if (i > 0) { i--; draw(); } }, "Step back");
     var bPlay  = btn("&#9654; play", "primary", toggle, "Play or pause");
@@ -107,6 +108,7 @@
       host.dispatchEvent(new CustomEvent("aa:frame", { bubbles: true }));
       bBack.disabled = bReset.disabled = i === 0;
       bStep.disabled = i >= frames.length - 1;
+      root.classList.toggle("aa-playing", playing);
       bPlay.innerHTML = playing ? "&#10074;&#10074; pause" : (i >= frames.length - 1 ? "&#8634; replay" : "&#9654; play");
     }
     function loop(t) {
@@ -128,12 +130,11 @@
       draw();
       raf = requestAnimationFrame(loop);
     }
-    function stop() { playing = false; cancelAnimationFrame(raf); }
+    function stop() { playing = false; root.classList.remove("aa-playing"); cancelAnimationFrame(raf); }
     function toggle() { if (playing) { stop(); draw(); } else play(); }
     function load() { stop(); frames = cfg.build(); i = 0; draw(); }
     new MutationObserver(function () { if (frames.length) draw(); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    var root = host.closest("[data-anim]") || host;
     root.addEventListener("aa:pause", function () { stop(); if (frames.length) draw(); });
     document.addEventListener("visibilitychange", function () { if (document.hidden) { stop(); if (frames.length) draw(); } });
     return { load: load, stop: stop, el: bar };

@@ -157,6 +157,11 @@
   function follow(host){const p=host._pack;if(!p)return pack(host);const items=blocks(host);
    if(items.length!==p.items.length||items.some((it,i)=>it!==p.items[i]))return pack(host);
    if(!items.some(it=>rowsOf(hgt(it))>(it._rows||0))&&stage.scrollHeight<=stage.clientHeight+1)return;
+   if(host.classList.contains('aa-playing')){
+    sticky_=true;try{place(host,items,p.K,p.z,p.cols,p.nat,'band');}
+    finally{sticky_=false;}
+    return;
+   }
    bud_=budget(host);sticky_=true;try{let z=p.z;place(host,items,p.K,z,p.cols,p.nat,'band');
     for(let k=0;k<10&&z>ZMIN&&stage.scrollHeight>stage.clientHeight+1;k++){z=Math.max(ZMIN,Math.round((z-0.03)*100)/100);place(host,items,p.K,z,p.cols,p.nat,'band');}
     p.z=z;}finally{sticky_=false;}}
