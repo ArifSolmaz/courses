@@ -20,7 +20,7 @@ def prepare(week,root):
         nb['cells'].extend(answers['cells'])
     nb['metadata']['cp1_offline_week']=week
     for i,cell in enumerate(nb['cells']):
-        s=text(cell);meta=cell.setdefault('metadata',{})
+        s=text(cell).replace('the code is hidden; you do not need to read it','reading this helper code is optional').replace('Hints (click to reveal)','Hints (shown below)');meta=cell.setdefault('metadata',{})
         cell['id']=f'w{week:02d}-'+('s' if i>=lesson_count else 'l')+f'-{i:03d}'
         if cell['cell_type']=='code':
             if s.startswith('%%writefile '):
