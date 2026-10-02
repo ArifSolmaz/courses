@@ -14,7 +14,7 @@ function render(){
       section.querySelectorAll('a').forEach(a=>{if(!a.getAttribute('href').startsWith('#')){a.target='_blank';a.rel='noopener noreferrer';}});
     const heading=[...section.querySelectorAll('h1,h2')].find(h=>!h.closest('details'));
       if(heading){section.id=cell.metadata?.offline_anchor||'section-'+i;const realm=cell.metadata?.offline_realm||'lesson';if(realm!==lastRealm){const group=document.createElement('h3');group.textContent=realm==='solutions'?'Worked solutions':'Lesson & practice';$('sections').append(group);lastRealm=realm;}
-        const link=document.createElement('a');link.href='#'+section.id;link.textContent=(i===0?'Week '+CONFIG.week+' overview':heading.textContent).replace(/^Part (\d+): /,'$1. ').replace(/^CP1 Week 03 — /,'');link.onclick=()=>{$('sections').querySelectorAll('a').forEach(a=>a.removeAttribute('aria-current'));link.setAttribute('aria-current','location');};$('sections').append(link);}
+        const link=document.createElement('a');link.href='#'+section.id;link.textContent=(i===0?'Week '+CONFIG.week+' overview':heading.textContent).replace(/^Part (\d+): /,'$1. ').replace(/^CP1 Week 03 — /,'');$('sections').append(link);}
     }else if(cell.cell_type==='code'){
       section.className='cell';section.id='cell-'+i;
       const bar=document.createElement('div');bar.className='cell-bar';
@@ -32,7 +32,7 @@ function render(){
       const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');section.append(details,output,error);errors.set(i,error);editors.set(i,{editor,input});outputs.set(i,output);
     }
     $('notebook').append(section);
-  });controls();
+  });controls();scheduleSectionSync();
 }
 function boot(){
   if(worker)worker.terminate();if(workerURL)URL.revokeObjectURL(workerURL);
@@ -90,4 +90,34 @@ $('restore').onchange=async e=>{
   }catch(err){$('fatal').textContent=String(err);}finally{e.target.value='';}
 };
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+// Follow the document, including manual scrolling, anchors and layout changes.
+let sectionFrame=0;
+function scheduleSectionSync(){
+  if(sectionFrame)return;
+  sectionFrame=requestAnimationFrame(()=>{sectionFrame=0;syncCurrentSection();});
+}
+function syncCurrentSection(){
+  const links=[...$('sections').querySelectorAll('a')];
+  if(!links.length)return;
+  let current=links[0];
+  const readingLine=Math.min(80,window.innerHeight*0.15);
+  for(const link of links){
+    const section=$(link.hash.slice(1));
+    if(section && section.getBoundingClientRect().top<=readingLine)current=link;
+  }
+  if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-3)current=links.at(-1);
+  if(current.getAttribute('aria-current')==='location')return;
+  links.forEach(link=>link.removeAttribute('aria-current'));
+  current.setAttribute('aria-current','location');
+  // Scroll only the sidebar, never the lesson or mobile document.
+  if(window.matchMedia('(min-width: 851px)').matches){
+    const menu=document.querySelector('.contents'),box=menu.getBoundingClientRect(),item=current.getBoundingClientRect();
+    if(item.top<box.top+12)menu.scrollTop-=box.top+12-item.top;
+    else if(item.bottom>box.bottom-12)menu.scrollTop+=item.bottom-box.bottom+12;
+  }
+}
+window.addEventListener('scroll',scheduleSectionSync,{passive:true});
+window.addEventListener('resize',scheduleSectionSync);
+window.addEventListener('hashchange',scheduleSectionSync);
+new ResizeObserver(scheduleSectionSync).observe($('notebook'));
 render();boot();
