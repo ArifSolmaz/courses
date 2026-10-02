@@ -101,6 +101,7 @@ def load_week(week):
 def panel(week):
     n = week["week"]
     lesson = LESSONS[n - 1]
+    offline = '<a href="../offline/CP1_Week_03_Offline.html">Full offline notebook · lesson, practice &amp; solutions</a>' if n == 3 else ''
     rows = ''.join(f'<tr><td>{ex["id"]}</td><td>{html.escape(ex["title"])}</td><td>{"Core" if ex["core"] else "Optional"}</td></tr>' for ex in week["exercises"])
     return f'''<section class="week-panel{' active' if n == 1 else ''}" id="week-{n}" aria-labelledby="heading-{n}">
 <p class="eyebrow">Week {n:02d} · {html.escape(lesson['strand'])}</p>
@@ -111,6 +112,7 @@ def panel(week):
 <p class="study-note">Read the lesson and its examples on one page. Continue in Colab when you are ready to try them.</p>
 <details class="path-resources"><summary>Notebook, solutions &amp; practice reference</summary><div>
 <p>Python tools: {inline(week['title'])}. {week['core']} core / {week['optional']} optional exercises. Weekly notebooks are private practice.</p>
+{offline}
 <a href="{COLAB + week['notebook']}" target="_blank" rel="noopener">Lesson in Colab</a>
 <a href="../{week['notebook']}" download>Download notebook</a>
 <a href="{COLAB + week['solutions']}" target="_blank" rel="noopener">Worked solutions in Colab</a>
