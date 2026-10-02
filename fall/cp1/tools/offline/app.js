@@ -1,12 +1,13 @@
 let notebook=structuredClone(ORIGINAL), worker, workerURL, ready=false, busy=false, active=null, execution=0, dirty=false;
-const $=id=>document.getElementById(id), editors=new Map(), outputs=new Map(), runSources=new Map(), errors=new Map();
+const $=id=>document.getElementById(id), editors=new Map(), outputs=new Map(), runSources=new Map(), errors=new Map(), plots=new Map();
+let runtimeFiles={lesson:[],solutions:[]};
 $('licenses').textContent=LICENSES;
 if(location.protocol==='https:'||location.protocol==='http:'){const a=$('download-html');a.hidden=false;a.href=CONFIG.filename;a.download=CONFIG.filename;}
 
 function markDirty(){dirty=true;$('save-state').textContent='Unsaved changes — use Save notebook before leaving.';}
-function controls(){document.querySelectorAll('.run').forEach(b=>b.disabled=!ready||busy);}
+function controls(){document.querySelectorAll('.run,[data-runtime-control]').forEach(b=>b.disabled=!ready||busy);}
 function render(){
-  $('notebook').replaceChildren();editors.clear();outputs.clear();errors.clear();$('sections').replaceChildren();let lastRealm=null;
+  $('notebook').replaceChildren();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
   notebook.cells.forEach((cell,i)=>{
     const section=document.createElement('section');
     if(cell.cell_type==='markdown'){
@@ -14,7 +15,7 @@ function render(){
       section.querySelectorAll('a').forEach(a=>{if(!a.getAttribute('href').startsWith('#')){a.target='_blank';a.rel='noopener noreferrer';}});
     const heading=[...section.querySelectorAll('h1,h2')].find(h=>!h.closest('details'));
       if(heading){section.id=cell.metadata?.offline_anchor||'section-'+i;const realm=cell.metadata?.offline_realm||'lesson';if(realm!==lastRealm){const group=document.createElement('h3');group.textContent=realm==='solutions'?'Worked solutions':'Lesson & practice';$('sections').append(group);lastRealm=realm;}
-        const link=document.createElement('a');link.href='#'+section.id;link.textContent=(i===0?'Week '+CONFIG.week+' overview':heading.textContent).replace(/^Part (\d+): /,'$1. ').replace(/^CP1 Week 03 — /,'');$('sections').append(link);}
+        const link=document.createElement('a');link.href='#'+section.id;link.textContent=(i===0?'Week '+CONFIG.week+' overview':cell.metadata?.offline_anchor==='solutions'?'Solutions overview':heading.textContent).replace(/^Part (\d+): /,'$1. ').replace(/^CP1 Week \d+ — /,'');$('sections').append(link);}
     }else if(cell.cell_type==='code'){
       section.className='cell';section.id='cell-'+i;
       const bar=document.createElement('div');bar.className='cell-bar';
@@ -25,11 +26,11 @@ function render(){
       editor.oninput=()=>{cell.source=[editor.value];markDirty();};
       editor.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();editor.setRangeText('    ',editor.selectionStart,editor.selectionEnd,'end');editor.dispatchEvent(new Event('input'));} if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runCell(i);}};
       const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='Input values (only for input())';
-      const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';details.append(summary,input);
-      const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
+      const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';input.value=(cell.metadata?.offline_inputs||[]).join('\n');input.oninput=()=>{cell.metadata.offline_inputs=input.value===''?[]:input.value.split('\n');markDirty();};details.open=Boolean(cell.metadata?.offline_inputs);const help=document.createElement('p');help.className='input-help';help.textContent='One response per input() call, in order. Edit the sample values to try another case.';details.append(summary,help,input);
+      const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).filter(o=>o.output_type!=='display_data').map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
       section.append(bar);
       if(editor.value.startsWith('#@title Study tools')){const hidden=document.createElement('details');const title=document.createElement('summary');title.textContent='Study helper code — run once; reading this code is optional';hidden.append(title,editor);section.append(hidden);}else section.append(editor);
-      const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');section.append(details,output,error);errors.set(i,error);editors.set(i,{editor,input});outputs.set(i,output);
+      const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');const images=document.createElement('div');images.className='plots';plots.set(i,images);section.append(details,output,images,error);for(const o of cell.outputs||[]){if(o.output_type==='display_data'&&o.data?.['image/png'])addPlot(i,o.data['image/png']);}errors.set(i,error);editors.set(i,{editor,input});outputs.set(i,output);
     }
     $('notebook').append(section);
   });controls();scheduleSectionSync();
@@ -37,23 +38,39 @@ function render(){
 function boot(){
   if(worker)worker.terminate();if(workerURL)URL.revokeObjectURL(workerURL);
   if(active!==null){$('cell-'+active)?.classList.remove('running');const cell=notebook.cells[active];cell.outputs.push({output_type:'stream',name:'stderr',text:['Stopped. Python state was cleared.\n']});outputs.get(active).textContent+='\nStopped. Python state was cleared.\n';}
-  ready=false;busy=false;active=null;execution=0;controls();$('status').textContent='Starting local Python…';$('fatal').textContent='';
+  runtimeFiles={lesson:[],solutions:[]};renderFiles();ready=false;busy=false;active=null;execution=0;controls();$('status').textContent='Starting local Python…';$('fatal').textContent='';
   workerURL=URL.createObjectURL(new Blob([WORKER],{type:'text/javascript'}));worker=new Worker(workerURL);
   worker.onmessage=({data:m})=>{
     if(m.type==='ready'){ready=true;$('status').textContent='Python ready · runs on this computer';controls();return;}
     if(m.type==='fatal'){$('fatal').textContent=m.text;$('status').textContent='Python could not start';ready=false;busy=false;controls();return;}
+    if(m.type==='loading'){$('status').textContent=m.text;return;}
+    if(m.type==='files'){runtimeFiles[m.realm]=m.files;renderFiles();return;}
+    if(m.type==='download'){downloadBlob(new Blob([m.bytes]),m.name);return;}
+    if(m.type==='fileError'){$('fatal').textContent=m.text;return;}
     const cell=notebook.cells[m.id];if(!cell)return;
+    if(m.type==='plot'){addPlot(m.id,m.png);cell.outputs.push({output_type:'display_data',data:{'image/png':m.png},metadata:{}});}
     if(m.type==='stream'){outputs.get(m.id).textContent+=m.text;cell.outputs.push({output_type:'stream',name:m.name,text:[m.text]});}
     if(m.type==='error'){const error=describePythonError(m.text,m.id,runSources);showError(m.id,error);cell.outputs.push({output_type:'error',ename:error.type,evalue:error.message,traceback:m.text.split('\n')});}
     if(m.type==='done'||m.type==='error'){busy=false;active=null;$('cell-'+m.id).classList.remove('running');$('status').textContent=m.type==='done'?'Finished · Python ready':'Cell has an error · edit and run again';controls();}
   };
   worker.onerror=e=>{$('fatal').textContent=e.message;ready=false;busy=false;controls();};
-  worker.postMessage({type:'init',files:FILES});
+  worker.postMessage({type:'init',files:FILES,config:CONFIG});
 }
 function runCell(i){
   if(!ready||busy)return;busy=true;active=i;controls();$('cell-'+i).classList.add('running');$('status').textContent='Running cell '+(i+1)+'…';
-  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);markDirty();
+  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
+}
+function addPlot(id,png){
+  const image=document.createElement('img');image.src='data:image/png;base64,'+png;image.alt='Python plot from cell '+(id+1);plots.get(id).append(image);
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+function renderFiles(){
+  $('file-list').replaceChildren();$('runtime-files').hidden=!Object.values(runtimeFiles).some(a=>a.length);
+  for(const [realm,files] of Object.entries(runtimeFiles)){
+    if(!files.length)continue;const heading=document.createElement('h3');heading.textContent=realm==='lesson'?'Lesson & practice':'Worked solutions';$('file-list').append(heading);
+    for(const f of files){const button=document.createElement('button');button.textContent=f.name+' · '+Math.ceil(f.size/1024)+' KB';button.disabled=busy||!ready;button.dataset.runtimeControl='';button.onclick=()=>{if(ready&&!busy)worker.postMessage({type:'getFile',realm,name:f.name});};$('file-list').append(button);}
+  }
 }
 function showError(id, error){
   const panel=errors.get(id);panel.replaceChildren();panel.hidden=false;
@@ -82,10 +99,10 @@ $('restore').onchange=async e=>{
   const file=e.target.files[0];if(!file)return;
   try{
     const nb=JSON.parse(await file.text());
-    if(nb.metadata?.cp1_offline_week!==CONFIG.week||nb.nbformat!==4||nb.cells?.length!==ORIGINAL.cells.length||nb.cells.some((c,i)=>c.cell_type!==ORIGINAL.cells[i].cell_type||!Array.isArray(c.source)||c.source.some(s=>typeof s!=='string')))throw Error('Choose a saved Week '+CONFIG.week+' notebook from this offline edition.');
+    if(nb.nbformat!==4||![ORIGINAL.cells.length,CONFIG.lessonCells].includes(nb.cells?.length)||(nb.metadata?.cp1_offline_week!==CONFIG.week&&nb.cells?.[0]?.source?.toString()!==ORIGINAL.cells[0].source.toString())||nb.cells.some((c,i)=>c.cell_type!==ORIGINAL.cells[i].cell_type||!(typeof c.source==='string'||Array.isArray(c.source)&&c.source.every(s=>typeof s==='string'))))throw Error('Choose a saved Week '+CONFIG.week+' notebook from this offline edition.');
     if(dirty&&!confirm('Replace your unsaved edits with the selected notebook?'))return;
     // Keep the trusted lesson text; restore student code only, never execute on import.
-    notebook=structuredClone(ORIGINAL);nb.cells.forEach((c,i)=>{if(c.cell_type==='code'){notebook.cells[i].source=c.source;notebook.cells[i].outputs=(Array.isArray(c.outputs)?c.outputs:[]).filter(o=>o.output_type==='stream'&&Array.isArray(o.text)&&o.text.every(t=>typeof t==='string')).map(o=>({output_type:'stream',name:o.name==='stderr'?'stderr':'stdout',text:o.text}));notebook.cells[i].execution_count=null;}});
+    notebook=structuredClone(ORIGINAL);nb.cells.forEach((c,i)=>{if(c.cell_type==='code'){notebook.cells[i].source=typeof c.source==='string'?[c.source]:c.source;notebook.cells[i].outputs=(Array.isArray(c.outputs)?c.outputs:[]).filter(o=>o.output_type==='stream'&&Array.isArray(o.text)&&o.text.every(t=>typeof t==='string')||o.output_type==='display_data'&&typeof o.data?.['image/png']==='string'&&o.data['image/png'].length<14000000&&/^[A-Za-z0-9+/=\s]+$/.test(o.data['image/png'])).map(o=>o.output_type==='stream'?{output_type:'stream',name:o.name==='stderr'?'stderr':'stdout',text:o.text}:{output_type:'display_data',data:{'image/png':o.data['image/png']},metadata:{}});if(Array.isArray(c.metadata?.offline_inputs)&&c.metadata.offline_inputs.every(v=>typeof v==='string'))notebook.cells[i].metadata.offline_inputs=c.metadata.offline_inputs;notebook.cells[i].execution_count=null;}});
     active=null;render();boot();dirty=false;$('save-state').textContent='Saved code opened. Rerun cells in order to rebuild Python variables.';
   }catch(err){$('fatal').textContent=String(err);}finally{e.target.value='';}
 };

@@ -101,7 +101,7 @@ def load_week(week):
 def panel(week):
     n = week["week"]
     lesson = LESSONS[n - 1]
-    offline = '<a href="../offline/CP1_Week_03_Offline.html">Full offline notebook · lesson, practice &amp; solutions</a>' if n == 3 else ''
+    offline = f'<a href="../offline/CP1_Week_{n:02d}_Offline.html">Full offline notebook · lesson, practice &amp; solutions</a>'
     rows = ''.join(f'<tr><td>{ex["id"]}</td><td>{html.escape(ex["title"])}</td><td>{"Core" if ex["core"] else "Optional"}</td></tr>' for ex in week["exercises"])
     return f'''<section class="week-panel{' active' if n == 1 else ''}" id="week-{n}" aria-labelledby="heading-{n}">
 <p class="eyebrow">Week {n:02d} · {html.escape(lesson['strand'])}</p>

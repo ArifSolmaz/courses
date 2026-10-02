@@ -113,8 +113,8 @@ def render_lesson(lesson, notebook):
     practice = ''.join(f'<li><span class="tag">{eid}</span> {esc(by_id[eid]["title"])}</li>' for eid in lesson['practice'])
     investigate = ''.join(f'<li>{esc(step)}</li>' for step in lesson['investigate'])
     caveat = f'<p class="note">{esc(lesson["caveat"])}</p>' if lesson.get('caveat') else ''
-    practice_heading = 'Try the code — online or offline' if n == 3 else 'Work on it in Colab'
-    offline = '<a class="button" href="../offline/CP1_Week_03_Offline.html">Open offline notebook · full Week 03</a>' if n == 3 else ''
+    practice_heading = 'Try the code — online or offline'
+    offline = f'<a class="button" href="../offline/CP1_Week_{n:02d}_Offline.html">Open offline notebook · full Week {n:02d}</a>'
     body = f'''<main id="main">
 <div class="lesson-layout"><div class="lesson-content">
 <header class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p></header>
