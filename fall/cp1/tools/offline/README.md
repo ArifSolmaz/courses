@@ -31,3 +31,9 @@ Solutions execute in a separate persistent Python globals dictionary from the le
 Offline adaptations are in week03.py: remove local-relative/Colab solution dependencies, align the phase title, clarify sensor-model ranges, identify the simplified battery model, and compare voltage against 3.24/3.96 V to avoid binary floating-point misclassification at the exact 80% boundary.
 
 Validation: all 72 code cells and their supplied assertions execute; 36 additional cases exercise actual answer code at motor thresholds, shaft limits, battery boundaries/invalid readings, ticket-age boundaries and season boundaries. Chrome local-file checks confirmed Python startup, conditional/short-circuit behavior, independent solution globals, and the left-menu/nonsticky-toolbar layout. Classroom-managed PCs still require their own compatibility check.
+
+### Beginner error display
+
+Student executions have filenames such as `Cell 10`. errors.js extracts student-cell locations from the Python traceback, including functions defined in earlier cells. The UI shows the real error type/message, a brief teaching hint, a marked source excerpt from the last run, and a button selecting the line in the editor. Internal frames remain under Technical details. Runtime failures retain preceding stdout and explain that earlier statements may already have changed variables. A rerun clears the prior error panel; `.ipynb` exports retain the full traceback with the correct error type.
+
+Run `node fall/cp1/tools/offline/verify_errors.cjs`. Browser checks reproduced `gpa =` at line 4, confirmed Go to line selects it, verified division by zero after a print, and confirmed a successful rerun removes the error. Hints are guidance, not automatic fixes or correctness grading.

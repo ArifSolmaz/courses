@@ -1,12 +1,12 @@
 let notebook=structuredClone(ORIGINAL), worker, workerURL, ready=false, busy=false, active=null, execution=0, dirty=false;
-const $=id=>document.getElementById(id), editors=new Map(), outputs=new Map();
+const $=id=>document.getElementById(id), editors=new Map(), outputs=new Map(), runSources=new Map(), errors=new Map();
 $('licenses').textContent=LICENSES;
 if(location.protocol==='https:'||location.protocol==='http:'){const a=$('download-html');a.hidden=false;a.href=CONFIG.filename;a.download=CONFIG.filename;}
 
 function markDirty(){dirty=true;$('save-state').textContent='Unsaved changes — use Save notebook before leaving.';}
 function controls(){document.querySelectorAll('.run').forEach(b=>b.disabled=!ready||busy);}
 function render(){
-  $('notebook').replaceChildren();editors.clear();outputs.clear();$('sections').replaceChildren();let lastRealm=null;
+  $('notebook').replaceChildren();editors.clear();outputs.clear();errors.clear();$('sections').replaceChildren();let lastRealm=null;
   notebook.cells.forEach((cell,i)=>{
     const section=document.createElement('section');
     if(cell.cell_type==='markdown'){
@@ -29,7 +29,7 @@ function render(){
       const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
       section.append(bar);
       if(editor.value.startsWith('#@title Study tools')){const hidden=document.createElement('details');const title=document.createElement('summary');title.textContent='Study helper code — run once; reading this code is optional';hidden.append(title,editor);section.append(hidden);}else section.append(editor);
-      section.append(details,output);editors.set(i,{editor,input});outputs.set(i,output);
+      const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');section.append(details,output,error);errors.set(i,error);editors.set(i,{editor,input});outputs.set(i,output);
     }
     $('notebook').append(section);
   });controls();
@@ -44,7 +44,7 @@ function boot(){
     if(m.type==='fatal'){$('fatal').textContent=m.text;$('status').textContent='Python could not start';ready=false;busy=false;controls();return;}
     const cell=notebook.cells[m.id];if(!cell)return;
     if(m.type==='stream'){outputs.get(m.id).textContent+=m.text;cell.outputs.push({output_type:'stream',name:m.name,text:[m.text]});}
-    if(m.type==='error'){outputs.get(m.id).textContent+=m.text;cell.outputs.push({output_type:'error',ename:'PythonError',evalue:m.text,traceback:[m.text]});}
+    if(m.type==='error'){const error=describePythonError(m.text,m.id,runSources);showError(m.id,error);cell.outputs.push({output_type:'error',ename:error.type,evalue:error.message,traceback:m.text.split('\n')});}
     if(m.type==='done'||m.type==='error'){busy=false;active=null;$('cell-'+m.id).classList.remove('running');$('status').textContent=m.type==='done'?'Finished · Python ready':'Cell has an error · edit and run again';controls();}
   };
   worker.onerror=e=>{$('fatal').textContent=e.message;ready=false;busy=false;controls();};
@@ -52,8 +52,27 @@ function boot(){
 }
 function runCell(i){
   if(!ready||busy)return;busy=true;active=i;controls();$('cell-'+i).classList.add('running');$('status').textContent='Running cell '+(i+1)+'…';
-  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';markDirty();
+  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
+}
+function showError(id, error){
+  const panel=errors.get(id);panel.replaceChildren();panel.hidden=false;
+  const title=document.createElement('h3');title.textContent=error.type+(error.line?' · cell '+(error.cell+1)+', line '+error.line:'');
+  const message=document.createElement('p');message.className='error-message';message.textContent=error.message;
+  const hint=document.createElement('p');hint.textContent=error.hint;
+  panel.append(title,message,hint);
+  if(error.line && error.source){
+    const snippet=document.createElement('pre');snippet.className='error-code';
+    const lines=error.source.split('\n');
+    for(let n=Math.max(1,error.line-1);n<=Math.min(lines.length,error.line+1);n++){
+      const row=document.createElement('span');row.textContent=String(n).padStart(3)+'  '+lines[n-1]+'\n';if(n===error.line)row.className='error-line';snippet.append(row);
+    }
+    panel.append(snippet);
+    const edit=document.createElement('button');edit.textContent='Go to line '+error.line;
+    edit.onclick=()=>{const editor=editors.get(error.cell)?.editor;if(!editor)return;const hidden=editor.closest('details');if(hidden)hidden.open=true;editor.scrollIntoView({block:'center'});editor.focus();const lines=editor.value.split('\n'),start=lines.slice(0,error.line-1).reduce((n,s)=>n+s.length+1,0);editor.setSelectionRange(start,start+(lines[error.line-1]||'').length);};panel.append(edit);
+  }
+  const note=document.createElement('p');note.className='muted';note.textContent=error.syntax?'Fix the syntax, then run again. Previously stored variables are not cleared.':'Execution stopped at the error. Earlier statements may already have changed variables. Fix the code and rerun; restart Python if you need a clean state.';
+  const details=document.createElement('details'),summary=document.createElement('summary'),raw=document.createElement('pre');summary.textContent='Technical details — full traceback';raw.textContent=error.text;details.append(summary,raw);panel.append(note,details);
 }
 $('restart').onclick=boot;
 $('save').onclick=()=>{

@@ -35,7 +35,7 @@ def main():
     html=(HERE/'template.html').read_text()
     if week==3:
         html=html.replace('Week 01','Week 03').replace('Week‑1','Week‑3').replace('Offline pilot','Offline notebook').replace('Offline pilot ·','Offline notebook ·').replace('Pilot scope &amp; help','Scope &amp; help').replace('Your notebook. No classroom internet.','Conditionals &amp; decision making').replace('The lesson below is the existing Week‑3 notebook.', 'The complete Week‑3 lesson, 12 exercises, the bridge exercise and their worked solutions are included below. Solutions run in a separate Python namespace, so they do not fill in variables in your practice.').replace('This pilot has not been tested on your managed classroom PCs.','This file has not been tested on your managed classroom PCs.')
-    replacements={'CONFIG':js(config),'MARKED':assets['marked.js'].decode(),'PURIFY':assets['purify.js'].decode(),'NOTEBOOK':js(nb),'FILES':js(files),'WORKER':js(worker),'LICENSES':js('\n\n'.join(n+'\n'+v.decode() for n,v in assets.items() if n.startswith('LICENSE-'))),'APP':(HERE/'app.js').read_text()}
+    replacements={'CONFIG':js(config),'MARKED':assets['marked.js'].decode(),'PURIFY':assets['purify.js'].decode(),'NOTEBOOK':js(nb),'FILES':js(files),'WORKER':js(worker),'LICENSES':js('\n\n'.join(n+'\n'+v.decode() for n,v in assets.items() if n.startswith('LICENSE-'))),'APP':(HERE/'errors.js').read_text()+'\n'+(HERE/'app.js').read_text()}
     for key,value in replacements.items():html=html.replace('/*'+key+'*/',value)
     out=CP1/'offline'/config['filename'];out.parent.mkdir(exist_ok=True);out.write_text(html)
     print(f'{out}: {out.stat().st_size/1e6:.1f} MB, {len(nb["cells"])} cells')

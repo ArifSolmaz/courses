@@ -23,7 +23,7 @@ self.onmessage = async ({data:m}) => {
     } else if(m.type==='run') {
       active=m.id; streamCount=0; inputs=m.inputs;
       try {
-        const result=await py.runPythonAsync(m.code,{globals:realms[m.realm||'lesson']});
+        const result=await py.runPythonAsync(m.code,{globals:realms[m.realm||'lesson'],filename:'Cell '+(m.id+1)});
         if(result!==undefined) {stream('stdout',String(result)); if(result?.destroy) result.destroy();}
         send('done');
       } catch(e) {send('error',{text:String(e)});}
