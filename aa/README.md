@@ -73,3 +73,5 @@ Weeks 3–14 have a second, plain-language version written in Turkish (key terms
 - Anchored links in `review/` that pointed into the original pages (`#example-…`, `#practice`) now point to `wN/ek-notlar/#…` for weeks 3–14.
 - Running the build also rewrites the `guide/` and `python/` redirect stubs (path separators differ from the committed ones); the committed files can be kept as they are.
 - The previous `build.py` is saved in `archive/pre-simple-2026-10-05/build.py.orig`.
+
+- The plain pages carry a left table of contents with automatic highlighting while scrolling, a reading-progress percentage (also a top bar; on narrow screens a "☰ İçindekiler" button opens it) and remember the furthest point read per week in the browser. The block is `tools/simple/_sidebar.html`; after editing it or adding a week, run `python3 tools/simple/inject_sidebar.py tools/simple` (idempotent) and then the build.
