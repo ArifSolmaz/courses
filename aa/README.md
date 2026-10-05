@@ -63,3 +63,13 @@ widgets on a wide stage". Checked with a headless sweep of all 93 demonstrations
 frames at 1366×768 and 2000×1014 (expanded), inline at 1366 px and at 390 px: no console errors, no scrolling
 stage, no clipped code, no overlapping blocks. Week 3's evens grid now draws 100 numbers as a 10 × 10 square and
 200 or 400 as plain coloured cells.
+
+## Plain-language 3-hour lessons (5 October 2026)
+
+Weeks 3–14 have a second, plain-language version written in Turkish (key terms in English in brackets) for a 3-hour class: a review of earlier weeks, many worked examples, interactive tools, quizzes and exercises. It is the **main page** of each of those weeks (`w3/` … `w14/`); the original page is kept as **additional notes** at `wN/ek-notlar/`.
+
+- Sources of the plain pages: `tools/simple/wN.html` (self-contained, offline, no external fonts). Edit those, then run `python3 tools/build.py`.
+- `tools/aligned/build.py` copies `tools/simple/wN.html` to `wN/index.html` when it exists and writes the generated original page to `wN/ek-notlar/index.html` (links shifted one level deeper). Weeks 1–2 are unchanged. Remove a file from `tools/simple/` to restore the original page as the main page.
+- Anchored links in `review/` that pointed into the original pages (`#example-…`, `#practice`) now point to `wN/ek-notlar/#…` for weeks 3–14.
+- Running the build also rewrites the `guide/` and `python/` redirect stubs (path separators differ from the committed ones); the committed files can be kept as they are.
+- The previous `build.py` is saved in `archive/pre-simple-2026-10-05/build.py.orig`.
