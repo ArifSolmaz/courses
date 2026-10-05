@@ -147,12 +147,12 @@ label input[type=checkbox]{margin-right:6px}
 
 <h3>0.1 Hafta 12: Fibonacci’de üç yol</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 12 — Fibonacci</b>
-F(0)=0, F(1)=1, F(n)=F(n−1)+F(n−2). Üç yol: <b>(1) yalın özyineleme</b> (tanımı koda dökmek): aynı değerleri defalarca hesaplar, çağrı sayısı ≈ 1,6ⁿ, <i>üstel</i>. <b>(2) bellekleme (memoization)</b>: özyinelemeyi koru, her sonucu bir tabloya yaz, önce tabloya bak: her değer bir kez hesaplanır, Θ(n). <b>(3) tablo doldurma (DP, bottom-up)</b>: özyinelemeyi at, f[2], f[3], … diye döngüyle doldur: Θ(n). Ders: <b>bellek alanı verip zaman kazandık</b>. “Önce doğru özyinelemeli algoritmayı bul, sonra sonuç tablosuyla hızlandır.”</div>
+F(0)=0, F(1)=1, F(n)=F(n−1)+F(n−2). Üç yol: <b>(1) yalın özyineleme</b> (tanımı koda dökmek): aynı değerleri defalarca hesaplar, çağrı sayısı tam olarak 2F(n+1)−1 = Θ(φⁿ), φ = (1+√5)/2 ≈ 1,618 (kabaca “1,6ⁿ gibi”), <i>üstel</i>. <b>(2) bellekleme (memoization)</b>: özyinelemeyi koru, her sonucu bir tabloya yaz, önce tabloya bak: her değer bir kez hesaplanır, Θ(n). <b>(3) tablo doldurma (DP, bottom-up)</b>: özyinelemeyi at, f[2], f[3], … diye döngüyle doldur: Θ(n). Ders: <b>bellek alanı verip zaman kazandık</b>. “Önce doğru özyinelemeli algoritmayı bul, sonra sonuç tablosuyla hızlandır.”</div>
 
 <div id="w_fib"></div>
 <div class="mut">n = 6’da kırmızı düğümleri sayın: F(4) iki kez, F(3) üç kez, F(2) beş kez hesaplanır (Hafta 12’deki cümle). n = 30’da yalın yöntem 2,7 milyon çağrı yapar, oysa yalnızca 31 farklı değer vardır.</div>
 
-<pre>def fib_r(n):                      # yalın: Θ(1,6ⁿ)
+<pre>def fib_r(n):                      # yalın: Θ(φⁿ), φ ≈ 1,618
     return n if n &lt; 2 else fib_r(n-1) + fib_r(n-2)
 
 def fib_c(n, f={0: 0, 1: 1}):      # bellekleme: Θ(n)
@@ -221,13 +221,18 @@ Hepsinin altında bir kavram yatar: <b>durum (state)</b> = “kalan kararlar iç
 <p>Para üstünü de, Fibonacci’yi de, düzenleme uzaklığını da önce <b>özyineleme</b> olarak yazabiliriz. Yalın özyineleme doğrudur ama aynı alt problemlere defalarca girer. Aşağıda çağrı sayıları gerçekten sayılıyor.</p>
 <div id="w_cmp"></div>
 
-<pre>def para_ustu_ozyineleme(coins, a):      # doğru ama üstel
-    if a == 0: return 0
-    return 1 + min(para_ustu_ozyineleme(coins, a - c) for c in coins if c &lt;= a)
+<pre>INF = float("inf")
 
-def para_ustu_memo(coins, a, memo={0: 0}):   # bellekleme
+def para_ustu_ozyineleme(coins, a):      # doğru ama üstel
+    if a == 0: return 0
+    return min((1 + para_ustu_ozyineleme(coins, a - c) for c in coins if c &lt;= a),
+               default=INF)             # ulaşılamıyorsa sonsuz
+
+def para_ustu_memo(coins, a, memo=None):     # bellekleme
+    if memo is None: memo = {0: 0}       # her üst düzey çağrıda yeni önbellek
     if a not in memo:
-        memo[a] = 1 + min(para_ustu_memo(coins, a - c) for c in coins if c &lt;= a)
+        memo[a] = min((1 + para_ustu_memo(coins, a - c, memo)   # önbellek özyinelemeye geçirilir
+                       for c in coins if c &lt;= a), default=INF)
     return memo[a]
 
 def para_ustu_tablo(coins, A):           # tablo: Θ(A · |coins|)
@@ -237,7 +242,9 @@ def para_ustu_tablo(coins, A):           # tablo: Θ(A · |coins|)
             if c &lt;= a: best[a] = min(best[a], best[a - c] + 1)
     return best[A]
 
-print(para_ustu_tablo([1, 3, 4], 6))     # 2</pre>
+print(para_ustu_tablo([1, 3, 4], 6))     # 2
+print(para_ustu_memo([1, 3, 4], 6))      # 2
+print(para_ustu_memo([1, 5, 6], 6))      # 1 (önbellek paylaşılmaz)</pre>
 
 <div class="rule skip"><b class="t">Şimdilik atla</b>
 Bellekleme ile tablo arasındaki fark yalnızca <i>sıra</i>dır: bellekleme gereken alt problemleri “istendikçe” hesaplar (özyineleme yığını kullanır), tablo hepsini küçükten büyüğe hesaplar. Sınavda ikisi de kabul edilir; üçüncü adımı (sıra) açıkça yazmak tablo yönteminde zorunludur.</div>
@@ -429,7 +436,7 @@ OPT(0) = 0; <b>OPT(i) = max( OPT(i−1), ücretᵢ + OPT(p(i)) )</b>. Sıralama 
 
 <h3>4.5 Yumurta düşürme</h3>
 <p><b>Soru.</b> n katlı binada kritik bir kat f var: f’den atılan yumurta kırılır, f−1’den sağlam kalır. k yumurtanız var, kırılanlar gider. En kötü durumda en az kaç bırakmayla f bulunur? E(k,n) olsun. <b>Taban:</b> E(1,n) = n (tek yumurtayla risk alamazsınız, alttan sırayla), E(k,0) = 0. <b>Yineleme:</b> x. kattan bırakın; kırılırsa E(k−1, x−1), kırılmazsa E(k, n−x) kalır, <b>kötüsünü</b> alırsınız, x’i bu kötüyü küçültecek şekilde seçersiniz:</p>
-<div class="rule"><b class="t">Kural 7 — yumurta</b> E(k,n) = 1 + min over x (1…n) of max( E(k−1, x−1), E(k, n−x) ). Hücre sayısı k·n, hücre başı O(n) iş: <span class="en">O(kn²)</span>. İki yumurtada yaklaşık 2√n bırakma gerekir.</div>
+<div class="rule"><b class="t">Kural 7 — yumurta</b> E(k,n) = 1 + min over x (1…n) of max( E(k−1, x−1), E(k, n−x) ). Hücre sayısı k·n, hücre başı O(n) iş: <span class="en">O(kn²)</span>. İki yumurtada yaklaşık √(2n) bırakma gerekir; tam değer ⌈(√(8n+1)−1)/2⌉ (n = 100 için 14; çünkü b bırakma 1+2+…+b = b(b+1)/2 katı çözer).</div>
 <p><b>Örnekler:</b> E(1,8) = <b>8</b>; E(2,10) = <b>4</b> (4, 7, 9, 10. katlar: aralıklar 4, 3, 2, 1). Üç bırakma 2 yumurtayla en çok 3+2+1 = 6 kat çözer, 10’a yetmez.</p>
 <div id="w_egg"></div>
 
@@ -463,12 +470,12 @@ OPT(0) = 0; <b>OPT(i) = max( OPT(i−1), ücretᵢ + OPT(p(i)) )</b>. Sıralama 
 <h3>5.2 Alt problem ve yineleme</h3>
 <p><b>Son karar:</b> son (k.) aralık nerede başlıyor? Son ayırıcı x. ve x+1. elemanlar arasındaysa, son aralığın toplamı sₓ₊₁+…+sₙ’dir; geri kalanı <b>ilk x elemanın k−1 aralığa bölünmesi</b> (aynı problemin küçüğü). Bu seçimin maliyeti ikisinin <b>büyüğüdür</b>.</p>
 <div class="rule"><b class="t">Kural 8 — doğrusal bölme</b>
-M[i][j] = ilk i sayıyı j aralığa bölmenin en küçük “en büyük toplam”ı.<br>
-<b>M[i][j] = min over x (1 ≤ x &lt; i) of max( M[x][j−1], sₓ₊₁ + … + sᵢ )</b>.<br>
-Taban: M[1][j] = s₁ (tek eleman), M[i][1] = s₁+…+sᵢ (tek aralık her şeyi alır). Cevap M[n][k].<br>
+M[i][j] = ilk i sayıyı j <b>boş olmayan</b> aralığa bölmenin en küçük “en büyük toplam”ı (j &gt; i ise bölme yoktur: M[i][j] = ∞).<br>
+<b>M[i][j] = min over x (j−1 ≤ x &lt; i) of max( M[x][j−1], sₓ₊₁ + … + sᵢ )</b>.<br>
+Taban: M[i][1] = s₁+…+sᵢ (tek aralık her şeyi alır; M[1][1] = s₁); j &gt; i için M[i][j] = ∞ (örneğin M[1][2] = ∞). Cevap M[n][k] (k ≤ n varsayılır).<br>
 Süre: k·n hücre × hücre başına n ayırıcı = <span class="en">O(kn²)</span>. Aralık toplamları <b>önek toplamlarıyla</b> O(1)’de bulunur; yoksa O(kn³) olurdu. Hangi x’in kazandığını saklarsak bölmeyi geri okuruz.</div>
 
-<p><b>Çözümlü örnek (alıştırma sorusu):</b> 1 2 3 4 5, k = 2. İlk sütun (tek aralık): M[i][1] = 1, 3, 6, 10, 15. Tek eleman: M[1][2] = 1. M[2][2] = max(M[1][1], 2) = 2. M[3][2] = min( max(1, 5), max(3, 3) ) = <b>3</b> (x=2). M[4][2] = min( max(1,9), max(3,7), max(6,4) ) = <b>6</b> (x=3). M[5][2] = min( max(1,14), max(3,12), max(6,9), max(10,5) ) = min(14, 12, 9, 10) = <b>9</b> (x=3). Bölme: {1,2,3} | {4,5}, toplamlar 6 ve 9. Aynı zamanda “ilk dört ayırıcı konumunun en büyük toplamları 14, 12, 9, 10” cümlesi (alıştırma sorusu 16) budur.</p>
+<p><b>Çözümlü örnek (alıştırma sorusu):</b> 1 2 3 4 5, k = 2. İlk sütun (tek aralık): M[i][1] = 1, 3, 6, 10, 15. Tek elemanı 2 boş olmayan aralığa bölemeyiz: M[1][2] = ∞. M[2][2] = max(M[1][1], 2) = 2. M[3][2] = min( max(1, 5), max(3, 3) ) = <b>3</b> (x=2). M[4][2] = min( max(1,9), max(3,7), max(6,4) ) = <b>6</b> (x=3). M[5][2] = min( max(1,14), max(3,12), max(6,9), max(10,5) ) = min(14, 12, 9, 10) = <b>9</b> (x=3). Bölme: {1,2,3} | {4,5}, toplamlar 6 ve 9. Aynı zamanda “ilk dört ayırıcı konumunun en büyük toplamları 14, 12, 9, 10” cümlesi (alıştırma sorusu 16) budur.</p>
 <div id="w_part"></div>
 <div class="mut">Deneyin: 100…900, k=3 → <b>1 700</b> (yukarıdaki adil bölüşüm). 3 1 4 1 5 9 2 6, k=3 → <b>14</b> (3 1 4 1 | 5 9 | 2 6: toplamlar 9, 14, 8). “Eşit sayıda eleman” ve “ortalamaya kadar doldur” satırlarında bu iki sezgiselin bazen daha kötü, bazen eşit sonuç verdiğini görün.</div>
 
@@ -553,7 +560,7 @@ Symbol Technology, birkaç yüz bayt saklayan PDF-417 barkodunu tasarladı. Kodu
 <details><summary>Cevap</summary><b>3</b>: 5, 6, 7 ya da 1, 2, 7. (Sıralı kopya 1 2 5 6 7 ile LCS de 3 verir.)</details></div>
 
 <div class="box"><b>5.</b> (kolay) 1, 2, 3, 4, 5 dizisini 2 bitişik aralığa bölün; en büyük aralık toplamı en küçük olsun.
-<details><summary>Cevap</summary>Ayırıcı 1., 2., 3., 4. elemandan sonra: en büyük toplamlar 14, 12, 9, 10. En küçüğü <b>9</b>: {1,2,3} | {4,5}. M tablosu: M[i][1] = 1,3,6,10,15; M[i][2] = 1,2,3,6,9. (Elemanın öncesinde ayırıcı koymak boş aralık verirdi; boş aralık yok.)</details></div>
+<details><summary>Cevap</summary>Ayırıcı 1., 2., 3., 4. elemandan sonra: en büyük toplamlar 14, 12, 9, 10. En küçüğü <b>9</b>: {1,2,3} | {4,5}. M tablosu: M[i][1] = 1,3,6,10,15; M[i][2] = ∞,2,3,6,9. (Elemanın öncesinde ayırıcı koymak boş aralık verirdi; boş aralık yok.)</details></div>
 
 <div class="box"><b>6.</b> (orta) Paralar {1,3,4}, tutar 6. Açgözlü ile DP’yi karşılaştırın.
 <details><summary>Cevap</summary>Açgözlü: 4+1+1 = <b>3</b> para. DP: best = [0,1,2,1,1,2,2]; best[6] = 1+min(best[5], best[3], best[2]) = 1+min(2,1,2) = <b>2</b> (3+3). Açgözlü yanıldı; DP her “son para”yı dener.</details></div>
@@ -606,7 +613,7 @@ s’den başlayan en uzun yol için DP yazın; çevrimli grafta neden bozulur?
 
 <div class="box"><b>Önceki haftalardan hatırlanacaklar</b>
 <ul>
-<li>Fibonacci: yalın özyineleme Θ(1,6ⁿ); bellekleme/tablo Θ(n). Pascal: C(n,k) = C(n−1,k−1)+C(n−1,k).</li>
+<li>Fibonacci: yalın özyineleme Θ(φⁿ) (φ = (1+√5)/2 ≈ 1,618; çağrı sayısı 2F(n+1)−1); bellekleme/tablo Θ(n). Pascal: C(n,k) = C(n−1,k−1)+C(n−1,k).</li>
 <li>Dijkstra negatif olmayan ağırlık ister; Bellman–Ford negatifle çalışır; Floyd Θ(n³).</li>
 <li>Backtracking + budama; açgözlü kanıt ister; tek sayaç-örnek bir iddiayı çürütür.</li>
 <li>İç içe döngüde çarp, arka arkaya topla; iki öneke bağlı tablo Θ(mn).</li>
@@ -789,11 +796,11 @@ function breakOrderCost(L,bs,order){ // belirli bir sırada kırma maliyeti
 function partDP(s,k){
   const n=s.length,pre=[0];for(const v of s)pre.push(pre[pre.length-1]+v);
   const M=Array.from({length:n+1},()=>Array(k+1).fill(0)),Dv=Array.from({length:n+1},()=>Array(k+1).fill(0));
+  for(let i=0;i<=n;i++)for(let j=0;j<=k;j++)M[i][j]=INF;
   for(let i=1;i<=n;i++)M[i][1]=pre[i];
-  for(let j=1;j<=k;j++)M[1][j]=s[0];
-  for(let i=2;i<=n;i++)for(let j=2;j<=k;j++){let b=INF,bx=1;for(let x=1;x<i;x++){const v=Math.max(M[x][j-1],pre[i]-pre[x]);if(v<b){b=v;bx=x}}M[i][j]=b;Dv[i][j]=bx}
+  for(let i=2;i<=n;i++)for(let j=2;j<=Math.min(k,i);j++){let b=INF,bx=j-1;for(let x=j-1;x<i;x++){const v=Math.max(M[x][j-1],pre[i]-pre[x]);if(v<b){b=v;bx=x}}M[i][j]=b;Dv[i][j]=bx}
   // geri okuma
-  const cuts=[];let i=n,j=k;while(j>1&&i>1){const x=Dv[i][j];cuts.push(x);i=x;j--}
+  const cuts=[];let i=n,j=k;while(j>1){const x=Dv[i][j];cuts.push(x);i=x;j--}
   cuts.reverse();
   const parts=[];let a=0;for(const c of [...cuts,n]){parts.push(s.slice(a,c));a=c}
   return {M,Dv,pre,cuts,parts,best:M[n][k]};
@@ -1072,17 +1079,17 @@ const ptW=tabStepper("#w_part",{title:"Kendin dene — doğrusal bölme: k biti�
  build(v){
   const s=numList(v.s).filter(x=>x>=0).slice(0,10),n=s.length;let k=Math.floor(+v.k||1);
   if(n<2)return {err:"En az 2 sayı girin."};k=Math.min(Math.max(k,1),Math.min(n,5));
-  const r=partDP(s,k),order=[];for(let i=2;i<=n;i++)for(let j=2;j<=k;j++)order.push([i,j]);
-  const init=[];for(let i=1;i<=n;i++)init.push([i,1]);for(let j=1;j<=k;j++)init.push([1,j]);
+  const r=partDP(s,k),order=[];for(let i=2;i<=n;i++)for(let j=2;j<=Math.min(k,i);j++)order.push([i,j]);
+  const init=[];for(let i=1;i<=n;i++)init.push([i,1]);for(let i=1;i<=n;i++)for(let j=i+1;j<=k;j++)init.push([i,j]);
   const sums=r.parts.map(p=>p.reduce((a,b)=>a+b,0)),eq=equalCountSplit(s,k),av=avgFillSplit(s,k);
   const mx=P=>Math.max(...P.map(p=>p.reduce((a,b)=>a+b,0)));
   const fmtParts=P=>P.map(p=>p.join(" ")).join(" | ");
-  const path=[];{let i=n,j=k;path.push([i,j]);while(j>1&&i>1){const x=r.Dv[i][j];i=x;j--;path.push([i,j])}}
+  const path=[];{let i=n,j=k;path.push([i,j]);while(j>1){const x=r.Dv[i][j];i=x;j--;path.push([i,j])}}
   return {R:["·",...s.map((x,i)=>`${i+1}: ${x}`)],C:["·",...Array.from({length:k},(_,j)=>"k="+(j+1))],corner:"i\\k",init,order,
-   val:(i,j)=>i===0||j===0?"":r.M[i][j],arrow:(i,j)=>i>=2&&j>=2?`ayırıcı ${r.Dv[i][j]}|`:"",
+   val:(i,j)=>i===0||j===0?"":(r.M[i][j]===INF?"∞":r.M[i][j]),arrow:(i,j)=>i>=2&&j>=2&&j<=i?`ayırıcı ${r.Dv[i][j]}|`:"",
    deps:(i,j)=>{const x=r.Dv[i][j];return [[x,j-1]]},
-   start:"M[i][j] = ilk i sayıyı j aralığa bölmenin en küçük “en büyük toplam”ı. 1. sütun: tek aralık = önek toplamı. 1. satır: tek eleman = s₁. <b>İleri</b> ile iç hücreleri doldurun.",
-   note:(i,j)=>{const cands=[];for(let x=1;x<i;x++)cands.push(`x=${x}: max(M[${x}][${j-1}]=${r.M[x][j-1]}, ${r.pre[i]-r.pre[x]}) = ${Math.max(r.M[x][j-1],r.pre[i]-r.pre[x])}`);return `<b>M[${i}][${j}]</b>: son ayırıcı x’ten sonra gelsin (son aralık = sₓ₊₁…s${i}).<br>${cands.join(" · ")}<br>→ en küçük <b>${r.M[i][j]}</b> (x=${r.Dv[i][j]}).`},
+   start:"M[i][j] = ilk i sayıyı j aralığa bölmenin en küçük “en büyük toplam”ı. 1. sütun: tek aralık = önek toplamı. j &gt; i hücreleri ∞ (boş olmayan aralık sayısı eleman sayısını aşamaz). <b>İleri</b> ile i ≥ j olan iç hücreleri doldurun.",
+   note:(i,j)=>{const cands=[];for(let x=j-1;x<i;x++)cands.push(`x=${x}: max(M[${x}][${j-1}]=${r.M[x][j-1]}, ${r.pre[i]-r.pre[x]}) = ${Math.max(r.M[x][j-1],r.pre[i]-r.pre[x])}`);return `<b>M[${i}][${j}]</b>: son ayırıcı x’ten sonra gelsin (son aralık = sₓ₊₁…s${i}).<br>${cands.join(" · ")}<br>→ en küçük <b>${r.M[i][j]}</b> (x=${r.Dv[i][j]}).`},
    end:`Cevap M[${n}][${k}] = <b>${r.best}</b>.`,path,
    sum:`Bölme: <b>${fmtParts(r.parts)}</b> → aralık toplamları ${sums.join(", ")} → en büyüğü <b>${Math.max(...sums)}</b>.<br>Eşit sayıda eleman: ${fmtParts(eq)} → en büyük <b>${mx(eq)}</b>${mx(eq)>r.best?' <span class="bad">(daha kötü)</span>':' <span class="ok">(burada eşit)</span>'}.<br>Ortalamaya kadar doldur (toplam÷k=${(r.pre[n]/k).toFixed(1)}): ${fmtParts(av)} → en büyük <b>${mx(av)}</b>${mx(av)>r.best?' <span class="bad">(daha kötü)</span>':' <span class="ok">(burada eşit)</span>'}.`};
  }});
@@ -1193,7 +1200,7 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
   {n:"0/1 sırt çantası",st:"V(i,w): ilk i eşya, kapasite w ile en iyi değer",rec:"V(i,w) = max( V(i−1,w), V(i−1,w−wᵢ)+vᵢ )  (wᵢ ≤ w ise)",base:"V(0,w)=0",ord:"i artan; her i için w serbest",ans:"V(n,W)",S:(n,m)=>(n+1)*(m+1),W:()=>2,l:["n (eşya)","W (kapasite)"]},
   {n:"Para üstü",st:"best(a): a liraya en az para",rec:"best(a) = 1 + min over c of best(a−c)",base:"best(0)=0",ord:"a küçükten büyüğe",ans:"best(A)",S:(n,m)=>m+1,W:(n)=>n,l:["c (madeni para türü)","A (tutar)"]},
   {n:"Ağırlıklı aralık planlama",st:"OPT(i): bitişe göre sıralı ilk i işle en iyi ücret",rec:"OPT(i) = max( OPT(i−1), ücretᵢ + OPT(p(i)) )",base:"OPT(0)=0",ord:"i artan",ans:"OPT(n)",S:(n)=>n+1,W:()=>2,l:["n (iş)","–"]},
-  {n:"Doğrusal bölme",st:"M(i,j): ilk i sayıyı j aralığa böl: en küçük en-büyük-toplam",rec:"M(i,j) = min over x of max( M(x,j−1), s[x+1]+…+s[i] )",base:"M(1,j)=s₁, M(i,1)=s₁+…+sᵢ",ord:"j artan, i artan",ans:"M(n,k)",S:(n,m)=>n*m,W:(n)=>n,l:["n (sayı)","k (aralık)"]},
+  {n:"Doğrusal bölme",st:"M(i,j): ilk i sayıyı j aralığa böl: en küçük en-büyük-toplam",rec:"M(i,j) = min over x of max( M(x,j−1), s[x+1]+…+s[i] )",base:"M(i,1)=s₁+…+sᵢ; j>i için M(i,j)=∞",ord:"j artan, i artan",ans:"M(n,k)",S:(n,m)=>n*m,W:(n)=>n,l:["n (sayı)","k (aralık)"]},
   {n:"Gezgin satıcı (TSP)",st:"T(S,i): S kümesindeki şehirleri gezip i’de bitiren en kısa yol",rec:"T(S,i) = min over m∈S of ( T(S∖{i},m) + C[m,i] )",base:"tek şehirli kümeler",ord:"|S| küçükten büyüğe",ans:"min over i of T(tümü,i)+C[i,1]",S:(n)=>n*Math.pow(2,n),W:(n)=>n,l:["n (şehir)","–"]}
  ];
  const root=$("#w_rec");root.classList.add("try");
@@ -1382,7 +1389,7 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
 })();
 /* ---------- quizler ---------- */
 const QUIZ0=[
- ["Yalın özyinelemeli Fibonacci (fib_r) için çağrı sayısı n ile nasıl büyür?",["Θ(n)","Θ(n log n)","Θ(1,6ⁿ) (üstel)","Θ(n²)"],2,"Aynı değerler tekrar tekrar hesaplanır; çağrı ağacının yaprak sayısı ≈ Fₙ ≈ 1,6ⁿ."],
+ ["Yalın özyinelemeli Fibonacci (fib_r) için çağrı sayısı n ile nasıl büyür?",["Θ(n)","Θ(n log n)","Θ(φⁿ), φ ≈ 1,618 (üstel)","Θ(n²)"],2,"Aynı değerler tekrar tekrar hesaplanır; çağrı sayısı tam olarak 2F(n+1)−1 = Θ(φⁿ), φ = (1+√5)/2 ≈ 1,618 (örneğin n = 10 için 177)."],
  ["Bellekli (memoized) F(n) kaç farklı alt problem çözer?",["n+1","2ⁿ","n²","log n"],0,"F(0), F(1), …, F(n): her biri bir kez. Toplam iş Θ(n)."],
  ["Dijkstra’nın “kesinleşmiş köşe” iddiası neye dayanır?",["Grafın yönsüz olması","Kenar ağırlıklarının negatif olmaması","Köşe sayısının az olması","Grafın ağaç olması"],1,"Negatif kenar sonradan daha kısa bir yol açabilir: A→B=2, A→C=5, C→B=−4’te B’nin gerçek uzaklığı 1’dir."],
  ["Floyd (bütün çiftler) n köşeli grafta hangi sürede çalışır?",["Θ(n)","Θ(n²)","Θ(n³)","Θ(2ⁿ)"],2,"k, i, j üç iç içe döngü: n·n·n güncelleme d[i][j] = min(d[i][j], d[i][k]+d[k][j])."],

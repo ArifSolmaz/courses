@@ -516,10 +516,10 @@ print(fib_dp(6))      # 8 · tablo: [0, 1, 1, 2, 3, 5, 8]</pre>
 <p>Doğrusal zaman, özyineleme yükü yok. Yalnızca son iki değer gerekli olduğundan tablo iki değişkene de küçülür (<code>a, b = b, a + b</code>); fikir aynıdır: <b>bellek alanını zamanla takas ettik</b>; n sayılık tablo üstel algoritmayı doğrusala çevirdi.</p>
 
 <div class="try"><div class="lab">Kendin dene — üç yöntem yan yana</div>
-<div class="row"><span>n =</span><input type="range" id="tv_n" min="5" max="90" value="30"><b id="tv_nv">30</b><button class="btn" id="tv_go">Üçünü çalıştır</button></div>
+<div class="row"><span>n =</span><input type="range" id="tv_n" min="5" max="100" value="30"><b id="tv_nv">30</b><button class="btn" id="tv_go">Üçünü çalıştır</button></div>
 <div class="scroll"><table><tr><th>Yöntem</th><th>Çağrı / adım</th><th>Toplama sayısı</th><th>Ek bellek</th><th>Ölçülen süre</th></tr><tbody id="tv_t"></tbody></table></div>
 <div id="tv_o" class="mut"></div>
-<div class="mut">Naif yöntem yalnızca n ≤ 36 için gerçekten çalıştırılır (n = 36’da yaklaşık 48 milyon çağrı); daha büyük n’de sayıyı formülle (2F(n+1)−1) veririz ve “çalıştırılmadı” yazarız. Memoization ve tablo her n için gerçekten koşar. F(n) tam sayısı yukarıda <b>BigInt</b> ile hesaplanır: 64 bit F(92)’ye kadar yeter; sonrası taşar.</div>
+<div class="mut">Naif yöntem yalnızca n ≤ 36 için gerçekten çalıştırılır (n = 36’da yaklaşık 48 milyon çağrı); daha büyük n’de sayıyı formülle (2F(n+1)−1) veririz ve “çalıştırılmadı” yazarız. Memoization ve tablo her n için gerçekten koşar. F(n) tam sayısı yukarıda <b>BigInt</b> ile hesaplanır: işaretsiz 64 bit F(93)’e kadar yeter (F(94) taşar); işaretli 64 bit ise F(92)’de kalır.</div>
 </div>
 
 <div class="rule"><b class="t">Kural 8 — Fibonacci’nin üç yolu</b>
@@ -615,7 +615,7 @@ n = 5: yol(3) = 3, yol(4) = 5, yol(5) = <b>8</b>. n = 6: <b>13</b>. Bunlar <b>Fi
             bc[i][j] = bc[i - 1][j - 1] + bc[i - 1][j]
     return bc[n][k]</pre>
 <p>Neden formül <code>n! / ((n−k)! k!)</code> değil? Doğrudur ama bilgisayarda <b>tehlikelidir</b>: faktöriyeller cevaptan çok önce taşar. Tablo yalnızca toplama yapar. <b>Maliyet:</b> O(n²) durum, her biri O(1) → O(n²) (isteyene O(nk), çünkü yalnızca j ≤ k sütunları gerekir).</p>
-<p><b>Izgara yolları:</b> n × m ızgarada sol üstten sağ alta yalnızca aşağı veya sağa yürümek C(n+m, n) yoldur (her yol n+m adım; hangi n adımın aşağı gittiğini seçin). 3×3 için C(6,3) = 20.</p>
+<p><b>Izgara yolları:</b> Burada n × m, <b>adım (hamle)</b> sayısını gösterir: n adım aşağı, m adım sağa. Sol üstten sağ alta yalnızca aşağı veya sağa yürümek C(n+m, n) yoldur (her yol n+m adım; hangi n adımın aşağı gittiğini seçin). 3×3 adım için C(6,3) = 20. Aynı ızgara <b>hücre</b> sayısıyla verilirse (r satır × c sütun) formül C(r+c−2, r−1) olur; 3×3 adım = 4×4 hücre, yani C(6,3) = 20. Aşağıdaki araç hücre sayısıyla çalışır.</p>
 <div class="rule skip"><b class="t">Çözümlü örnek 6 — Pascal üçgeni 6. satıra kadar, C(6,3) = ?</b>
 <pre>satır 0:              1
 satır 1:            1   1
@@ -1173,7 +1173,7 @@ function tvRun(){
     rows.push(["Aşağıdan yukarı tablo",fmt(n-1)+" döngü turu","<b>"+fmt(adds)+"</b>","tablo n+1 hücre (iki değişkenle O(1))","≈ "+ms.toFixed(2)+" ms"])}
   $("#tv_t").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="m">${r[1]}</td><td class="m">${r[2]}</td><td>${r[3]}</td><td class="m">${r[4]}</td></tr>`).join("");
   const bits=ref.toString(2).length;
-  $("#tv_o").innerHTML=`F(${n}) = <b>${fmt(ref)}</b> (${bits} bit; yaklaşık 0,7·n = ${(0.694*n).toFixed(0)}). Üç yöntem aynı değeri verdi: <b class="${okAll?"ok":"bad"}">${okAll?"✓":"✗"}</b>${n<=92?" · 64 bit işaretsiz tam sayıya sığar (F(92)’ye kadar).":" · 64 bit taşar (F(92)’den sonra)."}`;
+  $("#tv_o").innerHTML=`F(${n}) = <b>${fmt(ref)}</b> (${bits} bit; yaklaşık 0,7·n = ${(0.694*n).toFixed(0)}). Üç yöntem aynı değeri verdi: <b class="${okAll?"ok":"bad"}">${okAll?"✓":"✗"}</b>${n<=92?" · işaretli ve işaretsiz 64 bit tam sayıya sığar.":n<=93?" · işaretsiz 64 bit tam sayıya sığar (F(93)’e kadar), işaretli 64 bite sığmaz (F(92)’den sonra).":" · işaretsiz 64 bit de taşar (F(93)’ten sonra)."}`;
 }
 $("#tv_n").oninput=()=>{$("#tv_nv").textContent=$("#tv_n").value};$("#tv_go").onclick=tvRun;tvRun();
 
@@ -1358,7 +1358,7 @@ function grDraw(){
   const free=obs.size===0;
   const ok=dp[r-1][c-1]===v;
   let binom=1n;{const n=r+c-2,kk=r-1;binom=bigComb(n,kk)}
-  $("#gr_o").innerHTML=`<div class="box">Hedefe rota sayısı (DP tablosu): <b class="ok">${fmt(dp[r-1][c-1])}</b> · naif özyineleme sonucu: <b>${fmt(v)}</b> <b class="${ok?"ok":"bad"}">${ok?"✓ aynı":"✗ farklı"}</b><br>DP durum sayısı: <b>${r*c}</b> · naif özyineleme çağrı sayısı: <b>${fmt(calls)}</b>${free?`<br>Engelsiz ızgara: C(${r+c-2}, ${r-1}) = <b>${fmt(binom)}</b> ${binom===BigInt(dp[r-1][c-1])?"<b class=\"ok\">✓ formülle eşleşti</b>":""}`:""}</div>`;
+  $("#gr_o").innerHTML=`<div class="box">Hedefe rota sayısı (DP tablosu): <b class="ok">${fmt(dp[r-1][c-1])}</b> · naif özyineleme sonucu: <b>${fmt(v)}</b> <b class="${ok?"ok":"bad"}">${ok?"✓ aynı":"✗ farklı"}</b><br>DP durum sayısı: <b>${r*c}</b> · naif özyineleme çağrı sayısı: <b>${fmt(calls)}</b>${free?`<br>Engelsiz ${r} × ${c} hücrelik ızgara (${r-1} aşağı, ${c-1} sağ adım): C(${r+c-2}, ${r-1}) = <b>${fmt(binom)}</b> ${binom===BigInt(dp[r-1][c-1])?"<b class=\"ok\">✓ formülle eşleşti</b>":""}`:""}</div>`;
 }
 $("#gr_r").oninput=$("#gr_c").oninput=()=>{GR.r=+$("#gr_r").value;GR.c=+$("#gr_c").value;$("#gr_rv").textContent=GR.r;$("#gr_cv").textContent=GR.c;GR.obs=new Set();grDraw()};
 $("#gr_x").onclick=()=>{GR.obs=new Set();grDraw()};
@@ -1395,7 +1395,7 @@ mkQuiz("#quiz1",[
  ["4 × 4 tahtada 4 vezir problemi kaç farklı çözüme sahiptir?",["0","1","2","4"],2,"İki çözüm: sütunlar (2, 4, 1, 3) ve (3, 1, 4, 2), birbirinin ayna görüntüsü. (n = 2, 3 için çözüm yok.)"],
  ["Alt küme toplamında “kısmi toplam &gt; hedef ise dalı kes” kuralı hangi koşulda sağlamdır?",["Eklenecek bütün sayılar negatif olmayan (toplam asla azalmaz) ise","Sayılar sıralıysa","Hedef çift ise","Her zaman"],0,"Negatif sayı gelirse toplam sonradan hedefe inebilir; o zaman kural geçerli bir çözümü kaçırabilir."],
  ["5 elemanın sabit noktasız permütasyon (derangement) sayısı?",["24","44","120","76"],1,"D(n) = (n−1)(D(n−1) + D(n−2)): 0, 1, 2, 9, 44."],
- ["Yalnızca sağa ve aşağıya gidilen 3 × 3 adımlık ızgarada (3 aşağı, 3 sağ) sol üstten sağ alta kaç farklı rota vardır?",["6","9","20","36"],2,"Her rota 6 adımdır; hangi 3 adımın aşağı olduğunu seçmek rotayı belirler: C(6, 3) = 20."]
+ ["Yalnızca sağa ve aşağıya gidilen ızgarada (3 adım aşağı, 3 adım sağ; yani 4 × 4 hücrelik ızgara) sol üstten sağ alta kaç farklı rota vardır?",["6","9","20","36"],2,"Her rota 6 adımdır; hangi 3 adımın aşağı olduğunu seçmek rotayı belirler: C(6, 3) = 20."]
 ]);
 </script>
 <script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>

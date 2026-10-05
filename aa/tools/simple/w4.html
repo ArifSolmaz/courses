@@ -382,7 +382,7 @@ Seçimi <b>baskın işlem</b> belirler: çok “i. eleman”a gidiyorsanız dizi
 <div id="tr_dbl"></div>
 Yazmalar: 8. Kopyalamalar: dizi 2., 3., 5. append’ten önce doludur → 1 + 2 + 4 = <b>7</b> (bir sonraki, 9. append’te 8 olurdu, ama 8 elemanla bitiyoruz). Toplam = 8 + 7 = <b>15 &lt; 3·8</b>.</div>
 <div class="rule"><b class="t">Kural 6 — iki katlama neden O(1) amortize?</b>
-Son iki katlama n/2, ondan önceki n/4, … eleman kopyalar: <b>kopyalar bir geometrik seridir</b> (Hafta 3!): n/2 + n/4 + … &lt; n. Yani toplam kopyalama &lt; n (kaba üst sınır: 2n). n yazma da eklenirse <b>n append ≤ 3n</b> iş yapar → append başına <b>≤ 3 = O(1) amortize</b>.<br>
+Son kopyalama dolu olan <b>C</b> kapasiteli diziyi taşır (C &lt; n), ondan önceki C/2, ondan önceki C/4, … eleman kopyalar: <b>kopyalar bir geometrik seridir</b> (Hafta 3!): C + C/2 + C/4 + … &lt; 2C &lt; 2n. Yani toplam kopyalama &lt; 2n (n’den az olduğu <i>her</i> n için doğru değildir: n = 5’te 1 + 2 + 4 = 7 kopya vardır). n yazma da eklenirse <b>n append için toplam iş &lt; 3n</b> olur → append başına <b>≤ 3 = O(1) amortize</b>.<br>
 Başka bir bakış: elemanların yarısı bir kez, dörtte biri iki kez, sekizde biri üç kez kopyalanır; ortalama bir eleman yalnızca ~2 kez taşınır.</div>
 <div class="box"><b>Çözümlü örnek 6 — kapasite 4’ten başla, 20 append.</b>
 <div id="tr_c4"></div>
@@ -601,7 +601,7 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <details><summary>A6 (kolay). [2, 5, 7, 9] dizisinde 6’yı sıralı kalacak şekilde ekleyin. Kaç eleman kayar? 5’i silerseniz kaç eleman kayar?</summary>
 <p>6, 5’ten sonra ve 7’den önce girer (konum 2): 7 ve 9 birer sağa kayar → <b>2 taşıma</b>, sonuç [2, 5, 6, 7, 9]. Sonra 5’i (konum 1) silmek için 6, 7, 9 sola kayar → <b>3 taşıma</b>: [2, 6, 7, 9].</p></details>
 <details><summary>A7 (orta). Kapasite 4’ten başlayıp dolunca ikiye katlayan dizide 20 append kaç kopyalama yapar? Amortize maliyet kaçtır? En pahalı tek çağrı?</summary>
-<p>Kopyalar 5., 9., 17. append’ten önce: 4 + 8 + 16 = <b>28</b>. Yazma 20; toplam 48; amortize 48/20 = <b>2,4</b>. En pahalı çağrı 17.: 16 kopya + 1 yazma = 17 → en kötü tek çağrı Θ(n), amortize O(1). Genel: kopyalar ≤ 2n, yazmalar n → toplam ≤ 3n.</p></details>
+<p>Kopyalar 5., 9., 17. append’ten önce: 4 + 8 + 16 = <b>28</b>. Yazma 20; toplam 48; amortize 48/20 = <b>2,4</b>. En pahalı çağrı 17.: 16 kopya + 1 yazma = 17 → en kötü tek çağrı Θ(n), amortize O(1). Genel: kopyalar &lt; 2n, yazmalar n → toplam &lt; 3n.</p></details>
 <details><summary>A8 (orta). Dizi dolunca 10 göz ekleniyorsa n = 1 000 append’in (kapasite 10’dan başlayarak) kopya sayısı kaçtır? İki katlama ile karşılaştırın.</summary>
 <p>+10: dizi 11., 21., …, 991. append’ten önce dolu → kopyalar 10, 20, …, 990 = 10·(1+2+…+99) = 10·4950 = <b>49 500</b> (≈ n²/20). İki katlama (10 → 20 → … → 1280): kopyalar 10 + 20 + 40 + 80 + 160 + 320 + 640 = <b>1 270</b>. Sabit artış Θ(n²), çarpımsal artış Θ(n).</p></details>
 <details><summary>A9 (orta). İki yığınla kuyruk: enq 1, enq 2, enq 3, deq, enq 4, deq. Her adımda In ve Out nedir? Çıkanlar?</summary>
@@ -628,7 +628,7 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <li><b>Dizi:</b> erişim O(1) (adres = başlangıç + i·boyut). Paketli dizide başa/ortaya ekleme-silme <b>kaydırma, Θ(n)</b>; sona ekleme O(1).</li>
 <li><b>Bağlı liste:</b> yeri biliniyorsa ekleme O(1) (başa ekleme dahil: 2 işaretçi), arama/erişim O(n); silme için öncül lazım (O(n)); çift bağlı listede düğüm elde ise silme O(1).</li>
 <li><b>Sıralı dizi:</b> arama O(log n), ekleme/silme O(n). <b>Sırasız dizi:</b> arama O(n), ekleme/silme O(1).</li>
-<li><b>Dinamik dizi (×2):</b> n append toplam ≤ 3n → <b>amortize O(1)</b>; kopyalar geometrik seri (1 + 2 + 4 + …). “+10” gibi sabit artış Θ(n²). Tek çağrı yine Θ(n) olabilir.</li>
+<li><b>Dinamik dizi (×2):</b> n append toplam &lt; 3n → <b>amortize O(1)</b>; kopyalar geometrik seri (1 + 2 + 4 + …). “+10” gibi sabit artış Θ(n²). Tek çağrı yine Θ(n) olabilir.</li>
 <li><b>Yığın = LIFO</b> (dizi + sayaç, O(1)): parantez, postfix, geri al, DFS. <b>Kuyruk = FIFO</b> (bağlı liste ya da halka tampon, O(1)): sıra, BFS. Yığın ile kuyruğun tek farkı kimin önce çıktığıdır.</li>
 <li><b>Seçim:</b> baskın işleme göre. Gerçek zamanlı ve sabit bellek → halka tampon; amortize O(1) tek çağrı garantisi vermez.</li>
 </ol></div>
@@ -666,7 +666,7 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
 <ol>
 <li>Dizide başa ekleme neden Θ(n), bağlı listede başa ekleme neden O(1)? Bu cümle hangi koşulda yanıltıcı olur?</li>
-<li>Dinamik dizi iki katına çıkarken n append için toplam kopyalama neden n’den azdır? “+10” ile fark ne?</li>
+<li>Dinamik dizi iki katına çıkarken n append için toplam kopyalama neden 2n’den azdır? “+10” ile fark ne?</li>
 <li>Aynı gelişleri bir yığına ve bir kuyruğa verirseniz çıkış sırası nasıl farklılaşır? Hangisi DFS, hangisi BFS yapar?</li>
 </ol></div>
 </section>
@@ -1072,7 +1072,7 @@ mkQuiz("#quiz1",[
  ["Kapasite 1’den başlayıp dolunca iki katına çıkan dizi 5 000 eleman tutmak için kaç kez katlanır?",["5","13","50","5 000"],1,"2¹² = 4 096 yetmez, 2¹³ = 8 192 yeter: ⌈lg 5000⌉ = 13."],
  ["Baş işaretçisi elimizdeki tek bağlı listenin başına eklemek için kaç mevcut düğüm gezilir?",["Sıfır","n","n²","log n"],0,"Yeni düğümü eski başa bağlayıp head’i güncelleriz: gezme yok."],
  ["i. elemanı sabit zamanda okuyabilmek için hangi varsayım gerekir?",["Baştan yürüme","Sabit boyutlu gözlere rastgele erişim","Değerlerin sıralı olması","Değerlerin farklı olması"],1,"Adres hesabı doğrudan konuma gider; sıralılık ve farklılık gerekmez."],
- ["Kapasite 1’den başlayıp ikiye katlayan dizide n append boyunca toplam kopya sayısı?",["Θ(n²)","Θ(n log n)","En çok 2n","Tam olarak n"],2,"Kopyalar geometrik seri: n/2 + n/4 + … < n ≤ 2n."],
+ ["Kapasite 1’den başlayıp ikiye katlayan dizide n append boyunca toplam kopya sayısı?",["Θ(n²)","Θ(n log n)","En çok 2n","Tam olarak n"],2,"Kopyalar geometrik seri: son kopyalanan kapasite C < n ise C + C/2 + … < 2C < 2n (toplam iş yazmalarla < 3n)."],
  ["“Amortize O(1)” ne demektir?",["Her tek çağrı sabit zamanda biter","Herhangi n çağrı toplamda O(n) sürer","Rastgele girdide ortalama sabittir","Yüksek olasılıkla O(1)’dir"],1,"Amortize en kötü dizi içindir; tek çağrı Θ(n) olabilir, olasılık içermez."],
  ["8 gözlü halka tamponda tail = 7. Sıradaki örnek nereye yazılır?",["8. göz","0. göz","7. göze (ezerek)","Yeni ayrılan göze"],1,"tail = (7 + 1) mod 8 = 0."],
  ["İki katlayarak kapasiteyi 1’den 1024’e çıkarırken toplam kaç eleman kopyalanır?",["1 024","1 023","10 240","1 048 576"],1,"1 + 2 + 4 + … + 512 = 2¹⁰ − 1 = 1023."],

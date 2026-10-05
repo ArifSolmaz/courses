@@ -178,7 +178,7 @@ Bu hafta kuyruk baş rolde. Heap’i (öncelik kuyruğu) Dijkstra’da yeniden g
 <div><b>Yığın (stack)</b> <span class="mut">sol: dip, sağ: tepe</span></div><div class="qrow" id="sq_s"></div>
 <div><b>Kuyruk (queue)</b> <span class="mut">sol: baş (önce çıkar), sağ: son</span></div><div class="qrow" id="sq_q"></div>
 <div id="sq_o" class="mut"></div>
-<div class="mut">“Sıfırla” sonrası <b>Çıkar</b>’a basın: yığın 7, kuyruk 5 verir. Aynı dizilişi iki farklı sırayla boşaltıyoruz. BFS ile DFS arasındaki <b>tek fark</b> budur: BFS “yapılacaklar listesini” kuyruk, DFS yığın olarak tutar (DFS: Hafta 9).</div></div>
+<div class="mut">“Sıfırla” sonrası <b>Çıkar</b>’a basın: yığın 7, kuyruk 5 verir. Aynı dizilişi iki farklı sırayla boşaltıyoruz. BFS’nin “yapılacaklar listesi” kuyruktur; aynı listeyi yığın yapınca elde edilen şey <b>BFS’nin yığınlı biçimi</b>dir. Gerçek DFS bundan biraz daha farklıdır (aşağıda ve Hafta 9).</div></div>
 
 <h3>0.2 Maliyeti parçalara ayırmak (Hafta 7)</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 7</b>
@@ -386,13 +386,13 @@ Sondaki özyineleme, yönsüz kenarın ters kopyasını <b>iki kez saymadan</b> 
 <tr><td><b>İşlenmiş</b> (processed)</td><td>Tüm kenarlarına bakıldı</td><td>yeşil</td></tr>
 </table></div>
 <p>Bir <b>yapılacaklar listesi</b> tutarız: keşfedilmiş ama işlenmemiş tepeler. Başta yalnızca başlangıç tepesi vardır. Bir tepeyi işlemek = ondan çıkan her kenara bakmak; keşfedilmemiş bir tepeye giden kenar bulursak o tepeyi <b>keşfedilmiş</b> yapıp listeye ekleriz.</p>
-<div class="rule"><b class="t">Kural 3 — BFS ile DFS’nin tek farkı</b>
-Listeden hangi tepeyi aldığımız dışında her şey aynıdır. <b>BFS</b>: yapılacaklar listesi bir <b>kuyruk (FIFO)</b>: ilk bulunan ilk işlenir, bu yüzden başlangıca en yakın olanlar önce genişletilir. <b>DFS</b>: liste bir <b>yığın (LIFO)</b> (Hafta 9).<br>
+<div class="rule"><b class="t">Kural 3 — Yapılacaklar listesi ve dolaşım sırası</b>
+<b>BFS</b>: yapılacaklar listesi bir <b>kuyruk (FIFO)</b>: ilk bulunan ilk işlenir, bu yüzden başlangıca en yakın olanlar önce genişletilir. Aynı listeyi yığın (LIFO) yaparsak <b>yığınlı dolaşım</b> (stack-based traversal) elde ederiz; ama bu, standart <b>DFS</b> (derinlik öncelikli arama) <b>değildir</b>: buradaki kodda bir tepe işlenirken <b>tüm</b> komşuları hemen keşfedilmiş sayılıp yığına itilir. Gerçek DFS bir tepeden <b>tek bir</b> komşuya inip oradan devam eder, komşuyu ancak sırası gelince keşfeder; özyinelemeyle ya da her tepe için “sıradaki komşu” göstericisi tutan bir yığınla (stack of iterators) yazılır (Hafta 9).<br>
 Hangi sırayla alırsak alalım, <b>her kenara tam iki kez</b> (her ucundan bir kez) bakılır.</div>
 <p><b>Doğruluk (neden hiçbir şeyi atlamaz?).</b> Başlangıcın bağlı bileşeninde bir u tepesi hiç ziyaret edilmediği hâlde ziyaret edilen bir komşusu v olsaydı: v bir an işlenmiş, kenarları incelenmiş ve v–u kenarı u’yu keşfetmiş olurdu. Çelişki.</p>
 
 <div class="rule rev"><b class="t">Tekrar · Hafta 6</b>
-Kuyrukta <b>ekleme sondan, çıkarma baştan</b> yapılır ve ikisi de sabit sürede olmalıdır. Python’da bunun için <code>collections.deque</code> kullanırız (<code>append</code> ve <code>popleft</code>). Aynı yapıyı bir yığın olarak kullanırsanız (sondan çıkarırsanız) BFS’yi DFS’ye çevirirsiniz.</div>
+Kuyrukta <b>ekleme sondan, çıkarma baştan</b> yapılır ve ikisi de sabit sürede olmalıdır. Python’da bunun için <code>collections.deque</code> kullanırız (<code>append</code> ve <code>popleft</code>). Aynı yapıyı bir yığın olarak kullanırsanız (sondan çıkarırsanız) en kısa yol özelliğini kaybedersiniz; ortaya çıkan dolaşım standart DFS değildir (Blok 4.3).</div>
 
 <h3>3.2 Algoritma</h3>
 <p>BFS üç dizi kullanır: <code>discovered</code>, <code>processed</code> ve her tepeyi hangi tepenin keşfettiğini tutan <code>parent</code>. Biz ayrıca <code>dist</code> (başlangıçtan uzaklık, kenar sayısı) tutacağız.</p>
@@ -480,8 +480,8 @@ Komşuluk listeleriyle BFS <b>O(n + m)</b>: her tepe bir kez kuyruğa girer/çı
 <div id="rc_o" class="mut"></div></div>
 <div class="rule skip"><b class="t">Sık yapılan hatalar (BFS)</b>
 <ol style="margin:4px 0 0 18px;padding:0">
-<li>Tepeyi kuyruktan <b>çıkarırken</b> işaretlemek (kuyruğa alırken işaretleyin; Blok 4.4).</li>
-<li>Kuyruğu yığınla değiştirmek: artık BFS değildir, uzaklıklar yanlış çıkabilir (Blok 4.3).</li>
+<li>Tepeyi kuyruktan <b>çıkarırken</b> işaretlemek: fazladan kuyruk girişi ve O(m) bellek doğurur (kuyruğa alırken işaretleyin; Blok 4.4).</li>
+<li>Kuyruğu yığınla değiştirmek: artık BFS değildir, uzaklıklar yanlış çıkabilir; bu aynı zamanda gerçek DFS de değildir (Blok 4.3).</li>
 <li>“BFS ağırlıklı çizgede en ucuz yolu bulur” demek: yalnızca <b>kenar sayısını</b> en aza indirir (Blok 4.5).</li>
 <li>Yönlü çizgede kenarı iki yönde de gezmek.</li>
 <li>İzole (kenarsız) tepeyi bileşen saymayı unutmak (Blok 5).</li>
@@ -531,26 +531,26 @@ Bu yüzden: <b>BFS ağacı yolu = en az kenarlı yol</b>. Ulaşılamayan tepeler
 δ(v) gerçek uzaklık olsun. Önerme (k üzerinde tümevarım): δ = k olan tepeler tam olarak dist = k ile kuyruğa girenlerdir ve hepsi, dist = k+1 olan herhangi bir tepeden önce çıkar. Taban k = 0: yalnızca s. Adım: δ(v) = k+1 ise v’nin δ(u) = k olan bir komşusu u vardır; v, katman j &lt; k bir tepe tarafından keşfedilmiş olamaz (bu ≤ k kenarlı bir yol verirdi). Dolayısıyla v, bir k katmanı tepesi tarafından dist = k+1 ile kuyruğa girer. Kuyruk FIFO ve tüm k katmanı tepeleri k+1’lerden önce girdiği için k+1 katmanı bir blok hâlinde onlardan sonra çıkar. dist hiç değişmez. ∎ Kanıt FIFO sırasını kullanır: yığın olsaydı uzun bir yoldan bulunan tepe önce işlenebilirdi.</div>
 
 <h3>4.3 Neden FIFO? Kuyruğu yığınla değiştirirsek</h3>
-<p>Aşağıdaki araç <b>aynı çizgede</b> iki sürümü çalıştırır: kuyruklu (BFS) ve yığınlı (listeden <b>son</b> eklenen alınır, geri kalan her şey aynı: keşfedince <code>dist[y] = dist[v]+1</code>). Tepe tepe karşılaştırın.</p>
+<p>Aşağıdaki araç <b>aynı çizgede</b> iki sürümü çalıştırır: kuyruklu (BFS) ve yığınlı (listeden <b>son</b> eklenen alınır, geri kalan her şey aynı: keşfedince <code>dist[y] = dist[v]+1</code> ve komşu hemen işaretlenip itilir). Bu bir <b>yığınlı dolaşım</b>dır; standart DFS değildir. Tepe tepe karşılaştırın. Aracın altında ayrıca gerçek (özyinelemeli) DFS keşif sırası da gösterilir.</p>
 <div class="try"><div class="lab">Kendin dene — kuyruk ↔ yığın</div>
 <div class="row"><select id="sv_g"></select><span>Başlangıç:</span><select id="sv_s"></select></div>
-<div class="scroll"><table><thead><tr><th>Tepe</th><th>Gerçek uzaklık δ (BFS)</th><th>Yığınlı sürüm: dist</th><th>Doğru mu?</th></tr></thead><tbody id="sv_t"></tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Tepe</th><th>Gerçek uzaklık δ (BFS)</th><th>Yığınlı dolaşım: dist</th><th>Doğru mu?</th></tr></thead><tbody id="sv_t"></tbody></table></div>
 <div id="sv_o"></div>
 <div class="mut">“Yığın tuzağı” çizgesini seçin (1–2, 1–3, 3–4, 4–5, 5–6, 2–6): 6’ya 1–2–6 yoluyla 2 kenarda gidilebilir; yığın sürümü önce 3→4→5 zincirine dalar ve 6’yı 4 olarak etiketler. Kuyruk, iki yoldan <b>kısa olanı</b> önce bitirir.</div></div>
 <div class="rule"><b class="t">Kural 6 — FIFO şart</b>
-Uzaklıkların doğru çıkması için tepeler <b>uzaklık sırasıyla</b> işlenmeli: bu da yalnızca FIFO kuyrukla garantidir. Yığın aynı dolaşımı yapar (hepsini ziyaret eder) ama en kısa yolu garanti etmez; bu DFS’dir (Hafta 9).</div>
+Uzaklıkların doğru çıkması için tepeler <b>uzaklık sırasıyla</b> işlenmeli: bu da yalnızca FIFO kuyrukla garantidir. Yığınlı dolaşım da hepsini ziyaret eder ama en kısa yolu garanti etmez. Dikkat: bu, standart DFS ile aynı şey değildir. Üçgen 1–2, 1–3, 2–3’te yığınlı sürüm 2 ve 3’ü 1’in kardeşi yapar (2–3 ağaç dışı kalır); gerçek DFS ise 1→2→3 yolunu izler. DFS’de komşu, ancak ona inileceği anda keşfedilir (Hafta 9).</div>
 
 <h3>4.4 Neden keşfederken (kuyruğa alırken) işaretlenir?</h3>
 <p><b>Sezgi.</b> İki arkadaşınız aynı kişiyi size tanıtmak istiyor. Kişiyi ilk tanıtılışta “tanıştım” diye işaretlerseniz ikinci tanıtmaya gerek kalmaz. “Tanıştım” işaretini ancak <b>konuşmaya başlayınca</b> koyarsanız, o kişi iki kez sıraya girer.</p>
 <ul>
 <li><b>Kuyruğa alırken işaretle</b> (doğru): her tepe kuyruğa <b>en çok bir kez</b> girer: n giriş, süre O(n + m).</li>
-<li><b>Çıkarırken işaretle</b> (hatalı): birden çok k-katman komşusu olan tepe birden çok kez kuyruğa girer. dist yine doğru çıkar (ilk kopya doğru değeri koyar), ama kuyrukta <b>kenar başına bir giriş</b> olabilir: Θ(m) giriş, parent belirsizleşir ve O(n + m) garantisi kaybolur.</li>
+<li><b>Çıkarırken işaretle</b> (tekrarları çıkışta atlayan sürüm): birden çok komşusu olan tepe birden çok kez kuyruğa girebilir; kuyrukta <b>kenar başına bir giriş</b> olabilir: Θ(m) giriş. Ancak kuyruktan çıkan tepe zaten işlenmişse hemen atlanır ve komşuları <b>taranmaz</b>; yani her komşuluk listesi yalnızca bir kez taranır, süre yine <b>O(n + m)</b> kalır (kuyruk işlemleri O(1) ise). Bedel: kuyruk <b>O(m) bellek</b> ister ve boşa giden fazladan girişler olur; bu yüzden kuyruğa alırken işaretlemek daha ekonomiktir.</li>
 </ul>
 <div class="try"><div class="lab">Kendin dene — kuyruk girişlerini say</div>
 <div class="row"><select id="mt_g"></select><span>Başlangıç:</span><select id="mt_s"></select></div>
 <div class="row"><span>Tam çizge K<sub>n</sub>, n =</span><input type="range" id="mt_k" min="3" max="12" value="6"><b id="mt_kv">6</b><button class="btn g" id="mt_ku">K<sub>n</sub> çizgesini kullan</button></div>
 <div class="scroll"><table><thead><tr><th>Sürüm</th><th>Kuyruğa girişler</th><th>Boşa giden (zaten işlenmiş) çıkışlar</th><th>Karşılaştırma</th></tr></thead><tbody id="mt_t"></tbody></table></div>
-<div class="mut">Orijinal örnekte (1–2, 1–3, 2–4, 3–4, 4–5) 4 numaralı tepe hatalı sürümde <b>iki kez</b> kuyruğa girer: 6 giriş, 1 boşa çıkış. Tam çizgede fark büyür: hatalı sürümün girişleri yaklaşık n²/2 gibi artar (K4: 7, K6: 16, K8: 29), doğru sürümde ise hep n kalır.</div></div>
+<div class="mut">Orijinal örnekte (1–2, 1–3, 2–4, 3–4, 4–5) 4 numaralı tepe çıkarırken işaretleyen sürümde <b>iki kez</b> kuyruğa girer: 6 giriş, 1 boşa çıkış. Tam çizgede fark büyür: çıkarırken işaretleyen sürümün girişleri yaklaşık n²/2 gibi artar (K4: 7, K6: 16, K8: 29), doğru sürümde ise hep n kalır.</div></div>
 
 <h3>4.5 BFS ve ağırlık: yalnızca kenar sayısı</h3>
 <p>BFS her kenarı “1” sayar. Kenarların farklı maliyetleri varsa en az kenarlı yol en ucuz yol olmayabilir. Örnek: 1 ile 4 arasında doğrudan bir kenar (maliyet w) ve bir de 1–2–3–4 yolu (maliyetleri 1, 1, 1).</p>
@@ -725,10 +725,10 @@ Hafta 6’daki RTOS örneğinde bir ikili yığın (min-heap), “hangi zamanlay
 <p>gelen[v] = 0 yapın (n adım). Her listeyi bir kez gezin; x→y gördükçe gelen[y] += 1 (toplam m adım, her kenar bir kez). Sonuç: gelen(1..6) = <b>1, 1, 1, 2, 1, 0</b>; toplam 6 = m ✓.</p></details>
 <details><summary>A8 (orta). 4×4 ızgara; engeller (1,0), (1,1), (1,2); başlangıç (0,0); hedef (2,0). 4 komşuyla en az hamle? Manhattan uzaklığı?</summary>
 <p>Satır 1’in ilk üç hücresi kapalı; geçiş yalnızca (1,3)’ten. Yol: (0,0)→(0,1)→(0,2)→(0,3)→(1,3)→(2,3)→(2,2)→(2,1)→(2,0): <b>8 hamle</b>. Manhattan: |2−0| + |0−0| = <b>2</b>: dört kat küçük. Araçta “4 × 4” boyutunu seçip duvarları (1,0), (1,1), (1,2) hücrelerine koyun, S’yi (0,0), G’yi (2,0) yapın ve doğrulayın.</p></details>
-<details><summary>A9 (orta). BFS’de tepeyi çıkarırken işaretlerseniz K4 (4 tepeli tam çizge) için kuyruğa kaç giriş yapılır? Doğru sürümde kaç?</summary>
-<p>Doğru (kuyruğa alırken): <b>4</b> giriş. Hatalı (çıkarırken): 1 → [1]; 1 çıkar, 2,3,4 girer → [2,3,4]; 2 çıkar, 3 ve 4 tekrar girer → [3,4,3,4]; 3 çıkar, 4 tekrar girer → [4,3,4,4]; kalanlar zaten işlenmiş. Toplam <b>7</b> giriş, 3’ü boşa. Çizge büyüdükçe giriş sayısı kenar sayısıyla artar.</p></details>
+<details><summary>A9 (orta). BFS’de tepeyi çıkarırken işaretlerseniz (tekrarlar çıkışta atlanır) K4 (4 tepeli tam çizge) için kuyruğa kaç giriş yapılır? Kuyruğa alırken işaretleyen sürümde kaç?</summary>
+<p>Kuyruğa alırken işaretleyen: <b>4</b> giriş. Çıkarırken işaretleyen sürüm: 1 → [1]; 1 çıkar, 2,3,4 girer → [2,3,4]; 2 çıkar, 3 ve 4 tekrar girer → [3,4,3,4]; 3 çıkar, 4 tekrar girer → [4,3,4,4]; kalanlar zaten işlenmiş. Toplam <b>7</b> giriş, 3’ü boşa. Çizge büyüdükçe giriş sayısı kenar sayısıyla artar (bellek O(m)); ama boşa çıkışlar komşu taramadığı için süre yine O(n + m) kalır.</p></details>
 <details><summary>A10 (orta). “Yığın tuzağı” çizgesinde (1–2, 1–3, 3–4, 4–5, 5–6, 2–6) 1’den yığınlı sürüm 6’ya hangi dist’i verir? Neden BFS vermez?</summary>
-<p>Yığın: [1] → 1 çıkar, 2 ve 3 (dist 1) girer → 3 çıkar (son giren), 4 (2) girer → 4 çıkar, 5 (3) girer → 5 çıkar, <b>6 (4)</b> girer: gerçek uzaklık 2 (1–2–6) iken 4. BFS’de kuyruk [2,3] önce 2’yi işler ve 6’yı 2 uzaklığında bulur; uzun zincir ancak sonra devam eder.</p></details>
+<p>Yığınlı sürüm: [1] → 1 çıkar, 2 ve 3 (dist 1) girer → 3 çıkar (son giren), 4 (2) girer → 4 çıkar, 5 (3) girer → 5 çıkar, <b>6 (4)</b> girer: gerçek uzaklık 2 (1–2–6) iken 4. BFS’de kuyruk [2,3] önce 2’yi işler ve 6’yı 2 uzaklığında bulur; uzun zincir ancak sonra devam eder.</p></details>
 <details><summary>A11 (zor, isteğe bağlı). BFS ağacındaki kökten v’ye yolun en kısa yol olduğunu kanıtlayın (Soru 23).</summary>
 <p>Önerme: BFS, uzaklığı d olan tüm tepeleri d+1 olanlardan önce keşfeder ve uzaklığı d+1 olan her tepe, uzaklığı d olan bir tepeden keşfedilir. Tümevarım d üzerinden: kök tek d=0 tepesidir. d için doğru olsun: uzaklığı d+1 olan her v’nin d uzaklığında bir komşusu vardır; kuyruk bütün d tepelerini d+1’lerden önce tuttuğundan, d tepeleri işlenirken her d+1 tepesi bir d tepesinden ve d+2 tepelerinden önce keşfedilir. Parent işaretçileri uzaklığı tam 1 azalttığı için ağaç yolu tam dist(v) kenardır. ∎</p></details>
 <details><summary>A12 (zor, isteğe bağlı). İki parçalı ⟺ tek uzunlukta döngü yok olduğunu gösterin (Soru 24).</summary>
@@ -748,7 +748,7 @@ Hafta 6’daki RTOS örneğinde bir ikili yığın (min-heap), “hangi zamanlay
 <ol>
 <li><b>Çizge G = (V, E)</b>, n tepe, m kenar. Yönsüzde <b>Σ derece = 2m</b>; en çok n(n−1)/2 kenar (yönlü: n(n−1)); ağaçta n−1 kenar.</li>
 <li><b>Gösterim:</b> matris n² hücre, kenar sorusu O(1); listeler n + 2m, dolaşım O(n + m). Çoğu problem için (seyrek çizge, dolaşım) <b>listeler</b>.</li>
-<li><b>Dolaşım:</b> tepe durumları keşfedilmemiş → keşfedilmiş → işlenmiş; yapılacaklar listesi. <b>BFS = kuyruk (FIFO)</b>, DFS = yığın.</li>
+<li><b>Dolaşım:</b> tepe durumları keşfedilmemiş → keşfedilmiş → işlenmiş; yapılacaklar listesi. <b>BFS = kuyruk (FIFO)</b>; kuyruğu yığınla değiştirmek BFS’yi bozar ve standart DFS de vermez (DFS, özyineleme ya da komşu göstericili yığın ister).</li>
 <li><b>BFS maliyeti:</b> listelerle <b>O(n + m)</b>; her tepe bir kez kuyrukta, her kenara iki kez (yönsüz) bakılır. <b>Kuyruğa alırken işaretle.</b></li>
 <li><b>BFS ağacı:</b> parent işaretçileri ağaç oluşturur; kökten v’ye yol, <b>en az kenarlı</b> yoldur; dist = en az kenar sayısı. FIFO şart; ağırlıklı kenarlarda Dijkstra.</li>
 <li><b>Bağlı bileşenler:</b> keşfedilmemiş her tepeden BFS; her BFS bir bileşen; toplam O(n + m).</li>
@@ -765,8 +765,8 @@ Hafta 6’daki RTOS örneğinde bir ikili yığın (min-heap), “hangi zamanlay
 <div class="box"><b>Sık yapılan hatalar</b>
 <ol>
 <li>“BFS, ağırlıklı çizgede en ucuz yolu bulur.” → Yanlış; yalnızca en az kenarı.</li>
-<li>Tepeyi kuyruktan çıkarırken işaretlemek → kuyruk Θ(m) girişe şişebilir.</li>
-<li>BFS’de kuyruk yerine yığın kullanmak → dist yanlış olabilir (DFS).</li>
+<li>Tepeyi kuyruktan çıkarırken işaretlemek (tekrarlar çıkışta atlanırsa) → süre O(n + m) kalır ama kuyruk Θ(m) girişe, yani O(m) belleğe şişebilir.</li>
+<li>BFS’de kuyruk yerine yığın kullanmak → dist yanlış olabilir (ve bu standart DFS değildir).</li>
 <li>Seyrek çizgede matris kullanmak: n² bellek ve O(n²) dolaşım.</li>
 <li>İzole tepeyi bileşen saymamak.</li>
 <li>Yönlü çizgede kenarı iki yönde gezmek; “ulaşılabilir” ilişkisinin yönsüzde simetrik, yönlüde simetrik olmadığını unutmak.</li>
@@ -1139,11 +1139,12 @@ function stackRun(g,s){
   while(st.length){const v=st.pop();for(const y of g.adj[v])if(dist[y]===null){dist[y]=dist[v]+1;st.push(y);order.push(y)}}
   return{dist,order};
 }
+function dfsOrder(g,s){const seen=Array(g.n+1).fill(false),order=[];(function r(v){seen[v]=true;order.push(v);for(const y of g.adj[v])if(!seen[y])r(y)})(s);return order}
 function svFill(){const p=PR[$("#sv_g").value];const s=$("#sv_s").value||1;fillSel("#sv_s",range(1,p.n).map(v=>[v,v]));$("#sv_s").value=Math.min(s,p.n)}
 function svUpdate(){
   const {g}=buildP(PR[$("#sv_g").value]);const s=+$("#sv_s").value;const a=bfsLean(g,s),b=stackRun(g,s);let bad=0;
   $("#sv_t").innerHTML=range(1,g.n).map(v=>{const ok=a.dist[v]===b.dist[v];if(!ok)bad++;return `<tr><td><b>${v}</b></td><td class="m">${a.dist[v]===null?"∞":a.dist[v]}</td><td class="m">${b.dist[v]===null?"∞":b.dist[v]}</td><td class="${ok?"ok":"bad"}">${ok?"✓":"✗ yanlış"}</td></tr>`}).join("");
-  $("#sv_o").innerHTML=`Kuyruklu keşif sırası: <b>${a.order.join(", ")}</b><br>Yığınlı keşif sırası: <b>${b.order.join(", ")}</b><br>${bad?`<span class="bad">Yığınlı sürümde ${bad} tepenin uzaklığı yanlış.</span> Kuyruklu sürüm hepsini doğru bulur.`:`<span class="ok">Bu çizgede ve bu başlangıçta ikisi de aynı uzaklıkları verdi</span> (şans eseri: yığın garanti vermez). “Yığın tuzağı” çizgesini deneyin.`}`;
+  $("#sv_o").innerHTML=`Kuyruklu keşif sırası: <b>${a.order.join(", ")}</b><br>Yığınlı dolaşımın keşif sırası: <b>${b.order.join(", ")}</b><br>Gerçek DFS (özyinelemeli) keşif sırası: <b>${dfsOrder(g,s).join(", ")}</b><br>${bad?`<span class="bad">Yığınlı dolaşımda ${bad} tepenin uzaklığı yanlış.</span> Kuyruklu sürüm hepsini doğru bulur.`:`<span class="ok">Bu çizgede ve bu başlangıçta ikisi de aynı uzaklıkları verdi</span> (şans eseri: yığın garanti vermez). “Yığın tuzağı” çizgesini deneyin.`}`;
 }
 $("#sv_g").onchange=()=>{svFill();svUpdate()};$("#sv_s").onchange=svUpdate;svFill();svUpdate();
 
@@ -1159,7 +1160,7 @@ function mtUpdate(){
   const k=$("#mt_g").value;$("#mt_kv").textContent=$("#mt_k").value;
   const g=k==="kn"?genGraph("comp",+$("#mt_k").value):buildP(PR[k]).g;const s=Math.min(+$("#mt_s").value||1,g.n);
   const good=bfsLean(g,s),bad=deqMark(g,s);
-  $("#mt_t").innerHTML=`<tr><td>Kuyruğa alırken işaretle (doğru)</td><td class="m">${good.deq}</td><td class="m">0</td><td rowspan="2">n = ${g.n}, m = ${g.m}<br>fazladan giriş: <b>${bad.pushes-good.deq}</b></td></tr><tr><td>Çıkarırken işaretle (hatalı)</td><td class="m ${bad.pushes>good.deq?"bad":""}">${bad.pushes}</td><td class="m">${bad.waste}</td></tr>`;
+  $("#mt_t").innerHTML=`<tr><td>Kuyruğa alırken işaretle (doğru)</td><td class="m">${good.deq}</td><td class="m">0</td><td rowspan="2">n = ${g.n}, m = ${g.m}<br>fazladan giriş (bellek): <b>${bad.pushes-good.deq}</b></td></tr><tr><td>Çıkarırken işaretle (tekrarları atlar)</td><td class="m ${bad.pushes>good.deq?"bad":""}">${bad.pushes}</td><td class="m">${bad.waste}</td></tr>`;
 }
 $("#mt_g").onchange=()=>{mtFill();mtUpdate()};$("#mt_s").onchange=mtUpdate;$("#mt_k").oninput=()=>{if($("#mt_g").value==="kn")mtFill();mtUpdate()};
 $("#mt_ku").onclick=()=>{$("#mt_g").value="kn";mtFill();mtUpdate()};mtFill();mtUpdate();
@@ -1327,7 +1328,7 @@ function egUpdate(){
 /* ================= quizzes ================= */
 mkQuiz("#quiz0",[
  ["5, 6, 7 sırayla bir <b>yığına</b> itilir ve bir kez çekilir (pop). Ne gelir?",["5","6","7","Hiçbir şey"],2,"Yığın LIFO: son giren (7) ilk çıkar."],
- ["BFS’nin “yapılacaklar listesi” için hangi veri yapısı gerekir?",["Yığın (LIFO)","Kuyruk (FIFO)","İkili yığın (heap)","Sıralı dizi"],1,"İlk bulunan ilk işlenir: kuyruk. Yığın DFS’yi verir."],
+ ["BFS’nin “yapılacaklar listesi” için hangi veri yapısı gerekir?",["Yığın (LIFO)","Kuyruk (FIFO)","İkili yığın (heap)","Sıralı dizi"],1,"İlk bulunan ilk işlenir: kuyruk. Yığın ise yığınlı bir dolaşım verir (standart DFS için ayrıca bir tepeden tek komşuya inmek gerekir)."],
  ["7 kişi, her çift bir kez tokalaşırsa kaç tokalaşma olur?",["14","21","42","49"],1,"7·6/2 = 21 (Hafta 3 üçgen toplam: 6+5+4+3+2+1)."],
  ["Mergesort için T(n) = 2T(n/2) + n çözümü hangisidir?",["Θ(n)","Θ(n log n)","Θ(n²)","Θ(log n)"],1,"Her seviyede n iş, ≈ lg n + 1 seviye."],
  ["[1,4,7] ve [2,3,8] dizilerini birleştirmek kaç karşılaştırma yapar?",["3","5","6","8"],1,"1v2, 4v2, 4v3, 4v8, 7v8 = 5; sonra kalan 8 karşılaştırmasız eklenir."],
@@ -1352,7 +1353,7 @@ mkQuiz("#quiz1",[
  ["Robot ızgarasında her hücrenin geçiş maliyeti farklıysa en ucuz yol için ne gerekir?",["BFS aynen yeter","Dijkstra (Ders 14)","Sıralama","İkili arama"],1,"BFS yalnızca kenar sayısını en aza indirir; ağırlıklı kenarlar için Dijkstra."],
  ["K100 (tam çizge, m = 4950) üzerinde komşuluk listeleriyle BFS toplam kaç komşuluk girdisine bakar?",["100","4 950","9 900","10 000"],2,"Her kenara iki kez bakılır: 2m = 9900."],
  ["Yönlü çizgede 1→2, 2→3, 3→1, 3→4 var. 4’ten başlayan BFS kaç tepeye ulaşır (4 dahil)?",["1","2","3","4"],0,"4’ten çıkan kenar yok: yalnızca 4’ün kendisi. (1’den başlasaydı hepsi, 4 tepe.)"],
- ["BFS’de tepeyi kuyruktan <b>çıkarırken</b> işaretlerseniz ne olur?",["dist yanlış çıkar","dist doğru kalır ama kuyruk Θ(m) girişe şişebilir; O(n+m) kaybolur","Algoritma hiç durmaz","Her zaman Θ(log n) olur"],1,"İlk çıkan kopya doğru dist’i koyar; ama birden çok komşusu olan tepe birden çok kez kuyruğa girer."]
+ ["BFS’de tepeyi kuyruktan <b>çıkarırken</b> işaretlerseniz ne olur?",["dist yanlış çıkar","dist ve O(n+m) süre korunur (tekrarlar çıkışta atlanırsa); kuyruk ise Θ(m) girişe, O(m) belleğe şişebilir","Algoritma hiç durmaz","Her zaman Θ(log n) olur"],1,"İlk çıkan kopya doğru dist’i koyar, sonrakiler çıkışta atlanır ve komşuları taranmaz: süre O(n+m) kalır. Bedel, birden çok kez kuyruğa giren tepeler yüzünden O(m) kuyruk belleği ve fazladan girişlerdir."]
 ]);
 </script>
 <script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>

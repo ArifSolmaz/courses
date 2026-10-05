@@ -173,7 +173,7 @@ Her ikisi de <b>bağlı bileşenleri</b> bulabilir: bir tepeden ulaşılabilen h
 <h3>0.3 Maliyet dili: Θ, log ve sıralama (Hafta 2–3)</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
 Θ(f): sabitler ve küçük terimler atılır. Bir <b>yarılama</b> döngüsü Θ(log n)’dir; n’yi yarılaya yarılaya 1’e inmek ⌊lg n⌋ adımdır. <b>Sıralama</b> karşılaştırmaya dayalıysa Θ(n log n) mertebesindedir; m kenarı sıralamak <b>O(m log m)</b> sürer.<br>
-Bugün işimize yarayacak küçük bir gerçek: m ≤ n² olduğundan <b>log m ≤ 2·log n</b>, yani O(m log m) ile O(m log n) aynı sınıftır (sabit çarpan farkı).</div>
+Bugün işimize yarayacak küçük bir gerçek: m ≤ n² olduğundan <b>log m ≤ 2·log n</b>; bu yüzden O(m log m) ⊆ O(m log n) her çizgede geçerlidir. <b>Bağlı basit çizgede</b> (<span class="en">connected simple graph</span>) n−1 ≤ m ≤ n(n−1)/2 olduğundan ayrıca log m = Θ(log n) olur ve iki sınıf <b>aynıdır</b> (sabit çarpan farkı). Bağlı olmayan çizgede ters yön yoktur: iki kenarlı ve çok sayıda yalıtık tepeli çizgede log m sabit, log n büyür.</div>
 
 <h3>Isınma quizi (Hafta 8–9 ve araçlar)</h3>
 <div id="quiz0"></div>
@@ -442,9 +442,9 @@ Hafta 9’da “bir kenar döngü kapatıyor mu?” sorusunu yönlü çizgede <b
 <h3>4.6 Maliyet</h3>
 <p>Sıralama: <b>O(m log m)</b>. Döngü sınaması m kez “aynı bileşende mi?” sorusu; BFS ile her biri O(n) → toplam O(mn) (yavaş). Union-find ile her sınama neredeyse sabit zamanlı (Blok 5), yani sınamalar toplamda O(m α(n)) tutar ve <b>sıralama baskındır</b>:</p>
 <div class="rule"><b class="t">Kural 4 — Kruskal</b>
-Kenarları sırala, her kenar için “uçları farklı bileşende mi?” diye sor, evetse al ve bileşenleri birleştir. n−1 kenar alınınca dur. Maliyet: <span class="en">O(m log m)</span> (sıralama) + O(m α(n)) (union-find) = <span class="en">O(m log m)</span>. m ≤ n² olduğundan log m ≤ 2 log n: <span class="en">O(m log m) = O(m log n)</span>.</div>
+Kenarları sırala, her kenar için “uçları farklı bileşende mi?” diye sor, evetse al ve bileşenleri birleştir. n−1 kenar alınınca dur. Maliyet: <span class="en">O(m log m)</span> (sıralama) + O(m α(n)) (union-find) = <span class="en">O(m log m)</span>. m ≤ n² olduğundan log m ≤ 2 log n; bağlı basit çizgede (n−1 ≤ m) ayrıca log m ≥ log(n−1) olduğundan log m = Θ(log n) ve <span class="en">O(m log m) = O(m log n)</span>.</div>
 <div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
-“O(m log n) mi daha iyi, O(m log m) mi?” Hayır: log m ≤ 2 log n olduğundan ikisi sabit çarpan farkıyla aynıdır. Sıralama alt sınırı Θ(m log m) olduğundan sıralamayla başlayan bir algoritma bu mertebeden aşağı inemez.</div>
+“O(m log n) mi daha iyi, O(m log m) mi?” Hayır: bağlı basit çizgede n−1 ≤ m ≤ n² olduğundan log m = Θ(log n) ve ikisi sabit çarpan farkıyla aynıdır (bağlı olmayan çizgede yalnızca log m ≤ 2 log n kesindir). Sıralama alt sınırı Θ(m log m) olduğundan sıralamayla başlayan bir algoritma bu mertebeden aşağı inemez.</div>
 
 <h3>4.7 Python</h3>
 <pre>def kruskal(n, edges):                      # edges = [(u, v, w), ...]
@@ -551,7 +551,7 @@ def union(a, b):
 for a, b in [(1, 2), (3, 4), (2, 4), (5, 6), (1, 3)]:
     print((a, b), union(a, b))
 print(find(4), parent[1:])                   # 1 [1, 1, 1, 1, 5, 5]</pre>
-<p class="mut">Not: <code>parent[x] = parent[parent[x]]</code> “yol yarılama” (path halving) adlı hafif bir sıkıştırmadır: yolun her düğümünü bir üst atasına bağlar. Sayfadaki görselleştirici tam sıkıştırma kullanır (yoldaki her düğümü doğrudan köke bağlar); ikisi de aynı amortised sınıfındadır.</p>
+<p class="mut">Not: <code>parent[x] = parent[parent[x]]</code> “yol yarılama” (path halving) adlı hafif bir sıkıştırmadır: yol üzerinde bir düğüm atlayarak (yani her ikinci düğümü) onu büyükbabasına bağlar. Yoldaki <i>her</i> düğümü büyükbabasına bağlayan çeşide yol bölme (<span class="en">path splitting</span>) denir. Sayfadaki görselleştirici tam sıkıştırma kullanır (yoldaki her düğümü doğrudan köke bağlar); ikisi de aynı amortised sınıfındadır.</p>
 <div class="rule mistake"><b class="t">Sık yapılan hata</b>
 <code>union(a, b)</code>’de a ile b’yi doğrudan bağlamak yanlıştır: <b>kökleri</b> (find(a), find(b)) bağlamalısınız. Ayrıca iki eleman zaten aynı kökteyse birleştirme yapmayın: bu Kruskal’da “döngü”dür.</div>
 </section>
@@ -578,7 +578,7 @@ print(find(4), parent[1:])                   # 1 [1, 1, 1, 1, 5, 5]</pre>
 <div class="row"><span>yoğunluk</span><input type="range" id="pk_d" min="0" max="100" value="0"><b id="pk_dv"></b><button class="btn g sm" id="pk_new">Yeni rastgele çizge</button></div>
 <div class="scroll"><table><thead><tr><th></th><th>Prim (dizi)</th><th>Kruskal</th></tr></thead><tbody id="pk_t"></tbody></table></div>
 <div id="pk_out"></div>
-<div class="mut">Yoğunluk %0 = bağlı en seyrek çizge (m = n−1, bir ağaç); %100 = tam çizge (m = n(n−1)/2). “Model” satırları formüldür: n² ve m·lg m. “Ölçüm” satırları rastgele çizgede <b>gerçekten sayılmıştır</b>: Prim için ağaç dışı tepe taraması + komşu kontrolü, Kruskal için sıralama karşılaştırması + find adımı (n−1 kenar alınınca durur). İki algoritmanın MST ağırlıkları her seferinde karşılaştırılır.</div>
+<div class="mut">Yoğunluk %0 = bağlı en seyrek çizge (m = n−1, bir ağaç); %100 = tam çizge (m = n(n−1)/2). “Model” satırları formüldür: n² ve m·lg m. “Ölçüm” satırları rastgele çizgede <b>gerçekten sayılmıştır</b>: Prim için ağaç dışı tepe taraması + komşu kontrolü, Kruskal için sıralama karşılaştırması + gerçek find çağrısı sayısı (her bakılan kenar için 2, kabul edilen her kenarın union’ı içinde 2 tane daha) + yol adımı (n−1 kenar alınınca durur). İki algoritmanın MST ağırlıkları her seferinde karşılaştırılır.</div>
 </div>
 
 <h3>6.2 MST ≠ en kısa yol ağacı</h3>
@@ -717,7 +717,7 @@ Düzlemdeki noktalar için MST’nin etrafında dolaşın (her kenar iki kez, to
 <li>Σ derece = 2m. En çok n(n−1)/2 kenar. Matris O(n²), liste O(n+m).</li>
 <li>BFS: kuyruk, en az kenarlı yol, tepeyi kuyruğa girerken işaretle. DFS: derine in; yönlü çizgede geri kenar = döngü.</li>
 <li>Ağaç: bağlı + döngüsüz; n tepe ⇒ n−1 kenar.</li>
-<li>O(m log m) = O(m log n) çünkü m ≤ n².</li>
+<li>O(m log m) ⊆ O(m log n) çünkü m ≤ n²; bağlı basit çizgede (n−1 ≤ m) ikisi aynı sınıftır.</li>
 <li>Hafta 1–3: değiş-tokuş argümanı, döngü değişmezi, yarılama = lg n.</li>
 </ul></div>
 
@@ -794,8 +794,8 @@ function drawGraph(svg,g,o={}){
 }
 
 /* ---------- union-find engine ---------- */
-function mkUF(n){return {p:[...Array(n).keys()],s:Array(n).fill(1),steps:0}}
-function ufFind(u,x,compress){let r=x;const path=[];while(u.p[r]!==r){path.push(r);r=u.p[r];u.steps++}
+function mkUF(n){return {p:[...Array(n).keys()],s:Array(n).fill(1),steps:0,calls:0}}
+function ufFind(u,x,compress){u.calls++;let r=x;const path=[];while(u.p[r]!==r){path.push(r);r=u.p[r];u.steps++}
   if(compress)for(const y of path)u.p[y]=r;return r}
 function ufUnion(u,a,b,bySize,compress){
   const ra=ufFind(u,a,compress),rb=ufFind(u,b,compress);
@@ -1130,16 +1130,16 @@ function pkKruskal(g){
   let cmp=0;const E=[...g.E].sort((a,b)=>{cmp++;return a[2]-b[2]});
   const u=mkUF(g.n);let tot=0,cnt=0,ex=0;
   for(const [a,b,w] of E){ex++;const ra=ufFind(u,a,true),rb=ufFind(u,b,true);if(ra!==rb){ufUnion(u,a,b,true,true);tot+=w;cnt++;if(cnt===g.n-1)break}}
-  return {tot,cmp,ex,steps:u.steps};
+  return {tot,cmp,ex,steps:u.steps,calls:u.calls};
 }
 let PK_SEED=11;
 function pkUpdate(){
   const n=+$("#pk_n").value,d=+$("#pk_d").value;$("#pk_nv").textContent=n;
   const maxm=n*(n-1)/2,m=Math.round((n-1)+d/100*(maxm-(n-1)));$("#pk_dv").textContent=`${d}% (m = ${fmt(m)})`;
   const g=randGraph(n,m,PK_SEED),mm=g.E.length;
-  const P=pkPrim(g),K=pkKruskal(g);const pt=P.scan+P.chk,kt=K.cmp+2*K.ex+K.steps;
+  const P=pkPrim(g),K=pkKruskal(g);const pt=P.scan+P.chk,kt=K.cmp+K.calls+K.steps;
   $("#pk_t").innerHTML=`<tr><td>Model (formül)</td><td class="m">n² = ${fmt(n*n)}</td><td class="m">m·lg m = ${fmt(Math.round(mm*lg(Math.max(mm,2))))}</td></tr>
-  <tr><td>Ölçüm: parçalar</td><td class="m">tarama ${fmt(P.scan)} + komşu kontrolü ${fmt(P.chk)}</td><td class="m">sıralama karş. ${fmt(K.cmp)} + find çağrısı ${fmt(2*K.ex)} + yol adımı ${fmt(K.steps)}</td></tr>
+  <tr><td>Ölçüm: parçalar</td><td class="m">tarama ${fmt(P.scan)} + komşu kontrolü ${fmt(P.chk)}</td><td class="m">sıralama karş. ${fmt(K.cmp)} + find çağrısı ${fmt(K.calls)} + yol adımı ${fmt(K.steps)}</td></tr>
   <tr class="hl"><td><b>Ölçüm: toplam</b></td><td class="m"><b>${fmt(pt)}</b></td><td class="m"><b>${fmt(kt)}</b></td></tr>
   <tr><td>Kruskal’ın baktığı kenar</td><td class="m">—</td><td class="m">${fmt(K.ex)} / ${fmt(mm)}</td></tr>`;
   $("#pk_out").innerHTML=`<div class="box" style="margin:8px 0">n = ${n}, m = ${fmt(mm)}. Daha az iş yapan: <b class="ok">${pt<kt?"Prim":"Kruskal"}</b> (${fmt(Math.min(pt,kt))} ile ${fmt(Math.max(pt,kt))}). MST ağırlıkları: Prim ${fmt(P.tot)}, Kruskal ${fmt(K.tot)} → <b class="${P.tot===K.tot?"ok":"bad"}">${P.tot===K.tot?"✓ aynı":"✗ farklı!"}</b></div>`;
@@ -1223,7 +1223,7 @@ const QZ0=[
  ["12 tepeli bir ağacın kaç kenarı vardır?",["11","12","13","66"],0,"Her ağaçta n−1 kenar vardır."],
  ["Yönlü bir çizgenin topolojik sırası ne zaman vardır?",["Bağlıysa","Yönlü döngüsü yoksa (DAG)","Tam çizgeyse","Çift parçalıysa"],1,"Döngü, “önce bitmeli” kısıtlarını çelişkili yapar; DFS’te geri kenar = döngü."],
  ["Kenarları 1–2, 1–3, 2–4, 3–4, 4–5 olan çizgede 1’den DFS (komşular artan sırada) keşif sırası?",["1, 2, 3, 4, 5","1, 2, 4, 3, 5","1, 3, 4, 2, 5","1, 2, 4, 5, 3"],1,"1→2→4; 4’ün en küçük keşfedilmemiş komşusu 3; geri dönüp 5."],
- ["m ≤ n² ise log m ile log n arasında hangisi doğrudur?",["log m ≤ 2 log n","log m = n log n","log m ≥ n","Hiçbir ilişki yok"],0,"log m ≤ log n² = 2 log n; bu yüzden O(m log m) = O(m log n)."],
+ ["m ≤ n² ise log m ile log n arasında hangisi doğrudur?",["log m ≤ 2 log n","log m = n log n","log m ≥ n","Hiçbir ilişki yok"],0,"log m ≤ log n² = 2 log n. (Bağlı basit çizgede m ≥ n−1 olduğundan log m = Θ(log n) ve O(m log m) = O(m log n).)"],
  ["<code>i = n; while i &gt; 1: i //= 2</code> döngüsü n = 1024 için kaç kez döner?",["10","32","512","1024"],0,"1024 = 2¹⁰: 10 kez yarılanır."]
 ];
 const QZ1=[

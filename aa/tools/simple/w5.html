@@ -279,11 +279,12 @@ def maksimum(d):
 <p><b>Örnek 1.</b> Ders ağacında (kök 2; 1 solda; 7 sağda; 7’nin altında 4 ve 8; 4’ün altında 3 ve 6; 6’nın solunda 5) minimum: 2 → 1, sola gidilemez → <b>1</b>. Maksimum: 2 → 7 → 8 → <b>8</b>. <b>Örnek 2.</b> 7’yi kök alan alt ağaçta minimum: 7 → 4 → 3 → <b>3</b>.</p>
 
 <h3>1.6 Ekleme</h3>
-<p><b>Sezgi.</b> Yeni anahtarı aratın. Arama, anahtarın <b>olması gereken yerde</b> bir NULL’da biter. O NULL’ı yeni bir düğümle değiştirin. Bitti: maliyet bir arama kadar, <span class="en">O(h)</span>.</p>
+<p><b>Sezgi.</b> Yeni anahtarı aratın. Arama, anahtarın <b>olması gereken yerde</b> bir NULL’da biter. O NULL’ı yeni bir düğümle değiştirin. (Arama anahtarı <u>bulursa</u> anahtar zaten vardır: Kural 2 kesin eşitsizlik kullandığı için yinelenen anahtar eklenmez, ağaç değişmez; aşağıdaki araç da böyle davranır.) Bitti: maliyet bir arama kadar, <span class="en">O(h)</span>.</p>
 <pre>def ekle(d, x):                # yeni kök döndürür
     if d is None: return Dugum(x)
-    if x &lt; d.k:  d.sol = ekle(d.sol, x)
-    else:        d.sag = ekle(d.sag, x)
+    if x &lt; d.k:    d.sol = ekle(d.sol, x)
+    elif x &gt; d.k:  d.sag = ekle(d.sag, x)
+    # x == d.k: anahtar zaten var; ağaç değişmez (yinelenen anahtar eklenmez)
     return d
 
 kok = None
@@ -382,7 +383,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 <div class="row"><button class="btn g" id="dl_b">◀ Geri</button><button class="btn" id="dl_f">İleri ▶</button><button class="btn g" id="dl_p">Oynat</button>
 <span class="mut">Adım <b id="dl_k">–</b> · Kalan düğüm: <b id="dl_n">0</b> · h: <b id="dl_h">0</b> · In-order: <span id="dl_in"></span> <span id="dl_ok"></span></span></div>
 <div class="legend"><span><b style="background:var(--acc)"></b>aranan yol</span><span><b style="background:var(--warn)"></b>silinecek düğüm</span><span><b style="background:#a98bff"></b>ardıl</span><span><b style="background:var(--ok)"></b>yeni yerleşen</span></div>
-<div class="mut">Sırayla deneyin: <b>3</b> (yaprak: 4’ün sol işaretçisi NULL olur), sonra <b>6</b> (tek çocuk 5: 4’ün sağına bağlanır), ağacı sıfırlayıp <b>4</b> (iki çocuk: ardıl 5, 4’ün yerine kopyalanır ve eski 5 silinir), sonra <b>2</b> (kök; iki çocuk; ardıl 4). Her silmeden sonra araç in-order çıktısının hâlâ sıralı olduğunu doğrular.</div></div>
+<div class="mut">Sırayla deneyin: <b>3</b> (yaprak: 4’ün sol işaretçisi NULL olur), sonra <b>6</b> (tek çocuk 5: 4’ün sağına bağlanır), ağacı sıfırlayıp <b>4</b> (iki çocuk: ardıl 5, 4’ün yerine kopyalanır ve eski 5 silinir), sonra <b>2</b> (kök; iki çocuk; ardıl 3: 7 → 5 → 3). Her silmeden sonra araç in-order çıktısının hâlâ sıralı olduğunu doğrular.</div></div>
 
 <h3>Çözümlü örnek 3 — silme, ders ağacında (kök 2; 1 solda; 7 sağda; 7’nin altında 4 ve 8; 4’ün altında 3 ve 6; 6’nın altında 5)</h3>
 <div class="scroll"><table class="tight">
@@ -390,7 +391,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 <tr><td class="m">3</td><td>1: yaprak</td><td>4’ün sol işaretçisi NULL olur</td><td class="m">1 2 4 5 6 7 8</td></tr>
 <tr><td class="m">6</td><td>2: tek çocuk (5)</td><td>6 aradan çıkar; 4’ün sağ işaretçisi doğrudan 5’i gösterir</td><td class="m">1 2 3 4 5 7 8</td></tr>
 <tr><td class="m">4</td><td>3: iki çocuk (3 ve 6)</td><td>ardıl = 6’nın alt ağacının minimumu = 5. 5, 4’ün düğümüne kopyalanır; eski 5 (yaprak) silinir (6’nın sol işaretçisi NULL)</td><td class="m">1 2 3 5 6 7 8</td></tr>
-<tr><td class="m">2 (kök)</td><td>3: iki çocuk (1 ve 7)</td><td>ardıl = 7’nin alt ağacının minimumu = 3 (7 → 4 → 3). 3 köke kopyalanır; eski 3 (yaprak) silinir</td><td class="m">1 3 4 5 6 7 8</td></tr>
+<tr><td class="m">2 (kök)</td><td>3: iki çocuk (1 ve 7)</td><td>ardıl = 7’nin alt ağacının minimumu = 3 (7 → 4 → 3; başlangıç ağacında). 3 köke kopyalanır; eski 3 (yaprak) silinir</td><td class="m">1 3 4 5 6 7 8</td></tr>
 </table></div>
 <p class="mut">Her satırda başlangıç ağacı <i>ders ağacının kendisi</i>dir (silmeler birbirini izlemez). Ardılın kendisi silinirken bir çocuğu olabilir (yalnızca sağ çocuk): burada 5 ve 3’ün çocuğu yoktu (Durum 1); olsaydı Durum 2 ile aradan çıkarılırdı.</p>
 <div class="rule skip"><b class="t">Sık yapılan hata</b>
@@ -419,7 +420,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 <div class="mut">Satırlar: <b>artan</b> (1…n), <b>azalan</b> (n…1), <b>ortanca önce</b> (ortadaki anahtar, sonra her yarının ortancası…; yükseklik ⌊lg n⌋ olur, bu olabilecek en küçük değerdir), <b>rastgele</b> (100 deneme ortalaması ve en büyüğü, ölçülür). Referans: lg n = <b id="ht_lg"></b>. Gözlem: n = 1023 için artan sırada h = 1022 (zincir); ortanca önce h = 9; rastgelede ortalama h ≈ 21 (lg n’nin yaklaşık iki katı), en kötü denemede ≈ 25–30: n’den çok uzak.</div></div>
 
 <h3>3.4 İyi haber 2: dengeli arama ağaçları</h3>
-<p>Ağacı <b>mükemmel</b> dengeli tutmak pahalıdır (bir anahtar eklemek bütün düğümleri yeniden yerleştirmeyi gerektirebilir: Θ(n) iş). Ama <b>yaklaşık</b> dengeli tutmak ucuzdur: ekleme ve silme, ağaç bir tarafa yığıldıkça küçük düzenlemeler (döndürmeler) yapar. “Dengeli arama ağacı”, yüksekliği <b>garanti olarak O(log n)</b> kalan herhangi bir ağaçtır. Standart örnekler: <b>kırmızı-siyah ağaçlar, AVL ağaçları, 2-3 ağaçları, splay ağaçları, B-ağaçları</b>. Ayrıntıları farklı, garantileri aynı: <b>yedi sözlük işleminin hepsi en kötü durumda O(log n)</b>. Karşılaştırmaya dayalı hiçbir yapı, hepsi için bundan daha iyi (Θ(log n)’den küçük) olamaz.</p>
+<p>Ağacı <b>mükemmel</b> dengeli tutmak pahalıdır (bir anahtar eklemek bütün düğümleri yeniden yerleştirmeyi gerektirebilir: Θ(n) iş). Ama <b>yaklaşık</b> dengeli tutmak ucuzdur: ekleme ve silme, ağaç bir tarafa yığıldıkça küçük düzenlemeler (döndürmeler) yapar. “Dengeli arama ağacı”, yüksekliği <b>garanti olarak O(log n)</b> kalan herhangi bir ağaçtır. Standart örnekler: <b>kırmızı-siyah ağaçlar, AVL ağaçları, 2-3 ağaçları, B-ağaçları</b>. Ayrıntıları farklı, garantileri aynı: <b>yedi sözlük işleminin hepsi en kötü durumda O(log n)</b>. (<b>Splay ağaçları</b> bu listede değildir: yükseklikleri doğrusal olabilir ve tek bir işlem Θ(n) sürebilir; yalnızca <b>amortize</b> O(log n) garanti ederler.) Karşılaştırmaya dayalı hiçbir yapı, hepsi için bundan daha iyi (Θ(log n)’den küçük) olamaz.</p>
 <div class="rule skip"><b class="t">Şimdilik atla</b> Döndürmelerin (rotation) ayrıntısı bu derste yok. Bilmeniz gereken: <b>“dengeli ağaç”</b> sözcüğü <b>“h = O(log n) garantili”</b> demektir, ve bunun bedeli ekleme/silmedeki küçük ek düzenlemelerdir.</div>
 
 <h3>3.5 Logaritma nereden gelir?</h3>
@@ -435,7 +436,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 </table></div>
 <p class="mut">Hepsi O(n log n). Ana fikir: dengeli bir sözlük en az bir sıralama algoritması kadar güçlüdür. <b>Dikkat:</b> yinelenen anahtarlar varsa ağaç onları atmamalı (sayaç ya da liste tutmalı), yoksa sıralama eleman kaybeder. (Ödev: “o(log n) sürede hem ekleme hem minimumu sil yapan karşılaştırmalı sözlük yoktur” ispatı, “zor” Alıştırma A15.)</p>
 <div class="rule"><b class="t">Kural 7 — yükseklik her şeyi belirler</b>
-Her BST işlemi <span class="en">O(h)</span>. n düğümlü ağaçta <b>lg n ≤ h ≤ n − 1</b> (alt sınır dengeli, üst sınır zincir). Artan/azalan girdi → zincir (h = n − 1, her işlem O(n)). Rastgele sıra → beklenen h = Θ(log n). Dengeli arama ağacı → h = O(log n) <b>garanti</b>. Tek istisnasız cümle: <b>“BST sözlüğü O(log n)’dir” yanlıştır; doğrusu “O(h)”dir.</b></div>
+Her BST işlemi <span class="en">O(h)</span>. n ≥ 1 düğümlü ağaçta (h kenar sayısıyla) <b>⌊lg n⌋ ≤ h ≤ n − 1</b>, eşdeğeri ⌈lg(n + 1)⌉ − 1 ≤ h ≤ n − 1 (alt sınır dengeli, üst sınır zincir). Artan/azalan girdi → zincir (h = n − 1, her işlem O(n)). Rastgele sıra → beklenen h = Θ(log n). Dengeli arama ağacı → h = O(log n) <b>garanti</b>. Tek istisnasız cümle: <b>“BST sözlüğü O(log n)’dir” yanlıştır; doğrusu “O(h)”dir.</b></div>
 </section>
 
 <!-- ================= BLOK 4 ================= -->
@@ -532,7 +533,7 @@ Silinen göze <b>“silindi” (tombstone, mezar taşı)</b> işareti koyun: <b>
 <div class="rule"><b class="t">Kural 10 — yük faktörü</b>
 <b>Zincirleme:</b> ortalama zincir uzunluğu = α; α ≤ ~1 tutulursa işlem O(1), α büyürse yalnızca yavaş yavaş kötüleşir (α = 5 bile mümkündür).<br>
 <b>Açık adresleme:</b> α &lt; 1 olmak zorundadır (her anahtar bir göz tutar) ve α 1’e yaklaştıkça yoklama sayısı <b>hızla patlar</b>.<br>
-<b>Çare:</b> α bir eşiği (örn. ~0,7) aşınca tabloyu <b>iki kat büyütüp</b> tüm anahtarları yeni m ile yeniden karmalarsınız (rehashing). Hafta 4’teki dinamik dizi gibi, bu pahalı işlem seyrek olduğundan ekleme amortize <b>O(1)</b> kalır.</div>
+<b>Çare:</b> α bir eşiği (örn. ~0,7) aşınca tabloyu <b>iki kat büyütüp</b> tüm anahtarları yeni m ile yeniden karmalarsınız (rehashing). Hafta 4’teki dinamik dizi gibi, bu pahalı işlem seyrek olduğundan, anahtarlar uygun biçimde dağılıyorsa (iyi karma fonksiyonu) ve α sınırlı tutulursa ekleme <b>beklenen amortize O(1)</b> kalır. (Büyütme tek başına çakışma maliyetini ortadan kaldırmaz: kötü niyetli ya da şanssız bir çakışma örüntüsünde ekleme yavaşlar.)</div>
 <div class="try"><div class="lab">Kendin dene — doluluk arttıkça yoklama sayısı</div>
 <div class="row"><span>α =</span><input type="range" id="lf_a" min="5" max="95" step="5" value="50"><b id="lf_av">0,50</b></div>
 <div class="mut" style="margin-top:0">Aşağıdaki şerit m = 100 gözlü doğrusal yoklamalı bir tablodur (koyu = dolu). Dolu gözlerin <b>kümelendiğine</b> dikkat edin.</div>
@@ -578,7 +579,7 @@ mod adımı rulet çarkı gibidir: büyük sayı M gözlü çarkın etrafında �
 <div id="kh_hist" class="hist"></div>
 <div id="kh_out" class="steps"></div>
 <div class="mut">Çubuklar = göz başına anahtar sayısı (kırmızı = en uzun zincir). <b>Deneyin:</b> CAN kimlikleri + mod 32 → hepsi göz 0; m = 37 → dağılır; m = 64 (ikinin kuvveti) → yalnızca iki göz kullanılır. Kural “m asal olsun, 2’nin kuvvetine yakın olmasın”ın gerekçesi budur. Bu bir <b>garanti değil</b>: anahtar yapısına göre bir asal da kötü olabilir; anahtarlar sabitse (Blok 6) tabloyu önceden test edin.</div></div>
-<p class="mut"><b>Gerçek örnek (iyi/kötü):</b> insanları ABD Sosyal Güvenlik Numaralarının <b>ilk üç hanesine</b> göre karmalamak kötüdür, çünkü bu hanelerin numaranın verildiği yeri kodlar: aynı eyaletten herkes aynı gözlere yığılır. <b>Son üç hane</b> ise fiilen rastgeledir ve dengeli dağılır. Kural: <b>anahtarın bilgisi çok olan (rastgele görünen) kısmını kullanın.</b></p>
+<p class="mut"><b>Gerçek örnek (iyi/kötü):</b> insanları ABD Sosyal Güvenlik Numaralarının (SSN) <b>ilk üç hanesine</b> göre karmalamak kötüdür: 25 Haziran 2011’deki rastgeleleştirmeden (SSA randomization) <u>önce</u> verilen numaralarda bu haneler numaranın verildiği yeri kodlardı, yani aynı eyaletten herkes aynı gözlere yığılırdı (2011 sonrası numaralarda bu coğrafi kural geçerli değildir; örnek tarihsel bir ders olarak okunmalıdır). <b>Son haneler</b> ise fiilen rastgeledir ve dengeli dağılır. Kural: <b>anahtarın bilgisi çok olan (rastgele görünen) kısmını kullanın.</b></p>
 
 <h3>5.2 Doğum günü paradoksu: çakışmalar sezgimizden erken gelir</h3>
 <p><b>Sezgi.</b> 23 kişilik bir sınıfta iki kişinin doğum günü aynı mıdır? 365 gün var, 23 kişi “çok az” gibi duruyor. Ama <b>çiftlerin sayısına</b> bakın: 23 kişide 253 çift var. Her çift küçük bir çakışma şansı.</p>
@@ -620,13 +621,13 @@ P(en az bir çakışma) = 1 − P(çakışma yok)</pre>
 <p><b>Problem.</b> n uzunluklu metin t içinde m uzunluklu örüntü p var mı, nerede? (Kaba kuvvet: örüntüyü her konuma kaydır, karakter karakter karşılaştır: <b>O(nm)</b>.) <b>Fikir:</b> p’nin karmasını ve metnin her m karakterlik penceresinin karmasını hesapla; <b>karmalar eşitse</b> karakterleri karşılaştır (özdeş dizelerin karması eşittir; farklıysa karması neredeyse kesin farklıdır). <b>Pürüz:</b> n − m + 1 pencere × her biri O(m) karma maliyeti = yine O(nm).</p>
 <p><b>Püf noktası — kayan karma (rolling hash).</b> j konumunda başlayan pencerenin karması H(j) = Σ α<sup>m−(i+1)</sup> · karakter(s<sub>i+j</sub>) (modülo bir q). Pencereyi bir sağa kaydırınca <b>ilk karakter çıkar, yeni karakter girer</b>:</p>
 <pre>H(j+1) = ( (H(j) − α^(m-1) · karakter(s[j])) · α  +  karakter(s[j+m]) )  mod q</pre>
-<p>Bir pencerenin karmasından sonrakini <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulursunuz: <b>O(1)</b> (α<sup>m−1</sup> mod q önceden hesaplanır, sabit uzunlukta mod aritmetiği varsayılır). Böylece n pencerenin hepsi O(n)’de karmalanır ve bütün arama <b>beklenen O(n + m)</b>’dir. Eşit karmalı ama farklı dizeler (<b>yanlış alarm</b>, false positive) O(m) ile elenir; çok yanlış alarm olursa en kötü durum yine O(nm)’dir.</p>
+<p>Bir pencerenin karmasından sonrakini <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulursunuz: <b>O(1)</b> (α<sup>m−1</sup> mod q önceden hesaplanır, sabit uzunlukta mod aritmetiği varsayılır). Böylece n pencerenin hepsi O(n)’de karmalanır ve ilk eşleşmeyi arayan bütün arama <b>beklenen O(n + m)</b>’dir (tüm eşleşmeler için aşağıdaki z·m terimine bakın). Eşit karmalı ama farklı dizeler (<b>yanlış alarm</b>, false positive) O(m) ile elenir; çok yanlış alarm olursa en kötü durum yine O(nm)’dir. <b>İlk eşleşme / tüm eşleşmeler:</b> yalnızca <u>ilk</u> eşleşmeyi arıyorsak, ilk gerçek eşleşmede durulur. <u>Tüm</u> eşleşmeler isteniyorsa, z gerçek eşleşmenin her biri m karakterlik doğrulama ister: toplam beklenen O(n + m + z·m). Yani yanlış alarm olmasa bile z büyükse iş Θ(nm)’e varabilir (örnek: 40 “A”lık metinde 12 “A”lık örüntü → z = 29 eşleşme, 29 · 12 = 348 doğrulama karşılaştırması).</p>
 <div class="try"><div class="lab">Kendin dene — kayan karmayı hesapla</div>
 <div class="row"><span>Metin:</span><input type="text" id="rk_t" value="ABRACADABRA" style="flex:1;min-width:160px"><span>Örüntü:</span><input type="text" id="rk_p" value="ABRA" style="max-width:140px"></div>
-<div class="row"><span>Taban α =</span><input type="number" id="rk_a" value="31" min="2" max="256" style="width:80px"><span>Modül q =</span><input type="number" id="rk_q" value="101" min="2" max="10007" style="width:90px"><button class="btn g" id="rk_small">Çok küçük q = 2 (yanlış alarmlar)</button></div>
+<div class="row"><span>Taban α =</span><input type="number" id="rk_a" value="31" min="2" max="256" style="width:80px"><span>Modül q =</span><input type="number" id="rk_q" value="101" min="2" max="10007" style="width:90px"><button class="btn g" id="rk_small">Çok küçük q = 2 (yanlış alarmlar)</button><button class="btn g" id="rk_aaa">40 A / 12 A (çok gerçek eşleşme)</button></div>
 <div class="scroll"><table class="tight"><thead><tr><th>j</th><th>Pencere</th><th>Kayan H(j)</th><th>Baştan hesap</th><th>Karma eşit?</th><th>Gerçek eşleşme?</th></tr></thead><tbody id="rk_tb"></tbody></table></div>
 <div id="rk_out" class="steps"></div>
-<div class="mut">Varsayılan (α = 31, q = 101): p = “ABRA” karması 22. Pencereler 0, 1 ve 7’de karma 22; 0 ve 7 <b>gerçek eşleşme</b>, 1 (“BRAC”) <b>yanlış alarm</b>. “Kayan” ve “baştan hesap” sütunları her satırda aynı: kayan formül doğru çalışıyor. q = 2 düğmesiyle karma değeri yalnızca 0 ya da 1 olur: karma eşit sayısı 4’e, yanlış alarm 2’ye çıkar. Karma ne kadar çok çakışırsa, “karmalar eşit” sinyali o kadar az güvenilir. Karakter karşılaştırma sayısını kaba kuvvetle kıyaslayın.</div></div>
+<div class="mut">Varsayılan (α = 31, q = 101): p = “ABRA” karması 22. Pencereler 0, 1 ve 7’de karma 22; 0 ve 7 <b>gerçek eşleşme</b>, 1 (“BRAC”) <b>yanlış alarm</b>. “Kayan” ve “baştan hesap” sütunları her satırda aynı: kayan formül doğru çalışıyor. q = 2 düğmesiyle karma değeri yalnızca 0 ya da 1 olur: karma eşit sayısı 4’e, yanlış alarm 2’ye çıkar. Karma ne kadar çok çakışırsa, “karmalar eşit” sinyali o kadar az güvenilir. “40 A / 12 A” düğmesi başka bir uç durumdur: yanlış alarm 0, ama z = 29 gerçek eşleşmenin hepsi doğrulanır (29 · 12 = 348 karşılaştırma). Karakter karşılaştırma sayısını kaba kuvvetle kıyaslayın.</div></div>
 <h3>Çözümlü örnek 9 — Rabin–Karp izi: metin ABRACADABRA, örüntü ABRA, α = 31, q = 101 (karakter kodu: ASCII)</h3>
 <div class="scroll"><table class="tight">
 <tr><th>j</th><th>Pencere</th><th>H(j)</th><th>Karma = 22?</th><th>Karakterle doğrula</th></tr>
@@ -641,7 +642,7 @@ P(en az bir çakışma) = 1 − P(çakışma yok)</pre>
 </table></div>
 <p class="mut">Sonuç: eşleşmeler j = 0 ve j = 7. Sekiz pencerenin yalnızca üçünde karakter karşılaştırması gerekti. Her H(j+1), H(j)’den <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulundu: örneğin H(1) = ((22 − 31³·65) · 31 + 67) mod 101 = 22 (31³ mod 101 hesabı: araç sizin için yapar).</p>
 <div class="rule"><b class="t">Kural 13 — Rabin–Karp</b>
-Pencere karması <b>O(1)</b>’de güncellenir (kayan karma). Karmalar eşitse karakterlerle <b>doğrula</b> (yanlış alarm olabilir). Beklenen O(n + m); karmanın çok çakıştığı en kötü durumda O(nm).</div>
+Pencere karması <b>O(1)</b>’de güncellenir (kayan karma). Karmalar eşitse karakterlerle <b>doğrula</b> (yanlış alarm olabilir). Yalnızca ilk eşleşme aranıyorsa beklenen O(n + m); <b>tüm</b> eşleşmeler aranıyorsa z gerçek eşleşme için doğrulama terimi z·m eklenir: O(n + m + z·m). Karmanın çok çakıştığı ya da z’nin büyük olduğu en kötü durumda O(nm).</div>
 </section>
 
 <!-- ================= BLOK 6 ================= -->
@@ -760,12 +761,12 @@ Pencere karması <b>O(1)</b>’de güncellenir (kayan karma). Karmalar eşitse k
 <li><b>BST kuralı:</b> sol alt ağaçtaki <u>her</u> anahtar küçük, sağ alt ağaçtaki <u>her</u> anahtar büyük. Arama, ekleme, min, maks hep tek bir yoldur: <b>O(h)</b>.</li>
 <li><b>In-order</b> (sol, ben, sağ) anahtarları sıralı yazar: Θ(n). Ardıl: sağ çocuk varsa sağ alt ağacın minimumu; yoksa x’i solunda barındıran ilk ata.</li>
 <li><b>Silme:</b> yaprak → NULL; tek çocuk → aradan çıkar; iki çocuk → ardılın anahtarını kopyala, ardılı sil (ardılın en fazla bir çocuğu var).</li>
-<li><b>Yükseklik her şeyi belirler:</b> lg n ≤ h ≤ n − 1. Sıralı girdi zincir yapar; rastgele sıra beklenen Θ(log n); dengeli arama ağaçları (AVL, kırmızı-siyah, …) h = O(log n)’i garanti eder.</li>
+<li><b>Yükseklik her şeyi belirler:</b> ⌊lg n⌋ ≤ h ≤ n − 1 (h kenar sayısı). Sıralı girdi zincir yapar; rastgele sıra beklenen Θ(log n); dengeli arama ağaçları (AVL, kırmızı-siyah, …) h = O(log n)’i garanti eder.</li>
 <li><b>Karma tablosu:</b> h(k) = k mod m ile göze git; çakışma kaçınılmaz (doğum günü paradoksu: ilk çakışma ≈ 1,18·√m anahtarda). Zincirleme: göz başına liste; açık adresleme: yoklama (doğrusal, karesel, adımlı).</li>
 <li><b>Açık adreslemede silme:</b> gözü boşaltmayın, <b>mezar taşı</b> koyun (arama geçer, ekleme yeniden kullanır).</li>
-<li><b>Yük faktörü α = n/m:</b> zincir uzunluğu ≈ α; açık adreslemede α → 1’de yoklamalar patlar; α ~0,7’yi aşınca tabloyu iki katına çıkarıp yeniden karmalayın (amortize O(1)).</li>
+<li><b>Yük faktörü α = n/m:</b> zincir uzunluğu ≈ α; açık adreslemede α → 1’de yoklamalar patlar; α ~0,7’yi aşınca tabloyu iki katına çıkarıp yeniden karmalayın (uygun karma ve sınırlı α varsayımıyla beklenen amortize O(1)).</li>
 <li><b>Karma:</b> search/insert/delete beklenen O(1), en kötü O(n); min/max/pred/succ Θ(n + m). Garanti ya da sıra gerekiyorsa dengeli ağaç.</li>
-<li><b>Rabin–Karp:</b> kayan karma pencereyi O(1)’de günceller; beklenen O(n + m); eşit karmaları karakterle doğrulayın.</li>
+<li><b>Rabin–Karp:</b> kayan karma pencereyi O(1)’de günceller; ilk eşleşme için beklenen O(n + m), z eşleşmenin hepsi için O(n + m + z·m); eşit karmaları karakterle doğrulayın.</li>
 </ol></div>
 
 <div class="box"><b>Hafta 3–4’ten hatırlanacaklar</b>
@@ -1321,10 +1322,11 @@ function rkUpdate(){
     if(j+m<n)hw=md((hw-md(pw*cc(t[j])))*al+cc(t[j+m]));
   }
   $("#rk_tb").innerHTML=rows;
-  $("#rk_out").innerHTML=`p’nin karması: <b>${hp}</b> · pencere sayısı: ${n-m+1} · kayan güncelleme: ${n-m} kez (her biri O(1)) · karma eşit: <b>${hits}</b> (gerçek eşleşme <b>${truth}</b>, yanlış alarm <b>${fa}</b>)<br>Karakter karşılaştırması: Rabin–Karp ≈ <b>${rkCmp}</b> (yalnızca karma eşitken) · kaba kuvvet ≈ <b>${bfCmp}</b> · kayan karma = baştan hesap her satırda: <b class="${allOk?"ok":"bad"}">${allOk?"✓":"✗"}</b>`;
+  $("#rk_out").innerHTML=`p’nin karması: <b>${hp}</b> · pencere sayısı: ${n-m+1} · kayan güncelleme: ${n-m} kez (her biri O(1)) · karma eşit: <b>${hits}</b> (gerçek eşleşme <b>${truth}</b>, yanlış alarm <b>${fa}</b>)<br>Karakter karşılaştırması (tüm eşleşmeler aranırken): Rabin–Karp ≈ <b>${rkCmp}</b> (yalnızca karma eşitken; bunun <b>${truth*m}</b>’i gerçek eşleşmelerin doğrulaması z·m = ${truth}·${m}, kalanı yanlış alarmlar) · kaba kuvvet ≈ <b>${bfCmp}</b> · kayan karma = baştan hesap her satırda: <b class="${allOk?"ok":"bad"}">${allOk?"✓":"✗"}</b>`;
 }
 ["#rk_t","#rk_p","#rk_a","#rk_q"].forEach(s=>$(s).oninput=rkUpdate);
-$("#rk_small").onclick=()=>{$("#rk_q").value=2;rkUpdate()};rkUpdate();
+$("#rk_small").onclick=()=>{$("#rk_q").value=2;rkUpdate()};
+$("#rk_aaa").onclick=()=>{$("#rk_t").value="A".repeat(40);$("#rk_p").value="A".repeat(12);$("#rk_a").value=31;$("#rk_q").value=101;rkUpdate()};rkUpdate();
 
 /* ---------- 6: CAN table ---------- */
 function cnSim(ids,m){

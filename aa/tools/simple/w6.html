@@ -503,23 +503,24 @@ Geometrik seri Σ x<sup>k</sup> = 1/(1 − x) için iki tarafın türevi: Σ k x
         s[i] = extract_min(heap)   # n kez O(log n)</pre>
 <div class="rule"><b class="t">Kural 12 — heapsort maliyeti</b>
 Kurma O(n) + n çıkarma × O(log n) = <b>O(n log n)</b>, en kötü durumda da. <b>O(n) olamaz</b>: n minimumu sırayla çıkarmak zaten sıralamadır ve Ders 9, karşılaştırmaya dayalı sıralamanın Ω(n log n) karşılaştırma gerektirdiğini gösterir.<br>
-<b>Yerinde (in-place) sürüm:</b> <b>maks-öbek</b> kurun (kök = en büyük). Kökü, aktif öbeğin <b>son konumuyla takas edin</b>: o konum artık kesinlikle son (sıralı) değerini taşır. Aktif öbeği bir kısaltın, yeni kökü aşağı taşıyın. Tekrarlayın: sıralı kısım dizinin sonundan büyür, ikinci bir diziye gerek kalmaz.</div>
-<pre>def heapsort(s):                  # artan sıralar, yerinde (maks-öbek)
-    Q = [None] + s[:]; n = len(s)
-    def down(p, m):               # maks-öbek için aşağı taşı, aktif boyut m
-        while 2 * p &lt;= m:
-            c = 2 * p
-            if c + 1 &lt;= m and Q[c + 1] &gt; Q[c]: c += 1
-            if Q[c] &gt; Q[p]:
-                Q[c], Q[p] = Q[p], Q[c]; p = c
+<b>Yerinde (in-place) sürüm:</b> <b>maks-öbek</b> kurun (kök = en büyük). Kökü, aktif öbeğin <b>son konumuyla takas edin</b>: o konum artık kesinlikle son (sıralı) değerini taşır. Aktif öbeği bir kısaltın, yeni kökü aşağı taşıyın. Tekrarlayın: sıralı kısım dizinin sonundan büyür, ikinci bir diziye gerek kalmaz (aşağıdaki kod girdi listesini doğrudan değiştirir; ek bellek O(1)). Girdiyi korumak istenirse önce <code>s[:]</code> ile kopyalamak gerekir; o durumda Θ(n) ek bellek kullanılır, ama bu algoritmanın değil, kopyalamanın bedelidir.</div>
+<pre>def heapsort(s):                  # artan sıralar; doğrudan s üzerinde, yerinde (maks-öbek), O(1) ek bellek
+    n = len(s)
+    def down(p, m):               # 0 tabanlı maks-öbek: çocuklar 2p+1, 2p+2; aktif boyut m
+        while 2 * p + 1 &lt; m:
+            c = 2 * p + 1
+            if c + 1 &lt; m and s[c + 1] &gt; s[c]: c += 1
+            if s[c] &gt; s[p]:
+                s[c], s[p] = s[p], s[c]; p = c
             else: break
-    for p in range(n // 2, 0, -1): down(p, n)     # 1) maks-öbek kur
-    for last in range(n, 1, -1):                   # 2) n−1 kez:
-        Q[1], Q[last] = Q[last], Q[1]              #    kökü sona at
-        down(1, last - 1)                          #    öbeği onar
-    return Q[1:]
+    for p in range(n // 2 - 1, -1, -1): down(p, n)   # 1) maks-öbek kur
+    for last in range(n - 1, 0, -1):                 # 2) n−1 kez:
+        s[0], s[last] = s[last], s[0]                #    kökü sona at
+        down(0, last)                                #    öbeği onar
+    return s                                         # aynı liste (girdi değişti)
 
-print(heapsort([4, 1, 3, 2, 5]))     # [1, 2, 3, 4, 5]</pre>
+a = [4, 1, 3, 2, 5]; heapsort(a)
+print(a)     # [1, 2, 3, 4, 5]</pre>
 <p><b>Çözümlü örnek 7.</b> [4, 1, 3, 2, 5] dizisi heapsort ile (adımlar ayrıntılı; yeşil: sıralı kuyruk).</p>
 <div class="trace" data-k="hsort" data-arr="4,1,3,2,5" data-mx="1" data-expect="1,2,3,4,5"></div>
 
@@ -563,7 +564,7 @@ print(heapsort([4, 1, 3, 2, 5]))     # [1, 2, 3, 4, 5]</pre>
 <svg id="tm_svg" class="hv" role="img" aria-label="Zamanlayıcı öbeği"></svg>
 <div class="cards" id="tm_cards"></div>
 <div class="logbox" id="tm_log"></div>
-<div class="mut">Sayaç: toplam karşılaştırma <b id="tm_c">0</b> · öbek boyutu <b id="tm_n">0</b>. <b>Mini problem (orijinal):</b> başlangıç öbeği [5, 9, 7, 12, 10]. “F, 6”yı ekleyin: dizi [5, 9, 6, 12, 10, 7] olur (6 konum 6’ya yazılır, ebeveyni konum 3 (7) → takas; sonra konum 1 (5) ≤ 6 → dur). Tik’e basarak periyodik tetiklemeyi izleyin: t = 10’da hem A (yeniden eklenen) hem E vakti 10’dur; onay kutusunu açıp kapatarak sıranın nasıl değiştiğine bakın.</div></div>
+<div class="mut">Sayaç: toplam karşılaştırma <b id="tm_c">0</b> · öbek boyutu <b id="tm_n">0</b>. <b>Mini problem (orijinal):</b> başlangıç öbeği [5, 9, 7, 12, 10]. “F, 6”yı ekleyin: dizi [5, 9, 6, 12, 10, 7] olur (6 konum 6’ya yazılır, ebeveyni konum 3 (7) → takas; sonra konum 1 (5) ≤ 6 → dur). Tik’e basarak periyodik tetiklemeyi izleyin: t = 10’da hem A (yeniden eklenen) hem E vakti 10’dur; onay kutusunu açıp kapatarak sıranın nasıl değiştiğine bakın. Saat geri gitmez: o anki saatten önceki bir vakit eklenemez (reddedilir).</div></div>
 
 <div class="try"><div class="lab">Kendin dene — görev öncelik kuyruğu (maks-öbek, anahtar = öncelik)</div>
 <div class="row"><label><input type="checkbox" id="tq_seq" checked> eşit önceliklilerde geliş sırası (FIFO)</label>
@@ -994,7 +995,7 @@ function tmTick(){const x=TM.pq.pop();if(!x)return;TM.now=x.due;x.due+=x.per;x.s
   TM.log.push(`t = ${TM.now}: <b>${x.nm}</b> tetiklendi → yeni vakit ${x.due}`);TM.pq.push(x)}
 $("#tm_tick").onclick=()=>{tmTick();tmShow()};$("#tm_10").onclick=()=>{for(let i=0;i<10;i++)tmTick();tmShow()};
 $("#tm_rst").onclick=tmInit;$("#tm_seq").onchange=tmInit;
-$("#tm_add").onclick=()=>{const nm=($("#tm_nm").value||"?").slice(0,3),d=+$("#tm_due").value;if(!isFinite(d)||TM.pq.n>=15)return;TM.pq.push({nm,due:d,per:Math.max(1,d-TM.now),seq:TM.seq++});TM.log.push(`t = ${TM.now}: <b>${nm}</b> eklendi (vakit ${d})`);tmShow()};
+$("#tm_add").onclick=()=>{const nm=($("#tm_nm").value||"?").slice(0,3),d=+$("#tm_due").value;if(!isFinite(d)||TM.pq.n>=15)return;if(d<TM.now){TM.log.push(`t = ${TM.now}: <b>${nm}</b> reddedildi (vakit ${d} geçmişte; saat geri gitmez)`);tmShow();return}TM.pq.push({nm,due:d,per:Math.max(1,d-TM.now),seq:TM.seq++});TM.log.push(`t = ${TM.now}: <b>${nm}</b> eklendi (vakit ${d})`);tmShow()};
 tmInit();
 
 /* ---------- 6 görev kuyruğu ---------- */

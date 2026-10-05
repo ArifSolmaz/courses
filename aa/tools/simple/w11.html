@@ -353,7 +353,7 @@ Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan köşe olsun
 <b>Dizi (array) ile:</b> n tur, her turda minimum için O(n) tarama + O(n) güncelleme → <span class="en">O(n²)</span> (yoğun çizgede iyi).<br>
 <b>İkili yığın (binary heap) ile:</b> en çok m gevşetme, her biri O(log n); n çıkarma, her biri O(log n) → <span class="en">O((n + m) log n)</span>, çoğu zaman O(m log n) yazılır (seyrek çizgede iyi).<br>
 <b>Bellman–Ford:</b> O(V·E), Floyd: Θ(n³) (Blok 3–4).</div>
-<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> <b>Fibonacci yığını</b> anahtarı amortize O(1)’de azaltır ve Dijkstra’yı O(n log n + m) yapar; bilinen en iyi sınırdır. Sınav için ikili yığın yeterli.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> <b>Fibonacci yığını</b> anahtarı amortize O(1)’de azaltır ve Dijkstra’yı O(n log n + m) yapar; bu, <i>bu Dijkstra gerçeklemesinin</i> (yığınlı, negatif kenarsız) standart sınırıdır, tek kaynaklı en kısa yolun genel “en iyi bilinen” sınırı olarak okunmamalıdır: 2025’te yönlü, negatif olmayan gerçek ağırlıklı çizgeler için seyrek çizgede daha iyi bir sınır (O(m log^(2/3) n)) bildirilmiştir (güncel literatürden kontrol edin). Sınav için ikili yığın yeterli.</div>
 
 <div class="try"><div class="lab">Kendin dene — maliyet hesaplayıcı (n ve m’ye göre işlem sayısı)</div>
 <div class="row"><span>n (köşe) =</span><input type="number" id="cw_n" value="1000" min="2" max="100000" style="width:110px"><span>ortalama çıkış derecesi d =</span><input type="number" id="cw_d" value="5" min="1" max="5000" style="width:90px">
@@ -471,15 +471,17 @@ Kenar sırası <b>sonucu</b> değiştirmez, yalnızca <b>kaç turun yararlı old
 <p><b>Sezgi.</b> Bir robotun montaj hattında görevler birbirine bağlı: “kaynak” görevden başlayıp her görevin <b>en erken ulaşılabilen süresi</b> aranıyor ve bazı geçişler “zaman kazandırıyor” (negatif ağırlık). Çizge <b>DAG</b> ise bir köşeye gelen <b>tüm kenarlar, o köşe işlenmeden önce işlenmiş olur</b>. O hâlde köşeyi <i>topolojik sırada</i> bir kez işlemek yeter: negatif kenar bile “sonradan gelip” kesin bir köşeyi bozamaz, çünkü geri dönüş yoktur.</p>
 <div class="rule"><b class="t">Kural 8 — DAG’da en kısa yol (O(n+m))</b>
 1) Topolojik sırayı bul (O(n+m)). 2) dist[s] = 0, diğerleri ∞. 3) Sırayla her köşe u için, çıkan her kenar u→v’yi <b>gevşet</b>. Her köşe ve kenar bir kez görülür: <span class="en">O(n + m)</span>. <b>Negatif ağırlık serbesttir</b> (döngü yok). Dijkstra’dan da, Bellman–Ford’dan da hızlıdır.</div>
-<pre>def dag_en_kisa(nodes, edges, s):
+<pre>from collections import deque
+
+def dag_en_kisa(nodes, edges, s):
     # topolojik sıra: giriş derecesi 0 olanı çıkar (Kahn)
     indeg = {v: 0 for v in nodes}
     out = {v: [] for v in nodes}
     for u, v, w in edges:
         out[u].append((v, w)); indeg[v] += 1
-    order, q = [], [v for v in nodes if indeg[v] == 0]
+    order, q = [], deque(v for v in nodes if indeg[v] == 0)   # from collections import deque
     while q:
-        u = q.pop(0); order.append(u)
+        u = q.popleft(); order.append(u)
         for v, w in out[u]:
             indeg[v] -= 1
             if indeg[v] == 0: q.append(v)
@@ -539,7 +541,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <div class="kicker">Blok 5</div>
 <h2><span class="num">5</span>Mühendislik uygulaması: arazi maliyetli robot, A*, algoritma seçimi <span class="time">20 dk</span></h2>
 <p>Bir mobil robot doluluk ızgarasında (occupancy grid) gidiyor; <b>her hamlenin maliyeti girilen hücrenin arazi süresidir</b>: asfalt 1, çakıl 3, çamur 8 (çamur asfalttan sekiz kat yavaş). BFS hamle sayar, Dijkstra <b>maliyet</b> sayar. Hiçbir maliyet negatif olmadığından en ucuz tahmini hücre güvenle kesinleştirilebilir; Dijkstra’nın dayandığı şey tam budur.</p>
-<p><b>A* (A-star)</b>, “ipucu verilmiş Dijkstra”dır: kuyruğu <b>şimdiye kadarki maliyet g + kalan maliyet tahmini h</b> ile sıralar (h örneğin hedefe kuş uçuşu/Manhattan uzaklık). h <b>hiçbir zaman gerçek kalan maliyeti olduğundan fazla söylemezse</b> (kabul edilebilir / admissible) A* de aynı en ucuz yolu bulur ve genelde çok daha az hücre açar. Abartılı h en iyi yolu kaçırabilir.</p>
+<p><b>A* (A-star)</b>, “ipucu verilmiş Dijkstra”dır: kuyruğu <b>şimdiye kadarki maliyet g + kalan maliyet tahmini h</b> ile sıralar (h örneğin hedefe kuş uçuşu/Manhattan uzaklık). h <b>hiçbir zaman gerçek kalan maliyeti olduğundan fazla söylemezse</b> (kabul edilebilir / admissible) ağaç-arama sürümü A* en ucuz yolu bulur. Aşağıdaki gibi <b>kapalı küme (closed set)</b> tutan çizge-arama sürümünde, bir hücre kapatıldıktan sonra yeniden açılmıyorsa, yalnızca admissible olmak yetmez: h’nin ayrıca <b>tutarlı (consistent)</b> olması, yani her u→v kenarı için h(u) ≤ c(u,v) + h(v) sağlanması gerekir (ya da iyileşen hücreler yeniden açılmalıdır). Burada 4 yönlü hareketle Manhattan uzaklığı tutarlıdır (bir adımda h en çok 1 değişir, hücre maliyeti ≥ 1); bu yüzden A* aynı en ucuz yolu bulur ve genelde çok daha az hücre açar. Abartılı h en iyi yolu kaçırabilir.</p>
 <div class="try"><div class="lab">Kendin dene — ızgarada BFS / Dijkstra / A* (çözümlü mini-problem hazır)</div>
 <div class="row"><select id="gd_p"></select><span class="mut">Göster:</span><select id="gd_a"><option value="bfs">BFS (hamle sayar)</option><option value="dij" selected>Dijkstra (maliyet)</option><option value="ast">A* (Manhattan ipucu)</option></select></div>
 <textarea id="gd_txt" rows="4" spellcheck="false"></textarea>
@@ -631,7 +633,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <li><b>Bellman–Ford:</b> tüm kenarları n−1 kez gevşet, O(V·E); <b>n. turda iyileşme = negatif döngü.</b> Kenar sırası turların sayısını etkiler, sonucu değil.</li>
 <li><b>DAG:</b> topolojik sırada gevşet, O(n+m), negatif ağırlık serbest; aynı sırayla yol sayısı da sayılır.</li>
 <li><b>Floyd:</b> k en dışta, D[i][j] = min(D[i][j], D[i][k] + D[k][j]), Θ(n³); köşegen &lt; 0 ⇒ negatif döngü; min/+ yerine veya/ve ⇒ geçişli kapanış.</li>
-<li><b>A*</b> = ipucu (h) eklenmiş Dijkstra; h hiçbir zaman fazla söylemezse en ucuz yolu bulur, genelde daha az hücre açar. <b>Her kenara sabit eklemek yolu korumaz.</b></li>
+<li><b>A*</b> = ipucu (h) eklenmiş Dijkstra; h hiçbir zaman fazla söylemezse (admissible) ve kapalı küme kullanılıyorsa ayrıca tutarlıysa (consistent; Manhattan + 4 yönlü ızgara + maliyet ≥ 1 tutarlıdır) en ucuz yolu bulur, genelde daha az hücre açar. <b>Her kenara sabit eklemek yolu korumaz.</b></li>
 </ol></div>
 
 <div class="box"><b>Hafta 9–10’dan hatırlanacaklar</b>
@@ -1266,7 +1268,7 @@ mkQuiz("#quiz1",[
  ["100 köşeli bir çizgede Floyd–Warshall’ın en iç satırı (D[i][j] güncellemesi) kaç kez çalışır?",["10⁴","10⁶","10⁸","300"],1,"n³ = 100³ = 10⁶."],
  ["Q20: 1→2 = 4, 1→3 = 11, 2→3 = 2. Floyd sonunda D[1][3] kaçtır?",["11","6","4","2"],1,"k = 2’de min(11, 4+2) = 6."],
  ["Mini ızgarada (M çamur 8, G asfalt 1) BFS’in bulduğu S→M→G yolunun maliyeti?",["2","8","9","11"],2,"M’ye girmek 8, G’ye girmek 1: toplam 9. Dijkstra’nın yolu 8’dir."],
- ["Kabul edilebilir (asla fazla söylemeyen) bir ipucuyla A*, Dijkstra’ya göre ne yapar?",["Aynı en ucuz yolu bulur, genelde daha az hücre açar","Daha kısa bir yol bulur","En az hamleli yolu bulur","Yalnızca engelsiz ızgarada çalışır"],0,"Admissible h ile A* de kesindir; ipucu yalnızca açılma sırasını değiştirir."],
+ ["Bu ızgarada (4 yönlü, maliyet ≥ 1, Manhattan ipucu: kabul edilebilir ve tutarlı) A*, Dijkstra’ya göre ne yapar?",["Aynı en ucuz yolu bulur, genelde daha az hücre açar","Daha kısa bir yol bulur","En az hamleli yolu bulur","Yalnızca engelsiz ızgarada çalışır"],0,"Manhattan ipucu burada admissible ve tutarlıdır (bir adımda h en çok 1 değişir, maliyet ≥ 1); kapalı kümeli A* de kesindir. Yalnızca admissible h, kapalı kümeyle yeniden açma olmadan yetmeyebilir; ipucu açılma sırasını değiştirir."],
  ["Hangisi YANLIŞTIR?",["Ağırlıksız çizgede BFS ağacındaki yollar en kısa yollardır","Her MST, her köşe çifti için bir en kısa yol içerir","Her kenara aynı pozitif sabit eklemek en kısa yol ağacını değiştirebilir","Negatif kenar Dijkstra’nın yanlış sonuç vermesine yol açabilir"],1,"Üçgen 2, 2, 3: MST’de A→C yolu 4, doğrudan kenar 3."],
  ["Her kenara k = 10 eklenirse, uzunlukları 1+1+1 = 3 ve 4 olan 3 kenarlı ve 1 kenarlı yolların yeni maliyetleri?",["13 ve 14","33 ve 14","3 ve 4","33 ve 4"],1,"3 kenarlı yol 3 + 3·10 = 33, tek kenar 4 + 10 = 14: sıralama tersine döner."]
 ]);
