@@ -201,13 +201,13 @@ def fib_dp(n):                     # tablo: Θ(n)
 
 <h3>0.2 Hafta 12: iki boyutlu tablo ve geri izleme</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 12 — binom katsayısı, backtracking</b>
-<b>Pascal üçgeni:</b> C(n,k) = C(n−1,k−1) + C(n−1,k), taban C(n,0)=C(k,k)=1. Neden doğru? n. eleman ya seçilmiş alt kümededir (kalan n−1’den k−1 seç) ya değildir (kalan n−1’den k seç). Faktöriyel formülü ise büyük sayılarda taşar; <b>tablo güvenli yoldur</b>. Tablonun hücre sayısı ≈ n·k ve hücre başı iş sabit.<br>
+<b>Pascal üçgeni:</b> C(n,k) = C(n−1,k−1) + C(n−1,k), taban C(n,0)=C(k,k)=1. Neden doğru? n. eleman ya seçilmiş alt kümededir (kalan n−1’den k−1 seç) ya değildir (kalan n−1’den k seç). Sabit genişlikli tamsayılarda faktöriyel formülü çok hızlı taşabilir. Tablo yöntemi faktöriyel bölmelerini gerektirmez; ancak binom katsayılarının kendileri yine çok büyüyebileceği için kullanılan sayı türü önemlidir. Tablonun hücre sayısı ≈ n·k ve hücre başı iş sabit.<br>
 <b>Geri izleme (backtracking)</b> “hepsini dene”dir (üstel olabilir) ve <b>budama (pruning)</b> ile kesilir: kısmi çözüm zaten geçersizse alt ağacın tamamı atlanır. DP ise hepsini <i>sistematik</i> değerlendirir (doğru) ve sonuçları <i>saklar</i> (verimli). Açgözlü ise doğruluk kanıtı yoksa büyük olasılıkla yanlıştır (Hafta 1).</div>
 <div id="w_pas"></div>
 
 <h3>0.3 Hafta 11: en kısa yollar da bir DP’dir</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 11 — Dijkstra, Bellman–Ford, Floyd</b>
-<b>Dijkstra</b>, en küçük tahmini uzaklıklı köşeyi “kesinleşmiş” sayar; bu yalnızca <b>kenar ağırlıkları negatif değilse</b> güvenlidir. Karşı örnek: A→B=2, A→C=5, C→B=−4: Dijkstra B’yi 2’de kesinleştirir ama gerçek uzaklık 5−4 = 1. <b>Bellman–Ford</b> negatif ağırlığa dayanır: n−1 turda her kenarı gevşetir. <b>Floyd</b> bütün çiftler için d[i][j] = min(d[i][j], d[i][k]+d[k][j]) güncellemesini k = 1…n için yapar: <b>Θ(n³)</b>.<br>
+<b>Dijkstra</b>, en küçük tahmini uzaklıklı tepeyi “kesinleşmiş” sayar; bu yalnızca <b>kenar ağırlıkları negatif değilse</b> güvenlidir. Karşı örnek: A→B=2, A→C=5, C→B=−4: Dijkstra B’yi 2’de kesinleştirir ama gerçek uzaklık 5−4 = 1. <b>Bellman–Ford</b> negatif ağırlığa dayanır: n−1 turda her kenarı gevşetir. <b>Floyd</b> bütün çiftler için d[i][j] = min(d[i][j], d[i][k]+d[k][j]) güncellemesini k = 1…n için yapar: <b>Θ(n³)</b>.<br>
 DP bağlantısı: Floyd’un durumu “yalnızca ilk k tepeyi ara durak kullanarak i→j en kısa yol”dur; bir DAG’da en kısa yol ise <b>topolojik sırayla</b> doldurulan bir tablodur. Ortak ilke: <b>en kısa yolun alt yolları da en kısadır</b>.</div>
 <div id="w_fl"></div>
 <div class="mut">Hafta 11’deki örnek: A→B=2, A→C=5, B→C=1. A’dan uzaklıklar 0, 2, 3 (C’ye B üzerinden 2+1=3 &lt; 5). Floyd tablosunda k=2 (B ara durak) adımında d[A][C] 5’ten 3’e düşer.</div>
@@ -425,7 +425,7 @@ Bağ: yalnız ekle/sil ile düzenleme uzaklığı = |S| + |T| − 2·LCS. (democ
 <div id="w_apx"></div>
 
 <div class="rule"><b class="t">Kural 4 — motor ve parçalar</b>
-<b>Düzenleme uzaklığı:</b> klasik. <b>LCS:</b> değiştirme yasak (ya da doğrudan yineleme). <b>LIS:</b> LCS(dizi, sıralı dizi). <b>Yaklaşık eşleştirme:</b> row_init = 0, goal = son satırın minimumu. Hepsi <b>iki öneke bağlı durum</b>, O(mn) hücre.</div>
+<b>Düzenleme uzaklığı:</b> klasik. <b>LCS:</b> değiştirme yasak (ya da doğrudan yineleme). <b>LIS:</b> elemanlar birbirinden farklıysa LCS(dizi, sıralı dizi) dönüşümü kullanılabilir. Tekrarlı değerlerde “sıkı artan” ile “azalmayan” alt dizi ayrımını korumak için bu dönüşüm doğrudan kullanılmamalı; tekrarların nasıl ele alınacağı açıkça tanımlanmalıdır. <b>Yaklaşık eşleştirme:</b> row_init = 0, goal = son satırın minimumu. Hepsi <b>iki öneke bağlı durum</b>, O(mn) hücre.</div>
 
 <div class="rule skip"><b class="t">Şimdilik atla — en uzun palindrom alt dizi</b>
 “character” içinde en uzun palindrom alt dizi uzunluğu <b>5</b>’tir (“carac”). Dizinin <b>tersiyle LCS</b> uzunluğu doğru verir; ama yeniden kurulan LCS’nin kendisi palindrom olmayabilir. Güvenli yol aralık DP’dir: L[i][j] = 2 + L[i+1][j−1] (uç harfler aynıysa), değilse max(L[i+1][j], L[i][j−1]); taban: boş aralık 0, tek harf 1. LCS aracında “character / tersi” hazır örneğini deneyin: uzunluk 5.</div>
