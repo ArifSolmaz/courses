@@ -98,6 +98,8 @@ img,svg,canvas{max-width:100%;height:auto}
 .aa-cols-7plus{min-width:860px}
 .aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
 .aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
 .aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
 .scroll table{font-variant-numeric:tabular-nums}
 .scroll th,.scroll td{line-height:1.45}
@@ -2463,6 +2465,11 @@ on(["r3_flt_s","r3_flt_k1"],"input",upd1);on(["r3_flt_h","r3_flt_w","r3_flt_k"],
       else if(cols===5)t.classList.add('aa-cols-5');
       else if(cols===6)t.classList.add('aa-cols-6');
       else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
 
       Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){
         var s=(c.textContent||'').replace(/\s+/g,' ').trim();
