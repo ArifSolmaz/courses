@@ -21,7 +21,7 @@
     var w = host.clientWidth, cw = !w || w >= 560 ? 720 : Math.max(330, Math.round(w * 1.25));
     if (chart.el.width !== cw) { chart.el.width = cw; chart.el.height = Math.min(300, Math.round(cw * 0.7)); }
   }
-  function guessOf(inp) { var v = parseInt(inp.value, 10); return isNaN(v) ? null : v; }
+  function guessOf(inp) { var v = Number(inp.value); return inp.value.trim() && Number.isSafeInteger(v) ? v : null; }
 
   /* Python range(start, stop, step) as an array */
   function pyRange(a, b, s) {

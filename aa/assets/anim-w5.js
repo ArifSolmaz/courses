@@ -79,9 +79,9 @@
     var tIn = h("input"); tIn.type = "number"; tIn.value = String(myT); tIn.setAttribute("aria-label", "Target");
     mine.appendChild(tIn);
     mine.appendChild(btn("run this call", "", function () {
-      var v = dIn.value.split(/[,\s]+/).filter(Boolean).map(function (x) { return parseInt(x, 10); });
-      var t = parseInt(tIn.value, 10);
-      if (!v.length || v.length > 8 || v.some(isNaN) || isNaN(t)) { ct.msg.innerHTML = "Type 1 to 8 whole numbers and a whole-number target."; return; }
+      var v = dIn.value.split(/[,\s]+/).filter(Boolean).map(function (x) { return /^[-+]?\d+$/.test(x) ? Number(x) : NaN; });
+      var t = tIn.value.trim() ? Number(tIn.value) : NaN;
+      if (!v.length || v.length > 8 || v.some(function (x) { return !Number.isSafeInteger(x); }) || !Number.isSafeInteger(t)) { ct.msg.innerHTML = "Type 1 to 8 whole numbers and a whole-number target."; return; }
       myData = v; myT = t; dIn.value = v.join(", "); ct.load();
     }));
     host.appendChild(mine);
@@ -624,7 +624,7 @@
       if (Math.abs(runLen - 2) < 1e-9) cval.textContent = "2 s";
       cbar.firstChild.style.width = Math.min(100, p) + "%";
       cout.innerHTML = "0.25 ms / " + cval.textContent + " × 100 = <strong>" + pct(p) + " %</strong> of the measurement" +
-        (p > 20 ? " — the disturbance is a big part of what you measured." : p < 1 ? " — a rounding error." : ".");
+        (p > 20 ? " — the disturbance is a big part of what you measured." : p < 1 ? " — a small share of the measurement." : ".");
     }
     function onFrame(fr) {
       lanes.innerHTML = NS.map(function (n) {

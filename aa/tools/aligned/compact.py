@@ -37,7 +37,7 @@ def animation_content(n):
   f'<p class="anim-hint">Each demonstration states its own input and code. Check its loop bounds before comparing counts with the worked example. Expand fills the screen and hides the toolbar: move the mouse to the top edge to bring it back, PageUp/PageDown switch demonstrations, Escape returns.</p></section>')
  assets='<link rel="stylesheet" href="../assets/anim.css"><script defer src="../assets/anim.js?v=18"></script>'
  for old in sorted(modules):
-  if old>1:assets+=f'<link rel="stylesheet" href="../assets/anim-w{old}.css"><script defer src="../assets/anim-w{old}.js?v=11"></script>'
+  if old>1:assets+=f'<link rel="stylesheet" href="../assets/anim-w{old}.css"><script defer src="../assets/anim-w{old}.js?v=12"></script>'
  if n==1:assets+='<link rel="stylesheet" href="../assets/week1-stories.css"><script defer src="../assets/week1-stories.js?v=1"></script>'
  for _,_,_,extra_assets in extra:
   if extra_assets and extra_assets not in assets:assets+=extra_assets
@@ -72,8 +72,10 @@ def consolidate_routes():
    m=re.search(r'/w(\d+)/',path.as_posix())
    if m:
     old=int(m[1]);week=OLD_TO_NEW[old] if parent=='python' else old
-    target=ROOT/f'w{week}/index.html'
+    sub='ek-notlar/' if (ROOT/'tools'/'simple'/f'w{week}.html').exists() else ''
+    target=ROOT/f'w{week}/{sub}index.html'
    else:target=ROOT/'index.html'
-   redirect(path,os.path.relpath(target,path.parent)+('#notes' if m else ''))
+   redirect(path,os.path.relpath(target,path.parent).replace('\\','/')+('#notes' if m else ''))
  for route,week in [('extensions',8),('skiena',2),('engineering',14)]:
-  redirect(ROOT/route/'index.html',f'../w{week}/#notes')
+  sub='ek-notlar/' if (ROOT/'tools'/'simple'/f'w{week}.html').exists() else ''
+  redirect(ROOT/route/'index.html',f'../w{week}/{sub}#notes')

@@ -19,7 +19,7 @@ html{scroll-behavior:smooth}
 #aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
 #aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
 #aa-sb .sub.open{display:block}
-#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a{display:block;font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
 #aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
 #aa-fab{position:fixed;left:12px;bottom:12px;z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
@@ -63,11 +63,12 @@ body.aa-open #aa-back{display:block}
     });
     sb.innerHTML=html;
     var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
-    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.setAttribute("aria-controls","aa-sb");fab.setAttribute("aria-expanded","false");fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
     var back=document.createElement("div");back.id="aa-back";
     document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
     document.body.classList.add("aa-has-sb");
-    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    function toggle(on){document.body.classList.toggle("aa-open",on);fab.setAttribute("aria-expanded",String(on));sb.inert=window.innerWidth<1200&&!on;}
+    sb.inert=window.innerWidth<1200;window.addEventListener("resize",function(){sb.inert=window.innerWidth<1200&&!document.body.classList.contains("aa-open")});
     fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
     back.onclick=function(){toggle(false)};
     document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});

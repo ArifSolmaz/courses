@@ -140,6 +140,7 @@
 
   /* edit distance with table */
   function editDistance(s, t) {
+    s = Array.from(s); t = Array.from(t);
     var D = [], i, j;
     for (i = 0; i <= s.length; i++) { D.push([]); for (j = 0; j <= t.length; j++) D[i].push(0); }
     for (i = 0; i <= s.length; i++) D[i][0] = i;
@@ -151,14 +152,17 @@
     return { D: D, dist: D[s.length][t.length] };
   }
 
-  /* Kruskal with union-find (path compression); edges [u, v, w] */
+  /* Kruskal with union-find (path compression + union by size); edges [u, v, w] */
   function kruskal(nV, edges) {
-    var parent = [], steps = [], total = 0, sorted = edges.slice().sort(function (x, y) { return x[2] - y[2]; });
-    for (var i = 0; i < nV; i++) parent.push(i);
+    var parent = [], size = [], steps = [], total = 0, sorted = edges.slice().sort(function (x, y) { return x[2] - y[2]; });
+    for (var i = 0; i < nV; i++) { parent.push(i); size.push(1); }
     function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
     sorted.forEach(function (e) {
       var ru = find(e[0]), rv = find(e[1]), ok = ru !== rv;
-      if (ok) { parent[ru] = rv; total += e[2]; }
+      if (ok) {
+        if (size[ru] > size[rv]) { var tmp = ru; ru = rv; rv = tmp; }
+        parent[ru] = rv; size[rv] += size[ru]; total += e[2];
+      }
       var sets = []; for (var v = 0; v < nV; v++) sets.push(find(v));
       steps.push({ e: e, accepted: ok, sets: sets, total: total });
     });
@@ -195,8 +199,9 @@
     return i;
   }
   function ints(str, lim) {
-    return str.split(/[,\s]+/).filter(Boolean).map(function (x) { return parseInt(x, 10); })
-      .filter(function (x) { return !isNaN(x) && Math.abs(x) <= lim; });
+    var tokens = str.trim().split(/[,\s]+/).filter(Boolean);
+    if (tokens.some(function (x) { return !/^[+-]?\d+$/.test(x) || !Number.isSafeInteger(Number(x)) || Math.abs(Number(x)) > lim; })) return [];
+    return tokens.map(Number);
   }
   function statRow(host, labels) {
     var row = h("div", "anim-stats"), out = {};
@@ -440,7 +445,7 @@
         var r = heapExtractMin(a), c2 = a.slice();
         /* reconstruct the state right after moving the last item to the root */
         var before = [null]; if (a.length >= 2) { before = c2.slice(); r.swaps.slice().reverse().forEach(function (s) { var t = before[s[0]]; before[s[0]] = before[s[1]]; before[s[1]] = t; }); }
-        f.push({ a: before.slice(), swap: null, hl: [1], op: 0, total: total, min: min, note: "Remove " + min + "; move the last item <strong>" + last + "</strong> to position 1 and sift it down." });
+        f.push({ a: before.slice(), swap: null, hl: a.length < 2 ? [] : [1], op: 0, total: total, min: min, note: a.length < 2 ? "Remove " + min + "; the heap is now empty." : "Remove " + min + "; move the last item <strong>" + last + "</strong> to position 1 and sift it down." });
         var cur = before.slice();
         r.swaps.forEach(function (s, k) {
           var t = cur[s[0]]; cur[s[0]] = cur[s[1]]; cur[s[1]] = t; total++;
@@ -676,7 +681,7 @@
       st["edges kept"].set(cnt + " / " + (V - 1)); st["tree weight"].set(w); st["sets"].set(nsets.length);
       if (fr.step < 0) m.innerHTML = "Every vertex starts in its own set (7 colours). Edges sorted: " + r.sorted.map(function (e) { return e[2]; }).join(", ") + ". Press <strong>play</strong>.";
       else if (!fr.final) m.innerHTML = "Edge " + "ABCDEFG"[cur.e[0]] + "–" + "ABCDEFG"[cur.e[1]] + " (weight " + cur.e[2] + "): " + (cur.accepted ? "ends are in <strong>different sets</strong> — keep it and <strong>union</strong> the two sets." : "both ends already in the <strong>same set</strong> — it would close a cycle, <strong>reject</strong>.");
-      else m.innerHTML = "Done: " + cnt + " edges = V − 1, total weight <strong>" + w + "</strong>. Sorting costs O(E log E); each find/union is almost constant, so the scan of E edges is cheap.";
+      else m.innerHTML = "Done: " + cnt + " edges = V − 1, total weight <strong>" + w + "</strong>. Sorting costs O(E log E); path compression and union by size give amortized O(α(V)) per find/union. Recomputing all vertex colours is display work, excluded from the algorithm count.";
     }
     var player = U.Player(host, { build: build, render: render, fps: function () { return 1.2; } });
     player.load();
@@ -687,42 +692,42 @@
      ============================================================ */
   function dpEdit(host) {
     U.title(host, "Animation · edit distance, one cell at a time");
-    var s = "kitten", t = "sitting", o = opts(host);
-    var sIn = textIn(o, "word 1", s, "First word (up to 8 letters)", "6rem");
-    var tIn = textIn(o, "word 2", t, "Second word (up to 8 letters)", "6rem");
+    var s = "kitten", t = "sitting", sc = Array.from(s), tc = Array.from(t), o = opts(host);
+    var sIn = textIn(o, "word 1", s, "First word (up to 8 Unicode characters)", "6rem");
+    var tIn = textIn(o, "word 2", t, "Second word (up to 8 Unicode characters)", "6rem");
     o.appendChild(btn("use", "", function () {
-      var a = sIn.value.replace(/\s/g, "").slice(0, 8), b = tIn.value.replace(/\s/g, "").slice(0, 8);
-      if (!a || !b) { m.innerHTML = "Please type two non-empty words."; return; }
-      s = a; t = b; sIn.value = s; tIn.value = t; player.load();
+      var a = sIn.value, b = tIn.value;
+      if (Array.from(a).length > 8 || Array.from(b).length > 8) { m.innerHTML = "Use at most 8 Unicode characters per word. Spaces and empty words are allowed."; return; }
+      s = a; t = b; sc = Array.from(s); tc = Array.from(t); sIn.value = s; tIn.value = t; player.load();
     }));
-    host.appendChild(h("p", "aa-in-line", "D[i][j] = distance between the first i letters of word 1 and the first j letters of word 2. D[i][j] = min( D[i−1][j−1] + [letters differ], D[i−1][j] + 1, D[i][j−1] + 1 )."));
+    host.appendChild(h("p", "aa-in-line", "Characters are Unicode code points. D[i][j] = distance between the first i characters of word 1 and the first j characters of word 2. D[i][j] = min( D[i−1][j−1] + [characters differ], D[i−1][j] + 1, D[i][j−1] + 1 )."));
     var wrap = h("div", "anim-table-wrap"); host.appendChild(wrap);
     var tbl = h("table", "anim-table aa-dp"); wrap.appendChild(tbl);
     var st = statRow(host, ["cells filled", "of (m+1)(n+1)", "distance"]);
     var m = U.msg(host);
     function build() {
       var r = editDistance(s, t), f = [], cells = [];
-      for (var i = 0; i <= s.length; i++) for (var j = 0; j <= t.length; j++) cells.push([i, j]);
+      for (var i = 0; i <= sc.length; i++) for (var j = 0; j <= tc.length; j++) cells.push([i, j]);
       f.push({ r: r, k: 0 });
       cells.forEach(function (c, k) { f.push({ r: r, k: k + 1, i: c[0], j: c[1] }); });
       f.push({ r: r, k: cells.length, final: true });
       return f;
     }
     function render(fr) {
-      var D = fr.r.D, W = t.length + 1, html = "<thead><tr><th></th><th>ε</th>" + t.split("").map(function (ch) { return "<th>" + esc(ch) + "</th>"; }).join("") + "</tr></thead><tbody>";
+      var D = fr.r.D, W = tc.length + 1, html = "<thead><tr><th></th><th>ε</th>" + tc.map(function (ch) { return "<th>" + esc(ch) + "</th>"; }).join("") + "</tr></thead><tbody>";
       var trace = {};
       if (fr.final) {
-        var i = s.length, j = t.length;
+        var i = sc.length, j = tc.length;
         while (i > 0 || j > 0) {
           trace[i + "," + j] = 1;
-          if (i > 0 && j > 0 && D[i][j] === D[i - 1][j - 1] + (s[i - 1] === t[j - 1] ? 0 : 1)) { i--; j--; }
+          if (i > 0 && j > 0 && D[i][j] === D[i - 1][j - 1] + (sc[i - 1] === tc[j - 1] ? 0 : 1)) { i--; j--; }
           else if (i > 0 && D[i][j] === D[i - 1][j] + 1) i--; else j--;
         }
         trace["0,0"] = 1;
       }
-      for (i = 0; i <= s.length; i++) {
-        html += "<tr><th>" + (i ? esc(s[i - 1]) : "ε") + "</th>";
-        for (j = 0; j <= t.length; j++) {
+      for (i = 0; i <= sc.length; i++) {
+        html += "<tr><th>" + (i ? esc(sc[i - 1]) : "ε") + "</th>";
+        for (j = 0; j <= tc.length; j++) {
           var idx = i * W + j + 1, cls = "";
           if (idx === fr.k && !fr.final) cls = "cur";
           else if (idx < fr.k || fr.final) cls = "done";
@@ -734,14 +739,14 @@
         html += "</tr>";
       }
       tbl.innerHTML = html + "</tbody>";
-      st["cells filled"].set(fr.k); st["of (m+1)(n+1)"].set((s.length + 1) + "×" + (t.length + 1) + " = " + (s.length + 1) * (t.length + 1));
+      st["cells filled"].set(fr.k); st["of (m+1)(n+1)"].set((sc.length + 1) + "×" + (tc.length + 1) + " = " + (sc.length + 1) * (tc.length + 1));
       st["distance"].set(fr.final ? fr.r.dist : "…");
       if (fr.k === 0) m.innerHTML = "Row 0 and column 0 are the base cases: turning a prefix into the empty word costs one deletion per letter. Press <strong>play</strong>.";
       else if (fr.final) m.innerHTML = "Done: edit distance(" + esc(s) + ", " + esc(t) + ") = <strong>" + fr.r.dist + "</strong>. The gold cells trace one cheapest edit sequence back to the corner. Work: one min per cell, Θ(m·n).";
       else if (fr.i === 0 || fr.j === 0) m.innerHTML = "Base case D[" + fr.i + "][" + fr.j + "] = " + D[fr.i][fr.j] + ".";
       else {
-        var same = s[fr.i - 1] === t[fr.j - 1];
-        m.innerHTML = "D[" + fr.i + "][" + fr.j + "]: letters '" + esc(s[fr.i - 1]) + "' and '" + esc(t[fr.j - 1]) + "' " + (same ? "match (substitute cost 0)" : "differ (substitute cost 1)") +
+        var same = sc[fr.i - 1] === tc[fr.j - 1];
+        m.innerHTML = "D[" + fr.i + "][" + fr.j + "]: characters '" + esc(sc[fr.i - 1]) + "' and '" + esc(tc[fr.j - 1]) + "' " + (same ? "match (substitute cost 0)" : "differ (substitute cost 1)") +
           ": min(" + D[fr.i - 1][fr.j - 1] + " + " + (same ? 0 : 1) + ", " + D[fr.i - 1][fr.j] + " + 1, " + D[fr.i][fr.j - 1] + " + 1) = <strong>" + D[fr.i][fr.j] + "</strong>.";
       }
     }

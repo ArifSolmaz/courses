@@ -37,7 +37,10 @@
   ];
 
   /* current location: "w7", "scope", "review", "textbook-problems" or "" */
-  var here = (location.pathname.replace(/\/index\.html$/, "").split("/").filter(Boolean).pop() || "");
+  var script = document.currentScript;
+  var courseBase = new URL('../', script.src);
+  var relative = location.pathname.slice(courseBase.pathname.length);
+  var here = relative.split('/')[0] || '';
 
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
@@ -52,7 +55,7 @@
   (function () {
     var header = document.querySelector(".site-header");
     if (!header || document.querySelector(".week-switch")) return;
-    var depth = here === "" ? "" : "../";
+    var depth = courseBase.pathname;
     var box = el("div", {});
     WEEKS.forEach(function (w) {
       var a = el("a", { href: depth + w[0] + "/" });

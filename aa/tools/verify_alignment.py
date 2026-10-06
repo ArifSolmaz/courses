@@ -72,18 +72,24 @@ def dangling_colons(s):
  for m in re.finditer(r'<p(?: class="(?!turkish)[^"]*")?>([^<]*?):</p>\s*<p class="turkish">[^<]*</p>\s*(?=(</|$))',s):out.append(m[1][-60:])
  return out
 
+def original_page(n):
+ p=root/f'w{n}/ek-notlar/index.html'
+ return p if p.exists() else root/f'w{n}/index.html'
+
 for n in range(1,15):
- p=root/f'w{n}/index.html';s=p.read_text();parsed=check_links(p,s)
+ main=root/f'w{n}/index.html';check_links(main,main.read_text())
+ p=original_page(n);s=p.read_text();parsed=check_links(p,s)
+ base='../../' if p.parent.name=='ek-notlar' else '../'
  assert len(tests[n])>=10
  nums=[int(x) for x in re.findall(r'Question (\d+) ·',s)]
  assert nums==list(range(1,len(nums)+1)),(n,'question numbering')
  assert WEEKS[n-1]['title'] in s
- assert 'By the end of this week you can' in s and all(E in s for E in ['href="../scope/#scope-w%d"'%n,'href="../review/#review-w%d"'%n]),(n,'objectives/scope/review links')
+ assert 'By the end of this week you can' in s and all(E in s for E in [f'href="{base}scope/#scope-w{n}"',f'href="{base}review/#review-w{n}"']),(n,'objectives/scope/review links')
  assert s.count('class="worked-example"')==len(WEEKS[n-1]['examples']),(n,'worked examples rendered')
  for i in range(1,len(WEEKS[n-1]['examples'])+1):assert f'id="example-{n}-{i}"' in s
  assert 'Additional textbook problems with solutions' not in s,(n,'textbook problems must live on their own page')
- if n in (2,3,14):assert 'href="../textbook-problems/#' in s,(n,'textbook link')
- for m in re.finditer(r'href="\.\./w(\d+)/#skiena-ex-(\d+)"',s):
+ if n in (2,3,14):assert f'href="{base}textbook-problems/#' in s,(n,'textbook link')
+ for m in re.finditer(r'href="(?:\.\./)+w(\d+)/(?:ek-notlar/)?#skiena-ex-(\d+)"',s):
   assert int(m[2]) in written[int(m[1])],(n,'source exercise link points to the wrong week',m[0])
  d=dangling_colons(s);assert not d,(n,'paragraph ends with a colon and nothing follows',d)
  print(f'Week {n:02}: {len(tests[n])} tests + {len(written[n])} written; links, numbering, colons and code passed')
@@ -102,11 +108,11 @@ print('Scope, review and textbook-problems pages exist and are linked from the d
 
 # The student route is only dashboard plus weekly pages; old libraries redirect.
 for n in range(1,15):
- s=(root/f'w{n}/index.html').read_text()
+ s=original_page(n).read_text()
  assert all(f'id="{x}"' in s for x in ('lesson','practice','notes'))
  assert not re.search(r'href="\.\./(?:python|guide|skiena|extensions)/',s)
 old=set(re.findall(r'data-anim="([^"]+)"',''.join(p.read_text() for p in (root/'tools/weeks').glob('w*.html'))))
-new=set(re.findall(r'data-anim="([^"]+)"',''.join((root/f'w{n}/index.html').read_text() for n in range(1,15))))
+new=set(re.findall(r'data-anim="([^"]+)"',''.join(original_page(n).read_text() for n in range(1,15))))
 assert old<=new,(old-new)
 for folder in ('python','guide'):
  for p in (root/folder).rglob('index.html'):assert 'http-equiv="refresh"' in p.read_text(),p

@@ -1,9 +1,9 @@
 /* ============================================================
-   AA — week 14 "Workshop tasks" animations (§14.7)
+   AA — week 14 additional complexity-practice animations
    w14-diagnose   Task 1  find the four problems in build_report, trace, count growth
    w14-two-sum    Task 2  every pair vs one pass with a set; modelled benchmark
    w14-review     Task 3  peer-review a (made-up) benchmark draft
-   w14-traps      Task 4  the five patterns of §14.3 as work maps + counted ratios
+   w14-traps      Task 4  the five complexity patterns in this gallery as work maps + counted ratios
    w14-profile    Task 5  cProfile (function level) vs a focused list/set benchmark
    Timings shown here come from step-count models and are always labelled.
    ============================================================ */
@@ -89,9 +89,9 @@
     "    return lines, text, total"].join("\n");
   var T1_FIXED = [
     "def build_report(orders, vip_customers):",
-    "    vips = set(vip_customers)                # O(m), once",
-    '    lines = [o for o in orders if o["customer"] in vips]   # O(n)',
-    '    text = ", ".join(o["id"] for o in lines)               # O(n)',
+    "    vips = set(vip_customers)                # expected O(m), once",
+    '    lines = [o for o in orders if o["customer"] in vips]   # expected O(n)',
+    '    text = ", ".join(o["id"] for o in lines)               # O(total output length)',
     '    total = sum(o["value"] for o in lines)                 # O(n)',
     "    return lines, text, total"].join("\n");
   var T1_ORD = [["o1", "Ada", 10], ["o2", "Bob", 5], ["o3", "Eve", 20], ["o4", "Ada", 15], ["o5", "Cy", 7], ["o6", "Dan", 12]];
@@ -128,7 +128,7 @@
 
     /* ----- 1. hunt ----- */
     function hunt() {
-      stage.appendChild(h("p", "w14-lead", "Read <code>report.py</code> and click every line that hides repeated work or gives a wrong answer. There are <strong>four</strong>."));
+      stage.appendChild(h("p", "w14-lead", "Read <code>report.py</code> and click every line that hides repeated work or gives a wrong answer. There are <strong>four</strong>. For the class question, assume unit-cost comparisons and arithmetic, with bounded-length names and identifiers."));
       var cb = codeBox(T1_CODE, 1, "w14-pick");
       stage.appendChild(cb.el);
       var stats = h("div", "anim-stats");
@@ -179,7 +179,7 @@
         choice(quiz, "All four found. Now name the class: with n orders and a VIP list that grows with n, <code>build_report</code> as written is…", [
           { t: "O(n)", why: "It has one loop over the orders — but count what each pass does: line 5 scans up to m names, lines 6–7 copy everything built so far." },
           { t: "O(n log n)", why: "Nothing here halves anything, so there is no log factor." },
-          { t: "O(n²)", ok: true, why: "Right. The pieces are n·m scans, about k²/2 list copies, a triangular sum of copied characters and k² re-additions (k = VIP orders). They <em>add</em>, and with m and k growing with n the whole is O(n²). Now open <strong>2 · trace a small run</strong>." },
+          { t: "O(n²)", ok: true, why: "Right under the stated unit-cost model. The pieces are n·m scans, about k²/2 list copies, a triangular sum of copied characters and k² re-additions (k = VIP orders). They <em>add</em>, and with m and k growing with n the whole is O(n²). Now open <strong>2 · trace a small run</strong>." },
           { t: "O(n³)", why: "Line 10 is one <code>sum</code> inside one loop: k × k, not k³. The four problems add up; they do not multiply." }
         ], "", function () { classOk = true; });
       }
@@ -348,7 +348,7 @@
 
     /* ----- 3. growth (counted operations on make_data-style inputs) ----- */
     function grow() {
-      stage.appendChild(h("p", "w14-lead", "Same two functions on bigger inputs built like §14.4’s <code>make_data(n, n // 10)</code> (ids <code>o1</code>, <code>o2</code>, …). Predict first: when n doubles, the buggy version’s work grows by…"));
+      stage.appendChild(h("p", "w14-lead", "Same two functions on bigger inputs built by the displayed model: <code>make_data(n, n // 10)</code> (ids <code>o1</code>, <code>o2</code>, …). Predict first: when n doubles, the buggy version’s work grows by…"));
       var pred = null;
       var po = h("div", "anim-opts");
       po.appendChild(seg("prediction", [["2", "×2"], ["4", "×4"], ["8", "×8"]], null, function (v) { pred = v; }));
@@ -404,7 +404,7 @@
           bd.classList.remove("w14-hide");
           var avg = Math.pow(res[3].bug / res[0].bug, 1 / 3);
           var verdict = pred == null ? "" : pred === "4" ? " Your prediction (×4) was right." : " You predicted ×" + pred + "; the table says about ×4.";
-          m.innerHTML = "The buggy column grows about <strong>×" + avg.toFixed(1) + "</strong> per doubling — the O(n²) fingerprint — while the fixed column grows ×2 (O(n)). " +
+          m.innerHTML = "The buggy column grows about <strong>×" + avg.toFixed(1) + "</strong> per doubling — a near-quadratic growth pattern — while the fixed column grows near ×2. With bounded-length identifiers, the bounds are O(n²) and expected O(n); the o1, o2, … identifiers used here grow logarithmically in length, adding a log n factor to character-copy work. " +
             "At 8 000 orders the buggy version does <strong>" + Math.round(res[3].bug / res[3].fix) + "×</strong> the work, and the gap keeps widening." + verdict;
         })();
       }
@@ -427,7 +427,7 @@
     "def has_pair(data, target):",
     "    seen = set()",
     "    for x in data:",
-    "        if target - x in seen:      # O(1)",
+    "        if target - x in seen:      # expected O(1)",
     "            return True",
     "        seen.add(x)",
     "    return False"].join("\n");
@@ -467,8 +467,9 @@
       o2.appendChild(h("span", "lab", "or your own:"));
       o2.appendChild(inp);
       o2.appendChild(btn("use", "", function () {
-        var v = parseInt(inp.value, 10);
-        if (isNaN(v)) return;
+        var v = Number(inp.value);
+        if (!inp.value.trim() || !Number.isFinite(v)) { inp.setCustomValidity("Enter a finite target."); inp.reportValidity(); return; }
+        inp.setCustomValidity("");
         target = v;
         tSeg.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
         ct.load();
@@ -564,7 +565,7 @@
           seen.push(x);
           push(6, "Remember " + x + " so a later number can pair with it.", { k: k });
         }
-        push(7, "Return <code>False</code> after <strong>" + look + " lookups</strong> — exactly one per number, never a search. For n numbers: n lookups, O(n).", {}, ["False"]);
+        push(7, "Return <code>False</code> after <strong>" + look + " lookups</strong> — exactly one per number, never a search. For n numbers: n lookups, expected O(n).", {}, ["False"]);
         return f;
       }
       ct.load();
@@ -587,7 +588,7 @@
       stage.appendChild(chartBox);
       var chart = U.LineChart(chartBox, { logx: true, logy: true, xlabel: "n", ylabel: "seconds", height: 280, label: "log-log plot of simulated times for both versions" });
       var m = U.msg(stage);
-      simNote(stage, SIM + " Model: slow = n(n−1)/2 pair checks × 55 ns; set = n × 75 ns; ±4% noise.");
+      simNote(stage, SIM + " Model: slow = n(n−1)/2 pair checks × 55 ns + n loop steps × 40 ns; set = n × 75 ns; ±4% noise.");
       m.innerHTML = "Predict first, then press <strong>run the benchmark</strong>.";
       var timer = 0;
       function run() {
@@ -603,7 +604,7 @@
           chartBox.classList.remove("w14-hide");
           chart.draw([
             { name: "has_pair_slow  O(n²)", color: "--red", points: res.map(function (x) { return [x.n, x.slow]; }) },
-            { name: "has_pair (set)  O(n)", color: "--green", points: res.map(function (x) { return [x.n, x.fast]; }) }
+            { name: "has_pair (set)  expected O(n)", color: "--green", points: res.map(function (x) { return [x.n, x.fast]; }) }
           ], { xr: [2000, 8000], yr: [1e-4, 3] });
           i++;
           if (i < sizes.length) { timer = setTimeout(next, U.REDUCED ? 0 : 700); return; }
@@ -837,7 +838,7 @@
       why: "Each of n rounds scans all n items of <code>b</code>: n × n. The set is built once (n) and then each round costs one lookup (n)."
     },
     concat: {
-      name: "building by concatenation", unit: "characters copied (5-letter words)",
+      name: "building by concatenation", unit: "character copies + part appends (5-letter words)",
       slow: ["def spaced_slow(words):", '    text = ""', "    for word in words:", '        text += word + " "      # may copy all text so far', "    return text"],
       fast: ["def spaced_fast(words):", "    parts = []", "    for word in words:", "        parts.append(word)      # O(1) each", '    return " ".join(parts) + (" " if parts else "")'],
       hs: [4], hf: [4, 5], answer: "4", answerIn: "2",
@@ -846,10 +847,10 @@
       rowF: function () { return { c: ["hit"], w: 1 }; },
       postF: function (n) { return { c: rep("prep", n), w: (6 * n - 1) + 6 * n, l: "join" }; },
       work: function (n, inplace) { return [inplace ? 12 * n : 6 * n + 3 * n * (n + 1), 13 * n - 1]; },
-      why: "In the repeated-copy model round i copies the i pieces built so far: 6 + 12 + … + 6n characters, a triangular sum. <code>join</code> copies each character once."
+      why: "In the repeated-copy model round i copies the i pieces built so far: 6 + 12 + … + 6n characters, a triangular sum. <code>join</code> copies each joined character once; adding the final trailing space copies the result once more. Both copies still take linear work."
     },
     front: {
-      name: "working at the front of a list", unit: "element moves",
+      name: "working at the front of a list", unit: "element shifts + new-item writes",
       slow: ["def build_queue_slow(jobs):", "    queue = []", "    for job in jobs:", "        queue.insert(0, job)    # shifts every item right", "    return queue"],
       fast: ["from collections import deque", "", "def build_queue_fast(jobs):", "    queue = deque()", "    for job in jobs:", "        queue.appendleft(job)   # O(1) each", "    return queue"],
       hs: [4], hf: [4, 6], answer: "4",
@@ -857,7 +858,7 @@
       rowS: function (i) { return { c: rep("cpy", i - 1).concat(["hit"]), w: i }; },
       rowF: function () { return { c: ["hit"], w: 1 }; },
       work: function (n) { return [n * (n + 1) / 2, n]; },
-      why: "Inserting at the front slides the i − 1 items already there: 1 + 2 + … + n moves. A deque just links the new item in."
+      why: "Round i shifts i − 1 existing items and writes one new item, for i moves. Summing these moves gives 1 + 2 + … + n = n(n + 1)/2. A deque inserts each new item in one step."
     },
     sort: {
       name: "sorting inside a loop", unit: "comparisons (sort ≈ n·⌈log₂ n⌉)",
@@ -1035,7 +1036,7 @@
     "t_set = time.perf_counter() - start",
     "",
     "assert hits_list == hits_set                   # same answer"].join("\n");
-  var PAGE_SLOW = { 5000: 0.0631, 10000: 0.2498, 20000: 0.9987, 40000: 3.9901 };   /* §14.4 printed output */
+  var PAGE_SLOW = { 5000: 0.0631, 10000: 0.2498, 20000: 0.9987, 40000: 3.9901 };   /* displayed sample timings */
   function t5Count(n) {
     var d = makeData(n, 5000 + n), comps = 0, hits = 0;
     for (var i = 0; i < n; i++) { var p = d.pos[d.cust[i]]; if (p >= 0) { comps += p + 1; hits++; } else comps += d.m; }
@@ -1046,7 +1047,7 @@
 
   function profile(host) {
     U.title(host, "Animation · profile first, then test the suspect");
-    host.appendChild(h("p", "w14-lead", "Step 1 — run <code>summarise_slow</code> from §14.4 under <code>cProfile</code> at n = 40 000."));
+    host.appendChild(h("p", "w14-lead", "Step 1 — run <code>summarise_slow</code> shown below under <code>cProfile</code> at n = 40 000."));
     host.appendChild(codeBox(T5_RUN, 1).el);
     var guess = null;
     var go = h("div", "anim-opts"); go.style.marginTop = ".7rem";
@@ -1108,7 +1109,7 @@
       panel2.classList.remove("w14-hide");
     }
     var player = U.Player(host, { build: build, render: render, fps: function (i) { return i < STEPS ? 3.5 : 2.5; } });
-    simNote(host, "Simulated profile: a step-count model calibrated to the §14.4 printed timings (about 28 ns per list comparison) — run it yourself for real numbers.");
+    simNote(host, "Simulated profile: a step-count model calibrated to the displayed sample timings (about 28 ns per list comparison) — run it yourself for real numbers.");
 
     /* ----- step 2: hypothesis ----- */
     var panel2 = h("div", "w14-panel w14-hide");
@@ -1151,13 +1152,13 @@
     var bRun = btn("&#9654; run the focused benchmark", "primary", run3);
     c3.appendChild(bRun);
     panel3.appendChild(c3);
-    var tb = tableIn(panel3, ["n", "list in (s)", "×", "set in (s)", "×", "§14.4 slow (s)"]);
+    var tb = tableIn(panel3, ["n", "list in (s)", "×", "set in (s)", "×", "sample slow (s)"]);
     tb.rows([]);
     var chBox = h("div", "w14-hide");
     panel3.appendChild(chBox);
     var chart = U.LineChart(chBox, { logx: true, logy: true, xlabel: "n orders", ylabel: "seconds", height: 270, label: "log-log plot: list membership, set membership and the page's summarise_slow timings" });
     var m3 = U.msg(panel3);
-    simNote(panel3, "“list in” and “set in” are simulated from exact comparison counts on make_data-style inputs (28 ns per list comparison, 45 ns per set test). The last column is the §14.4 printed output, copied from the page.");
+    simNote(panel3, "“list in” and “set in” are simulated from exact comparison counts on make_data-style inputs (28 ns per list comparison, 45 ns per set test). The last column contains fixed sample timings used by this simulation.");
     var panel4 = h("div", "w14-panel w14-hide");
     host.appendChild(panel4);
     var timer = 0;

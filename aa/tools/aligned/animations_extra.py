@@ -4,7 +4,7 @@ ANIMATIONS_EXTRA = {week: [(slug, title, html, assets_html), ...]}
 The coordinator appends these to the week's animation drawer and de-duplicates assets.
 """
 
-ASSETS = '<link rel="stylesheet" href="../assets/anim-aa.css"><script defer src="../assets/anim-aa.js?v=1"></script>'
+ASSETS = '<link rel="stylesheet" href="../assets/anim-aa.css"><script defer src="../assets/anim-aa.js?v=2"></script>'
 
 
 def _item(slug, title):

@@ -111,6 +111,8 @@ img,svg,canvas{max-width:100%;height:auto}
   h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
 }
 </style>
+<link rel="stylesheet" href="../../assets/audit.css?v=1">
+<script defer src="../../assets/audit.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -481,7 +483,7 @@ En yakın komşu: 1+3+8+6 = <b>18 mm</b>. Alt sınır: 2·(6−(−2)) = <b>16 m
 
 <h3>1.16 Yazılı alıştırmalar (cevaplar katlanır)</h3>
 <div class="p1-ex"><b class="l">Alıştırma 1 · kolay</b>“Bir listedeki en küçük sayıyı bul” problemini girdi/çıktı olarak yazın ve boş listeyi nasıl ele alacağınızı söyleyin.
-<details><summary>Cevap</summary>Girdi: n ≥ 1 sayıdan oluşan liste. Çıktı: listedeki ve hiçbir listede bulunan sayıdan büyük olmayan bir sayı. Boş liste, n ≥ 1 şartıyla yasal girdi sayılmaz (ya da “çıktı: yok” diye açıkça belirtilir).</details></div>
+<details><summary>Cevap</summary>Girdi: n ≥ 1 sayıdan oluşan liste. Çıktı: listede bulunan ve listedeki hiçbir sayıdan büyük olmayan bir sayı. Boş liste, n ≥ 1 şartıyla yasal girdi sayılmaz (ya da “çıktı: yok” diye açıkça belirtilir).</details></div>
 <div class="p1-ex"><b class="l">Alıştırma 2 · kolay</b>Girdi <code>[5, 5, 1]</code>. <code>[1, 5]</code>, <code>[1, 5, 5]</code>, <code>[5, 5, 1]</code> çıktılarından hangisi sıralama problemi için yasaldır? Neden?
 <details><summary>Cevap</summary>Yalnızca <code>[1, 5, 5]</code>: aynı elemanlar (1, 5, 5) ve küçükten büyüğe. <code>[1, 5]</code>’te bir 5 kaybolmuş; <code>[5, 5, 1]</code> sıralı değil.</details></div>
 <div class="p1-ex"><b class="l">Alıştırma 3 · kolay</b>Başlangıç 0, noktalar −10, −3, 4, 9. En kısa kapalı turun uzunluğunu ve rotayı bulun.
@@ -506,7 +508,7 @@ window.addEventListener('DOMContentLoaded',function(){
     for(var i=0;i<tk.length;i++){var w=tk[i].replace(/\u2212/g,'-');
       if(w===''){r=[];r.msg='Boş eleman var (fazladan virgül ya da noktalı virgül). Her virgülün iki yanına sayı yazın.';return r}
       if(!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(w)){r=[];r.msg='“'+tk[i].replace(/[<>&]/g,'')+'” geçerli bir sayı değil. Yalnızca sonlu sayılar yazın (boşluk, virgül ya da noktalı virgülle ayırın).';return r}
-      r.push(Number(w))}
+      var v=Number(w);if(!Number.isFinite(v)||Math.abs(v)>1e9){r=[];r.msg='Her sayı sonlu olmalı ve mutlak değeri 1.000.000.000’u aşmamalı.';return r}r.push(v)}
     if(r.length>MAXN){var m='Liste çok uzun: '+r.length+' eleman yazdınız, en çok '+MAXN+' kabul ediliyor. Elemanlar sessizce atılmaz; lütfen listeyi kısaltın.';r=[];r.msg=m}
     return r}
   function badn(a){return !!a.msg}
@@ -597,7 +599,7 @@ window.addEventListener('DOMContentLoaded',function(){
     var a=nums(g('p1_rep_in').value),o=g('p1_rep_res');
     if(badn(a)){o.innerHTML='<span class="bad">'+a.msg+'</span>';return}
     if(alg==='max'){o.innerHTML=a.length?'Sonuç: <b>'+Math.max.apply(null,a)+'</b>':'<span class="bad">Boş liste: tanımsız</span>'}
-    else if(alg==='sum'){var n=Math.floor(a[0]);if(!(n>=0)){o.innerHTML='<span class="bad">n ≥ 0 bir sayı yazın.</span>';return}
+    else if(alg==='sum'){var n=a[0];if(a.length!==1||!Number.isSafeInteger(n)||n<0){o.innerHTML='<span class="bad">Yalnızca n ≥ 0 bir tam sayı yazın.</span>';return}
       var t=0,tr=['0'];for(var i=1;i<=n&&i<=12;i++){t+=i;tr.push(t)}var tot=n*(n+1)/2;
       o.innerHTML='İzleme: '+tr.join(' → ')+(n>12?' …':'')+'<br>Sonuç: <b>'+tot+'</b>'}
     else{var c=a.filter(function(x){return Number.isInteger(x)&&x%2===0}).length;o.innerHTML='Çift sayı adedi: <b>'+c+'</b> ('+a.length+' elemana bakıldı)'}
@@ -709,11 +711,11 @@ window.addEventListener('DOMContentLoaded',function(){
   /* ---------- 10) en yakın çift ---------- */
   function cpRun(){
     var h=+g('p1_cp_h').value,v=+g('p1_cp_v').value,c=Math.max(2,Math.min(5,Math.floor(+g('p1_cp_c').value)||3));
-    if(!(h>0)||!(v>0)){g('p1_cp_res').innerHTML='<span class="bad">h ve v pozitif olmalı.</span>';return}
+    if(!Number.isFinite(h)||!Number.isFinite(v)||!(h>0)||!(v>0)||h>1e6||v>1e6){g('p1_cp_res').innerHTML='<span class="bad">h ve v pozitif, sonlu ve en çok 1.000.000 olmalı.</span>';g('p1_cp_tb').innerHTML='';return}
     var pts=[];for(var j=0;j<c;j++){pts.push([j*h,0]);pts.push([j*h,v])}
     var m=pts.length,E=[];
-    for(var i=0;i<m;i++)for(var j2=i+1;j2<m;j2++){var d=Math.hypot(pts[i][0]-pts[j2][0],pts[i][1]-pts[j2][1]);E.push({r:Math.round(d*1e6),i:i,j:j2,d:d})}
-    E.sort(function(a,b){return a.r-b.r||a.i-b.i||a.j-b.j});
+    for(var i=0;i<m;i++)for(var j2=i+1;j2<m;j2++){var d=Math.hypot(pts[i][0]-pts[j2][0],pts[i][1]-pts[j2][1]);E.push({i:i,j:j2,d:d})}
+    E.sort(function(a,b){return a.d-b.d||a.i-b.i||a.j-b.j});
     var par=[],deg=[],i2;for(i2=0;i2<m;i2++){par.push(i2);deg.push(0)}
     function fd(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x]}return x}
     var acc=0,tot=0,rows='',L=function(i){return String.fromCharCode(65+i)},adj=[];for(i2=0;i2<m;i2++)adj.push([]);
@@ -865,7 +867,7 @@ window.addEventListener('DOMContentLoaded',function(){
 <p><b>Küçük sayılı örnek.</b> Banknotlarınız 10, 5 ve 1 liralık ve 11 lira ödeyeceksiniz (en az banknotla); her seferinde sığan en büyük banknotu alın: 10 (kalan 1), sonra 5 sığmaz, 1 alınır. Toplam 2 banknot. Güzel, açgözlü çalıştı. Fakat banknotlar 6, 5 ve 1 olsaydı ve 10 lira ödenecek olsaydı: 6 alınır (kalan 4), 5 sığmaz, 1 alınır (kalan 3), 1, 1, 1. Açgözlü 6 + 1 + 1 + 1 + 1 ile 5 banknot kullandı; oysa 5 + 5 ile yalnızca 2 banknot yeterdi. Aynı yöntem, bir problemde çalışıp ötekinde yanılabilir.</p>
 <div class="rule rev"><b class="t">Kural · Açgözlü algoritma (greedy)</b>Her adımda, o anda <b>en iyi görünen</b> seçeneği seçen ve seçimi bir daha değiştirmeyen algoritmadır. Açgözlü bir kural <b>algoritmik bir tekniktir</b>; problemi her girdide <i>doğru çözdüğü</i> ise ayrı bir iddiadır. Bir kural bu iddia ispatlanana kadar <b>sezgisel yöntem</b> (<span class="en">heuristic</span>) olarak görülür: algoritma olmaktan çıkmaz, ama “bu problemi doğru çözen algoritma” olduğu bilinmez. Tek bir yanlış girdi, kuralı “bu problemi doğru çözen algoritma” olmaktan çıkarır. Film yıldızı problemi için üç aday kural var: <b>en erken başlayan</b>, <b>en kısa süren</b>, <b>en erken biten</b>.</div>
 <div class="try"><div class="lab">Kendin dene · para ödeme açgözlüsü</div>
-<div class="row"><span>Banknotlar:</span><input type="text" id="p2_coin_s" value="6, 5, 1" style="max-width:200px"><span>Ödenecek:</span><input type="number" id="p2_coin_t" value="10" style="width:80px"><button class="btn" id="p2_coin_go">Çalıştır</button></div>
+<p class="mut">Tam karşılaştırma dinamik programlamayla yapılır; bu gösterimde hedef en çok 10.000’dir.</p><div class="row"><span>Banknotlar:</span><input type="text" id="p2_coin_s" value="6, 5, 1" style="max-width:200px"><span>Ödenecek:</span><input type="number" id="p2_coin_t" value="10" style="width:80px"><button class="btn" id="p2_coin_go">Çalıştır</button></div>
 <div class="scroll"><table><tr><th>Banknot</th><th>Karar</th><th>Kalan</th></tr><tbody id="p2_coin_tb"></tbody></table></div>
 <div id="p2_coin_out" class="p2-out"></div>
 <div class="mut">Her banknottan istediğiniz kadar kullanılabilir varsayılır. “Büyükten başla” açgözlüsü 10, 5, 1 ile hep doğru çıkar; 6, 5, 1 ile 10 liralık ödemede ise yanılır (en az banknot kullanarak tam ödeme isteniyor: 5 + 5 iki banknottur). Kendi sayılarınızı yazıp deneyin.</div></div>
@@ -949,7 +951,7 @@ Yukarıdaki “üç kuralı çalıştır” kutusunda kuralı <b>En erken biten<
 <div class="mut">Makine, uçları 0 ile 12 arasındaki tam sayılar olan 5000 rastgele küme dener, kuralın bulduğunu kaba kuvvetle bulunan en iyiyle karşılaştırır. En erken başlayan ve en kısa kuralları 3 teklifle bile hata verir; 2 teklifle hiç hata vermezler. En erken biten kuralı hiç hata vermez; fakat bu bir <b>ispat değildir</b>, yalnızca 5000 denemenin sonucudur. İspat 2.7’de.</div></div>
 <details><summary>Alıştırma 2.6 · cevabı gör</summary>2 teklifle neden kural hata veremez? İki teklif ya çakışır ya çakışmaz. Çakışmıyorlarsa kuralların hepsi ikisini de alır (2 rol, en iyi). Çakışıyorlarsa en fazla biri alınabilir, kural birini alır (1 rol, en iyi). Hata için en az 3 teklif gerekir: bu yüzden “küçük girdilerde ara” tavsiyesi çalışır, ama yeterince küçük (3 eleman) değil, çok küçük (2 eleman) değil.</details>
 <div class="rule rev"><b class="t">Kural · Karşı örnek (counterexample)</b>Bir kuralın yanlışlığını göstermek için <b>tek bir yasal girdi</b> yeter; doğruluğunu göstermek için tüm girdileri kapsayan bir <b>ispat</b> gerekir. Karşı örneği küçük girdilerde, eşitliklerde ve uç durumlarda arayın. Bulamamak, doğruluğu kanıtlamaz.</div>
-<div class="hata"><b class="t">Sık yapılan hata</b>“Üç kümede en erken biten kural en iyiyi buldu, kanıtlandı.” Hayır. Üç başarı bir ispat değildir; yalnızca <b>karşı örnek bulamadık</b> demektir. Bulamamak ≠ olmamak. Doğruluk iddiası ancak argümanla (2.7) kesinleşir.</div>
+<div class="hata"><b class="t">Sık yapılan hata</b>“Üç kümede en erken biten kural en iyiyi buldu, ispatlandı.” Hayır. Üç başarı bir ispat değildir; yalnızca <b>karşı örnek bulamadık</b> demektir. Bulamamak ≠ olmamak. Doğruluk iddiası ancak argümanla (2.7) kesinleşir.</div>
 
 <!-- ============ 2.7 ============ -->
 <h3>2.7 Neden en erken biten doğru? Ortak nokta ve değiş-tokuş</h3>
@@ -985,13 +987,13 @@ Yukarıdaki “üç kuralı çalıştır” kutusunda kuralı <b>En erken biten<
 <tr><td class="m">A[0,5):10 B[0,2):6 C[3,5):6</td><td>B, C = 12</td><td>A = 10</td><td>B, C = 12</td><td><b>B, C = 12</b></td></tr>
 <tr><td class="m">A[0,2):3 B[1,10):8 C[2,4):3</td><td>A, C = 6</td><td>B = 8</td><td>A, C = 6</td><td><b>B = 8</b></td></tr></table></div>
 “En erken biten” birinci ve üçüncü örnekte yanılır (4 ve 6 kazanır; 10 ve 8 mümkündü). “En yüksek ücret” ikinci örnekte yanılır (10 kazanır, oysa 12 mümkün). “Ücret/süre” üçüncü örnekte yanılır (6, oysa 8). Hiçbir basit kural üç örneği birden çözmez.</div>
-<div class="rule rev"><b class="t">Kural · Ücretli sürüm</b>Roller farklı ücret öderse “en erken biten önce” kuralı toplam ücreti en büyük yapmayı <b>garanti etmez</b>. Bu sürüm farklı bir problemdir ve ileride <b>dinamik programlama</b> (<span class="en">dynamic programming</span>) ile çözülecektir. Önemli: tek bir karşı örnek, <b>o kuralı</b> çürütür; “hiçbir akıllı kural yoktur” demek için ayrı bir kanıt gerekir.</div>
+<div class="rule rev"><b class="t">Kural · Ücretli sürüm</b>Roller farklı ücret öderse “en erken biten önce” kuralı toplam ücreti en büyük yapmayı <b>garanti etmez</b>. Bu sürüm farklı bir problemdir ve ileride <b>dinamik programlama</b> (<span class="en">dynamic programming</span>) ile çözülecektir. Önemli: tek bir karşı örnek, <b>o kuralı</b> çürütür; “hiçbir akıllı kural yoktur” demek için ayrı bir ispat gerekir.</div>
 <div class="try"><div class="lab">Kendin dene · ücretli aralık planlama</div>
 <div class="row"><span>Hazır küme:</span><select id="p2_w_set"><option value="0">A[1,2):1 B[1,10):100</option><option value="1">A[0,3):2 B[2,5):10 C[4,7):2</option><option value="2">A[0,5):10 B[0,2):6 C[3,5):6</option><option value="3">A[0,2):3 B[1,10):8 C[2,4):3</option><option value="4">Kendi kümem</option></select></div>
 <div class="row"><span>Kümem (ad başla bit ücret):</span><textarea id="p2_w_txt" rows="2">A 1 2 1; B 1 10 100</textarea></div>
 <div class="scroll"><table><tr><th>Kural</th><th>Seçtikleri</th><th>Toplam ücret</th></tr><tbody id="p2_w_tb"></tbody></table></div>
 <div id="p2_w_out" class="p2-out"></div></div>
-<details><summary>Alıştırma 2.8 · cevabı gör</summary>A=[0,4) ücret 5, B=[3,6) ücret 8, C=[5,9) ücret 5. En erken biten A(4), sonra C (5 ≥ 4): 5 + 5 = 10. B=[3,6), A ile (3 &lt; 4) ve C ile (5 &lt; 6) çakışır; B tek başına 8 eder. En iyi 10 ({A, C}); kural bu kümede doğru. Şimdi A ve C’nin ücretini 1’e düşürün: kural yine A ve C’yi alır (toplam 2), oysa B tek başına 8 eder. Kural yanıldı: bir kümede doğru çıkması hiçbir şey kanıtlamaz, yanıldığı <b>bir</b> küme yeter.</details>
+<details><summary>Alıştırma 2.8 · cevabı gör</summary>A=[0,4) ücret 5, B=[3,6) ücret 8, C=[5,9) ücret 5. En erken biten A(4), sonra C (5 ≥ 4): 5 + 5 = 10. B=[3,6), A ile (3 &lt; 4) ve C ile (5 &lt; 6) çakışır; B tek başına 8 eder. En iyi 10 ({A, C}); kural bu kümede doğru. Şimdi A ve C’nin ücretini 1’e düşürün: kural yine A ve C’yi alır (toplam 2), oysa B tek başına 8 eder. Kural yanıldı: bir kümede doğru çıkması genel doğruluğu ispatlamaz, yanıldığı <b>bir</b> küme yeter.</details>
 <div class="hata"><b class="t">Sık yapılan hata</b>Ücretli sürümü, “en yüksek ücretliyi seç” kuralıyla çözülmüş sanmak. Yukarıdaki ikinci örnek bu kuralı çürütüyor. Ayrıca bir karşı örnek bir kuralı çürütür; <b>çözümsüzlüğü</b> değil. Ücretli sürümün (ileride görülecek) doğru ve verimli bir çözümü vardır.</div>
 
 <!-- ============ 2.9 ============ -->
@@ -1014,7 +1016,7 @@ En yüksek oran önce: 10, 20 → 30 kg, değer 160. En değerli önce (120, 100
 <div class="scroll"><table><tr><th>Sayı</th><th>Karar</th><th>Toplam</th></tr><tbody id="p2_ss_tb"></tbody></table></div>
 <div id="p2_ss_out" class="p2-out"></div></div>
 <div class="try"><div class="lab">Kendin dene · sırt çantası</div>
-<div class="row"><span>Kapasite:</span><input type="number" id="p2_kn_c" value="50" style="width:80px"><span>Eşyalar (ağırlık:değer, “;” ile):</span></div>
+<p class="mut">Bu gösterim, toplamları tam hesaplamak için ağırlık, değer ve kapasitede tam sayı kullanır.</p><div class="row"><span>Kapasite:</span><input type="number" id="p2_kn_c" value="50" style="width:80px"><span>Eşyalar (ağırlık:değer, “;” ile):</span></div>
 <div class="row"><input type="text" id="p2_kn_i" value="10:60; 20:100; 30:120"></div>
 <div class="scroll"><table><tr><th>Kural</th><th>Seçtikleri (ağırlık:değer)</th><th>Ağırlık</th><th>Değer</th></tr><tbody id="p2_kn_tb"></tbody></table></div>
 <div id="p2_kn_out" class="p2-out"></div></div>
@@ -1055,7 +1057,7 @@ Sayı örneği: n = 4. Varsayım n = 3: 1+2+3 = 6 = 3·4/2. Her iki tarafa 4 ekl
 <div class="try"><div class="lab">Kendin dene · formül sınayıcı</div>
 <div class="row"><span>İddia:</span><select id="p2_ind_c"><option value="0">1 + 2 + … + n = n(n+1)/2</option><option value="1">1 + 3 + … + (2n−1) = n²</option><option value="2">1³ + … + n³ = (n(n+1)/2)²</option><option value="3">n² + n + 41 asaldır</option><option value="4">2ⁿ ≥ n²</option></select><span>n = 1’den</span><input type="number" id="p2_ind_n" value="30" min="1" max="200" style="width:80px"><span>’e kadar dene</span><button class="btn" id="p2_ind_go">Dene</button></div>
 <div id="p2_ind_out" class="p2-out"></div></div>
-<details><summary>Alıştırma 2.11 · cevabı gör</summary>n² + n + 41 için n = 40 deneyin: 1681 = 41 × 41, asal değil. Toplam formülü için ise n = 1…1000 hepsi doğrudur ve tümevarım bunu <b>her</b> n için kanıtladı. Fark: ilkinde adım yok (iddianın nedeni yok), ikincisinde var.</details>
+<details><summary>Alıştırma 2.11 · cevabı gör</summary>n² + n + 41 için n = 40 deneyin: 1681 = 41 × 41, asal değil. Toplam formülü için ise n = 1…1000 hepsi doğrudur ve tümevarım bunu <b>her</b> n için ispatladı. Fark: ilkinde adım yok (iddianın nedeni yok), ikincisinde var.</details>
 <div class="rule rev"><b class="t">Kural · Deneme ≠ ispat</b>Bir iddiayı n = 1, 2, 3, … diye sınamak yalnızca <b>ampirik destek</b> (<span class="en">evidence</span>) sağlar; iddia bir sonraki n’de çökebilir. Binlerce olumlu örnek genel bir ispat oluşturmaz; tek bir karşı örnek evrensel iddiayı çürütür. İspat, <b>tüm</b> n’yi kapsayan bir argüman ister (tümevarım, çelişki, değiş-tokuş). Tek bir karşı örnek ise iddiayı kesin olarak çürütür.</div>
 <div class="hata"><b class="t">Sık yapılan hata</b>“Dört denemede doğru çıktı, tümevarımla ispatlandı” demek. Tümevarım, dört denemeyi değil, <b>genel adımı</b> gerektirir. Deneme yalnızca taban durumunu doğrular ve en fazla bir ipucu sağlar.</div>
 
@@ -1204,10 +1206,11 @@ window.addEventListener('DOMContentLoaded',function(){
   function parse(str){
     const out=[];out.err='';
     const parts=str.split(/[;\n]/).map(function(p){return p.trim()}).filter(Boolean);
-    const seen={};
+    const seen=Object.create(null);
     for(let i=0;i<parts.length;i++){
       const t=parts[i].split(/\s+/);
       if(t.length<3||t.length>4){out.err='“'+parts[i]+'” teklifi “ad başla bit [ücret]” biçiminde değil.';return out}
+      if(!/^[\p{L}\p{N}_-]{1,20}$/u.test(t[0])){out.err='Teklif adı 1–20 harf/rakam, _ veya - içermeli.';return out}
       const s0=num(t[1]),f0=num(t[2]),w0=t.length===4?num(t[3]):1;
       if(!isFinite(s0)||!isFinite(f0)||!isFinite(w0)){out.err='“'+parts[i]+'” teklifinde sayı olmayan ya da geçersiz bir değer var.';return out}
       if(f0<=s0){out.err='“'+parts[i]+'” teklifinde bitiş, başlangıçtan büyük olmalı.';return out}
@@ -1223,7 +1226,7 @@ window.addEventListener('DOMContentLoaded',function(){
     if(r.length>max){const k=r.length;r.length=0;r.err='En fazla '+max+' sayı işlenir; '+k+' sayı girildi. Liste kesilmedi, lütfen kısaltın.'}
     return r;
   }
-  function showErr(el,msg){el.innerHTML='<span class="bad">Hata: '+msg+'</span>'}
+  function showErr(el,msg){el.innerHTML='<span class="bad">Hata: '+String(msg).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})+'</span>'}
 
   function ov(a,b){return a.s<b.f&&b.s<a.f}
   function iv(j){return j.n+'['+tr(j.s)+','+tr(j.f)+')'}
@@ -1288,7 +1291,7 @@ window.addEventListener('DOMContentLoaded',function(){
     function go(){
       const v=ids.map(function(e){return parseFloat(e.value)});
       const out=q('#p2_ov_out');
-      if(v.some(isNaN)||v[1]<=v[0]||v[3]<=v[2]){out.innerHTML='<span class="bad">Her aralıkta bitiş, başlangıçtan büyük olmalı.</span>';q('#p2_ov_bars').innerHTML='';return}
+      if(v.some(function(x){return !Number.isFinite(x)||Math.abs(x)>1e6})||v[1]<=v[0]||v[3]<=v[2]){out.innerHTML='<span class="bad">Her aralıkta bitiş, başlangıçtan büyük olmalı.</span>';q('#p2_ov_bars').innerHTML='';return}
       const X={n:'X',s:v[0],f:v[1]},Y={n:'Y',s:v[2],f:v[3]};
       bars(q('#p2_ov_bars'),[X,Y],{X:'pick'});
       const c1=X.s<Y.f,c2=Y.s<X.f;
@@ -1312,6 +1315,7 @@ window.addEventListener('DOMContentLoaded',function(){
       const ts=q('#p2_coin_t').value.trim();
       if(!/^\d{1,7}$/.test(ts)){showErr(out,'Hedef, 0 veya pozitif bir tam sayı olmalı (girilen: “'+ts+'”).');return}
       const T=parseInt(ts,10);
+      if(T>10000){showErr(out,'Bu tam DP gösteriminde hedef en çok 10.000 olabilir.');return}
       if(!d.length){out.innerHTML='Boş liste: hiç banknot yok; yalnızca hedef 0 ise (0 banknotla) ödenebilir. Hedef = '+T+(T===0?' → ödenebilir.':' → ödenemez.');return}
       let rem=T,cnt=0,h='';
       d.forEach(function(x){
@@ -1496,7 +1500,7 @@ window.addEventListener('DOMContentLoaded',function(){
       h+='<tr><td><b>Gerçek en iyi (kaba kuvvet)</b></td><td class="m">'+names(bw.sub)+'</td><td><b>'+tr(bw.w)+'</b></td></tr>';
       q('#p2_w_tb').innerHTML=h;
       const fails=R.filter(function(r){return sum(r[1])<bw.w}).map(function(r){return r[0]});
-      out.innerHTML=fails.length?'Bu kümede yanılan kural(lar): <b class="bad">'+fails.join(', ')+'</b>.':'<span class="ok">Bu kümede üç kural da en iyiyi buldu.</span> Tek bir kümenin doğru çıkması bir şey kanıtlamaz.';
+      out.innerHTML=fails.length?'Bu kümede yanılan kural(lar): <b class="bad">'+fails.join(', ')+'</b>.':'<span class="ok">Bu kümede üç kural da en iyiyi buldu.</span> Tek bir kümenin doğru çıkması genel doğruluğu ispatlamaz.';
     }
     sel.onchange=function(){if(+sel.value<4)txt.value=WS[+sel.value];go()};
     txt.addEventListener('input',function(){sel.value='4';go()});
@@ -1510,7 +1514,7 @@ window.addEventListener('DOMContentLoaded',function(){
       const tb=q('#p2_ss_tb'),out=q('#p2_ss_out');
       tb.innerHTML='';
       if(S.err){showErr(out,S.err);return}
-      if(!isFinite(T)){showErr(out,'Hedef geçerli bir sayı olmalı.');return}
+      if(!Number.isSafeInteger(T)||T<0||T>1e9||S.some(function(x){return !Number.isSafeInteger(x)||x<0||x>1e9})){showErr(out,'Bu tam hesaplama gösteriminde sayılar ve hedef 0–1.000.000.000 arası tam sayılar olmalı.');return}
       if(!S.length){out.innerHTML='Boş liste: seçilecek sayı yok. Toplam 0; hedef '+T+(T===0?' → ulaşıldı (boş küme).':' → ulaşılamaz.');return}
       let L=S.slice();
       if(r==='small')L.sort(function(a,b){return a-b});
@@ -1542,11 +1546,11 @@ window.addEventListener('DOMContentLoaded',function(){
       for(let i=0;i<raw.length;i++){
         const p=raw[i].split(':').map(function(x){return x.trim()});
         const w=p.length===2?num(p[0]):NaN,v=p.length===2?num(p[1]):NaN;
-        if(!isFinite(w)||!isFinite(v)||w<=0||v<0){showErr(out,'“'+raw[i]+'” eşyası “ağırlık:değer” biçiminde, ağırlık > 0 ve değer ≥ 0 olmalı.');return}
+        if(!Number.isSafeInteger(w)||!Number.isSafeInteger(v)||w<=0||v<0||w>1e9||v>1e9){showErr(out,'“'+raw[i]+'” eşyası “ağırlık:değer” biçiminde olmalı. Bu tam hesaplama gösteriminde ağırlık pozitif, değer negatif olmayan ve en çok 1.000.000.000 olan tam sayılar olmalı.');return}
         items.push({i:i,w:w,v:v});
       }
       if(items.length>12){showErr(out,'En fazla 12 eşya işlenir; '+items.length+' eşya girildi. Liste kesilmedi, lütfen kısaltın.');return}
-      if(!isFinite(C)||C<0){showErr(out,'Kapasite, 0 veya pozitif bir sayı olmalı.');return}
+      if(!Number.isSafeInteger(C)||C<0||C>1e9){showErr(out,'Bu tam hesaplama gösteriminde kapasite 0–1.000.000.000 arası bir tam sayı olmalı.');return}
       if(!items.length){out.innerHTML='Boş liste: eşya yok, toplam değer 0.';return}
       const rules=[
         ['En yüksek değer/ağırlık',function(a,b){return (b.v/b.w-a.v/a.w)||(a.i-b.i)}],
@@ -1598,7 +1602,7 @@ window.addEventListener('DOMContentLoaded',function(){
       function(n){return isPrime(n*n+n+41)},
       function(n){return Math.pow(2,n)>=n*n}
     ];
-    const NOTE=['Bu formül tümevarımla kanıtlanmıştır (örnek 9).','Bu formül tümevarımla kanıtlanabilir (alıştırma 2.10).','Bu formül de tümevarımla kanıtlanabilir (aynı üç parça).','Bu iddianın ispatı yoktur: hiçbir adım “bir asal bir sonrakini de asal yapar” demiyor.','İddia n ≥ 4 için doğrudur, fakat “her n için” değildir.'];
+    const NOTE=['Bu formül tümevarımla ispatlanmıştır (örnek 9).','Bu formül tümevarımla ispatlanabilir (alıştırma 2.10).','Bu formül de tümevarımla ispatlanabilir (aynı üç parça).','Bu iddianın ispatı yoktur: hiçbir adım “bir asal bir sonrakini de asal yapar” demiyor.','İddia n ≥ 4 için doğrudur, fakat “her n için” değildir.'];
     q('#p2_ind_go').onclick=function(){
       const c=+q('#p2_ind_c').value;let N=parseInt(q('#p2_ind_n').value,10);
       if(!(N>=1))N=1;if(N>200)N=200;
@@ -2229,7 +2233,7 @@ window.addEventListener('DOMContentLoaded',function(){
     for(i=0;i<tk.length;i++){if(!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(tk[i])||!isFinite(Number(tk[i]))){bad=tk[i];break}}
     if(bad!==null)ls.err='Geçersiz değer: “'+bad.replace(/[<>&"]/g,'?')+'”. Listede yalnızca sonlu sayılar olmalı (boşluk ya da virgülle ayırın).';
     else if(tk.length>20)ls.err='Liste en fazla 20 eleman olabilir (girilen: '+tk.length+'). Lütfen kısaltın; fazla elemanlar sessizce atılmaz.';
-    ls.arr=ls.err?[]:tk.map(Number);ls.key=+E('ls_k').value;ls.i=0;ls.done=false;ls.found=false;lsDraw()}
+    ls.arr=ls.err?[]:tk.map(Number);ls.key=E('ls_k').value.trim()===''?NaN:Number(E('ls_k').value);ls.i=0;ls.done=false;ls.found=false;lsDraw()}
   function lsDraw(){
     var h='';ls.arr.forEach(function(x,i){
       var cls='card';
@@ -2238,13 +2242,13 @@ window.addEventListener('DOMContentLoaded',function(){
     E('ls_c').innerHTML=h;
     var o;
     if(ls.err)o='<span class="bad">'+ls.err+'</span>';
-    else if(isNaN(ls.key))o='<span class="bad">Aranan değer geçerli bir sayı olmalı.</span>';
+    else if(!Number.isFinite(ls.key))o='<span class="bad">Aranan değer geçerli bir sayı olmalı.</span>';
     else if(ls.done)o=ls.found?'<span class="ok">Bulundu</span> — '+ls.i+' karşılaştırma yapıldı.':'<span class="bad">Listede yok</span> — '+ls.i+' karşılaştırma yapıldı (n = '+ls.arr.length+').';
     else o='Şimdiye kadar '+ls.i+' karşılaştırma. Sıradaki: A['+(ls.i+1)+'] = '+(ls.arr[ls.i]===undefined?'—':ls.arr[ls.i])+' ile '+ls.key+' karşılaştırılacak.';
     E('ls_o').innerHTML=o;E('ls_o').setAttribute('data-cmp',ls.i);E('ls_o').setAttribute('data-done',ls.done?(ls.found?'found':'absent'):'no');
   }
   function lsStep(){
-    if(ls.done||ls.err||isNaN(ls.key))return;
+    if(ls.done||ls.err||!Number.isFinite(ls.key))return;
     if(ls.i>=ls.arr.length){ls.done=true;ls.found=false;lsDraw();return}
     var x=ls.arr[ls.i];ls.i++;
     if(x===ls.key){ls.done=true;ls.found=true}else if(ls.i>=ls.arr.length){ls.done=true;ls.found=false}
@@ -2278,12 +2282,13 @@ window.addEventListener('DOMContentLoaded',function(){
 
   /* ---- 9 WCET ---- */
   function wc(){
-    var n=Math.max(1,+E('wc_n').value||1),f=+E('wc_f').value||0,c=+E('wc_c').value||1,b=+E('wc_b').value||1;
+    var n=Number(E('wc_n').value),f=Number(E('wc_f').value),c=Number(E('wc_c').value),b=Number(E('wc_b').value);
+    if(['n','f','c','b'].some(function(k){return E('wc_'+k).value.trim()===''} )||!Number.isSafeInteger(n)||n<1||n>100000||![f,c,b].every(Number.isFinite)||f<0||c<=0||b<=0){E('wc_t').innerHTML='';E('wc_o').innerHTML='<span class="bad">n 1–100.000 arası tam sayı, sabit süre negatif olmayan, karşılaştırma süresi ve bütçe pozitif sonlu sayılar olmalı.</span>';return}
     var rows=[['Doğrusal arama · en iyi',1],['Doğrusal arama · ortalama (≈ n/2)',n/2],['Doğrusal arama · en kötü (WCET)',n],['İkili arama · en kötü (WCET)',fl(lg2(n))+1]];
     var h='<tr><th>Durum</th><th>Karşılaştırma</th><th>Toplam süre</th><th>≤ bütçe?</th></tr>';
     rows.forEach(function(r,i){var t=f+r[1]*c;h+='<tr><td>'+r[0]+'</td><td class="m">'+tr(r[1],1)+'</td><td class="m" data-t="'+t+'" data-i="'+i+'">'+tr(t,1)+' µs</td><td>'+(t<=b?'<span class="ok">evet</span>':'<span class="bad">hayır</span>')+'</td></tr>'});
     E('wc_t').innerHTML=h;
-    var wl=f+n*c,wb=f+(fl(lg2(n))+1)*c,avgl=f+n/2*c,nmax=fl((b-f)/c);
+    var wl=f+n*c,wb=f+(fl(lg2(n))+1)*c,avgl=f+n/2*c,nmax=Math.max(0,fl((b-f)/c));
     var msg=wl<=b?'Doğrusal arama en kötü durumda bile sığıyor (pay '+tr(b-wl,1)+' µs).':'<b class="bad">Doğrusal arama en kötü girdide bütçeyi '+tr(wl-b,1)+' µs aşar</b>'+(avgl<=b?' (ortalama '+tr(avgl,1)+' µs sığar: ortalama aşılan turu gizler).':'.');
     E('wc_o').innerHTML=msg+' Doğrusal aramada bütçeyi aşmayan en büyük tablo: <b id="p3_wc_nmax" data-v="'+nmax+'">'+tr(nmax,0)+'</b> giriş.';
   }
@@ -2501,7 +2506,7 @@ Tanık: <b>c = 4, n₀ = 10</b>. Başka tanıklar da var: c = 13, n₀ = 1 (çü
 <h3>4.7 Ω ve Θ; çözümlü örnek: 3n² − 100n + 6</h3>
 <div class="zero"><b class="t">Önce sıfırdan</b>O bir <b>tavan</b>dır; <b>Ω</b> (Büyük-Omega, <span class="en">Big-Omega</span>) bir <b>zemin</b>dir: “f en az g’nin bir katı kadar büyür”. <b>Θ</b> (Büyük-Theta, <span class="en">Big-Theta</span>) ikisi birlikte: f, g’nin iki katı arasında <b>sıkışır</b> (zemin + tavan). Θ “tam olarak böyle büyür” demektir. Her biri kendi tanığını ister: O için (c, n₀), Ω için (c, n₀) (ters eşitsizlik), Θ için (c₁, c₂, n₀).</div>
 <div class="p4-ana"><b class="l">Günlük hayat</b>“Bu bina en az 3 kat, en çok 5 kat olabilir.” Alt ve üst sınır birlikte binanın yüksekliğini sıkıştırır. Θ(n²) şunu söyler: “f, n²’nin 1 katından az değil, 3 katından fazla değil (n₀’dan sonra).”</div>
-<div class="p4-ex"><b class="l">Çözümlü örnek 2 · f(n) = 3n² − 100n + 6, Θ(n²)’yi tanıklarla kanıtlamak</b>
+<div class="p4-ex"><b class="l">Çözümlü örnek 2 · f(n) = 3n² − 100n + 6, Θ(n²)’yi tanıklarla ispatlamak</b>
 <b>Önce f’nin işaretini bilin.</b> Tanımda f ve g’nin <i>negatif olmamasını</i> istedik. f(n) = 0 denklemi n ≈ 0,06 ve n ≈ 33,27 köklerini verir; yani f(1) … f(33) <b>negatif</b> (f(33) = −27), <b>f(34) = 74 &gt; 0</b>. Demek ki hangi sabiti seçersek seçelim <b>n₀ ≥ 34</b> olmalıdır.
 <div class="scroll"><table class="p4-t"><tr><th>iddia</th><th>cebir</th><th>tanık</th></tr>
 <tr><td>O(n²)</td><td>f ≤ 3n² ⇔ −100n + 6 ≤ 0, her n ≥ 1’de doğru. Ama f ≥ 0 için n ≥ 34 lazım.</td><td class="m">c = 3, n₀ = 34</td></tr>
@@ -2529,7 +2534,7 @@ Tanık: <b>c = 4, n₀ = 10</b>. Başka tanıklar da var: c = 13, n₀ = 1 (çü
 <div class="try"><div class="lab">Kendin dene</div>“n = O(n²)” ve “n² = O(n)” cümlelerinden hangisi doğru? Neden iki yönde birden eşit yazmak yanlış?
 <details><summary>Cevabı göster</summary>n = O(n²) doğru (n ≤ 1·n² her n ≥ 1’de). n² = O(n) yanlış (aşağıdaki kutu). Eğer “=” gerçek eşitlik olsaydı iki cümleyi birleştirip “n = n²” çıkarırdık: saçma. O yalnızca tek yönlü bir ilişkidir.</details></div>
 <details class="skip"><summary>Atlanabilir · n² neden O(n) değildir? Çelişkiyle kanıt</summary>
-<div class="rule skip"><b class="t">Atlanabilir · çelişki yoluyla kanıt</b>Diyelim n² = O(n). O zaman öyle c &gt; 0 ve n₀ vardır ki her n ≥ n₀ için n² ≤ c·n. Her iki yanı n &gt; 0 ile bölersek: n ≤ c, <b>her</b> n ≥ n₀ için. Ama n = max(n₀, ⌊c⌋ + 1) alırsak n &gt; c olur: çelişki. Demek ki varsayım yanlış; hiçbir (c, n₀) çifti işe yaramaz. Örnek: c = 1000 denerseniz n = 1001’de n² = 1.002.001 iken c·n = 1.001.000: n² büyük. c = 10⁶ için n = 1.000.001. Hangi c’yi seçerseniz seçin, onu geçen bir n vardır.</div>
+<div class="rule skip"><b class="t">Atlanabilir · çelişki yoluyla ispat</b>Diyelim n² = O(n). O zaman öyle c &gt; 0 ve n₀ vardır ki her n ≥ n₀ için n² ≤ c·n. Her iki yanı n &gt; 0 ile bölersek: n ≤ c, <b>her</b> n ≥ n₀ için. Ama n = max(n₀, ⌊c⌋ + 1) alırsak n &gt; c olur: çelişki. Demek ki varsayım yanlış; hiçbir (c, n₀) çifti işe yaramaz. Örnek: c = 1000 denerseniz n = 1001’de n² = 1.002.001 iken c·n = 1.001.000: n² büyük. c = 10⁶ için n = 1.000.001. Hangi c’yi seçerseniz seçin, onu geçen bir n vardır.</div>
 <div class="p4-w"><b class="l">Etkileşimli 8 · Çelişki avcısı (n² ≤ c·n’yi bozan n)</b>
 <div class="row"><label>c = <input type="number" id="p4_ct_c" value="1000" min="1" step="any"></label><label>n₀ = <input type="number" id="p4_ct_n0" value="5" min="1" step="1"></label></div>
 <div class="p4-out" id="p4_ct_out"></div></div></details>
@@ -2549,7 +2554,7 @@ Toplam ≤ 3·n² (n ≥ 1’de n ≤ n², n log n ≤ n²): c = 3 tanığıyla 
 <div class="p4-w"><b class="l">Etkileşimli 9 · Toplama / çarpma sınırı</b>
 <div class="row"><label>f = O( <select id="p4_sp_a"></select> )</label><label>g = O( <select id="p4_sp_b"></select> )</label></div>
 <div class="p4-out" id="p4_sp_out"></div></div>
-<div class="rule rev"><b class="t">Kural · Toplam ve çarpım (<span class="en">sum rule, product rule</span>)</b><b>Toplam kuralı:</b> f = O(a) ve g = O(b) ise <b>f + g = O(max(a, b))</b> (büyük olan kazanır; kanıt: c₁ + c₂ sabitiyle). <b>Çarpım kuralı:</b> f = O(a), g = O(b) ise <b>f · g = O(a · b)</b> (c₁·c₂ sabitiyle). Sonuç yine bir “tavan”dır; alt sınır (Ω) hakkında bir şey söylemez.</div>
+<div class="rule rev"><b class="t">Kural · Toplam ve çarpım (<span class="en">sum rule, product rule</span>)</b><b>Toplam kuralı:</b> f = O(a) ve g = O(b) ise <b>f + g = O(max(a, b))</b> (büyük olan kazanır; ispat: c₁ + c₂ sabitiyle). <b>Çarpım kuralı:</b> f = O(a), g = O(b) ise <b>f · g = O(a · b)</b> (c₁·c₂ sabitiyle). Sonuç yine bir “tavan”dır; alt sınır (Ω) hakkında bir şey söylemez.</div>
 <div class="hata"><b class="t">Sık yapılan hata</b>(1) Toplamda “O(n² + n)” yazıp bırakmak: yazım doğrudur ama sadeleşmemiş; O(n²) denir. (2) “İç içe” ile “ardışık”ı karıştırmak: iki döngü <i>peş peşe</i> ise n + n = O(n); <i>iç içe</i> ise n · n = O(n²). (3) Fark almak: O(n²) − O(n²) = 0 <b>değildir</b>; fark da en çok O(n²)’dir (hangi işlerin ne kadar çıkarıldığını bilmiyoruz).</div>
 <div class="try"><div class="lab">Kendin dene</div>f = O(n) ve g = O(log n) ise f + g ve f · g nedir? Peki bir for döngüsü (n tur) içinde ardışık iki iş var: biri O(1), diğeri O(log n): toplam nedir?
 <details><summary>Cevabı göster</summary>f + g = O(n) (büyük olan: n); f · g = O(n log n). Döngü: iç parça = O(1) + O(log n) = O(log n); dış n kez → n · log n = O(n log n).</details></div>
@@ -2648,7 +2653,7 @@ Bu üç satır tam sayıdır, “yaklaşık” değil: n = 17’de katlama 5, ya
 
 <!-- ============ 4.14 ============ -->
 <h3>4.14 Yazılı alıştırmalar (cevaplar katlanır kutularda)</h3>
-<div class="zero"><b class="t">Önce sıfırdan</b>Aşağıdaki alıştırmaları <b>kağıtta</b> çözün, sonra cevabı açın. İlk beşi sınav düzeyindedir; sarı kutular (atlanabilir) kanıt gerektirir. Bir tanık (c, n₀) bulmaya çalışırken <i>önce eşitsizliği cebirle sadeleştirin</i>, sonra n₀’ı çıkarın; ardından Etkileşimli 6 ile test edin.</div>
+<div class="zero"><b class="t">Önce sıfırdan</b>Aşağıdaki alıştırmaları <b>kağıtta</b> çözün, sonra cevabı açın. İlk beşi sınav düzeyindedir; sarı kutular (atlanabilir) ispat gerektirir. Bir tanık (c, n₀) bulmaya çalışırken <i>önce eşitsizliği cebirle sadeleştirin</i>, sonra n₀’ı çıkarın; ardından Etkileşimli 6 ile test edin.</div>
 <div class="box"><b>Alıştırma 1 (kolay).</b> Θ sınıfını yazın: (a) 7n³ − 2n² + 40, (b) 3n log n + 50n, (c) 2ⁿ + n⁵, (d) 100, (e) n! + 2ⁿ.
 <details><summary>Cevap</summary>(a) Θ(n³); (b) Θ(n log n); (c) Θ(2ⁿ) (üstel kuvveti yener); (d) Θ(1); (e) Θ(n!) (faktöriyel 2ⁿ’yi baskılar). Her seferinde en hızlı büyüyen terimi tutup sabiti atın.</details></div>
 <div class="box"><b>Alıştırma 2 (kolay).</b> 4n² + 7n + 9 = O(n²) için iki farklı tanık (c, n₀) bulun.
@@ -2665,7 +2670,7 @@ for k in range(n):
 <details><summary>Cevap</summary>T(n) = n² + n (iç içe n·n, sonra ardışık n). n = 10: 100 + 10 = 110. Θ(n²) (baş terim). Alt terim n atılır.</details></div>
 <div class="box"><b>Alıştırma 6 (orta).</b> A algoritması n² adım, B algoritması 50·n·log₂ n adım atıyor. Hangi n’den sonra B hep daha hızlıdır?
 <details><summary>Cevap</summary>n² &gt; 50·n·lg n ⇔ n &gt; 50·lg n. n = 438: 50·lg 438 ≈ 438,7 ≥ 438 (A hâlâ B’den büyük değil); n = 439: 50·lg 439 ≈ 438,9 &lt; 439 ✓. Yani <b>n ≥ 439</b>’dan sonra B hep daha hızlı; n ≤ 438’de A en azından eşit veya daha iyi. Kesişme noktası “sabit 50” yüzünden 438’e kaydı (Etkileşimli 4’te A: 1 × n², B: 50 × n log n deneyin).</details></div>
-<details class="skip"><summary>Alıştırma 7 (zor, atlanabilir). 2ⁿ⁺¹ = O(2ⁿ) fakat 2²ⁿ ≠ O(2ⁿ) olduğunu kanıtlayın.</summary>
+<details class="skip"><summary>Alıştırma 7 (zor, atlanabilir). 2ⁿ⁺¹ = O(2ⁿ) fakat 2²ⁿ ≠ O(2ⁿ) olduğunu ispatlayın.</summary>
 <div class="rule skip"><b class="t">Cevap</b>2ⁿ⁺¹ = 2·2ⁿ ≤ 2·2ⁿ her n ≥ 1’de → c = 2, n₀ = 1. 2²ⁿ = 4ⁿ’de, 4ⁿ ≤ c·2ⁿ olsun diye varsayalım (n ≥ n₀ için). 2ⁿ ile bölünce 2ⁿ ≤ c çıkar; ama n &gt; lg c alınca 2ⁿ &gt; c: çelişki. Yani tanık yok.</div></details>
 <details class="skip"><summary>Alıştırma 8 (zor, atlanabilir). lg n = O(√n) olduğunu gösterin (n₀ = 16, c = 1).</summary>
 <div class="rule skip"><b class="t">Cevap</b>n = 2^m dersek hedef m ≤ 2^(m/2), m ≥ 4. m = 4: 4 ≤ 4 ✓. m → m + 1’de sağ taraf √2 ≈ 1,41 katına çıkar, sol taraf (m + 1)/m ≤ 5/4 = 1,25 katından fazla büyüyemez; bu yüzden eşitsizlik korunur (tümevarım). n 2’nin kuvveti değilse: √n − lg n türevi 1/(2√n) − 1/(n·ln 2) ≥ 0 ⇔ √n ≥ 2/ln 2 ≈ 2,885 ⇔ n ≥ 8,3; fark n ≥ 16’da artandır ve n = 16’da 0’dır. n = 5…15’te lg n &gt; √n olduğu için n₀ = 16 gereklidir (kontrol: lg 8 = 3 &gt; √8 = 2,83).</div></details>
@@ -2781,7 +2786,7 @@ window.addEventListener('DOMContentLoaded',function(){
   ['p4_cx_a','p4_cx_b'].forEach(function(id,k){var s=g(id),h='';NAMES.forEach(function(t,i){h+='<option value="'+i+'"'+((k===0&&i===3)||(k===1&&i===5)?' selected':'')+'>'+t+'</option>'});s.innerHTML=h});
   function cxRender(){
     var ia=+g('p4_cx_a').value,ib=+g('p4_cx_b').value,ca=numI('p4_cx_ca',1),cb=numI('p4_cx_cb',1),o=g('p4_cx_out');
-    if(!(ca>0)||!(cb>0)){o.innerHTML='<span class="bad">Çarpanlar pozitif olmalı.</span>';return}
+    if(!Number.isFinite(ca)||!Number.isFinite(cb)||!(ca>0)||!(cb>0)){o.innerHTML='<span class="bad">Çarpanlar pozitif ve sonlu olmalı.</span>';return}
     var la=Math.log(ca),lb=Math.log(cb);
     var A=ca+' × '+NAMES[ia],B=cb+' × '+NAMES[ib];
     /* asimptotik kazanan: merdiven sırası (baskınlık); aynı basamakta sabit */
@@ -2873,7 +2878,7 @@ window.addEventListener('DOMContentLoaded',function(){
     var o=g('p4_wc_out'),k=g('p4_wc_g').value,kind=g('p4_wc_k').value,needU=(kind==='O'||kind==='T'),needL=(kind==='W'||kind==='T');
     var sc=readPoly(['p4_wc_a','p4_wc_b','p4_wc_d','p4_wc_cu','p4_wc_cl']),n0v=numI('p4_wc_n0',1);
     if(!sc){o.innerHTML='<span class="bad">Geçerli sayılar girin.</span>';return}
-    if(!(n0v>=1)||Math.floor(n0v)!==n0v){o.innerHTML='<span class="bad">n₀ pozitif bir tamsayı olmalı.</span>';return}
+    if(g('p4_wc_n0').value.trim()===''||!Number.isSafeInteger(n0v)||n0v<1){o.innerHTML='<span class="bad">n₀ pozitif bir tamsayı olmalı.</span>';return}
     if((needU&&sc[3]<=0n)||(needL&&sc[4]<=0n)){o.innerHTML='<span class="bad">Geçersiz: c (ve c₁) pozitif olmalı</span> (tanımda c &gt; 0). c ≤ 0 ile bir “tavan” veya “zemin” olmaz.';return}
     var a=sc[0],b=sc[1],d=sc[2],cu=sc[3],cl=sc[4],n0=BigInt(n0v);
     if(k==='n'||k==='n2'||k==='n3'){
@@ -2964,7 +2969,10 @@ window.addEventListener('DOMContentLoaded',function(){
 
   /* ---------- 11) taban değişimi ---------- */
   function bcRender(){
-    var n=Math.max(numI('p4_bc_n',1000),1e-9),b=+g('p4_bc_b').value,l2=Math.log(n)/Math.LN2,lb=Math.log(n)/Math.log(b),r=l2/lb;
+    var n=Number(g('p4_bc_n').value),b=+g('p4_bc_b').value;
+    if(!Number.isFinite(n)||n<=0){g('p4_bc_out').innerHTML='<span class="bad">n pozitif ve sonlu olmalı.</span>';return}
+    if(n===1){g('p4_bc_out').innerHTML='n = 1 için iki logaritma da 0’dır; 0/0 oranı tanımsızdır. Taban değişimi özdeşliği log₂ n = log<sub>'+b+'</sub> n × log₂ '+b+' yine geçerlidir.';return}
+    var l2=Math.log(n)/Math.LN2,lb=Math.log(n)/Math.log(b),r=l2/lb;
     g('p4_bc_out').innerHTML='log₂ n = <b>'+fx(l2,4)+'</b>; log<sub>'+b+'</sub> n = <b>'+fx(lb,4)+'</b>; log₂ n / log<sub>'+b+'</sub> n = <b>'+fx(r,4)+'</b>. Bu oran n’ye bağlı değil: log₂ '+b+' = '+fx(Math.log(b)/Math.LN2,4)+'. Yani iki logaritma yalnızca sabit bir çarpanla farklıdır.';
   }
   on('p4_bc_n','input',bcRender);on('p4_bc_b','change',bcRender);bcRender();
@@ -2981,7 +2989,9 @@ window.addEventListener('DOMContentLoaded',function(){
 
   /* ---------- 13) WCET ---------- */
   function wtRender(){
-    var fix=numI('p4_wt_fix',0),per=numI('p4_wt_per',0),n=intI('p4_wt_n',1,1,1e7),dl=numI('p4_wt_dl',1000),bin=Math.floor(lg(n))+1,h='';
+    var fix=Number(g('p4_wt_fix').value),per=Number(g('p4_wt_per').value),n=Number(g('p4_wt_n').value),dl=Number(g('p4_wt_dl').value),h='';
+    if(['fix','per','n','dl'].some(function(k){return g('p4_wt_'+k).value.trim()===''} )||![fix,per,dl].every(Number.isFinite)||fix<0||per<0||dl<=0||!Number.isSafeInteger(n)||n<1||n>1e7){g('p4_wt_tb').innerHTML='<tr><td colspan="4" class="bad">Süreler negatif olmayan sonlu sayılar; bütçe pozitif; n 1–10.000.000 arası tam sayı olmalı.</td></tr>';return}
+    var bin=Math.floor(lg(n))+1;
     [['doğrusal, ortalama (≈ n/2)',n/2],['doğrusal, en kötü (n)',n],['ikili, en kötü (⌊lg n⌋ + 1)',bin]].forEach(function(r){
       var T=fix+per*r[1],pay=dl-T;
       h+='<tr><td>'+r[0]+'</td><td class="m">'+fx(r[1],Math.abs(r[1]-Math.round(r[1]))<1e-9?0:1)+'</td><td class="m">'+fx(T,Math.abs(T-Math.round(T))<1e-9?0:2)+'</td><td>'+(pay>=0?'<span class="ok">yeter (pay '+fx(pay,Math.abs(pay-Math.round(pay))<1e-9?0:2)+' µs)</span>':'<span class="bad">aşılır ('+fx(-pay,Math.abs(pay-Math.round(pay))<1e-9?0:2)+' µs fazla)</span>')+'</td></tr>';
@@ -3072,68 +3082,13 @@ function mkQuiz(id,Q){
 </script>
 <script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
 <!--aa-responsive-tables-->
-<script>
-(function(){
-  function markTables(){
-    document.querySelectorAll('.scroll table').forEach(function(t){
-      var rows=Array.prototype.slice.call(t.rows),cols=0;
-      rows.forEach(function(r){
-        var n=0;
-        Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});
-        cols=Math.max(cols,n);
-      });
-      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
-      if(cols===4)t.classList.add('aa-cols-4');
-      else if(cols===5)t.classList.add('aa-cols-5');
-      else if(cols===6)t.classList.add('aa-cols-6');
-      else if(cols>=7)t.classList.add('aa-cols-7plus');
 
-      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
-      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
-      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')}).length/firstCells.length>=0.6;
-      t.classList.toggle('aa-code-first',codeFirst);
-
-      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){
-        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
-        c.classList.toggle('aa-token',s.length>0&&s.length<=32);
-      });
-
-      rows.forEach(function(r){
-        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
-        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
-      });
-
-      for(var ci=0;ci<cols;ci++){
-        var seen=0,right=0,cells=[];
-        rows.forEach(function(r){
-          var pos=0,cell=null;
-          for(var k=0;k<r.cells.length;k++){
-            var c=r.cells[k],span=c.colSpan||1;
-            if(ci>=pos&&ci<pos+span){cell=c;break}
-            pos+=span;
-          }
-          if(cell&&(cell.colSpan||1)===1){
-            cells.push(cell);
-            if(cell.tagName==='TD'){
-              var tx=(cell.textContent||'').trim();
-              if(tx){seen++;if(cell.classList.contains('r'))right++}
-            }
-          }
-        });
-        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
-      }
-    });
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',markTables);else markTables();
-  window.addEventListener('load',markTables);
-})();
-</script>
 <!--AA-SIDEBAR-->
 <style>
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 #aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
-#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:272px;overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
 #aa-sb *{box-sizing:border-box}
 #aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
 #aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
@@ -3149,11 +3104,10 @@ html{scroll-behavior:smooth}
 #aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
 #aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
 #aa-sb .sub.open{display:block}
-#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a{display:block;font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
 #aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
-#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-fab{position:fixed;left:12px;bottom:12px;z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
-body.aa-open{overflow:hidden}
 body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
 body.aa-open #aa-back{display:block}
 @media (min-width:1200px){
@@ -3194,11 +3148,12 @@ body.aa-open #aa-back{display:block}
     });
     sb.innerHTML=html;
     var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
-    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.setAttribute("aria-controls","aa-sb");fab.setAttribute("aria-expanded","false");fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
     var back=document.createElement("div");back.id="aa-back";
     document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
     document.body.classList.add("aa-has-sb");
-    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    function toggle(on){document.body.classList.toggle("aa-open",on);fab.setAttribute("aria-expanded",String(on));sb.inert=window.innerWidth<1200&&!on;}
+    sb.inert=window.innerWidth<1200;window.addEventListener("resize",function(){sb.inert=window.innerWidth<1200&&!document.body.classList.contains("aa-open")});
     fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
     back.onclick=function(){toggle(false)};
     document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
