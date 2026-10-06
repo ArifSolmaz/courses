@@ -513,12 +513,12 @@ OPT(0) = 0; <b>OPT(i) = max( OPT(i−1), ücretᵢ + OPT(p(i)) )</b>. Sıralama 
 <div class="mut">20: 3, 8, 10 için DP <b>37</b> bulur (önce 10’dan, sonra 3, sonra 8); alıştırma sorusu 10: 2, 5 için <b>15</b> (önce 5, sonra 2); önce 2 kırarsanız 10+8 = 18.</div>
 
 <h3>4.7 Benzin istasyonu (en az yakıt ikmali)</h3>
-<p><b>Soru.</b> New York’tan Florida’ya giderken istasyonlar m₁ &lt; … &lt; mₙ mil işaretlerinde, dolu depoyla en çok R mil gidiliyor. En az kaç ikmal? <b>Durum:</b> G[i] = i. istasyona ulaşmak için en az ayak sayısı. <b>Yineleme:</b> G[i] = 1 + min G[j] (j &lt; i ve mᵢ − mⱼ ≤ R). O(n²). Örnek: R = 60, istasyonlar 40, 70, 120, 150, varış 190: 4 ikmal (40, 70, 120, 150). Burada “olabildiğince uzağa git” açgözlüsü de çalışır çünkü bütün ikmaller aynı maliyetli; fiyatlar farklıysa (G[i,k] ile depodaki yakıt miktarı da duruma girer) açgözlü bozulur.</p>
+<p><b>Soru.</b> New York’tan Florida’ya giderken istasyonlar m₁ &lt; … &lt; mₙ mil işaretlerinde, dolu depoyla en çok R mil gidiliyor. En az kaç ikmal? Başlangıcı m₀=0, varışı da son nokta kabul edin. <b>Durum:</b> L[i] = i. noktaya ulaşmak için gereken en az yol ayağı sayısı; L[0]=0. <b>Yineleme:</b> L[i] = 1 + min L[j] (j &lt; i ve mᵢ − mⱼ ≤ R). O(n²). Varışa kadar L[d] ayak varsa, başlangıçta depo dolu olduğundan ikmal sayısı <b>L[d]−1</b>’dir. Örnek: R = 60, istasyonlar 40, 70, 120, 150, varış 190: 5 yol ayağı ve 4 ikmal (40, 70, 120, 150). Burada “olabildiğince uzağa git” açgözlüsü de çalışır çünkü bütün ikmaller aynı maliyetli; fiyatlar farklıysa (G[i,k] ile depodaki yakıt miktarı da duruma girer) açgözlü bozulur.</p>
 <div id="w_gas"></div>
 
 <div class="box"><b>Sık yapılan hatalar (Blok 4)</b>
 <ul>
-<li>Sırt çantasında W’yi “polinom” sanmak: O(nW) <b>pseudo-polinomdur</b>.</li>
+<li>Sırt çantasında W’yi “polinom” sanmak: O(nW) <b>yalancı-polinomdur</b> (<span class="en">pseudo-polynomial</span>).</li>
 <li>Ağırlıklı aralıkta açgözlü “en erken biten”i ağırlıklı probleme taşımak.</li>
 <li>Kadane’de “best[i]” yerine “i’ye kadar en iyi” saklayıp birleştirememek: durum <b>i’de biten</b> olmalı.</li>
 <li>Yumurtada “yarıdan başla” (ikili arama): yumurta kırılınca elde kalan yumurta sayısı azalır, bu yüzden ikili arama yetmez.</li>
@@ -560,7 +560,7 @@ Bu tablonun bir <b>iki parametreli durumu</b> (i, j) var ve her hücre bir <b>d�
 
 <h3>6.1 İki koşul</h3>
 <div class="rule"><b class="t">Kural 9 — DP ne zaman kullanılır?</b>
-<b>(a) Az sayıda durum.</b> DP, kısmi sonuçları saklayarak çalışır; saklanacak az şey varsa verimlidir. n elemanın n! permütasyonu ve 2ⁿ alt kümesi vardır: “her alt permütasyon/alt küme için en iyiyi sakla” ümitsizdir. Oysa n uzunluklu bir dizenin n(n+1)/2 tane boş olmayan bitişik alt dizesi, köklü bir ağacın da her kök düğümü için bir tane olmak üzere n köklü alt ağacı vardır: <b>dizeler ve köklü ağaçlar</b> uygundur. DP, özellikle <b>soldan sağa sıralı veya doğal bir alt-problem sırası olan</b> yapılarda sık görülür (dizideki harfler, zincirdeki matrisler, çokgen köşeleri); ancak DP bununla sınırlı değildir. “Soldan sağa sıralı bir şey görüyorsanız DP ihtimalini düşünün” iyi bir sezgidir, tanım değildir.<br>
+<b>(a) Az sayıda durum.</b> DP, kısmi sonuçları saklayarak çalışır; saklanacak az şey varsa verimlidir. n elemanın n! permütasyonu ve 2ⁿ alt kümesi vardır: “her alt permütasyon/alt küme için en iyiyi sakla” ümitsizdir. Oysa n uzunluklu bir dizenin n(n+1)/2 tane boş olmayan bitişik alt dizesi, köklü bir ağaçta her düğüm için, o düğüm ve tüm torunlarından oluşan bir doğal köklü alt ağaç vardır; bu tür alt ağaçların sayısı n’dir: <b>dizeler ve köklü ağaçlar</b> uygundur. DP, özellikle <b>soldan sağa sıralı veya doğal bir alt-problem sırası olan</b> yapılarda sık görülür (dizideki harfler, zincirdeki matrisler, çokgen köşeleri); ancak DP bununla sınırlı değildir. “Soldan sağa sıralı bir şey görüyorsanız DP ihtimalini düşünün” iyi bir sezgidir, tanım değildir.<br>
 <b>(b) Optimallik ilkesi (principle of optimality).</b> Mevcut durum ne olursa olsun, kalan kararlar <b>yalnızca o duruma göre</b> optimal olmalı, o duruma <i>nasıl</i> gelindiğine göre değil.</div>
 
 <h3>6.2 Optimallik ilkesi: ne zaman geçerli, ne zaman bozulur?</h3>
@@ -656,8 +656,8 @@ Açgözlü: her adımda henüz örtülmemiş en çok elemanı örten kümeyi se�
 <details><summary>Cevap</summary>U = {1,…,6}, S₁ = {1,2,3,4}, S₂ = {1,2,5}, S₃ = {3,4,6}. Açgözlü önce S₁’i seçer (4 yeni eleman), sonra 5 için S₂, 6 için S₃ gerekir: <b>3 küme</b>. Oysa S₂ ∪ S₃ = U: <b>2 küme</b> yeter.</details></div>
 
 <div class="rule skip"><b class="t">14. (zor / isteğe bağlı) DAG’da en uzun yol</b>
-s’den başlayan en uzun yol için DP yazın; çevrimli grafta neden bozulur?
-<details><summary>Cevap</summary>long[s] = 0, diğerleri −∞. Topolojik sırayla her ulaşılabilir u için her u→v kenarında long[v] = max(long[v], long[u]+w(u,v)). Süre O(n+m). Çevrimli grafta en uzun <i>basit</i> yol, hangi köşelerin kullanıldığına bağlıdır; durum yalnızca “köşe” olursa bilgi kaybolur (NP-zor).</details></div>
+s’den başlayan en uzun yol için DP yazın; çevrimli çizgede neden bozulur?
+<details><summary>Cevap</summary>long[s] = 0, diğerleri −∞. Topolojik sırayla her ulaşılabilir u için her u→v kenarında long[v] = max(long[v], long[u]+w(u,v)). Süre O(n+m). Çevrimli çizgede en uzun <i>basit</i> yol, hangi köşelerin kullanıldığına bağlıdır; durum yalnızca “köşe” olursa bilgi kaybolur (NP-zor).</details></div>
 
 </section>
 
