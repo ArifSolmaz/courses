@@ -228,7 +228,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <h3>0.1 Büyüme oranı ve en kötü durum (Hafta 2)</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 2</b>
-<b>RAM modeli:</b> sabit boyutlu temel işlem (toplama, karşılaştırma, atama, dizi elemanı okuma) 1 birim. <b>O</b> = tavan, <b>Ω</b> = taban, <b>Θ</b> = sıkı sınır. Pratikte: en hızlı büyüyen terimi tut, sabiti at; 5n² + 3n = Θ(n²).<br>
+<b>RAM modeli:</b> sabit boyutlu temel işlem (toplama, karşılaştırma, atama, dizi elemanı okuma) 1 birim. <b>O</b> = üst sınır (tavan benzetmesi), <b>Ω</b> = alt sınır (taban benzetmesi), <b>Θ</b> = sıkı sınır. Pratikte: en hızlı büyüyen terimi tut, sabiti at; 5n² + 3n = Θ(n²).<br>
 <b>En kötü durum</b> bir <i>garanti</i> verir. 1 ms bütçeli bir kontrol döngüsünde “ortalamada sığıyor” yetmez, <b>her</b> turda sığmalıdır (WCET). Bu hafta aynı soruyu “tek bir ekleme pahalı olabilir, ama hepsini toplayınca?” biçiminde tekrar soracağız (amortize analiz, Blok 3).</div>
 
 <h3>0.2 Toplamlar ve yarılama (Hafta 3)</h3>
@@ -400,7 +400,7 @@ def sil(head, k):
 Öncülü bulamayız. Hile: <b>sonraki düğümün verisini x’e kopyala, sonraki düğümü atla.</b>
 <pre>x.item = x.next.item
 x.next = x.next.next</pre>
-7 → <b>3</b> → 9 → 5 listesinde x = 3’ü “silelim”: x.item = 9 olur (7 → 9 → 9 → 5), sonra x.next = 5’e bağlanır: <b>7 → 9 → 5</b>. Liste artık 3 olmadan aynı değerleri içerir. (x son düğümse bu hile çalışmaz: kopyalanacak sonraki düğüm yok.)</div>
+7 → <b>3</b> → 9 → 5 listesinde x = 3’ü “silelim”: x.item = 9 olur (7 → 9 → 9 → 5), sonra x.next = 5’e bağlanır: <b>7 → 9 → 5</b>. Liste artık 3 olmadan aynı değerleri içerir. <b>x son düğümse bu hile çalışmaz</b>: kopyalanacak sonraki düğüm yoktur. Ayrıca dışarıda x düğümünün kendisine başvuran işaretçiler varsa bu yöntem x’in kimliğini silmez; x’in verisini değiştirir. Bu nedenle “düğümü gerçekten silmek” ile her zaman eşdeğer değildir.</div>
 
 <h3>2.5 Gözcü (sentinel): özel durumları yok eden sahte düğüm</h3>
 <p><b>Sezgi.</b> Kapı önündeki görevli gibi: hiçbir zaman içeri girmez, ama “liste boş mu?”, “ilk eleman mı siliniyor?” gibi sorular sormanızı engeller. Listenin başına <b>sahte bir düğüm</b> koyarsanız liste hiçbir zaman boş değildir ve her gerçek düğümün bir öncülü vardır.</p>
@@ -494,8 +494,7 @@ amortize maliyet = (dizinin toplam maliyeti) / (işlem sayısı), en kötü dizi
 <h3>4.1 Son giren ilk çıkar (LIFO)</h3>
 <p><b>Sezgi.</b> Tabak istifi ya da buzdolabının önüne koyduğunuz kap: <b>en son koyduğunuzu ilk alırsınız</b>. <code>push(x)</code> tepeye koyar, <code>pop()</code> tepedekini çıkarıp verir. Tepeyi görmek için <code>top()</code>/<code>peek()</code> kullanılır.</p>
 <div class="rule"><b class="t">Kural 9 — yığın (LIFO)</b>
-Push 5, 6, 7 sonra pop → <b>7</b> (sonra 6, sonra 5). Gerçekleştirim en kolay <b>dizi + sayaç</b>: push’ta <code>a[top]=x; top+=1</code>, pop’ta <code>top-=1; return a[top]</code>. Her işlem <b>O(1)</b>.<br>
-Python’da liste yığın olarak kullanılır: <code>s.append(x)</code> (push), <code>s.pop()</code> (pop).</div>
+Push 5, 6, 7 sonra pop → <b>7</b> (sonra 6, sonra 5). Önceden ayrılmış sabit kapasiteli <b>dizi + sayaç</b> ile push ve pop en kötü durumda <b>O(1)</b>’dir. Python listesi ise dinamik dizidir: <code>s.append(x)</code> amortize O(1), sondan <code>s.pop()</code> O(1)’dir.</div>
 <pre>s = []
 s.append(5); s.append(6); s.append(7)
 print(s.pop())      # 7  (son giren ilk çıktı)
@@ -588,7 +587,7 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <h3>5.3 İki yığınla kuyruk yapmak</h3>
 <p><b>Sezgi.</b> Bir yığını diğerine boşaltmak sırayı <b>tersine çevirir</b> (tabak istifini başka yere aktarırsanız en alttaki üste gelir). İki kez ters çevirmek sırayı düzeltir: bu, kuyruğun FIFO sırasını verir.</p>
 <div class="rule"><b class="t">Kural 13 — iki yığınla kuyruk</b>
-<b>enqueue(x)</b>: <code>In</code> yığınına push. <b>dequeue()</b>: <code>Out</code> yığınından pop; <code>Out</code> boşsa önce <code>In</code>’in <b>hepsini</b> pop edip <code>Out</code>’a push et (sıra tersine döner), sonra pop. Her eleman ömründe en çok iki kez taşınır (In’e, Out’a) → <b>n işlem toplamda O(n)</b>: dequeue <b>amortize O(1)</b> (tek bir dequeue O(n) olabilir!).</div>
+<b>enqueue(x)</b>: <code>In</code> yığınına push. <b>dequeue()</b>: <code>Out</code> yığınından pop; <code>Out</code> boşsa önce <code>In</code>’in <b>hepsini</b> pop edip <code>Out</code>’a push et (sıra tersine döner), sonra pop. Her eleman <code>In</code>’den <code>Out</code>’a en fazla bir kez aktarılır ve daha sonra en fazla bir kez çıkarılır; eleman başına yalnızca sabit sayıda yığın işlemi vardır. Bu yüzden n kuyruk işleminin toplam maliyeti O(n): dequeue <b>amortize O(1)</b> (tek bir dequeue O(n) olabilir!).</div>
 <div class="try"><div class="lab">Kendin dene — iki yığından kuyruk</div>
 <div class="row"><button class="btn" id="tq_enq">enqueue (+1)</button><button class="btn g" id="tq_deq">dequeue</button><button class="btn g" id="tq_r">Sıfırla</button></div>
 <div class="cols"><div><div class="colh">In</div><div class="vst" id="tq_in"></div></div><div><div class="colh">Out</div><div class="vst" id="tq_out"></div></div><div id="tq_note" style="flex:1;min-width:200px"></div></div>
@@ -631,7 +630,7 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <b>Rastgele erişim çok</b> → dizi / dinamik dizi. <b>Uçlardan ekleme-silme çok</b> → bağlı liste / halka tampon / deque. <b>Son giren ilk çıkar</b> (geri al, DFS, parantez, çağrı yığını) → yığın. <b>İlk giren ilk çıkar</b> (olay sırası, BFS, görev kuyruğu) → kuyruk. <b>Sabit bellek ve gerçek zamanlı</b> → önceden ayrılmış dizi / halka tampon. Her seçimi bir <b>baskın işlem</b> cümlesiyle gerekçelendirin: “Sürekli X yaptığım için Y.”</div>
 
 <h3>6.2 Mühendislik uygulaması: kesme (interrupt) ile örneklenen sensör verisi</h3>
-<p>Bir kesme (interrupt) bir sensörü örnekler; ana döngü örnekleri <b>daha sonra</b> tüketir. Üretici ile tüketici arasında örnekleri sırada tutan bir <b>kuyruk</b> gerekir. <b>Halka tampon</b>: sabit N gözlü dizi, mod N saran head/tail indeksleri. Push ve pop O(1), bellek derleme zamanında sabit, kesmenin içinde ayırıcı çağrısı yok. Bağlı liste de uçlarda O(1) çalışır ama her düğüm bir <b>işaretçi</b> (4 bayt) taşır ve <b>ayırıcı</b> ister; ayırıcının en kötü süresi öngörülemez, küçük yığın (heap) parçalanabilir. Kesme içinde sınırlı süre garantisi gerektiğinden halka tampon doğru seçimdir. Dolu olduğunda <b>en eskiyi mi ezeceğinize, en yeniyi mi reddedeceğinize</b> karar vermelisiniz.</p>
+<p>Bir kesme (interrupt) bir sensörü örnekler; ana döngü örnekleri <b>daha sonra</b> tüketir. Üretici ile tüketici arasında örnekleri sırada tutan bir <b>kuyruk</b> gerekir. <b>Halka tampon</b>: sabit N gözlü dizi, mod N saran head/tail indeksleri. Push ve pop O(1), bellek derleme zamanında sabit, kesmenin içinde ayırıcı çağrısı yok. Bağlı liste de uçlarda O(1) çalışır ama her düğüm en az bir ek <b>işaretçi</b> taşır (hesaplayıcıdaki 4 bayt yalnızca örnek varsayımdır; 64-bit sistemlerde işaretçi çoğunlukla 8 bayttır) ve <b>ayırıcı</b> ister; ayırıcının en kötü süresi öngörülemez, küçük yığın (heap) parçalanabilir. Kesme içinde sınırlı süre garantisi gerektiğinden halka tampon doğru seçimdir. Dolu olduğunda <b>en eskiyi mi ezeceğinize, en yeniyi mi reddedeceğinize</b> karar vermelisiniz.</p>
 <div class="try"><div class="lab">Kendin dene — bellek hesabı: halka tampon ya da bağlı liste?</div>
 <div class="row"><span>örnek sayısı</span><input type="number" id="mm_n" value="256" style="width:80px"><span>örnek boyutu (bayt)</span><input type="number" id="mm_s" value="2" style="width:60px"><span>işaretçi (bayt)</span><input type="number" id="mm_p" value="4" style="width:60px"><span>ayırıcı başlığı (bayt/blok)</span><input type="number" id="mm_h" value="8" style="width:60px"><span>indeks (bayt)</span><input type="number" id="mm_i" value="2" style="width:60px"></div>
 <div class="scroll"><table><thead><tr><th>Yapı</th><th>Hesap</th><th>Bellek</th><th>push/pop</th><th>Kesme içinde uygun mu?</th></tr></thead><tbody id="mm_t"></tbody></table></div>
