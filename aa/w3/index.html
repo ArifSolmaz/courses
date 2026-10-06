@@ -42,6 +42,8 @@ code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em;o
 input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
 input[type=text],input[type=number],select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
 input[type=text]{width:100%}
+textarea{max-width:100%}
+.card{max-width:100%;overflow-wrap:anywhere}
 .big{font:500 26px ui-monospace,Menlo,Consolas,monospace;max-width:100%;overflow-wrap:anywhere}
 .mut{color:var(--mute);font-size:15px}
 .ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
@@ -88,10 +90,20 @@ h4{font-size:15px}
 @media (max-width:480px){.try input[type=number]{max-width:46vw}.foot{flex-direction:column;align-items:flex-start}}
 
 /* Responsive overflow safeguards */
-img,svg{max-width:100%;height:auto}
+img,svg,canvas{max-width:100%;height:auto}
 .try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
-.wide-table{min-width:700px}
-.very-wide-table{min-width:860px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.scroll table{font-variant-numeric:tabular-nums}
+.scroll th,.scroll td{line-height:1.45}
+@media (max-width:700px){
+  .scroll th,.scroll td{padding:7px 7px}
+}
 @media (max-width:700px){
   .wrap{padding-left:12px;padding-right:12px}
   .scroll{margin-left:-2px;margin-right:-2px;padding-bottom:4px}
@@ -2440,10 +2452,47 @@ on(["r3_flt_s","r3_flt_k1"],"input",upd1);on(["r3_flt_h","r3_flt_w","r3_flt_k"],
 (function(){
   function markTables(){
     document.querySelectorAll('.scroll table').forEach(function(t){
-      var cols=0;
-      Array.prototype.forEach.call(t.rows,function(r){cols=Math.max(cols,r.cells.length)});
-      t.classList.toggle('very-wide-table',cols>=7);
-      t.classList.toggle('wide-table',cols>=4&&cols<7);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){
+        var n=0;
+        Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});
+        cols=Math.max(cols,n);
+      });
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r'))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
     });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',markTables);else markTables();
