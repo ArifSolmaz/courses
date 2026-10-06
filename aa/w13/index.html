@@ -461,7 +461,7 @@ Bağ: yalnız ekle/sil ile düzenleme uzaklığı = |S| + |T| − 2·LCS. (democ
 <div id="w_lcs"></div>
 <div class="mut">Deneyin: “ABCD / ACBD” → LCS 3, örneğin ABD. “Yolu geri oku” özetindeki kontrol satırı, m+n−2·LCS değerini gösterir. Aynı tabloda “Düzenleme uzaklığı” izleyicisini “değiştirme maliyeti = 2” ile çalıştırırsanız aynı sayıyı (12) alırsınız.</div>
 
-<h3>3.2 En uzun artan alt dizi (LIS) = LCS’nin kılık değiştirmişi</h3>
+<h3>3.2 En uzun artan alt dizi (LIS): LCS ile bir indirgeme</h3>
 <p><b>Sezgi.</b> Bir diziden en az sayıda sayıyı silip kalanı artan yapmak istiyoruz: 2 4 3 5 1 7 6 9 8 → <b>2 3 5 6 8</b> (ya da 2 4 5 7 9), uzunluk 5. Hile: diziyi <b>sıralı kopyasıyla</b> karşılaştırın. Ortak alt dizi hem özgün sırayı hem artan sırayı izler, dolayısıyla artan alt dizidir; en uzunu da LIS’tir.</p>
 <div id="w_lis"></div>
 <div class="mut">“Kesin artan” kutusu sıralı kopyadan tekrarları atar. 3 1 4 1 5 9 2 6 dizisinde uzunluk 4 (örneğin 3, 4, 5, 6). Sınavda 5 uzunluğunda artan alt dizi aramak boşunadır.</div>
@@ -498,12 +498,12 @@ V[i][w] = max( <b>V[i−1][w]</b> (i’yi alma), <b>V[i−1][w−wᵢ] + vᵢ</b
 <p><b>Çözümlü örnek (alıştırma sorusu):</b> eşyalar (ağırlık, değer) = (2,3), (3,4), (4,5), W = 5. Satırlar (w = 0…5): eşya 0: 0 0 0 0 0 0; eşya 1: 0 0 3 3 3 3; eşya 2: 0 0 3 4 4 <b>7</b>; eşya 3: 0 0 3 4 5 <b>7</b>. En iyi değer <b>7</b>: ağırlığı 2 ve 3 olan eşyalar (3+4), toplam ağırlık 5. (4,5) tek başına 5 değer verir ve 1 kg boşta kalır.</p>
 <div id="w_knap"></div>
 
-<h3>4.2 Alt küme toplamı ve “pseudo-polinom”</h3>
+<h3>4.2 Alt küme toplamı ve yalancı-polinom zaman</h3>
 <p><b>Soru.</b> Pozitif tam sayılardan oluşan bir kümenin bir alt kümesi tam olarak T eder mi? <b>Durum:</b> can[i][t] = ilk i sayıyla t yapılabilir mi? <b>Yineleme:</b> can[i][t] = can[i−1][t] <b>veya</b> (t ≥ sᵢ ve can[i−1][t−sᵢ]). Taban: can[0][0] = ✓. Tablo (n+1)(T+1): <b>O(nT)</b>.</p>
 <div id="w_subset"></div>
-<p><b>Neden çelişki değil?</b> Alt küme toplamı NP-zor bir problemdir (Hafta 14), buna rağmen O(nT) bir DP var. Çünkü <b>T bir sayıdır, T’nin bit uzunluğu log₂ T’dir</b>; tablo T’nin <i>değeri</i> kadar sütun ister. T = 2ᵇ iken girdi b bit, tablo 2ᵇ sütun. Buna <b>pseudo-polinom</b> zaman denir.</p>
+<p><b>Neden çelişki değil?</b> Alt küme toplamının karar sürümü NP-tamdır (Hafta 14), buna rağmen O(nT) bir DP var. Çünkü <b>T bir sayıdır, T’nin bit uzunluğu log₂ T’dir</b>; tablo T’nin <i>değeri</i> kadar sütun ister. T = 2ᵇ iken girdi b bit, tablo 2ᵇ sütun. Buna <b>yalancı-polinom</b> (<span class="en">pseudo-polynomial</span>) zaman denir.</p>
 <div id="w_pp"></div>
-<div class="mut">Karşılaştırma: düzenleme uzaklığı O(|S|·|T|), sütun sayısı <i>dize uzunluğu</i>dur (girdinin kendisi), yani gerçekten polinomdur. LCS, Floyd O(n³) de öyle. Sırt çantası O(nW) ve alt küme toplamı O(nT) pseudo-polinomdur.</div>
+<div class="mut">Karşılaştırma: düzenleme uzaklığı O(|S|·|T|), sütun sayısı <i>dize uzunluğu</i>dur (girdinin kendisi), yani gerçekten polinomdur. LCS, Floyd O(n³) de öyle. Sırt çantası O(nW) ve alt küme toplamı O(nT) yalancı-polinomdur.</div>
 
 <h3>4.3 Ağırlıklı aralık planlama (Hafta 1’in problemi, ücretli)</h3>
 <div class="rev rule"><b class="t">Tekrar · Hafta 1</b>
@@ -688,9 +688,9 @@ s’den başlayan en uzun yol için DP yazın; çevrimli çizgede neden bozulur?
 <ol>
 <li><b>DP tarifi:</b> durum nedir → yineleme → taban → doldurma sırası → cevap hücresi. İş = <b>hücre sayısı × hücre başı iş</b>.</li>
 <li><b>Düzenleme uzaklığı:</b> D[i][j] = min(D[i−1][j−1]+[≠], D[i−1][j]+1, D[i][j−1]+1); D[0][j]=j, D[i][0]=i; O(mn); geri okuma ebeveyn işaretçileriyle (özyineleme: önce çağır, sonra yazdır).</li>
-<li><b>LCS:</b> eşitse çapraz+1, değilse max(üst, sol). Yalnız ekle/sil uzaklığı = m+n−2·LCS. <b>LIS = LCS(dizi, sıralı kopya).</b></li>
+<li><b>LCS:</b> eşitse çapraz+1, değilse max(üst, sol). Yalnız ekle/sil uzaklığı = m+n−2·LCS. <b>Elemanlar birbirinden farklıysa LIS = LCS(dizi, sıralı kopya).</b> Tekrarlı değerlerde sıkı artan ve azalmayan alt dizi ayrımı ayrıca ele alınmalıdır.</li>
 <li><b>Yaklaşık eşleştirme:</b> 0. satır hep 0, cevap son satırın minimumu. <b>Shuffle:</b> boolean tablo.</li>
-<li><b>Sırt çantası:</b> max(V[i−1][w], V[i−1][w−wᵢ]+vᵢ); O(nW) pseudo-polinom. <b>Alt küme toplamı</b> O(nT) pseudo-polinom.</li>
+<li><b>Sırt çantası:</b> max(V[i−1][w], V[i−1][w−wᵢ]+vᵢ); O(nW) yalancı-polinom. <b>Alt küme toplamı</b> O(nT) yalancı-polinom.</li>
 <li><b>Ağırlıklı aralık:</b> OPT(i) = max(OPT(i−1), ücretᵢ + OPT(p(i))); açgözlü “en erken biten” burada yanılır.</li>
 <li><b>Doğrusal bölme:</b> M[i][j] = min over x max(M[x][j−1], aralık toplamı); O(kn²) (önek toplamıyla). <b>Yumurta</b> O(kn²). <b>Aralık DP</b> (dize kırma) O(b³).</li>
 <li><b>DP ne zaman?</b> Az sayıda durum + optimallik ilkesi. Dizeler/köklü ağaçlar: polinom. <b>TSP:</b> n·2ⁿ durum, O(n²2ⁿ): n!’den iyi ama üstel. <b>DTW:</b> sayılar için düzenleme uzaklığı, O(nm).</li>
@@ -699,7 +699,7 @@ s’den başlayan en uzun yol için DP yazın; çevrimli çizgede neden bozulur?
 <div class="box"><b>Önceki haftalardan hatırlanacaklar</b>
 <ul>
 <li>Fibonacci: yalın özyineleme Θ(φⁿ) (φ = (1+√5)/2 ≈ 1,618; çağrı sayısı 2F(n+1)−1); bellekleme/tablo Θ(n). Pascal: C(n,k) = C(n−1,k−1)+C(n−1,k).</li>
-<li>Dijkstra negatif olmayan ağırlık ister; Bellman–Ford negatifle çalışır; Floyd Θ(n³).</li>
+<li>Dijkstra negatif olmayan ağırlık ister; Bellman–Ford negatif kenarlarla çalışır ancak kaynaktan erişilebilen negatif döngü varsa sonlu en kısa yol değerleri tanımlı değildir; Floyd–Warshall Θ(n³).</li>
 <li>Backtracking + budama; açgözlü kanıt ister; tek karşı örnek bir iddiayı çürütür.</li>
 <li>İç içe döngüde çarp, arka arkaya topla; iki öneke bağlı tablo Θ(mn).</li>
 </ul></div>
