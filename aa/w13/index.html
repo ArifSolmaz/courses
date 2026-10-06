@@ -663,7 +663,7 @@ Symbol Technology, birkaç yüz bayt saklayan PDF-417 barkodunu tasarladı. Kodu
 <details><summary>Cevap</summary>Bitişe göre sıra: A(4), B(7), C(8). p(A) = 0, p(B) = 0 (A, B ile çakışır: 4 &gt; 3), p(C) = 1 (A, 4 ≤ 4 çakışmaz). OPT(0)=0; OPT(1) = max(0, 5+0) = 5; OPT(2) = max(5, 6+0) = 6; OPT(3) = max(6, 5+OPT(1)) = max(6, 10) = <b>10</b> (A + C). “En yüksek ücret önce” B’yi alır (6), A ve C ile çakıştığı için durur: <b>6</b>.</details></div>
 
 <div class="box"><b>11.</b> (orta) T = 2³⁰ hedefli alt küme toplamı, n = 20 sayı. O(nT) DP tablosu kaç hücre? Girdi kaç bit? Bu neden “polinom” sayılmaz?
-<details><summary>Cevap</summary>Hücre: (n+1)(T+1) = 21·(2³⁰+1) ≈ <b>2,25×10¹⁰</b> (≈ 22,5 saniye 1 ns/hücre ile). T yalnızca <b>30 bit</b> ile yazılır. Süre T’nin <i>değerine</i> göre doğrusal, ama bit uzunluğuna göre üsteldir (b bit → 2ᵇ sütun): <b>pseudo-polinom</b>.</details></div>
+<details><summary>Cevap</summary>Hücre: (n+1)(T+1) = 21·(2³⁰+1) ≈ <b>2,25×10¹⁰</b> (≈ 22,5 saniye 1 ns/hücre ile). T yalnızca <b>30 bit</b> ile yazılır. Süre T’nin <i>değerine</i> göre doğrusal, ama bit uzunluğuna göre üsteldir (b bit → 2ᵇ sütun): <b>yalancı-polinom</b>.</details></div>
 
 <div class="rule skip"><b class="t">12. (zor / isteğe bağlı) TSP’de üstel nereden geliyor?</b>
 Optimallik ilkesi geçerli, yine de DP polinom olmuyor. Nedenini sayarak açıklayın.
@@ -709,7 +709,7 @@ s’den başlayan en uzun yol için DP yazın; çevrimli çizgede neden bozulur?
 <li>Tabloyu doldurup <b>çözümü geri okumamak</b>: tablo yalnızca maliyeti (ya da uzunluğu) verir.</li>
 <li>Taban satır/sütununu yanlış kurmak (D[i][0] = i, LCS’de 0, yaklaşık eşleştirmede 0. satır 0).</li>
 <li>Doldurma sırasında bağımlılığı sonra hesaplanacak hücreden okumak.</li>
-<li>Sırt çantası O(nW)’yu polinom sanmak (pseudo-polinomdur).</li>
+<li>Sırt çantası O(nW)’yu polinom sanmak (yalancı-polinomdur).</li>
 <li>Ağırlıklı aralık planlamada “en erken biten” kuralını kullanmak.</li>
 <li>“DP her zaman polinom”: TSP’de durum sayısı üsteldir.</li>
 <li>Durumdan gerekli bilgiyi atmak (TSP’de ziyaret edilen küme; çevrimli çizgede kullanılan köşeler).</li>
@@ -1262,7 +1262,7 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
  const root=$("#w_fl");root.classList.add("try");
  const G={a:{n:["A","B","C"],D:[[0,2,5],[INF,0,1],[INF,INF,0]],lab:"A→B=2, A→C=5, B→C=1"},b:{n:["A","B","C","D"],D:[[0,4,1,INF],[INF,0,INF,1],[INF,2,0,5],[INF,INF,INF,0]],lab:"A→B=4, A→C=1, C→B=2, B→D=1, C→D=5"}};
  root.innerHTML=`<div class="lab">Kendin dene — Hafta 11: Floyd bir DP’dir (ara köşe k kümesi büyür)</div>
- <div class="row"><select id="fl_g"><option value="a">Graf 1: ${G.a.lab}</option><option value="b">Graf 2: ${G.b.lab}</option></select></div>
+ <div class="row"><select id="fl_g"><option value="a">Çizge 1: ${G.a.lab}</option><option value="b">Çizge 2: ${G.b.lab}</option></select></div>
  <div class="row"><span>k =</span><input type="range" id="fl_k" min="0" max="3" value="0"><b id="fl_kv"></b></div>
  <div class="scroll"><div id="fl_t"></div></div><div class="mut" id="fl_o"></div>`;
  function up(){
@@ -1426,7 +1426,7 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
   {n:"LCS |S|=|T|=n",S:n=>(n+1)*(n+1),W:()=>2,mem:n=>(n+1)*(n+1),roll:n=>2*(n+1),cls:"Θ(n²)",mx:200},
   {n:"Doğrusal bölme (k = 10)",S:n=>n*10,W:n=>n,mem:n=>n*10,roll:n=>2*n,cls:"Θ(kn²)",mx:200},
   {n:"Aralık DP (dize kırma, b=n)",S:n=>n*n/2,W:n=>n,mem:n=>n*n,roll:n=>n*n,cls:"Θ(n³)",mx:200},
-  {n:"Sırt çantası (n eşya, W = 1000)",S:n=>(n+1)*1001,W:()=>2,mem:n=>(n+1)*1001,roll:()=>2002,cls:"Θ(nW) — pseudo-polinom",mx:200},
+  {n:"Sırt çantası (n eşya, W = 1000)",S:n=>(n+1)*1001,W:()=>2,mem:n=>(n+1)*1001,roll:()=>2002,cls:"Θ(nW) — yalancı-polinom",mx:200},
   {n:"TSP (alt küme DP)",S:n=>n*Math.pow(2,n),W:n=>n,mem:n=>n*Math.pow(2,n),roll:n=>n*Math.pow(2,n),cls:"Θ(n²2ⁿ)",mx:60},
   {n:"TSP kaba kuvvet (n! tur)",S:n=>{let f=1;for(let i=2;i<n;i++)f*=i;return f},W:n=>n,mem:()=>n0(),roll:()=>0,cls:"Θ(n!)",mx:60}
  ];
@@ -1460,15 +1460,15 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
  $("#ts_n").oninput=$("#ts_s").oninput=up;$("#ts_r").onclick=()=>{$("#ts_s").value=1+Math.floor(Math.random()*99);up()};up();
 })();
 
-/* ---------- 4: pseudo-polinom ---------- */
+/* ---------- 4: yalancı-polinom ---------- */
 (function(){
  const root=$("#w_pp");root.classList.add("try");
- root.innerHTML=`<div class="lab">Kendin dene — pseudo-polinom: girdi <i>uzunluğu</i> ile girdi <i>değeri</i> aynı şey değil</div>
+ root.innerHTML=`<div class="lab">Kendin dene — yalancı-polinom: girdi <i>uzunluğu</i> ile girdi <i>değeri</i> aynı şey değil</div>
  <div class="row"><span>Hedef T kaç bit?</span><input type="range" id="pp_b" min="1" max="40" value="20"><b id="pp_bv">20</b><span>n =</span><input type="range" id="pp_n" min="1" max="50" value="30"><b id="pp_nv">30</b></div><div id="pp_o"></div>`;
  function up(){
   const b=+$("#pp_b").value,n=+$("#pp_n").value;$("#pp_bv").textContent=b;$("#pp_nv").textContent=n;
   const T=Math.pow(2,b),cells=(n+1)*(T+1);
-  $("#pp_o").innerHTML=`T = 2<sup>${b}</sup> = <b>${fmt(T)}</b>; yazılışı yalnızca <b>${b} bit</b>. Tablo (n+1)(T+1) = <b>${big(cells)}</b> hücre ≈ ${fmtTime(cells*1e-9)}. b bir artınca T iki katına çıkar, süre de: girdi uzunluğuna göre <b>üstel</b>; T’nin <i>değerine</i> göre doğrusal (O(nT)). Buna <b>pseudo-polinom</b> denir. Hedef küçük sayıysa (T ≤ birkaç milyon) pratikte çok iyidir.`;
+  $("#pp_o").innerHTML=`T = 2<sup>${b}</sup> = <b>${fmt(T)}</b>; yazılışı yalnızca <b>${b} bit</b>. Tablo (n+1)(T+1) = <b>${big(cells)}</b> hücre ≈ ${fmtTime(cells*1e-9)}. b bir artınca T iki katına çıkar, süre de: girdi uzunluğuna göre <b>üstel</b>; T’nin <i>değerine</i> göre doğrusal (O(nT)). Buna <b>yalancı-polinom</b> denir. Hedef küçük sayıysa (T ≤ birkaç milyon) pratikte çok iyidir.`;
  }
  $("#pp_b").oninput=$("#pp_n").oninput=up;up();
 })();
@@ -1496,7 +1496,7 @@ const QUIZ1=[
  ["2 yumurta ve 10 katlı bina: en kötü durumda en az kaç bırakma gerekir?",["3","4","5","10"],1,"E(2,10)=4: 4, 7, 9, 10. katlar. Üç bırakma en çok 3+2+1 = 6 katı çözer."],
  ["Küme 1: A [1,10) 10 TL, B [2,3) 3 TL, C [4,5) 4 TL. “En erken biten” açgözlüsü ve DP kaç TL toplar?",["İkisi de 10","Açgözlü 7, DP 10","Açgözlü 10, DP 7","Açgözlü 3, DP 4"],1,"Açgözlü B ve C’yi seçer (7). A tek başına 10; DP: OPT = max(OPT(i−1), ücret+OPT(p(i))) = 10."],
  ["100 örnekli şablon ile 120 örnekli kaydı karşılaştıran tam DTW tablosu yaklaşık kaç hücre doldurur?",["220","12 000","100·lg 120","2¹⁰⁰"],1,"n×m = 100×120 = 12 000; hücre başı sabit iş."],
- ["Hangi süre bağıntısı pseudo-polinomdur?",["Düzenleme uzaklığı O(|S|·|T|)","Alt küme toplamı O(nT)","Açık dizeler için LCS O(|S|·|T|)","Floyd O(n³)"],1,"T bir sayıdır; değeri, bit uzunluğunun üstel fonksiyonu olabilir."],
+ ["Hangi süre bağıntısı yalancı-polinomdur?",["Düzenleme uzaklığı O(|S|·|T|)","Alt küme toplamı O(nT)","Açık dizeler için LCS O(|S|·|T|)","Floyd O(n³)"],1,"T bir sayıdır; değeri, bit uzunluğunun üstel fonksiyonu olabilir."],
  ["TSP için DP O(n²·2ⁿ) sürer, çünkü durum …",["şehirlerin sabit sırada bir önekidir","ziyaret edilen şehirler kümesi ve şu anki şehirdir","yalnızca şu anki şehirdir","tam bir permütasyondur"],1,"2ⁿ alt küme × n şu anki şehir = n·2ⁿ durum; her biri O(n). Üstel durum sayısı yüzünden polinom olmaz."],
  ["Doğrusal bölmede aralık toplamları önek toplamlarıyla hesaplanmazsa O(kn²) süre ne olur?",["Aynı kalır","O(kn³)","O(n²)","O(kn)"],1,"Her hücre için her x’te aralık toplamı O(n)’e mal olur: kn hücre × n ayırıcı × n toplama."],
  ["Optimallik ilkesi hangi durumda bozulur?",["Silme maliyeti, yakında başka silme varsa artıyorsa","Girdi dizeyse","Tablo iki boyutluysa","Kenar ağırlıkları tamsayıysa"],0,"En iyi devam, durumun yanında geçmişe de bağlı hâle gelir; hücre artık her şeyi özetlemez."]
