@@ -513,7 +513,7 @@ OPT(0) = 0; <b>OPT(i) = max( OPT(i−1), ücretᵢ + OPT(p(i)) )</b>. Sıralama 
 <div class="mut">20: 3, 8, 10 için DP <b>37</b> bulur (önce 10’dan, sonra 3, sonra 8); alıştırma sorusu 10: 2, 5 için <b>15</b> (önce 5, sonra 2); önce 2 kırarsanız 10+8 = 18.</div>
 
 <h3>4.7 Benzin istasyonu (en az yakıt ikmali)</h3>
-<p><b>Soru.</b> New York’tan Florida’ya giderken istasyonlar m₁ &lt; … &lt; mₙ mil işaretlerinde, dolu depoyla en çok R mil gidiliyor. En az kaç ikmal? Başlangıcı m₀=0, varışı da son nokta kabul edin. <b>Durum:</b> L[i] = i. noktaya ulaşmak için gereken en az yol ayağı sayısı; L[0]=0. <b>Yineleme:</b> L[i] = 1 + min L[j] (j &lt; i ve mᵢ − mⱼ ≤ R). O(n²). Varışa kadar L[d] ayak varsa, başlangıçta depo dolu olduğundan ikmal sayısı <b>L[d]−1</b>’dir. Örnek: R = 60, istasyonlar 40, 70, 120, 150, varış 190: 5 yol ayağı ve 4 ikmal (40, 70, 120, 150). Burada “olabildiğince uzağa git” açgözlüsü de çalışır çünkü bütün ikmaller aynı maliyetli; fiyatlar farklıysa (G[i,k] ile depodaki yakıt miktarı da duruma girer) açgözlü bozulur.</p>
+<p><b>Soru.</b> New York’tan Florida’ya giderken istasyonlar m₁ &lt; … &lt; mₙ mil işaretlerinde, dolu depoyla en çok R mil gidiliyor. En az kaç ikmal? Başlangıcı m₀=0, varışı da son nokta kabul edin. <b>Durum:</b> L[i] = i. noktaya ulaşmak için gereken en az yol ayağı sayısı; L[0]=0. <b>Yineleme:</b> L[i] = 1 + min L[j] (j &lt; i ve mᵢ − mⱼ ≤ R). O(n²). Varışa kadar L[d] ayak varsa, başlangıçta depo dolu olduğundan ikmal sayısı <b>L[d]−1</b>’dir. Örnek: R = 60, istasyonlar 40, 70, 120, 150, varış 190: 5 yol ayağı ve 4 ikmal (40, 70, 120, 150). Burada “olabildiğince uzağa git” açgözlüsü de çalışır çünkü bütün ikmaller aynı maliyetli; fiyatlar farklıysa (örneğin durum i ve depodaki yakıt miktarını birlikte içermelidir) açgözlü bozulur.</p>
 <div id="w_gas"></div>
 
 <div class="box"><b>Sık yapılan hatalar (Blok 4)</b>
@@ -1384,18 +1384,18 @@ tabStepper("#w_dtw",{title:"Kendin dene — dinamik zaman bükme (DTW): iki siny
 /* ---------- 4: benzin istasyonu ---------- */
 (function(){
  const root=$("#w_gas");root.classList.add("try");
- root.innerHTML=`<div class="lab">Kendin dene — benzin istasyonu: en az yakıt ikmali (G[i] = 1 + min G[j], menzildeki j için)</div>
+ root.innerHTML=`<div class="lab">Kendin dene — benzin istasyonu: en az yakıt ikmali (L[i] = 1 + min L[j], menzildeki j için)</div>
  <div class="row"><label>İstasyon mil işaretleri<input type="text" id="gs_s" value="40 70 120 150" style="min-width:160px"></label><label>Varış<input type="text" id="gs_d" value="190" style="width:70px"></label><label>Menzil R<input type="text" id="gs_r" value="60" style="width:70px"></label></div><div class="scroll"><div id="gs_t"></div></div><div id="gs_o"></div>`;
  function up(){
   const st=numList($("#gs_s").value).filter(x=>x>0).sort((a,b)=>a-b).slice(0,10),d=+$("#gs_d").value,R=+$("#gs_r").value;
   if(!(d>0)||!(R>0)||!st.length||st[st.length-1]>=d){$("#gs_o").innerHTML='<span class="bad">İstasyonlar varıştan önce olmalı; R ve varış pozitif olmalı.</span>';return}
   const pos=[0,...st,d],G=Array(pos.length).fill(INF),par=Array(pos.length).fill(-1);G[0]=0;
   for(let i=1;i<pos.length;i++)for(let j=0;j<i;j++)if(pos[i]-pos[j]<=R&&G[j]+1<G[i]){G[i]=G[j]+1;par[i]=j}
-  $("#gs_t").innerHTML=`<table class="mat"><tr><th>nokta</th>${pos.map((p,i)=>`<th>${i===0?"başlangıç":i===pos.length-1?"varış":"mil "+p}</th>`).join("")}</tr><tr><th>mil</th>${pos.map(p=>`<td>${p}</td>`).join("")}</tr><tr><th>G (ayak sayısı)</th>${G.map(g=>`<td>${showv(g)}</td>`).join("")}</tr></table>`;
+  $("#gs_t").innerHTML=`<table class="mat"><tr><th>nokta</th>${pos.map((p,i)=>`<th>${i===0?"başlangıç":i===pos.length-1?"varış":"mil "+p}</th>`).join("")}</tr><tr><th>mil</th>${pos.map(p=>`<td>${p}</td>`).join("")}</tr><tr><th>L (ayak sayısı)</th>${G.map(g=>`<td>${showv(g)}</td>`).join("")}</tr></table>`;
   const last=pos.length-1;
   if(G[last]===INF){$("#gs_o").innerHTML='<span class="bad">Varışa ulaşılamaz (iki nokta arası menzilden uzun).</span>';return}
   const stops=[];let c=par[last];while(c>0){stops.push(pos[c]);c=par[c]}stops.reverse();
-  $("#gs_o").innerHTML=`Yakıt ikmali sayısı = ayak sayısı − 1 = <b>${G[last]-1}</b>, yerleri: <b>${stops.join(", ")||"(hiç)"}</b>. G[i] = “i noktasına en az kaç ayakta ulaşılır”; ayak = bir depoyla gidilen yol. <span class="mut">Aslında bu, her noktadan menzildeki noktalara kenar çizilmiş ağırlıksız bir grafikte BFS’tir (BFS: en az kenarlı yol): birçok DP, uygun DAG üzerinde en kısa yoldur.</span>`;
+  $("#gs_o").innerHTML=`Yakıt ikmali sayısı = ayak sayısı − 1 = <b>${G[last]-1}</b>, yerleri: <b>${stops.join(", ")||"(hiç)"}</b>. L[i] = “i noktasına en az kaç ayakta ulaşılır”; ayak = bir depoyla gidilen yol. <span class="mut">Aslında bu, her noktadan menzildeki noktalara kenar çizilmiş ağırlıksız bir grafikte BFS’tir (BFS: en az kenarlı yol): birçok DP, uygun DAG üzerinde en kısa yoldur.</span>`;
  }
  ["#gs_s","#gs_d","#gs_r"].forEach(s=>$(s).oninput=up);up();
 })();
