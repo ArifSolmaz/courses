@@ -185,6 +185,15 @@ img,svg,canvas{max-width:100%;height:auto}
 #s0 .r0-out{margin-top:8px;padding:8px 12px;background:var(--panel2);border-radius:10px;min-height:1.5em}
 #s0 td.r{text-align:right}
 #s0 table.r0-t td,#s0 table.r0-t th{padding:5px 8px}
+#s0 table.r0-growth{min-width:730px;table-layout:fixed}
+#s0 table.r0-growth th:first-child,#s0 table.r0-growth td:first-child{width:95px;min-width:95px;white-space:nowrap}
+#s0 table.r0-growth th:nth-child(2){width:115px}
+#s0 table.r0-growth th:nth-child(3){width:210px}
+#s0 table.r0-growth th:last-child{width:310px}
+#s0 .r0-gr-calc{font-size:14px;overflow-wrap:normal}
+#s0 .r0-gr-formula{display:block;font-weight:600;margin-bottom:4px}
+#s0 .r0-gr-step{display:block;margin-top:4px}
+#s0 .r0-gr-note{display:block;font-size:13px;color:var(--mute);margin-top:4px}
 #s0 .r0-sm{font-size:14px}
 #s0 .r0-dom{display:flex;flex-wrap:wrap;gap:6px}
 </style>
@@ -475,7 +484,9 @@ Aynı <b>n</b> boyutundaki girdiler için: <b>en iyi durum</b> (best case) = en 
 <b>1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ &lt; n!</b> (eninde sonunda). Burada <b>f, g’ye baskındır</b> (f dominates g) demek: <b>g(n)/f(n) → 0</b>, yani f(n)/g(n) sonsuza gider. “Eninde sonunda daha büyük olmak” tek başına baskınlık değildir: 2n &gt; n her n &gt; 0 için doğrudur, ama oran sabit (2) olduğundan ikisi de Θ(n)’dir ve hiçbiri ötekine baskın değildir. Üç kural: <b>(1)</b> n’nin her pozitif kuvveti (√n bile), log n’nin her kuvvetini geçer; <b>(2)</b> her üstel (2ⁿ), her polinomu (n¹⁰⁰ bile) eninde sonunda geçer; <b>(3)</b> n! 2ⁿ’i geçer. “Eninde sonunda” = büyük n’de; küçük n’de sıralama tersine olabilir. İki şeyi ayırın: “2ⁿ &gt; n² her <i>tamsayı</i> n ≥ 5 için” belirli bir eşitsizliktir (n = 3’te 8 &lt; 9, n = 4’te 16 = 16); “2ⁿ, n²’ye baskındır” ise iki fonksiyon arasındaki asimptotik ilişkidir (2ⁿ/n² → ∞), belli bir n’den sonra “başlayan” bir sayı özelliği değil, oranın limitidir.</div>
 <div class="try"><div class="lab">Kendin dene — merdiven tablosu</div>
 <div class="row"><span>n =</span><input type="range" id="r0_gr_n" min="2" max="64" value="10"><b id="r0_gr_nv">10</b></div>
-<div class="scroll"><table class="r0-t"><tr><th>Fonksiyon</th><th>f(n)</th><th>n iki katına çıkarsa iş kaç kat artar? f(2n)/f(n)</th></tr><tbody id="r0_gr_t"></tbody></table></div>
+<p class="mut">Artış katsayısını bulmak için önce n yerine 2n yazarak <b>f(2n)</b> hesaplanır, sonra bu değer <b>f(n)</b> değerine bölünür. Yeni sütun bu hesabı seçtiğiniz n için gösterir.</p>
+<div class="scroll"><table class="r0-t r0-growth"><thead><tr><th scope="col">Fonksiyon</th><th scope="col">f(n)</th><th scope="col">n iki katına çıkarsa iş kaç kat artar? f(2n)/f(n)</th><th scope="col">Artış katsayısı nasıl hesaplanır?</th></tr></thead><tbody id="r0_gr_t"></tbody></table></div>
+<div class="mut">≈ işareti yaklaşık değeri gösterir. Logaritmalı ara değerler dört, artış katsayıları iki ondalık basamağa yuvarlanır; oranlar yuvarlanmış tablo değerlerinden hesaplanmaz. Çok büyük tamsayılar kısa bilimsel gösterimle verilir; üzerine gelince tam değer görünür. Küçük ekranlarda tabloyu yatay kaydırabilirsiniz.</div>
 <div class="mut">log n çok yavaş büyür (oran 1’e yakın), n tam iki katına çıkar, n² dört, n³ sekiz kat. 2ⁿ ve n! için “kat” sayısı kendisi devasa.</div>
 </div>
 <div class="try"><div class="lab">Kendin dene — hangisi baskın?</div>
@@ -809,11 +820,31 @@ E("r0_rt_f").onchange=r0_rtUpd;r0_rtUpd();
 
 /* ---------- 0B.4 growth ladder + dominance ---------- */
 function r0_grUpd(){const n=+E("r0_gr_n").value;E("r0_gr_nv").textContent=n;
-  const L=Math.log2,n2=2*n;
-  const rows=[["1",1,1,1],["log₂ n",L(n),L(n2),L(n2)/L(n)],["n",n,n2,2],["n log₂ n",n*L(n),n2*L(n2),(n2*L(n2))/(n*L(n))],["n²",n*n,n2*n2,4],["n³",n**3,n2**3,8]];
-  let h=rows.map(r=>`<tr><td class="m">${r[0]}</td><td class="r">${r0_f(r[1])}</td><td class="r">× ${r0_f(r[3])}</td></tr>`).join("");
-  let p2=1n;for(let i=0;i<n;i++)p2*=2n;const fn=factB(n),f2n=factB(2*n);
-  h+=`<tr><td class="m">2ⁿ</td><td class="r">${r0_big(p2)}</td><td class="r">× ${r0_big(p2)}</td></tr><tr><td class="m">n!</td><td class="r">${r0_big(fn)}</td><td class="r">× ${r0_big(f2n/fn)}</td></tr>`;
+  const n2=2*n,ln=Math.log2(n),ln2=Math.log2(n2);
+  const f4=x=>x.toLocaleString("tr-TR",{maximumFractionDigits:4});
+  const f2=x=>x.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const calc=(formula,steps,note="")=>`<span class="r0-gr-formula">${formula}</span><span class="r0-gr-step">n = ${n}, 2n = ${n2}:<br>${steps}</span>${note?`<span class="r0-gr-note">${note}</span>`:""}`;
+  const row=(label,value,factor,details)=>`<tr><td class="m">${label}</td><td class="r">${value}</td><td class="r">${factor}</td><td class="r0-gr-calc">${details}</td></tr>`;
+  // Keep large integers exact; round only their displayed mantissa.
+  const big=b=>{const s=b.toString();if(s.length<=15)return{html:b.toLocaleString("tr-TR"),approx:false};
+    let m=Math.round(Number(s.slice(0,4))/10)/100,e=s.length-1;if(m===10){m=1;e++}
+    return{html:`<span title="Tam değer: ${b.toLocaleString("tr-TR")}">${f2(m)} × 10<sup>${e}</sup></span>`,approx:true}};
+  const value=b=>(b.approx?"≈ ":"")+b.html;
+  const equals=b=>(b.approx?"≈ ":"= ")+b.html;
+  const factor=b=>(b.approx?"≈ ":"")+"× "+b.html;
+  let h=row("1","1","× 1",calc("f(2n) / f(n) = 1 / 1 = 1","1 / 1 = 1","Sabit fonksiyonun değeri n değişince değişmez."));
+  h+=row("log₂ n",Number.isInteger(ln)?r0_f(ln):"≈ "+r0_f(ln),"≈ × "+f2(ln2/ln),calc("log₂(2n) / log₂n<br>= (1 + log₂n) / log₂n",`log₂${n2} / log₂${n}<br>≈ ${f4(ln2)} / ${f4(ln)} ≈ ${f2(ln2/ln)}`,"log₂(2n) = log₂2 + log₂n = 1 + log₂n."));
+  h+=row("n",r0_f(n),"× 2",calc("2n / n = 2",`${n2} / ${n} = 2`));
+  h+=row("n log₂ n",Number.isInteger(ln)?r0_f(n*ln):"≈ "+r0_f(n*ln),"≈ × "+f2(2*ln2/ln),calc("(2n · log₂(2n)) / (n · log₂n)<br>= 2 · log₂(2n) / log₂n",`(${n2} · log₂${n2}) / (${n} · log₂${n})<br>≈ ${f4(n2*ln2)} / ${f4(n*ln)} ≈ ${f2(2*ln2/ln)}`,"n iki katına çıkar; logaritmanın artışı da ayrıca çarpılır."));
+  h+=row("n²",r0_f(n*n),"× 4",calc("(2n)² / n² = 4n² / n² = 4",`${n2}² / ${n}² = ${r0_f(n2*n2)} / ${r0_f(n*n)} = 4`));
+  h+=row("n³",r0_f(n**3),"× 8",calc("(2n)³ / n³ = 8n³ / n³ = 8",`${n2}³ / ${n}³ = ${r0_f(n2**3)} / ${r0_f(n**3)} = 8`));
+  const p2=2n**BigInt(n),p2n=2n**BigInt(n2),fn=factB(n),f2n=factB(n2),fr=f2n/fn;
+  const bp=big(p2),bp2=big(p2n),bf=big(fn),br=big(fr);
+  const powerCheck=bp2.approx||bp.approx?`f(2n) ${equals(bp2)}; f(n) ${equals(bp)}`:`Sayısal kontrol: ${bp2.html} / ${bp.html} ${equals(bp)}`;
+  h+=row("2ⁿ",value(bp),factor(bp),calc("2<sup>2n</sup> / 2<sup>n</sup> = 2<sup>2n−n</sup> = 2<sup>n</sup>",`2<sup>${n2}</sup> / 2<sup>${n}</sup> = 2<sup>${n2}−${n}</sup> = 2<sup>${n}</sup> ${equals(bp)}<br>${powerCheck}`,"Aynı tabanlı üsler bölünürken üstler çıkarılır."));
+  const terms=Array.from({length:n},(_,i)=>n+i+1);
+  const product=(n<=12?terms:[terms[0],terms[1],"…",terms[n-2],terms[n-1]]).join(" · ");
+  h+=row("n!",value(bf),factor(br),calc("(2n)! / n! = (n+1) · (n+2) · … · 2n",`${n2}! / ${n}! = ${product}<br>${equals(br)}`,"1’den n’ye kadar olan çarpanlar sadeleşir; n+1’den 2n’ye kadar olan çarpanlar kalır. … varsa aradaki tüm ardışık tamsayılar da çarpılır."));
   E("r0_gr_t").innerHTML=h}
 E("r0_gr_n").oninput=r0_grUpd;r0_grUpd();
 let LFA=null;function r0_lfa(){if(!LFA){LFA=new Float64Array(200002);for(let i=2;i<=200001;i++)LFA[i]=LFA[i-1]+Math.log10(i)}return LFA}
