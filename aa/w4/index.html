@@ -234,7 +234,7 @@ summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
 <tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
 <tr><td>3</td><td><a href="#s3" style="color:var(--acc)">Dinamik dizi ve amortize analiz</a></td><td>25 dk</td><td>Hafta 3 (1+2+4+…, WCET)</td></tr>
 <tr><td>4</td><td><a href="#s4" style="color:var(--acc)">Yığın</a>: parantez dengeleme, ters Lehçe, min-yığın</td><td>20 dk</td><td>Hafta 3 (değişmez)</td></tr>
-<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Kuyruk</a>: çember tampon, iki yığınla kuyruk, DFS/BFS</td><td>25 dk</td><td>Hafta 2 (WCET)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Kuyruk</a>: halka tampon, iki yığınla kuyruk, DFS/BFS</td><td>25 dk</td><td>Hafta 2 (WCET)</td></tr>
 <tr><td>6</td><td><a href="#s6" style="color:var(--acc)">Seçim tablosu ve mühendislik uygulaması</a></td><td>15 dk</td><td>Hepsi</td></tr>
 <tr><td>—</td><td><a href="#s8" style="color:var(--acc)">Özet ve çıkış bileti</a> (<a href="#s7" style="color:var(--acc)">alıştırmalar ve quiz</a>: ev çalışması)</td><td>5 dk</td><td></td></tr>
 </table></div>
@@ -583,7 +583,7 @@ print(s)            # [5, 6]</pre>
 <p><b>Sezgi.</b> Banka kuyruğu: <b>ilk gelen ilk hizmet alır</b>. <code>enqueue(x)</code> arkaya ekler, <code>dequeue()</code> öndekini çıkarıp verir.</p>
 <div class="rule"><b class="t">Kural 11 — kuyruk (FIFO) ve yığınla fark</b>
 Enqueue 5, 6, 7 sonra dequeue → <b>5</b>. Yığında aynı gelişlerle pop → 7. <b>Aynı gelişler, farklı çıkış sırası</b>: fark yalnızca “bekleyenlerden hangisi önce çıkar” kuralındadır.<br>
-Gerçekleştirim: bir uçtan ekleyip diğer uçtan çıkaran <b>bağlı liste</b> (baş + son işaretçisi) ya da <b>çember tampon</b> (aşağıda). Her iki durumda işlemler <b>O(1)</b>.</div>
+Gerçekleştirim: bir uçtan ekleyip diğer uçtan çıkaran <b>bağlı liste</b> (baş + son işaretçisi) ya da <b>halka tampon</b> (aşağıda). Her iki durumda işlemler <b>O(1)</b>.</div>
 <div class="rule skip"><b class="t">Python tuzağı</b> <code>list.pop(0)</code> öndekini çıkarır ama <b>tüm diziyi sola kaydırır: O(n)</b> (Blok 1!). Kuyruk için <code>collections.deque</code> kullanın: <code>popleft()</code> O(1).</div>
 <pre>from collections import deque
 q = deque()
@@ -602,7 +602,7 @@ print(q.popleft())                        # 5  (ilk giren ilk çıktı)</pre>
 <div class="rule"><b class="t">Kural 12 — halka tampon</b>
 <b>Dolu mu?</b> eleman sayısı = N. <b>Boş mu?</b> eleman sayısı = 0. (Yalnızca head ve tail’e bakarak dolu/boşu ayırmak zordur; bir sayaç tutmak en kolay yoldur.)<br>
 Dolu halka için <b>bir politika seçilmelidir</b>: <b>en yeni elemanı reddet</b> (drop newest) ya da <b>en eskiyi ez</b> (drop oldest). Politikayı açıkça yazmayan kod, doluluk anında sessizce hatalı çalışır.</div>
-<div class="try"><div class="lab">Kendin dene — çember tampon</div>
+<div class="try"><div class="lab">Kendin dene — halka tampon</div>
 <div class="row"><span>N =</span><input type="range" id="rb_n" min="3" max="12" value="8"><b id="rb_nv">8</b><span>Dolunca:</span><select id="rb_pol"><option value="rej">yeniyi reddet</option><option value="ovr">en eskiyi ez</option></select></div>
 <div class="row"><button class="btn" id="rb_push">push (+1)</button><button class="btn g" id="rb_pop">pop</button><button class="btn g" id="rb_r">Sıfırla</button><button class="btn g" id="rb_q">Soru durumu: 5, 6, 7 dolu (N=8)</button></div>
 <div class="arr" id="rb_arr"></div>
@@ -623,9 +623,9 @@ Bir örnek ekleyin, sonra bir tane çıkarın. <b>Push:</b> tail = (7 + 1) mod 8
 <div id="tr_tq"></div></div>
 
 <h3>5.4 Neden önemli? DFS ile BFS’in tek farkı</h3>
-<p>Graf gezme (Ders 11–12) için bir “yapılacaklar listesi” tutarız. Liste bir <b>yığınsa</b> arama <b>derinlik öncelikli (DFS, depth-first search)</b>, bir <b>kuyruksa genişlik öncelikli (BFS, breadth-first search)</b> olur. Aşağıda aynı algoritmayı yalnızca kabı değiştirerek çalıştırın.</p>
+<p>Çizge dolaşımı (Ders 11–12) için bir “yapılacaklar listesi” tutarız. Liste bir <b>yığınsa</b> arama <b>derinlik öncelikli (DFS, depth-first search)</b>, bir <b>kuyruksa genişlik öncelikli (BFS, breadth-first search)</b> olur. Aşağıda aynı algoritmayı yalnızca kabı değiştirerek çalıştırın.</p>
 <div class="try"><div class="lab">Kendin dene — aynı kod, farklı kap</div>
-<svg id="gx_svg" viewBox="0 0 320 130" width="100%" style="max-width:420px" role="img" aria-label="Küçük graf"></svg>
+<svg id="gx_svg" viewBox="0 0 320 130" width="100%" style="max-width:420px" role="img" aria-label="Küçük çizge"></svg>
 <div class="row"><select id="gx_sel"><option value="stack">Yığın (DFS)</option><option value="queue">Kuyruk (BFS)</option></select><button class="btn g" id="gx_b">◀ Geri</button><button class="btn" id="gx_f">İleri ▶</button><button class="btn g" id="gx_r">Başa dön</button></div>
 <div id="gx_out"></div>
 <div class="mut">Kenarlar: A–B, A–C, B–D, B–E, C–F, E–F. Algoritma: kapta (yığın ya da kuyruk) yalnızca A ile başla; bir eleman çıkar, daha önce ziyaret edilmediyse ziyaret et ve ziyaret edilmemiş komşularını (alfabetik sırayla) kaba koy. Yığında <b>son koyulan ilk çıkar</b> (derine iner), kuyrukta <b>ilk koyulan ilk çıkar</b> (katman katman yayılır). Ziyaret sırasını karşılaştırın: yığın A, C, F, E, B, D; kuyruk A, B, C, D, E, F.</div></div>
