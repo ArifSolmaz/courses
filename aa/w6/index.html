@@ -1120,18 +1120,24 @@ mkQuiz("#quiz1",[
 <!--aa-sitewide-table-audit-->
 <script>
 (function(){
-  function auditTables(){
-    document.querySelectorAll('.scroll table').forEach(function(t){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
       var rows=Array.prototype.slice.call(t.rows),cols=0;
       rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
       ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
-      if(cols===4)t.classList.add('aa-cols-4'); else if(cols===5)t.classList.add('aa-cols-5'); else if(cols===6)t.classList.add('aa-cols-6'); else if(cols>=7)t.classList.add('aa-cols-7plus');
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
       var bodyRows=rows.filter(function(r){return r.querySelector('td')});
       var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
       if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
       Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
-        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
-        c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
       });
       rows.forEach(function(r){
         var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
@@ -1146,8 +1152,11 @@ mkQuiz("#quiz1",[
       }
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auditTables);else auditTables();
-  window.addEventListener('load',auditTables);
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
 <!--AA-SIDEBAR-->
