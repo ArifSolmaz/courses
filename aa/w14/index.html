@@ -876,7 +876,7 @@ $("#dc_srch").onclick=()=>{dcCalls=0;let lo=0,hi=42;while(lo<hi){const mid=Math.
   const ks=lo,w={...DW0},rows=[];
   for(const e of Object.keys(DW0)){const old=w[e];w[e]=1000;const keep=oracle(ks,w);rows.push(`<tr><td class="m">${e}</td><td class="m">${old}</td><td class="${keep?"ok":"bad"}">${keep?`evet, ≤ ${ks} tur var → kenar gereksiz, pahalı kalsın`:`hayır → kenar zorunlu, ${old} geri konur`}</td></tr>`);if(!keep)w[e]=old}
   const tour=Object.keys(DW0).filter(e=>w[e]===DW0[e]);
-  $("#dc_o").innerHTML=`<div>Önce ikili arama: k* = <b>${ks}</b>. Sonra her kenar için “bu kenar 1000 olsa maliyeti ${ks} olan tur var mı?”</div><table><tr><th>Kenar</th><th>Ağırlık</th><th>Kâhin</th></tr>${rows.join("")}</table><div>Eski ağırlıklı kalan kenarlar (= tur): <b>${tour.join(", ")}</b> · toplam ağırlık ${tour.reduce((s,e)=>s+DW0[e],0)} · toplam çağrı: <b>${dcCalls}</b></div>`};
+  $("#dc_o").innerHTML=`<div>Önce ikili arama: k* = <b>${ks}</b>. Sonra her kenar için “bu kenar 1000 olsa maliyeti ≤ ${ks} olan tur var mı?”</div><table><tr><th>Kenar</th><th>Ağırlık</th><th>Kâhin</th></tr>${rows.join("")}</table><div>Eski ağırlıklı kalan kenarlar (= tur): <b>${tour.join(", ")}</b> · toplam ağırlık ${tour.reduce((s,e)=>s+DW0[e],0)} · toplam çağrı: <b>${dcCalls}</b></div>`};
 
 /* ---------- 1.4 cost table ---------- */
 function fact(n){let f=1n;for(let i=2n;i<=BigInt(n);i++)f*=i;return f}
@@ -1079,8 +1079,8 @@ function b4Update(){
   const b4=x=>x.toString(4).padStart(m+1,"0");
   let found=null;for(let mask=0;mask<(1<<nums.length)&&!found;mask++){let s=0;for(let i=0;i<nums.length;i++)if(mask>>i&1)s+=nums[i].x;if(s===t)found=nums.filter((_,i)=>mask>>i&1).map(o=>o.l)}
   const mv=minVC(n,G.edges).length,vc=mv<=k;
-  $("#b4_t").innerHTML=`<table class="tt"><tr><th>sayı</th><th>4 tabanında (yüksek basamak k, sonra e${m}…e1)</th><th>onluk</th></tr>${nums.map(o=>`<tr><td style="text-align:left">${o.l}</td><td>${b4(o.x)}</td><td>${o.x}</td></tr>`).join("")}<tr><td style="text-align:left"><b>hedef t (k=${k})</b></td><td><b>${b4(t)}</b></td><td><b>${t}</b></td></tr></table>`;
-  $("#b4_o").innerHTML=`<div>Toplamı t olan alt küme (kaba kuvvet): <b class="${found?"ok":"bad"}">${found?"var — "+found.join(", "):"yok"}</b></div><div>En küçük örtü = ${mv}; tam k = ${k} köşeli örtü var mı (k ≥ ${mv} ve k ≤ n)? <b class="${vc?"ok":"bad"}">${vc?"evet":"hayır"}</b> · uyuşuyor: <b class="${(!!found)===vc?"ok":"bad"}">${(!!found)===vc?"✓":"✗"}</b></div><div class="mut">Basamak değerleri 0–3 arasında kaldığı için hiçbir toplamda elde olmaz.</div>`;
+  $("#b4_t").innerHTML=`<table class="tt"><tr><th>sayı</th><th>4 tabanında (üst kısım k·4^m, sonra e${m}…e1)</th><th>onluk</th></tr>${nums.map(o=>`<tr><td style="text-align:left">${o.l}</td><td>${b4(o.x)}</td><td>${o.x}</td></tr>`).join("")}<tr><td style="text-align:left"><b>hedef t (k=${k})</b></td><td><b>${b4(t)}</b></td><td><b>${t}</b></td></tr></table>`;
+  $("#b4_o").innerHTML=`<div>Toplamı t olan alt küme (kaba kuvvet): <b class="${found?"ok":"bad"}">${found?"var — "+found.join(", "):"yok"}</b></div><div>En küçük örtü = ${mv}; tam k = ${k} köşeli örtü var mı (k ≥ ${mv} ve k ≤ n)? <b class="${vc?"ok":"bad"}">${vc?"evet":"hayır"}</b> · uyuşuyor: <b class="${(!!found)===vc?"ok":"bad"}">${(!!found)===vc?"✓":"✗"}</b></div><div class="mut">Kenar basamaklarında toplam en fazla 3 olduğu için bu düşük basamaklardan elde çıkmaz; üst kısım k·4^m katsayısını kodlar.</div>`;
 }
 $("#b4_g").onchange=b4Update;$("#b4_k").oninput=b4Update;b4Update();
 
