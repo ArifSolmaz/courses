@@ -44,7 +44,10 @@ After `python3 aa/tools/build.py`, run `verify_alignment.py` and
 For rendered checks, serve the repository with a static web server and install
 Playwright in your development environment. `verify_course_browser.cjs` accepts the
 AA base URL, JSON report path and optional screenshot directory. It checks all 27
-pages at 320/375/430/768/1366 px in both themes. `verify_course_animations.cjs` accepts
+pages at 320/375/430/768/1366 px in both themes, including opened week menus and
+the mobile sidebar after its slide-in transition. Set `AA_INCLUDE_AUX=1` to include
+the course index, scope, review and textbook-problems pages (31 pages, 310 cases).
+`verify_course_animations.cjs` accepts
 the same base URL and report path and selects all 93 demonstrations at three widths,
 both themes and start/middle/end frames. Intentional local scrolling is allowed;
 document overflow and runtime failures fail the checks. `AA_ROUTE_FILTER` and
