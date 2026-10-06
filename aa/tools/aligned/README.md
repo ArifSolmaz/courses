@@ -25,3 +25,46 @@ Hooks for other authors, imported by `build.py` and `compact.py`:
 - `theory.py`: `THEORY` (week → HTML after the worked examples), `NEW_MCQ` (ids 2000–2999), `NEW_WRITTEN` (ids 300–399), `EXTRA_TESTS`, `EXTRA_WRITTEN`.
 - `transfer.py`: `TRANSFER` (week → HTML at the top of Practice), `NEW_MCQ` (ids 3000–3999), `NEW_WRITTEN` (ids 400–499), `EXTRA_TESTS`, `EXTRA_WRITTEN`.
 - `animations_extra.py`: `ANIMATIONS_EXTRA` (week → list of `(slug, title, html, assets_html)`) appended by `compact.animation_content`.
+
+
+## Course audit checks (October 2026)
+
+The published main lessons for Weeks 3–14 are authored in `../simple/wN.html`;
+`inject_sidebar.py` refreshes their shared sidebar before a build. Original bilingual
+material is generated into `wN/ek-notlar/`. The Week 3 `tekrar/index.html` page is
+maintained directly. Correct the authoring files as well as published pages.
+`assets/audit.css` and `assets/audit.js` protect math tokens, label controls and adapt
+both static and rebuilt tables, figures and animation outputs.
+
+After `python3 aa/tools/build.py`, run `verify_alignment.py` and
+`verify_course_structure.py` in `aa/tools`. Pure Node checks are
+`verify_anim_aa.cjs`, `verify_animation_math.cjs`, `verify_intro_numeric.cjs` and
+`verify_week1_stories.cjs`.
+
+For rendered checks, serve the repository with a static web server and install
+Playwright in your development environment. `verify_course_browser.cjs` accepts the
+AA base URL, JSON report path and optional screenshot directory. It checks all 27
+pages at 320/375/430/768/1366 px in both themes, including opened week menus and
+the mobile sidebar after its slide-in transition. Set `AA_INCLUDE_AUX=1` to include
+the course index, scope, review and textbook-problems pages (31 pages, 310 cases).
+`verify_course_animations.cjs` accepts
+the same base URL and report path and selects all 93 demonstrations at three widths,
+both themes and start/middle/end frames. Intentional local scrolling is allowed;
+document overflow and runtime failures fail the checks. `AA_ROUTE_FILTER` and
+`AA_WEEK_FILTER`, respectively, allow focused rechecks.
+
+The browser oracle checks `verify_simple_widgets.cjs` and
+`verify_tekrar_widgets.cjs` use `AA_BASE_URL` and optional `AA_REPORT_DIR`.
+`verify_simple_w6_w10.cjs`, `verify_simple_w11_w14.cjs` and
+`verify_extra_w11_w14.cjs` accept the AA base URL and
+report path as arguments. These compare lesson helpers with independent small
+instances and exercise input/quiz branches. `PLAYWRIGHT_MODULE` may point to an
+existing Playwright installation. Temporary helper exports are confined to test
+response instrumentation where needed.
+
+The source notes and original downloadable DOCX files remain historical source
+material. Corrections in extracted notes are intentional; the original documents
+were not rewritten. JavaScript numerical demonstrations use stated finite input
+ranges and floating-point arithmetic where applicable. The optional nuts-and-bolts
+2n−2 exercise retains its statement and elimination hint; its previously unjustified
+fixed-bolt solution was removed rather than presented as a proved construction.

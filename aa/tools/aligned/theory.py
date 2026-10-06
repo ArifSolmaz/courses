@@ -77,7 +77,7 @@ THEORY[7] = f'''<section class="theory"><h2>Theory: solving recurrences</h2>
 </article>
 <article><h3>Recursion-tree method</h3>{TAG}
 <p>Draw the calls as a tree. Each level has some number of calls of some size. Add the work per level, then add the levels.</p>
-<p>Mergesort, T(n) = 2T(n/2) + n, with T(1) = 1:</p>
+<p>Mergesort, T(n) = 2T(n/2) + n, with T(1) = 1 and n a power of two (rounded splits give the same asymptotic bound):</p>
 <table><thead><tr><th>Level</th><th>Size</th><th>Calls</th><th>Work per call</th><th>Work per level</th></tr></thead>
 <tbody><tr><td>0</td><td>n</td><td>1</td><td>n</td><td>n</td></tr>
 <tr><td>1</td><td>n/2</td><td>2</td><td>n/2</td><td>n</td></tr>
@@ -93,11 +93,11 @@ THEORY[7] = f'''<section class="theory"><h2>Theory: solving recurrences</h2>
 </article>
 <article><h3>Substitution method</h3>{TAG}
 <p>Guess the answer, then prove it by induction on n. The recursion tree suggests the guess; substitution confirms it.</p>
-<p>Claim: T(n) = 2T(n/2) + n satisfies T(n) ≤ c · n lg n for some constant c and all n ≥ 2.</p>
+<p>Claim: T(n) = 2T(n/2) + n satisfies T(n) ≤ c · n lg n for some constant c and all powers of two n ≥ 2 (with T(1) = 1).</p>
 <ol>
-<li><strong>Hypothesis.</strong> Assume T(m) ≤ c · m lg m for every m &lt; n, in particular for m = n/2.</li>
+<li><strong>Hypothesis.</strong> Assume T(m) ≤ c · m lg m for powers of two with 2 ≤ m &lt; n, in particular for m = n/2 when n ≥ 4.</li>
 <li><strong>Substitute.</strong> T(n) ≤ 2 · c(n/2) lg(n/2) + n = c n (lg n − 1) + n = c n lg n − c n + n.</li>
-<li><strong>Close the bound.</strong> c n lg n − c n + n ≤ c n lg n whenever c ≥ 1. Choose c = 1 (or larger to cover the base cases). The claim holds for n.</li>
+<li><strong>Close the bound.</strong> c n lg n − c n + n ≤ c n lg n whenever c ≥ 1. The induction step needs c ≥ 1; the base case below fixes c = 2. The claim holds for n.</li>
 <li><strong>Base.</strong> T(2) = 2T(1) + 2 = 4 ≤ c · 2 · 1 needs c ≥ 2. Take c = 2. So T(n) = O(n lg n).</li>
 </ol>
 <p class="formula">2c<span class="frac"><span>n</span><span>2</span></span>lg<span class="frac"><span>n</span><span>2</span></span> + n = c n lg n − (c − 1) n ≤ c n lg n</p>
@@ -120,7 +120,7 @@ THEORY[7] = f'''<section class="theory"><h2>Theory: solving recurrences</h2>
 <li><strong>Mixing logarithm bases.</strong> Inside Θ(·) the base does not matter: lg n = Θ(ln n). Inside an exponent it does: n<sup>log₂3</sup> ≠ n<sup>log₃3</sup>.</li>
 <li><strong>Counting calls as size.</strong> 2T(n−1) doubles the calls, 2T(n/2) halves the size. Only the second is n lg n.</li>
 </ul>
-<p class="edge"><strong>Change the case.</strong> An unequal split such as T(n) = T(n/3) + T(2n/3) + n still costs n per level with depth log<sub>3/2</sub> n: still Θ(n lg n).</p>
+<p class="edge"><strong>Change the case.</strong> An unequal split such as T(n) = T(n/3) + T(2n/3) + n has depth Θ(log n). The first Θ(log n) full levels each cost n; after some leaves stop, each remaining level costs at most n. These give matching Ω(n log n) and O(n log n) bounds.</p>
 </article></section>'''
 
 # ---------------------------------------------------------------- Week 8
@@ -135,7 +135,7 @@ THEORY[8] = f'''<section class="theory"><h2>Theory: why BFS distances are correc
 <li><strong>Every vertex.</strong> By induction on k, each reachable vertex gets dist = δ when it is enqueued, and dist never changes afterwards. Unreachable vertices keep ∞.</li>
 </ol>
 <p>The argument needs a FIFO queue: the level-k vertices must all leave before any level-(k+1) vertex, so a longer path never claims a vertex first.</p>
-<p class="edge"><strong>Change the case.</strong> Mark vertices discovered on enqueue, not on dequeue. If marking waits until dequeue, a vertex with several level-k neighbours is enqueued several times. Distances stay correct, but the queue can hold Θ(m) entries and the running time is no longer O(n + m). With a stack instead of a queue (DFS, Week 9) the invariant fails entirely: the first path found may be long.</p>
+<p class="edge"><strong>Change the case.</strong> Mark vertices discovered on enqueue, not on dequeue. If marking waits until dequeue, a vertex with several level-k neighbours is enqueued several times. The queue can hold Θ(m) entries. If duplicate dequeues are skipped and the first parent/distance is retained, O(n + m) time is still possible; expanding duplicates or overwriting distances may lose efficiency or correctness. Replacing the queue with a stack destroys the level invariant; a stack-based traversal may first find a long path (standard DFS needs the descent rule from Week 9).</p>
 </article></section>'''
 
 # ---------------------------------------------------------------- Week 10
@@ -153,9 +153,9 @@ THEORY[10] = f'''<section class="theory"><h2>Theory: the cut property and union-
 </article>
 <article><h3>Union-find: near-constant amortised cost</h3>{TAG}
 <p>Kruskal needs to ask "are u and v already connected?" m times. Union-find answers with find(u) = find(v). The Notes prove that union by size (or by rank) keeps trees of height O(log n). Path compression re-points every node on a find path straight at the root.</p>
-<p class="formula">With union by rank and path compression, any sequence of m finds and unions on n items costs O(m · α(n)), where α(n) ≤ 4 for every practical n.</p>
+<p class="formula">With union by rank and path compression, initialising n singleton sets followed by m finds and unions costs O((n + m) · α(n)), where α(n) ≤ 4 for every practical n.</p>
 <p>The proof is beyond this course; the statement is examinable. Read it as amortised: one find may still walk a long path, but that walk shortens the tree for every later find. Kruskal therefore costs O(m log m) for sorting plus O(m α(n)) for the m cycle tests; sorting dominates.</p>
-<p class="edge"><strong>Change the case.</strong> Path compression without union by rank, or union by rank without compression, each give O(log n) per operation amortised, still fine for Kruskal. Neither rule at all gives chains and O(n) per find.</p>
+<p class="edge"><strong>Change the case.</strong> Union by rank without compression gives O(log n) worst-case time per operation. Path compression alone has a weaker amortised guarantee, commonly written O((n + m) log n) for initialisation plus m operations; it does not guarantee constant time for every find. Neither rule at all gives chains and O(n) per find.</p>
 </article></section>'''
 
 # ---------------------------------------------------------------- Week 11
@@ -177,7 +177,7 @@ THEORY[11] = f'''<section class="theory"><h2>Theory: when a distance is final</h
 <ol>
 <li><strong>Round 1.</strong> S→A: A = 4. S→B: B = 2. B→A: 2 − 3 = −1 &lt; 4, A = −1. A→C: −1 + 2 = 1, C = 1. B→C: 2 + 6 = 8, no change. dist = [0, −1, 2, 1].</li>
 <li><strong>Round 2.</strong> S→A: 4 &gt; −1, no. S→B: no. B→A: −1, no. A→C: 1, no. B→C: no. Nothing changed, so the remaining round is unnecessary.</li>
-<li><strong>Round 3</strong> (the last of |V| − 1 = 3) would also change nothing. Final: A = −1, B = 2, C = 1. Dijkstra from S would have settled A at 4 before seeing B→A.</li>
+<li><strong>Round 3</strong> (the last of |V| − 1 = 3) would also change nothing. Final: A = −1, B = 2, C = 1. Dijkstra also succeeds on this particular graph: it settles B at 2 before A, so B→A is considered in time. Negative edges remove its general correctness guarantee; they do not make every run fail.</li>
 <li><strong>Negative-cycle check.</strong> Run one extra round. If any dist still decreases, a path with |V| edges beats every path with fewer edges, which is only possible with a reachable negative cycle. Report "no shortest paths".</li>
 </ol>
 <p class="formula">cost = (|V| − 1) rounds × |E| relaxations = O(V · E)</p>
@@ -196,7 +196,7 @@ THEORY[12] = f'''<section class="theory"><h2>Theory: the cost of recomputation</
 </ol>
 <p class="formula">naive: T(n) = T(n−1) + T(n−2) + 1 = Θ(φ<sup>n</sup>) &nbsp;·&nbsp; memoised: T(n) = T(n−1) + 1 = Θ(n)</p>
 <p>Week 7 said: two calls on n − 1 are exponential, two calls on n/2 are n lg n. Memoisation removes the repeated calls, which turns the branching tree into a single chain.</p>
-<p class="edge"><strong>Change the case.</strong> The unit-cost model counts one addition as one step. F(n) has about 0.7n bits, so with bit cost the memoised version is Θ(n²). Say which model you use. The same recurrence counting applies to the binomial table in Week 13: C(n, k) has O(nk) states, each O(1).</p>
+<p class="edge"><strong>Change the case.</strong> The unit-cost model counts one addition as one step. F(n) has about 0.7n bits, so with bit cost the memoised version is Θ(n²). Say which model you use. In the unit-cost arithmetic model, the binomial table in Week 12 likewise has O(nk) states with constant work per state; arbitrary-precision addition has an extra bit cost.</p>
 </article></section>'''
 
 # ---------------------------------------------------------------- MCQs (ids 2001–2099)
@@ -230,12 +230,12 @@ NEW_MCQ = [
  'The induction step produces an extra + n that no constant absorbs. The correct guess needs the lg n factor.'),
 (2010,'In BFS, why must the to-do list be a FIFO queue for dist[] to be correct?',
  ['So that all level-k vertices leave before any level-(k+1) vertex.','So that vertices are visited in alphabetical order.','So that each edge is relaxed twice.','So that the graph becomes acyclic.'],'a',
- 'The level invariant needs vertices processed in non-decreasing distance. A stack breaks this and gives DFS.'),
+ 'The level invariant needs vertices processed in non-decreasing distance. A stack breaks the level invariant; standard DFS additionally needs one-neighbour-at-a-time descent.'),
 (2011,'The cut property says: for any cut, a lightest edge crossing it:',
  ['Belongs to every spanning tree.','Belongs to some minimum spanning tree.','Has the smallest weight in the whole graph.','Is never chosen by Kruskal.'],'b',
  'The exchange argument swaps a tree edge crossing the cut for the lightest one without increasing weight. With ties, "some" MST, not "every".'),
-(2012,'Union-find with union by rank and path compression costs, for m operations on n items:',
- ['O(m n).','O(m log n) worst case per operation.','O(m α(n)) amortised, with α(n) ≤ 4 in practice.','O(m) worst case per operation.'],'c',
+(2012,'Union-find with union by rank and path compression costs, including initialisation of n items and m find/union operations:',
+ ['O(m n).','O(m log n) worst case per operation.','O((n + m) α(n)) amortised including initialisation, with α(n) ≤ 4 in practice.','O(m) worst case per operation.'],'c',
  'The inverse Ackermann bound is amortised over the sequence. A single find may still be longer than constant.'),
 (2013,'Dijkstra can fail with negative edges because:',
  ['The priority queue cannot store negative keys.','A settled vertex may later be reached by a shorter path through a negative edge.','Negative edges create cycles.','Relaxation is undefined for negative weights.'],'b',
@@ -261,7 +261,7 @@ NEW_WRITTEN = [
  "answer":"Level k has one call of size n/2ᵏ doing 1 unit of work. The sizes reach 1 when n/2ᵏ = 1, that is k = lg n, so there are lg n + 1 levels. Total work = (lg n + 1) · 1 = lg n + 1 = Θ(lg n). Check with the master form: a = 1, b = 2, d = 0, log₂1 = 0 = d, so Θ(n⁰ lg n) = Θ(lg n). This is binary search."},
 {"id":304,"block":"Theory","level":"Medium",
  "question":"Solve T(n) = 2T(n/2) + n with T(1) = 1 by the recursion-tree method, then verify T(n) ≤ c·n lg n by substitution.",
- "answer":"Recursion tree: level k has 2ᵏ calls of size n/2ᵏ, each doing n/2ᵏ work, so every level costs 2ᵏ · n/2ᵏ = n. There are lg n + 1 levels (sizes n, n/2, …, 1). Total n(lg n + 1) = Θ(n lg n). Substitution: assume T(m) ≤ c m lg m for m < n. Then T(n) ≤ 2 · c(n/2) lg(n/2) + n = c n (lg n − 1) + n = c n lg n − c n + n ≤ c n lg n whenever c ≥ 1. Base: T(2) = 2·1 + 2 = 4 ≤ c · 2 · lg 2 = 2c needs c ≥ 2. Take c = 2; the induction closes for all n ≥ 2, so T(n) = O(n lg n). The tree count shows the bound is also Ω, so Θ(n lg n)."},
+ "answer":"Recursion tree: level k has 2ᵏ calls of size n/2ᵏ, each doing n/2ᵏ work, so every level costs 2ᵏ · n/2ᵏ = n. There are lg n + 1 levels (sizes n, n/2, …, 1). Total n(lg n + 1) = Θ(n lg n). Substitution: restrict n to powers of two, take n = 2 as the base, and assume T(m) ≤ c m lg m for powers of two 2 ≤ m < n; the step applies for n ≥ 4. Then T(n) ≤ 2 · c(n/2) lg(n/2) + n = c n (lg n − 1) + n = c n lg n − c n + n ≤ c n lg n whenever c ≥ 1. Base: T(2) = 2·1 + 2 = 4 ≤ c · 2 · lg 2 = 2c needs c ≥ 2. Take c = 2; the induction closes for powers of two n ≥ 2 (rounded splits retain the same asymptotic bound), so T(n) = O(n lg n). The tree count shows the bound is also Ω, so Θ(n lg n)."},
 {"id":305,"block":"Theory","level":"Easy",
  "question":"Solve T(n) = T(n−1) + n with T(1) = 1. Explain why the master theorem does not apply.",
  "answer":"Unroll: T(n) = n + T(n−1) = n + (n−1) + T(n−2) = … = n + (n−1) + … + 2 + T(1) = n(n+1)/2 − 1 + 1 = n(n+1)/2. The dominant term is n²/2, so T(n) = Θ(n²). The master theorem needs the form a T(n/b) + nᵈ with the size divided by a constant b > 1. Here the size decreases by subtraction, n → n−1, so the recursion has n levels rather than log n levels, and the theorem's cases do not describe it. This recurrence is recursive selection sort."},
@@ -276,7 +276,7 @@ NEW_WRITTEN = [
  "answer":"Let n = hi − lo + 1. The function makes two recursive calls, each on about n/2 items, and then a loop of n iterations. So T(n) = 2T(n/2) + n with T(1) = O(1). This is the mergesort shape: a recursion tree with n work per level and lg n + 1 levels, giving Θ(n lg n). Master form a = 2, b = 2, d = 1, log₂2 = 1 = d, case 2, Θ(n lg n). Without the for loop the work outside the calls is constant: T(n) = 2T(n/2) + 1. The tree has 2ᵏ calls at level k each costing 1, so the leaves dominate: 2^lg n = n leaves, T(n) = Θ(n). (Master form d = 0 < log₂2 = 1, case 3, Θ(n¹).) Dropping the + n term changes the answer from n lg n to n, which is why it must never be dropped by accident."},
 {"id":309,"block":"Theory","level":"Hard",
  "question":"Prove that in BFS from s, every vertex v leaves the queue with dist[v] equal to its true shortest edge count δ(v). Then explain what breaks if vertices are marked discovered on dequeue instead of on enqueue.",
- "answer":"Claim (by induction on k): the vertices with δ = k are exactly those enqueued with dist = k, and they all leave the queue before any vertex with dist = k + 1. Base k = 0: only s has δ = 0, it is enqueued with dist 0 and leaves first. Step: assume the claim for all levels ≤ k. When a level-k vertex u is dequeued, each undiscovered neighbour v is enqueued with dist k + 1. Every vertex v with δ(v) = k + 1 has a neighbour u with δ(u) = k, and it was not discovered from any level j < k, because that would give a walk of j + 1 ≤ k edges, contradicting δ(v) = k + 1. So v is enqueued with dist k + 1 by some level-k vertex, and no vertex with δ > k + 1 is enqueued at this time because it has no level-k neighbour. Since the queue is FIFO and all level-k vertices were enqueued before any level-(k+1) vertex, the level-(k+1) vertices leave in one block after them. Hence dist[v] = δ(v) when v leaves the queue, and it is never changed later. The argument uses FIFO order: a stack would let a vertex found by a long path be processed first. If marking happens on dequeue, a vertex with several level-k neighbours is enqueued once per neighbour. The first copy dequeued sets the correct distance, and later copies are ignored, so dist stays correct, but the queue may hold one entry per edge, so the running time can rise from O(n + m) to Θ(m) queue entries plus repeated neighbour scans, and the parent array becomes ambiguous."},
+ "answer":"Claim (by induction on k): the vertices with δ = k are exactly those enqueued with dist = k, and they all leave the queue before any vertex with dist = k + 1. Base k = 0: only s has δ = 0, it is enqueued with dist 0 and leaves first. Step: assume the claim for all levels ≤ k. When a level-k vertex u is dequeued, each undiscovered neighbour v is enqueued with dist k + 1. Every vertex v with δ(v) = k + 1 has a neighbour u with δ(u) = k, and it was not discovered from any level j < k, because that would give a walk of j + 1 ≤ k edges, contradicting δ(v) = k + 1. So v is enqueued with dist k + 1 by some level-k vertex, and no vertex with δ > k + 1 is enqueued at this time because it has no level-k neighbour. Since the queue is FIFO and all level-k vertices were enqueued before any level-(k+1) vertex, the level-(k+1) vertices leave in one block after them. Hence dist[v] = δ(v) when v leaves the queue, and it is never changed later. The argument uses FIFO order: a stack would let a vertex found by a long path be processed first. If marking happens on dequeue, a vertex with several level-k neighbours is enqueued once per neighbour. If the first distance and parent are retained and later duplicate dequeues are ignored, distances remain correct and time is still O(n + m), but the queue may hold Θ(m) entries instead of O(n). Expanding duplicates rescans adjacency lists; overwriting their distance or parent can also break correctness."},
 {"id":310,"block":"Theory","level":"Hard",
  "question":"State the cut property and prove it with an exchange argument. Then explain in one sentence each how Prim's and Kruskal's algorithms rely on it.",
  "answer":"Cut property: for any partition of the vertices into non-empty sets S and V∖S, if e is a minimum-weight edge with one endpoint in each set, then some minimum spanning tree contains e. Proof: let T be any MST. If e ∈ T we are done. Otherwise T + e contains exactly one cycle, the tree path between the endpoints of e plus e itself. This cycle starts in S, crosses to V∖S and returns, so besides e it contains at least one other edge f crossing the cut. T' = T − f + e is connected (the path that used f can now go around the cycle through e), has n − 1 edges, so it is a spanning tree, and w(T') = w(T) − w(f) + w(e) ≤ w(T) because w(e) ≤ w(f). Since T is minimum, w(T') = w(T), so T' is an MST containing e. Prim: at each step the cut is (tree vertices, other vertices) and Prim adds the minimum-weight crossing edge, so every chosen edge is in some MST; because the chosen edges always extend one tree, the argument can be applied with T chosen to contain all previous edges, giving one MST that contains all of them. Kruskal: when edge (u, v) is accepted, u and v are in different components; take S = the component containing u; no lighter edge crosses this cut, because all lighter edges were already considered and any crossing one would have been accepted, so (u, v) is a minimum crossing edge and is safe by the cut property."},

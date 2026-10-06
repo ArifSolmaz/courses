@@ -75,12 +75,14 @@ def crossref(text,homes,display):
   i=int(m[1])
   if i not in homes:return m[0]
   n,k=display[('ex',i)]
-  return f'<a href="../w{n}/#skiena-ex-{i:03}">Week {n}, Question {k}</a>'
+  route=f'w{n}/'+('ek-notlar/' if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else '')
+  return f'<a href="../{route}#skiena-ex-{i:03}">Week {n}, Question {k}</a>'
  text=re.sub(r'(?i)(?:written |source )?exercise (\d+)',ex,text)
  # Test 116 refers to source test 119 by its original number.
  if ('mcq',119) in display:
   n,k=display[('mcq',119)]
-  text=text.replace('question 119',f'<a href="../w{n}/#skiena-mcq-119">Week {n}, Question {k}</a>')
+  route=f'w{n}/'+('ek-notlar/' if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else '')
+  text=text.replace('question 119',f'<a href="../{route}#skiena-mcq-119">Week {n}, Question {k}</a>')
  return text
 
 def wrap_tables(html_text):
@@ -104,7 +106,7 @@ def configure():
    S.EXERCISES[item['id']]=item
  return Q
 
-def shell(B,title,body,base,assets='',sheets=('course.css?v=8',),scripts=('compact.js?v=5','course.js?v=1')):
+def shell(B,title,body,base,assets='',sheets=('course.css?v=8',),scripts=('compact.js?v=5','course.js?v=2')):
  """One page. `sheets`/`scripts` are the page's own layer (course.* for the
  lessons and reference pages, home.* for the dashboard); `assets` carries the
  per-week animation bundles, which must load before compact.js and course.js."""
@@ -113,6 +115,7 @@ def shell(B,title,body,base,assets='',sheets=('course.css?v=8',),scripts=('compa
  head=re.sub(r'<nav class="header-nav">.*?</nav>', '<button class="hlink" data-theme-toggle type="button">Light / dark</button>', head, flags=re.S)
  extra=''.join(f'<link rel="stylesheet" href="{base}assets/{s}">' for s in sheets)+assets \
       +''.join(f'<script defer src="{base}assets/{s}"></script>' for s in scripts)
+ extra+=f'<link rel="stylesheet" href="{base}assets/audit.css?v=1"><script defer src="{base}assets/audit.js?v=1"></script>'
  return head.replace('</head>',extra+'</head>')+body+B.FOOT.format(site='Algorithm Analysis',base=base)
 
 def reading_label(lectures):

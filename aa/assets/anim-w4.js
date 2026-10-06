@@ -21,7 +21,7 @@
     parent.appendChild(i);
     return i;
   }
-  function readInt(inp) { var v = parseInt(String(inp.value).replace(/[\s,_]/g, ""), 10); return isNaN(v) ? null : v; }
+  function readInt(inp) { var raw = String(inp.value).trim(), v = Number(raw); return /^[-+]?\d+(?:_\d+)*$/.test(raw) && Number.isSafeInteger(v = Number(raw.replace(/_/g,""))) ? v : null; }
   /* a row of array cells: items = [{t, cls, sub}] */
   function Cells(parent, extraCls) {
     var row = h("div", "arr" + (extraCls ? " " + extraCls : ""));
@@ -52,7 +52,7 @@
     inp.setAttribute("aria-label", "List of whole numbers, separated by commas");
     opts.appendChild(inp);
     opts.appendChild(btn("use", "", function () {
-      var v = inp.value.split(/[,\s]+/).filter(Boolean).map(function (x) { return parseInt(x, 10); });
+      var v = inp.value.split(/[,\s]+/).filter(Boolean).map(function (x) { return /^[-+]?\d+$/.test(x) ? Number(x) : NaN; });
       if (v.length < 2 || v.length > 10 || v.some(function (x) { return isNaN(x) || Math.abs(x) > 9999; })) {
         ct.msg.innerHTML = "Please type 2 to 10 whole numbers (between −9999 and 9999), separated by commas."; return;
       }

@@ -95,6 +95,9 @@ equal(A.editDistance('cat', 'cut').dist, 1);
 equal(A.editDistance('kitten', 'sitting').dist, 3);
 equal(A.editDistance('', 'abc').dist, 3); equal(A.editDistance('abc', 'abc').dist, 0);
 equal(A.editDistance('thou shalt', 'you should').dist, 5);
+equal(A.editDistance('😀a', 'a').dist, 1);
+equal(A.editDistance('😀', '').D, [[0], [1]]);
+equal(A.editDistance('a b', 'ab').dist, 1);
 equal(A.editDistance('cat', 'cut').D, [[0, 1, 2, 3], [1, 0, 1, 2], [2, 1, 1, 2], [3, 2, 2, 1]]);
 
 // 9. Kruskal on the widget's graph: MST weight 39 with 6 edges

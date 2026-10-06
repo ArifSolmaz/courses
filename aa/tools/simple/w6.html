@@ -102,7 +102,11 @@ svg text{fill:var(--mute);font-size:11px}
 @media(max-width:560px){.two{grid-template-columns:1fr}}
 .logbox{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-height:190px;overflow:auto;margin:8px 0}
 td.ok,td.bad{font-weight:700}
+
 </style>
+
+<link rel="stylesheet" href="../assets/audit.css?v=1">
+<script defer src="../assets/audit.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -114,7 +118,7 @@ td.ok,td.bad{font-weight:700}
 
 <div class="kicker">Hafta 6 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
 <h1>Öncelik kuyrukları ve öbekler (heap)</h1>
-<p class="lead">Tek fikir: <b>her seferinde “şimdi en küçük (ya da en büyük) hangisi?” sorusunu hızlı cevaplayan, ama tamamen sıralı olmak zorunda olmayan bir düzen kurabiliriz.</b> Bu düzenin adı <b>öbek</b>; bir dizinin içine saklanır, ekleme ve çıkarma <span class="en">O(log n)</span> sürer. Bu sayfa Hafta 4–5’i tekrar ederek başlar, sonra öbeği sıfırdan kurar ve heapsort’a ulaşır.</p>
+<p class="lead">Tek fikir: <b>her seferinde “şimdi en küçük (ya da en büyük) hangisi?” sorusunu hızlı cevaplayan, ama tamamen sıralı olmak zorunda olmayan bir düzen kurabiliriz.</b> Bu düzenin adı <b>öbek</b>; bir dizinin içine saklanır, ekleme ve en küçük/en büyük öğeyi çıkarma <b>en kötü durumda</b> <span class="en">O(log n)</span> sürer. Bu sayfa Hafta 4–5’i tekrar ederek başlar, sonra öbeği sıfırdan kurar ve heapsort’a ulaşır.</p>
 
 <div class="rule">
   <b class="t">Bu sayfayı nasıl kullanmalı</b>
@@ -147,14 +151,14 @@ td.ok,td.bad{font-weight:700}
 
 <div class="box">
   <b>Başlamadan önce üç cümle:</b>
-  (1) <b>Öbek sıralı bir dizi değildir.</b> Sadece “her ebeveyn çocuklarından küçük (ya da eşit)” der; bu yüzden bakımı ucuzdur. (2) Yine de <b>en küçük her zaman kökte</b>dir, aramak gerekmez. (3) n eleman için ağaç yüksekliği yalnızca <span class="en">⌊lg n⌋</span> olduğundan ekleme ve çıkarma <span class="en">O(log n)</span> sürer; 64 zamanlayıcı için bu sadece 6 düzeydir.
+  (1) <b>Öbek sıralı bir dizi değildir.</b> Sadece “her ebeveyn çocuklarından küçük (ya da eşit)” der; bu yüzden bakımı ucuzdur. (2) Yine de <b>en küçük her zaman kökte</b>dir, aramak gerekmez. (3) n eleman için ağaç yüksekliği yalnızca <span class="en">⌊lg n⌋</span> olduğundan ekleme ve çıkarma <b>en kötü durumda</b> <span class="en">O(log n)</span> sürer; 64 zamanlayıcı için bu sadece 6 düzeydir.
 </div>
 
 <!-- ================= BLOK 0 ================= -->
 <section id="s0">
 <div class="kicker">Blok 0 · Hafta 4 + 5 tekrarı</div>
 <h2><span class="num">0</span>Isınma ve tekrar <span class="time">25 dk</span></h2>
-<p>Hafta 6’nın tamamı, geçen iki haftanın üstüne kurulu. Hafta 4’te <b>dizileri, bağlı listeleri, yığın ve kuyruğu</b> öğrendik ve “hiçbir yapı her işlemde en hızlı değildir” dedik. Hafta 5’te <b>ikili arama ağaçlarını (BST) ve karma tablolarını</b> gördük. Bu hafta, tam olarak bu tablolardaki bir boşluğu dolduruyoruz: <b>“ekleme de ucuz olsun, en küçüğü bulup çıkarma da.”</b></p>
+<p>Hafta 6’nın tamamı, önceki iki haftanın üstüne kurulu. Hafta 4’te <b>dizileri, bağlı listeleri, yığın ve kuyruğu</b> öğrendik ve “hiçbir yapı her işlemde en hızlı değildir” dedik. Hafta 5’te <b>ikili arama ağaçlarını (BST) ve karma tablolarını</b> gördük. Bu hafta, tam olarak bu tablolardaki bir boşluğu dolduruyoruz: <b>“ekleme de ucuz olsun, en küçüğü bulup çıkarma da.”</b></p>
 
 <h3>0.1 Hafta 4: her veri yapısının iki yüzü, dizi ve bağlı liste</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 4</b>
@@ -165,7 +169,7 @@ Her veri yapısının iki yüzü vardır: <b>ne yapar</b> (soyut işlemler: Push
 <div class="try"><div class="lab">Kendin dene — ikiye katlanan dizi (Hafta 4)</div>
 <div class="row"><span>n = 2<sup>e</sup>, e =</span><input type="range" id="db_e" min="1" max="14" value="10"><b id="db_ev">10</b></div>
 <div class="scroll"><table><tr><th>n</th><th>yazma (n)</th><th>kopyalama</th><th>toplam</th><th>toplam / n</th></tr><tbody id="db_t"></tbody></table></div>
-<div class="mut">n = 1024 için kopyalama: 1 + 2 + 4 + … + 512 = <b>1023</b> (n−1). Toplam 2n’den az; yani bir ekleme ortalama 3 işlemden az tutar: amortize O(1). Bu <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1</b> toplamı bu hafta öbeğin yüksekliğini hesaplarken yeniden çıkacak.</div></div>
+<div class="mut">n = 1024 için kopyalama: 1 + 2 + 4 + … + 512 = <b>1023</b> (n−1). Toplam 2n’den az; yani bir ekleme bu yazma/kopyalama modelinde ortalama 2 işlemden az tutar: amortize O(1). Bu <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1</b> toplamı bu hafta öbeğin yüksekliğini hesaplarken yeniden çıkacak.</div></div>
 
 <h3>0.2 Hafta 5: sözlük yapıları ve “en küçük” sorusu</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 5</b>
@@ -187,7 +191,7 @@ Her veri yapısının iki yüzü vardır: <b>ne yapar</b> (soyut işlemler: Push
 
 <h3>0.3 Kalıcı araçlar: logaritma, Θ, toplamlar, değişmez</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 1–3</b>
-<b>lg n</b> = n’yi 1’e kadar kaç kez yarılayabileceğimiz (lg 1024 = 10, lg 64 = 6; “yukarı yuvarlanmamış” hali için ⌊lg n⌋). <b>Θ:</b> en hızlı büyüyen terim kalır, sabit atılır: 5n² + 3n = Θ(n²). <b>İç içe → çarp, arka arkaya → topla.</b> <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1.</b> <b>Döngü değişmezi:</b> her turun başında doğru olan, başlangıç + adım + bitiş ile kanıtlanan cümle. Bu hafta bubble up/down için de bir değişmez yazacağız (isteğe bağlı kutu, Blok 4).</div>
+<b>lg n</b> = n’yi 1’e kadar kaç kez yarılayabileceğimiz (lg 1024 = 10, lg 64 = 6; “yukarı yuvarlanmamış” hali için ⌊lg n⌋). <b>Θ:</b> en hızlı büyüyen terim kalır, sabit atılır: 5n² + 3n = Θ(n²). <b>İç içe → çarp, arka arkaya → topla.</b> <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1.</b> <b>Döngü değişmezi:</b> her turun başında doğru olan, başlangıç + adım + bitiş ile ispatlanan cümle. Bu hafta bubble up/down için de bir değişmez yazacağız (isteğe bağlı kutu, Blok 4).</div>
 
 <h3>Isınma quizi (Hafta 4–5 ve kalıcı araçlar)</h3>
 <div id="quiz0"></div>
@@ -201,7 +205,7 @@ Her veri yapısının iki yüzü vardır: <b>ne yapar</b> (soyut işlemler: Push
 
 <h3>1.1 Dört neden</h3>
 <div class="rule"><b class="t">Kural 1 — sıralama neden önemli</b>
-(1) Bilgisayarlar zamanlarının büyük bir kısmını sıralamaya harcar (tarihsel olarak ana bilgisayar çevrimlerinin yaklaşık dörtte biri). (2) Sıralama bilgisayar biliminde en ayrıntılı incelenmiş problemdir; birçok algoritma vardır, karşılaştırmak kolaydır. (3) Dersin büyük fikirlerinin çoğu (böl ve yönet, rastgeleleştirme, alt sınırlar) sıralama üzerinden öğretilebilir. (4) Veri sıralı olunca <b>başka birçok problem kolaylaşır</b>.</div>
+(1) Sıralama, tarihsel olarak en çok incelenen ve pek çok gerçek sistemde yoğun kullanılan temel işlemlerden biridir. (2) Sıralama bilgisayar biliminde en ayrıntılı incelenmiş problemdir; birçok algoritma vardır, karşılaştırmak kolaydır. (3) Dersin büyük fikirlerinin çoğu (böl ve yönet, rastgeleleştirme, alt sınırlar) sıralama üzerinden öğretilebilir. (4) Veri sıralı olunca <b>başka birçok problem kolaylaşır</b>.</div>
 
 <p><b>Sezgi.</b> Telefon rehberini düşünün: adlar sıralı olduğu için bir kişiyi bulmak saniyeler sürer. Rehber karışık olsaydı her aramada tüm sayfaları gezerdiniz. Sıralama, <i>bir kez</i> ödenen masraftır; sonra her arama ucuzdur.</p>
 
@@ -263,7 +267,7 @@ print(sorted(ogrenciler, key=lambda o: (-o[1], o[0])))
 <div class="rule"><b class="t">Kural 4 — veri yapısını değiştir</b>
 Toplam maliyet = n × (A’nın maliyeti + B’nin maliyeti).<br>
 <b>Dizi / sırasız liste:</b> A = O(n), B = O(1) → toplam <b>O(n²)</b> (selection sort).<br>
-<b>Öbek ya da dengeli ağaç:</b> A de B de O(log n) → toplam <b>O(n log n)</b>. Bu algoritmanın adı <b>heapsort</b>’tur.<br>
+<b>Öbek ya da dengeli ağaç:</b> Öbekte A = O(1), B = O(log n); dengeli arama ağacında her ikisi de O(log n) üst sınırına sahiptir → toplam <b>O(n log n)</b>. Öbek kullanan sürüm <b>heapsort</b>, arama ağacı kullanan sürüm ise <b>ağaç sıralaması</b>dır.<br>
 Yavaş bir algoritma gördüğünüzde sorulacak ilk soru: <b>“farklı bir veri yapısı kullanabilir miyim?”</b></div>
 
 <div class="try"><div class="lab">Kendin dene — dizi mi, sıralı liste mi, öbek mi? (ölçülen karşılaştırma sayısı)</div>
@@ -312,7 +316,7 @@ Sonuç: <b>en küçük anahtar her zaman köktedir</b> (min-öbek).</div>
 <div class="mut">Kırmızı kenar: çocuk, ebeveyninden “daha iyi” olduğu için 3. kuralı bozuyor. En fazla 15 sayı girin. Denemeler: sıralı (artan) bir dizi her zaman geçerli bir min-öbektir, ama bir min-öbek çoğu zaman sıralı değildir. Yıllar öbeği Skiena’nın slaytlarındaki örnektir.</div></div>
 
 <div class="rule skip"><b class="t">Sık yapılan hata</b>
-(1) “Öbek sıralı bir dizidir.” Hayır: [1, 3, 2, 5, 4] öbektir ama sıralı değildir. (2) “Soldaki çocuk sağdakinden küçük olmalı.” Hayır: kardeşler arasında sıra yoktur. (3) “Min-öbekte en <i>büyük</i> eleman son konumdadır.” Hayır: en büyük, <i>yapraklardan biridir</i> (herhangi biri). Örneğin [1, 3, 2, 5, 4]’te 5 son değil, 4 son.</div>
+(1) “Öbek sıralı bir dizidir.” Hayır: [1, 3, 2, 5, 4] öbektir ama sıralı değildir. (2) “Soldaki çocuk sağdakinden küçük olmalı.” Hayır: kardeşler arasında sıra yoktur. (3) “Min-öbekte en <i>büyük</i> eleman son konumdadır.” Hayır: en büyük değeri taşıyan <i>en az bir yaprak vardır</i>. Anahtarlar farklıysa en büyük yalnızca yaprakta bulunabilir; eşit anahtarlarda iç düğümlerde de bulunabilir. Örneğin [1, 3, 2, 5, 4]’te 5 son değil, 4 son.</div>
 
 <h3>3.3 Ağacı bir dizinin içinde saklamak</h3>
 <p><b>Sezgi.</b> Şekil kuralları o kadar düzenli ki ağaca işaretçi gerekmez. Düğümleri <b>düzey düzey, soldan sağa, 1’den başlayarak</b> numaralandırın (bir okul sırasına dizilir gibi): numara = dizideki konum. Çocukların ve ebeveynin yeri <i>hesaplanır</i>:</p>
@@ -442,9 +446,9 @@ print(extract_min(Q), Q[1:])     # 1 [2, 3, 4, 7]</pre>
 
 <h3>4.3 Maliyet ve tekrar</h3>
 <div class="rule"><b class="t">Kural 9 — iki işlemin maliyeti</b>
-<b>Ekleme:</b> en çok ⌊lg n⌋ takas, en çok ⌊lg n⌋ karşılaştırma → O(log n). <b>Min çıkarma:</b> en çok ⌊lg n⌋ takas, en çok 2⌊lg n⌋ karşılaştırma → O(log n). <b>Min bulma:</b> köke bak → O(1). Örnek: n = 64 zamanlayıcıda yükseklik lg 64 = 6; ekle ≈ 6, çıkar ≈ 6 takas (en kötü), yani bir zamanlayıcının tetiklenip yeniden eklenmesi ~12 adım. n = 10⁶ için ⌊lg n⌋ = 19, bu yüzden her işlem ~20 adımdır.</div>
+<b>Ekleme:</b> n mevcut eleman varsa en çok ⌊lg(n + 1)⌋ takas ve karşılaştırma → O(log n). <b>Min çıkarma:</b> en çok ⌊lg n⌋ takas, en çok 2⌊lg n⌋ karşılaştırma → O(log n). <b>Min bulma:</b> köke bak → O(1). Örnek: n = 64 zamanlayıcıda yükseklik ⌊lg 64⌋ = 6; ekleme ve çıkarma her biri en fazla 6 düzey ilerler. Çıkarma düzey başına en fazla iki, ekleme bir anahtar karşılaştırması yapar: bir çıkarma + yeniden ekleme için 18 karşılaştırma cömert bir üst sınırdır. Bu, bütün makine komutlarının sayısı veya gerçek süre değildir. n = 10⁶ için yükseklik 19’dur; O(log n) sınırı düzey sayısından gelir.</div>
 <div class="rule rev"><b class="t">Tekrar · Hafta 4–5</b>
-Hafta 4: yığın ve kuyruk, öncelik kuyruğunun özel halidir (öncelik = geliş zamanı). Hafta 5: BST’de her işlem O(h) idi, ama h = n − 1 olabiliyordu; öbekte şekil sabit olduğundan h = ⌊lg n⌋ <b>garantidir</b>. “Dengeli ağacı korumak için uğraşmak” zorunda kalmadan O(log n) elde ederiz; karşılığında yalnızca minimum/maksimum’a hızlı erişim vardır, <b>keyfi anahtarı aramak</b> yine O(n)’dir.</div>
+Hafta 4: yığın ve kuyruk, uygun bir öncelik anahtarı seçilerek öncelik kuyruğu davranışıyla ifade edilebilir: FIFO için daha erken geliş daha yüksek öncelik, LIFO için daha geç geliş daha yüksek önceliktir. Hafta 5: BST’de her işlem O(h) idi, ama h = n − 1 olabiliyordu; öbekte şekil sabit olduğundan h = ⌊lg n⌋ <b>garantidir</b>. “Dengeli ağacı korumak için uğraşmak” zorunda kalmadan O(log n) elde ederiz; karşılığında yalnızca minimum/maksimum’a hızlı erişim vardır, <b>keyfi anahtarı aramak</b> yine O(n)’dir.</div>
 
 <div class="try"><div class="lab">Kendin dene — hata avı</div>
 <div class="row"><span>Öbek</span><input type="text" id="eh_in" value="4, 5, 3, 10, 8, 7" style="flex:1;min-width:180px"></div>
@@ -463,7 +467,7 @@ Hafta 4: yığın ve kuyruk, öncelik kuyruğunun özel halidir (öncelik = geli
 <h3>5.2 Daha hızlı yol: aşağıdan yukarı öbekleştirme (heapify)</h3>
 <p><b>Sezgi.</b> İki küçük öbek ve yeni bir eleman şunu verir: yeni elemanı <b>kök</b> yapın (iki öbeğin üstüne koyun), sonra onu <b>aşağı taşıyın</b>; tek büyük bir öbek olur. Üstelik <b>yapraklar zaten tek elemanlı öbeklerdir</b>, onlarla uğraşmaya gerek yok. O hâlde diziyi olduğu gibi (herhangi sırada) alın ve <b>aşağıdan yukarı</b> her iç düğümde aşağı taşıma uygulayın.</p>
 <div class="rule"><b class="t">Kural 10 — heapify (build-heap)</b>
-Elemanları diziye <b>herhangi bir sırayla</b> koyun; sonra <code>bubble_down</code>’ı <b>n/2, n/2 − 1, …, 2, 1</b> konumlarında (bu sırayla, geriye doğru) çağırın. n/2’den büyük konumlar yapraktır. İş bitince dizi geçerli bir öbektir. Maliyet <b>O(n)</b>.</div>
+Elemanları diziye <b>herhangi bir sırayla</b> koyun; sonra <code>bubble_down</code>’ı <b>⌊n/2⌋, ⌊n/2⌋ − 1, …, 2, 1</b> konumlarında (bu sırayla, geriye doğru) çağırın. n/2’den büyük konumlar yapraktır. İş bitince dizi geçerli bir öbektir. Maliyet <b>O(n)</b>.</div>
 <pre>def heapify(Q, n):               # Q[1..n], rastgele sırada
     for p in range(n // 2, 0, -1):    # n//2, ..., 1
         bubble_down(Q, p, n)
@@ -483,7 +487,7 @@ print(Q[1:])      # [1, 3, 2, 4, 9, 8, 7]</pre>
 <p><b>Sezgi.</b> “n/2 çağrı, her biri en çok lg n” demek O(n log n) verir; bu <b>doğru ama cömert bir üst sınırdır</b>. Gerçekte bir <code>bubble_down</code>’ın maliyeti lg n değil, <b>düğümün yüksekliği</b>dir (aşağıda en fazla o kadar düzey var). Düğümlerin yarısı yapraktır (yükseklik 0, maliyet 0), dörtte biri yükseklik 1, sekizde biri yükseklik 2… Çok az düğüm yüksektir.</p>
 <p><b>Sayısal örnek (n = 15, tam dolu).</b> Yükseklik 0: 8 düğüm × 0 = 0. Yükseklik 1: 4 düğüm × 1 = 4. Yükseklik 2: 2 düğüm × 2 = 4. Yükseklik 3: 1 düğüm × 3 = 3. Toplam en çok <b>11 takas</b>. Cömert sınır ise 7 çağrı × 3 = 21. n = 1023 için gerçek toplam 1013, cömert sınır 511 × 9 = 4599.</p>
 <div class="rule"><b class="t">Kural 11 — heapify neden O(n)</b>
-Yüksekliği h olan en çok <b>⌈n / 2<sup>h+1</sup>⌉</b> düğüm vardır ve her birinin aşağı taşıma maliyeti O(h)’dir. Toplam: <b>n · Σ<sub>h≥0</sub> h / 2<sup>h</sup></b> = n · 2 (seri 2’ye yakınsar). Yani en çok yaklaşık <b>2n karşılaştırma</b>: doğrusal zaman. <b>Genel ders (Skiena):</b> “her biri en çok y sürede en çok x işlem” = O(xy), her zaman doğrudur ama bazen büyük bir fazla tahmindir. Analiz sıkı mı diye sorun: burada özensiz sınır O(n log n), dikkatli sınır O(n).</div>
+Yüksekliği h olan düğüm sayısı yaklaşık n / 2<sup>h+1</sup> ile sınırlıdır ve her biri en çok h düzey aşağı iner. Bu nedenle toplam <b>düzey hareketi</b> yaklaşık <b>n · Σ<sub>h≥0</sub> h / 2<sup>h+1</sup> = n</b> ile sınırlıdır. Aşağı taşımanın her düzeyinde en fazla iki anahtar karşılaştırması yapıldığından toplam karşılaştırma sayısı da yaklaşık <b>2n</b> ile sınırlanır. Sonuç: doğrusal zaman, <b>O(n)</b>. <b>Genel ders (Skiena):</b> “her biri en çok y sürede en çok x işlem” = O(xy), her zaman doğrudur ama bazen büyük bir fazla tahmindir. Analiz sıkı mı diye sorun: burada özensiz sınır O(n log n), dikkatli sınır O(n).</div>
 
 <div class="try"><div class="lab">Kendin dene — n büyüdükçe: ekleyerek kurma ile heapify (ölçülen karşılaştırma sayısı)</div>
 <div class="row"><button class="btn g" id="hc_r">Yeni rastgele girdi</button><span class="mut">n = 2<sup>k</sup> − 1 (tam dolu öbek)</span></div>
@@ -502,7 +506,7 @@ Geometrik seri Σ x<sup>k</sup> = 1/(1 − x) için iki tarafın türevi: Σ k x
     for i from 1 to n:
         s[i] = extract_min(heap)   # n kez O(log n)</pre>
 <div class="rule"><b class="t">Kural 12 — heapsort maliyeti</b>
-Kurma O(n) + n çıkarma × O(log n) = <b>O(n log n)</b>, en kötü durumda da. <b>O(n) olamaz</b>: n minimumu sırayla çıkarmak zaten sıralamadır ve Ders 9, karşılaştırmaya dayalı sıralamanın Ω(n log n) karşılaştırma gerektirdiğini gösterir.<br>
+Kurma O(n) + n çıkarma × O(log n) = <b>O(n log n)</b>, en kötü durumda da. <b>O(n) olamaz</b>: n minimumu sırayla çıkarmak zaten sıralamadır ve Hafta 7’de göreceğimiz karar-ağacı alt sınırı, karşılaştırmaya dayalı sıralamanın Ω(n log n) karşılaştırma gerektirdiğini gösterir.<br>
 <b>Yerinde (in-place) sürüm:</b> <b>maks-öbek</b> kurun (kök = en büyük). Kökü, aktif öbeğin <b>son konumuyla takas edin</b>: o konum artık kesinlikle son (sıralı) değerini taşır. Aktif öbeği bir kısaltın, yeni kökü aşağı taşıyın. Tekrarlayın: sıralı kısım dizinin sonundan büyür, ikinci bir diziye gerek kalmaz (aşağıdaki kod girdi listesini doğrudan değiştirir; ek bellek O(1)). Girdiyi korumak istenirse önce <code>s[:]</code> ile kopyalamak gerekir; o durumda Θ(n) ek bellek kullanılır, ama bu algoritmanın değil, kopyalamanın bedelidir.</div>
 <pre>def heapsort(s):                  # artan sıralar; doğrudan s üzerinde, yerinde (maks-öbek), O(1) ek bellek
     n = len(s)
@@ -554,7 +558,7 @@ print(a)     # [1, 2, 3, 4, 5]</pre>
 <tr><td>Sıralı bağlı liste</td><td>O(1) (baş)</td><td>O(n): ≤ 64 yürüyüş</td><td>≈ 1 + 64</td></tr>
 <tr><td>Min-öbek (vakte göre)</td><td>O(1) (kök)</td><td>O(log n): lg 64 = 6</td><td>≈ 6 + 6 = 12 (en kötü)</td></tr>
 </table></div>
-<div class="mut">Öbeğin kazancı n büyüdükçe artar ve <b>tik başına en kötü süre küçük ve öngörülebilirdir</b>: sınırlı bir tik içinde bitmesi gereken bir zamanlayıcı için önemlidir. <b>Öbeğin vermediği garanti:</b> aynı vakte sahip iki zamanlayıcı <i>herhangi bir sırada</i> çıkabilir. FIFO sırası gerekiyorsa anahtara bir <b>sıra numarası</b> ekleyin: (vakit, sıra).</div>
+<div class="mut">Öbeğin kazancı n büyüdükçe artar ve <b>bir olay başına öbek işlemlerinin en kötü adım sayısı O(log n) ile sınırlıdır</b>: süre planlamasında yararlıdır. Bir tikte q olay tetiklenirse O(q log n) öbek işi gerekir; gerçek son tarihin karşılandığı ayrıca donanım ve diğer görevler üzerinde ölçülmelidir. <b>Öbeğin vermediği garanti:</b> aynı vakte sahip iki zamanlayıcı <i>herhangi bir sırada</i> çıkabilir. FIFO sırası gerekiyorsa anahtara bir <b>sıra numarası</b> ekleyin: (vakit, sıra).</div>
 
 <div class="try"><div class="lab">Kendin dene — RTOS zamanlayıcı simülatörü (min-öbek, anahtar = vakit)</div>
 <div class="row"><span>Başlangıç: A5, B9, C7, D12, E10 (ad + vakit = periyot).</span></div>
@@ -617,13 +621,13 @@ Aşağıdaki iki araç, öbeği başka problemlerde kullanma örnekleridir (orij
 <details><summary>A8 (orta). [9, 4, 7, 1, 3, 8, 2]’yi doğrusal zamanlı heapify ile min-öbeğe çevirin; her konumdan sonraki diziyi yazın.</summary>
 <p>Konum 3: 7’nin çocukları 8, 2 → 2 ile takas: [9, 4, 2, 1, 3, 8, 7]. Konum 2: 4’ün çocukları 1, 3 → 1 ile takas: [9, 1, 2, 4, 3, 8, 7]. Konum 1: 9’un çocukları 1, 2 → 1 ile takas: [1, 9, 2, 4, 3, 8, 7]; konum 2’deki 9’un çocukları 4, 3 → 3 ile takas: <b>[1, 3, 2, 4, 9, 8, 7]</b>. Her ebeveyn çocuklarından küçük ya da eşit.</p></details>
 <details><summary>A9 (orta). Her bubble_down O(log n) olabilir ve heapify bunu n/2 kez çağırır. Neden heapify O(n log n) değil de O(n)?</summary>
-<p>Bir bubble_down’ın maliyeti <b>düğümün yüksekliğidir</b>, lg n değil. Düğümlerin yarısı yapraktır (yükseklik 0, maliyet 0), dörtte biri yükseklik 1, sekizde biri yükseklik 2… Toplam n · Σ h/2<sup>h+1</sup> ve Σ h/2<sup>h</sup> 2’ye yakınsar; toplam en çok yaklaşık 2n.</p></details>
+<p>Bir bubble_down’ın maliyeti <b>düğümün yüksekliğidir</b>, lg n değil. Düğümlerin yarısı yapraktır (yükseklik 0, maliyet 0), dörtte biri yükseklik 1, sekizde biri yükseklik 2… Yüksekliği en az h olan düğüm sayısı ⌊n/2<sup>h</sup>⌋’dir. Toplam yükseklik Σ<sub>h≥1</sub> ⌊n/2<sup>h</sup>⌋ &lt; n; her düzeyde en fazla iki anahtar karşılaştırması olduğundan toplam karşılaştırma 2n’den azdır.</p></details>
 <details><summary>A10 (orta). n sayının k’ncı en küçüğünü bulmanın biri sıralamaya, biri öbeğe dayanan iki yolunu ve maliyetlerini yazın.</summary>
 <p>Sırala ve k. konuma bak: O(n log n). Ya da O(n)’de min-öbek kur ve k kez minimum çıkar: <b>O(n + k log n)</b>; k küçükken daha iyidir.</p></details>
 <details><summary>A11 (orta). Heapsort bir diziyi ikinci bir dizi olmadan nasıl artan sıraya sokar?</summary>
 <p>Dizinin içinde <b>maks-öbek</b> kurulur. En büyük öğe konum 1’dedir; son aktif konumla takas edilir (o konum artık nihai değerini taşır), aktif öbek bir kısaltılır, yeni kök aşağı taşınır. Bu tekrarlanır; sıralı kısım diziyi sondan doldurur.</p></details>
 <details><summary>A12 (orta). Bir RTOS’ta 64 periyodik zamanlayıcı var; her 1 ms tikte vakti gelen zamanlayıcı çıkarılıp bir sonraki vaktiyle yeniden ekleniyor. Sırasız dizi, sıralı bağlı liste ve min-öbeği karşılaştırın: min bul ve ekle maliyetleri, tikte bir zamanlayıcı tetiklenince iş, ve öbeğin vermediği bir garanti.</summary>
-<p><b>Sırasız dizi:</b> ekle O(1), min bul O(n) → tikte ≈ 64 + 1. <b>Sıralı liste:</b> min bul O(1), ama yeniden ekleme listeyi yürür O(n) → ≈ 1 + 64. <b>Min-öbek:</b> min bul O(1), min çıkar ve ekle O(log n): lg 64 = 6 düzey → ≈ 6 + 6 = 12. Öbek n büyüdükçe kazanır ve tik başına en kötü süre küçük ve öngörülebilirdir. Vermediği garanti: aynı vakitli iki zamanlayıcı herhangi bir sırada çıkabilir; FIFO gerekiyorsa anahtara sıra numarası ekleyin.</p></details>
+<p><b>Sırasız dizi:</b> ekle O(1), min bul O(n) → tikte ≈ 64 + 1. <b>Sıralı liste:</b> min bul O(1), ama yeniden ekleme listeyi yürür O(n) → ≈ 1 + 64. <b>Min-öbek:</b> min bul O(1), min çıkar ve ekle O(log n): lg 64 = 6: çıkarma + ekleme en çok yaklaşık 12 düzey, bu kodda en çok 18 anahtar karşılaştırmasıyla sınırlıdır (makine komutları ayrıca sayılır). Öbek n büyüdükçe kazanır ve bir olay başına öbek işlemlerinin en kötü adım sayısı O(log n) ile sınırlıdır. Vermediği garanti: aynı vakitli iki zamanlayıcı herhangi bir sırada çıkabilir; FIFO gerekiyorsa anahtara sıra numarası ekleyin.</p></details>
 <details><summary>A13 (zor, isteğe bağlı). Sayılar tek tek geliyor. Her gelişten sonra o ana kadarki medyanı O(log n)’de veren bir yapı tasarlayın.</summary>
 <p><b>İki öbek:</b> küçük yarı için maks-öbek, büyük yarı için min-öbek; boyutları en çok 1 farklı. Yeni sayıyı uygun öbeğe ekleyin (alt öbeğin kökünden küçük-eşitse alta, değilse üste); boyut dengesi bozulursa bir kökü karşı öbeğe taşıyın. Her alt değer her üst değerden ≤ olmalıdır. Medyan: tek sayıda büyük öbeğin kökü; çift sayıda iki kökün ortalaması. Her adımda sabit sayıda O(log n) öbek işlemi. (Yukarıdaki araç bunu çalıştırır.)</p></details>
 <details><summary>A14 (zor, isteğe bağlı). Toplam n elemanlı k sıralı listeyi (2 ≤ k ≤ n) O(n log k)’de birleştirin.</summary>
@@ -631,7 +635,7 @@ Aşağıdaki iki araç, öbeği başka problemlerde kullanma örnekleridir (orij
 <details><summary>A15 (zor, isteğe bağlı). En küçüğü en büyükle, ikinci en küçüğü ikinci en büyükle… eşleştirmenin en büyük çift toplamını en aza indirdiğini ispatlayın.</summary>
 <p><b>Değiş-tokuş argümanı.</b> Sıralı a₁ ≤ … ≤ a₂ₙ olsun. İyi bir eşleştirmede a₁ bir x ile, a₂ₙ bir y ile eşleşmiş olsun (x ≠ a₂ₙ). Yeni çiftler (a₁, a₂ₙ) ve (x, y) olsun. a₁ ≤ y olduğundan a₁ + a₂ₙ ≤ y + a₂ₙ; x ≤ a₂ₙ olduğundan x + y ≤ a₂ₙ + y. İkisi de eski toplam a₂ₙ + y’den büyük değil, yani maksimum artmaz. Kalan sayılar için aynı argümanı tekrar edin; tümevarımla sıralı eşleştirme optimaldir.</p></details>
 <details><summary>A16 (orta, bağlantı). Öbekte keyfi bir x anahtarını aramak neden O(n)’dir? Hafta 5’teki hangi yapıyla fark nedir?</summary>
-<p>Öbek yalnızca ebeveyn–çocuk ilişkisini sıralar; kardeşler ve farklı dallar arasında sıra yoktur. x’in hangi dalda olduğunu söyleyemeyiz; en kötü durumda tüm düğümlere bakılır: O(n). BST’de “küçükse sola, büyükse sağa” kuralı her adımda yarısını eler (dengeliyse O(log n)); karma tablosu da ortalama O(1) ile arar. Öbek yalnızca <b>min/maks</b>’a hızlı erişim için tasarlanmıştır.</p></details>
+<p>Öbek yalnızca ebeveyn–çocuk ilişkisini sıralar; kardeşler ve farklı dallar arasında sıra yoktur. x’in hangi dalda olduğunu söyleyemeyiz; en kötü durumda tüm düğümlere bakılır: O(n). BST’de “küçükse sola, büyükse sağa” kuralı her adımda bir alt ağacı eler; dengeli ağaçta yükseklik O(log n), dengesiz ağaçta O(n) olabilir; karma tablosu da ortalama O(1) ile arar. Öbek yalnızca <b>min/maks</b>’a hızlı erişim için tasarlanmıştır.</p></details>
 
 <div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A13, A14 ve A15 isteğe bağlıdır (orijinalde “zor”). Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w6">kapsam listesine</a> bakın.</div>
 </section>
@@ -648,13 +652,13 @@ Aşağıdaki iki araç, öbeği başka problemlerde kullanma örnekleridir (orij
 <li><b>Dizide saklama (konum 1’den):</b> sol çocuk 2k, sağ çocuk 2k + 1, ebeveyn ⌊k/2⌋. Yükseklik ⌊lg n⌋.</li>
 <li><b>Ekle:</b> sona yaz, ebeveynden küçükse takas, yukarı çık (bubble up). O(log n).</li>
 <li><b>Min çıkar:</b> kökü al, son elemanı köke koy, <b>küçük çocukla</b> takas ederek in (bubble down). O(log n).</li>
-<li><b>Heapify:</b> n/2, …, 1 konumlarında bubble down. O(n), çünkü bir bubble down’ın maliyeti düğüm yüksekliğidir ve çoğu düğüm yapraktır. n kez ekleme ise Θ(n log n) (en kötü).</li>
+<li><b>Heapify:</b> ⌊n/2⌋, …, 1 konumlarında bubble down. O(n), çünkü bir bubble down’ın maliyeti düğüm yüksekliğidir ve çoğu düğüm yapraktır. n kez ekleme ise Θ(n log n) (en kötü durumda).</li>
 <li><b>Heapsort:</b> O(n) kurma + n × O(log n) = O(n log n). Yerinde sürüm maks-öbek kullanır; kök sona takas edilir.</li>
 </ol></div>
 
 <div class="box"><b>Hafta 4–5’ten hatırlanacaklar</b>
 <ul>
-<li>Yığın LIFO, kuyruk FIFO; ikisi de önceliğin “geliş zamanı” olduğu öncelik kuyruğudur.</li>
+<li>Yığın LIFO, kuyruk FIFO’dur. İkisi de uygun bir öncelik anahtarıyla öncelik kuyruğu davranışı olarak modellenebilir: FIFO’da eski geliş, LIFO’da yeni geliş önce çıkar.</li>
 <li>Dizi: indeksle O(1); başa ekleme Θ(n). İkiye katlanan dizide n ekleme toplam &lt; 3n işlem (amortize O(1)).</li>
 <li>BST: O(h); dengesizse h = n − 1. Karma tablosu: ortalama O(1) arama, ama min için Θ(n + m).</li>
 <li>Öbek: dengeli BST’ye göre çok basit; ama keyfi anahtarı aramak O(n).</li>
@@ -920,7 +924,7 @@ function ixUpdate(){const n=+$("#ix_n").value;$("#ix_k").max=n;let k=+$("#ix_k")
   const lab=Array.from({length:n},(_,i)=>i+1),ch=[2*k,2*k+1].filter(c=>c<=n);
   drawTree($("#ix_svg"),{lab,n,hl:{cmp:[k],sw:k>1?[k>>1]:[],done:ch}});
   const path=[];for(let p=k;p>=1;p>>=1)path.push(p);const i=k-1;
-  $("#ix_out").innerHTML=`<b>k = ${k}</b> (n = ${n}) · ebeveyn ⌊${k}/2⌋ = <b>${k>1?k>>1:"yok (kök)"}</b> · sol çocuk 2·${k} = <b>${2*k}</b>${2*k<=n?"":" (yok, n’den büyük)"} · sağ çocuk 2·${k}+1 = <b>${2*k+1}</b>${2*k+1<=n?"":" (yok, n’den büyük)"} · düzey ⌊lg ${k}⌋ = <b>${Math.floor(lg(k))}</b><br>Kökten yol: ${path.join(" → ")} (${path.length-1} adım = ⌊lg ${k}⌋).<br><span class="mut">Python (0 tabanlı) indeks i = k − 1 = ${i}: ebeveyn ${i>0?"(i−1)//2 = "+((i-1)>>1):"yok"}, çocuklar 2i+1 = ${2*i+1}, 2i+2 = ${2*i+2}. (Aynı düğümler: konum ${i>0?((i-1)>>1)+1:"–"}, ${2*i+2}, ${2*i+3}.)</span>`}
+  $("#ix_out").innerHTML=`<b>k = ${k}</b> (n = ${n}) · ebeveyn ⌊${k}/2⌋ = <b>${k>1?k>>1:"yok (kök)"}</b> · sol çocuk 2·${k} = <b>${2*k}</b>${2*k<=n?"":" (yok, n’den büyük)"} · sağ çocuk 2·${k}+1 = <b>${2*k+1}</b>${2*k+1<=n?"":" (yok, n’den büyük)"} · düzey ⌊lg ${k}⌋ = <b>${Math.floor(lg(k))}</b><br>Kökten yol: ${path.reverse().join(" → ")} (${path.length-1} adım = ⌊lg ${k}⌋).<br><span class="mut">Python (0 tabanlı) indeks i = k − 1 = ${i}: ebeveyn ${i>0?"(i−1)//2 = "+((i-1)>>1):"yok"}, çocuklar 2i+1 = ${2*i+1}, 2i+2 = ${2*i+2}. (Aynı düğümler: konum ${i>0?((i-1)>>1)+1:"–"}, ${2*i+2}, ${2*i+3}.)</span>`}
 $("#ix_n").oninput=ixUpdate;$("#ix_k").oninput=ixUpdate;ixUpdate();
 
 /* ---------- 3.4 yükseklik ---------- */
@@ -968,13 +972,14 @@ $("#sh_r").onclick=()=>{shSeed++;shUpdate()};shUpdate();
 /* ---------- 5.5 k'ncı en küçük ---------- */
 function kkUpdate(){const a=parseNums($("#kk_in").value,200),k=+$("#kk_k").value,o=$("#kk_out");
   if(typeof a==="string"){o.innerHTML=`<span class="bad">${a}</span>`;return}
-  if(!(k>=1&&k<=a.length)){o.textContent=`k, 1 ile ${a.length} arasında olmalı.`;return}
+  if(!(Number.isInteger(k)&&k>=1&&k<=a.length)){o.textContent=`k, 1 ile ${a.length} arasında bir tam sayı olmalı.`;return}
   const hp=leanHeapify(a,false),h=[0,...hp.h],B=bef(false),t={c:0,s:0};let x;for(let i=0;i<k;i++)x=leanExtract(h,B,t);
   const sx=a.slice().sort((p,q)=>p-q)[k-1];
   o.innerHTML=`Öbekle: ${k}. en küçük = <b>${x}</b> (kurma ${hp.c} + ${k} çıkarma ${t.c} = ${hp.c+t.c} karşılaştırma). Sıralayıp okuyarak: <b>${sx}</b> <span class="${x===sx?"ok":"bad"}">${x===sx?"✓ aynı":"✗ farklı"}</span>.`}
 $("#kk_in").oninput=kkUpdate;$("#kk_k").oninput=kkUpdate;kkUpdate();
 
 /* ---------- öncelik kuyruğu sınıfı ---------- */
+const escapeName=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 class PQ{constructor(lt){this.h=[null];this.lt=lt;this.c=0}
   get n(){return this.h.length-1}
   push(x){const h=this.h;h.push(x);let k=this.n;while(k>1){this.c++;const p=k>>1;if(this.lt(h[k],h[p])){const y=h[k];h[k]=h[p];h[p]=y;k=p}else break}}
@@ -995,7 +1000,7 @@ function tmTick(){const x=TM.pq.pop();if(!x)return;TM.now=x.due;x.due+=x.per;x.s
   TM.log.push(`t = ${TM.now}: <b>${x.nm}</b> tetiklendi → yeni vakit ${x.due}`);TM.pq.push(x)}
 $("#tm_tick").onclick=()=>{tmTick();tmShow()};$("#tm_10").onclick=()=>{for(let i=0;i<10;i++)tmTick();tmShow()};
 $("#tm_rst").onclick=tmInit;$("#tm_seq").onchange=tmInit;
-$("#tm_add").onclick=()=>{const nm=($("#tm_nm").value||"?").slice(0,3),d=+$("#tm_due").value;if(!isFinite(d)||TM.pq.n>=15)return;if(d<TM.now){TM.log.push(`t = ${TM.now}: <b>${nm}</b> reddedildi (vakit ${d} geçmişte; saat geri gitmez)`);tmShow();return}TM.pq.push({nm,due:d,per:Math.max(1,d-TM.now),seq:TM.seq++});TM.log.push(`t = ${TM.now}: <b>${nm}</b> eklendi (vakit ${d})`);tmShow()};
+$("#tm_add").onclick=()=>{const nm=escapeName(($("#tm_nm").value||"?").slice(0,3)),d=+$("#tm_due").value;if(!isFinite(d)||TM.pq.n>=15)return;if(d<TM.now){TM.log.push(`t = ${TM.now}: <b>${nm}</b> reddedildi (vakit ${d} geçmişte; saat geri gitmez)`);tmShow();return}TM.pq.push({nm,due:d,per:Math.max(1,d-TM.now),seq:TM.seq++});TM.log.push(`t = ${TM.now}: <b>${nm}</b> eklendi (vakit ${d})`);tmShow()};
 tmInit();
 
 /* ---------- 6 görev kuyruğu ---------- */
@@ -1008,15 +1013,16 @@ function tqShow(){const h=TQ.pq.h.slice(1),lab=h.map(x=>[x.nm,x.pr]);drawTree($(
 function tqRun(){const x=TQ.pq.pop();if(x)TQ.log.push(`Çalıştı: <b>${x.nm}</b> (öncelik ${x.pr}, geliş #${x.seq})`)}
 $("#tq_run").onclick=()=>{tqRun();tqShow()};$("#tq_all").onclick=()=>{while(TQ.pq.n)tqRun();tqShow()};
 $("#tq_rst").onclick=tqInit;$("#tq_seq").onchange=tqInit;
-$("#tq_add").onclick=()=>{const nm=($("#tq_nm").value||"?").slice(0,3),pr=Math.max(1,Math.min(10,Math.round(+$("#tq_pr").value||1)));if(TQ.pq.n>=15)return;TQ.pq.push({nm,pr,seq:TQ.seq++});TQ.log.push(`Geldi: <b>${nm}</b> (öncelik ${pr})`);tqShow()};
+$("#tq_add").onclick=()=>{const nm=escapeName(($("#tq_nm").value||"?").slice(0,3)),pr=Math.max(1,Math.min(10,Math.round(+$("#tq_pr").value||1)));if(TQ.pq.n>=15)return;TQ.pq.push({nm,pr,seq:TQ.seq++});TQ.log.push(`Geldi: <b>${nm}</b> (öncelik ${pr})`);tqShow()};
 tqInit();
 
 /* ---------- 6 medyan ---------- */
+const finiteMean=(a,b)=>{const sum=a+b;return Number.isFinite(sum)?sum/2:a/2+b/2};
 function mdRun(){const a=parseNums($("#md_in").value,30),tb=$("#md_t");if(typeof a==="string"){tb.innerHTML=`<tr><td colspan="5" class="bad">${a}</td></tr>`;return}
   const lo=new PQ((x,y)=>x>y),hi=new PQ((x,y)=>x<y),seen=[];let rows="";
   for(const x of a){if(!lo.n||x<=lo.h[1])lo.push(x);else hi.push(x);
     if(lo.n>hi.n+1)hi.push(lo.pop());else if(hi.n>lo.n)lo.push(hi.pop());
-    const med=lo.n>hi.n?lo.h[1]:(lo.h[1]+hi.h[1])/2;seen.push(x);const s=seen.slice().sort((p,q)=>p-q),m=s.length;const ref=m%2?s[(m-1)/2]:(s[m/2-1]+s[m/2])/2;
+    const med=lo.n>hi.n?lo.h[1]:finiteMean(lo.h[1],hi.h[1]);seen.push(x);const s=seen.slice().sort((p,q)=>p-q),m=s.length;const ref=m%2?s[(m-1)/2]:finiteMean(s[m/2-1],s[m/2]);
     rows+=`<tr><td class="m">${x}</td><td class="m">${jn(lo.h.slice(1))}</td><td class="m">${jn(hi.h.slice(1))}</td><td class="m"><b>${med}</b></td><td class="${med===ref?"ok":"bad"}">${med===ref?"✓":"✗ "+ref}</td></tr>`}
   tb.innerHTML=rows}
 $("#md_go").onclick=mdRun;mdRun();
@@ -1082,6 +1088,12 @@ mkQuiz("#quiz1",[
 ]);
 </script>
 <script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+
+
+
+
+
 <!--AA-SIDEBAR-->
 <style>
 html{scroll-behavior:smooth}
@@ -1103,7 +1115,7 @@ html{scroll-behavior:smooth}
 #aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
 #aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
 #aa-sb .sub.open{display:block}
-#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a{display:block;font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
 #aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
 #aa-fab{position:fixed;left:12px;bottom:12px;z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
@@ -1147,11 +1159,12 @@ body.aa-open #aa-back{display:block}
     });
     sb.innerHTML=html;
     var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
-    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.setAttribute("aria-controls","aa-sb");fab.setAttribute("aria-expanded","false");fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
     var back=document.createElement("div");back.id="aa-back";
     document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
     document.body.classList.add("aa-has-sb");
-    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    function toggle(on){document.body.classList.toggle("aa-open",on);fab.setAttribute("aria-expanded",String(on));sb.inert=window.innerWidth<1200&&!on;}
+    sb.inert=window.innerWidth<1200;window.addEventListener("resize",function(){sb.inert=window.innerWidth<1200&&!document.body.classList.contains("aa-open")});
     fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
     back.onclick=function(){toggle(false)};
     document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});

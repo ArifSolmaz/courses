@@ -116,7 +116,11 @@ textarea{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
 .bar2.w{background:var(--warn)}
 .kpi{display:inline-block;margin:4px 8px 4px 0;padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font:600 15px ui-monospace,Menlo,Consolas,monospace}
 @media(max-width:480px){body{font-size:16px}h2{font-size:24px}.box,.rule,.try{padding:13px 13px}}
+
 </style>
+
+<link rel="stylesheet" href="../assets/audit.css?v=1">
+<script defer src="../assets/audit.js?v=1"></script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -160,20 +164,20 @@ textarea{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
 
 <div class="box">
   <b>Başlamadan önce üç cümle:</b>
-  (1) <b>Ağırlıklı çizgede yol uzunluğu = kenar ağırlıklarının toplamıdır</b> (kenar sayısı değil). (2) <b>Gevşetme</b> = “u üzerinden gitmek v’ye daha ucuz mu?” diye sormak. (3) Dijkstra <b>negatif olmayan</b> ağırlık ister; negatif kenar varsa Bellman–Ford, DAG ise topolojik sırada gevşetme, tüm çiftler için Floyd.
+  (1) <b>Ağırlıklı çizgede yol uzunluğu = kenar ağırlıklarının toplamıdır</b> (kenar sayısı değil). (2) <b>Gevşetme</b> = “u üzerinden gitmek v’ye daha ucuz mu?” diye sormak. (3) <b>Dijkstra</b> negatif olmayan kenar ağırlıkları ister. Genel bir çizgede negatif kenarlar varsa ve kaynaktan erişilebilen negatif döngü yoksa <b>Bellman–Ford</b> kullanılır. Çizge bir <b>DAG</b> ise negatif kenarlar olsa bile topolojik sırada gevşetme yeterlidir. Tüm tepe çiftleri için <b>Floyd–Warshall</b> negatif kenarlarla çalışabilir; negatif döngü varsa bunu köşegenden tespit eder ve ilgili sonlu en kısa yol değerleri iyi tanımlı değildir.
 </div>
 
 <!-- ================= BLOK 0 ================= -->
 <section id="s0">
 <div class="kicker">Blok 0 · Hafta 9 + 10 tekrarı</div>
 <h2><span class="num">0</span>Isınma ve tekrar <span class="time">20 dk</span></h2>
-<p>Bugünkü konu iki geçen haftanın üstüne kurulu: <b>DFS ve topolojik sıra</b> (Hafta 9) DAG’da en kısa yolun anahtarıdır; <b>MST, Prim ve union-find</b> (Hafta 10) ise Dijkstra’nın “kuzenleridir”. Önce ikisini hızlıca tazeleyelim.</p>
+<p>Bugünkü konu önceki iki haftanın üstüne kurulu: <b>DFS ve topolojik sıra</b> (Hafta 9) DAG’da en kısa yolun anahtarıdır; <b>MST, Prim ve union-find</b> (Hafta 10) ise Dijkstra’nın “kuzenleridir”. Önce ikisini hızlıca tazeleyelim.</p>
 
 <h3>0.1 Hafta 9: DFS, geri kenar, topolojik sıra</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 9</b>
 <b>DFS</b> bir dalı sonuna kadar gezer, sonra geri döner. Yönlü çizgede kenarlar <b>ağaç (tree), geri (back), ileri (forward), çapraz (cross)</b> diye ayrılır. <b>Geri kenar</b>, hâlâ yığında olan (bitmemiş) bir atasına dönen kenardır ve <b>döngü</b> demektir.<br>
-<b>Topolojik sıra</b> (topological order): her kenar u→v için u’nun v’den önce geldiği dizilim. <b>Yalnızca DAG’larda</b> (yönlü, döngüsüz çizge) vardır. İki yol: (a) DFS bitiş zamanlarının tersi, (b) <b>giriş derecesi (in-degree) 0 olan köşeyi sürekli çıkar</b> (Kahn).<br>
-Neden önemli: bugün DAG’da en kısa yolu bulurken köşeleri <b>tam bu sırayla</b> işleyeceğiz.</div>
+<b>Topolojik sıra</b> (topological order): her kenar u→v için u’nun v’den önce geldiği dizilim. <b>Yalnızca DAG’larda</b> (yönlü, döngüsüz çizge) vardır. İki yol: (a) DFS bitiş zamanlarının tersi, (b) <b>giriş derecesi (in-degree) 0 olan tepeyi sürekli çıkar</b> (Kahn).<br>
+Neden önemli: bugün DAG’da en kısa yolu bulurken tepeleri <b>tam bu sırayla</b> işleyeceğiz.</div>
 
 <div class="try"><div class="lab">Kendin dene — topolojik sıra denetleyicisi (Hafta 9 mini-problemi)</div>
 <div class="row"><span class="mut">Kenarlar: A→C, B→C, C→D, D→E, C→E</span>
@@ -184,8 +188,8 @@ Neden önemli: bugün DAG’da en kısa yolu bulurken köşeleri <b>tam bu sıra
 
 <h3>0.2 Hafta 10: MST, Prim, Kruskal, union-find</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 10</b>
-<b>MST</b> (minimum spanning tree): tüm köşeleri bağlayan en ucuz <b>ağaç</b> (n−1 kenar). <b>Kesme özelliği</b> (cut property): bir kesmeyi (köşeleri iki gruba ayırma) geçen <b>en hafif kenar</b> bir MST’de yer alır; bu yüzden açgözlü seçim güvenlidir.<br>
-<b>Prim:</b> bir ağaç büyütür, her adımda ağaca <i>en ucuz bağlanan</i> köşeyi ekler. <b>Kruskal:</b> kenarları sıralar, <b>döngü kapatmayan</b> en hafif kenarı alır; döngüyü <b>union-find</b> ile (neredeyse sabit amortize maliyetle) kontrol eder.<br>
+<b>MST</b> (minimum spanning tree): tüm tepeleri bağlayan en ucuz <b>ağaç</b> (n−1 kenar). <b>Kesme özelliği</b> (cut property): bir kesmeyi (tepeleri iki gruba ayırma) geçen <b>en hafif kenar</b> bir MST’de yer alır; bu yüzden açgözlü seçim güvenlidir.<br>
+<b>Prim:</b> bir ağaç büyütür, her adımda ağaca <i>en ucuz bağlanan</i> tepeyi ekler. <b>Kruskal:</b> kenarları sıralar, <b>döngü kapatmayan</b> en hafif kenarı alır; döngüyü <b>union-find</b> ile (neredeyse sabit amortize maliyetle) kontrol eder.<br>
 <b>Önemli tuzak:</b> MST <u>toplam</u> ağırlığı küçültür; <u>tek tek</u> yolları küçültmez. Bugün tam bu soruyu soran algoritmaları göreceğiz: “A’dan B’ye <i>en kısa yol</i>”.</div>
 
 <div class="try"><div class="lab">Kendin dene — MST, en kısa yol demek değildir</div>
@@ -202,7 +206,7 @@ T, G’nin MST’si olsun ve ağırlığı w olan yeni bir e = (u, v) eklensin. 
 
 <h3>0.3 Kalıcı araçlar: Θ, log, döngü sayma (Hafta 3)</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
-Yavaştan hızlıya: <b>1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ</b>. “n’yi yarılayarak 1’e inmek” ≈ log₂ n adım (n = 10⁶ için ≈ 20). Üç iç içe döngü Θ(n³): n iki katına çıkınca iş <b>8 katına</b> çıkar. “Arka arkaya → topla, iç içe → çarp.” Bugün göreceğiniz maliyetler (O(n²), O((n+m) log n), O(V·E), Θ(n³)) bu araçlarla okunur.</div>
+Yavaş büyüyenden hızlı büyüyene: <b>1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ</b>. “n’yi yarılayarak 1’e inmek” ≈ log₂ n adım (n = 10⁶ için ≈ 20). Üç iç içe döngü Θ(n³): n iki katına çıkınca iş <b>8 katına</b> çıkar. “Arka arkaya → topla, iç içe → çarp.” Bugün göreceğiniz maliyetler (O(n²), O((n+m) log n), O(V·E), Θ(n³)) bu araçlarla okunur.</div>
 
 <h3>Isınma quizi (Hafta 9–10 ve kalıcı araçlar)</h3>
 <div id="quiz0"></div>
@@ -223,7 +227,7 @@ Yavaştan hızlıya: <b>1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 
 <svg id="hc_svg" class="gsvg" viewBox="0 0 480 280" width="100%" role="img" aria-label="BFS ve Dijkstra yolları"></svg>
 <div id="hc_out"></div>
 <div class="legend"><span><b style="background:var(--warn)"></b>BFS yolu (en az kenar)</span><span><b style="background:var(--ok)"></b>Dijkstra yolu (en az toplam)</span></div>
-<div class="mut">Graf W’de A→D: BFS A–B–D’yi bulur (2 kenar, toplam 9); gerçek en kısa yol A–C–B–D’dir (3 kenar, toplam 8). “Zincir” grafında S→T: BFS tek kenarı (10) seçer, en kısa yol 7 küçük kenardır. “Tüm ağırlıkları 1 yap” kutusunu işaretleyin: iki yol <b>aynı uzunluğa</b> iner. Yani <b>BFS, tüm ağırlıkları 1 olan Dijkstra’dır</b>.</div></div>
+<div class="mut">Çizge W’de A→D: BFS A–B–D’yi bulur (2 kenar, toplam 9); gerçek en kısa yol A–C–B–D’dir (3 kenar, toplam 8). “Zincir” çizgesinde S→T: BFS tek kenarı (10) seçer, en kısa yol 7 küçük kenardır. “Tüm ağırlıkları 1 yap” kutusunu işaretleyin: iki yol <b>aynı uzunluğa</b> iner. Yani <b>BFS, tüm ağırlıkları 1 olan Dijkstra’dır</b>.</div></div>
 
 <div class="rule"><b class="t">Kural 1 — BFS ile Dijkstra ilişkisi</b>
 Ağırlıklar eşitse (hepsi 1): <b>BFS</b>, O(n+m). Ağırlıklar farklıysa: BFS’in <b>kuyruğu</b> (FIFO) yerine <b>öncelik kuyruğu</b> (priority queue; en küçük uzaklığı önce veren) koyarız; bu <b>Dijkstra</b>’dır. İkisi de “en yakın olanı önce kesinleştir” mantığıyla çalışır.</div>
@@ -237,10 +241,10 @@ Ağırlıklar eşitse (hepsi 1): <b>BFS</b>, O(n+m). Ağırlıklar farklıysa: B
 <div class="mut">k = 0’da 3 kenarlı yol (toplam 3) kazanır. k = 1 olur olmaz tek kenar (5) önde çıkar: <b>en kısa yol ağacı değişti</b>. Sonuç: kenarlara sabit eklemek en kısa yolları korumaz. (MST bu işlemden etkilenmez; çünkü her ağaç aynı sayıda, n−1, kenar içerir. Bu fark ilginçtir ama sınavda “neden?” diye sorulabilir.)</div></div>
 
 <h3>1.3 Altyapı ilkesi: en kısa yolun parçaları da en kısadır</h3>
-<p><b>Sezgi.</b> İstanbul → Bolu → Ankara en kısa rotaysa, İstanbul → Bolu kısmı da İstanbul’dan Bolu’ya en kısa rota <u>olmak zorundadır</u>. Aksi hâlde o kısmı daha kısasıyla değiştirip bütün rotayı kısaltırdınız. Buna <b>en iyi altyapı</b> (optimal substructure) denir. Sonuç: uzak köşelerin en kısa yolları, <b>yakın köşelerin en kısa yollarının üstüne kurulur</b>. Dijkstra tam olarak bunu kullanır; Floyd da (Blok 4b).</p>
+<p><b>Sezgi.</b> İstanbul → Bolu → Ankara en kısa rotaysa, İstanbul → Bolu kısmı da İstanbul’dan Bolu’ya en kısa rota <u>olmak zorundadır</u>. Aksi hâlde o kısmı daha kısasıyla değiştirip bütün rotayı kısaltırdınız. Buna <b>en iyi altyapı</b> (optimal substructure) denir. Sonuç: uzak tepelerin en kısa yolları, <b>yakın tepelerin en kısa yollarının üstüne kurulur</b>. Dijkstra tam olarak bunu kullanır; Floyd da (Blok 4b).</p>
 
 <h3>1.4 Gevşetme (relaxation): tek bir kenarlık iş</h3>
-<p><b>Sezgi.</b> Her köşede bir <b>tahmin</b> (şimdiye kadar bulunan en iyi uzaklık) yazılı: d[v]. Başta kaynak için 0, diğerleri için ∞ (“henüz yol bilmiyorum”). Bir kenar u→v (ağırlık w) şunu sorar: <i>“u’ya d[u] ile gelmiştim. Oradan bu kenarı da kullanırsam v’ye d[u] + w’de varırım. Bu, elimdeki d[v]’den daha iyi mi?”</i> İyiyse tahmini düşürürüz ve v’nin <b>ebeveynini</b> (parent / predecessor) u yaparız.</p>
+<p><b>Sezgi.</b> Her tepede bir <b>tahmin</b> (şimdiye kadar bulunan en iyi uzaklık) yazılı: d[v]. Başta kaynak için 0, diğerleri için ∞ (“henüz yol bilmiyorum”). Bir kenar u→v (ağırlık w) şunu sorar: <i>“u’ya d[u] ile gelmiştim. Oradan bu kenarı da kullanırsam v’ye d[u] + w’de varırım. Bu, elimdeki d[v]’den daha iyi mi?”</i> İyiyse tahmini düşürürüz ve v’nin <b>ebeveynini</b> (parent / predecessor) u yaparız.</p>
 <pre>def relax(u, v, w, d, parent):
     if d[u] + w &lt; d[v]:       # u üzerinden gitmek daha ucuz mu?
         d[v] = d[u] + w
@@ -278,7 +282,7 @@ print(d["C"])                  # 3</pre>
 <svg id="pt_svg" class="gsvg" viewBox="0 0 480 280" width="100%" role="img" aria-label="En kısa yol ağacı"></svg>
 <div class="scroll"><table><tbody id="pt_tab"></tbody></table></div>
 <div id="pt_out"></div>
-<div class="mut">Yeşil kenarlar parent tablosunun çizimidir (en kısa yol ağacı). Hedefi değiştirip geri yürüyüşü okuyun: örneğin Graf W’de E için E ← C ← A. “Erişilemeyen tepe” grafında D, A’dan ulaşılamaz: dist = ∞ ve parent boş kalır; “yol yok” demek için ∞ yeterlidir.</div></div>
+<div class="mut">Yeşil kenarlar parent tablosunun çizimidir (en kısa yol ağacı). Hedefi değiştirip geri yürüyüşü okuyun: örneğin Çizge W’de E için E ← C ← A. “Erişilemeyen tepe” çizgesinde D, A’dan ulaşılamaz: dist = ∞ ve parent boş kalır; “yol yok” demek için ∞ yeterlidir.</div></div>
 
 <div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b>
 Negatif <b>döngü</b> (toplamı negatif olan kapalı yol) varsa “en kısa” kavramı anlamsızlaşır: döngüyü bir kez daha dolaşmak yolu hep kısaltır. Bu yüzden negatif döngü olan çizgede δ(s,v) = −∞ olabilir. Bunu Blok 3’te Bellman–Ford ile <b>tespit</b> edeceğiz; şimdilik “negatif döngü yoksa her şey iyi tanımlıdır” demek yeter.</div>
@@ -290,22 +294,22 @@ Negatif <b>döngü</b> (toplamı negatif olan kapalı yol) varsa “en kısa” 
 <h2><span class="num">2</span>Dijkstra algoritması <span class="time">35 dk</span></h2>
 
 <h3>2.1 Sezgi: su dalgası</h3>
-<p><b>Sezgi.</b> Kaynak köşeye bir damla boya düşürdüğünüzü ve boyanın boru ağında yayıldığını düşünün; kısa borulara önce, uzunlara sonra ulaşır. Boya bir köşeye <b>ilk ulaştığı an</b>, o köşenin kaynağa en kısa uzaklığıdır. Dijkstra, bu dalgayı bir <b>öncelik kuyruğuyla</b> (en küçük tahminli köşeyi öne çıkaran sıra) taklit eder: <i>“Şu an elimdeki tahminler arasında en küçüğü olan köşe artık <b>kesindir</b> (settled); kimse ona daha kısa bir yoldan ulaşamaz.”</i></p>
-<p>Neden böyle bir şey söyleyebiliriz? Kesinleşmemiş başka bir köşeye üzerinden gidilen her yol, en azından o köşenin <b>mevcut tahmini</b> kadar uzun olacaktır ve oradan bizim köşeye ek ağırlıklar eklenir. <b>Ağırlıklar negatif değilse</b> ek kısımlar mesafeyi kısaltamaz. (Negatif kenar bu cümleyi bozar; Blok 3.)</p>
+<p><b>Sezgi.</b> Kaynak tepeye bir damla boya düşürdüğünüzü ve boyanın boru ağında yayıldığını düşünün; kısa borulara önce, uzunlara sonra ulaşır. Boya bir tepeye <b>ilk ulaştığı an</b>, o tepenin kaynağa en kısa uzaklığıdır. Dijkstra, bu dalgayı bir <b>öncelik kuyruğuyla</b> (en küçük tahminli tepeyi öne çıkaran sıra) taklit eder: <i>“Şu an elimdeki tahminler arasında en küçüğü olan tepe artık <b>kesindir</b> (settled); kimse ona daha kısa bir yoldan ulaşamaz.”</i></p>
+<p>Neden böyle bir şey söyleyebiliriz? Kesinleşmemiş başka bir tepeye üzerinden gidilen her yol, en azından o tepenin <b>mevcut tahmini</b> kadar uzun olacaktır ve oradan bizim tepeye ek ağırlıklar eklenir. <b>Ağırlıklar negatif değilse</b> ek kısımlar mesafeyi kısaltamaz. (Negatif kenar bu cümleyi bozar; Blok 3.)</p>
 
 <h3>2.2 Algoritma</h3>
 <div class="rule"><b class="t">Kural 3 — Dijkstra(s)</b>
 1) dist[s] = 0, diğerlerinde ∞; parent hepsinde boş; kuyruğa (0, s) koy.<br>
 2) Kuyruk boşalana kadar: <b>en küçük</b> (d, u) kaydını çıkar. u zaten kesinse bu kayıt <b>bayat</b> (stale): atla. Değilse <b>u’yu kesinleştir</b>.<br>
 3) u’dan çıkan her kenar u→v için <b>gevşet</b>: dist[u] + w &lt; dist[v] ise dist[v] ve parent[v]’yi güncelle ve (dist[v], v)’yi kuyruğa ekle.<br>
-<b>Şart: tüm w ≥ 0.</b> Kesinleşen köşenin dist’i bir daha değişmez (“settled-once”).</div>
+<b>Şart: tüm w ≥ 0.</b> Kesinleşen tepenin dist’i bir daha değişmez (“settled-once”).</div>
 <pre>import heapq
 
 def dijkstra(graph, s):          # graph[u] = [(v, w), ...]
     dist = {v: float("inf") for v in graph}
     parent = {v: None for v in graph}
     dist[s] = 0
-    pq = [(0, s)]                # (tahmin, köşe) çiftleri; heapq en küçüğü verir
+    pq = [(0, s)]                # (tahmin, tepe) çiftleri; heapq en küçüğü verir
     done = set()
     while pq:
         d, u = heapq.heappop(pq)
@@ -314,7 +318,7 @@ def dijkstra(graph, s):          # graph[u] = [(v, w), ...]
         done.add(u)              # u KESİNLEŞTİ
         for v, w in graph[u]:
             if v in done:
-                continue         # kesin köşe değişmez
+                continue         # kesin tepe değişmez
             if d + w &lt; dist[v]:  # gevşetme
                 dist[v] = d + w
                 parent[v] = u
@@ -334,29 +338,29 @@ print(dijkstra(g, "A"))          # ({'A': 0, 'B': 2, 'C': 3}, {'A': None, 'B': '
 <div class="try"><div class="lab">Kendin dene — Dijkstra izleyici (kuyruk, dist, parent)</div>
 <div id="gw_dj"></div>
 <div class="legend"><span><b style="background:var(--warn)"></b>şu an işlenen</span><span><b style="background:var(--ok)"></b>kesinleşti / ağaç kenarı</span><span><b style="background:var(--bad)"></b>yanlış kesinleşmiş</span></div>
-<div class="mut">Kutuda üç şeye bakın: (1) <b>kuyruk</b>: çizgili kayıtlar bayat olanlardır. (2) <b>dist</b> satırı: yeşil hücre az önce düştü. (3) Sağdaki sayaç adım sayısını gösterir. “Graf W” ön ayarında A→D’nin 9’dan 8’e düşmesini izleyin. Kendi grafınızı yazın (en çok 9 köşe); <b>negatif kenar</b> girerseniz Blok 3’teki hatayı yakalarsınız.</div></div>
+<div class="mut">Kutuda üç şeye bakın: (1) <b>kuyruk</b>: çizgili kayıtlar bayat olanlardır. (2) <b>dist</b> satırı: yeşil hücre az önce düştü. (3) Sağdaki sayaç adım sayısını gösterir. “Çizge W” ön ayarında A→D’nin 9’dan 8’e düşmesini izleyin. Kendi grafınızı yazın (en çok 9 tepe); <b>negatif kenar</b> girerseniz Blok 3’teki hatayı yakalarsınız.</div></div>
 
-<h3>2.5 Çözümlü örnek 2: Graf W (ders örneği)</h3>
+<h3>2.5 Çözümlü örnek 2: Çizge W (ders örneği)</h3>
 <p>Yönsüz kenarlar: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Kaynak A.</p>
 <div class="scroll" id="tr_d2"></div>
 <p class="mut">Önemli anlar: C kesinleşince B <b>4’ten 3’e</b>, D = 9 ve E = 11 olur. B kesinleşince D <b>9’dan 8’e</b> düşer (A–C–B–D = 1+2+5). D kesinleşince E’ye 8+3 = 11 teklif edilir; <b>mevcut 11’e eşit olduğu için güncellenmez</b> (kesin küçüklük şartı), bu yüzden E’nin ebeveyni C kalır. İki yol da 11 tutar (A–C–E ve A–C–B–D–E); hangisinin ağaçta görüneceği eşitlik kuralına bağlıdır. Sonuç: A 0, C 1, B 3, D 8, E 11.</p>
 
 <h3>2.6 Neden doğru? (iki katman)</h3>
 <div class="rule"><b class="t">Kısa gerekçe (sınavda yeterli)</b>
-u kuyruktan çıktığında dist[u] en küçük tahmindir. Kaynak → u’ya giden <b>herhangi başka</b> bir yol, bir noktada kesin kümeden çıkıp henüz kesin olmayan bir köşeye y gider; y’nin tahmini ≥ dist[u]’dur (u en küçüktü). y’den u’ya kalan kısım <b>negatif olmayan</b> ağırlıklarla uzar ya da aynı kalır; yani o yol dist[u]’dan kısa olamaz. Dolayısıyla dist[u] gerçek en kısa uzaklıktır.</div>
-<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz — resmî kanıt</b>
-Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan köşe olsun. s’den v’ye gerçek bir en kısa yola bakın; üzerindeki ilk kesinleşmemiş köşe y, ondan hemen önceki kesin köşe x olsun. x doğru kesinleşti ve x→y kenarı gevşetildi: dist[y] ≤ δ(s,x) + w(x,y) = δ(s,y). Ağırlıklar ≥ 0 olduğu için δ(s,y) ≤ δ(s,v) &lt; dist[v]. Demek ki dist[y] &lt; dist[v]: y, v’den <b>önce</b> çıkarılırdı. Çelişki. (δ(s,y) ≤ δ(s,v) adımı tam olarak w ≥ 0 varsayımını kullanır.)</div>
+u kuyruktan çıktığında dist[u] en küçük tahmindir. Kaynak → u’ya giden <b>herhangi başka</b> bir yol, bir noktada kesin kümeden çıkıp henüz kesin olmayan bir tepeye y gider; y’nin tahmini ≥ dist[u]’dur (u en küçüktü). y’den u’ya kalan kısım <b>negatif olmayan</b> ağırlıklarla uzar ya da aynı kalır; yani o yol dist[u]’dan kısa olamaz. Dolayısıyla dist[u] gerçek en kısa uzaklıktır.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz — resmî ispat</b>
+Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan tepe olsun. s’den v’ye gerçek bir en kısa yola bakın; üzerindeki ilk kesinleşmemiş tepe y, ondan hemen önceki kesin tepe x olsun. x doğru kesinleşti ve x→y kenarı gevşetildi: dist[y] ≤ δ(s,x) + w(x,y) = δ(s,y). Ağırlıklar ≥ 0 olduğu için δ(s,y) ≤ δ(s,v) &lt; dist[v]. Demek ki dist[y] &lt; dist[v]: y, v’den <b>önce</b> çıkarılırdı. Çelişki. (δ(s,y) ≤ δ(s,v) adımı tam olarak w ≥ 0 varsayımını kullanır.)</div>
 
 <h3>2.7 Maliyet ve Prim ile ilişkisi</h3>
-<p>Dijkstra’nın Prim’e benzemesi tesadüf değil: Prim “ağaca <i>tek kenarla</i> en ucuz bağlanan köşeyi” alır, Dijkstra “kaynağa <i>tüm yolla</i> en ucuz bağlanan köşeyi” alır. Koddaki fark tek satırdır: Prim <code>dist[v] = w(u,v)</code> yazar; Dijkstra <code>dist[v] = dist[u] + w(u,v)</code> yazar.</p>
+<p>Dijkstra’nın Prim’e benzemesi tesadüf değil: Prim “ağaca <i>tek kenarla</i> en ucuz bağlanan tepeyi” alır, Dijkstra “kaynağa <i>tüm yolla</i> en ucuz bağlanan tepeyi” alır. Koddaki fark tek satırdır: Prim <code>dist[v] = w(u,v)</code> yazar; Dijkstra <code>dist[v] = dist[u] + w(u,v)</code> yazar.</p>
 <div class="rule"><b class="t">Kural 4 — Dijkstra’nın maliyeti</b>
 <b>Dizi (array) ile:</b> n tur, her turda minimum için O(n) tarama + O(n) güncelleme → <span class="en">O(n²)</span> (yoğun çizgede iyi).<br>
 <b>İkili yığın (binary heap) ile:</b> en çok m gevşetme, her biri O(log n); n çıkarma, her biri O(log n) → <span class="en">O((n + m) log n)</span>, çoğu zaman O(m log n) yazılır (seyrek çizgede iyi).<br>
 <b>Bellman–Ford:</b> O(V·E), Floyd: Θ(n³) (Blok 3–4).</div>
-<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> <b>Fibonacci yığını</b> anahtarı amortize O(1)’de azaltır ve Dijkstra’yı O(n log n + m) yapar; bu, <i>bu Dijkstra gerçeklemesinin</i> (yığınlı, negatif kenarsız) standart sınırıdır, tek kaynaklı en kısa yolun genel “en iyi bilinen” sınırı olarak okunmamalıdır: 2025’te yönlü, negatif olmayan gerçek ağırlıklı çizgeler için seyrek çizgede daha iyi bir sınır (O(m log^(2/3) n)) bildirilmiştir (güncel literatürden kontrol edin). Sınav için ikili yığın yeterli.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> <b>Fibonacci yığını</b> anahtarı amortize O(1)’de azaltır ve Dijkstra’yı O(n log n + m) yapar; bu, <i>bu Dijkstra gerçekleştiriminin</i> (yığınlı, negatif kenarsız) standart sınırıdır, tek kaynaklı en kısa yolun genel “en iyi bilinen” sınırı olarak okunmamalıdır: Dijkstra’nın klasik sınırı SSSP için genel olarak optimal değildir. 2025’te yönlü, negatif olmayan gerçek ağırlıklı çizgeler için O(m·log<sup>2/3</sup> n) sınırı elde edildi. ICALP 2026’da Duan, Mao, Shu ve Yin bunu <b>O(m√log n + √(mn log n log log n))</b> deterministik sınırına iyileştirdi (karşılaştırma-toplama modeli). Bu güncel araştırma notu sınav kapsamı dışıdır; ders için ikili yığınlı Dijkstra sınırı yeterlidir.</div>
 
 <div class="try"><div class="lab">Kendin dene — maliyet hesaplayıcı (n ve m’ye göre işlem sayısı)</div>
-<div class="row"><span>n (köşe) =</span><input type="number" id="cw_n" value="1000" min="2" max="100000" style="width:110px"><span>ortalama çıkış derecesi d =</span><input type="number" id="cw_d" value="5" min="1" max="5000" style="width:90px">
+<div class="row"><span>n (tepe) =</span><input type="number" id="cw_n" value="1000" min="2" max="100000" style="width:110px"><span>ortalama çıkış derecesi d =</span><input type="number" id="cw_d" value="5" min="1" max="5000" style="width:90px">
 <button class="btn g" data-cw="10000,3">Yol ağı (seyrek)</button><button class="btn g" data-cw="1000,500">Yoğun</button><button class="btn g" data-cw="100,99">Tam çizge</button></div>
 <div id="cw_m" class="mut"></div>
 <div class="scroll"><table><thead><tr><th>Algoritma</th><th>Formül</th><th>İşlem sayısı</th><th>1 ns/işlem ile süre</th></tr></thead><tbody id="cw_t"></tbody></table></div>
@@ -370,8 +374,8 @@ Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan köşe olsun
 <div class="box"><b>Sık yapılan hatalar (Dijkstra)</b>
 <ol>
 <li>“Negatif kenar varsa da Dijkstra biraz çalışır.” → Bazen sonuç doğru çıkar (sıra şans eseri uygunsa), ama <b>garanti yoktur</b> (Blok 3).</li>
-<li>Kesinleşmiş köşenin dist’ini tekrar gevşetmek: kodda <code>if v in done: continue</code> bunu önler; gerekmez ve negatif kenarlarda zararlı olur.</li>
-<li>Tüm köşeler yerine yalnızca hedefi aramak: s→t tek çiftte bile en kötü durumda s’den her yere hesaplanır; hedef kesinleşir kesinleşmez durmak mümkündür ve çoğu zaman yeterince erken biter.</li>
+<li>Kesinleşmiş tepenin dist’ini tekrar gevşetmek: kodda <code>if v in done: continue</code> bunu önler; gerekmez ve negatif kenarlarda zararlı olur.</li>
+<li>Tüm tepeler yerine yalnızca hedefi aramak: s→t tek çiftte bile en kötü durumda s’den her yere hesaplanır; hedef kesinleşir kesinleşmez durmak mümkündür ve çoğu zaman yeterince erken biter.</li>
 <li>“Dijkstra = Prim.” → Benzerler ama farklı soruları çözer: Prim toplam ağaç ağırlığını, Dijkstra kaynaktan yolları minimize eder (Blok 0’daki üçgen).</li>
 </ol></div>
 </section>
@@ -385,19 +389,19 @@ Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan köşe olsun
 <p><b>Sezgi.</b> Evet. Bir robotun <b>iniş yolunda</b> rejeneratif frenle bataryaya enerji geri vermesi “enerji maliyeti negatif” bir kenar olabilir. Bir kur dönüşümü zinciri “kazanç” gösterebilir. Kenar ağırlığı “ne kadar zaman/enerji harcadım?” sorusunun cevabıdır; bazen cevap eksidir. Ama bir sorun var: <b>toplamı negatif bir döngü</b> (negative cycle) varsa, döngüyü her dolaştığınızda yol kısalır; “en kısa yol” tanımsızdır (−∞).</p>
 
 <h3>3.2 Dijkstra negatif kenarda neden bozulur?</h3>
-<p>Dijkstra “şu an en küçük tahmin olan köşe kesindir” der. Negatif kenar bu cümleyi bozar: <b>sonradan bulunan bir negatif kenar</b>, kesinleştirdiğimiz bir köşeye daha kısa bir yol açabilir. Klasik örnek: A→B = 2, A→C = 5, C→B = −4.</p>
+<p>Dijkstra “şu an en küçük tahmin olan tepe kesindir” der. Negatif kenar bu cümleyi bozar: <b>sonradan bulunan bir negatif kenar</b>, kesinleştirdiğimiz bir tepeye daha kısa bir yol açabilir. Klasik örnek: A→B = 2, A→C = 5, C→B = −4.</p>
 <div class="try"><div class="lab">Kendin dene — Dijkstra ↔ gerçek sonuç (Bellman–Ford) yan yana</div>
 <div id="gw_fail"></div>
 <div class="mut">İlk ön ayar: A önce B’yi 2 ile kesinleştirir; sonra C (5) kesinleşir ve C→B (−4) teklif eder: 5−4 = <b>1 &lt; 2</b>, ama B zaten kesin. Dijkstra B = 2 der, gerçek 1’dir. Üçüncü ön ayara (“Örnek 2 grafı”) bakın: negatif kenar var ama Dijkstra <b>yine doğru</b> çıkar, çünkü negatif kenarın ucundaki A henüz kesin değildi. <b>Garanti</b> “negatif kenar varsa mutlaka yanlış” değil, “negatif kenar varsa <u>yanlış çıkabilir</u>”dir.</div></div>
 <div class="scroll" id="tr_d3"></div>
 <div class="rule"><b class="t">Kural 5 — Dijkstra’nın şartı</b>
-Dijkstra yalnızca <b>negatif olmayan</b> ağırlıklarda (sıfır serbest) doğrudur. Kanıtın “kalan yol mesafeyi kısaltamaz” adımı w ≥ 0 ister. Sayaç-örnek: A→B 2, A→C 5, C→B −4 (Dijkstra B = 2 der, gerçek 1). Ders notları “ağırlıklar pozitif” varsayar; “negatif olmayan” bundan biraz daha geniş ve yeterlidir.</div>
+Dijkstra yalnızca <b>negatif olmayan</b> ağırlıklarda (sıfır serbest) doğrudur. Kanıtın “kalan yol mesafeyi kısaltamaz” adımı w ≥ 0 ister. Karşı örnek: A→B 2, A→C 5, C→B −4 (Dijkstra B = 2 der, gerçek 1). Ders notları “ağırlıklar pozitif” varsayar; “negatif olmayan” bundan biraz daha geniş ve yeterlidir.</div>
 
 <h3>3.3 Bellman–Ford: sabırlı yöntem</h3>
-<p><b>Sezgi.</b> Bir dedikodu düşünün: ilk turda kaynak komşularına “bana uzaklığın şu” der. Her turda bilgi <b>bir kenar daha</b> ilerler. En kısa yol en fazla <b>n−1 kenarlıdır</b> (aynı köşeyi iki kez geçmez), o hâlde <b>n−1 tur</b> sonra herkes doğru bilgiyi alır. Bellman–Ford sırayla düşünmez; <b>her turda tüm kenarları bir kez gevşetir</b>.</p>
+<p><b>Sezgi.</b> Bir dedikodu düşünün: ilk turda kaynak komşularına “bana uzaklığın şu” der. Her turda bilgi <b>bir kenar daha</b> ilerler. En kısa yol en fazla <b>n−1 kenarlıdır</b> (aynı tepeyi iki kez geçmez), o hâlde <b>n−1 tur</b> sonra herkes doğru bilgiyi alır. Bellman–Ford sırayla düşünmez; <b>her turda tüm kenarları bir kez gevşetir</b>.</p>
 <div class="rule"><b class="t">Kural 6 — Bellman–Ford(s)</b>
 dist[s] = 0, diğerleri ∞. <b>n−1 kez</b> tekrarla: listedeki <b>her kenar</b> için gevşet. Bir turda hiçbir şey değişmediyse <b>erken dur</b>.<br>
-<b>Garanti:</b> k. turdan sonra, en kısa yolu en çok k kenar olan her köşenin dist’i doğrudur (tümevarım). Negatif döngü yoksa n−1 tur yeter.<br>
+<b>Garanti:</b> k. turdan sonra, en kısa yolu en çok k kenar olan her tepenin dist’i doğrudur (tümevarım). Negatif döngü yoksa n−1 tur yeter.<br>
 <b>Maliyet:</b> (n−1) tur × m kenar = <span class="en">O(V·E)</span>. Negatif ağırlıkla çalışır.<br>
 <b>Negatif döngü testi:</b> n−1 turdan sonra <b>bir tur daha</b> yapın; hâlâ bir dist düşüyorsa ulaşılabilir bir negatif döngü vardır.</div>
 <pre>def bellman_ford(nodes, edges, s):     # edges = [(u, v, w), ...] verilen sırada
@@ -438,8 +442,8 @@ Kenar sırası <b>sonucu</b> değiştirmez, yalnızca <b>kaç turun yararlı old
 <p class="mut">1. tur: A = 6, B = 7, C = 11; sonra B→C: 7−2 = 5 &lt; 11 → C = 5; C→A: 5−3 = 2 &lt; 6 → A = 2. Tur sonu [S 0, A 2, B 7, C 5]. 2. turda hiçbir şey değişmez → son. Yollar: A için S→B→C→A (7−2−3 = 2), C için S→B→C (5). Negatif döngü? A→C→A = 5−3 = 2 &gt; 0: pozitif, kontrol turu hiçbir şey bulmaz. En kötü maliyet 3 tur × 5 kenar = 15 gevşetme.</p>
 
 <h3>3.6 Neden n−1 tur yeter? (kısa tümevarım)</h3>
-<p><b>Taban:</b> 0 kenarlı yol yalnızca kaynaktır, d[s] = 0 doğru. <b>Adım:</b> en kısa yolu k kenarlı olan v’yi alın; sondan bir önceki köşe u’nun yolu k−1 kenarlıdır ve (k−1). turdan sonra d[u] doğrudur. k. turda u→v gevşetilir ve d[v] doğru olur. Basit bir yol en çok n−1 kenar içerdiğinden n−1 tur yeter.</p>
-<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Neden “n. turda iyileşme = negatif döngü”? Negatif döngü yoksa n−1 turdan sonra hiçbir dist azalamaz (hepsi doğru). Azalıyorsa, sonsuza kadar dolaşılabilen bir kısa yol vardır: bu ancak negatif döngüyle mümkündür.</div>
+<p><b>Taban:</b> 0 kenarlı yol yalnızca kaynaktır, d[s] = 0 doğru. <b>Adım:</b> en kısa yolu k kenarlı olan v’yi alın; sondan bir önceki tepe u’nun yolu k−1 kenarlıdır ve (k−1). turdan sonra d[u] doğrudur. k. turda u→v gevşetilir ve d[v] doğru olur. Basit bir yol en çok n−1 kenar içerdiğinden n−1 tur yeter.</p>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Neden “n. turda iyileşme = negatif döngü”? Negatif döngü yoksa n−1 turdan sonra hiçbir dist azalamaz (hepsi doğru). Azalıyorsa, kaynaktan ulaşılabilen negatif toplamlı bir döngü vardır; bu döngüden ulaşılabilen hedeflere her tekrarda daha ucuz bir yürüyüş bulunur.</div>
 
 <h3>3.7 Dijkstra mı, Bellman–Ford mu?</h3>
 <div class="scroll"><table>
@@ -447,17 +451,17 @@ Kenar sırası <b>sonucu</b> değiştirmez, yalnızca <b>kaç turun yararlı old
 <tr><td>Negatif kenar</td><td class="bad">✗ yanlış olabilir</td><td class="ok">✓ çalışır</td></tr>
 <tr><td>Negatif döngü tespiti</td><td>✗ yok</td><td class="ok">✓ n. tur testi</td></tr>
 <tr><td>Maliyet</td><td class="m">O((n+m) log n)</td><td class="m">O(V·E)</td></tr>
-<tr><td>Yöntem</td><td>en yakın kesin köşeden gevşet</td><td>tüm kenarları n−1 kez gevşet</td></tr>
+<tr><td>Yöntem</td><td>en yakın kesin tepeden gevşet</td><td>tüm kenarları n−1 kez gevşet</td></tr>
 <tr><td>Ne zaman?</td><td>negatif olmayan ağırlık</td><td>negatif ağırlık olabilir / döngü testi gerek</td></tr>
 </table></div>
 
 <div class="box"><b>Sık yapılan hatalar (negatif kenar ve Bellman–Ford)</b>
 <ol>
-<li>“Her kenara aynı sabiti ekleyip negatiflerden kurtulurum.” → Yanlış: yol sayısı kenar sayısıyla k ödenir (Blok 1.2).</li>
+<li>“Her kenara aynı sabiti ekleyip negatiflerden kurtulurum.” → Yanlış: k sabiti, yolun kenar sayısı kadar ödenir (Blok 1.2).</li>
 <li>“Yönsüz çizgede negatif kenar sorun değil.” → Yönsüz negatif kenar, iki yönde de gidilebildiği için <b>kendi başına bir negatif döngüdür</b> (A–B −3: A→B→A = −6).</li>
 <li>“n−1 tur her zaman gerekir.” → Üst sınırdır; hiçbir şey değişmeyince durun.</li>
 <li>“n. turda değişim = yanlış kod.” → Hayır; bu <b>negatif döngü</b> ihbarıdır, sonuç tanımsızdır.</li>
-<li>Kaynaktan <b>ulaşılamayan</b> negatif döngüyü yanlış raporlamak: ∞ olan köşelerden gevşetme yapmayın (kodda inf + w zaten sonlu olmaz).</li>
+<li>Kaynaktan <b>ulaşılamayan</b> negatif döngüyü yanlış raporlamak: ∞ olan tepelerden gevşetme yapmayın (kodda inf + w zaten sonlu olmaz).</li>
 </ol></div>
 </section>
 
@@ -468,9 +472,9 @@ Kenar sırası <b>sonucu</b> değiştirmez, yalnızca <b>kaç turun yararlı old
 
 <h3>4.1 DAG’da en kısa yol: topolojik sırada gevşet</h3>
 <div class="rule rev"><b class="t">Tekrar · Hafta 9</b> DAG = döngüsüz yönlü çizge. Topolojik sıra: her kenar soldan sağa. Bugün bu sırayı “işleme sırası” olarak kullanacağız.</div>
-<p><b>Sezgi.</b> Bir robotun montaj hattında görevler birbirine bağlı: “kaynak” görevden başlayıp her görevin <b>en erken ulaşılabilen süresi</b> aranıyor ve bazı geçişler “zaman kazandırıyor” (negatif ağırlık). Çizge <b>DAG</b> ise bir köşeye gelen <b>tüm kenarlar, o köşe işlenmeden önce işlenmiş olur</b>. O hâlde köşeyi <i>topolojik sırada</i> bir kez işlemek yeter: negatif kenar bile “sonradan gelip” kesin bir köşeyi bozamaz, çünkü geri dönüş yoktur.</p>
+<p><b>Sezgi.</b> Bir robotun montaj hattında görevler birbirine bağlı: “kaynak” görevden başlayıp her görevin <b>en erken ulaşılabilen süresi</b> aranıyor ve bazı geçişler “zaman kazandırıyor” (negatif ağırlık). Çizge <b>DAG</b> ise bir tepeye gelen <b>tüm kenarlar, o tepe işlenmeden önce işlenmiş olur</b>. O hâlde tepeyi <i>topolojik sırada</i> bir kez işlemek yeter: negatif kenar bile “sonradan gelip” kesin bir tepeyi bozamaz, çünkü geri dönüş yoktur.</p>
 <div class="rule"><b class="t">Kural 8 — DAG’da en kısa yol (O(n+m))</b>
-1) Topolojik sırayı bul (O(n+m)). 2) dist[s] = 0, diğerleri ∞. 3) Sırayla her köşe u için, çıkan her kenar u→v’yi <b>gevşet</b>. Her köşe ve kenar bir kez görülür: <span class="en">O(n + m)</span>. <b>Negatif ağırlık serbesttir</b> (döngü yok). Dijkstra’dan da, Bellman–Ford’dan da hızlıdır.</div>
+1) Topolojik sırayı bul (O(n+m)). 2) dist[s] = 0, diğerleri ∞. 3) Sırayla her tepe u için, çıkan her kenar u→v’yi <b>gevşet</b>. Her tepe ve kenar bir kez görülür: <span class="en">O(n + m)</span>. <b>Negatif ağırlık serbesttir</b> (döngü yok). Dijkstra’dan da, Bellman–Ford’dan da hızlıdır.</div>
 <pre>from collections import deque
 
 def dag_en_kisa(nodes, edges, s):
@@ -485,6 +489,8 @@ def dag_en_kisa(nodes, edges, s):
         for v, w in out[u]:
             indeg[v] -= 1
             if indeg[v] == 0: q.append(v)
+    if len(order) != len(nodes):
+        raise ValueError("Çizge DAG değil: topolojik sıra bulunamadı")
     INF = float("inf")
     dist = {v: INF for v in nodes}; dist[s] = 0
     for u in order:                      # topolojik sırada
@@ -494,7 +500,7 @@ def dag_en_kisa(nodes, edges, s):
 
 <div class="try"><div class="lab">Kendin dene — DAG izleyici (aynı anda yol sayısı da hesaplanır)</div>
 <div id="gw_dag"></div>
-<div class="mut">Ön ayardaki kenarlarda A→B = −3 negatif; yine de her köşe tek kez işlenir ve sonuç doğrudur. “yol sayısı” satırı, aynı sırayla <b>S’den v’ye kaç farklı yol olduğunu</b> sayar: kenar u→v işlenirken paths[v] += paths[u]. Bu, ders sorusu Q18’in cevabıdır (O(n+m)). Kenar listesine bir döngü kapatın (örneğin <code>D&gt;S 1</code> ekleyin): topolojik sıra kalmaz ve izleyici “DAG değil” der.</div></div>
+<div class="mut">Ön ayardaki kenarlarda A→B = −3 negatif; yine de her tepe tek kez işlenir ve sonuç doğrudur. “yol sayısı” satırı, aynı sırayla <b>S’den v’ye kaç farklı yol olduğunu</b> sayar: kenar u→v işlenirken paths[v] += paths[u]. Bu, ders sorusu Q18’in cevabıdır (O(n+m)). Kenar listesine bir döngü kapatın (örneğin <code>D&gt;S 1</code> ekleyin): topolojik sıra kalmaz ve izleyici “DAG değil” der.</div></div>
 <div class="scroll" id="tr_g1"></div>
 
 <p><b>Gerçek hayat:</b> Skiena’nın grubu telefon tuş takımıyla yazılmış metni geri çözdü: her tuş birkaç harfi temsil ettiğinden her konum için aday sözcükler vardır. Tepeler = aday sözcükler, kenarlar = komşu sözcüklerin yan yana gelmesi, kenar ağırlığı = o ikilinin ne kadar olası olduğu (“give me”, “hive me”den daha ucuz). <b>En olası cümle bu DAG’daki en kısa yoldur</b> ve Viterbi algoritmasıyla (dinamik programlama) bulunur. Sistem karakterlerin %99’undan fazlasını doğru buldu.</p>
@@ -503,11 +509,11 @@ def dag_en_kisa(nodes, edges, s):
 
 <section id="s4b" style="margin-top:36px">
 <h3>4.2 Floyd–Warshall: tüm çiftler arasında en kısa yol</h3>
-<p><b>Sezgi.</b> Bir şehirler arası “tüm mesafeler tablosu” (otobüs kitabı sonundaki üçgen tablo) istiyorsunuz. Tek tek her şehirden Dijkstra çalıştırmak n kez Dijkstra’dır: n × O(n²) = O(n³). Floyd daha basittir: <b>“Ara duraklara teker teker izin ver.”</b> Önce hiç ara durak kullanılmasın (sadece doğrudan kenarlar), sonra yalnızca 1 numaralı köşe ara durak olabilsin, sonra 1 ve 2, … sonunda hepsi.</p>
+<p><b>Sezgi.</b> Bir şehirler arası “tüm mesafeler tablosu” (otobüs kitabı sonundaki üçgen tablo) istiyorsunuz. Tek tek her şehirden Dijkstra çalıştırmak n kez Dijkstra’dır: n × O(n²) = O(n³). Floyd daha basittir: <b>“Ara duraklara teker teker izin ver.”</b> Önce hiç ara durak kullanılmasın (sadece doğrudan kenarlar), sonra yalnızca 1 numaralı tepe ara durak olabilsin, sonra 1 ve 2, … sonunda hepsi.</p>
 <div class="rule"><b class="t">Kural 9 — Floyd–Warshall</b>
 Başla: D[i][j] = w(i,j) kenar varsa, D[i][i] = 0, aksi hâlde ∞ (<b>ara durağı olmayan</b> yollar). Sonra k = 1…n için:<br>
 <b>D[i][j] = min( D[i][j], D[i][k] + D[k][j] )</b> (her i, j için).<br>
-Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanmaz</u> (eski değer) ya da <u>bir kez kullanır</u> (i→k en iyisi + k→j en iyisi, ikisi de {1..k−1} ile). Üç iç içe döngü: <span class="en">Θ(n³)</span>; döngü gövdesi 1 toplama + 1 karşılaştırma olduğundan Dijkstra’yı n kez çalıştırmaktan pratikte hızlıdır ve çok daha kısa yazılır.<br>
+Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanmaz</u> (eski değer) ya da <u>bir kez kullanır</u> (i→k en iyisi + k→j en iyisi, ikisi de {1..k−1} ile). Üç iç içe döngü: <span class="en">Θ(n³)</span>. Yoğun çizgelerde ve orta boyutlarda, düzenli bellek erişimi ve küçük sabitler nedeniyle pratikte rekabetçi olabilir; ancak <b>seyrek çizgelerde n kez Dijkstra genellikle asimptotik olarak daha iyidir</b>. Floyd–Warshall’ın önemli avantajı, kısa ve doğrudan bir tüm-çiftler çözümü olmasıdır.<br>
 <b>k en dış döngü olmalıdır</b> (“izin verilen ara durak” kümesi tur tur büyür).</div>
 <pre>def floyd(D):                      # D n×n liste listesi, D[i][i] = 0, kenar yoksa inf
     n = len(D)
@@ -516,16 +522,16 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
             for j in range(n):
                 if D[i][k] + D[k][j] &lt; D[i][j]:
                     D[i][j] = D[i][k] + D[k][j]
-    return D                       # D[i][i] &lt; 0 ise negatif döngü var</pre>
+    return D                       # herhangi bir D[i][i] &lt; 0 ise çizgede negatif döngü var</pre>
 <div class="try"><div class="lab">Kendin dene — Floyd izleyici (k = 1, 2, …)</div>
 <div id="gw_fl"></div>
-<div class="mut">Ön ayar <b>Q20</b>: 1→2 = 4, 1→3 = 11, 2→3 = 2. k = 1: hiçbir şey iyileşmez (1’e giren kenar yok). <b>k = 2: D[1,3] = min(11, D[1,2] + D[2,3]) = min(11, 6) = 6</b>. k = 3: değişiklik yok. Başka ön ayarlar: negatif kenarlı 4 köşeli bir çizge ve negatif döngülü bir çizge (köşegende <span class="bad">negatif</span> bir sayı belirir: D[i][i] &lt; 0 ⇒ i bir negatif döngü üzerinde). <b>“Geçişli kapanış”</b> kipinde min ve + yerine <i>veya</i> ve <i>ve</i> kullanılır: hangi köşeden hangisine <i>bir yol var mı?</i> sorusunu yanıtlar (veri tabanlarında “x, y ile ilişkili mi?”).</div></div>
+<div class="mut">Ön ayar <b>Q20</b>: 1→2 = 4, 1→3 = 11, 2→3 = 2. k = 1: hiçbir şey iyileşmez (1’e giren kenar yok). <b>k = 2: D[1,3] = min(11, D[1,2] + D[2,3]) = min(11, 6) = 6</b>. k = 3: değişiklik yok. Başka ön ayarlar: negatif kenarlı 4 tepeli bir çizge ve negatif döngülü bir çizge (köşegende <span class="bad">negatif</span> bir sayı belirir: D[i][i] &lt; 0 ⇒ i’den erişilip yeniden i’ye dönülebilen bir negatif döngü vardır). <b>“Geçişli kapanış”</b> kipinde min ve + yerine <i>veya</i> ve <i>ve</i> kullanılır: hangi tepeden hangisine <i>bir yol var mı?</i> sorusunu yanıtlar (veri tabanlarında “x, y ile ilişkili mi?”).</div></div>
 <div class="scroll" id="tr_f1"></div>
 <div class="rule"><b class="t">Kural 10 — tüm çiftler ne zaman neyle?</b>
 <b>Floyd:</b> Θ(n³), negatif kenar serbest (negatif döngüyü köşegen gösterir), yoğun çizgelerde ve kısa yazılı koda ihtiyaç olduğunda.<br>
 <b>n × Dijkstra:</b> O(n (n+m) log n), seyrek çizgelerde daha hızlı, ama negatif kenar yok.<br>
-<b>n × BFS:</b> ağırlıksız çizge. <i>Çizge çapı</i> (diameter) = en büyük en kısa uzaklık: ağırlıksız bağlı çizgede her köşeden BFS çalıştırıp en büyük uzaklığı alın: O(n(n+m)).</div>
-<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Floyd ile <b>yolu</b> da bulmak için ikinci bir “sonraki köşe” matrisi tutulur (D[i][j] her güncellendiğinde next[i][j] = next[i][k]). Sınav kapsamında yalnızca mesafe matrisinin izlenmesi var. Floyd Ders 16’da anlatılacak dört adımlı dinamik programlama tarifinin bir örneğidir (yapıyı tanımla → özyineleme → aşağıdan yukarı hesapla → çözümü tablodan çıkar).</div>
+<b>n × BFS:</b> ağırlıksız çizge. <i>Çizge çapı</i> (diameter) = en büyük en kısa uzaklık: ağırlıksız bağlı çizgede her tepeden BFS çalıştırıp en büyük uzaklığı alın: O(n(n+m)).</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Floyd ile <b>yolu</b> da bulmak için ikinci bir “sonraki tepe” matrisi tutulur (D[i][j] her güncellendiğinde next[i][j] = next[i][k]). Sınav kapsamında yalnızca mesafe matrisinin izlenmesi var. Floyd Ders 16’da anlatılacak dört adımlı dinamik programlama tarifinin bir örneğidir (yapıyı tanımla → özyineleme → aşağıdan yukarı hesapla → çözümü tablodan çıkar).</div>
 <div class="box"><b>Sık yapılan hatalar (DAG ve Floyd)</b>
 <ol>
 <li>DAG olmayan çizgede topolojik sıra aramak: döngü varsa sıra yoktur; önce DFS/Kahn ile kontrol edin.</li>
@@ -556,7 +562,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <h3>5.1 Hangi algoritmayı seçeyim?</h3>
 <div class="try"><div class="lab">Kendin dene — algoritma seçici</div>
 <div class="row"><label>Soru:
-<select id="ch_q"><option value="1">Tek kaynaktan tüm köşelere</option><option value="2">Tüm çiftler arasında</option></select></label>
+<select id="ch_q"><option value="1">Tek kaynaktan tüm tepelere</option><option value="2">Tüm çiftler arasında</option></select></label>
 <label>Çizge:
 <select id="ch_dag"><option value="0">genel (döngü olabilir)</option><option value="1">DAG (döngüsüz)</option></select></label>
 <label>Ağırlıklar:
@@ -566,7 +572,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 
 <h3>5.2 Başka mekatronik bağlamlar</h3>
 <div class="scroll"><table>
-<tr><th>Durum</th><th>Köşe / kenar / ağırlık</th><th>Algoritma</th></tr>
+<tr><th>Durum</th><th>Tepe / kenar / ağırlık</th><th>Algoritma</th></tr>
 <tr><td>AGV fabrika rotası</td><td>kavşak / koridor / süre</td><td>Dijkstra (süre ≥ 0)</td></tr>
 <tr><td>Ağ yönlendirme (router)</td><td>yönlendirici / bağlantı / gecikme</td><td>Dijkstra (link-state); mesafe-vektörü protokolleri Bellman–Ford’a dayanır</td></tr>
 <tr><td>Elektrikli robot, enerji</td><td>nokta / yol / enerji (inişte negatif)</td><td>Bellman–Ford (negatif kenar, enerji korunduğundan negatif döngü yok)</td></tr>
@@ -579,17 +585,17 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <section id="s6">
 <div class="kicker">Blok 6</div>
 <h2><span class="num">6</span>Alıştırmalar ve quiz <span class="time">ev çalışması</span></h2>
-<p class="mut">Ders sonunda zaman kalırsa 1–2 soru birlikte çözülür. Graf W: yönsüz, A–B 4, A–C 1, B–C 2, B–D 5, C–D 8, D–E 3, C–E 10.</p>
+<p class="mut">Ders sonunda zaman kalırsa 1–2 soru birlikte çözülür. Çizge W: yönsüz, A–B 4, A–C 1, B–C 2, B–D 5, C–D 8, D–E 3, C–E 10.</p>
 
 <h3>6.1 Ana quiz (Hafta 11)</h3>
 <div id="quiz1"></div>
 
 <h3>6.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
 <details><summary>A1 (kolay). Dijkstra hangi kenar ağırlığı koşulunu ister ve neden?</summary>
-<p><b>Negatif olmayan</b> ağırlık (ders notları “pozitif” varsayar; sıfır da zarar vermez). Dijkstra “en küçük tahminli köşe kesindir” der; bu, kalan yolun mesafeyi kısaltamayacağına dayanır. Negatif kenar sonradan kesinleşmiş bir köşeye daha kısa bir yol açabilir.</p></details>
+<p><b>Negatif olmayan</b> ağırlık (ders notları “pozitif” varsayar; sıfır da zarar vermez). Dijkstra “en küçük tahminli tepe kesindir” der; bu, kalan yolun mesafeyi kısaltamayacağına dayanır. Negatif kenar sonradan kesinleşmiş bir tepeye daha kısa bir yol açabilir.</p></details>
 <details><summary>A2 (kolay). Şu algoritmaları çalışma süresiyle eşleştirin: Prim (dizi), Kruskal (union-find), Dijkstra (yığın), Bellman–Ford, Floyd.</summary>
 <p>Prim (basit dizi): O(n²). Kruskal: O(m log m) (sıralama baskın; union-find işi neredeyse doğrusal). Dijkstra (komşuluk listesi + ikili yığın): O((n+m) log n), çoğu zaman O(m log n). Bellman–Ford: O(V·E). Floyd: Θ(n³).</p></details>
-<details><summary>A3 (orta). Graf W’de A’dan Dijkstra çalıştırın: tüm uzaklıkları ve en kısa yol ağacını yazın.</summary>
+<details><summary>A3 (orta). Çizge W’de A’dan Dijkstra çalıştırın: tüm uzaklıkları ve en kısa yol ağacını yazın.</summary>
 <p>Uzaklıklar: A = 0, C = 1, B = 3, D = 8, E = 11. A–C–B 3 (doğrudan 4’ten iyi); A–C–B–D 8. E için iki eşit yol var: A–C–E ve A–C–B–D–E, ikisi de 11. Bir ağaç: A–C, C–B, B–D, C–E (D–E seçilirse de geçerli). Yalnızca kesin küçüklükte güncelleyen kuralla E’nin ebeveyni C kalır.</p></details>
 <details><summary>A4 (orta). Bir negatif kenarlı küçük yönlü çizgede Dijkstra’nın yanlış cevap verdiği bir örnek verin; hangi adım bozuluyor?</summary>
 <p>A→B 2, A→C 5, C→B −4. A kesinleşir: B = 2, C = 5. En küçük B (2) kesinleşir (çıkan kenarı yok). C (5) kesinleşir ve C→B: 5−4 = 1 &lt; 2 teklif eder, ama B kesin olduğundan değişmez. Dijkstra B = 2 der; gerçek A→C→B = 1. Bozulan adım: “y’den v’ye kalan yol mesafeyi kısaltamaz” (w ≥ 0). Burada kalan kenar C→B negatiftir; δ(C) = 5 &gt; δ(B) = 1 olduğundan C, B’den <i>sonra</i> çıkarılır ama B’nin en kısa yolu C’den geçer.</p></details>
@@ -598,11 +604,11 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <details><summary>A6 (orta). Floyd: yönlü w(1,2) = 4, w(1,3) = 11, w(2,3) = 2. Her k’de ne değişir?</summary>
 <p>Başlangıç: D[1,2] = 4, D[1,3] = 11, D[2,3] = 2, köşegen 0, diğerleri ∞. k = 1: değişiklik yok (1’e giren kenar yok). k = 2: D[1,3] = min(11, D[1,2] + D[2,3]) = min(11, 6) = <b>6</b>. k = 3: değişiklik yok (3’ten çıkan yok). Sonuç: 1’den 3’e en kısa uzaklık 6.</p></details>
 <details><summary>A7 (orta). Bir DAG’da s’den t’ye giden farklı yol sayısını O(n+m)’de bulun.</summary>
-<p>paths[s] = 1, diğerleri 0. Topolojik sırada her köşe u için çıkan her kenar u→v’de paths[v] += paths[u]. Köşe işlenirken tüm öncülleri işlenmiş olur, bu yüzden değeri tamdır. n+m aritmetik işlem. (Yol sayısı üstel büyüyebilir; çok büyük sayılarda her toplamın bit maliyeti sabit sayılmaz.) Örnek: S→A, S→B, A→B, A→C, B→C, B→D, C→D için paths: A 1, B 2, C 3, D 5.</p></details>
+<p>paths[s] = 1, diğerleri 0. Topolojik sırada her tepe u için çıkan her kenar u→v’de paths[v] += paths[u]. Tepe işlenirken tüm öncülleri işlenmiş olur, bu yüzden değeri tamdır. n+m aritmetik işlem. (Yol sayısı üstel büyüyebilir; çok büyük sayılarda her toplamın bit maliyeti sabit sayılmaz.) Örnek: S→A, S→B, A→B, A→C, B→C, B→D, C→D için paths: A 1, B 2, C 3, D 5.</p></details>
 <details><summary>A8 (orta). Ağırlıksız bir çizgenin çapını (en büyük en kısa uzaklık) nasıl ve hangi maliyetle hesaplarsınız?</summary>
-<p>Bağlı ağırlıksız çizgede her köşeden BFS çalıştırıp en büyük uzaklığı alın: n kez O(n+m) = <b>O(n(n+m))</b>. Bağlı olmayan çizgede bir kural belirleyin: erişilemeyen çiftler ∞ sayılırsa çap ∞’dur; ya da bileşen başına çap raporlanır. Örnek: 5 köşeli yol çizgesinin çapı 4.</p></details>
+<p>Bağlı ağırlıksız çizgede her tepeden BFS çalıştırıp en büyük uzaklığı alın: n kez O(n+m) = <b>O(n(n+m))</b>. Bağlı olmayan çizgede bir kural belirleyin: erişilemeyen çiftler ∞ sayılırsa çap ∞’dur; ya da bileşen başına çap raporlanır. Örnek: 5 tepeli yol çizgesinin çapı 4.</p></details>
 <details><summary>A9 (orta). Mini ızgarada Dijkstra’yı S’den G’ye çalıştırın (arazi: M çamur 8, A, B çakıl 3, G, C asfalt 1), sırayı ve en ucuz yolu söyleyin; BFS ne verir?</summary>
-<p>S = 0; M = 8, A = 3. A (3) kesinleşir: B = 6. B (6): M üzerinden 14 (iyileşme yok), C = 7. C (7): G = 8. Şimdi G ve M ikisi de 8: G (8) kesinleşir, bitti. Yol S→A→B→C→G, maliyet 3+3+1+1 = <b>8</b>. BFS en az hamleli S→M→G’yi seçer, maliyeti 8+1 = <b>9</b>. Kesinleştirme güvenlidir çünkü hamle maliyeti ≥ 0. A*, Manhattan ipucuyla (G’ye uzaklık) hedefe yakın hücreleri önce açar ve admissible olduğundan yine maliyet 8’i bulur.</p></details>
+<p>S = 0; M = 8, A = 3. A (3) kesinleşir: B = 6. B (6): M üzerinden 14 (iyileşme yok), C = 7. C (7): G = 8. Şimdi G ve M ikisi de 8: G (8) kesinleşir, bitti. Yol S→A→B→C→G, maliyet 3+3+1+1 = <b>8</b>. BFS en az hamleli S→M→G’yi seçer, maliyeti 8+1 = <b>9</b>. Kesinleştirme güvenlidir çünkü hamle maliyeti ≥ 0. A*, bu ızgarada kabul edilebilir ve tutarlı Manhattan tahminiyle yine maliyet 8’i bulur; g+h eşitliğinde hedefe yakın hücre tercih edilir.</p></details>
 <details><summary>A10 (orta). Her kenara aynı k eklenirse en kısa yol ağacı korunur mu? Örnek verin.</summary>
 <p>Hayır. Çok kenarlı bir yol k’yi daha çok kez öder. 3 kenarlı yol (1+1+1 = 3) tek kenarlı yoldan (4) iyidir; k = 10 sonrası 3 kenarlı yol 33, tek kenarlı yol 14 olur. (MST ise korunur: her kapsayan ağaç n−1 kenar içerdiğinden hepsine aynı (n−1)k eklenir.)</p></details>
 <details><summary>A11 (orta). Dört durum için algoritma seçin: (a) 10⁶ yol parçalı haritada km, tek kaynak; (b) kur dönüşümü zincirinde döngüsel kazanç aramak (logaritmik ağırlıklarla); (c) görev bağımlılık DAG’ında süre farkları (bazıları negatif); (d) 200 odalı binada tüm oda çiftleri.</summary>
@@ -610,9 +616,9 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <details><summary>A12 (orta). G’nin MST’si T elinizde ve yeni bir e = (u, v) kenarı ekleniyor. Yeni MST’yi O(n)’de nasıl bulursunuz?</summary>
 <p>T’ye e’yi eklemek tek bir döngü kapatır (T’deki u–v yolu + e). Yeni MST = T + e − (döngüdeki en ağır kenar); en ağır kenar e ise hiçbir şey değişmez. T’de u–v yolunu DFS ile bulmak O(n) (T’de n−1 kenar var). Bu, bugünkü “gevşetme” fikrinin tersi bir bakıştır: orada tahmini düşürürdük, burada en ağır kenarı çıkarırız.</p></details>
 <details><summary>A13 (zor, isteğe bağlı). Her kenarın ağırlığı negatif olabilen bir DAG’da O(n+m)’de tek kaynak en kısa yolları nasıl bulunur, neden doğrudur?</summary>
-<p>Topolojik sırayı bulun (O(n+m)); dist[s] = 0, diğerleri ∞. Köşeleri sırayla işleyip her çıkan kenarı gevşetin. Bir köşeye gelen tüm yollar daha önceki köşelerden geldiği için, köşe işlendiğinde dist’i kesindir; negatif ağırlıklar sonradan geri dönüp kesin bir köşeyi bozamaz çünkü döngü yoktur. Her köşe ve kenar bir kez görülür: O(n+m).</p></details>
+<p>Topolojik sırayı bulun (O(n+m)); dist[s] = 0, diğerleri ∞. Tepeleri sırayla işleyip her çıkan kenarı gevşetin. Bir tepeye gelen tüm yollar daha önceki tepelerden geldiği için, tepe işlendiğinde dist’i kesindir; negatif ağırlıklar sonradan geri dönüp kesin bir tepeyi bozamaz çünkü döngü yoktur. Her tepe ve kenar bir kez görülür: O(n+m).</p></details>
 <details><summary>A14 (zor, isteğe bağlı). Bellman–Ford’da kontrol turunda neden hâlâ iyileşme olursa negatif döngü vardır?</summary>
-<p>Negatif döngü olmazsa her en kısa yol basit olur ve en çok n−1 kenar içerir; n−1 turdan sonra hiçbir dist azalamaz. Azalıyorsa, n veya daha çok kenarlı bir yol herhangi bir n−1 kenarlı yoldan kısadır; bu ancak bir köşenin tekrarlandığı yani bir döngünün negatif olduğu durumda mümkündür.</p></details>
+<p>Negatif döngü olmazsa her en kısa yol basit olur ve en çok n−1 kenar içerir; n−1 turdan sonra hiçbir dist azalamaz. Azalıyorsa, n veya daha çok kenarlı bir yol herhangi bir n−1 kenarlı yoldan kısadır; bu ancak bir tepenin tekrarlandığı yani bir döngünün negatif olduğu durumda mümkündür.</p></details>
 
 <div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A13 ve A14 isteğe bağlıdır; resmî Dijkstra kanıtı (2.6), Floyd’da yol geri kurma ve Fibonacci yığını da öyle. Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w11">kapsam listesine</a> bakın.</div>
 </section>
@@ -627,10 +633,10 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <li><b>Yol uzunluğu = kenar ağırlıkları toplamı.</b> BFS yalnızca ağırlıksız (eşit ağırlıklı) çizgede en kısa yoldur.</li>
 <li><b>Gevşetme:</b> d[v] = min(d[v], d[u] + w). Tahmin hiç artmaz; parent güncellenir.</li>
 <li><b>dist + parent</b> tabloları → yol hedeften geri okunur, ağaç oluşur. Erişilemeyen: ∞.</li>
-<li><b>Dijkstra:</b> en küçük tahminli köşeyi kesinleştir, çıkan kenarları gevşet. <b>Şart: w ≥ 0.</b> Maliyet O(n²) (dizi) ya da O((n+m) log n) (yığın).</li>
+<li><b>Dijkstra:</b> en küçük tahminli tepeyi kesinleştir, çıkan kenarları gevşet. <b>Şart: w ≥ 0.</b> Maliyet O(n²) (dizi) ya da O((n+m) log n) (yığın).</li>
 <li><b>Dijkstra ≈ Prim</b> (tek satır fark: dist[u]+w yerine w); BFS = tüm ağırlıkları 1 olan Dijkstra.</li>
 <li><b>Negatif kenar → Dijkstra yanlış olabilir:</b> A→B 2, A→C 5, C→B −4: Dijkstra 2, gerçek 1.</li>
-<li><b>Bellman–Ford:</b> tüm kenarları n−1 kez gevşet, O(V·E); <b>n. turda iyileşme = negatif döngü.</b> Kenar sırası turların sayısını etkiler, sonucu değil.</li>
+<li><b>Bellman–Ford:</b> tüm kenarları n−1 kez gevşet, O(V·E); <b>n. turda iyileşme = kaynaktan ulaşılabilen negatif döngü.</b> Kenar sırası turların sayısını etkiler, sonucu değil.</li>
 <li><b>DAG:</b> topolojik sırada gevşet, O(n+m), negatif ağırlık serbest; aynı sırayla yol sayısı da sayılır.</li>
 <li><b>Floyd:</b> k en dışta, D[i][j] = min(D[i][j], D[i][k] + D[k][j]), Θ(n³); köşegen &lt; 0 ⇒ negatif döngü; min/+ yerine veya/ve ⇒ geçişli kapanış.</li>
 <li><b>A*</b> = ipucu (h) eklenmiş Dijkstra; h hiçbir zaman fazla söylemezse (admissible) ve kapalı küme kullanılıyorsa ayrıca tutarlıysa (consistent; Manhattan + 4 yönlü ızgara + maliyet ≥ 1 tutarlıdır) en ucuz yolu bulur, genelde daha az hücre açar. <b>Her kenara sabit eklemek yolu korumaz.</b></li>
@@ -640,7 +646,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <ul>
 <li>Geri kenar ⇒ yönlü çizgede döngü; DAG’da topolojik sıra vardır (DFS bitiş zamanlarının tersi ya da giriş derecesi 0’ı çıkar).</li>
 <li>Kesme özelliği: kesmeyi geçen en hafif kenar bir MST’dedir. Kruskal döngü kapatanı reddeder; union-find neredeyse sabit amortize.</li>
-<li>MST toplam ağırlığı küçültür, tekil yolları değil (2, 2, 3 üçgeni).</li>
+<li>MST toplam ağırlığı en aza indirir, tekil yolları değil (2, 2, 3 üçgeni).</li>
 <li>Maliyet okuma: yarılama ≈ lg n, üç iç içe döngü Θ(n³), n iki katına → n³ sekiz katına.</li>
 </ul></div>
 
@@ -656,7 +662,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 
 <div class="box"><b>Sık yapılan hatalar</b>
 <ol>
-<li>“Negatif kenar varsa Dijkstra biraz çalışır.” → Garanti yoktur; sayaç-örnek A→B 2, A→C 5, C→B −4.</li>
+<li>“Negatif kenar varsa Dijkstra biraz çalışır.” → Garanti yoktur; karşı örnek A→B 2, A→C 5, C→B −4.</li>
 <li>Gevşetmeyi <b>büyüten</b> güncelleme yazmak, ya da eşit teklifle ebeveyni değiştirmek (kesin küçüklük arayın).</li>
 <li>Bellman–Ford’da “n. turda değişim” ile negatif döngüyü karıştırmak ya da kontrol turunu unutmak.</li>
 <li>Her kenara k ekleyip en kısa yolun aynı kalacağını sanmak.</li>
@@ -668,7 +674,7 @@ Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanm
 <ol>
 <li>Dijkstra hangi koşulda doğrudur ve ona karşı örnek nedir?</li>
 <li>Bir gevşetme adımı tam olarak ne yapar? (d[u]=3, w=4, d[v]=9 için sonuç?)</li>
-<li>5 köşeli, 8 kenarlı bir çizgede Bellman–Ford en kötü kaç gevşetme yapar (kontrol turu dahil)? Neden?</li>
+<li>5 tepeli, 8 kenarlı bir çizgede Bellman–Ford en kötü kaç gevşetme yapar (kontrol turu dahil)? Neden?</li>
 </ol>
 <details><summary>Cevaplar</summary><p>1) Negatif olmayan ağırlık; A→B 2, A→C 5, C→B −4. 2) d[v] = min(9, 3+4) = 7; parent[v] = u. 3) n−1 = 4 tur × 8 kenar = 32; kontrol turuyla 5 tur × 8 = 40 gevşetme denemesi.</p></details></div>
 </section>
@@ -709,7 +715,7 @@ function parseG(txt){
   const nodes=[],edges=[],bad=[];const add=n=>{if(!nodes.includes(n))nodes.push(n)};
   txt.replace(/−/g,"-").replace(/→/g,">").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{
     const m=s.match(/^([A-Za-z0-9_]+)\s*([>-])\s*([A-Za-z0-9_]+)\s+(-?\d+(?:\.\d+)?)$/);
-    if(!m){bad.push(s);return}
+    if(!m||!Number.isFinite(+m[4])||[m[1],m[3]].some(v=>Object.prototype.hasOwnProperty.call(Object.prototype,v))){bad.push(s);return}
     add(m[1]);add(m[3]);edges.push({u:m[1],v:m[3],w:+m[4],und:m[2]==="-"});
   });
   return {nodes,edges,bad};
@@ -759,7 +765,7 @@ function dijkSteps(g,src){
       else snap({kind:"nochg",cur:u,edge:a.ei,note:`${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} ≥ ${D(old)} → iyileşme yok, değişmez.`});
     }
   }
-  snap({kind:"end",note:`Kuyruk boş: bitti. ∞ kalan köşeler kaynaktan ulaşılamaz.`+(bad.length?` <span class="bad">Yanlış kesinleşen köşe(ler): ${bad.join(", ")}.</span>`:"")});
+  snap({kind:"end",note:`Kuyruk boş: bitti. ∞ kalan tepeler kaynaktan ulaşılamaz.`+(bad.length?` <span class="bad">Yanlış kesinleşen tepe(ler): ${bad.join(", ")}.</span>`:"")});
   return st;
 }
 function dijkRun(g,s){const st=dijkSteps(g,s);return st[st.length-1]}
@@ -783,7 +789,7 @@ function bfSteps(g,src,rev){
       else snap({kind:"nochg",edge:a.ei,note:`${lab}: ${a.u}→${a.v}: ${D(dist[a.u])} + ${D(a.w)} = ${D(nd)} ≥ ${D(old)} → değişmez.`});
     }
     if(round===n){
-      if(changed)snap({kind:"end",roundEnd:true,neg:true,note:`<span class="bad">Kontrol turunda hâlâ iyileşme var → kaynaktan ulaşılabilen bir NEGATİF DÖNGÜ var.</span> En kısa yollar tanımsız (−∞).`});
+      if(changed)snap({kind:"end",roundEnd:true,neg:true,note:`<span class="bad">Kontrol turunda hâlâ iyileşme var → kaynaktan ulaşılabilen bir NEGATİF DÖNGÜ var.</span> Bu döngüden ulaşılabilen hedeflerin en kısa uzaklığı −∞’dur; diğer köşeler için sonlu/∞ uzaklıklar kalabilir.`});
       else snap({kind:"end",roundEnd:true,note:`Kontrol turunda iyileşme yok: negatif döngü yok. Sonuç kesin.`});
       break}
     if(!changed){snap({kind:"end",roundEnd:true,note:`<b>Tur ${round}’de hiçbir şey değişmedi</b> → durabiliriz: kalan turlar gereksiz ve negatif döngü yok. Sonuç kesin.`});break}
@@ -799,12 +805,12 @@ function dagSteps(g,src){
   const order=[],q=g.nodes.filter(v=>deg[v]===0);
   while(q.length){q.sort((a,b)=>g.nodes.indexOf(a)-g.nodes.indexOf(b));const u=q.shift();order.push(u);adj[u].forEach(a=>{if(--deg[a.v]===0)q.push(a.v)})}
   const dist={},par={},pe={},cnt={};g.nodes.forEach(v=>{dist[v]=INF;par[v]=null;pe[v]=null;cnt[v]=0});
-  if(order.length<g.nodes.length)return [{err:true,dist,par,pe,cnt,order:[],done:[],cur:null,edge:-1,chg:null,note:`<span class="bad">Bu çizge bir DAG değil</span> (döngü ya da yönsüz kenar var): giriş derecesi 0 olan köşe kalmadı, topolojik sıra yok. Köşeler: ${order.length}/${g.nodes.length} sıralanabildi.`}];
+  if(order.length<g.nodes.length)return [{err:true,dist,par,pe,cnt,order:[],done:[],cur:null,edge:-1,chg:null,note:`<span class="bad">Bu çizge bir DAG değil</span> (döngü ya da yönsüz kenar var): giriş derecesi 0 olan tepe kalmadı, topolojik sıra yok. Tepeler: ${order.length}/${g.nodes.length} sıralanabildi.`}];
   dist[src]=0;cnt[src]=1;const done=[],st=[];
   const snap=o=>st.push(Object.assign({dist:{...dist},par:{...par},pe:{...pe},cnt:{...cnt},order:[...order],done:[...done],cur:null,edge:-1,chg:null,note:""},o));
   snap({note:`Topolojik sıra (giriş derecesi 0’ı çıkar): <b>${order.join(" → ")}</b>. dist[${src}] = 0, yol sayısı[${src}] = 1.`});
   for(const u of order){
-    snap({cur:u,note:`Sıradaki köşe <b>${u}</b> (dist = ${D(dist[u])}). Tüm öncülleri zaten işlendi; bu yüzden dist[${u}] <b>kesindir</b>. Çıkan kenarları gevşetiriz.`});
+    snap({cur:u,note:`Sıradaki tepe <b>${u}</b> (dist = ${D(dist[u])}). Tüm öncülleri zaten işlendi; bu yüzden dist[${u}] <b>kesindir</b>. Çıkan kenarları gevşetiriz.`});
     for(const a of adj[u]){
       const nd=dist[u]+a.w,old=dist[a.v];cnt[a.v]+=cnt[u];
       if(dist[u]!==INF&&nd<old){dist[a.v]=nd;par[a.v]=u;pe[a.v]=a.ei;snap({cur:u,edge:a.ei,chg:a.v,note:`Gevşet ${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} &lt; ${D(old)} → <b>dist[${a.v}] = ${D(nd)}</b>. Yol sayısı[${a.v}] += yol sayısı[${u}] → ${cnt[a.v]}.`})}
@@ -812,7 +818,7 @@ function dagSteps(g,src){
     }
     done.push(u);
   }
-  snap({note:`Bitti: her köşe ve her kenar yalnızca <b>bir kez</b> işlendi: O(n + m).`});
+  snap({note:`Bitti: her tepe ve her kenar yalnızca <b>bir kez</b> işlendi: O(n + m).`});
   return st;
 }
 
@@ -834,7 +840,7 @@ function floydSteps(g,bool){
     st.push({M:cp(),k,ch,V,bool,note:`<b>k = ${kn}</b>: artık ${V.slice(0,k+1).join(", ")} ara tepe olabilir. `+(ch.length?`İyileşenler:<br>${lines.join("<br>")}`:"Hiçbir hücre iyileşmedi.")});
   }
   const neg=!bool&&M.some((r,i)=>r[i]<0);
-  st[st.length-1].note+=neg?`<br><span class="bad">Köşegende negatif sayı var → negatif döngü: mesafeler anlamsız.</span>`:`<br>Bitti. Θ(n³) = ${n}³ = ${n*n*n} iç adım.`;
+  st[st.length-1].note+=neg?`<br><span class="bad">köşegende negatif sayı var → negatif döngü. Bu döngü üzerinden bağlanan çiftlerin uzaklığı −∞’dur; görünen sonlu değerler bu çiftler için en kısa uzaklık değildir.</span>`:`<br>Bitti. Θ(n³) = ${n}³ = ${n*n*n} iç adım.`;
   st[st.length-1].neg=neg;
   return st;
 }
@@ -872,7 +878,7 @@ function dagTrace(txt,src){
     // snapshot right after u is done = first snapshot where done.length===j+1
     const after=st.find(x=>x.done.length===j+1)||s;
     h+=`<tr><td class="m"><b>${u}</b></td>${g.nodes.map(n=>`<td class="m ${after.dist[n]!==prev.dist[n]?"ch":""}">${D(after.dist[n])}</td>`).join("")}<td class="m">${g.nodes.map(n=>after.cnt[n]).join(", ")}</td></tr>`;prev=after});
-  return h+"</tbody></table><div class='mut mini'>Yol sayısı sütunu köşe sırasıyla: "+g.nodes.join(", ")+".</div>";
+  return h+"</tbody></table><div class='mut mini'>Yol sayısı sütunu tepe sırasıyla: "+g.nodes.join(", ")+".</div>";
 }
 function floydTrace(txt){
   const g=parseG(txt),st=floydSteps(g,false);
@@ -937,7 +943,7 @@ function mkGW(id,cfg){
   function build(keep){
     stop();const p=cfg.presets[+sel.value],ng=parseG(txt.value),err=q(".gerr");
     err.innerHTML=ng.bad.length?`<span class="bad">Anlaşılmayan: ${esc(ng.bad.join(" | "))}</span> — biçim: <code>A&gt;B 3</code> (yönlü) ya da <code>A-B 3</code> (yönsüz)`:"";
-    if(!ng.nodes.length||ng.nodes.length>9||ng.edges.length>24){err.innerHTML+=` <span class="bad">1–9 köşe ve en çok 24 kenar girin.</span>`;return}
+    if(!ng.nodes.length||ng.nodes.length>9||ng.edges.length>24){err.innerHTML+=` <span class="bad">1–9 tepe ve en çok 24 kenar girin.</span>`;return}
     g=ng;pos=(p.pos&&g.nodes.every(n=>p.pos[n]))?p.pos:circlePos(g.nodes);
     const prev=ssel.value;ssel.innerHTML=g.nodes.map(n=>`<option>${n}</option>`).join("");
     ssel.value=(keep&&g.nodes.includes(prev))?prev:(g.nodes.includes(p.src)?p.src:g.nodes[0]);
@@ -965,19 +971,19 @@ function renderDij(s,g,pos,root,ctx){
   root.querySelector(".gtab").innerHTML=`<div class="mini"><b>Öncelik kuyruğu</b> (çizgili = bayat): ${pq}</div>`+nodeTable(g,rows);
   if(ctx&&ctx.truth&&s.kind==="end"){
     const diff=g.nodes.filter(n=>!ctx.truth.neg&&s.dist[n]!==ctx.truth.dist[n]);
-    return `<br><b>Karşılaştırma:</b> `+(ctx.truth.neg?"çizgede negatif döngü var, gerçek uzaklıklar tanımsız.":diff.length?`<span class="bad">Dijkstra ${diff.map(n=>`${n}=${D(s.dist[n])} (gerçek ${D(ctx.truth.dist[n])})`).join(", ")} bulur: YANLIŞ.</span>`:`<span class="ok">Dijkstra bu grafta doğru sonucu verdi</span> (ama bu bir garanti değil, şans eseri sıra uygun).`);
+    return `<br><b>Karşılaştırma:</b> `+(ctx.truth.neg?"çizgede negatif döngü var, gerçek uzaklıklar tanımsız.":diff.length?`<span class="bad">Dijkstra ${diff.map(n=>`${n}=${D(s.dist[n])} (gerçek ${D(ctx.truth.dist[n])})`).join(", ")} bulur: YANLIŞ.</span>`:`<span class="ok">Dijkstra bu çizgede doğru sonucu verdi</span> (ama bu bir garanti değil, şans eseri sıra uygun).`);
   }
 }
 mkGW("#gw_dj",{label:"Dijkstra izleyici",presets:[
   {n:"Çözümlü örnek 1 (A, B, C)",t:T.EX1,pos:PX.EX1,src:"A"},
-  {n:"Graf W (ders örneği)",t:T.W,pos:PX.W,src:"A"},
+  {n:"Çizge W (ders örneği)",t:T.W,pos:PX.W,src:"A"},
   {n:"Altı tepeli örnek",t:T.G6,pos:PX.G6,src:"S"},
   {n:"Erişilemeyen tepe (D)",t:T.UN,pos:PX.UN,src:"A"},
   {n:"Negatif kenar (hata)",t:T.NEG1,pos:PX.NEG1,src:"A"}],
   steps:(g,s)=>dijkSteps(g,s),render:renderDij,jump:["Sonuca atla ▶▶",(st)=>st.length-1],ms:750});
 mkGW("#gw_fail",{label:"Dijkstra ve gerçek sonuç",presets:[
-  {n:"Sayaç-örnek 1: A→B 2, A→C 5, C→B −4",t:T.NEG1,pos:PX.NEG1,src:"A"},
-  {n:"Sayaç-örnek 2: S→A 4, S→B 2, A→B −3",t:T.NEG2,pos:PX.NEG2,src:"S"},
+  {n:"Karşı örnek 1: A→B 2, A→C 5, C→B −4",t:T.NEG1,pos:PX.NEG1,src:"A"},
+  {n:"Karşı örnek 2: S→A 4, S→B 2, A→B −3",t:T.NEG2,pos:PX.NEG2,src:"S"},
   {n:"Örnek 2 grafı: negatif var ama Dijkstra doğru",t:T.BF2,pos:PX.BF,src:"S"}],
   steps:(g,s)=>dijkSteps(g,s),prep:(g,s)=>({truth:bfFinal(g,s)}),render:renderDij,jump:["Sonuca atla ▶▶",(st)=>st.length-1],ms:900});
 
@@ -1013,7 +1019,7 @@ mkGW("#gw_dag",{label:"DAG izleyici",presets:[
 /* ----- Floyd widget ----- */
 mkGW("#gw_fl",{label:"Floyd izleyici",nosrc:true,presets:[
   {n:"Q20: 1→2 4, 1→3 11, 2→3 2",t:T.Q20,pos:PX.F3,src:"1"},
-  {n:"4 köşe, negatif kenarlı",t:T.F4,pos:PX.F4,src:"1"},
+  {n:"4 tepe, negatif kenarlı",t:T.F4,pos:PX.F4,src:"1"},
   {n:"Negatif döngü (1→2→3→1 = −1)",t:T.FNC,pos:PX.F3,src:"1"}],
   extra:`<label class="mut gx">Kip <select class="fm"><option value="0">en kısa yol (min, +)</option><option value="1">geçişli kapanış (veya, ve)</option></select></label>`,
   steps:(g,s,root)=>floydSteps(g,root.querySelector(".fm").value==="1"),ms:1100,
@@ -1062,7 +1068,7 @@ function bfsPath(g,s,t){
   return {nodes:nodes.reverse(),edges};
 }
 (function(){
-  const PR=[{n:"Graf W (ders örneği)",t:T.W,pos:PX.W,s:"A",d:"D"},{n:"Zincir: 7 küçük kenar mı, 1 büyük kenar mı?",t:T.CHAIN,pos:null,s:"S",d:"T"}];
+  const PR=[{n:"Çizge W (ders örneği)",t:T.W,pos:PX.W,s:"A",d:"D"},{n:"Zincir: 7 küçük kenar mı, 1 büyük kenar mı?",t:T.CHAIN,pos:null,s:"S",d:"T"}];
   $("#hc_g").innerHTML=PR.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");
   let cur;
   function load(){const p=PR[+$("#hc_g").value];cur=parseG(p.t);const o=cur.nodes.map(n=>`<option>${n}</option>`).join("");$("#hc_s").innerHTML=o;$("#hc_t").innerHTML=o;$("#hc_s").value=p.s;$("#hc_t").value=p.d;up()}
@@ -1101,14 +1107,14 @@ function bfsPath(g,s,t){
     const cand=du+w,imp=cand<dv,nv=imp?cand:dv,mx=Math.max(25,cand,du)||1;
     const bar=(v,c)=>v===INF?`<div class="bar2 ${c}" style="width:100%;opacity:.35"></div>`:`<div class="bar2 ${c}" style="width:${Math.max(2,Math.abs(v)/mx*100)}%"></div>`;
     $("#rx_out").innerHTML=`<div class="bigres">aday = d[u] + w = ${du} + ${D(w)} = <span id="rx_c">${D(cand)}</span> &nbsp;·&nbsp; d[v] şimdi ${D(dv)}</div>${bar(cand,"w")}<div class="mut mini">aday</div>${bar(dv,"")}<div class="mut mini">mevcut d[v]</div>`+
-      (imp?`<div class="bigres ok">${D(cand)} &lt; ${D(dv)} → d[v] = <span id="rx_n">${D(nv)}</span>, parent[v] = u (güncellendi)</div>`:`<div class="bigres bad">${D(cand)} ≥ ${D(dv)} → d[v] = <span id="rx_n">${D(nv)}</span> (değişmez)</div>`);
+      (imp?`<div class="bigres ok">${D(cand)} &lt; ${D(dv)} → d[v] = <span class="rx_n">${D(nv)}</span>, parent[v] = u (güncellendi)</div>`:`<div class="bigres bad">${D(cand)} ≥ ${D(dv)} → d[v] = <span class="rx_n">${D(nv)}</span> (değişmez)</div>`);
   }
   ["#rx_u","#rx_w","#rx_v"].forEach(s=>$(s).oninput=up);$("#rx_inf").onchange=up;up();
 })();
 
 /* ======================= 1.5 path trace ======================= */
 (function(){
-  const PR=[{n:"Graf W, kaynak A",t:T.W,pos:PX.W,s:"A",d:"E"},{n:"Altı tepeli örnek, kaynak S",t:T.G6,pos:PX.G6,s:"S",d:"T"},{n:"Erişilemeyen tepe, kaynak A",t:T.UN,pos:PX.UN,s:"A",d:"D"}];
+  const PR=[{n:"Çizge W, kaynak A",t:T.W,pos:PX.W,s:"A",d:"E"},{n:"Altı tepeli örnek, kaynak S",t:T.G6,pos:PX.G6,s:"S",d:"T"},{n:"Erişilemeyen tepe, kaynak A",t:T.UN,pos:PX.UN,s:"A",d:"D"}];
   $("#pt_g").innerHTML=PR.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");
   function load(){const p=PR[+$("#pt_g").value],g=parseG(p.t);$("#pt_t").innerHTML=g.nodes.map(n=>`<option>${n}</option>`).join("");$("#pt_t").value=p.d;up()}
   function up(){
@@ -1160,7 +1166,7 @@ function fmtT(sec){
     const same=dist.every((x,i)=>x===bd[i]);
     $("#cm_t").innerHTML=`<tr><td rowspan="3">Dijkstra (yığın)</td><td>gevşetme denemesi</td><td class="m" id="cm_rel">${fmt(rel)}</td></tr><tr><td>kuyruğa eklenen / çıkan</td><td class="m">${fmt(pushes)} / ${fmt(pops)} (bayat: ${fmt(stale)})</td></tr><tr><td>teorik üst sınır (n+m)·lg n</td><td class="m">${fmt(Math.round((n+E.length)*lg(n)))}</td></tr>
 <tr><td rowspan="3">Bellman–Ford</td><td>çalışılan tur (erken durdurma ile)</td><td class="m" id="cm_r">${rounds}</td></tr><tr><td>gevşetme denemesi = tur × m</td><td class="m" id="cm_bf">${fmt(rounds*E.length)}</td></tr><tr><td>en kötü (n−1)·m</td><td class="m">${fmt((n-1)*E.length)}</td></tr>`;
-    $("#cm_out").innerHTML=`n = ${n}, m = ${E.length} (hepsi 0’dan ulaşılabilir, ağırlık 1–20). İki algoritmanın uzaklıkları ${same?`<b class="ok" id="cm_same">birebir aynı ✓</b>`:`<b class="bad">FARKLI ✗</b>`}. Bellman–Ford rastgele grafta çoğu zaman n−1 turun çok altında biter, ama en kötü sınıf yine O(V·E)’dir.`;
+    $("#cm_out").innerHTML=`n = ${n}, m = ${E.length} (hepsi 0’dan ulaşılabilir, ağırlık 1–20). İki algoritmanın uzaklıkları ${same?`<b class="ok" id="cm_same">birebir aynı ✓</b>`:`<b class="bad">FARKLI ✗</b>`}. Bellman–Ford rastgele çizgede çoğu zaman n−1 turun çok altında biter, ama en kötü sınıf yine O(V·E)’dir.`;
   }
   $("#cm_run").onclick=run;run();
 })();
@@ -1173,7 +1179,7 @@ const GRIDS=[
 ];
 function parseGrid(txt){
   const rows=txt.split("\n").map(r=>r.replace(/\s/g,"")).filter(Boolean);if(!rows.length)return null;
-  const C=Math.max(...rows.map(r=>r.length)),R=rows.length;let S=null,G=null;
+  const C=Math.max(...rows.map(r=>r.length)),R=rows.length;if(R>30||C>40||rows.some(r=>r.length!==C||/[^SG.gm#]/.test(r))||rows.join("").split("S").length!==2||rows.join("").split("G").length!==2)return null;let S=null,G=null;
   const cells=rows.map((r,i)=>Array.from({length:C},(_,j)=>{const c=r[j]||"#";if(c==="S")S=[i,j];if(c==="G")G=[i,j];return "SG.gm#".includes(c)?c:"#"}));
   if(!S||!G)return null;return {cells,R,C,S,G};
 }
@@ -1200,7 +1206,7 @@ function gridRun(gr,mode){
   $("#gd_p").innerHTML=GRIDS.map((x,i)=>`<option value="${i}">${x.n}</option>`).join("");
   function load(){$("#gd_txt").value=GRIDS[+$("#gd_p").value].t;up()}
   function up(){
-    const gr=parseGrid($("#gd_txt").value);if(!gr){$("#gd_t").innerHTML=`<tr><td colspan="5" class="bad">S ve G içeren bir ızgara girin.</td></tr>`;$("#gd_grid").innerHTML="";return}
+    const gr=parseGrid($("#gd_txt").value);if(!gr){$("#gd_t").innerHTML=`<tr><td colspan="5" class="bad">Tam bir S ve bir G içeren, eşit uzunlukta 1–30 satırlı (en çok 40 sütun) bir ızgara girin; yalnızca S, G, ., g, m, # kullanın.</td></tr>`;$("#gd_grid").innerHTML="";return}
     const mode=$("#gd_a").value,res={bfs:gridRun(gr,"bfs"),dij:gridRun(gr,"dij"),ast:gridRun(gr,"ast")};
     const names=["bfs","dij","ast"],lab={bfs:"BFS",dij:"Dijkstra",ast:"A*"};
     $("#gd_t").innerHTML=names.map(a=>{const r=res[a];return `<tr><td>${lab[a]}</td><td class="m">${r.ok?r.arrows:"yol yok"}</td><td class="m" data-c="${a}">${r.ok?r.cost:"–"}</td><td class="m">${r.ok?r.moves:"–"}</td><td class="m" data-x="${a}">${r.order.length}</td></tr>`}).join("");
@@ -1218,12 +1224,12 @@ function gridRun(gr,mode){
   function up(){
     const all=$("#ch_q").value==="2",dag=$("#ch_dag").value==="1",w=$("#ch_w").value;let a,why,cost;
     if(all){
-      if(w==="u"){a="n kez BFS";why="Ağırlıksızda her köşeden BFS çalıştırın (çap da böyle bulunur).";cost="O(n(n+m))"}
+      if(w==="u"){a="n kez BFS";why="Ağırlıksızda her tepeden BFS çalıştırın (çap da böyle bulunur).";cost="O(n(n+m))"}
       else if(w==="p"){a="Floyd–Warshall (ya da n × Dijkstra)";why="Yoğun çizgede Floyd kısa ve yeterince hızlıdır; seyrek çizgede n kez yığınlı Dijkstra daha az iş yapar.";cost="Θ(n³)  /  O(n(n+m) log n)"}
-      else{a="Floyd–Warshall";why="Negatif kenar var: Dijkstra yok. Floyd negatif kenarı kaldırır; negatif döngü varsa köşegende negatif sayı çıkar.";cost="Θ(n³)"}
-    }else if(dag){a="Topolojik sırada gevşetme";why="DAG’da her köşe öncüllerinden sonra işlenir; negatif ağırlık bile sorun değildir. En hızlısı budur.";cost="O(n+m)"}
+      else{a="Floyd–Warshall";why="Negatif kenar var: Dijkstra yok. Floyd negatif kenarlarla çalışır; negatif döngü varsa köşegende negatif sayı çıkar.";cost="Θ(n³)"}
+    }else if(dag){a="Topolojik sırada gevşetme";why="DAG’da her tepe öncüllerinden sonra işlenir; negatif ağırlık bile sorun değildir. En hızlısı budur.";cost="O(n+m)"}
     else if(w==="u"){a="BFS";why="Tüm ağırlıklar eşit: en kısa yol = en az kenar.";cost="O(n+m)"}
-    else if(w==="p"){a="Dijkstra (ikili yığın)";why="Ağırlıklar negatif olmadığından en küçük tahminli köşe güvenle kesinleştirilir.";cost="O((n+m) log n)  (yoğunda dizi: O(n²))"}
+    else if(w==="p"){a="Dijkstra (ikili yığın)";why="Ağırlıklar negatif olmadığından en küçük tahminli tepe güvenle kesinleştirilir.";cost="O((n+m) log n)  (yoğunda dizi: O(n²))"}
     else{a="Bellman–Ford";why="Negatif kenar var: Dijkstra yanlış olabilir. n−1 tur gevşet, bir kontrol turuyla negatif döngüyü yakala.";cost="O(V·E)"}
     $("#ch_out").innerHTML=`<div class="bigres">Öneri: <span id="ch_a">${a}</span></div><div>${why}</div><div class="kpi">${cost}</div>`;
   }
@@ -1245,7 +1251,7 @@ $("#tr_f1").innerHTML=`<div class="mini"><b>Çözümlü örnek 5 — Floyd (Q20)
 
 /* ======================= quizzes ======================= */
 mkQuiz("#quiz0",[
- ["Kruskal bir kenarı ne zaman reddeder?",["Ağırlığı pozitifse","İki ucu zaten aynı bileşendeyse (döngü kapatır)","En hafif kenarsa","Başlangıç köşesine değiyorsa"],1,"Aynı bileşende olan iki köşeyi bağlamak döngü kapatır; union-find bunu find(u) = find(v) ile anlar."],
+ ["Kruskal bir kenarı ne zaman reddeder?",["Ağırlığı pozitifse","İki ucu zaten aynı bileşendeyse (döngü kapatır)","En hafif kenarsa","Başlangıç tepesine değiyorsa"],1,"Aynı bileşende olan iki tepeyi bağlamak döngü kapatır; union-find bunu find(u) = find(v) ile anlar."],
  ["Union by rank + path compression ile n elemanda m işlemin maliyeti?",["O(m·n)","O(m α(n)) amortize; pratikte neredeyse sabit","Her find en kötü O(n)","O(m²)"],1,"α(n) ≤ 4 (pratikte); tek bir find uzun olabilir ama amortize bedel çok küçüktür."],
  ["Üçgen A–B 2, B–C 2, A–C 3. MST’de A’dan C’ye yolun uzunluğu?",["3","4","2","5"],1,"MST, iki 2’lik kenarı seçer; A→B→C = 4, oysa doğrudan kenar 3: MST en kısa yolu garanti etmez."],
  ["DFS’te geri (back) kenar neyi gösterir?",["Yönlü çizgede döngü","En kısa yol","Çizgenin bağlı olduğunu","Topolojik sıranın var olduğunu"],0,"Hâlâ yığında olan bir atasına dönen kenar döngü kapatır; döngülü çizgede topolojik sıra yoktur."],
@@ -1256,25 +1262,31 @@ mkQuiz("#quiz0",[
 ]);
 mkQuiz("#quiz1",[
  ["d[u] = 3, w = 4, d[v] = 9. relax(u→v) sonrası d[v] kaçtır?",["9","7","13","3"],1,"min(9, 3+4) = 7; ebeveyn de u olur."],
- ["Dijkstra’nın doğru çalışması için kenar ağırlıkları hakkında hangisi yeterlidir?",["Hepsi eşit olmalı","Negatif olmamalı","Çizge DAG olmalı","Çizge ağaç olmalı"],1,"Negatif olmayan ağırlık: kesinleşen köşe sonradan kısalmaz."],
+ ["Dijkstra’nın doğru çalışması için kenar ağırlıkları hakkında hangisi yeterlidir?",["Hepsi eşit olmalı","Negatif olmamalı","Çizge DAG olmalı","Çizge ağaç olmalı"],1,"Negatif olmayan ağırlık: kesinleşen tepe sonradan kısalmaz."],
  ["Parent (öncül) tablosu ne işe yarar?",["Yolu geri kurmaya","Negatif ağırlığı güvenli yapmaya","Çizgeyi sıralamaya","Tüm kapsayan ağaçları saymaya"],0,"Dist yalnızca sayıyı verir; yol parent zincirinden okunur."],
- ["Kaynaktan ulaşılamayan köşenin en kısa uzaklığı nedir?",["0","1","∞","n"],2,"∞: henüz hiçbir yol bulunamadı (tamamlanmış aramada erişilemez)."],
- ["Graf W’de A’dan Dijkstra: D’ye uzaklık?",["5","8","9","11"],1,"A–C–B–D = 1+2+5 = 8; A–C–D = 9’dan iyidir."],
- ["Graf W’de A’dan E’ye en kısa uzaklık?",["8","10","11","13"],2,"A–C–E = 1+10 = 11 ve A–C–B–D–E = 1+2+5+3 = 11."],
+ ["Kaynaktan ulaşılamayan tepenin en kısa uzaklığı nedir?",["0","1","∞","n"],2,"∞: henüz hiçbir yol bulunamadı (tamamlanmış aramada erişilemez)."],
+ ["Çizge W’de A’dan Dijkstra: D’ye uzaklık?",["5","8","9","11"],1,"A–C–B–D = 1+2+5 = 8; A–C–D = 9’dan iyidir."],
+ ["Çizge W’de A’dan E’ye en kısa uzaklık?",["8","10","11","13"],2,"A–C–E = 1+10 = 11 ve A–C–B–D–E = 1+2+5+3 = 11."],
  ["A→B 2, A→C 5, C→B −4. Dijkstra (kesinleşen değişmez) B için ne bulur, gerçek değer nedir?",["2 ve 1","1 ve 1","2 ve 2","5 ve 1"],0,"B, 2 ile kesinleşir; ama A→C→B = 5−4 = 1."],
- ["Bellman–Ford, 6 köşeli ve 9 kenarlı bir çizgede en kötü durumda (kontrol turu hariç) kaç gevşetme denemesi yapar?",["15","45","54","81"],1,"(n−1)·m = 5 · 9 = 45."],
+ ["Bellman–Ford, 6 tepeli ve 9 kenarlı bir çizgede en kötü durumda (kontrol turu hariç) kaç gevşetme denemesi yapar?",["15","45","54","81"],1,"(n−1)·m = 5 · 9 = 45."],
  ["Bellman–Ford’da negatif döngü nasıl anlaşılır?",["n−1 turdan sonra bir tur daha yapınca hâlâ bir dist düşüyorsa","Kuyruk boşalırsa","Bir tur hiçbir şey değiştirmezse","d[s] negatif olursa"],0,"Negatif döngü yoksa n−1 turdan sonra hiçbir dist azalamaz."],
- ["Negatif kenarlı bir DAG’da tek kaynak en kısa yolları en hızlı hangi yöntem verir?",["Dijkstra (yığın), O((n+m) log n)","Topolojik sırada gevşetme, O(n+m)","Floyd, Θ(n³)","BFS"],1,"DAG’da döngü yok; negatif kenar sorun değil ve her köşe bir kez işlenir."],
- ["100 köşeli bir çizgede Floyd–Warshall’ın en iç satırı (D[i][j] güncellemesi) kaç kez çalışır?",["10⁴","10⁶","10⁸","300"],1,"n³ = 100³ = 10⁶."],
+ ["Negatif kenarlı bir DAG’da tek kaynak en kısa yolları en hızlı hangi yöntem verir?",["Dijkstra (yığın), O((n+m) log n)","Topolojik sırada gevşetme, O(n+m)","Floyd, Θ(n³)","BFS"],1,"DAG’da döngü yok; negatif kenar sorun değil ve her tepe bir kez işlenir."],
+ ["100 tepeli bir çizgede Floyd–Warshall’ın en iç satırı (D[i][j] güncellemesi) kaç kez çalışır?",["10⁴","10⁶","10⁸","300"],1,"n³ = 100³ = 10⁶."],
  ["Q20: 1→2 = 4, 1→3 = 11, 2→3 = 2. Floyd sonunda D[1][3] kaçtır?",["11","6","4","2"],1,"k = 2’de min(11, 4+2) = 6."],
  ["Mini ızgarada (M çamur 8, G asfalt 1) BFS’in bulduğu S→M→G yolunun maliyeti?",["2","8","9","11"],2,"M’ye girmek 8, G’ye girmek 1: toplam 9. Dijkstra’nın yolu 8’dir."],
  ["Bu ızgarada (4 yönlü, maliyet ≥ 1, Manhattan ipucu: kabul edilebilir ve tutarlı) A*, Dijkstra’ya göre ne yapar?",["Aynı en ucuz yolu bulur, genelde daha az hücre açar","Daha kısa bir yol bulur","En az hamleli yolu bulur","Yalnızca engelsiz ızgarada çalışır"],0,"Manhattan ipucu burada admissible ve tutarlıdır (bir adımda h en çok 1 değişir, maliyet ≥ 1); kapalı kümeli A* de kesindir. Yalnızca admissible h, kapalı kümeyle yeniden açma olmadan yetmeyebilir; ipucu açılma sırasını değiştirir."],
- ["Hangisi YANLIŞTIR?",["Ağırlıksız çizgede BFS ağacındaki yollar en kısa yollardır","Her MST, her köşe çifti için bir en kısa yol içerir","Her kenara aynı pozitif sabit eklemek en kısa yol ağacını değiştirebilir","Negatif kenar Dijkstra’nın yanlış sonuç vermesine yol açabilir"],1,"Üçgen 2, 2, 3: MST’de A→C yolu 4, doğrudan kenar 3."],
+ ["Hangisi YANLIŞTIR?",["Ağırlıksız çizgede BFS ağacındaki yollar en kısa yollardır","Her MST, her tepe çifti için bir en kısa yol içerir","Her kenara aynı pozitif sabit eklemek en kısa yol ağacını değiştirebilir","Negatif kenar Dijkstra’nın yanlış sonuç vermesine yol açabilir"],1,"Üçgen 2, 2, 3: MST’de A→C yolu 4, doğrudan kenar 3."],
  ["Her kenara k = 10 eklenirse, uzunlukları 1+1+1 = 3 ve 4 olan 3 kenarlı ve 1 kenarlı yolların yeni maliyetleri?",["13 ve 14","33 ve 14","3 ve 4","33 ve 4"],1,"3 kenarlı yol 3 + 3·10 = 33, tek kenar 4 + 10 = 14: sıralama tersine döner."]
 ]);
 window.__t={dijkSteps,bfSteps,bfFinal,dagSteps,floydSteps,gridRun,parseGrid,parseG,dijkRun,pathTo,T,GRIDS,bfsPath};
 </script>
 <script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+
+
+
+
+
 <!--AA-SIDEBAR-->
 <style>
 html{scroll-behavior:smooth}
@@ -1296,7 +1308,7 @@ html{scroll-behavior:smooth}
 #aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
 #aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
 #aa-sb .sub.open{display:block}
-#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a{display:block;font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
 #aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
 #aa-fab{position:fixed;left:12px;bottom:12px;z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
@@ -1340,11 +1352,12 @@ body.aa-open #aa-back{display:block}
     });
     sb.innerHTML=html;
     var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
-    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.setAttribute("aria-controls","aa-sb");fab.setAttribute("aria-expanded","false");fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
     var back=document.createElement("div");back.id="aa-back";
     document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
     document.body.classList.add("aa-has-sb");
-    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    function toggle(on){document.body.classList.toggle("aa-open",on);fab.setAttribute("aria-expanded",String(on));sb.inert=window.innerWidth<1200&&!on;}
+    sb.inert=window.innerWidth<1200;window.addEventListener("resize",function(){sb.inert=window.innerWidth<1200&&!document.body.classList.contains("aa-open")});
     fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
     back.onclick=function(){toggle(false)};
     document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});

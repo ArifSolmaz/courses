@@ -41,7 +41,7 @@
     if (x !== x) return "nan";
     if (!isFinite(x)) return x > 0 ? "inf" : "-inf";
     var a = Math.abs(x), sign = x < 0 || Object.is(x, -0) ? "-" : "";
-    if (a >= 1e21) return sign + a.toFixed(0);
+    if (a >= 1e21) return sign + BigInt(a).toString() + (n ? "." + "0".repeat(n) : "");
     var ex = a.toFixed(Math.min(100, n + 80)), dot = ex.indexOf(".");
     var tail = ex.slice(dot + 1 + n);
     if (/^50*$/.test(tail)) {                       /* exact tie: round half to even */
@@ -66,9 +66,10 @@
   }
   function pyInt(s) {
     var t = s.trim();
-    if (/^[+-]?\d+(_\d+)*$/.test(t)) return I(parseInt(t.replace(/_/g, ""), 10));
+    if (/^[+-]?\d+(_\d+)*$/.test(t)) { var exact = BigInt(t.replace(/_/g, "")); return I(exact >= BigInt(Number.MIN_SAFE_INTEGER) && exact <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(exact) : exact); }
     return { err: "ValueError: invalid literal for int() with base 10: " + strRepr(s) };
   }
+  function intAdd(a, b) { return typeof a === "bigint" || typeof b === "bigint" ? BigInt(a) + BigInt(b) : a + b; }
   function traceback(file, lineNo, src, errLine) {
     return ["Traceback (most recent call last):", '  File "' + file + '", line ' + lineNo + ", in <module>",
       "    " + src.trim(), errLine];
@@ -167,7 +168,7 @@
       vars.qty = show(qty); run++;
       push(3, "<code>int(...)</code> converts it into the whole number <strong>" + qty.v + "</strong>. Now we have one str, one float and one int.");
 
-      var lt = F(price.v * qty.v);
+      var lt = F(price.v * Number(qty.v));
       vars.line_total = show(lt); run++;
       var messy = floatRepr(lt.v).length > 8;
       push(5, "Right side first: " + floatRepr(price.v) + " × " + qty.v + ". A float times an int gives a float" +
@@ -686,8 +687,8 @@
         push(2, "A str on the left, an int on the right: Python will not glue a number onto text. It stops with a <strong>TypeError</strong> — read the last line of the traceback.",
           { err: 2, errOut: true, kinds: { l: n, r: I(5), ok: false }, quiz: true });
       } else {
-        out.push(String(n.v + 5));
-        push(2, "int + int is ordinary addition: <strong>" + (n.v + 5) + "</strong>. One word — <code>int</code> — made the difference.", { kinds: { l: n, r: I(5), ok: true } });
+        out.push(String(intAdd(n.v, 5)));
+        push(2, "int + int is ordinary addition: <strong>" + (intAdd(n.v, 5)) + "</strong>. One word — <code>int</code> — made the difference.", { kinds: { l: n, r: I(5), ok: true } });
       }
       return f;
     }
@@ -698,7 +699,7 @@
         kinds.className = "w2-kinds " + (k.ok ? "ok" : "bad");
         kinds.innerHTML = '<span class="w2-kchip"><b>' + esc(repr(k.l)) + "</b><small>" + k.l.t + '</small></span><span class="w2-kop">+</span>' +
           '<span class="w2-kchip"><b>' + esc(repr(k.r)) + "</b><small>" + k.r.t + '</small></span><span class="w2-kres">' +
-          (k.ok ? "&rarr; " + (k.l.v + k.r.v) : "&rarr; str + int ✗") + "</span>";
+          (k.ok ? "&rarr; " + (intAdd(k.l.v, k.r.v)) : "&rarr; str + int ✗") + "</span>";
       }
       if (fr.quiz) quiz.classList.add("on");
     }

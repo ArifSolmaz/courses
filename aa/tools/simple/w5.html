@@ -113,6 +113,8 @@ svg text{fill:var(--mute);font-size:11px}
 .steps{font-size:15px}
 .tight td,.tight th{padding:4px 6px}
 </style>
+<link rel="stylesheet" href="../assets/audit.css?v=1">
+<script defer src="../assets/audit.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -270,6 +272,7 @@ Dikkat: “her anahtar” — sadece doğrudan çocuklar değil, o taraftaki <u>
 
 <h3>1.5 Minimum ve maksimum</h3>
 <p><b>Sezgi.</b> Küçükler hep soldadır; en küçük, <b>en soldaki</b> düğümdür. Kökten başla, sola git, sola gidemeyene kadar. Maksimum: simetrik, hep sağa. İkisi de bir yol izler: <span class="en">O(h)</span>.</p>
+<p class="mut">Önkoşul: d boş olmayan bir ağacın köküdür; boş ağacın minimumu/maksimumu tanımlı değildir.</p>
 <pre>def minimum(d):
     while d.sol is not None: d = d.sol
     return d
@@ -412,7 +415,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 <p><b>Sezgi.</b> 1, 2, 3, 4, 5’i bu sırayla eklerseniz her yeni anahtar bir öncekinin <b>sağına</b> gider. Ağaç artık ağaç değil, bir <b>bağlı liste</b>dir: yükseklik n − 1, arama O(n). Bu, BST’nin “doğal” bir tuzağıdır: <b>hiçbir şey ağacı dengeli olmaya zorlamaz</b>. Üstelik gerçek verilerde sıralı gelen girdi çok yaygındır (tarih sırasıyla gelen kayıtlar, artan sensör numaraları).</p>
 
 <h3>3.3 İyi haber 1: rastgele sırada ekleme çoğunlukla iyidir</h3>
-<p>Anahtarlar <b>rastgele sırayla</b> eklenirse beklenen yükseklik <b>Θ(log n)</b>’dir: yeni anahtar çoğu zaman aralığın uçlarından çok ortasına yakın düşer ve ağaç kabaca dengeli kalır. (Kesin analiz Hafta 8’deki quicksort analiziyle aynıdır.) Aşağıda gerçekten ölçün:</p>
+<p>Anahtarlar <b>rastgele sırayla</b> eklenirse beklenen yükseklik <b>Θ(log n)</b>’dir: yeni anahtar çoğu zaman aralığın uçlarından çok ortasına yakın düşer ve ağaç kabaca dengeli kalır. (Kesin analiz Hafta 7’deki quicksort analiziyle aynıdır.) Aşağıda gerçekten ölçün:</p>
 <div class="try"><div class="lab">Kendin dene — ekleme sırası ağacın yüksekliğini nasıl değiştirir?</div>
 <div class="row"><span>n =</span><select id="ht_n"><option>15</option><option>63</option><option>255</option><option selected>1023</option><option>4095</option></select>
 <button class="btn g" id="ht_r">Rastgele sırayı yeniden dene</button></div>
@@ -424,7 +427,7 @@ Maliyet: bir yol aşağı inip bir yol daha inmek: <span class="en">O(h)</span>.
 <div class="rule skip"><b class="t">Şimdilik atla</b> Döndürmelerin (rotation) ayrıntısı bu derste yok. Bilmeniz gereken: <b>“dengeli ağaç”</b> sözcüğü <b>“h = O(log n) garantili”</b> demektir, ve bunun bedeli ekleme/silmedeki küçük ek düzenlemelerdir.</div>
 
 <h3>3.5 Logaritma nereden gelir?</h3>
-<p>Bir analizde O(log n) görünce iki kaynaktan birini düşünün: <b>(1)</b> dengeli bir arama ağacı üzerindeki işlemler, <b>(2)</b> öğeleri giderek küçülen yarılara bölüp log n seviyenin her birinde az iş yapan dengeli ikili ağaç fikri. İkili arama en yalın örnektir; birleştirmeli sıralamada (Hafta 8) ve birçok yerde yeniden karşımıza çıkacak.</p>
+<p>Bir analizde O(log n) görünce iki kaynaktan birini düşünün: <b>(1)</b> dengeli bir arama ağacı üzerindeki işlemler, <b>(2)</b> öğeleri giderek küçülen yarılara bölüp log n seviyenin her birinde az iş yapan dengeli ikili ağaç fikri. İkili arama en yalın örnektir; birleştirmeli sıralamada (Hafta 7) ve birçok yerde yeniden karşımıza çıkacak.</p>
 
 <h3>3.6 Sözlükle sıralama: dengeli ağaç bir sıralama algoritmasıdır</h3>
 <p>Her işlemi O(log n) olan dengeli bir sözlüğünüz varsa, n sayıyı O(n log n)’de sıralamanın üç yolu var:</p>
@@ -532,7 +535,7 @@ Silinen göze <b>“silindi” (tombstone, mezar taşı)</b> işareti koyun: <b>
 <p><b>Sezgi.</b> Otopark: yarı doluyken boş yer bulmak kolay; %95 doluyken saatlerce dönersiniz. <b>Yük faktörü α = n / m</b> (anahtar sayısı ÷ göz sayısı) tablonun doluluk oranıdır.</p>
 <div class="rule"><b class="t">Kural 10 — yük faktörü</b>
 <b>Zincirleme:</b> ortalama zincir uzunluğu = α; α ≤ ~1 tutulursa işlem O(1), α büyürse yalnızca yavaş yavaş kötüleşir (α = 5 bile mümkündür).<br>
-<b>Açık adresleme:</b> α &lt; 1 olmak zorundadır (her anahtar bir göz tutar) ve α 1’e yaklaştıkça yoklama sayısı <b>hızla patlar</b>.<br>
+<b>Açık adresleme:</b> α ≤ 1’dir (her anahtar bir göz tutar); yeni anahtarlar için boş göz bırakmak ve aramayı hızlı tutmak üzere α &lt; 1 tutulur ve α 1’e yaklaştıkça yoklama sayısı <b>hızla patlar</b>.<br>
 <b>Çare:</b> α bir eşiği (örn. ~0,7) aşınca tabloyu <b>iki kat büyütüp</b> tüm anahtarları yeni m ile yeniden karmalarsınız (rehashing). Hafta 4’teki dinamik dizi gibi, bu pahalı işlem seyrek olduğundan, anahtarlar uygun biçimde dağılıyorsa (iyi karma fonksiyonu) ve α sınırlı tutulursa ekleme <b>beklenen amortize O(1)</b> kalır. (Büyütme tek başına çakışma maliyetini ortadan kaldırmaz: kötü niyetli ya da şanssız bir çakışma örüntüsünde ekleme yavaşlar.)</div>
 <div class="try"><div class="lab">Kendin dene — doluluk arttıkça yoklama sayısı</div>
 <div class="row"><span>α =</span><input type="range" id="lf_a" min="5" max="95" step="5" value="50"><b id="lf_av">0,50</b></div>
@@ -579,7 +582,7 @@ mod adımı rulet çarkı gibidir: büyük sayı M gözlü çarkın etrafında �
 <div id="kh_hist" class="hist"></div>
 <div id="kh_out" class="steps"></div>
 <div class="mut">Çubuklar = göz başına anahtar sayısı (kırmızı = en uzun zincir). <b>Deneyin:</b> CAN kimlikleri + mod 32 → hepsi göz 0; m = 37 → dağılır; m = 64 (ikinin kuvveti) → yalnızca iki göz kullanılır. Kural “m asal olsun, 2’nin kuvvetine yakın olmasın”ın gerekçesi budur. Bu bir <b>garanti değil</b>: anahtar yapısına göre bir asal da kötü olabilir; anahtarlar sabitse (Blok 6) tabloyu önceden test edin.</div></div>
-<p class="mut"><b>Gerçek örnek (iyi/kötü):</b> insanları ABD Sosyal Güvenlik Numaralarının (SSN) <b>ilk üç hanesine</b> göre karmalamak kötüdür: 25 Haziran 2011’deki rastgeleleştirmeden (SSA randomization) <u>önce</u> verilen numaralarda bu haneler numaranın verildiği yeri kodlardı, yani aynı eyaletten herkes aynı gözlere yığılırdı (2011 sonrası numaralarda bu coğrafi kural geçerli değildir; örnek tarihsel bir ders olarak okunmalıdır). <b>Son haneler</b> ise fiilen rastgeledir ve dengeli dağılır. Kural: <b>anahtarın bilgisi çok olan (rastgele görünen) kısmını kullanın.</b></p>
+<p class="mut"><b>Gerçek örnek (iyi/kötü):</b> insanları ABD Sosyal Güvenlik Numaralarının (SSN) <b>ilk üç hanesine</b> göre karmalamak kötüdür: 25 Haziran 2011’deki rastgeleleştirmeden (SSA randomization) <u>önce</u> verilen numaralarda bu haneler numaranın verildiği yeri kodlardı, yani aynı eyaletten herkes aynı gözlere yığılırdı (2011 sonrası numaralarda bu coğrafi kural geçerli değildir; örnek tarihsel bir ders olarak okunmalıdır). <b>Son haneler</b> bu coğrafi örüntüyü azaltabilir; yine de tek başına düzgün rastgele dağılım garantisi vermez. Kural: <b>anahtarın bilgisi çok olan (rastgele görünen) kısmını kullanın.</b></p>
 
 <h3>5.2 Doğum günü paradoksu: çakışmalar sezgimizden erken gelir</h3>
 <p><b>Sezgi.</b> 23 kişilik bir sınıfta iki kişinin doğum günü aynı mıdır? 365 gün var, 23 kişi “çok az” gibi duruyor. Ama <b>çiftlerin sayısına</b> bakın: 23 kişide 253 çift var. Her çift küçük bir çakışma şansı.</p>
@@ -600,13 +603,13 @@ P(en az bir çakışma) = 1 − P(çakışma yok)</pre>
 <ul>
 <li><b>Bu belge yeni mi?</b> Tam metinleri karşılaştırmak yerine belgenin karma kodunu koleksiyondakilerle karşılaştırın.</li>
 <li><b>İntihal var mı?</b> Ardışık w sözcüklük her pencerenin karma kodunu hem belgede hem koleksiyonda hesaplayın; eşleşen kodlar kopya olabilecek bölümü işaretler.</li>
-<li><b>Dosya değiştirilmiş mi?</b> Özgün dosyanın kriptografik özetini saklayın; tek bir bayt değişse özet değişir.</li>
-<li><b>Kanonik biçime göre kovalama:</b> her sözcüğü <i>sıralanmış harflerine</i> göre karmalayın (skiena → aeikns); anagramlar kasıtlı olarak aynı kovaya düşer.</li>
+<li><b>Dosya değiştirilmiş mi?</b> Özgün dosyanın kriptografik özetini saklayın; bir değişiklik, uygun bir kriptografik özeti çok yüksek olasılıkla değiştirir; özet eşitliği tek başına özdeşlik ispatı değildir.</li>
+<li><b>Kanonik biçime göre gruplama:</b> her sözcüğü <i>sıralanmış harflerine</i> göre karmalayın (skiena → aeikns); anagramlar kasıtlı olarak aynı kovaya düşer.</li>
 </ul>
 <div class="try"><div class="lab">Kendin dene — anagram kovaları</div>
 <input type="text" id="an_in" value="dog god act cat tac stop pots tops post opts spot skiena">
 <div id="an_out" class="steps" style="margin-top:8px"></div>
-<div class="mut">Anahtar = sözcüğün sıralanmış harfleri. Aynı kovadaki sözcükler anagramdır. “En çok sözcük oluşturan harf kümesi?” sorusu artık “en büyük kova hangisi?” sorusudur: sözcük listesi başına tek geçiş, beklenen O(toplam harf).</div></div>
+<div class="mut">Anahtar = sözcüğün sıralanmış harfleri. Aynı kovadaki sözcükler anagramdır. “En çok sözcük oluşturan harf kümesi?” sorusu artık “en büyük kova hangisi?” sorusudur: sözcükler bir kez ele alınır. Bu araçta ℓ harflik sözcüğün kanonik biçimi, harfleri sıralayarak O(ℓ log ℓ) sürede oluşturulur; gruplama maliyeti uygun karma varsayımlarıyla beklenen doğrusal, çıktı kovalarını sıralamak ayrıca O(B log B)’dir (B: kova sayısı).</div></div>
 
 <h3>5.4 Karma ile iki sayının toplamı (alıştırma 29’un özeti)</h3>
 <p><b>Problem:</b> n tam sayı ve bir hedef T verildi. Toplamı T olan iki <i>farklı kayıt</i> var mı? <b>Beklenen O(n) yolu:</b> boş bir karma kümesiyle tek geçiş; her x için <b>T − x kümede mi?</b> diye bakın (x’i kümeye eklemeden <i>önce</i>), sonra x’i ekleyin. <b>Worst-case O(n log n) yolu:</b> sırala, iki işaretçiyle içeri doğru yürü: toplam küçükse sol işaretçiyi, büyükse sağ işaretçiyi ilerlet.</p>
@@ -621,7 +624,7 @@ P(en az bir çakışma) = 1 − P(çakışma yok)</pre>
 <p><b>Problem.</b> n uzunluklu metin t içinde m uzunluklu örüntü p var mı, nerede? (Kaba kuvvet: örüntüyü her konuma kaydır, karakter karakter karşılaştır: <b>O(nm)</b>.) <b>Fikir:</b> p’nin karmasını ve metnin her m karakterlik penceresinin karmasını hesapla; <b>karmalar eşitse</b> karakterleri karşılaştır (özdeş dizelerin karması eşittir; farklıysa karması neredeyse kesin farklıdır). <b>Pürüz:</b> n − m + 1 pencere × her biri O(m) karma maliyeti = yine O(nm).</p>
 <p><b>Püf noktası — kayan karma (rolling hash).</b> j konumunda başlayan pencerenin karması H(j) = Σ α<sup>m−(i+1)</sup> · karakter(s<sub>i+j</sub>) (modülo bir q). Pencereyi bir sağa kaydırınca <b>ilk karakter çıkar, yeni karakter girer</b>:</p>
 <pre>H(j+1) = ( (H(j) − α^(m-1) · karakter(s[j])) · α  +  karakter(s[j+m]) )  mod q</pre>
-<p>Bir pencerenin karmasından sonrakini <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulursunuz: <b>O(1)</b> (α<sup>m−1</sup> mod q önceden hesaplanır, sabit uzunlukta mod aritmetiği varsayılır). Böylece n pencerenin hepsi O(n)’de karmalanır ve ilk eşleşmeyi arayan bütün arama <b>beklenen O(n + m)</b>’dir (tüm eşleşmeler için aşağıdaki z·m terimine bakın). Eşit karmalı ama farklı dizeler (<b>yanlış alarm</b>, false positive) O(m) ile elenir; çok yanlış alarm olursa en kötü durum yine O(nm)’dir. <b>İlk eşleşme / tüm eşleşmeler:</b> yalnızca <u>ilk</u> eşleşmeyi arıyorsak, ilk gerçek eşleşmede durulur. <u>Tüm</u> eşleşmeler isteniyorsa, z gerçek eşleşmenin her biri m karakterlik doğrulama ister: toplam beklenen O(n + m + z·m). Yani yanlış alarm olmasa bile z büyükse iş Θ(nm)’e varabilir (örnek: 40 “A”lık metinde 12 “A”lık örüntü → z = 29 eşleşme, 29 · 12 = 348 doğrulama karşılaştırması).</p>
+<p>Bir pencerenin karmasından sonrakini <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulursunuz: <b>O(1)</b> (α<sup>m−1</sup> mod q önceden hesaplanır, sabit uzunlukta mod aritmetiği varsayılır). Böylece n pencerenin hepsi O(n)’de karmalanır ve ilk eşleşmeyi arayan bütün arama <b>beklenen O(n + m)</b>’dir (uygun rastgele karma/dağılım varsayımlarıyla; tüm eşleşmeler için aşağıdaki z·m terimine bakın). Eşit karmalı ama farklı dizeler (<b>yanlış alarm</b>, false positive) O(m) ile elenir; çok yanlış alarm olursa en kötü durum yine O(nm)’dir. <b>İlk eşleşme / tüm eşleşmeler:</b> yalnızca <u>ilk</u> eşleşmeyi arıyorsak, ilk gerçek eşleşmede durulur. <u>Tüm</u> eşleşmeler isteniyorsa, z gerçek eşleşmenin her biri m karakterlik doğrulama ister: toplam beklenen O(n + m + z·m). Yani yanlış alarm olmasa bile z büyükse iş Θ(nm)’e varabilir (örnek: 40 “A”lık metinde 12 “A”lık örüntü → z = 29 eşleşme, 29 · 12 = 348 doğrulama karşılaştırması).</p>
 <div class="try"><div class="lab">Kendin dene — kayan karmayı hesapla</div>
 <div class="row"><span>Metin:</span><input type="text" id="rk_t" value="ABRACADABRA" style="flex:1;min-width:160px"><span>Örüntü:</span><input type="text" id="rk_p" value="ABRA" style="max-width:140px"></div>
 <div class="row"><span>Taban α =</span><input type="number" id="rk_a" value="31" min="2" max="256" style="width:80px"><span>Modül q =</span><input type="number" id="rk_q" value="101" min="2" max="10007" style="width:90px"><button class="btn g" id="rk_small">Çok küçük q = 2 (yanlış alarmlar)</button><button class="btn g" id="rk_aaa">40 A / 12 A (çok gerçek eşleşme)</button></div>
@@ -805,6 +808,7 @@ $("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset
 if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
 const num=(x,d)=>x.toLocaleString("tr-TR",{minimumFractionDigits:d,maximumFractionDigits:d});
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const parseNums=(s,max)=>s.split(/[ ,;]+/).filter(x=>x!=="").map(Number).filter(x=>Number.isFinite(x)).slice(0,max||50);
 
 /* ---------- generic quiz ---------- */
@@ -954,7 +958,7 @@ const BTS=mkStep("bt",s=>{$("#bt_svg").innerHTML=drawTree(s.t,s.st);$("#bt_note"
 function btMeta(){const t=build(BT.keys);$("#bt_n").textContent=BT.keys.length;$("#bt_h").textContent=t?height(t):"–";$("#bt_keys").textContent=BT.keys.join(", ")||"(boş)"}
 function btStatic(msg){BTS.set([{t:build(BT.keys),st:{},msg:msg,cmp:0}]);btMeta()}
 function btRun(op){
-  const x=parseInt($("#bt_x").value,10);if(isNaN(x))return;
+  const x=Number($("#bt_x").value);if(!$("#bt_x").value.trim()||!Number.isSafeInteger(x)){btStatic("Güvenli sayısal aralıkta bir tamsayı girin.");return}
   if(op==="ins"&&BT.keys.length>=15&&!BT.keys.includes(x)){btStatic("En fazla 15 düğümle çalışıyoruz; “Temizle” ile başlayın.");return}
   const before=build(BT.keys),st=[],vis={};
   let c=before,cmp=0,found=null;
@@ -1073,17 +1077,17 @@ function delSteps(t,x){
     const h1={};h1[c.id]="cur";sids.forEach(i=>h1[i]="vis");h1[s.id]="succ";
     st.push({t:cloneT(R.t),st:h1,msg:`<b>Durum 3 (iki çocuk):</b> ardılı bul = sağ alt ağacın minimumu: sağa bir adım, sonra hep sola → <b>${s.k}</b>. Ardılın solu yok, yani en fazla bir çocuğu var.`});
     const old=c.k;c.k=s.k;
-    st.push({t:cloneT(R.t),st:{[c.id]:"ok",[s.id]:"succ"},msg:`${s.k}, ${old} yerine <b>kopyalandı</b> (şimdi ağaçta iki tane ${s.k} var). Sıra henüz bozulmadı; eski ${s.k} düğümünü sileceğiz.`});
+    st.push({t:cloneT(R.t),st:{[c.id]:"ok",[s.id]:"succ"},msg:`${s.k}, ${old} yerine <b>kopyalandı</b> (şimdi ağaçta iki tane ${s.k} var). Bu ara adımda yinelenen anahtar vardır; kesin BST kuralını yeniden sağlamak için eski ${s.k} düğümünü sileceğiz.`});
     const sc=s.r;if(sp===c)sp.r=sc;else sp.l=sc;
     st.push({t:cloneT(R.t),st:{[c.id]:"ok"},msg:`Eski ${s.k} düğümü Durum ${sc?"2":"1"} ile silindi${sc?` (sağ çocuğu ${sc.k} yukarı bağlandı)`:""}. Arama ağacı özelliği korundu.`});
   }
   return {st,tree:R.t};
 }
 function dlRun(x){
-  if(isNaN(x))return;
+  if(!Number.isSafeInteger(x)){DLS.set([{t:DL,st:{},msg:"Güvenli sayısal aralıkta bir tamsayı girin."}]);return}
   const r=delSteps(DL,x);DL=r.tree;DLS.set(r.st);dlMeta();
 }
-$("#dl_go").onclick=()=>dlRun(parseInt($("#dl_x").value,10));
+$("#dl_go").onclick=()=>dlRun($("#dl_x").value.trim()?Number($("#dl_x").value):NaN);
 document.querySelectorAll("[data-dl]").forEach(b=>b.onclick=()=>{$("#dl_x").value=b.dataset.dl;dlRun(+b.dataset.dl)});
 $("#dl_reset").onclick=()=>{DL=build(T_PRESET.ders);DLS.set([{t:DL,st:{},msg:"Ders ağacı yeniden kuruldu: kök 2; 1 solda; 7 sağda; 7’nin altında 4 ve 8; 4’ün altında 3 ve 6; 6’nın altında 5.",}]);dlMeta()};
 DLS.set([{t:DL,st:{},msg:"Ders ağacı hazır. Bir anahtar seçin ve “Sil”e basın."}]);dlMeta();
@@ -1163,7 +1167,7 @@ function h2do(op,k){
       if(c===k){push({[p]:"fnd"},`Göz ${p}: ${k} bulundu.`,pr);res=p;break}
       if(c===null){push({[p]:"hit"},`Göz ${p}: <b>boş</b> → yoklama zinciri bitti, ${k} “yok”.`,pr);break}
       push({[p]:"hit"},`Göz ${p}: ${c==="T"?"<b>silindi</b> işareti → durma, devam et":c+" ≠ "+k+" → sıradaki göze"}.`,pr);
-      if(i===m-1)push({},`${m} göz yoklandı, bulunamadı.`,pr);
+      if(i===m-1)push({},`${m} yoklama yapıldı, bulunamadı.`,pr);
     }
     if(op==="srch"){
       if(res===null&&H2.cells.includes(k))push({},`<b class='bad'>UYARI:</b> ${k} aslında tabloda duruyor ama yoklama zinciri koptuğu için bulunamadı. (Silme sırasında gözü “boşaltmak” zinciri kopardı.)`,pr);
@@ -1176,28 +1180,23 @@ function h2do(op,k){
       }
     }
   }else{
-    const ex=h2find(k);
-    if(ex.found){push({[ex.idx]:"fnd"},`${k} zaten göz ${ex.idx}’de; tekrar eklenmez.`,ex.seq.length);}
-    else{
-      let placed=-1,pr=0;
-      for(let i=0;i<m;i++){
-        const p=h2p(h,i),c=H2.cells[p];pr++;
-        if(c===null||c==="T"){
-          placed=p;
-          const wasT=c==="T";
-          H2.cells[p]=k;H2.n++;
-          push({[p]:"fnd"},`Göz ${p} ${wasT?"<b>silindi</b> işaretli (yeniden kullanılabilir)":"boş"} → ${k} buraya yerleşti. ${i>0?`<b class='bad'>Çakışma</b> yaşandı: ${i} dolu göz aşıldı.`:"Çakışma yok."}`,pr);
-          if(i>0)H2.coll++;
-          break;
-        }
-        push({[p]:"hit"},`Göz ${p}: dolu (${c}) → ${i===0?"<b class='bad'>çakışma</b>, ":""}sıradaki göze.`,pr);
-      }
-      if(placed<0)push({},`<b class='bad'>Yer bulunamadı:</b> ${pr} göz yoklandı, hepsi dolu${mode==="quad"?" (karesel yoklama tablonun her gözüne uğramaz!)":""}.`,pr);
+    let firstT=-1,placed=-1,pr=0,exists=false,collided=false;
+    for(let i=0;i<m;i++){
+      const p=h2p(h,i),c=H2.cells[p];pr++;
+      if(c===k){exists=true;push({[p]:"fnd"},`${k} zaten göz ${p}’de; tekrar eklenmez.`,pr);break}
+      if(c==="T"){if(firstT<0)firstT=p;push({[p]:"hit"},`Göz ${p}: silindi işareti. İlk silinmiş göz saklanır; yinelenen anahtar olup olmadığını görmek için devam edilir.`,pr);continue}
+      if(c===null){placed=firstT>=0?firstT:p;break}
+      collided=true;push({[p]:"hit"},`Göz ${p}: dolu (${c}) → sıradaki yoklamaya.`,pr);
+    }
+    if(!exists){
+      if(placed<0&&firstT>=0)placed=firstT;
+      if(placed>=0){H2.cells[placed]=k;H2.n++;if(collided)H2.coll++;push({[placed]:"fnd"},`${k}, göz ${placed}’e yerleşti (${pr} yoklama; silinmiş gözler yeniden kullanılabilir).`,pr)}
+      else push({},`<b class='bad'>Yer bulunamadı:</b> ${pr} yoklama yapıldı${mode==="quad"?" (karesel yoklama tablonun her gözüne uğramaz!)":""}.`,pr);
     }
   }
   h2meta();H2S.set(S);return S;
 }
-function h2go(op){const k=parseInt($("#ht2_key").value,10);if(isNaN(k))return;h2do(op,k)}
+function h2go(op){const k=Number($("#ht2_key").value);if(!$("#ht2_key").value.trim()||!Number.isSafeInteger(k)){H2S.set([{mode:H2.mode,cells:h2copy(),hl:{},msg:"Güvenli sayısal aralıkta bir tamsayı girin.",probes:0}]);return}h2do(op,k)}
 $("#ht2_ins").onclick=()=>h2go("ins");$("#ht2_srch").onclick=()=>h2go("srch");$("#ht2_dele").onclick=()=>h2go("del");
 $("#ht2_clr").onclick=h2reset;$("#ht2_m").oninput=h2reset;$("#ht2_mode").onchange=h2reset;
 function h2preset(m,mode,del,ops){
@@ -1237,10 +1236,10 @@ $("#lf_a").oninput=lfUpdate;$("#lf_r").onclick=()=>{LFseed++;lfUpdate()};lfUpdat
 
 /* ---------- 5.1: string hash ---------- */
 function shUpdate(){
-  const s=$("#sh_s").value.slice(0,20),M=Math.max(2,Math.floor(+$("#sh_m").value||2));
+  const s=Array.from($("#sh_s").value).slice(0,20).join(""),M=Math.max(2,Math.min(1000000,Math.floor(+$("#sh_m").value||2)));
   let big=0n,h=0,steps=[];
-  for(const ch of s){const c=ch.codePointAt(0);big=big*128n+BigInt(c);h=(h*128+c)%M;steps.push(`${ch} (${c}) → ${h}`)}
-  $("#sh_out").innerHTML=s?`Karakter kodları: ${[...s].map(c=>c.codePointAt(0)).join(", ")}<br>Tam sayı (taban 128): <b>${big.toString()}</b><br>Adım adım (h = (h·128 + kod) mod ${M}): ${steps.join(" ; ")}<br><b>h(“${s}”) = ${big.toString()} mod ${M} = ${h} → göz ${h}</b> ${big%BigInt(M)===BigInt(h)?'<span class="ok">✓ iki hesap aynı</span>':'<span class="bad">✗ fark</span>'}`:"Bir metin yazın.";
+  for(const ch of s){const c=ch.codePointAt(0);big=big*128n+BigInt(c);h=(h*128+c)%M;steps.push(`${esc(ch)} (${c}) → ${h}`)}
+  $("#sh_out").innerHTML=s?`Karakter kodları: ${[...s].map(c=>c.codePointAt(0)).join(", ")}<br>128 tabanlı polinom değeri (ASCII dışı kodlar birden çok basamak büyüklüğündedir): <b>${big.toString()}</b><br>Adım adım (h = (h·128 + kod) mod ${M}): ${steps.join(" ; ")}<br><b>h(“${esc(s)}”) = ${big.toString()} mod ${M} = ${h} → göz ${h}</b> ${big%BigInt(M)===BigInt(h)?'<span class="ok">✓ iki hesap aynı</span>':'<span class="bad">✗ fark</span>'}`:"Bir metin yazın.";
 }
 $("#sh_s").oninput=$("#sh_m").oninput=shUpdate;shUpdate();
 
@@ -1280,18 +1279,19 @@ $("#bd_m").onchange=bdUpdate;$("#bd_n").oninput=bdUpdate;bdUpdate();
 
 /* ---------- 5.3: anagram buckets ---------- */
 function anUpdate(){
-  const w=$("#an_in").value.toLowerCase().split(/[\s,]+/).filter(Boolean).slice(0,40),B={};
+  const w=$("#an_in").value.toLowerCase().split(/[\s,]+/).filter(Boolean).slice(0,40),B=Object.create(null);
   w.forEach(x=>{const k=[...x].sort().join("");(B[k]=B[k]||[]).push(x)});
   const ks=Object.keys(B).sort((a,b)=>B[b].length-B[a].length||(a<b?-1:1));
-  $("#an_out").innerHTML=ks.map(k=>`<div><span class="pill">${k}</span> ${B[k].map(x=>`<b>${x}</b>`).join(", ")} <span class="mut">(${B[k].length})</span></div>`).join("")+(ks.length?`<div class="mut">En büyük kova: <b>${ks[0]}</b> (${B[ks[0]].length} sözcük). ${w.length} sözcük, ${ks.length} kova.</div>`:"");
+  $("#an_out").innerHTML=ks.map(k=>`<div><span class="pill">${esc(k)}</span> ${B[k].map(x=>`<b>${esc(x)}</b>`).join(", ")} <span class="mut">(${B[k].length})</span></div>`).join("")+(ks.length?`<div class="mut">En büyük kova: <b>${esc(ks[0])}</b> (${B[ks[0]].length} sözcük). ${w.length} sözcük, ${ks.length} kova.</div>`:"");
 }
 $("#an_in").oninput=anUpdate;anUpdate();
 
 /* ---------- 5.4: two-sum ---------- */
 function tsUpdate(){
-  const a=parseNums($("#ts_a").value,12),T=+$("#ts_t").value;
+  const tokens=$("#ts_a").value.trim().split(/[\s,;]+/).filter(Boolean),a=tokens.map(Number),T=Number($("#ts_t").value);
+  if(tokens.length>12||!$("#ts_t").value.trim()||!Number.isFinite(T)||tokens.some(x=>!/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?$/i.test(x))||a.some(x=>!Number.isFinite(x)||Math.abs(x)>1e9)||Math.abs(T)>1e9){$("#ts_h").innerHTML=$("#ts_s").innerHTML="";$("#ts_out").textContent="En fazla 12 geçerli sayı ve bir hedef girin (mutlak değer ≤ 10⁹).";return}
   const set=new Set(),rowsH=[];let pairH=null;
-  a.forEach(x=>{const need=T-x,has=set.has(need);rowsH.push(`<tr><td></td><td class="m">${x}</td><td class="m">${need}</td><td class="${has?"ok":""}">${has?"✓ evet":"hayır"}</td><td class="m">{${[...set,x].join(", ")}}</td></tr>`);if(has&&!pairH)pairH=[need,x];set.add(x)});
+  a.forEach(x=>{const need=T-x,has=set.has(need);rowsH.push(`<tr><td></td><td class="m">${x}</td><td class="m">${need}</td><td class="${has?"ok":""}">${has?"✓ evet":"hayır"}</td><td class="m">{${[...new Set([...set,x])].join(", ")}}</td></tr>`);if(has&&!pairH)pairH=[need,x];set.add(x)});
   $("#ts_h").innerHTML=rowsH.join("");
   const s=a.slice().sort((x,y)=>x-y);let l=0,r=s.length-1,rowsS=[],pairS=null;
   while(l<r){const sum=s[l]+s[r];let d;if(sum===T){d="<b class='ok'>= T → bulundu</b>";pairS=[s[l],s[r]]}else if(sum<T)d="T’den küçük → sol işaretçiyi ilerlet";else d="T’den büyük → sağ işaretçiyi geri çek";rowsS.push(`<tr><td class="m">${s.join(" ")}</td><td class="m">${l} (${s[l]})</td><td class="m">${r} (${s[r]})</td><td class="m">${sum}</td><td>${d}</td></tr>`);if(sum===T)break;if(sum<T)l++;else r--}
@@ -1304,7 +1304,7 @@ $("#ts_a").oninput=$("#ts_t").oninput=tsUpdate;tsUpdate();
 
 /* ---------- 5.5: Rabin-Karp ---------- */
 function rkUpdate(){
-  const t=$("#rk_t").value.slice(0,40),p=$("#rk_p").value.slice(0,12),al=Math.max(2,+$("#rk_a").value||31),q=Math.max(2,+$("#rk_q").value||101);
+  const t=Array.from($("#rk_t").value).slice(0,40),p=Array.from($("#rk_p").value).slice(0,12),al=Math.max(2,Math.min(1000000,Math.floor(+$("#rk_a").value||31))),q=Math.max(2,Math.min(1000000,Math.floor(+$("#rk_q").value||101)));
   const n=t.length,m=p.length;
   if(!m||m>n){$("#rk_tb").innerHTML="";$("#rk_out").textContent="Örüntü metinden uzun ya da boş.";return}
   const md=x=>((x%q)+q)%q,cc=ch=>ch.codePointAt(0);
@@ -1315,10 +1315,10 @@ function rkUpdate(){
   for(let j=0;j+m<=n;j++){
     const w=t.slice(j,j+m);let d=0;for(const ch of w)d=md(d*al+cc(ch));
     if(d!==hw)allOk=false;
-    const eq=hw===hp,real=w===p;
+    const eq=hw===hp,real=w.every((ch,i)=>ch===p[i]);
     let c1=0;while(c1<m&&w[c1]===p[c1]){c1++}bfCmp+=Math.min(m,c1+1);
     if(eq){hits++;let c=0;while(c<m&&w[c]===p[c])c++;rkCmp+=Math.min(m,c+1);if(real)truth++;else fa++}
-    rows+=`<tr><td class="m">${j}</td><td class="m">${w}</td><td class="m">${hw}</td><td class="m">${d} ${d===hw?"✓":"✗"}</td><td class="${eq?"bad":""}">${eq?"evet":"–"}</td><td class="${real?"ok":""}">${real?"EŞLEŞME":eq?"<span class='bad'>yanlış alarm</span>":"–"}</td></tr>`;
+    rows+=`<tr><td class="m">${j}</td><td class="m">${esc(w.join(""))}</td><td class="m">${hw}</td><td class="m">${d} ${d===hw?"✓":"✗"}</td><td class="${eq?"bad":""}">${eq?"evet":"–"}</td><td class="${real?"ok":""}">${real?"EŞLEŞME":eq?"<span class='bad'>yanlış alarm</span>":"–"}</td></tr>`;
     if(j+m<n)hw=md((hw-md(pw*cc(t[j])))*al+cc(t[j+m]));
   }
   $("#rk_tb").innerHTML=rows;
@@ -1335,8 +1335,13 @@ function cnSim(ids,m){
   const pr=ids.map((k,i)=>{if(fin[i]<0)return null;let p=k%m,c=1;while(t[p]!==k){p=(p+1)%m;c++}return c});
   return {t,home,fin,pr,full};
 }
+function cnIds(){
+ const tokens=$("#cn_ids").value.trim().split(/[\s,;]+/).filter(Boolean),ids=tokens.map(Number);
+ if(!tokens.length||tokens.length>40||tokens.some(x=>! /^(?:0x[0-9a-f]+|\d+)$/i.test(x))||ids.some(x=>!Number.isInteger(x)||x<0||x>2047)||new Set(ids).size!==ids.length){$("#cn_t").innerHTML=$("#cn_slots").innerHTML="";$("#cn_out").textContent="1–40 farklı 11 bit CAN kimliği girin (0–2047; ondalık veya 0x biçimi).";return null}
+ return ids;
+}
 function cnUpdate(){
-  const ids=parseNums($("#cn_ids").value.replace(/0x/gi,"0x"),40).map(Math.floor).filter(x=>x>=0);
+  const ids=cnIds();if(!ids)return;
   const m=Math.max(2,Math.min(256,Math.floor(+$("#cn_m").value||2)));
   const r=cnSim(ids,m);
   $("#cn_slots").innerHTML=m<=64?r.t.map((c,i)=>`<div class="slot ${c===null?"empty":"fnd"}"><small>${i}</small>${c===null?"–":"0x"+c.toString(16).toUpperCase()}</div>`).join(""):`<span class="mut">m &gt; 64: gözler çizilmedi.</span>`;
@@ -1347,7 +1352,7 @@ function cnUpdate(){
 $("#cn_ids").oninput=$("#cn_m").oninput=cnUpdate;
 document.querySelectorAll("[data-cm]").forEach(b=>b.onclick=()=>{$("#cn_m").value=b.dataset.cm;cnUpdate()});
 $("#cn_best").onclick=()=>{
-  const ids=parseNums($("#cn_ids").value,40).map(Math.floor).filter(x=>x>=0);let f=-1;
+  const ids=cnIds();if(!ids)return;let f=-1;
   for(let m=Math.max(2,ids.length);m<=256;m++){const r=cnSim(ids,m);if(!r.full&&Math.max(...r.pr)<=1){f=m;break}}
   if(f>0){$("#cn_m").value=f;cnUpdate();$("#cn_out").innerHTML+=` <br><b>En küçük çakışmasız m = ${f}</b> (α = ${num(ids.length/f,2)}; pratikte α’ya marj bırakın, örn. α ≤ 0,7).`}
   else $("#cn_out").innerHTML="256’ya kadar çakışmasız bir m bulunamadı.";
@@ -1420,7 +1425,7 @@ html{scroll-behavior:smooth}
 #aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
 #aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
 #aa-sb .sub.open{display:block}
-#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a{display:block;font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
 #aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
 #aa-fab{position:fixed;left:12px;bottom:12px;z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
@@ -1464,11 +1469,12 @@ body.aa-open #aa-back{display:block}
     });
     sb.innerHTML=html;
     var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
-    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.setAttribute("aria-controls","aa-sb");fab.setAttribute("aria-expanded","false");fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
     var back=document.createElement("div");back.id="aa-back";
     document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
     document.body.classList.add("aa-has-sb");
-    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    function toggle(on){document.body.classList.toggle("aa-open",on);fab.setAttribute("aria-expanded",String(on));sb.inert=window.innerWidth<1200&&!on;}
+    sb.inert=window.innerWidth<1200;window.addEventListener("resize",function(){sb.inert=window.innerWidth<1200&&!document.body.classList.contains("aa-open")});
     fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
     back.onclick=function(){toggle(false)};
     document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
