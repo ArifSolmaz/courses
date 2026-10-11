@@ -18,6 +18,7 @@ function syncInputs(i){
 function markDirty(){dirty=true;$('save-state').textContent='Unsaved changes — use Save notebook before leaving.';}
 function controls(){document.querySelectorAll('.run,[data-runtime-control]').forEach(b=>b.disabled=!ready||busy);}
 function fitEditor(editor){
+  if(!editor.getClientRects().length)return;
   editor.style.height='auto';
   editor.style.height=(editor.scrollHeight+2)+'px';
 }
@@ -34,9 +35,45 @@ function expandContent(root){
 function fitAllEditors(){document.querySelectorAll('.cell textarea').forEach(fitEditor);}
 let editorWidth=0;
 new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!==editorWidth){editorWidth=width;requestAnimationFrame(fitAllEditors);}}).observe($('notebook'));
+// Keep authored explanations attached to the original code, never to shifted edited lines.
+function addLineFocus(pane,editor,i,walk){
+  const original=ORIGINAL.cells[i].source.join('');
+  const controls=document.createElement('div');controls.className='focus-controls';
+  const hint=document.createElement('span');hint.textContent='Select a line number to read its explanation.';
+  const toggle=document.createElement('button');toggle.textContent='Edit code';toggle.setAttribute('aria-expanded','false');
+  controls.append(hint,toggle);
+  const listing=document.createElement('div');listing.className='numbered-code';listing.setAttribute('aria-label','Numbered code for cell '+(i+1));
+  const explanation=document.createElement('div');explanation.className='line-explanation';explanation.setAttribute('aria-live','polite');
+  const editingPane=document.createElement('div');editingPane.className='editing-code';editingPane.hidden=true;
+  const gutter=document.createElement('pre');gutter.className='edit-line-numbers';gutter.setAttribute('aria-hidden','true');
+  editor.replaceWith(editingPane);editingPane.append(gutter,editor);editor.wrap='off';
+  function numberEditor(){gutter.textContent=editor.value.split('\n').map((_,n)=>n+1).join('\n');}
+  let selected=Number(Object.keys(walk.line_focus)[0]||1),editing=false;
+  function selectLine(n){
+    selected=n;
+    listing.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.line)===n)));
+    const title=document.createElement('strong');title.textContent='Line '+n;
+    const body=document.createElement('div');
+    const text=editor.value!==original?'Code has been edited. The original explanation may no longer apply. Restore the original code to use the walkthrough.':walk.line_focus[n]||walk.starter_help||'This line continues the statement above or separates parts of the program.';
+    body.innerHTML=DOMPurify.sanitize(marked.parse(text));explanation.replaceChildren(title,body);
+  }
+  function draw(){
+    listing.replaceChildren();
+    editor.value.replace(/\n$/,'').split('\n').forEach((text,index)=>{
+      const row=document.createElement('div');row.className='numbered-line';
+      const number=document.createElement('button');number.textContent=index+1;number.dataset.line=index+1;number.setAttribute('aria-label','Explain line '+(index+1)+' in cell '+(i+1));number.onclick=()=>selectLine(index+1);
+      const code=document.createElement('code');code.textContent=text||' ';row.append(number,code);listing.append(row);
+    });selectLine(Math.min(selected,listing.children.length));
+  }
+  function setEditing(value){editing=value;editingPane.hidden=!editing;listing.hidden=editing;toggle.textContent=editing?'Read code':'Edit code';toggle.setAttribute('aria-expanded',String(editing));if(editing){numberEditor();fitEditor(editor);editor.focus();}else draw();}
+  toggle.onclick=()=>setEditing(!editing);editor.showForEditing=()=>setEditing(true);
+  editor.addEventListener('input',()=>{numberEditor();selectLine(selected);});
+  pane.insertBefore(controls,editingPane);pane.append(listing,explanation);draw();
+}
 function render(){
   $('notebook').replaceChildren();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
   notebook.cells.forEach((cell,i)=>{
+    if(cell.metadata?.cp1_line_walkthrough?.line_focus)return;
     const section=document.createElement('section');
     if(cell.cell_type==='markdown'){
       section.className='md';section.innerHTML=DOMPurify.sanitize(marked.parse(cell.source.join('')));
@@ -59,6 +96,8 @@ function render(){
       section.append(bar);
       const layout=document.createElement('div');layout.className='cell-layout';
       const codePane=document.createElement('div');codePane.className='code-pane';const codeTitle=document.createElement('h3');codeTitle.textContent='Code';codeTitle.className='output-title';codePane.append(codeTitle,editor);
+      const walkthrough=notebook.cells[i+1]?.metadata?.cp1_line_walkthrough;
+      if(walkthrough?.line_focus)addLineFocus(codePane,editor,i,walkthrough);
       const resultPane=document.createElement('div');resultPane.className='result-pane';
       const outputTitle=document.createElement('h3');outputTitle.textContent='Output';outputTitle.className='output-title';
       const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');
@@ -124,7 +163,7 @@ function showError(id, error){
     }
     panel.append(snippet);
     const edit=document.createElement('button');edit.textContent='Go to line '+error.line;
-    edit.onclick=()=>{const editor=editors.get(error.cell)?.editor;if(!editor)return;const hidden=editor.closest('details');if(hidden)hidden.open=true;editor.scrollIntoView({block:'center'});editor.focus();const lines=editor.value.split('\n'),start=lines.slice(0,error.line-1).reduce((n,s)=>n+s.length+1,0);editor.setSelectionRange(start,start+(lines[error.line-1]||'').length);};panel.append(edit);
+    edit.onclick=()=>{const editor=editors.get(error.cell)?.editor;if(!editor)return;editor.showForEditing?.();const hidden=editor.closest('details');if(hidden)hidden.open=true;editor.scrollIntoView({block:'center'});editor.focus();const lines=editor.value.split('\n'),start=lines.slice(0,error.line-1).reduce((n,s)=>n+s.length+1,0);editor.setSelectionRange(start,start+(lines[error.line-1]||'').length);};panel.append(edit);
   }
   const note=document.createElement('p');note.className='muted';note.textContent=error.syntax?'Fix the syntax, then run again. Previously stored variables are not cleared.':'Execution stopped at the error. Earlier statements may already have changed variables. Fix the code and rerun; restart Python if you need a clean state.';
   const details=document.createElement('details'),summary=document.createElement('summary'),raw=document.createElement('pre');summary.textContent='Technical details — full traceback';raw.textContent=error.text;details.append(summary,raw);panel.append(note,details);expandContent(panel);

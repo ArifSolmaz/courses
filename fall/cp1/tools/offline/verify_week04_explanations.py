@@ -18,6 +18,11 @@ for name in ['notebooks/Week_04.ipynb', 'solutions/Week_04_Solutions.ipynb']:
         assert meta['explained_lines'] == [n for n,_ in executable], (name,i)
         prose = ''.join(walk['source'])
         assert '**Line-by-line walkthrough**' in prose
+        focus=meta['line_focus']
+        assert list(focus)==[str(n) for n,_ in executable], (name,i,'Line-focus coverage')
+        for explanation in focus.values():
+            assert explanation in prose, (name,i,'Notebook and selected-line explanation differ')
+        if not executable: assert meta['starter_help']
         for n,s in executable:
             assert f'- **Line {n} —** `` {s} ``\n\n  ' in prose, (name,i,n)
         assert len(re.findall(r'^- \*\*Line \d+ —\*\*',prose,re.M)) == len(executable)
