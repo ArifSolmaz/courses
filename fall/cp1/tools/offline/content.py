@@ -1,7 +1,8 @@
 """Create complete offline editions from the maintained lecture and answer notebooks."""
 import json,re
 from week03 import complete_week
-INPUTS={2:{49:['Elif'],51:['19'],53:['1.70','65']},5:{25:['3','9','7'],27:['0','121','20'],42:['hello','quit'],60:['5','7','0'],63:['60','70','80','90','100'],66:['yes','no'],70:['Elif'],82:['maybe','yes']}}
+# Week 5 owns its sample responses in notebook cell metadata, shared by both formats.
+INPUTS={2:{49:['Elif'],51:['19'],53:['1.70','65']}}
 
 def text(cell):return ''.join(cell['source']) if isinstance(cell['source'],list) else cell['source']
 
@@ -10,10 +11,6 @@ def prepare(week,root):
     if week==3:nb=complete_week(nb,root)
     else:
         answers=json.loads((root/f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
-        # All original teaching cells remain; replace the online solution-directory cell.
-        for cell in nb['cells']:
-            if text(cell).startswith('## Worked solutions and study support'):
-                cell['source']=['## Worked solutions and study support\n\nThe complete answers are included below. Try your own code first, then compare the reasoning and tests. Solution variables and files are kept separate from your practice.\n\n[Read the worked solutions](#solutions)\n']
         for cell in answers['cells']:
             cell.setdefault('metadata',{})['offline_realm']='solutions'
         answers['cells'][0]['metadata']['offline_anchor']='solutions'
@@ -31,6 +28,7 @@ def prepare(week,root):
         else:
             if re.search(r'^## Exercises\s*$',s,re.M):meta['offline_anchor']='practice'
             # Route notebook/solution references inside this self-contained document.
+            s=re.sub(r'If you are using Colab, \[open the published solution notebook\]\([^\n]+\)\.', 'The worked solutions are included below in this offline page.', s)
             s=re.sub(r'\[([^\]]+)\]\((?:https://colab\.research\.google\.com/github/ArifSolmaz/courses/blob/main/fall/cp1/)?(?:\.\./)?(?:notebooks/)?Week_\d+\.ipynb\)',r'[\1](#section-0)',s)
             s=re.sub(r'\[([^\]]+)\]\((?:https://colab\.research\.google\.com/github/ArifSolmaz/courses/blob/main/fall/cp1/)?(?:\.\./)?(?:solutions/)?Week_\d+_Solutions\.ipynb\)',r'[\1](#solutions)',s)
             s=s.replace('(../STUDY_GUIDE.md)','(https://arifsolmaz.github.io/courses/fall/cp1/STUDY_GUIDE.md)').replace('(../solutions/README.md)','(#solutions)').replace('(README.md)','(#solutions)')
