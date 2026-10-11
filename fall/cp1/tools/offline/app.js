@@ -4,6 +4,17 @@ let runtimeFiles={lesson:[],solutions:[]};
 $('licenses').textContent=LICENSES;
 if(location.protocol==='https:'||location.protocol==='http:'){const a=$('download-html');a.hidden=false;a.href=CONFIG.filename;a.download=CONFIG.filename;}
 
+// Ignore examples in comments and ordinary strings. Dynamic/indirect input is
+// also handled below: EOFError reveals the input area on the cell being run.
+function codeNeedsInput(source){
+  const code=source.replace(/#[^\n]*|"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g,' ');
+  return /\binput\s*\(/.test(code);
+}
+function syncInputs(i){
+  const entry=editors.get(i);if(!entry)return;
+  entry.details.hidden=!codeNeedsInput(entry.editor.value);
+  if(!entry.details.hidden)fitEditor(entry.input);
+}
 function markDirty(){dirty=true;$('save-state').textContent='Unsaved changes — use Save notebook before leaving.';}
 function controls(){document.querySelectorAll('.run,[data-runtime-control]').forEach(b=>b.disabled=!ready||busy);}
 function fitEditor(editor){
@@ -40,21 +51,21 @@ function render(){
       const run=document.createElement('button');run.textContent='Run';run.className='run primary';run.setAttribute('aria-label','Run cell '+(i+1));run.onclick=()=>runCell(i);
       bar.append(label,run);
       const editor=document.createElement('textarea');editor.value=cell.source.join('');editor.spellcheck=false;editor.setAttribute('aria-label','Code cell '+(i+1));editor.rows=Math.max(3,editor.value.split('\n').length);
-      editor.oninput=()=>{cell.source=[editor.value];fitEditor(editor);markDirty();};
+      editor.oninput=()=>{cell.source=[editor.value];fitEditor(editor);syncInputs(i);markDirty();};
       editor.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();editor.setRangeText('    ',editor.selectionStart,editor.selectionEnd,'end');editor.dispatchEvent(new Event('input'));} if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runCell(i);}};
-      const details=document.createElement('section');details.className='cell-inputs';const summary=document.createElement('h3');summary.textContent='Input values (only for input())';
-      const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';input.value=(cell.metadata?.offline_inputs||[]).join('\n');input.oninput=()=>{cell.metadata.offline_inputs=input.value===''?[]:input.value.split('\n');fitEditor(input);markDirty();};details.open=Boolean(cell.metadata?.offline_inputs);const help=document.createElement('p');help.className='input-help';help.textContent='One response per input() call, in order. Edit the sample values to try another case.';details.append(summary,help,input);
+      const details=document.createElement('section');details.className='cell-inputs';const summary=document.createElement('h3');summary.textContent='Input values';
+      const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';input.value=(cell.metadata?.offline_inputs||[]).join('\n');input.oninput=()=>{cell.metadata.offline_inputs=input.value===''?[]:input.value.split('\n');fitEditor(input);markDirty();};details.hidden=!codeNeedsInput(editor.value);const help=document.createElement('p');help.className='input-help';help.textContent='One response per input() call, in order. Edit the sample values to try another case.';details.append(summary,help,input);
       const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).filter(o=>o.output_type!=='display_data').map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
       section.append(bar);
       const layout=document.createElement('div');layout.className='cell-layout';
-      const codePane=document.createElement('div');codePane.className='code-pane';codePane.append(editor);
+      const codePane=document.createElement('div');codePane.className='code-pane';const codeTitle=document.createElement('h3');codeTitle.textContent='Code';codeTitle.className='output-title';codePane.append(codeTitle,editor);
       const resultPane=document.createElement('div');resultPane.className='result-pane';
       const outputTitle=document.createElement('h3');outputTitle.textContent='Output';outputTitle.className='output-title';
       const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');
       const images=document.createElement('div');images.className='plots';plots.set(i,images);
-      resultPane.append(details,outputTitle,output,images,error);layout.append(codePane,resultPane);section.append(layout);
+      resultPane.append(outputTitle,output,images,error);layout.append(codePane,resultPane);section.append(layout,details);
       for(const o of cell.outputs||[]){if(o.output_type==='display_data'&&o.data?.['image/png'])addPlot(i,o.data['image/png']);}
-      errors.set(i,error);editors.set(i,{editor,input});outputs.set(i,output);
+      errors.set(i,error);editors.set(i,{editor,input,details});outputs.set(i,output);
     }
     expandContent(section);$('notebook').append(section);
   });fitAllEditors();controls();scheduleSectionSync();
@@ -97,6 +108,9 @@ function renderFiles(){
   }
 }
 function showError(id, error){
+  if(error.type==='EOFError'){
+    const entry=editors.get(id);entry.details.hidden=false;fitEditor(entry.input);
+  }
   const panel=errors.get(id);panel.replaceChildren();panel.hidden=false;
   const title=document.createElement('h3');title.textContent=error.type+(error.line?' · cell '+(error.cell+1)+', line '+error.line:'');
   const message=document.createElement('p');message.className='error-message';message.textContent=error.message;

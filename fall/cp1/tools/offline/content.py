@@ -39,5 +39,7 @@ def prepare(week,root):
             s=s.replace('so **Run All never waits for keyboard input**','so no live keyboard input is needed')
             if week==12 and '%%writefile' in s:
                 s+='\n\n**Offline edition:** the following setup cells use `with open(..., "w")` instead of Colab’s `%%writefile` command. They create the same files. Run each setup cell before reading its file.\n'
+        s=s.replace('In Google Colab and Jupyter Notebooks, `input()` works interactively — it pops up a text box for the user to type in.', 'In this offline page, fill in **Input values below the code/output pair before pressing Run**. Each `input()` call consumes one response line. The page does not open a live input dialog. If responses run out, add the missing lines and rerun the cell from the beginning.')
+        s=s.replace('- In Jupyter/Colab: Click the **stop button** (square icon) or go to **Runtime > Interrupt execution**', '- On this offline page: use **Stop / restart Python** at the top. This stops execution and clears Python variables; your code edits remain.')
         cell['source']=s.splitlines(keepends=True)
     return nb,lesson_count
