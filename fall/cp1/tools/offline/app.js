@@ -8,12 +8,12 @@ function highlightOutput(i,n){
   if(!output||!entry||!note)return;
   const current=runSources.get(i)===entry.editor.value;
   let matches=0;
-  output.querySelectorAll('.output-fragment').forEach(part=>{
+  [...output.querySelectorAll('.output-fragment'),...(plots.get(i)?.querySelectorAll('img')||[])].forEach(part=>{
     const match=current && (part.dataset.lines||'').split(',').includes(String(n));
     part.classList.toggle('output-linked',match);if(match)matches++;
   });
   note.hidden=false;
-  note.textContent=!runSources.has(i)?'Run this cell to link lines to output.':!current?'Code changed — run again to update output links.':matches?'Highlighted output from line '+n+'.':'Line '+n+' produced no printed output in this run.';
+  note.textContent=!runSources.has(i)?'Run this cell to link lines to output.':!current?'Code changed — run again to update output links.':matches?'Highlighted output from line '+n+'.':'Line '+n+' produced no printed output'+(CONFIG.packages?.length?' or displayed plot':'')+' in this run.';
 }
 let runtimeFiles={lesson:[],solutions:[]};
 $('licenses').textContent=LICENSES;
@@ -54,10 +54,10 @@ new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!=
 function addLineFocus(pane,editor,i,walk){
   const original=ORIGINAL.cells[i].source.join('');
   const controls=document.createElement('div');controls.className='focus-controls';
-  const hint=document.createElement('span');hint.textContent='Select a line number to read its explanation.';
+  const hint=document.createElement('span');hint.textContent=CONFIG.week===14?'Select a line number; scroll the code to see more.':'Select a line number to read its explanation.';
   const toggle=document.createElement('button');toggle.textContent='Edit code';toggle.setAttribute('aria-expanded','false');
   controls.append(hint,toggle);
-  const listing=document.createElement('div');listing.className='numbered-code';listing.setAttribute('aria-label','Numbered code for cell '+(i+1));
+  const listing=document.createElement('div');listing.className='numbered-code';listing.setAttribute('aria-label','Numbered code for cell '+(i+1));if(CONFIG.week===14){listing.tabIndex=0;listing.setAttribute('role','region');}
   const explanation=document.createElement('div');explanation.className='line-explanation';explanation.setAttribute('aria-live','polite');
   const editingPane=document.createElement('div');editingPane.className='editing-code';editingPane.hidden=true;
   const gutter=document.createElement('pre');gutter.className='edit-line-numbers';gutter.setAttribute('aria-hidden','true');
@@ -138,7 +138,7 @@ function boot(){
     if(m.type==='download'){downloadBlob(new Blob([m.bytes]),m.name);return;}
     if(m.type==='fileError'){$('fatal').textContent=m.text;return;}
     const cell=notebook.cells[m.id];if(!cell)return;
-    if(m.type==='plot'){addPlot(m.id,m.png);cell.outputs.push({output_type:'display_data',data:{'image/png':m.png},metadata:{}});}
+    if(m.type==='plot'){addPlot(m.id,m.png,m.lines);highlightOutput(m.id,selectedOutputLines.get(m.id));cell.outputs.push({output_type:'display_data',data:{'image/png':m.png},metadata:{}});}
     if(m.type==='stream'){const fragment=document.createElement('span');fragment.className='output-fragment';fragment.textContent=m.text;fragment.dataset.lines=(m.lines||[]).join(',');outputs.get(m.id).append(fragment);highlightOutput(m.id,selectedOutputLines.get(m.id));cell.outputs.push({output_type:'stream',name:m.name,text:[m.text]});}
     if(m.type==='error'){const error=describePythonError(m.text,m.id,runSources);showError(m.id,error);cell.outputs.push({output_type:'error',ename:error.type,evalue:error.message,traceback:m.text.split('\n')});}
     if(m.type==='done'||m.type==='error'){if(selectedOutputLines.has(m.id))highlightOutput(m.id,selectedOutputLines.get(m.id));outputs.get(m.id).classList.add('has-run');busy=false;active=null;$('cell-'+m.id).classList.remove('running');$('status').textContent=m.type==='done'?'Finished · Python ready':'Cell has an error · edit and run again';controls();}
@@ -151,8 +151,8 @@ function runCell(i){
   const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);if(selectedOutputLines.has(i))highlightOutput(i,selectedOutputLines.get(i));markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
 }
-function addPlot(id,png){
-  const image=document.createElement('img');image.src='data:image/png;base64,'+png;image.alt='Python plot from cell '+(id+1);plots.get(id).append(image);
+function addPlot(id,png,lines=[]){
+  const image=document.createElement('img');image.dataset.lines=lines.join(',');image.src='data:image/png;base64,'+png;image.alt='Python plot from cell '+(id+1);plots.get(id).append(image);
 }
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function renderFiles(){

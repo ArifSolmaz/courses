@@ -2,7 +2,7 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import io, base64
+import io, base64, sys
 from offline_ui import plot
 
 def show_offline(*args, **kwargs):
@@ -10,6 +10,7 @@ def show_offline(*args, **kwargs):
         figure = plt.figure(number)
         image = io.BytesIO()
         figure.savefig(image, format='png', dpi=110, bbox_inches='tight')
-        plot(base64.b64encode(image.getvalue()).decode('ascii'))
+        lines = getattr(sys.stdout, 'related_lines', lambda: '')()
+        plot(base64.b64encode(image.getvalue()).decode('ascii'), lines)
         plt.close(figure)
 plt.show = show_offline

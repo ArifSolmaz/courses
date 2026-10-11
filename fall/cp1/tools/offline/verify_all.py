@@ -34,4 +34,4 @@ print('successful lesson, solution cells',counts)
 for f in fail:print(f)
 
 assert not fail, "Unexpected cell execution failures"
-assert counts == [541,252], "Notebook coverage changed; review the expected counts"
+assert counts == [542,252], "Notebook coverage changed; review the expected counts"

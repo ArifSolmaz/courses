@@ -26,7 +26,7 @@ def build(week,assets):
     files={n:base64.b64encode(v).decode() for n,v in assets.items() if n in ['pyodide.asm.wasm','python_stdlib.zip','pyodide-lock.json'] or (scientific and n.endswith('.whl'))}
     worker=assets['pyodide.js'].decode()+'\n'+assets['pyodide.asm.js'].decode()+'\n'+(HERE/'worker.js').read_text()
     nb,lesson_count=prepare(week,CP1)
-    config={'outputTrace':(HERE/'output_trace.py').read_text() if week==4 else '', 'week':week,'filename':f'CP1_Week_{week:02d}_Offline.html','saveName':f'CP1_Week_{week:02d}_my_work.ipynb','lessonCells':lesson_count,'packages':['numpy','matplotlib'] if scientific else [],'plotSetup':(HERE/'plot_setup.py').read_text() if scientific else ''}
+    config={'outputTrace':(HERE/'output_trace.py').read_text() if week in tuple(range(1,15)) else '', 'week':week,'filename':f'CP1_Week_{week:02d}_Offline.html','saveName':f'CP1_Week_{week:02d}_my_work.ipynb','lessonCells':lesson_count,'packages':['numpy','matplotlib'] if scientific else [],'plotSetup':(HERE/'plot_setup.py').read_text() if scientific else ''}
     title=''.join(nb['cells'][0]['source']).splitlines()[0].lstrip('# ').split(' — PHASE')[0]
     title=re.sub(r'^(?:CP1 )?Week \d+:\s*','',title)
     page=(HERE/'template.html').read_text()

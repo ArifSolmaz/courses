@@ -1,20 +1,16 @@
 """Create complete offline editions from the maintained lecture and answer notebooks."""
 import json,re
-from week03 import complete_week
-# Week 5 owns its sample responses in notebook cell metadata, shared by both formats.
-INPUTS={2:{49:['Elif'],51:['19'],53:['1.70','65']}}
+# Sample input responses live in notebook metadata so both formats agree.
 
 def text(cell):return ''.join(cell['source']) if isinstance(cell['source'],list) else cell['source']
 
 def prepare(week,root):
     nb=json.loads((root/f'notebooks/Week_{week:02d}.ipynb').read_text());lesson_count=len(nb['cells'])
-    if week==3:nb=complete_week(nb,root)
-    else:
-        answers=json.loads((root/f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
-        for cell in answers['cells']:
-            cell.setdefault('metadata',{})['offline_realm']='solutions'
-        answers['cells'][0]['metadata']['offline_anchor']='solutions'
-        nb['cells'].extend(answers['cells'])
+    answers=json.loads((root/f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
+    for cell in answers['cells']:
+        cell.setdefault('metadata',{})['offline_realm']='solutions'
+    answers['cells'][0]['metadata']['offline_anchor']='solutions'
+    nb['cells'].extend(answers['cells'])
     nb['metadata']['cp1_offline_week']=week
     for i,cell in enumerate(nb['cells']):
         s=text(cell).replace('the code is hidden; you do not need to read it','reading this helper code is optional').replace('Hints (click to reveal)','Hints (shown below)');meta=cell.setdefault('metadata',{})
@@ -23,7 +19,6 @@ def prepare(week,root):
             if s.startswith('%%writefile '):
                 header,body=s.split('\n',1);name=header.split(maxsplit=1)[1].strip()
                 s=f'# Create the same sample file using ordinary Python.\nwith open({name!r}, "w", encoding="utf-8") as file:\n    file.write({body!r})\nprint("Created:", {name!r})\n'
-            if i in INPUTS.get(week,{}):meta['offline_inputs']=INPUTS[week][i]
             cell['outputs']=[];cell['execution_count']=None
         else:
             if re.search(r'^## Exercises\s*$',s,re.M):meta['offline_anchor']='practice'

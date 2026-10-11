@@ -20,12 +20,13 @@ def expected(cell):
     return blocks[0]
 
 answers=[]
-for i in range(3,28,2):
+for i in (j for j,c in enumerate(S) if c['cell_type']=='code'):
     ns,out=run(S[i]);answers.append(ns)
     ex=str(len(answers)) if len(answers)<13 else 'Bridge'
-    j=next(j for j,c in enumerate(L) if c['cell_type']=='code' and f'[EX{ex}]' in ''.join(c['source']))
+    j=next(j for j,c in enumerate(L) if c['cell_type']=='code' and c.get('metadata',{}).get('cp1_exercise')==ex)
     assert out==expected(S[i-1]), (ex,'solution output')
     assert out==expected(L[j-1]), (ex,'student output')
+original={c.get('metadata',{}).get('cp1_source_cell'):c for c in L if c['cell_type']=='code'}
 checks=0
 
 def check(fn,cases):
@@ -41,12 +42,12 @@ def raises(fn,args,error):
     except error:checks+=1
     else:raise AssertionError((args,error))
 
-n,_=run(L[68]);check(n['temperature_reading'],[((x,),float(x)) for x in ['0','-12.5','-50','60']])
+n,_=run(original[68]);check(n['temperature_reading'],[((x,),float(x)) for x in ['0','-12.5','-50','60']])
 for v in ['','ERROR','nan','inf','-inf','-50.1','60.1']:raises(n['temperature_reading'],(v,),ValueError)
 raises(n['temperature_reading'],(True,),TypeError)
-n,_=run(L[62]);check(n['get_number_with_retries'],[(('P',[],3),None),(('P',['bad'],5),None),(('P',['bad','0'],1),None),(('P',['nan','0'],2),0.0),(('P',['42'],0),None)])
-n,_=run(L[74]);check(n['safe_average'],[(([],),None),((None,),None),(([True],),None),(([0,0],),0.0),(([1,float('nan')],),None)])
-n,_=run(L[78]);check(n['calculator'],[((0,-1,'**'),'Error: Cannot divide by zero'),((-1,.5,'**'),'Error: Result is not real'),((1e308,2,'*'),'Error: Result is not finite'),((1e308,2,'**'),'Error: Result is too large'),(('nan',1,'+'),'Error: Both values must be finite'),((True,2,'+'),'Error: Both values must be numbers')])
+n,_=run(original[62]);check(n['get_number_with_retries'],[(('P',[],3),None),(('P',['bad'],5),None),(('P',['bad','0'],1),None),(('P',['nan','0'],2),0.0),(('P',['42'],0),None),(('P',['42','99'],-1),None)])
+n,_=run(original[74]);check(n['safe_average'],[(([],),None),((None,),None),(([True],),None),(([0,0],),0.0),(([1,float('nan')],),None)])
+n,_=run(original[78]);check(n['calculator'],[((0,-1,'**'),'Error: Cannot divide by zero'),((-1,.5,'**'),'Error: Result is not real'),((1e308,2,'*'),'Error: Result is not finite'),((1e308,2,'**'),'Error: Result is too large'),(('nan',1,'+'),'Error: Both values must be finite'),((True,2,'+'),'Error: Both values must be numbers')])
 check(answers[1]['safe_int'],[(('0',),0),((' -2 ',),-2),((2.5,),None),((True,),None)])
 check(answers[2]['safe_get'],[(([],0,'missing'),'missing'),(([1],-1),1)])
 check(answers[3]['calc'],[(('1e308 * 2',),'Error: result is not finite'),(('nan + 1',),'Error: numbers must be finite'),(('10+',),'Error: use number operator number')])
@@ -66,6 +67,6 @@ for supplied,wanted in [(['bad','3.14','0'],0),([],None),(['bad'],None)]:
         try:return next(values)
         except StopIteration:raise EOFError
     # Execute definitions only to avoid consuming responses in the sample call.
-    ns={};exec(''.join(L[58]['source']).split('\nage =')[0],ns);ns['input']=input_value
+    ns={};exec(''.join(original[58]['source']).split('\nage =')[0],ns);ns['input']=input_value
     check(ns['safe_int_input'],[(('P',),wanted)])
 print(f'Passed {checks} boundary/error cases and all 13 student/solution expected outputs.')

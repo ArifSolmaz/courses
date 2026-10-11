@@ -51,9 +51,9 @@ with tempfile.TemporaryDirectory(prefix='cp1_files_test_') as folder, contextlib
 
 with tempfile.TemporaryDirectory(prefix='cp1_answers_') as folder, contextlib.chdir(folder):
     ns={}
-    for i in range(4,29,2):
+    for i in (j for j,c in enumerate(S) if c['cell_type']=='code'):
         out=execute(S[i],ns)
-        ex=str((i-2)//2) if i<28 else 'Bridge'
+        ex=S[i]['metadata']['cp1_exercise']
         student=next(c for c in L if c['cell_type']=='markdown' and (re.match(r'### Exercise '+ex+':',''.join(c['source'])) if ex!='Bridge' else ''.join(c['source']).startswith('### Bridge Exercise:')))
         assert out==expected(S[i-1])==expected(student),ex
     Path('search.txt').write_text('Python\nPYTHON\nother',encoding='utf-8')

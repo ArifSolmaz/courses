@@ -6,7 +6,7 @@ Each single HTML includes the complete maintained lesson notebook and its comple
 
 ## Interface and persistence
 
-The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 04–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
+The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 01–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
 
 Save notebook exports `.ipynb` with edited code, input values, stdout and plots. Open saved work accepts the matching week and restores code, inputs and safe outputs without executing code. Variables are not saved: rerun setup cells after reopening. Markdown remains the trusted original. There is no cloud sync or automatic persistence.
 
@@ -32,7 +32,7 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week04_05.py`: executes all 143 lesson/solution code cells, checks input visibility, and tests both temperature stopping outcomes.
 
-- `python3 fall/cp1/tools/offline/verify_content_parity.py`: compares every Week 4–14 lesson and solution cell with the embedded HTML, permits only platform-specific instructions, and executes the original notebooks to verify their saved outputs. Week 5 sample input responses live in notebook cell metadata and are reused by the HTML builder.
+- `python3 fall/cp1/tools/offline/verify_content_parity.py`: compares every Week 1–14 lesson and solution cell with the embedded HTML, permits only platform-specific instructions, and executes the original notebooks to verify their saved outputs. Week 5 sample input responses live in notebook cell metadata and are reused by the HTML builder.
 
 - `python3 fall/cp1/tools/offline/verify_week06.py`: tests 20 changed-data/boundary cases against the actual teaching code and verifies all 13 published solution outputs.
 
@@ -52,7 +52,7 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week14.py`: verifies all 12 milestone outputs and 64 pipeline, boundary, export and plot checks. Covers empty/all-rejected logs, duplicate readings, timestamps, inclusive limits, nonfinite data, CSV quoting, rejection round trips, unchanged raw input, reruns, file-level failures and labelled plots.
 
-- `python3 fall/cp1/tools/offline/verify_week04_explanations.py`: checks walkthrough coverage for all 73 Week 4 code cells (436 non-comment lines), four comment-only starters and three syntax templates. Source hashes and exact line references detect explanations that become stale after code edits. The notebooks retain full walkthroughs below their code. Weeks 4–9 HTML show numbered code with one selected-line explanation beside the output; Edit code opens a numbered editor. Duplicate teaching comments are removed from executable examples, and practice instructions are kept in their explanations. Edited code disables the authored explanation until restored, avoiding incorrect line references.
+- `python3 fall/cp1/tools/offline/verify_week04_explanations.py`: checks walkthrough coverage for all 73 Week 4 code cells (436 non-comment lines), four comment-only starters and three syntax templates. Source hashes and exact line references detect explanations that become stale after code edits. The notebooks retain full walkthroughs below their code. Weeks 1–14 HTML show numbered code with one selected-line explanation beside the output; Edit code opens a numbered editor. Duplicate teaching comments are removed from executable examples, and practice instructions are kept in their explanations. Edited code disables the authored explanation until restored, avoiding incorrect line references.
 
 - `python3 fall/cp1/tools/offline/verify_week05_explanations.py`: checks all 70 Week 5 lesson/solution code blocks, 491 executable lines and 13 practice starters. Source hashes, displayed line numbers and notebook text must match the selected-line explanations. Inactive infinite-loop comparisons are preserved as comments; ordinary repeated teaching comments move into the walkthrough.
 
@@ -64,8 +64,32 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week09_explanations.py`: checks all 49 Week 9 code blocks, 376 nonblank non-comment code lines and 12 comment-only practice starters. Multiline docstring contents and executable behavior are preserved, and function boundary/output checks locate cells through metadata.
 
-## Week 4 output links
+- `python3 fall/cp1/tools/offline/verify_week10_explanations.py`: checks all 51 Week 10 code blocks, 621 nonblank non-comment lines and 13 comment-only practice starters. Scope, mutation, composition and report examples retain their behavior; 55 boundary checks and all 13 exercise outputs pass.
 
-After running a cell, selecting a numbered line highlights the stdout fragments produced by that statement. Loop/condition headers also select output produced inside their bodies. Attribution is captured during actual execution, including repeated prints and calls to helpers defined in other cells; it is not guessed from expected output. Statements with no printed output show a short note. Code edits suspend old highlights until rerun. Saved notebook outputs retain plain text; reopen and rerun to recreate output links. Only the Week 4 build enables this capture.
+- `python3 fall/cp1/tools/offline/verify_week11_explanations.py`: checks all 56 Week 11 code blocks, 794 nonblank non-comment lines and 13 comment-only starters. Error-handler, return and finally explanations distinguish failures from valid zero results. The retry reader clamps negative attempt limits to zero; 72 error/boundary cases and all 13 exercise outputs pass.
 
-- `python3 fall/cp1/tools/offline/verify_output_trace.py`: tests nested loops, nonprinting assignments, partial-line writes, multiline calls, cross-cell helpers and error cleanup; compares captured stdout with normal execution for all 73 Week 4 cells.
+- `python3 fall/cp1/tools/offline/verify_week12_explanations.py`: checks all 60 Week 12 code blocks, 581 nonblank non-comment lines and 13 comment-only starters. File writes, printed output, append/overwrite behavior and CSV parsing limits are explained separately; 28 file/edge-case checks and all 13 exercise outputs pass.
+
+- `python3 fall/cp1/tools/offline/verify_week13_explanations.py`: checks all 46 Week 13 code blocks and 689 nonblank non-comment lines, including supplied exercise data. Array axes, masks, population standard deviation, moving-window ties, physical units and calibration assumptions are explained; all 13 exercise outputs and 46 numerical/boundary/CSV/plot checks pass.
+
+- `python3 fall/cp1/tools/offline/verify_week14_explanations.py`: checks all 31 Week 14 code blocks, 445 nonblank non-comment lines and 11 comment-only starters. All 12 exercise outputs and 64 pipeline/boundary/export/plot checks pass. On laptop screens, Week 14 long code and text-output panels scroll internally so explanations and plots remain alongside each other; all content remains available, with full flow on narrow screens and in print.
+
+## Weeks 1–14 output links
+
+After running a cell, selecting a numbered line highlights the stdout fragments produced by that statement. Loop/condition headers also select output produced inside their bodies. Attribution is captured during actual execution, including repeated prints and calls to helpers defined in other cells; it is not guessed from expected output. Statements with no printed output show a short note. Code edits suspend old highlights until rerun. Saved notebook outputs retain plain text; reopen and rerun to recreate output links. The Week 1–14 builds enable this capture.
+
+- `python3 fall/cp1/tools/offline/verify_output_trace.py`: tests nested loops, nonprinting assignments, partial-line writes, multiline calls, cross-cell helpers and error cleanup; checks repeated input prompts and continue behavior, and compares captured stdout with normal execution for all 794 Week 1–14 cells. File examples execute in separate temporary folders for plain and traced runs; generated file contents must also match, and file writes must not be attributed as printed output.
+
+Weeks 13–14 also link explicit `plt.show()` calls to their displayed plots. Selecting `savefig` does not claim a displayed plot: it writes a file. Automatically displayed figures without an explicit active-cell display call have no invented line attribution. Edits clear both text and image highlights until rerun.
+
+- `python3 fall/cp1/tools/offline/verify_plot_trace.py`: checks distinct figure displays, PNG payloads, cross-cell display helpers, untraced automatic display and figure cleanup.
+
+## Weeks 1–3 completion
+
+All 211 early-week lesson and solution code blocks use synchronized numbered Line focus explanations: Week 1 covers 370 lines, Week 2 covers 476, and Week 3 covers 553. Comments that are the subject of a lesson, deliberately commented-out errors, and comment-only practice starters are preserved. Ordinary duplicate teaching comments move into the explanations.
+
+- `verify_week01_explanations.py`, `verify_week02_explanations.py`, and `verify_week03_explanations.py` check every active line, source hash, and notebook/HTML explanation pair.
+- `verify_early_examples.py` checks equal midterm/final weighting, sensor endpoints, exact battery bands, invalid readings, and conversion/rounding distinctions.
+- `verify_week03.py` locates worked code by stable source metadata and retains the 36 decision-boundary/invalid-input cases.
+
+Week 2 sample input responses now live in notebook metadata, shared with the HTML. Its grade exercise and saved output use one midterm and one final at 50% each. Week 3 sensor and battery corrections now live in both notebooks; the HTML no longer silently changes their algorithms. All 794 course code cells run, with 542 lesson and 252 solution cells. Notebook-to-HTML parity verification now covers Weeks 1–14.

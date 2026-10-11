@@ -38,7 +38,7 @@ self.onmessage = async ({data:m}) => {
         const failures=[];
         await py.loadPackage(m.config.packages,{errorCallback:message=>failures.push(message)});
         if(failures.length)throw Error(failures.join("\n"));
-        py.registerJsModule('offline_ui',{plot:png=>send('plot',{png})});
+        py.registerJsModule('offline_ui',{plot:(png,lines='')=>{flushTrace();send('plot',{png,lines:lines.split(',').filter(Boolean).map(Number)});}});
         plotScope=py.runPython("dict(__name__='__offline_plots__')");
         py.runPython(m.config.plotSetup,{globals:plotScope});
       }

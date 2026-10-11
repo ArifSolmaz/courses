@@ -38,12 +38,12 @@ with tempfile.TemporaryDirectory(prefix='cp14_verify_') as folder, contextlib.ch
     for c in L:
         if c['cell_type']=='code': capture(exec, compile(text(c), '<Week 14 lesson>', 'exec'), lesson_ns)
     ns = {}
-    student_indices = [15,20,25,27,30,32,37,40,45,48,53,55]
+    student_expected = {c['metadata']['cp1_exercise']:L[j-1] for j,c in enumerate(L) if c['cell_type']=='code' and 'cp1_exercise' in c.get('metadata',{})}
     for i,c in enumerate(S):
         if c['cell_type']!='code': continue
         _,out = capture(exec, compile(text(c), '<Week 14 solution>', 'exec'), ns)
-        ex=(i-1)//3
-        assert out==expected(S[i+1])==expected(L[student_indices[ex-1]]), ex
+        ex=c['metadata']['cp1_exercise']
+        assert out==expected(S[i+2])==expected(student_expected[ex]), ex
     check([ns['all_stats'][s]['count'] for s in ('temp','humidity','pressure')]==[6,5,4])
     for sensor,mean in [('temp',138.1/6),('humidity',45.38),('pressure',1012.8625)]:
         check(abs(ns['all_stats'][sensor]['mean']-mean)<1e-10)

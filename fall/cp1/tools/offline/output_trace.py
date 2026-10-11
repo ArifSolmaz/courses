@@ -28,15 +28,18 @@ def capture(source, filename):
     previous = sys.stdout
 
     class Output:
-        def write(self, text):
+        def related_lines(self):
             frame = sys._getframe(1)
             related = set()
             while frame:
                 if frame.f_code.co_filename == filename:
                     related.update(owners.get(frame.f_lineno, {frame.f_lineno}))
                 frame = frame.f_back
+            return ','.join(str(n) for n in sorted(related))
+
+        def write(self, text):
             if text:
-                emit(text, ','.join(str(n) for n in sorted(related)))
+                emit(text, self.related_lines())
             return len(text)
 
         def flush(self):

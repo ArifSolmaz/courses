@@ -4,6 +4,7 @@ from pathlib import Path
 from week03 import complete_week
 root=Path(__file__).resolve().parents[2]
 nb=complete_week(json.loads((root/'notebooks/Week_03.ipynb').read_text()),root)
+solution_cells={c['metadata']['cp1_source_cell']:c for c in nb['cells'] if c['cell_type']=='code' and c.get('metadata',{}).get('offline_realm')=='solutions'}
 ns={'lesson':{},'solutions':{}}
 count=0
 for cell in nb['cells']:
@@ -13,7 +14,7 @@ for cell in nb['cells']:
         count+=1
 
 def answer(index,values):
-    tree=ast.parse(''.join(nb['cells'][120+index]['source']))
+    tree=ast.parse(''.join(solution_cells[index]['source']))
     pending=dict(values)
     for node in tree.body:
         if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name) and node.targets[0].id in pending:
@@ -34,5 +35,5 @@ for age,want in [(0,0),(5,0),(6,30),(12,30),(13,45),(17,45),(18,60),(64,60),(65,
     assert answer(19,{'age':age})['price']==want
 for month,want in [(0,'Invalid month'),(1,'Winter'),(3,'Spring'),(6,'Summer'),(9,'Autumn'),(12,'Winter'),(13,'Invalid month')]:
     assert answer(31,{'month':month})['season']==want
-assert len(nb['cells'])==175
+assert count == 72
 print(f'PASS: {count} code cells, all answer assertions, 36 boundary/invalid-input cases.')

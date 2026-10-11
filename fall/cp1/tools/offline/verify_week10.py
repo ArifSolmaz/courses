@@ -18,14 +18,15 @@ def expected(cell):
     return re.search(r'\*\*Expected (?:output|behavior):\*\*\s*```(?:text)?\n(.*?)```', ''.join(cell['source']), re.S).group(1)
 
 answers = []
-for i in range(3,28,2):
+for i in (j for j,c in enumerate(S) if c['cell_type']=='code'):
     ns, output = run(S[i])
     answers.append(ns)
     assert output == expected(S[i-1]), f'Solution {i}: output mismatch'
     marker = str(len(answers)) if len(answers)<13 else 'Bridge'
-    student = next(j for j,c in enumerate(L) if c['cell_type']=='code' and f'[EX{marker}]' in ''.join(c['source']))
+    student = next(j for j,c in enumerate(L) if c['cell_type']=='code' and c.get('metadata',{}).get('cp1_exercise')==marker)
     assert output == expected(L[student-1]), f'Student {marker}: output mismatch'
 
+original = {c.get('metadata',{}).get('cp1_source_cell'):c for c in L if c['cell_type']=='code'}
 checks = 0
 
 def check(fn, cases):
@@ -35,14 +36,14 @@ def check(fn, cases):
         assert actual == wanted, (args, actual, wanted)
         checks += 1
 
-n,_=run(L[68]);a={'offset':.5,'gain':25};b={'offset':1.,'gain':25}
+n,_=run(original[68]);a={'offset':.5,'gain':25};b={'offset':1.,'gain':25}
 check(n['sensor_force'], [((.5,.5,25),0),((4.5,.5,25),100),((.49,.5,25),None),((4.51,.5,25),None)])
 check(n['sensor_report'],[(('A',2.5,a),'A: 50.0 N'),(('B',2.5,b),'B: 37.5 N'),(('A',2.5,a),'A: 50.0 N')])
 assert a=={'offset':.5,'gain':25} and b=={'offset':1.,'gain':25};checks+=1
-n,_=run(L[28]);items=[7];n['mutate_then_rebind'](items);assert items==[7,3];checks+=1
-n,_=run(L[59]);check(n['count_sentences'],[(('',),0),((' \n ',),0),(('Hello',),1),(('Hi. Bye!',),2)])
+n,_=run(original[28]);items=[7];n['mutate_then_rebind'](items);assert items==[7,3];checks+=1
+n,_=run(original[59]);check(n['count_sentences'],[(('',),0),((' \n ',),0),(('Hello',),1),(('Hi. Bye!',),2)])
 assert 'Words per sentence: 0.0' in n['text_summary']('');checks+=1
-before=run(L[62])[1];after=run(L[64])[1];assert before==after;checks+=1
+before=run(original[62])[1];after=run(original[64])[1];assert before==after;checks+=1
 check(answers[1]['get_full_greeting'],[(('Ada','Hi'),'Hi, Ada!')])
 check(answers[2]['c_to_k'],[((-273.15,),0)])
 check(answers[3]['gcd'],[((0,0),0),((-12,8),4),((8,0),8)])
