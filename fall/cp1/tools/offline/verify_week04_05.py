@@ -31,7 +31,7 @@ for week in (4, 5):
         # Expected interactive examples; all solution scripts use supplied values.
         needs_input = week == 5 and index in (25, 27, 42, 60, 63, 66, 70, 82)
         cases.append([text(cell), needs_input])
-        if week == 4 and index == 18:
+        if week == 4 and realm == 'lesson' and 'colors = ["red", "green", "blue"]' in text(cell):
             assert output.getvalue() == 'Current color is: red\nCurrent color is: green\nCurrent color is: blue\n\nAfter the loop, color = blue\n'
         if realm == 'solutions' and 'print(f"Stable after {step}' in text(cell):
             assert namespace['step'] == 8 and namespace['change'] < 0.1

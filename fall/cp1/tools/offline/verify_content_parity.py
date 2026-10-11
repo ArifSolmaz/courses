@@ -1,10 +1,12 @@
-"""Check Weeks 4–12 notebook-to-HTML parity, allowing only presentation adaptations."""
+"""Check Weeks 4–14 notebook-to-HTML parity, allowing only presentation adaptations."""
 import ast
 import contextlib
 import io
 import json
 import re
 import tempfile
+import os
+os.environ["MPLBACKEND"] = "Agg"
 from pathlib import Path
 from content import prepare, text
 
@@ -33,7 +35,7 @@ def lesson_text(source):
     return '\n'.join(line.strip() for line in source.splitlines() if line.strip())
 
 
-for week in (4, 5, 6, 7, 8, 9, 10, 11, 12):
+for week in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14):
     lesson = json.loads((ROOT / f'notebooks/Week_{week:02d}.ipynb').read_text())
     solutions = json.loads((ROOT / f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
     page = (ROOT / f'offline/CP1_Week_{week:02d}_Offline.html').read_text()
