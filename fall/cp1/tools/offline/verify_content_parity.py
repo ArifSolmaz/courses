@@ -1,9 +1,10 @@
-"""Check Weeks 4–6 notebook-to-HTML parity, allowing only presentation adaptations."""
+"""Check Weeks 4–12 notebook-to-HTML parity, allowing only presentation adaptations."""
 import ast
 import contextlib
 import io
 import json
 import re
+import tempfile
 from pathlib import Path
 from content import prepare, text
 
@@ -32,7 +33,7 @@ def lesson_text(source):
     return '\n'.join(line.strip() for line in source.splitlines() if line.strip())
 
 
-for week in (4, 5, 6):
+for week in (4, 5, 6, 7, 8, 9, 10, 11, 12):
     lesson = json.loads((ROOT / f'notebooks/Week_{week:02d}.ipynb').read_text())
     solutions = json.loads((ROOT / f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
     page = (ROOT / f'offline/CP1_Week_{week:02d}_Offline.html').read_text()
@@ -53,19 +54,20 @@ for week in (4, 5, 6):
     # Run the original notebooks too and compare every saved output. Echo seeded
     # responses as Colab does, rather than silently substituting input().
     for notebook in (lesson, solutions):
-        namespace = {}
-        for index, cell in enumerate(notebook['cells']):
-            if cell['cell_type'] != 'code':
-                continue
-            responses = iter(cell.get('metadata', {}).get('offline_inputs', []))
-            def read_input(prompt=''):
-                answer = next(responses)
-                print(prompt + answer)
-                return answer
-            namespace['input'] = read_input
-            with contextlib.redirect_stdout(io.StringIO()) as output:
-                exec(compile(text(cell), f'Week {week} original cell {index+1}', 'exec'), namespace)
-            if cell.get('outputs'):
-                stored = ''.join(''.join(item.get('text', [])) for item in cell['outputs'] if item['output_type'] == 'stream')
-                assert stored == output.getvalue(), f'Week {week}, cell {index+1}: stale saved output'
+        with tempfile.TemporaryDirectory(prefix="cp1_parity_") as folder, contextlib.chdir(folder):
+            namespace = {}
+            for index, cell in enumerate(notebook['cells']):
+                if cell['cell_type'] != 'code':
+                    continue
+                responses = iter(cell.get('metadata', {}).get('offline_inputs', []))
+                def read_input(prompt=''):
+                    answer = next(responses)
+                    print(prompt + answer)
+                    return answer
+                namespace['input'] = read_input
+                with contextlib.redirect_stdout(io.StringIO()) as output:
+                    exec(compile(text(cell), f'Week {week} original cell {index+1}', 'exec'), namespace)
+                if cell.get('outputs'):
+                    stored = ''.join(''.join(item.get('text', [])) for item in cell['outputs'] if item['output_type'] == 'stream')
+                    assert stored == output.getvalue(), f'Week {week}, cell {index+1}: stale saved output'
     print(f'Week {week}: all {len(source_cells)} lesson/solution cells match; only platform instructions differ.')

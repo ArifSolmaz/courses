@@ -6,13 +6,13 @@ Each single HTML includes the complete maintained lesson notebook and its comple
 
 ## Interface and persistence
 
-The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 04, 05 and 06 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
+The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 04–12 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
 
 Save notebook exports `.ipynb` with edited code, input values, stdout and plots. Open saved work accepts the matching week and restores code, inputs and safe outputs without executing code. Variables are not saved: rerun setup cells after reopening. Markdown remains the trusted original. There is no cloud sync or automatic persistence.
 
 Lesson and solution code have separate global namespaces and working directories. This prevents ordinary solution examples supplying hidden variables/files to practice, but is not a security boundary against deliberate Python code. In normal Jupyter/Colab the exported combined notebook uses one kernel; restart between lesson and answers there.
 
-Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render below their code cells and are saved in notebook output. Week 12's `%%writefile` examples are converted to ordinary `with open` code producing the same files.
+Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render below their code cells and are saved in notebook output. Week 12 uses ordinary `with open` setup code in both the source notebook and HTML.
 
 ## Runtime and limitations
 
@@ -32,6 +32,18 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week04_05.py`: executes all 143 lesson/solution code cells, checks input visibility, and tests both temperature stopping outcomes.
 
-- `python3 fall/cp1/tools/offline/verify_content_parity.py`: compares every Week 4–6 lesson and solution cell with the embedded HTML, permits only platform-specific instructions, and executes the original notebooks to verify their saved outputs. Week 5 sample input responses live in notebook cell metadata and are reused by the HTML builder.
+- `python3 fall/cp1/tools/offline/verify_content_parity.py`: compares every Week 4–12 lesson and solution cell with the embedded HTML, permits only platform-specific instructions, and executes the original notebooks to verify their saved outputs. Week 5 sample input responses live in notebook cell metadata and are reused by the HTML builder.
 
 - `python3 fall/cp1/tools/offline/verify_week06.py`: tests 20 changed-data/boundary cases against the actual teaching code and verifies all 13 published solution outputs.
+
+- `python3 fall/cp1/tools/offline/verify_week07.py`: tests 20 changed-data/boundary cases and all 13 published solution outputs, including empty groups, tied maxima, dictionary order and repeated unknown IDs.
+
+- `python3 fall/cp1/tools/offline/verify_week08.py`: checks 20 boundary cases and all 13 expected outputs against both student notes and worked solutions.
+
+- `python3 fall/cp1/tools/offline/verify_week09.py`: checks function return values and absence of unwanted printing on 51 boundary/changed-input cases, plus all 13 student/solution outputs. Covers calibration endpoints, empty data, dynamic pressure, calculator errors and local/global scope.
+
+- `python3 fall/cp1/tools/offline/verify_week10.py`: checks all 13 student/solution outputs and 55 boundary/behavior cases, including shared-list mutation, sensor call order, equal exam weights, refactoring parity and empty reports.
+
+- `python3 fall/cp1/tools/offline/verify_week11.py`: verifies all 13 student/solution outputs and 71 boundary/error cases, including live-input exhaustion, missing versus zero readings, nonfinite calculations, absolute-zero boundaries and 50/50 exam weights.
+
+- `python3 fall/cp1/tools/offline/verify_week12.py`: verifies all 13 exercise outputs and 28 file/edge-case checks in disposable folders. Covers CSV quoting and multiline source tracking, rejection exports, unchanged raw input, rerun behavior, empty datasets, appending, and 50/50 exam scores. The parity runner also isolates all file-producing notebook runs.
