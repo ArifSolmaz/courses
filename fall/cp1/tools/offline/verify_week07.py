@@ -33,12 +33,12 @@ def run(cell, **inputs):
 
 
 def answer(exercise):
-    return next(c for c in solutions if c['cell_type'] == 'code' and f'[EX{exercise}]' in ''.join(c['source']))
+    return next(c for c in solutions if c['cell_type'] == 'code' and c.get('metadata',{}).get('cp1_exercise') == str(exercise))
 
 
 checks = 0
 for tally, expected in [({}, None), ({"WARN": 2, "OK": 2}, "WARN"), ({"OK": 1, "ERR": 3}, "ERR")]:
-    state, output = run(lesson[39], tally=tally)
+    state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 39), tally=tally)
     assert state['most_common'] == expected
     if expected is None: assert 'No status codes' in output
     checks += 1
@@ -76,6 +76,7 @@ checks += 1
 for index, cell in enumerate(solutions):
     if cell['cell_type'] == 'code':
         _, output = run(cell)
-        expected = ''.join(solutions[index+1]['source']).split('```text\n')[1].split('```')[0]
+        expected_cell = next(c for c in solutions[index+1:] if c['cell_type']=='markdown' and '```text\n' in ''.join(c['source']))
+        expected = ''.join(expected_cell['source']).split('```text\n')[1].split('```')[0]
         assert output == expected, f'Solution cell {index+1}: expected-result mismatch\n{output!r}\n{expected!r}'
 print(f'Passed {checks} changed-data/boundary cases and all 13 published solution outputs.')

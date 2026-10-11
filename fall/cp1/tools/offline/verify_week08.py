@@ -33,7 +33,7 @@ def run(cell, **inputs):
 
 
 def answer(exercise):
-    return next(c for c in solutions if c['cell_type'] == 'code' and f'[EX{exercise}]' in ''.join(c['source']))
+    return next(c for c in solutions if c['cell_type'] == 'code' and c.get('metadata',{}).get('cp1_exercise') == str(exercise))
 
 
 checks = 0
@@ -59,18 +59,18 @@ for data, count, highest_sensor in [("", 0, ""), ("  \n", 0, ""), ("t1,A,-5\n\nt
     if not count: assert 'No readings available.' in output
     checks += 1
 for text, search, expected in [("aaa", "aa", [0, 1]), ("abc", "z", []), ("abc", "", []), ("", "a", [])]:
-    state, output = run(lesson[52], text=text, search=search)
+    state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 52), text=text, search=search)
     assert state['positions'] == expected
     if not search: assert 'non-empty search term' in output
     checks += 1
-state, output = run(lesson[65], data="")
+state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 65), data="")
 assert 'No student records.' in output
 checks += 1
-state, output = run(lesson[57], students=[('Test', 40, 100)])
+state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 57), students=[('Test', 40, 100)])
 assert state['grade'] == 70
 checks += 1
 for sample_text, special in [('Aa1 ', False), ('Aa1!', True)]:
-    state, output = run(lesson[81], sample_text=sample_text)
+    state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 81), sample_text=sample_text)
     assert state['has_special'] is special
     assert 'Strong' not in output and 'Weak' not in output
     checks += 1
@@ -79,10 +79,11 @@ import re
 for index, cell in enumerate(solutions):
     if cell['cell_type'] != 'code': continue
     _, output = run(cell)
-    expected = ''.join(solutions[index+1]['source']).split('```text\n')[1].split('```')[0]
+    expected_cell = next(c for c in solutions[index+1:] if c['cell_type']=='markdown' and '```text\n' in ''.join(c['source']))
+    expected = ''.join(expected_cell['source']).split('```text\n')[1].split('```')[0]
     assert output == expected, f'Solution cell {index+1}: expected-result mismatch'
-    marker = re.search(r'\[EX(\d+|Bridge)\]', ''.join(cell['source'])).group(1)
-    student_index = next(i for i,c in enumerate(lesson) if c['cell_type']=='code' and f'[EX{marker}]' in ''.join(c['source']))
+    marker = cell['metadata']['cp1_exercise']
+    student_index = next(i for i,c in enumerate(lesson) if c['cell_type']=='code' and c.get('metadata',{}).get('cp1_exercise') == marker)
     expected_student = ''.join(lesson[student_index-1]['source']).split('```\n')[1].split('```')[0]
     assert output == expected_student, f'Exercise {marker}: student/solution output mismatch'
 print(f'Passed {checks} boundary cases and all 13 student/solution expected outputs.')

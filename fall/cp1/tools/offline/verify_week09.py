@@ -22,11 +22,12 @@ for index, cell in enumerate(solutions):
     if cell['cell_type'] != 'code':
         continue
     namespace, output = run(cell)
-    marker = re.search(r'\[EX(\d+|Bridge)\]', ''.join(cell['source'])).group(1)
+    marker = cell['metadata']['cp1_exercise']
     answers[marker] = namespace
-    expected = ''.join(solutions[index + 1]['source']).split('```text\n')[1].split('```')[0]
+    expected_cell = next(c for c in solutions[index+1:] if c['cell_type']=='markdown' and '```text\n' in ''.join(c['source']))
+    expected = ''.join(expected_cell['source']).split('```text\n')[1].split('```')[0]
     assert output == expected, f'Solution {marker}: output mismatch'
-    student = next(i for i, c in enumerate(lesson) if c['cell_type'] == 'code' and f'[EX{marker}]' in ''.join(c['source']))
+    student = next(i for i, c in enumerate(lesson) if c['cell_type'] == 'code' and c.get('metadata',{}).get('cp1_exercise') == marker)
     expected = ''.join(lesson[student - 1]['source']).split('```\n')[1].split('```')[0]
     assert output == expected, f'Exercise {marker}: student output mismatch'
 
@@ -54,17 +55,17 @@ check(answers['9']['count_vowels'], [(('',), 0), (('AEIOU',), 5), (('rhythm',), 
 check(answers['10']['average'], [(([],), 0), (([-6, -2],), -4), (([0],), 0)])
 check(answers['11']['dynamic_pressure'], [((-1, 0), None), ((1.225, 0), 0.0), ((0, 10), 0.0), ((1000, -2), 2000.0)])
 check(answers['12']['calculate'], [((0, '/', 2), 0.0), ((2, '/', 0), 'Error: Division by zero'), ((2, '%', 3), 'Error: Unknown operator')])
-namespace, _ = run(lesson[53])
+namespace, _ = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 53))
 check(namespace['voltage_to_force'], [((0.5,), 0.0), ((2.5,), 50.0), ((4.5,), 100.0), ((0.49,), None), ((4.51,), None)])
-namespace, _ = run(lesson[31])
+namespace, _ = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 31))
 check(namespace['min_max'], [(([],), (None, None)), (([-3],), (-3, -3)), (([-5, -2, -8],), (-8, -2))])
-namespace, _ = run(lesson[59])
-run(lesson[61], namespace)
-run(lesson[63], namespace)
+namespace, _ = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 59))
+run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 61), namespace)
+run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 63), namespace)
 check(namespace['calculate'], [(('1', 2, 3), 5), (('2', 2, 3), -1), (('3', 2, 3), 6), (('4', 0, 2), 0.0), (('4', 2, 0), None), (('?', 2, 3), None)])
 # A local y never overwrites an existing global binding.
 for seed in ({}, {'y': 99}):
-    state, _ = run(lesson[96], seed.copy())
+    state, _ = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 96), seed.copy())
     assert state.get('y') == seed.get('y')
     checks += 1
 print(f'Passed {checks} boundary/changed-input cases and all 13 student/solution expected outputs.')

@@ -1,5 +1,20 @@
 let notebook=structuredClone(ORIGINAL), worker, workerURL, ready=false, busy=false, active=null, execution=0, dirty=false;
 const $=id=>document.getElementById(id), editors=new Map(), outputs=new Map(), runSources=new Map(), errors=new Map(), plots=new Map();
+const selectedOutputLines=new Map();
+function highlightOutput(i,n){
+  if(!CONFIG.outputTrace||!Number.isInteger(n))return;
+  selectedOutputLines.set(i,n);
+  const output=outputs.get(i),entry=editors.get(i),note=$('output-link-'+i);
+  if(!output||!entry||!note)return;
+  const current=runSources.get(i)===entry.editor.value;
+  let matches=0;
+  output.querySelectorAll('.output-fragment').forEach(part=>{
+    const match=current && (part.dataset.lines||'').split(',').includes(String(n));
+    part.classList.toggle('output-linked',match);if(match)matches++;
+  });
+  note.hidden=false;
+  note.textContent=!runSources.has(i)?'Run this cell to link lines to output.':!current?'Code changed — run again to update output links.':matches?'Highlighted output from line '+n+'.':'Line '+n+' produced no printed output in this run.';
+}
 let runtimeFiles={lesson:[],solutions:[]};
 $('licenses').textContent=LICENSES;
 if(location.protocol==='https:'||location.protocol==='http:'){const a=$('download-html');a.hidden=false;a.href=CONFIG.filename;a.download=CONFIG.filename;}
@@ -50,11 +65,11 @@ function addLineFocus(pane,editor,i,walk){
   function numberEditor(){gutter.textContent=editor.value.split('\n').map((_,n)=>n+1).join('\n');}
   let selected=Number(Object.keys(walk.line_focus)[0]||1),editing=false;
   function selectLine(n){
-    selected=n;
+    selected=n;highlightOutput(i,n);
     listing.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.line)===n)));
     const title=document.createElement('strong');title.textContent='Line '+n;
     const body=document.createElement('div');
-    const text=editor.value!==original?'Code has been edited. The original explanation may no longer apply. Restore the original code to use the walkthrough.':walk.line_focus[n]||walk.starter_help||'This line continues the statement above or separates parts of the program.';
+    const text=editor.value!==original?'Code has been edited. The original explanation may no longer apply. Restore the original code to use the walkthrough.':walk.line_focus[n]||walk.comment_help?.[n]||walk.starter_help||'This line continues the statement above or separates parts of the program.';
     body.innerHTML=DOMPurify.sanitize(marked.parse(text));explanation.replaceChildren(title,body);
   }
   function draw(){
@@ -71,7 +86,7 @@ function addLineFocus(pane,editor,i,walk){
   pane.insertBefore(controls,editingPane);pane.append(listing,explanation);draw();
 }
 function render(){
-  $('notebook').replaceChildren();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
+  $('notebook').replaceChildren();runSources.clear();selectedOutputLines.clear();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
   notebook.cells.forEach((cell,i)=>{
     if(cell.metadata?.cp1_line_walkthrough?.line_focus)return;
     const section=document.createElement('section');
@@ -102,7 +117,8 @@ function render(){
       const outputTitle=document.createElement('h3');outputTitle.textContent='Output';outputTitle.className='output-title';
       const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');
       const images=document.createElement('div');images.className='plots';plots.set(i,images);
-      resultPane.append(outputTitle,output,images,error);layout.append(codePane,resultPane);section.append(layout,details);
+      const outputLink=document.createElement('p');outputLink.id='output-link-'+i;outputLink.className='output-link-note';outputLink.hidden=true;outputLink.setAttribute('aria-live','polite');
+      resultPane.append(outputTitle,outputLink,output,images,error);layout.append(codePane,resultPane);section.append(layout,details);
       for(const o of cell.outputs||[]){if(o.output_type==='display_data'&&o.data?.['image/png'])addPlot(i,o.data['image/png']);}
       errors.set(i,error);editors.set(i,{editor,input,details});outputs.set(i,output);
     }
@@ -123,16 +139,16 @@ function boot(){
     if(m.type==='fileError'){$('fatal').textContent=m.text;return;}
     const cell=notebook.cells[m.id];if(!cell)return;
     if(m.type==='plot'){addPlot(m.id,m.png);cell.outputs.push({output_type:'display_data',data:{'image/png':m.png},metadata:{}});}
-    if(m.type==='stream'){outputs.get(m.id).textContent+=m.text;cell.outputs.push({output_type:'stream',name:m.name,text:[m.text]});}
+    if(m.type==='stream'){const fragment=document.createElement('span');fragment.className='output-fragment';fragment.textContent=m.text;fragment.dataset.lines=(m.lines||[]).join(',');outputs.get(m.id).append(fragment);highlightOutput(m.id,selectedOutputLines.get(m.id));cell.outputs.push({output_type:'stream',name:m.name,text:[m.text]});}
     if(m.type==='error'){const error=describePythonError(m.text,m.id,runSources);showError(m.id,error);cell.outputs.push({output_type:'error',ename:error.type,evalue:error.message,traceback:m.text.split('\n')});}
-    if(m.type==='done'||m.type==='error'){outputs.get(m.id).classList.add('has-run');busy=false;active=null;$('cell-'+m.id).classList.remove('running');$('status').textContent=m.type==='done'?'Finished · Python ready':'Cell has an error · edit and run again';controls();}
+    if(m.type==='done'||m.type==='error'){if(selectedOutputLines.has(m.id))highlightOutput(m.id,selectedOutputLines.get(m.id));outputs.get(m.id).classList.add('has-run');busy=false;active=null;$('cell-'+m.id).classList.remove('running');$('status').textContent=m.type==='done'?'Finished · Python ready':'Cell has an error · edit and run again';controls();}
   };
   worker.onerror=e=>{$('fatal').textContent=e.message;ready=false;busy=false;controls();};
   worker.postMessage({type:'init',files:FILES,config:CONFIG});
 }
 function runCell(i){
   if(!ready||busy)return;busy=true;active=i;controls();$('cell-'+i).classList.add('running');$('status').textContent='Running cell '+(i+1)+'…';
-  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);markDirty();
+  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);if(selectedOutputLines.has(i))highlightOutput(i,selectedOutputLines.get(i));markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
 }
 function addPlot(id,png){

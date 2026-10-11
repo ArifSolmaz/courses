@@ -1,4 +1,5 @@
 """Run both complete editions, solution assertions, and changed stopping boundaries."""
+import ast
 import contextlib
 import io
 import json
@@ -29,7 +30,7 @@ for week in (4, 5):
             exec(compile(text(cell), f'Week {week} cell {index+1}', 'exec'), namespace)
         counts[week, realm] = counts.get((week, realm), 0) + 1
         # Expected interactive examples; all solution scripts use supplied values.
-        needs_input = week == 5 and index in (25, 27, 42, 60, 63, 66, 70, 82)
+        needs_input = any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == 'input' for n in ast.walk(ast.parse(text(cell))))
         cases.append([text(cell), needs_input])
         if week == 4 and realm == 'lesson' and 'colors = ["red", "green", "blue"]' in text(cell):
             assert output.getvalue() == 'Current color is: red\nCurrent color is: green\nCurrent color is: blue\n\nAfter the loop, color = blue\n'

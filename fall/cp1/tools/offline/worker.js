@@ -1,4 +1,7 @@
 let py, realms, plotScope, active = null, inputs = [], streamCount = 0, fileSupport=false;
+let traceScope, traceContext, tracedText='', tracedLines='';
+function flushTrace(){if(!tracedText)return;if(streamCount++<400)send('stream',{name:'stdout',text:tracedText,lines:tracedLines.split(',').filter(Boolean).map(Number)});else if(streamCount===401)send('stream',{name:'stderr',text:'Output limit reached. Stop and restart if your loop does not finish.\n'});tracedText='';}
+function traceWrite(text,lines){if(lines!==tracedLines)flushTrace();tracedLines=lines;tracedText+=text;if(text.includes('\n'))flushTrace();}
 const roots={lesson:'/home/pyodide/lesson',solutions:'/home/pyodide/solutions'};
 const send = (type, data={}) => postMessage({type, id:active, ...data});
 function stream(name, text) {
@@ -39,6 +42,7 @@ self.onmessage = async ({data:m}) => {
         plotScope=py.runPython("dict(__name__='__offline_plots__')");
         py.runPython(m.config.plotSetup,{globals:plotScope});
       }
+      if(m.config.outputTrace){py.registerJsModule('offline_output',{emit:traceWrite});traceScope=py.runPython("dict(__name__='__offline_output__')");py.runPython(m.config.outputTrace,{globals:traceScope});}
       realms={lesson:py.globals,solutions:py.runPython("dict(__name__='__main__')")};
       for(const path of Object.values(roots))py.FS.mkdirTree(path);
       fileSupport=m.config.week>=11;
@@ -47,11 +51,13 @@ self.onmessage = async ({data:m}) => {
       active=m.id;streamCount=0;inputs=m.inputs;
       const realm=m.realm||'lesson';py.FS.chdir(roots[realm]);
       try {
+        if(traceScope){const capture=traceScope.get('capture');traceContext=capture(m.code,'Cell '+(m.id+1));capture.destroy();traceContext.__enter__();}
         const result=await py.runPythonAsync(m.code,{globals:realms[realm],filename:'Cell '+(m.id+1)});
+        if(traceContext){const finish=traceScope.get('finish');finish(traceContext);finish.destroy();traceContext.destroy();traceContext=null;flushTrace();}
         if(result!==undefined) {stream('stdout',String(result));if(result?.destroy)result.destroy();}
         if(plotScope)py.runPython('show_offline()',{globals:plotScope});
         send('done');
-      } catch(e) {if(plotScope)py.runPython('plt.close("all")',{globals:plotScope});send('error',{text:String(e)});}
+      } catch(e) {if(traceContext){const finish=traceScope.get('finish');finish(traceContext);finish.destroy();traceContext.destroy();traceContext=null;flushTrace();}if(plotScope)py.runPython('plt.close("all")',{globals:plotScope});send('error',{text:String(e)});}
       if(fileSupport)listFiles(realm);
       active=null;
     } else if(m.type==='getFile'){

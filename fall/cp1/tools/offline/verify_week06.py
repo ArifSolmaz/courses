@@ -33,15 +33,15 @@ def run(cell, **inputs):
 
 
 def answer(exercise):
-    return next(c for c in solutions if c['cell_type'] == 'code' and f'[EX{exercise}]' in ''.join(c['source']))
+    return next(c for c in solutions if c['cell_type'] == 'code' and c.get('metadata',{}).get('cp1_exercise') == str(exercise))
 
 
 checks = 0
 for values, expected in [([], 'No data'), ([7], 'no following sample'), ([-5, -2, -7], 'What followed the peak: -7'), ([9, 3, 9], 'What followed the peak: 3')]:
-    state, output = run(lesson[35], temps_c=values)
+    state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 35), temps_c=values)
     assert expected in output
     checks += 1
-state, output = run(lesson[33], current_a=[])
+state, output = run(next(c for c in lesson if c.get("metadata", {}).get("cp1_source_cell") == 33), current_a=[])
 assert state['average'] is None and 'no data' in output
 checks += 1
 for values, warm_up, expected in [([], 3, None), ([1, 2], 3, None), ([3, 6], 0, 4.5)]:
@@ -66,6 +66,7 @@ for values, expected in [([], []), ([1], []), ([0, 1], [1]), ([1, 1, 0, 1], [3])
 for index, cell in enumerate(solutions):
     if cell['cell_type'] == 'code':
         _, output = run(cell)
-        expected = ''.join(solutions[index+1]['source']).split('```text\n')[1].split('```')[0]
+        expected_cell = next(c for c in solutions[index+1:] if c['cell_type']=='markdown' and '```text\n' in ''.join(c['source']))
+        expected = ''.join(expected_cell['source']).split('```text\n')[1].split('```')[0]
         assert output == expected, f'Solution cell {index+1}: expected-result mismatch'
 print(f'Passed {checks} changed-data/boundary cases and all 13 published solution outputs.')
