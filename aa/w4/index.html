@@ -222,7 +222,9 @@ summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
 .activity-guide h4{margin:0 0 12px;font-size:18px;line-height:1.4;letter-spacing:0;text-transform:none;color:var(--ink)}
 .activity-guide p{margin:10px 0}.activity-guide ol{padding-left:24px;margin:14px 0}.activity-guide li{padding-left:4px;margin:12px 0}
 .activity-takeaway{border-left:3px solid var(--acc);padding-left:12px}
-</style></head>
+</style><link rel="stylesheet" href="../assets/python-runner.css">
+<script defer src="../assets/python-runner.js"></script>
+</head>
 <body>
 <div class="wrap">
 
@@ -409,13 +411,22 @@ Sıralı dizi <b>aramayı hızlandırır, ancak ekleme ve silmede kaydırma gere
 <div class="topic-row" id="topic-2-1"><div class="topic-main"><h3>2.1 İşaretçi (pointer) ve düğüm (node)</h3>
 <p><b>Sezgi.</b> <b>İşaretçi</b> bellekteki bir yerin <b>adresidir</b>. Cep telefonu numarası gibi düşünün: numara bir kişiyi işaret eder ve kişi nereye giderse gitsin çalışmaya devam eder. Özel bir değer, <b>NULL</b> (Python’da <code>None</code>), “hiçbir yeri göstermiyor” demektir ve zincirin sonunu işaretler.</p>
 <p>Bağlı liste, her biri <b>bir veri</b> ve <b>sonraki düğümün işaretçisi</b>ni taşıyan <b>düğümler</b> zinciridir. Listeye <b>baş (head)</b> işaretçisiyle girilir.</p>
-<pre>class Node:
+<pre class="python-example" data-python="1">class Node:
     def __init__(self, item, next=None):
         self.item = item      # veri
         self.next = next      # sonraki düğüm (ya da None)
 
-# 7 -> 3 -> 9 -> None
-head = Node(7, Node(3, Node(9)))</pre>
+# 7 -&gt; 3 -&gt; 9 -&gt; None
+head = Node(7, Node(3, Node(9)))
+
+def degerler(head):
+    sonuc = []
+    while head is not None:
+        sonuc.append(head.item)
+        head = head.next
+    return sonuc
+
+print(&quot;Liste:&quot;, degerler(head))</pre>
 
 </div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-1"><a class="section-reference" href="#topic-2-1">Lecture §2.1</a><h4 id="simple-topic-2-1">Follow the arrows</h4><pre>7 → 3 → 9 → None</pre><p>Each node holds a value and a link to the next node. <code>head</code> identifies the first node; <code>None</code> ends the chain.</p><p>To reach the third node, follow the first two links.</p></aside></div>
 
@@ -424,7 +435,19 @@ head = Node(7, Node(3, Node(9)))</pre>
 <b>Arama:</b> baştan başla; düğüm None ise yok; aradığın ise bitti; değilse <code>next</code>’e geç. Düğümler tek tek gezilir: <b>O(n)</b>.<br>
 <b>Ekleme (başa):</b> yeni düğümün <code>next</code>’ini eski başa yönlendir, sonra <code>head</code>’i yeni düğüme çevir. İki işaretçi değişimi: <b>O(1)</b>. <i>Sıra önemli.</i><br>
 <b>Silme:</b> x’i silmek için <b>öncülü (predecessor)</b> bulmalısın, çünkü onun <code>next</code>’i x’i atlayacak. Öncülü bulmak bir arama (O(n)); bağlantıyı değiştirmek O(1). x baş ise öncül yoktur; <code>head</code> değiştirilir.</div>
-<pre>def ara(head, k):
+<pre class="python-example" data-python="2">class Node:
+    def __init__(self, item, next=None):
+        self.item = item
+        self.next = next
+
+def degerler(head):
+    sonuc = []
+    while head is not None:
+        sonuc.append(head.item)
+        head = head.next
+    return sonuc
+
+def ara(head, k):
     p = head
     while p is not None and p.item != k:
         p = p.next
@@ -442,8 +465,18 @@ def sil(head, k):
     while p.next is not None and p.next.item != k:
         p = p.next               # p = öncül
     if p.next is not None:
-        p.next = p.next.next     # x'i atla
-    return head</pre>
+        p.next = p.next.next     # x&#x27;i atla
+    return head
+
+# Bu örneği değiştirebilirsiniz.
+head = Node(7, Node(3, Node(9, Node(5))))
+print(&quot;Başlangıç:&quot;, degerler(head))
+bulunan = ara(head, 9)
+print(&quot;Aranan:&quot;, bulunan.item if bulunan else &quot;Bulunamadı&quot;)
+head = basa_ekle(head, 1)
+print(&quot;Başa 1 ekle:&quot;, degerler(head))
+head = sil(head, 9)
+print(&quot;9&#x27;u sil:&quot;, degerler(head))</pre>
 <div class="rule skip"><b class="t">Sık yapılan hata</b> Başa eklerken sıra ters olursa (<code>head = yeni</code> önce, <code>yeni.next = head</code> sonra) yeni düğüm kendini gösterir ve <b>eski liste kaybolur</b> (artık ona giden hiçbir işaretçi yok). Hep “önce yeniyi eski listeye bağla, sonra girişi değiştir”.</div>
 
 </div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-2"><a class="section-reference" href="#topic-2-2">Lecture §2.2</a><h4 id="simple-topic-2-2">Find first, reconnect second</h4><p>Searching follows links: <b>O(n)</b>. Adding at the front changes only a few links: <b>O(1)</b>.</p><p><b>Front insertion:</b> first connect the new node to the old head; then make it the new head.</p><p>For deletion, find the previous node and make its link skip the removed node. Finding it may take O(n).</p></aside></div>
@@ -474,23 +507,62 @@ def sil(head, k):
 <p><b>Çift bağlı (doubly linked)</b> listede her düğümün <code>next</code>’inin yanında bir de <code>prev</code> işaretçisi vardır. Düğüm başına işaretçilerin kapladığı bellek iki katına çıkar ama öncüle <b>anında</b> ulaşılır: <b>elinizde düğüm varsa silme O(1)</b>’dir. Ek <code>prev</code> işaretçisi asimptotik işlem sınıflarını değiştirmez; ancak her düğüm için sabit bir ek bellek maliyeti getirir. Bu nedenle ders, işlem maliyetlerini karşılaştırırken çoğu kez çift bağlı listeyi varsayar. (Skiena’nın benzetmesi: tek bağlı liste conga dizisi, çift bağlı liste can-can dizisi gibidir; ikincisinde herkes iki yandakini tutar.)</p>
 <div class="box"><b>Çözümlü örnek 4 — elimizde yalnızca x düğümü var, baş yok; x son düğüm değil. O(1)’de silin.</b><br>
 Öncülü bulamayız. Hile: <b>sonraki düğümün verisini x’e kopyala, sonraki düğümü atla.</b>
-<pre>x.item = x.next.item
-x.next = x.next.next</pre>
+<pre class="python-example" data-python="3">class Node:
+    def __init__(self, item, next=None):
+        self.item = item
+        self.next = next
+
+def degerler(head):
+    sonuc = []
+    while head is not None:
+        sonuc.append(head.item)
+        head = head.next
+    return sonuc
+
+head = Node(7, Node(3, Node(9, Node(5))))
+x = head.next  # Son düğüm olmayan 3 düğümü.
+print(&quot;Önce:&quot;, degerler(head))
+
+x.item = x.next.item
+x.next = x.next.next
+
+print(&quot;Sonra:&quot;, degerler(head))
+print(&quot;Aynı x düğümünün yeni değeri:&quot;, x.item)</pre>
 7 → <b>3</b> → 9 → 5 listesinde x = 3’ü “silelim”: x.item = 9 olur (7 → 9 → 9 → 5), sonra x.next = 5’e bağlanır: <b>7 → 9 → 5</b>. Liste artık 3 olmadan aynı değerleri içerir. <b>x son düğümse bu hile çalışmaz</b>: kopyalanacak sonraki düğüm yoktur. Ayrıca dışarıda x düğümünün kendisine başvuran işaretçiler varsa bu yöntem x’in kimliğini silmez; x’in verisini değiştirir. Bu nedenle “düğümü gerçekten silmek” ile her zaman eşdeğer değildir.</div>
 
 </div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-4"><a class="section-reference" href="#topic-2-4">Lecture §2.4</a><h4 id="simple-topic-2-4">One neighbor or two?</h4><p>A singly linked node knows its next neighbor. A doubly linked node knows both neighbors.</p><p>If you already have a node in a doubly linked list, removing it takes <b>O(1)</b>. The extra link uses memory.</p><p>The copy-next shortcut shown in the notes changes a node’s value; it cannot remove the tail and does not preserve node identity.</p></aside></div>
 
 <div class="topic-row" id="topic-2-5"><div class="topic-main"><h3>2.5 Gözcü (sentinel): özel durumları yok eden sahte düğüm</h3>
 <p><b>Sezgi.</b> Kapı önündeki görevli gibi: hiçbir zaman içeri girmez, ama “liste boş mu?”, “ilk eleman mı siliniyor?” gibi sorular sormanızı engeller. Listenin başına <b>sahte bir düğüm</b> koyarsanız liste hiçbir zaman boş değildir ve her gerçek düğümün bir öncülü vardır.</p>
-<pre>sahte = Node(None)             # gözcü: veri yok, hiç silinmez
+<pre class="python-example" data-python="4">class Node:
+    def __init__(self, item, next=None):
+        self.item = item
+        self.next = next
+
+def degerler(head):
+    sonuc = []
+    while head is not None:
+        sonuc.append(head.item)
+        head = head.next
+    return sonuc
+
+head = Node(7, Node(3, Node(9, Node(5))))
+
+sahte = Node(None)             # gözcü: veri yok, hiç silinmez
 sahte.next = head
 
 def sil_gozculu(sahte, k):
-    p = sahte                  # artık baş için ayrı "if" yok
+    p = sahte                  # artık baş için ayrı &quot;if&quot; yok
     while p.next is not None and p.next.item != k:
         p = p.next
     if p.next is not None:
-        p.next = p.next.next   # baş da dahil hepsini aynı kodla siler</pre>
+        p.next = p.next.next   # baş da dahil hepsini aynı kodla siler
+
+print(&quot;Önce:&quot;, degerler(sahte.next))
+sil_gozculu(sahte, 7)  # İlk gerçek düğümü sil.
+print(&quot;7 silindi:&quot;, degerler(sahte.next))
+sil_gozculu(sahte, 9)
+print(&quot;9 silindi:&quot;, degerler(sahte.next))</pre>
 <p>Büyük-O’yu <b>değiştirmez</b>, kodu sadeleştirir. Aynı hile dizide de çalışır: Hafta 3’teki insertion sort’un başına “−∞” anahtarlı sahte bir eleman koyarsanız “sol uçtan taştım mı?” kontrolüne gerek kalmaz.</p>
 
 </div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-5"><a class="section-reference" href="#topic-2-5">Lecture §2.5</a><h4 id="simple-topic-2-5">A permanent dummy at the front</h4><pre>Dummy → first → next</pre><p>Even the first real node now has a predecessor. Deleting it can follow the same pattern as deleting another node.</p><p>The dummy simplifies special cases; it does not make searching faster.</p></aside></div>
@@ -589,7 +661,7 @@ amortize maliyet = (işlem dizisinin toplam maliyeti) / (işlem sayısı), en y�
 <p><b>Sezgi.</b> Tabak istifi ya da buzdolabının önüne koyduğunuz kap: <b>en son koyduğunuzu ilk alırsınız</b>. <code>push(x)</code> tepeye koyar, <code>pop()</code> tepedekini çıkarıp verir. Tepeyi görmek için <code>top()</code>/<code>peek()</code> kullanılır.</p>
 <div class="rule"><b class="t">Kural 9 — yığın (LIFO)</b>
 Push 5, 6, 7 sonra pop → <b>7</b> (sonra 6, sonra 5). Önceden ayrılmış sabit kapasiteli <b>dizi + sayaç</b> ile push ve pop en kötü durumda <b>O(1)</b>’dir. Python listesi ise dinamik dizidir: <code>s.append(x)</code> amortize O(1), sondan <code>s.pop()</code> amortize O(1)’dir; kapasite küçültülürse tek çağrı daha pahalı olabilir.</div>
-<pre>s = []
+<pre class="python-example" data-python="5">s = []
 s.append(5); s.append(6); s.append(7)
 print(s.pop())      # 7  (son giren ilk çıktı)
 print(s)            # [5, 6]</pre>
@@ -600,16 +672,20 @@ Remove: C, B, A</pre><p>A stack is <b>last in, first out</b>, like undoing your 
 
 <div class="topic-row" id="topic-4-2"><div class="topic-main"><h3>4.2 Parantez dengeleme</h3>
 <p><b>Sezgi.</b> İç içe kutular: en son açtığınız kutuyu ilk kapatmalısınız. Bu tam LIFO’dur. Algoritma: soldan sağa oku; <b>açan</b> parantezi yığına at; <b>kapatan</b> gelince tepedeki açanla eşleşiyor mu bak, eşleşiyorsa pop; sonunda yığın <b>boş</b> olmalı.</p>
-<pre>def dengeli(s):
-    esle = {')': '(', ']': '[', '}': '{'}
+<pre class="python-example" data-python="6">def dengeli(s):
+    esle = {&#x27;)&#x27;: &#x27;(&#x27;, &#x27;]&#x27;: &#x27;[&#x27;, &#x27;}&#x27;: &#x27;{&#x27;}
     st = []
     for c in s:
-        if c in '([{':
+        if c in &#x27;([{&#x27;:
             st.append(c)
-        elif c in ')]}':
+        elif c in &#x27;)]}&#x27;:
             if not st or st.pop() != esle[c]:
                 return False
-    return not st</pre>
+    return not st
+
+# Kendi ifadenizi listeye ekleyebilirsiniz.
+for ifade in [&quot;{[()]}&quot;, &quot;([)]&quot;, &quot;((&quot;, &quot;a[i]*(b+c)&quot;]:
+    print(ifade, &quot;→&quot;, dengeli(ifade))</pre>
 <div class="try"><div class="lab">Kendin dene — parantez dengeleme</div>
 <div class="row"><input type="text" id="pb_in" value="{[()]}" style="flex:1;min-width:160px"><button class="btn g" data-pb="{[()]}">{[()]}</button><button class="btn g" data-pb="([)]">([)]</button><button class="btn g" data-pb="((">((</button><button class="btn g" data-pb="())(">())(</button><button class="btn g" data-pb="a[i]*(b+c)">a[i]*(b+c)</button></div>
 <div id="pb_tok"></div>
@@ -663,7 +739,7 @@ Minima:  [5, 3, 3]</pre><p>Store the minimum so far alongside every pushed value
 Enqueue 5, 6, 7 sonra dequeue → <b>5</b>. Yığında aynı gelişlerle pop → 7. <b>Aynı gelişler, farklı çıkış sırası</b>: fark yalnızca “bekleyenlerden hangisi önce çıkar” kuralındadır.<br>
 Gerçekleştirim: bir uçtan ekleyip diğer uçtan çıkaran <b>bağlı liste</b> (baş + son işaretçisi) ya da <b>halka tampon</b> (aşağıda). Her iki durumda işlemler <b>O(1)</b>.</div>
 <div class="rule skip"><b class="t">Python tuzağı</b> <code>list.pop(0)</code> öndekini çıkarır ama <b>tüm diziyi sola kaydırır: O(n)</b> (Blok 1!). Kuyruk için <code>collections.deque</code> kullanın: <code>popleft()</code> O(1).</div>
-<pre>from collections import deque
+<pre class="python-example" data-python="7">from collections import deque
 q = deque()
 q.append(5); q.append(6); q.append(7)    # enqueue
 print(q.popleft())                        # 5  (ilk giren ilk çıktı)</pre>
