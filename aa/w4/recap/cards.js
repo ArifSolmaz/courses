@@ -21,7 +21,21 @@ const cards = [
     "block": "Starting check",
     "minutes": 8,
     "start": 0,
-    "end": 8
+    "end": 8,
+    "walkthrough": [
+      {
+        "title": "Name the job",
+        "text": "For the lights, the job is to check all 8. For the boxes, the job is to make enough space for all 13 parts."
+      },
+      {
+        "title": "Do one small action",
+        "text": "Check one light, then the next. Fill one box with 5 parts, then another with 5. Three parts still need a third box."
+      },
+      {
+        "title": "Say what you counted",
+        "text": "You counted 8 light checks and 3 boxes. These are different kinds of work. Always name the unit before using a formula."
+      }
+    ]
   },
   {
     "id": 20,
@@ -45,7 +59,21 @@ const cards = [
     "block": "Starting check",
     "minutes": 7,
     "start": 8,
-    "end": 15
+    "end": 15,
+    "walkthrough": [
+      {
+        "title": "Follow case A",
+        "text": "Turn on lights 1 through 8. That is 8 actions. Then turn them off: 8 more. You have done two separate passes."
+      },
+      {
+        "title": "Follow case B",
+        "text": "Choose sender 1 and test all 8 receivers. Repeat for sender 2, then every other sender. There are 8 groups of 8 tests."
+      },
+      {
+        "title": "Explain the difference",
+        "text": "A adds two groups: 8+8. B repeats a whole group 8 times: 8×8. That is why counting two loops is not enough."
+      }
+    ]
   },
   {
     "week": "1",
@@ -69,7 +97,21 @@ const cards = [
     "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 15,
-    "end": 19
+    "end": 19,
+    "walkthrough": [
+      {
+        "title": "Read the route",
+        "text": "The numbers are positions on a line. Going from −1 to 1 takes 2 units. Going from 3 to −4 takes 7 units. An arrow means the next stop."
+      },
+      {
+        "title": "Follow the nearest-stop rule",
+        "text": "At 0, −1 and 1 are equally near; choose −1. From −1, 1 is nearer than −4. The rule keeps choosing a short next move, but later needs the long move from 3 to −4."
+      },
+      {
+        "title": "Compare whole trips",
+        "text": "Add every move, including the return to 0. The first route costs 16 and the second costs 14. Both do the job, but the first is not the shortest."
+      }
+    ]
   },
   {
     "week": "1",
@@ -93,7 +135,21 @@ const cards = [
     "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 19,
-    "end": 23
+    "end": 23,
+    "walkthrough": [
+      {
+        "title": "Read the time intervals",
+        "text": "A uses the bench from time 0 to time 3. B needs it from 2 to 4. They overlap, so one bench cannot do both."
+      },
+      {
+        "title": "Try the two choices",
+        "text": "Choosing B blocks both A and C. Choosing A leaves the bench free at time 3, exactly when C starts. So A and C can both run."
+      },
+      {
+        "title": "Name the goal",
+        "text": "We want the number of completed jobs, not the shortest single job. One short choice can leave room for fewer jobs overall."
+      }
+    ]
   },
   {
     "id": 21,
@@ -117,7 +173,21 @@ const cards = [
     "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 23,
-    "end": 27
+    "end": 27,
+    "walkthrough": [
+      {
+        "title": "Focus on the word above",
+        "text": "Above 80 means greater than 80. Exactly 80 is not above 80. The symbols > and ≥ differ at that one boundary."
+      },
+      {
+        "title": "Test the boundary",
+        "text": "At 79, both rules say no. At 81, both say yes. At 80, only the ≥ rule says yes, so that test reveals the mistake."
+      },
+      {
+        "title": "Connect the test to the rule",
+        "text": "A test is useful when it can separate a correct rule from a wrong one. Here, the exact boundary is the important case."
+      }
+    ]
   },
   {
     "id": 22,
@@ -141,7 +211,21 @@ const cards = [
     "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 27,
-    "end": 31
+    "end": 31,
+    "walkthrough": [
+      {
+        "title": "Follow the largest-first rule",
+        "text": "For a total of 6, take a 4. You still need 2. Only the 1 coin fits, so take two 1 coins. That uses 3 coins."
+      },
+      {
+        "title": "Try another first choice",
+        "text": "Start with 3. You still need 3, so take another 3. That uses only 2 coins. There is no 6 coin, so one coin cannot work."
+      },
+      {
+        "title": "Explain why the rule fails",
+        "text": "Choosing the largest coin looked good for the first step. It left an awkward remainder. A smaller first coin gave a better complete answer."
+      }
+    ]
   },
   {
     "week": "1",
@@ -165,7 +249,21 @@ const cards = [
     "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 31,
-    "end": 35
+    "end": 35,
+    "walkthrough": [
+      {
+        "title": "Separate evidence from a guarantee",
+        "text": "A successful test tells you about that input. It does not tell you what happens on every other allowed input."
+      },
+      {
+        "title": "See why trying everything grows fast",
+        "text": "For 4 different parts, choose the first in 4 ways, the next in 3, then 2, then 1. Multiply: 4×3×2×1=24 orders."
+      },
+      {
+        "title": "Understand what a proof adds",
+        "text": "A proof explains why every allowed input works. It must also show that the method finishes; a loop that never stops cannot deliver an answer."
+      }
+    ]
   },
   {
     "week": "2",
@@ -189,7 +287,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 4,
     "start": 35,
-    "end": 39
+    "end": 39,
+    "walkthrough": [
+      {
+        "title": "Give n a meaning",
+        "text": "n is the number of sensors. When n=4, there are four sensors to check. The letter is just a short name for the input size."
+      },
+      {
+        "title": "Count both methods",
+        "text": "One pass checks 4 sensors once: 4 checks. Two passes check the same 4 twice: 8 checks. With 8 sensors, the counts become 8 and 16."
+      },
+      {
+        "title": "Look at the change",
+        "text": "Both counts double when the number of sensors doubles. One method still does twice as much work as the other. Same growth does not mean same count."
+      }
+    ]
   },
   {
     "id": 23,
@@ -213,7 +325,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 4,
     "start": 39,
-    "end": 43
+    "end": 43,
+    "walkthrough": [
+      {
+        "title": "Start at the left",
+        "text": "The closed compartments are marked ?. Open the first one. If it has no key, move to the second. Do not skip a compartment."
+      },
+      {
+        "title": "Stop for a reason",
+        "text": "If you find the key in compartment 2, you have made 2 checks and can stop. If no key is present, you cannot know that until all 6 have been checked."
+      },
+      {
+        "title": "Change the input",
+        "text": "Move the key and run the same rule again. The number of checks changes because the input changed, not because the search rule changed."
+      }
+    ]
   },
   {
     "week": "2–3",
@@ -237,7 +363,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 4,
     "start": 43,
-    "end": 47
+    "end": 47,
+    "walkthrough": [
+      {
+        "title": "Find the easiest input",
+        "text": "If the first sensor is faulty, one check finds it. The search stops immediately. This is the best case."
+      },
+      {
+        "title": "Find the hardest input",
+        "text": "If only the last sensor is faulty, every earlier sensor must be checked first. That takes n checks. This is the worst case."
+      },
+      {
+        "title": "Understand the average",
+        "text": "For 8 equally likely fault positions, the possible counts are 1 through 8. Their sum is 36; dividing by 8 gives 4.5. That is an average, not half a check in one run."
+      }
+    ]
   },
   {
     "week": "3",
@@ -261,7 +401,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 8,
     "start": 47,
-    "end": 55
+    "end": 55,
+    "walkthrough": [
+      {
+        "title": "Count a full pass",
+        "text": "A temperature pass visits all 4 sensors. A voltage pass visits all 4 again. The second pass happens after the first, so add 4+4."
+      },
+      {
+        "title": "Count a repeated inner task",
+        "text": "For sensor A, compare with A, B, C and D. Do the same for B, C and D. Four outer choices each cause four inner checks: 4×4."
+      },
+      {
+        "title": "Check what is included",
+        "text": "The 16-count model includes AA and counts AB separately from BA. If you only want different unordered pairs, remove those repeats: the count becomes 6."
+      }
+    ]
   },
   {
     "week": "2–3",
@@ -285,7 +439,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 3,
     "start": 55,
-    "end": 58
+    "end": 58,
+    "walkthrough": [
+      {
+        "title": "See why sorted order helps",
+        "text": "Look at the middle value. If your target is larger, every value on the smaller side can be removed from the search. This works because the values are in order."
+      },
+      {
+        "title": "Count halvings, not items",
+        "text": "In the size model, 16 becomes 8, then 4, then 2, then 1. There are four arrows. log₂16=4 is a short way to write that count."
+      },
+      {
+        "title": "Separate the model from the search",
+        "text": "The model stops when one candidate remains. A search may still need to inspect that candidate. That is why 16 items can require 5 middle-item checks."
+      }
+    ]
   },
   {
     "week": "2–3",
@@ -309,7 +477,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 3,
     "start": 58,
-    "end": 61
+    "end": 61,
+    "walkthrough": [
+      {
+        "title": "Fill the boxes",
+        "text": "Put 4 parts in the first box and 4 in the second. You have packed 8 of the 10 parts. Two parts are still outside."
+      },
+      {
+        "title": "Make room for the rest",
+        "text": "A third box is needed for those 2 parts. It is not full, but it is still a box. So the number of boxes needed is 3."
+      },
+      {
+        "title": "Choose the right rounding",
+        "text": "10÷4=2.5. Round up to count enough boxes: 3. Round down to count completely full boxes: 2. The question decides which answer you need."
+      }
+    ]
   },
   {
     "id": 26,
@@ -333,7 +515,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 3,
     "start": 61,
-    "end": 64
+    "end": 64,
+    "walkthrough": [
+      {
+        "title": "Count the full groups",
+        "text": "Three groups of 5 use 15 of the 17 students. Two students are left. So there are 3 complete teams."
+      },
+      {
+        "title": "Ask whether anyone may be left out",
+        "text": "For transport, nobody may be left without a seat. The remaining 2 students need another minibus. So 4 vehicles are needed."
+      },
+      {
+        "title": "Notice the different questions",
+        "text": "Full teams counts only complete groups. Vehicles needed must cover everybody. This is why the same division can lead to different answers."
+      }
+    ]
   },
   {
     "id": 25,
@@ -357,7 +553,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 3,
     "start": 64,
-    "end": 67
+    "end": 67,
+    "walkthrough": [
+      {
+        "title": "Separate setup from repeated work",
+        "text": "The printer is prepared once, costing 3 units. That cost does not repeat for every part. Each label then costs 2 more units."
+      },
+      {
+        "title": "Build the total",
+        "text": "For 4 labels, add 3+2+2+2+2=11. For 8 labels, add the setup once and eight copies of 2: 3+16=19."
+      },
+      {
+        "title": "Read the formula",
+        "text": "T(n) means the work for n parts. In T(n)=2n+3, 2n is the label work and 3 is the fixed setup. The setup is why doubling n does not exactly double this total."
+      }
+    ]
   },
   {
     "week": "2",
@@ -381,7 +591,21 @@ const cards = [
     "block": "Count the work",
     "minutes": 3,
     "start": 67,
-    "end": 70
+    "end": 70,
+    "walkthrough": [
+      {
+        "title": "Read the symbols as sentences",
+        "text": "T(n) means the work for n items. Here it is 2n+3. The sign ≤ means “at most”; ≥ means “at least”. O(n) says a fixed multiple of n can stay above the work for all sufficiently large n."
+      },
+      {
+        "title": "Put the work between two bounds",
+        "text": "For n≥1, 2n is below 2n+3. Also, 2n+3 is at most 5n. So 2n ≤ T(n) ≤ 5n. For n=4, this reads 8 ≤ 11 ≤ 20."
+      },
+      {
+        "title": "Name what the bounds tell us",
+        "text": "The upper bound gives O(n). The lower bound gives Ω(n). Having both gives Θ(n): linear growth. None of these says the count is exactly n."
+      }
+    ]
   },
   {
     "id": 40,
@@ -429,7 +653,21 @@ const cards = [
     "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 80,
-    "end": 85
+    "end": 85,
+    "walkthrough": [
+      {
+        "title": "Watch insertion on sorted cards",
+        "text": "In 1,2,3,4, each new card is already after a smaller one. Check 2 against 1, 3 against 2, and 4 against 3. Nothing needs to shift."
+      },
+      {
+        "title": "Reverse the cards",
+        "text": "In 4,3,2,1, each new card must pass all earlier cards. The shifts are 1, then 2, then 3: 6 in total. Input order changes the work."
+      },
+      {
+        "title": "Compare selection",
+        "text": "Selection still looks through the remaining values to find the smallest. Its scans have 3, then 2, then 1 comparisons, even if the input is already sorted."
+      }
+    ]
   },
   {
     "id": 27,
@@ -453,7 +691,21 @@ const cards = [
     "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 85,
-    "end": 90
+    "end": 90,
+    "walkthrough": [
+      {
+        "title": "Start with a one-card sorted part",
+        "text": "For 3,1,4,2, the first card [3] is already sorted. Take the next card, 1. Compare it with 3, shift 3 right, and put 1 before it."
+      },
+      {
+        "title": "Place the next cards",
+        "text": "4 is already after 3, so it stays. To place 2, shift 4 and 3 right. Stop when you reach 1, then put 2 after it."
+      },
+      {
+        "title": "Read the two counters",
+        "text": "Comparisons ask whether one value is larger. Shifts move an old value one slot right. The mixed example has 5 comparisons but only 3 shifts; not every comparison causes a move."
+      }
+    ]
   },
   {
     "id": 29,
@@ -477,7 +729,21 @@ const cards = [
     "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 90,
-    "end": 95
+    "end": 95,
+    "walkthrough": [
+      {
+        "title": "Choose a valid starting value",
+        "text": "Start with the first reading, 7. It is the largest among the values seen so far because you have seen only one value."
+      },
+      {
+        "title": "Update only when needed",
+        "text": "2 is smaller than 7, so keep 7. 9 is larger, so save 9. 4 is smaller than 9, so keep 9. The final saved value is 9."
+      },
+      {
+        "title": "State the fact that stays true",
+        "text": "After every step, the saved value is the largest among the readings already seen. This repeated true statement is the loop invariant. It explains why the final answer works."
+      }
+    ]
   },
   {
     "week": "2–3",
@@ -501,7 +767,21 @@ const cards = [
     "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 95,
-    "end": 100
+    "end": 100,
+    "walkthrough": [
+      {
+        "title": "Use actual numbers first",
+        "text": "At n=4, method A costs 10×4=40. Method B costs 4×4=16. B wins on this small input even though its growth is quadratic."
+      },
+      {
+        "title": "Make the input larger",
+        "text": "At n=100, A costs 1,000 and B costs 10,000. A now wins. The fixed factor 10 matters less than repeatedly multiplying n by itself."
+      },
+      {
+        "title": "Read a growth label correctly",
+        "text": "Θ(n) describes how work grows at large sizes. It is not a promise that the method wins at every small size or on every computer."
+      }
+    ]
   },
   {
     "id": 28,
@@ -525,7 +805,21 @@ const cards = [
     "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 100,
-    "end": 105
+    "end": 105,
+    "walkthrough": [
+      {
+        "title": "Keep exact counts separate",
+        "text": "For n=8, A does 8 units, B does 16, and C does 108. These are plainly different amounts of work."
+      },
+      {
+        "title": "Change the input size",
+        "text": "Each extra item adds 1 unit to A, 2 to B, and 1 to C. The setup of 100 in C does not grow with the number of items."
+      },
+      {
+        "title": "Recognize the shared pattern",
+        "text": "All three have linear growth, Θ(n). This groups their growth patterns without claiming that their exact counts or real running times match."
+      }
+    ]
   },
   {
     "week": "4",
@@ -549,7 +843,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 105,
-    "end": 109
+    "end": 109,
+    "walkthrough": [
+      {
+        "title": "Follow an array access",
+        "text": "An array has fixed-size numbered slots. Knowing the position lets the computer calculate its address directly. It does not need to walk through earlier slots."
+      },
+      {
+        "title": "Follow a linked-list access",
+        "text": "A node stores a value and the address of the next node. To reach the sixth node from the first, follow five links. Adding at the front instead needs only a few link changes."
+      },
+      {
+        "title": "Separate finding from changing",
+        "text": "Finding the place may be slow. Changing links at an already-known place may be quick. A claim about one step does not automatically describe the whole operation."
+      }
+    ]
   },
   {
     "id": 30,
@@ -573,7 +881,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 109,
-    "end": 113
+    "end": 113,
+    "walkthrough": [
+      {
+        "title": "Use a position",
+        "text": "Slot 8 gives a location. With fixed-size array slots, the computer calculates that address and reads the item."
+      },
+      {
+        "title": "Use a name instead",
+        "text": "The name Alex does not tell you a slot number. Without an extra index, check labels until you find it or reach the end."
+      },
+      {
+        "title": "Explain the difference",
+        "text": "An array gives fast access to a known position. It does not automatically give fast search for an unknown position. “Access” and “search” are different tasks."
+      }
+    ]
   },
   {
     "week": "4",
@@ -597,7 +919,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 113,
-    "end": 117
+    "end": 117,
+    "walkthrough": [
+      {
+        "title": "Search the unsorted version",
+        "text": "If codes have no order, a failed search may inspect every code. Adding a new code at the end is easy if there is spare capacity."
+      },
+      {
+        "title": "Search the sorted version",
+        "text": "Sorted codes let binary search remove a large part of the search area. But a new code may belong near the front, forcing later codes to shift."
+      },
+      {
+        "title": "Choose for the workload",
+        "text": "Many searches and few updates can make sorted storage useful. Many middle insertions can make those shifts expensive. Say which operation happens often before choosing."
+      }
+    ]
   },
   {
     "week": "4",
@@ -621,7 +957,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 117,
-    "end": 121
+    "end": 121,
+    "walkthrough": [
+      {
+        "title": "Fill the first slot",
+        "text": "Capacity means available space, not the number of stored items. Start with space for 1. The first append writes one item without copying old items."
+      },
+      {
+        "title": "Follow doubling",
+        "text": "The second item needs capacity 2: copy 1 old item. The third needs capacity 4: copy 2. The fifth needs capacity 8: copy 4. Up to 8 items, old copies total 1+2+4=7."
+      },
+      {
+        "title": "Count the whole sequence",
+        "text": "Also write each of the 8 new items once: 7+8=15 actions. Some appends are expensive, but total work grows linearly. Amortized cost describes this whole-sequence accounting, not the worst single append."
+      }
+    ]
   },
   {
     "week": "4",
@@ -645,7 +995,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 121,
-    "end": 125
+    "end": 125,
+    "walkthrough": [
+      {
+        "title": "Read the same arrivals",
+        "text": "A arrives first, then B, then C. A stack puts the newest item on top. A queue keeps the oldest item at the front."
+      },
+      {
+        "title": "Remove one item",
+        "text": "The stack removes C, the latest arrival. The queue removes A, the earliest arrival. Nothing about the values changed; only the removal rule changed."
+      },
+      {
+        "title": "Match the rule to the job",
+        "text": "Undo usually needs the latest saved action first. A waiting line usually needs the earliest arrival first. That is why one uses a stack and the other a queue."
+      }
+    ]
   },
   {
     "id": 31,
@@ -669,7 +1033,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 125,
-    "end": 129
+    "end": 129,
+    "walkthrough": [
+      {
+        "title": "Follow the stack sequence",
+        "text": "Add A then B. Remove B because it arrived last. Add C. Remove C, then A. The output order is B,C,A."
+      },
+      {
+        "title": "Follow the queue sequence",
+        "text": "Add A then B. Remove A because it arrived first. Add C behind B. Remove B, then C. The output order is A,B,C."
+      },
+      {
+        "title": "Keep arrival and removal separate",
+        "text": "Both structures received the same items in the same order. Different removal rules produce different results. Choose the rule that matches the application."
+      }
+    ]
   },
   {
     "week": "4",
@@ -693,7 +1071,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 129,
-    "end": 133
+    "end": 133,
+    "walkthrough": [
+      {
+        "title": "Use the stack for brackets",
+        "text": "Read an opening bracket and push it. At a closing bracket, check the top. In ([ )], the ) needs a (, but the top is [. That is the error."
+      },
+      {
+        "title": "Use the stack for a calculation",
+        "text": "In 3 4 + 2 ×, push 3 and 4. The + removes them and pushes 7. Push 2. The × removes 7 and 2 and pushes 14."
+      },
+      {
+        "title": "See the common idea",
+        "text": "The next action needs the most recent saved information. The stack keeps that information ready on top. For subtraction, remember that pop order determines left and right operands."
+      }
+    ]
   },
   {
     "week": "4",
@@ -717,7 +1109,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 4,
     "start": 133,
-    "end": 137
+    "end": 137,
+    "walkthrough": [
+      {
+        "title": "Fill the window",
+        "text": "After 10,20,30, the three slots are full. The sum is 60. To keep only the latest three readings, the next reading must replace the oldest one, 10."
+      },
+      {
+        "title": "Update the total",
+        "text": "When 40 arrives, subtract 10 from 60 and add 40. The new sum is 90. There are still 3 readings, so the average is 90÷3=30."
+      },
+      {
+        "title": "Read the slots in time order",
+        "text": "The memory slots now show 40,20,30. Start at the oldest slot to read 20,30,40. Moving the start position avoids shifting every stored item."
+      }
+    ]
   },
   {
     "id": 32,
@@ -741,7 +1147,21 @@ const cards = [
     "block": "Data structures",
     "minutes": 3,
     "start": 137,
-    "end": 140
+    "end": 140,
+    "walkthrough": [
+      {
+        "title": "Look at a typical append",
+        "text": "If a growing array has free space, writing the new reading is cheap. Many appends look like this."
+      },
+      {
+        "title": "Look at the resize append",
+        "text": "When it fills, one append may allocate more space and copy all old readings. Even if total work is good, this one call can be slow."
+      },
+      {
+        "title": "Ask the timing question",
+        "text": "A report may care about total completion time. A task with a tight deadline also cares about the slowest call. An amortized bound alone does not answer that second question."
+      }
+    ]
   },
   {
     "id": 43,
@@ -789,7 +1209,21 @@ const cards = [
     "block": "Sensor and design practice",
     "minutes": 7,
     "start": 150,
-    "end": 157
+    "end": 157,
+    "walkthrough": [
+      {
+        "title": "Build the first window",
+        "text": "The first reading 4 gives average 4. Then 4 and 8 give sum 12 and average 6. With 12 added, sum 24 divided by 3 gives 8."
+      },
+      {
+        "title": "Slide the full window",
+        "text": "When 16 arrives, drop 4. Keep 8,12,16. Update the sum: 24−4+16=36. Divide by 3 to get 12."
+      },
+      {
+        "title": "Try the changed case",
+        "text": "With only two slots, the final readings are 12 and 16, so the final average is 14. Window size changes which readings remain, and therefore changes the answer."
+      }
+    ]
   },
   {
     "id": 34,
@@ -813,7 +1247,21 @@ const cards = [
     "block": "Sensor and design practice",
     "minutes": 7,
     "start": 157,
-    "end": 164
+    "end": 164,
+    "walkthrough": [
+      {
+        "title": "Identify the item needed next",
+        "text": "Undo needs the latest saved command. A test line needs the oldest waiting part. A live graph needs only a recent window of temperatures."
+      },
+      {
+        "title": "Choose the rule",
+        "text": "Use a stack for latest-first, a queue for oldest-first, and a ring buffer for the fixed recent window. These choices follow from the required behavior."
+      },
+      {
+        "title": "Choose how to store it",
+        "text": "An array can implement these rules. You still need to decide where to read, where to write, and what to do when storage fills. Naming a structure is only the first design step."
+      }
+    ]
   },
   {
     "id": 35,
@@ -837,7 +1285,21 @@ const cards = [
     "block": "Sensor and design practice",
     "minutes": 6,
     "start": 164,
-    "end": 170
+    "end": 170,
+    "walkthrough": [
+      {
+        "title": "Count repeated searches",
+        "text": "An unsorted archive may need to check all 10,000 codes on each failed lookup. Repeating that search many times repeats the large scan."
+      },
+      {
+        "title": "Pay for preparation once",
+        "text": "Sorting takes work at the start. Afterward, binary search can inspect far fewer codes per lookup because it uses the order."
+      },
+      {
+        "title": "Change the workload",
+        "text": "If updates become frequent, keeping the array sorted can cause many shifts. The best tradeoff depends on how often searches and updates happen, not just the number of codes."
+      }
+    ]
   },
   {
     "week": "1–4",
@@ -861,7 +1323,21 @@ const cards = [
     "block": "Final check",
     "minutes": 5,
     "start": 170,
-    "end": 175
+    "end": 175,
+    "walkthrough": [
+      {
+        "title": "Start with the action",
+        "text": "Scanning means visiting every sensor. Serving arrivals means choosing the oldest waiting item. Packing means providing enough total space."
+      },
+      {
+        "title": "Use a small count",
+        "text": "20 sensors need 20 checks; 40 need 40. Three boxes hold only 15 parts, so 17 parts need a fourth box."
+      },
+      {
+        "title": "Add the name afterward",
+        "text": "The scan has linear growth. Oldest-first is FIFO. Rounding up gives enough boxes. The names summarize actions you can already explain."
+      }
+    ]
   },
   {
     "id": 36,
@@ -885,6 +1361,20 @@ const cards = [
     "block": "Final check",
     "minutes": 5,
     "start": 175,
-    "end": 180
+    "end": 180,
+    "walkthrough": [
+      {
+        "title": "Do the arithmetic",
+        "text": "Two scans of 9 items mean 9+9=18 actions. Two scans of 18 mean 18+18=36. For 22 people, three 6-seat vehicles leave 4 people without seats."
+      },
+      {
+        "title": "Explain the rule",
+        "text": "So use 4 vehicles. For undo, take the latest saved setting first. These answers come from the job requirement, not from memorizing a symbol."
+      },
+      {
+        "title": "Check the growth statement",
+        "text": "2n+3 is not exactly n. It still lies between 2n and 5n for all n≥1. This is why Θ(n) describes growth rather than an exact step count."
+      }
+    ]
   }
 ];
