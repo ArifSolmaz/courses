@@ -2,23 +2,23 @@ const cards = [
   {
     "id": 19,
     "week": "1–4",
-    "title": "Başlangıç: sembolsüz dört karar",
-    "question": "Kâğıdı ikiye bölün. Sol tarafa ilk cevabınızı, sağa tartışmadan sonraki cevabınızı yazın.",
+    "title": "Start with four small questions",
+    "question": "Write your answer. You do not need any symbols yet.",
     "a": [
-      "Gündelik işler",
-      "1. 8 lambayı tek tek açıp kontrol et.\n2. Son yaptığın robot hareketini geri al."
+      "Two jobs",
+      "1. Check each of 8 lights.\n2. Undo the last robot command."
     ],
     "b": [
-      "İki durum daha",
-      "3. 13 parçayı 5’lik kutulara koy.\n4. Aradığın kodun daha büyük olduğunu öğrenince küçük kodları ele."
+      "Two more jobs",
+      "3. Put 13 parts into boxes that hold 5.\n4. Look for a code in a sorted list."
     ],
-    "lesson": "Henüz simge kullanmayın. Ne yaptığınızı bir arkadaşınıza tarif edin.",
-    "check": "Önce tek başına 2 dk; sonra eşinle 3 dk. Her soru için “hangi işi saydım?” yazın.",
-    "answer": "1: 8 kontrol. 2: son hareket önce geri alınır, yığın. 3: 3 kutu. 4: sıralı veride arama alanı küçülür; her seferinde yaklaşık yarısını eleyebilirsek logaritmik büyüme.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "First say what you would do. Then say what you would count.",
+    "check": "How many checks or boxes do you need? Which command should you undo first?",
+    "answer": "1: 8 checks. 2: Undo the last command first. 3: 3 boxes. 4: If you can check the middle quickly, you can remove about half of the remaining choices each step.",
+    "ref": "lecture-notes.html",
+    "extra": "Count one light check as one unit of work. An undo command needs enough saved information to reverse the action.",
     "widget": "",
-    "block": "Başlangıç · tek başına, sonra eşinle",
+    "block": "Starting check",
     "minutes": 8,
     "start": 0,
     "end": 8
@@ -26,71 +26,71 @@ const cards = [
   {
     "id": 20,
     "week": "2–3",
-    "title": "Düzeltme kliniği: hızlı cevap mı, doğru soru mu?",
-    "question": "Bir arkadaşınız “iki döngü varsa kesin n²” diyor.",
+    "title": "Two loops do not always mean n²",
+    "question": "Compare the work in these two cases.",
     "a": [
-      "Durum A",
-      "8 lambayı aç.\nSonra aynı 8 lambayı kapat.\n8+8=16 işlem."
+      "One job after another",
+      "Turn on 8 lights. Then turn them off.\n8 + 8 = 16 actions."
     ],
     "b": [
-      "Durum B",
-      "8 vericinin her birini 8 alıcıyla test et.\n8×8=64 test."
+      "One job inside another",
+      "Test each of 8 senders with each of 8 receivers.\n8 × 8 = 64 tests."
     ],
-    "lesson": "Döngü sayısını değil, her işin kaç kez yapıldığını sayın.",
-    "check": "4 verici ve 6 alıcı için kaç test? 4 açma ve 6 kapama için kaç işlem?",
-    "answer": "24 test; 10 açma/kapama işlemi. İki farklı boyut varsa n ve m kullanabiliriz; her şeyi n² diye adlandırmayın.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Count how often the work happens. Do not just count the loops.",
+    "check": "What if there are 4 senders and 6 receivers? What about 4 on-actions and 6 off-actions?",
+    "answer": "The first task needs 24 tests. The second needs 10 actions. Two different sizes can be called n and m.",
+    "ref": "lecture-notes.html",
+    "extra": "Work done in sequence adds. Work repeated for every combination multiplies. If the inner task changes size, add its actual counts.",
     "widget": "",
-    "block": "Başlangıç · tek başına, sonra eşinle",
+    "block": "Starting check",
     "minutes": 7,
     "start": 8,
     "end": 15
   },
   {
     "week": "1",
-    "title": "Önce: neyi başarmak istiyoruz?",
-    "question": "Robot 0’dan başlasın. Aynı doğru üzerindeki −4, −1, 1 ve 3 noktalarına uğrayıp 0’a dönsün.",
+    "title": "A short next step can lead to a long trip",
+    "question": "A robot starts at 0. It must visit −4, −1, 1 and 3 on a line, then return to 0.",
     "a": [
-      "En yakına git: toplam 16 birim",
-      "0 → −1 → 1 → 3 → −4 → 0\nMesafeler: 1+2+2+7+4 = 16.\nİlk eşitlikte −1’i seçtik."
+      "Go to the nearest next stop",
+      "0 → −1 → 1 → 3 → −4 → 0\nDistance: 1+2+2+7+4 = 16.\nAt the first tie, choose −1."
     ],
     "b": [
-      "Başka bir tur: toplam 14 birim",
-      "0 → −1 → −4 → 1 → 3 → 0\nMesafeler: 1+3+5+2+3 = 14.\nİki tur da bütün noktaları ziyaret etti."
+      "Try another route",
+      "0 → −1 → −4 → 1 → 3 → 0\nDistance: 1+3+5+2+3 = 14.\nBoth routes visit every stop."
     ],
-    "lesson": "En yakın sonraki adım, en kısa toplam turu garanti etmedi. Problem “en kısa turu bul”; algoritma ise hangi sırayla gideceğini söyleyen kuraldır.",
-    "check": "Robot bir noktayı atlayıp daha kısa yol bulursa doğru mu?",
-    "answer": "Hayır. Daha hızlı veya daha kısa olması, eksik işi doğru yapmaz.",
-    "ref": "../../w1/#lesson",
-    "extra": "Masada noktaları bir doğru üzerine koyun. İki turun uzunluğunu adım adım sayın. Uçlar −4 ve 3: araları 7. Kapalı bir tur bu aralığı iki yönde kat eder; en az 14 gerekir. B turu 14 ile bu sınıra ulaşır. Yakın komşu gibi bir sezgi (heuristic) iyi sonuç verebilir; en iyiyi garanti etmez.",
+    "lesson": "The nearest next stop did not give the shortest whole trip. A rule that seems sensible can fail.",
+    "check": "Is a shorter trip correct if it skips a required stop?",
+    "answer": "No. It must do the whole job. A fast answer to the wrong problem is not a correct answer.",
+    "ref": "../w1/#lesson",
+    "extra": "The two end points are 7 units apart. A closed trip must cross this span in both directions, so it needs at least 14 units. The second route reaches this bound. Here a visit means the robot stops to do the required task.",
     "widget": "",
     "id": 1,
-    "block": "Doğru çözüm · birlikte karşılaştır",
+    "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 15,
     "end": 19
   },
   {
     "week": "1",
-    "title": "Aynı işler, iki farklı seçim",
-    "question": "Tek test tezgâhında mümkün olduğunca çok işi bitirmek istiyoruz. Biten işle aynı anda yenisi başlayabilir.",
+    "title": "Which job should the test bench do first?",
+    "question": "Choose as many jobs as possible. Each job has a fixed start and end time.",
     "a": [
-      "En kısa işi önce seç",
-      "A: 0–3   B: 2–4   C: 3–5\nB ve C eşit kısa; eşitlikte B’yi seç.\nB ikisiyle de çakışır → yalnız 1 iş."
+      "Choose a shortest job",
+      "A: 0–3   B: 2–4   C: 3–5\nB and C tie. Choose B.\nB overlaps both others: only 1 job."
     ],
     "b": [
-      "En erken biteni önce seç",
-      "A’yı seç → saat 3’te biter.\nSonra C’yi seç → 3–5.\nSonuç: 2 iş."
+      "Choose the job that ends first",
+      "Choose A, which ends at 3.\nThen choose C, which starts at 3.\nResult: 2 jobs."
     ],
-    "lesson": "Eşitlikte B’yi seçen “en kısa iş” kuralı burada başarısız. Sabit zaman aralıklı işlerde, önce en erken biten uyumlu işi seçmek en fazla iş sayısını verir.",
-    "check": "B 1.000 TL, A ve C toplam 200 TL kazandırırsa hangi amaç değişti?",
-    "answer": "Artık iş sayısını değil geliri artırıyoruz. Aynı kural bu yeni amaç için garanti vermez.",
-    "ref": "../../w1/#example-1-1",
-    "extra": "Neden en erken biten? Başka bir çözümün ilk işini daha erken biten işle değiştirince, sonraki işlere ayrılan alan daralmaz. Aynı değişimi kalan işler için tekrar edebiliriz. Bu gerekçe bir örnekten daha güçlüdür. Eşitliksiz karşı örnek için C’yi 3–6 yapın: B tek başına en kısa iştir ama yine A ve C’den daha az iş seçtirir. Amaç iş sayısını artırmak; aralıklar sabit ve tek tezgâh var.",
+    "lesson": "For this job-count problem, repeatedly choosing the earliest-ending job that fits gives the best count.",
+    "check": "What if B pays $1,000 but A and C together pay $200?",
+    "answer": "The goal has changed. The largest number of jobs may not give the most money.",
+    "ref": "../w1/#example-1-1",
+    "extra": "There is one test bench. A job can start exactly when another ends. To remove the shortest-job tie, change C to 3–6: B is now uniquely shortest and still loses. Replacing the first job of an optimal schedule with an earlier-ending job leaves room for its later jobs.",
     "widget": "",
     "id": 2,
-    "block": "Doğru çözüm · birlikte karşılaştır",
+    "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 19,
     "end": 23
@@ -98,23 +98,23 @@ const cards = [
   {
     "id": 21,
     "week": "1",
-    "title": "Bozuk sıcaklık filtresi",
-    "question": "Kural: yalnız 80’in ÜZERİNDEKİ sıcaklıklarda alarm ver.",
+    "title": "Test the value at the boundary",
+    "question": "Raise an alarm only when temperature is ABOVE 80.",
     "a": [
-      "Yanlış kural: sıcaklık ≥ 80",
-      "79 → alarm yok\n80 → alarm var\n81 → alarm var"
+      "Wrong rule: temperature ≥ 80",
+      "79 → no alarm\n80 → alarm\n81 → alarm"
     ],
     "b": [
-      "İstenen kural: sıcaklık > 80",
-      "79 → alarm yok\n80 → alarm yok\n81 → alarm var"
+      "Required rule: temperature > 80",
+      "79 → no alarm\n80 → no alarm\n81 → alarm"
     ],
-    "lesson": "79 ve 81 ile test etmek hatayı yakalamaz. Sınırdaki 80 değeri karşı örnektir.",
-    "check": "Eşinle “en az 80” ve “80’den büyük” için üçer test seç. Sonuçları karşılaştır.",
-    "answer": "“En az 80” için 80 alarm verir; “80’den büyük” için vermez. Önce sözleşmeyi netleştirin; sonra kodu veya yöntemi denetleyin.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Testing only 79 and 81 misses the mistake. Testing 80 finds it.",
+    "check": "How does “at least 80” differ from “above 80”?",
+    "answer": "“At least 80” includes 80. “Above 80” does not. Write the requirement before checking the rule.",
+    "ref": "lecture-notes.html",
+    "extra": "This is a simple threshold example. We count the given numeric readings; real sensor error and alarm design are outside this example.",
     "widget": "",
-    "block": "Doğru çözüm · birlikte karşılaştır",
+    "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 23,
     "end": 27
@@ -122,71 +122,71 @@ const cards = [
   {
     "id": 22,
     "week": "1",
-    "title": "Para üstü: büyük olanı almak neden yetmeyebilir?",
-    "question": "Oyuncak makinede 1, 3 ve 4 değerli jetonlar var; her türden sınırsız. En az jetonla 6 ver.",
+    "title": "The largest coin is not always the best choice",
+    "question": "You have unlimited coins worth 1, 3 and 4. Make 6 using as few coins as possible.",
     "a": [
-      "En büyüğü al",
-      "4 + 1 + 1 = 6\n3 jeton."
+      "Take the largest coin first",
+      "4 + 1 + 1 = 6\n3 coins."
     ],
     "b": [
-      "Başka bir çözüm",
-      "3 + 3 = 6\n2 jeton."
+      "Try a different choice",
+      "3 + 3 = 6\n2 coins."
     ],
-    "lesson": "Büyük jetonu önce almak bu sistemde en az sayıyı garanti etmedi. Bir karşı örnek yeter.",
-    "check": "5 için iki yöntemi dene. Sonra 6’daki başarısızlığı bir cümleyle açıkla.",
-    "answer": "5 için 4+1, iki jetonla en iyidir. Bir girdide başarılı olması, 6’da gördüğümüz hatayı silmez.",
-    "ref": "../",
-    "extra": "Gerçek para sistemleri hakkında genelleme yapmıyoruz. Jeton değerleri değişirse kuralın doğruluğu yeniden incelenir. Bütün kombinasyonları denemek küçük girdide kontrol yöntemi olabilir.",
+    "lesson": "One failing example is enough to disprove an “always works” claim.",
+    "check": "Try making 5. Does success with 5 fix the failure with 6?",
+    "answer": "No. For 5, 4+1 is best. But the same rule still fails for 6.",
+    "ref": "lecture-notes.html",
+    "extra": "These are made-up coin values. We are not making a claim about every real currency. Trying all possible choices can check a small example.",
     "widget": "",
-    "block": "Doğru çözüm · birlikte karşılaştır",
+    "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 27,
     "end": 31
   },
   {
     "week": "1",
-    "title": "Denemek ile garanti etmek farklı",
-    "question": "Bir yöntemi 100 kez denedik. Hep çalıştı.",
+    "title": "Testing is useful. A proof goes further.",
+    "question": "A method worked on 100 test inputs.",
     "a": [
-      "100 başarılı deneme",
-      "Yararlı kanıt izi.\nAma 101. farklı girdi bozuk olabilir."
+      "What the tests tell us",
+      "It worked on those 100 inputs.\nA different input could still fail."
     ],
     "b": [
-      "Bütün durumları kapsayan gerekçe",
-      "Başlangıç doğru.\nHer adım doğruluğu korur.\nİşlem mutlaka biter; sonuç sözleşmeye uyar."
+      "What a proof must show",
+      "The starting state is right.\nEach step keeps the needed facts true.\nThe method finishes with the required result."
     ],
-    "lesson": "İspat, yalnızca denenen örnekleri değil bütün izin verilen girdileri kapsar. Tümevarımda küçük başlangıcı ve bir sonraki duruma geçişi gösteririz.",
-    "check": "4 parçanın her sırasını denemek mi, 8 parçanın her sırasını denemek mi?",
-    "answer": "4! = 24 sıra; 8! = 40.320 sıra. Parça sayısı iki katına çıktı ama deneme sayısı 1.680 kat oldu.",
-    "ref": "../../w1/#lesson",
-    "extra": "Kaba kuvvet (brute force), bütün adayları deneyip geçerli olanların en iyisini seçebilir. Doğru aday kümesi ve doğru puanlama gerekir; bu doğruluk, hız garantisi değildir. n! = n × (n−1) × … × 1; burada farklı parçaların bütün sıralarını sayıyoruz. Tam doğruluk için sonlanma da gösterilir: örneğin her turda kalan sonlu öğe sayısı azalır. Değişmezi korumak tek başına sonsuz döngüyü dışlamaz.",
+    "lesson": "A proof covers every allowed input, not just the inputs we tried.",
+    "check": "How many orders are there for 4 different parts? What about 8?",
+    "answer": "4! = 24. 8! = 40,320. Twice as many parts gives 1,680 times as many orders.",
+    "ref": "../w1/#lesson",
+    "extra": "n! means n × (n−1) × … × 1. Trying every order is called brute force. For full correctness, also show that the method stops. For example, the number of unprocessed items gets smaller each step.",
     "widget": "",
     "id": 3,
-    "block": "Doğru çözüm · birlikte karşılaştır",
+    "block": "Correctness and counterexamples",
     "minutes": 4,
     "start": 31,
     "end": 35
   },
   {
     "week": "2",
-    "title": "n bir sır değil: kaç sensör var?",
-    "question": "Her sensörü bir kez kontrol ediyoruz. Bir kontrolü bir iş birimi sayalım.",
+    "title": "n just means how many items we have",
+    "question": "Check every sensor. Count one sensor check as one unit of work.",
     "a": [
-      "Bir kez kontrol",
-      "4 sensör → 4 kontrol\n8 sensör → 8 kontrol"
+      "Check each sensor once",
+      "4 sensors → 4 checks\n8 sensors → 8 checks"
     ],
     "b": [
-      "İki kez kontrol",
-      "4 sensör → 8 kontrol\n8 sensör → 16 kontrol"
+      "Check each sensor twice",
+      "4 sensors → 8 checks\n8 sensors → 16 checks"
     ],
-    "lesson": "İkisinde de sensör sayısını iki katına çıkarınca iş iki katına çıkıyor. Aynı büyüme biçimi; aynı iş miktarı değil.",
-    "check": "n=6 iken ikinci yöntem kaç kontrol yapar?",
-    "answer": "12. Burada n=6, iş=2n. n saniye demek değildir.",
-    "ref": "../../w2/#lesson",
-    "extra": "RAM modeli: küçük sayı karşılaştırması veya dizi gözüne erişim gibi temel işlemleri sabit maliyetli sayarız. Gerçek saniye; cihaz, dil ve işlem türüne bağlıdır. Çok büyük sayılar ve uzun metinler bu sabit maliyet varsayımına uymayabilir.",
+    "lesson": "In both methods, twice as many sensors means twice as much work. The growth pattern is the same; the counts are different.",
+    "check": "If n=6, how many checks does the second method make?",
+    "answer": "12 checks. n is the number of sensors, not a time in seconds.",
+    "ref": "../w2/#lesson",
+    "extra": "We use a simple cost model. A small comparison or a memory access takes one fixed amount of work. Real time also depends on hardware and software. Very long strings or very large numbers need more care.",
     "widget": "growth",
     "id": 4,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 4,
     "start": 35,
     "end": 39
@@ -194,143 +194,119 @@ const cards = [
   {
     "id": 23,
     "week": "2–3",
-    "title": "Kayıp anahtar: yeri değiştirilince iş değişir",
-    "question": "Numaralı altı bölmeden birinde anahtar var. Soldan sağa bak.",
+    "title": "Move the key. Count the checks.",
+    "question": "Look through six compartments from left to right. Stop when you find the key.",
     "a": [
-      "Anahtar ilk bölmede",
-      "İlk kapağı aç → bul.\n1 arama adımı."
+      "Key in the first compartment",
+      "Open the first compartment.\n1 check."
     ],
     "b": [
-      "Anahtar son bölmede",
-      "Altı kapağı da aç.\n6 arama adımı."
+      "Key in the last compartment",
+      "Check all six compartments.\n6 checks."
     ],
-    "lesson": "Aynı yöntem, farklı girdi: farklı iş. Arama adımını bir bölmeyi kontrol etmek olarak sayıyoruz.",
-    "check": "Anahtarın konumunu 2, 5, sonra 6 yapın. Kaç kontrol gerekti? “Bulundu” ile “yok” durumunu ayırın.",
-    "answer": "Sırasıyla 2, 5, 6. Anahtar hiç yoksa da 6 kontrol gerekir; bütün bölmeleri eledikten sonra “yok” diyebiliriz.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "The method is the same. The input changes how much work it does.",
+    "check": "Try positions 2, 5 and 6. Then try “Not present”.",
+    "answer": "The counts are 2, 5 and 6. If the key is not present, you must check all 6 before saying so.",
+    "ref": "lecture-notes.html",
+    "extra": "A check means looking in one compartment. There is at most one key. The demo resets when you change its location.",
     "widget": "search",
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 4,
     "start": 39,
     "end": 43
   },
   {
     "week": "2–3",
-    "title": "Arızalı sensör nerede?",
-    "question": "8 sensörü soldan sağa kontrol et; ilk arızayı görünce dur.",
+    "title": "Best case and worst case",
+    "question": "Check 8 sensors from left to right. Stop at the first faulty sensor.",
     "a": [
-      "Arıza ilk sensörde",
-      "1 kontrol.\nListe büyüse de bu durum hâlâ 1 kontrol."
+      "Fault in the first sensor",
+      "1 check.\nThis case still needs 1 check in a longer list."
     ],
     "b": [
-      "Arıza son sensörde",
-      "8 kontrol.\n16 sensörde sonuncu bozuksa 16 kontrol."
+      "Fault in the last sensor",
+      "8 checks.\nWith 16 sensors, this case needs 16."
     ],
-    "lesson": "En iyi durum: 1 kontrol, Θ(1). En kötü durum: n kontrol, Θ(n). Bu iki durum aynı algoritmaya aittir.",
-    "check": "Arızanın her konumda olma olasılığı eşitse, 8 sensörde ortalama?",
-    "answer": "(1+2+3+4+5+6+7+8)/8 = 4,5 kontrol. Tek çalışmada yarım kontrol yok; çok sayıda çalışmanın ortalaması var.",
-    "ref": "../../w3/#r0_A",
-    "extra": "Tam bir arıza olduğunu varsaydık. Hiç arıza yoksa bütün n sensörü denetleriz. Ortalama sonuç, seçtiğimiz olasılık varsayımına bağlıdır; en iyi ile en kötünün ortasını her problemde alamayız.",
+    "lesson": "Best case: one check, Θ(1). Worst case: n checks, Θ(n). These describe the same method.",
+    "check": "If exactly one sensor is faulty and each position is equally likely, what is the average for 8 sensors?",
+    "answer": "(1+2+3+4+5+6+7+8)/8 = 4.5 checks. A single run has a whole number of checks; an average need not.",
+    "ref": "../w3/#r0_A",
+    "extra": "The average depends on the probability model. If no sensor is faulty, all n are checked. Do not automatically average the best and worst counts in other problems.",
     "widget": "",
     "id": 6,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 4,
     "start": 43,
     "end": 47
   },
   {
     "week": "3",
-    "title": "İki tur mu, her biriyle her biri mi?",
-    "question": "4 sensörü test ediyoruz. Döngü sayısından önce yapılan işi tarif edin.",
+    "title": "Add the work or multiply it?",
+    "question": "Four sensors need testing. First describe the task.",
     "a": [
-      "Arka arkaya iki tarama",
-      "4 sıcaklık + 4 voltaj kontrolü = 8.\n8 sensörde: 8+8=16.\nToplarız → Θ(n)."
+      "Two full passes",
+      "4 temperature checks + 4 voltage checks = 8.\nFor 8 sensors: 8+8=16.\nAdd the work: Θ(n)."
     ],
     "b": [
-      "Her sensörü her sensörle karşılaştır",
-      "Kendisiyle de karşılaştır; AB ve BA ayrı sayılsın.\n4×4 = 16; 8×8 = 64 kontrol.\nBu modelde çarparız → Θ(n²)."
+      "Every sensor against every sensor",
+      "Include self-tests. Count AB and BA separately.\n4×4=16; 8×8=64.\nThis model gives Θ(n²)."
     ],
-    "lesson": "Art arda işler toplanır. Her dış adımın içinde tekrar edilen işler çarpılabilir. Ama iç işin sayısı değişiyorsa tek tek toplamak gerekir.",
-    "check": "Her farklı sensör çiftini yalnız bir kez karşılaştırsak, 4 sensörde kaç çift?",
-    "answer": "3+2+1=6 çift: AB, AC, AD, BC, BD, CD. 8 sensörde 28. Formül n(n−1)/2; büyüme Θ(n²).",
-    "ref": "../../w3/",
-    "extra": "Üç farklı sensör seçip her üçlüyü bir kez incelemek: 4 sensörde 4, 8 sensörde 56 üçlü. Sayı n(n−1)(n−2)/6, büyüme Θ(n³). “Üç döngü var” tek başına yetmez; sınırlarını da okumalıyız.",
+    "lesson": "Tasks done one after another add. A task repeated for every outer step may multiply.",
+    "check": "If each different pair is checked only once, how many checks for 4 sensors?",
+    "answer": "6: AB, AC, AD, BC, BD, CD. For 8 sensors: 28. The formula is n(n−1)/2, which grows as Θ(n²).",
+    "ref": "../w3/",
+    "extra": "For groups of three different sensors, the count is n(n−1)(n−2)/6: 4 groups for 4 sensors and 56 for 8. Always check the loop limits before naming a growth class.",
     "widget": "",
     "id": 7,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
-    "minutes": 4,
+    "block": "Count the work",
+    "minutes": 8,
     "start": 47,
-    "end": 51
-  },
-  {
-    "id": 24,
-    "week": "2–3",
-    "title": "El sıkışma mı, iki takımın maçları mı?",
-    "question": "Her karşılaşmayı yalnız bir kez sayın.",
-    "a": [
-      "4 kişilik tek grup",
-      "AB, AC, AD, BC, BD, CD\n6 farklı çift."
-    ],
-    "b": [
-      "4 kişilik iki ayrı takım",
-      "Her A takımı üyesi 4 B üyesiyle oynar.\n4×4=16 eşleşme."
-    ],
-    "lesson": "“Her biriyle her biri” ifadesinde aynı grupta mı, iki ayrı grupta mı olduğunuzu sorun. Kendisiyle eşleştirme var mı?",
-    "check": "5 kişilik tek grup için çizerek sayın. İki takımda 5’er kişi varsa tekrar sayın.",
-    "answer": "Tek grup: 4+3+2+1=10. İki takım: 5×5=25. İkisinin de büyümesi kareseldir, ama gerçek sayıları farklıdır.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
-    "widget": "pairs",
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
-    "minutes": 4,
-    "start": 51,
     "end": 55
   },
   {
     "week": "2–3",
-    "title": "Her defasında yarısını ele",
-    "question": "Bir parçanın numarasını sıralı kutularda arıyoruz.",
+    "title": "Keep half. Remove half.",
+    "question": "Look for a part number in a sorted array of boxes.",
     "a": [
-      "Tek tek ara",
-      "16 kutuda en kötü 16 kutu aç.\n32 kutuda en kötü 32."
+      "Check one at a time",
+      "16 boxes: up to 16 checks.\n32 boxes: up to 32 checks."
     ],
     "b": [
-      "Ortaya bak, yarıyı ele",
-      "16 → 8 → 4 → 2 → 1\n32 → 16 → 8 → 4 → 2 → 1\nBoyut iki kat: yalnız bir yarılama daha."
+      "Use the middle to choose a side",
+      "16 → 8 → 4 → 2 → 1\n32 → 16 → 8 → 4 → 2 → 1\nTwice the size adds one halving step."
     ],
-    "lesson": "log₂16=4: 16’yı 1’e indirmek için 4 yarılama. Logaritma burada “kaç kez yarıya?” sorusunun kısa yazımıdır.",
-    "check": "16 sıralı kutuda ikili arama en kötü tam 4 kutuya mı bakar?",
-    "answer": "Hayır; standart ortanca eleman araması 5 kutuya bakabilir. Farklı anahtarlarda, n≥1 için en kötü başarılı arama ⌊log₂n⌋+1 kutu kontrolüdür; Θ(log n).",
-    "ref": "../../w3/",
-    "extra": "İkili arama için veriler sıralı olmalı ve ortadaki elemana hızlı erişebilmeliyiz. Bağlı listede ortayı bulmak yürümeyi gerektirir. Çarpımın logaritması toplamdır: log₂(8×4)=3+2=5. log₂(n²)=2log₂n. Sabit taban değişimi yalnız sabit çarpan değiştirir. Burada bir ortanca kutuyu incelemeyi tek adım sayıyoruz. Kodda ayrı == ve < testleri kullanılırsa ilkel karşılaştırma sayısı farklıdır. Animasyon yalnız boyutu yukarı yuvarlayarak yarılama modelidir; gerçek ikili aramanın kalan adaylarını bire bir göstermez.",
+    "lesson": "log₂16=4 means four halvings take 16 down to 1. Here, a logarithm counts halving steps.",
+    "check": "Does binary search in 16 boxes always need at most 4 box checks?",
+    "answer": "No. Standard middle-item search can inspect 5 boxes. With distinct keys and n≥1, the worst successful search inspects ⌊log₂n⌋+1 boxes. Its growth is Θ(log n).",
+    "ref": "../w3/",
+    "extra": "The animation models size reduction, not the exact remaining candidates in binary search. One box inspection is one step here; code may use separate equality and less-than comparisons. The data must be sorted, with fast middle access. log₂(8×4)=3+2=5; log₂(n²)=2log₂n. A fixed change of log base changes only a constant factor.",
     "widget": "half",
     "id": 8,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 3,
     "start": 55,
     "end": 58
   },
   {
     "week": "2–3",
-    "title": "⌈ ⌉ ve ⌊ ⌋: kutu sayısı",
-    "question": "10 parçayı, her biri en çok 4 parça alan kutulara koyuyoruz.",
+    "title": "Round up for enough space",
+    "question": "Put 10 parts into boxes that each hold at most 4.",
     "a": [
-      "⌈10/4⌉ = 3 kutu",
-      "[4 parça] [4 parça] [2 parça]\n2,5 kutu satın alamayız. Yukarı yuvarla."
+      "⌈10/4⌉ = 3 boxes needed",
+      "[4 parts] [4 parts] [2 parts]\nYou need space for every part. Round up."
     ],
     "b": [
-      "⌊10/4⌋ = 2 dolu kutu",
-      "İki kutu tamamen dolu.\nSon kutu yarım dolu. Aşağı yuvarla."
+      "⌊10/4⌋ = 2 full boxes",
+      "Two boxes are completely full.\nThe last box is only half full. Round down."
     ],
-    "lesson": "⌈x⌉: x’ten küçük olmayan en yakın tam sayı. ⌊x⌋: x’ten büyük olmayan en yakın tam sayı. Bu işaretler büyüme sınıfı değildir.",
-    "check": "12 parça için? 0 parça için?",
-    "answer": "12/4=3: hem aşağı hem yukarı 3. Hiç parça yoksa gereken kutu 0.",
-    "ref": "../../w3/#r0_a0",
-    "extra": "İngilizce “ceiling” hem ⌈x⌉ için hem üst sınır benzetmesinde kullanılır. İşlemler farklıdır: ⌈2,5⌉ sayıyı 3 yapar; O(n) büyüme hakkında bir sınır bildirir.",
+    "lesson": "⌈x⌉ is the smallest integer at least x. ⌊x⌋ is the largest integer at most x. These are rounding operations.",
+    "check": "What if there are 12 parts? What if there are no parts?",
+    "answer": "12/4=3, so both answers are 3. With no parts, you need 0 boxes.",
+    "ref": "../w3/#r0_a0",
+    "extra": "The word “ceiling” can also be used as a picture for an upper bound. Do not mix them up: ⌈2.5⌉ gives the number 3; O(n) describes a growth bound.",
     "widget": "boxes",
     "id": 9,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 3,
     "start": 58,
     "end": 61
@@ -338,23 +314,23 @@ const cards = [
   {
     "id": 26,
     "week": "2–3",
-    "title": "Servis minibüsü ve tam ekipler",
-    "question": "17 öğrenci var. Bir minibüs 5 kişi alıyor; bir proje ekibi tam 5 kişi olmalı.",
+    "title": "Seats and full teams",
+    "question": "There are 17 students. A minibus holds 5. A complete project team needs exactly 5.",
     "a": [
-      "Herkesi taşı",
-      "5+5+5+2\n4 minibüs → ⌈17/5⌉."
+      "Give everyone a seat",
+      "5+5+5+2\n4 minibuses: ⌈17/5⌉."
     ],
     "b": [
-      "Tam ekip kur",
-      "5+5+5; 2 kişi artar.\n3 tam ekip → ⌊17/5⌋."
+      "Count complete teams",
+      "5+5+5, with 2 left over.\n3 complete teams: ⌊17/5⌋."
     ],
-    "lesson": "Aynı bölme, iki farklı soru: herkese yer açmak mı, tamamen dolu grup saymak mı?",
-    "check": "Önce 20, sonra 21 öğrenci için iki cevabı yazın. Artan kişi sayısını da bulun.",
-    "answer": "20: 4 minibüs, 4 tam ekip, 0 artan. 21: 5 minibüs, 4 tam ekip, 1 artan. Bölme tam çıkınca iki yuvarlama aynıdır.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "The division is the same. The question decides whether to round up or down.",
+    "check": "Try 20 students. Then try 21. How many are left outside the complete teams?",
+    "answer": "20: 4 buses, 4 full teams, 0 left over. 21: 5 buses, 4 full teams, 1 left over.",
+    "ref": "lecture-notes.html",
+    "extra": "We count five student seats per vehicle. “Full teams” does not mean everyone must belong to a full team; the leftover count matters.",
     "widget": "",
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 3,
     "start": 61,
     "end": 64
@@ -362,47 +338,47 @@ const cards = [
   {
     "id": 25,
     "week": "2–3",
-    "title": "Etiket basmak: sabit ücret, parça başı iş",
-    "question": "Yazıcıyı hazırlamak 3 iş; her parçanın etiketini basmak 2 iş birimi.",
+    "title": "Setup work plus work for each item",
+    "question": "Preparing a printer takes 3 work units. Printing each label takes 2.",
     "a": [
-      "4 parça",
-      "3 hazırlık + 2×4 baskı = 11 iş."
+      "4 parts",
+      "3 + 2×4 = 11 work units."
     ],
     "b": [
-      "8 parça",
-      "3 hazırlık + 2×8 baskı = 19 iş."
+      "8 parts",
+      "3 + 2×8 = 19 work units."
     ],
-    "lesson": "Girdi iki kat olunca toplam tam iki kat olmak zorunda değil. Sabit hazırlığın etkisi büyük partide küçülür. T(n)=2n+3, Θ(n).",
-    "check": "10 ve 100 parça için hesaplayın. O(n), “en fazla tam n iş” olsaydı bu örnek neden uyuşmazdı?",
-    "answer": "23 ve 203 iş. O(n), n’nin sabit bir katıyla üst sınır demektir; doğrudan n işlem demek değildir.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Doubling the input does not have to double the total exactly. Fixed setup work matters less for larger batches. T(n)=2n+3 is Θ(n).",
+    "check": "Find the work for 10 and 100 parts. Does O(n) mean at most exactly n steps?",
+    "answer": "The counts are 23 and 203. No: O(n) allows a fixed multiple of n as an upper bound.",
+    "ref": "lecture-notes.html",
+    "extra": "These are work units, not measured seconds. The setup cost is fixed in this model; the printing cost grows with the number of parts.",
     "widget": "",
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 3,
     "start": 64,
     "end": 67
   },
   {
     "week": "2",
-    "title": "O, Ω, Θ: aynı iş için üç cümle",
-    "question": "Gerçek işimiz T(n)=2n+3 kontrol olsun. Örneğin n=4 için 11, n=8 için 19.",
+    "title": "O, Ω and Θ: three statements about growth",
+    "question": "Let the work be T(n)=2n+3. For n=4 it is 11; for n=8 it is 19.",
     "a": [
-      "O(n): üstten bir sınır",
-      "n≥1 iken 2n+3 ≤ 5n.\nİş, n’nin sabit bir katını aşmıyor."
+      "O(n): an upper bound",
+      "For n≥1, 2n+3 ≤ 5n.\nThe work stays below a fixed multiple of n."
     ],
     "b": [
-      "Ω(n) ve Θ(n)",
-      "2n+3 ≥ 2n: alttan da sınırlı → Ω(n).\n2n ≤ T(n) ≤ 5n: ikisi birlikte → Θ(n)."
+      "Ω(n), then Θ(n)",
+      "2n+3 ≥ 2n gives a lower bound: Ω(n).\nBoth bounds together give Θ(n)."
     ],
-    "lesson": "Θ(n): iş, doğrusal büyüme ailesinde. “Tam n işlem” demek değil. O yalnızca üst sınır söyler; Θ iki yönü de söyler. Sabit çarpanlar n ile büyüyemez.",
-    "check": "2n+3 için O(n²) de doğru mu?",
-    "answer": "Evet, n≥1 için 2n+3 ≤ 5n². Ama daha gevşek bir bilgi. Θ(n) büyüme biçimini daha net söyler.",
-    "ref": "../../w2/#notes",
-    "extra": "O, “en kötü durum” simgesi değildir; Ω da “en iyi durum” simgesi değildir. Önce hangi maliyeti incelediğimizi seçeriz (örneğin en kötü arama sayısı), sonra o fonksiyonun büyümesini sınırlarız. Sınırın bütün yeterince büyük n değerlerinde geçerli olması gerekir.",
+    "lesson": "Θ(n) means linear growth, not exactly n steps. O gives an upper bound. Θ gives both upper and lower bounds.",
+    "check": "Is 2n+3 also O(n²)?",
+    "answer": "Yes: for n≥1, 2n+3 ≤ 5n². It is true, but less precise. Θ(n) tells us the growth pattern more clearly.",
+    "ref": "../w2/#notes",
+    "extra": "The multipliers must be positive constants, independent of n. The bounds must hold for every sufficiently large n. O does not mean worst case, and Ω does not mean best case. First choose the cost function, then describe its growth.",
     "widget": "",
     "id": 5,
-    "block": "İşi say · nesnelerle ve küçük tablolarla",
+    "block": "Count the work",
     "minutes": 3,
     "start": 67,
     "end": 70
@@ -410,47 +386,47 @@ const cards = [
   {
     "id": 40,
     "week": "1–4",
-    "title": "10 dakika ara",
-    "question": "Ekrandan uzaklaşın. Sonraki bölümde nesnelerle ve çizerek devam edeceğiz.",
+    "title": "Take a 10-minute break",
+    "question": "Step away from the screen. We will continue with small examples.",
     "a": [
-      "Kısa mola",
-      "Ayağa kalkın; dinlenin."
+      "Take a break",
+      "Stand up and rest."
     ],
     "b": [
-      "Dönüşte hazır olsun",
-      "Bir kâğıt, kalem ve birkaç küçük kart."
+      "Ready for the next part",
+      "Have paper, a pen and a few small cards ready."
     ],
-    "lesson": "Bu süre 180 dakikalık ders planına dahildir.",
-    "check": "Dönüşte devam etmek için Sonraki düğmesini kullanın.",
-    "answer": "Mola sırasında tamamlanması gereken soru yok.",
-    "extra": "Süreler öğretmen rehberidir; otomatik ilerleme veya süre baskısı yoktur.",
-    "ref": "../",
+    "lesson": "This break is included in the three-hour lesson.",
+    "check": "Use Next when you are ready to continue.",
+    "answer": "There is no task to finish during the break.",
+    "extra": "The times are a teaching guide, not a countdown. The page will not move on automatically.",
+    "ref": "lecture-notes.html",
     "widget": "",
-    "block": "Ara",
+    "block": "Break",
     "minutes": 10,
     "start": 70,
     "end": 80
   },
   {
     "week": "3",
-    "title": "Aynı sayılar; sıralama işi aynı mı?",
-    "question": "4 ölçümü küçükten büyüğe düzenleyelim.",
+    "title": "The same values, in a different order",
+    "question": "Sort four readings from smallest to largest.",
     "a": [
-      "Zaten sıralı: 1, 2, 3, 4",
-      "Insertion: 3 anahtar karşılaştırması, 0 kaydırma.\nSelection: 3+2+1=6 karşılaştırma."
+      "Already sorted: 1,2,3,4",
+      "Insertion: 3 value comparisons, 0 shifts.\nSelection: 3+2+1=6 comparisons."
     ],
     "b": [
-      "Ters sıralı: 4, 3, 2, 1",
-      "Insertion: 1+2+3=6 karşılaştırma, 6 kaydırma.\nSelection: yine 3+2+1=6 karşılaştırma."
+      "Reversed: 4,3,2,1",
+      "Insertion: 6 comparisons, 6 shifts.\nSelection: still 6 comparisons."
     ],
-    "lesson": "Insertion, kartı elindeki sıralı yere sokmak gibidir; veri zaten sıralıysa kolaydır. Selection, kalanların tamamından her seferinde en küçüğü seçer.",
-    "check": "Insertion’da bir tur bitince hangi cümle doğru kalır?",
-    "answer": "İşlenen sol bölüm sıralıdır ve başta o bölümde bulunan aynı elemanları içerir. Başlangıçta bir eleman sıralıdır; yeni elemanı doğru yere sokmak bunu korur.",
-    "ref": "../../w3/",
-    "extra": "Standart, erken durabilen insertion sayıyoruz; döngü sınırı kontrollerini değil, anahtar karşılaştırmalarını sayıyoruz. Selection için daha güçlü cümle: sol bölüm sıralıdır VE içindeki her değer sağdaki her değerden büyük değildir. Yalnız “sol sıralı” demek en küçüklerin orada olduğunu garanti etmez.",
+    "lesson": "Insertion puts the next card into a sorted hand. Selection scans the remaining cards to find the smallest.",
+    "check": "What stays true after each full insertion step?",
+    "answer": "The processed left part is sorted and contains the same values that originally belonged to that part.",
+    "ref": "../w3/",
+    "extra": "We count value comparisons, not loop-bound checks. Selection needs a stronger fact: the left part is sorted AND none of its values is greater than a value on the right. “The left part is sorted” alone is not enough.",
     "widget": "",
     "id": 10,
-    "block": "Sırala ve gerekçelendir · ikili çalışma",
+    "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 80,
     "end": 85
@@ -458,23 +434,23 @@ const cards = [
   {
     "id": 27,
     "week": "3",
-    "title": "Kartları gerçekten yerleştir",
-    "question": "Dört kâğıda 3, 1, 4, 2 yazın. Soldan sağa sıralı bir el oluşturun.",
+    "title": "Move the cards and count the work",
+    "question": "Use four cards: 3, 1, 4, 2. Build a sorted section on the left.",
     "a": [
-      "Insertion: sıradaki kartı yerleştir",
-      "[3] → [1,3] → [1,3,4]\nSonra 2’yi 1 ile 3 arasına koy."
+      "Insertion: place the next card",
+      "[3] → [1,3] → [1,3,4]\nThen put 2 between 1 and 3."
     ],
     "b": [
-      "Selection: kalanın en küçüğünü seç",
-      "Önce 1, sonra 2, sonra 3.\nHer turda kalanların tamamına bak."
+      "Selection: find the smallest left",
+      "Choose 1, then 2, then 3.\nScan all remaining values each time."
     ],
-    "lesson": "Biriniz kartları taşısın; diğeriniz yalnız sayı karşılaştırmalarını saysın. Yer değiştirmeyi ayrı sütunda tutun.",
-    "check": "3,1,4,2 için iki yöntemin karşılaştırmalarını sayın. Sonra 1,2,3,4 ile deneyin.",
-    "answer": "Bu insertion uygulaması ilk dizide 5 anahtar karşılaştırması, 3 kaydırma yapar. Selection 6 karşılaştırma yapar. Sıralı girdide insertion 3, selection yine 6 karşılaştırma.",
-    "ref": "../",
-    "extra": "Insertion’da mevcut anahtar, soldaki büyük değerleri sağa kaydırır; küçük veya eşit değer görünce durur. Saydığımız karşılaştırmalar anahtar değerleri arasındadır; indis sınırı kontrolleri dahil değildir.",
+    "lesson": "Count comparisons and shifts separately. They are different actions.",
+    "check": "Sort 3,1,4,2 with each method. Then try 1,2,3,4.",
+    "answer": "This insertion method uses 5 value comparisons and 3 shifts on the first input. Selection uses 6 comparisons. On sorted input, insertion uses 3; selection still uses 6.",
+    "ref": "lecture-notes.html",
+    "extra": "Insertion shifts values larger than the current key one place right. It stops at a smaller or equal value. Writing the key into its final position is not counted as a shift here.",
     "widget": "insertion",
-    "block": "Sırala ve gerekçelendir · ikili çalışma",
+    "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 85,
     "end": 90
@@ -482,47 +458,47 @@ const cards = [
   {
     "id": 29,
     "week": "3",
-    "title": "En büyüğü bul: neyi hatırlamalıyım?",
-    "question": "Ölçümler 7, 2, 9, 4. Tek bir “şimdiye kadarki en büyük” kartı kullan.",
+    "title": "Remember the largest value so far",
+    "question": "Read 7, 2, 9, 4. Keep just one “largest so far” value.",
     "a": [
-      "Her adımda doğru kayıt",
-      "Başla: 7\n2’yi gör: 7 kalır\n9’u gör: 9 olur\n4’ü gör: 9 kalır"
+      "Keep the right fact",
+      "Start: 7\nSee 2: keep 7\nSee 9: change to 9\nSee 4: keep 9"
     ],
     "b": [
-      "Yanlış kayıt: son gördüğüm",
-      "7 → 2 → 9 → 4\nSonuç 4 olur; en büyük değil."
+      "Keep only the latest value",
+      "7 → 2 → 9 → 4\nThe answer becomes 4. That is wrong."
     ],
-    "lesson": "Değişmez: kayıt, şimdiye kadar gördüğüm bölümün en büyüğüdür. Her adımda bu cümleyi korumak sonucu açıklar.",
-    "check": "−5, −2, −8 ile deneyin. Kaydı 0’dan başlatmak doğru mu?",
-    "answer": "Sonuç −2 olmalı. 0’dan başlatmak yanlış: 0 girdide yok ve bütün değerlerden büyük. Boş olmayan listede ilk değerden başlatın.",
-    "ref": "../",
-    "extra": "Başlangıç: ilk eleman, tek elemanlı bölümün en büyüğü. Koruma: yeni değer büyükse kaydı değiştir, değilse bırak. Bitiş: bütün liste görüldü. Boş liste için ayrı sözleşme gerekir.",
+    "lesson": "The saved value must be the largest value seen so far. This fact is called a loop invariant.",
+    "check": "Try −5, −2, −8. Is it safe to start the saved value at 0?",
+    "answer": "No. The answer should be −2, but 0 would remain. For a nonempty list, start with its first value.",
+    "ref": "lecture-notes.html",
+    "extra": "The first value is the maximum of a one-item list. Each comparison keeps the fact true. The scan stops after the last item. An empty list needs a separate rule.",
     "widget": "",
-    "block": "Sırala ve gerekçelendir · ikili çalışma",
+    "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 90,
     "end": 95
   },
   {
     "week": "2–3",
-    "title": "Küçük işte hızlı olan, büyüyünce?",
-    "question": "İki yöntemin iş modeli: A=10n, B=n². Her işin maliyetini aynı kabul ediyoruz.",
+    "title": "Faster now does not mean faster at every size",
+    "question": "Two methods take A=10n and B=n² work units.",
     "a": [
       "n=4",
-      "A: 40 iş\nB: 16 iş\nB daha az iş yapıyor."
+      "A: 40 units\nB: 16 units\nB does less work."
     ],
     "b": [
       "n=100",
-      "A: 1.000 iş\nB: 10.000 iş\nA daha az iş yapıyor."
+      "A: 1,000 units\nB: 10,000 units\nA does less work."
     ],
-    "lesson": "Θ(n) her küçük girdide daha hızlı demek değildir. Büyüme, girdi arttığında ne olacağını anlatır. Burada eşitlik n=10’da.",
-    "check": "n iki katına çıkınca n, n² ve n³ modelleri nasıl değişir?",
-    "answer": "Sırasıyla 2, 4 ve 8 kat. log₂n yalnız 1 artar. Bunlar saniye değil, seçtiğimiz iş modelidir.",
-    "ref": "../../w2/#lesson",
-    "extra": "Büyüme sırası (yeterince büyük n): 1, log n, n, n log n, n², n³, 2ⁿ, n!. Üstel 2ⁿ için n’ye bir eklemek işi ikiye katlar. n log n, her biri yaklaşık n iş yapan yaklaşık log n seviye olarak düşünülebilir; bu haftalarda ayrıntılı sıralama algoritmasını ezberlemek gerekmiyor.",
+    "lesson": "Linear growth does not guarantee less work on every small input. Here the counts meet at n=10.",
+    "check": "If n doubles, what happens to n, n² and n³?",
+    "answer": "They become 2, 4 and 8 times as large. log₂n increases by 1.",
+    "ref": "../w2/#lesson",
+    "extra": "For sufficiently large n, the growth order is 1, log n, n, n log n, n², n³, 2ⁿ, n!. Increasing n by 1 doubles 2ⁿ. A useful picture for n log n is about log n levels, each doing about n work.",
     "widget": "",
     "id": 11,
-    "block": "Sırala ve gerekçelendir · ikili çalışma",
+    "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 95,
     "end": 100
@@ -530,47 +506,47 @@ const cards = [
   {
     "id": 28,
     "week": "2–3",
-    "title": "Üç farklı çift: aynı iş sınıfı",
-    "question": "8 ölçümün hepsini raporlamak istiyoruz.",
+    "title": "Different counts can have the same growth",
+    "question": "Read all 8 measurements. Compare three work models.",
     "a": [
-      "Birbirinden farklı gerçek sayılar",
-      "Yöntem A: 8 okuma.\nYöntem B: 16 okuma.\nYöntem C: 8 okuma + 100 hazırlık."
+      "Actual counts",
+      "A: 8 reads.\nB: 16 reads.\nC: 8 reads plus 100 setup units."
     ],
     "b": [
-      "Büyüyen girdi",
-      "n okuma → Θ(n).\n2n okuma → Θ(n).\nn+100 iş → Θ(n)."
+      "As the input grows",
+      "n → Θ(n)\n2n → Θ(n)\nn+100 → Θ(n)"
     ],
-    "lesson": "Aynı büyüme sınıfı, aynı süre veya aynı iş sayısı değildir.",
-    "check": "n=4 ve n=400 için C’yi hesaplayın. İki noktada gözlem yapmak bir Θ ispatı mı?",
-    "answer": "104 ve 500. Hayır; bütün yeterince büyük n için gerekçe gerekir. Örneğin n≥100 iken n ≤ n+100 ≤ 2n.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "The same growth class does not mean the same count or the same running time.",
+    "check": "Find C for n=4 and n=400. Do two examples prove Θ(n)?",
+    "answer": "The counts are 104 and 500. Two examples do not prove it. But for all n≥100, n ≤ n+100 ≤ 2n does.",
+    "ref": "lecture-notes.html",
+    "extra": "Small examples help us see a pattern. A bound for every sufficiently large input explains why the pattern continues.",
     "widget": "",
-    "block": "Sırala ve gerekçelendir · ikili çalışma",
+    "block": "Sorting and reasoning",
     "minutes": 5,
     "start": 100,
     "end": 105
   },
   {
     "week": "4",
-    "title": "Numaralı dolap mı, adres zinciri mi?",
-    "question": "8 parçayı sakla. Şimdi 6. parçayı getir veya başa yeni parça ekle.",
+    "title": "Numbered slots or a chain of addresses?",
+    "question": "Store 8 parts. Get the sixth part, or add a new part at the front.",
     "a": [
-      "Dizi: yan yana numaralı gözler",
-      "6. parçanın yeri doğrudan hesaplanır.\nBaşa eklerken 8 parçayı kaydır."
+      "Array: numbered slots",
+      "Calculate the location of the sixth item.\nTo insert at the front, shift 8 items."
     ],
     "b": [
-      "Bağlı liste: her kartta sonraki adres",
-      "6. karta ulaşmak için bağlantıları izle.\nBaşa eklerken birkaç bağlantıyı değiştir."
+      "Linked list: follow the next address",
+      "Follow links to reach the sixth item.\nTo add at the front, change a few links."
     ],
-    "lesson": "Bir yapı her işte en iyi değildir. Dizi numarayla erişimde iyi; bağlı liste bilinen konuma bağlantı değiştirerek eklemede iyi.",
-    "check": "Bağlı listede “30 değerini sil” her zaman sabit iş mi?",
-    "answer": "Hayır. Önce 30’u ve tek bağlı listede önceki düğümü bulman gerekebilir. Arama en kötü Θ(n); gerekli düğümler zaten biliniyorsa bağlantı güncelleme O(1).",
-    "ref": "../#topic-2-2",
-    "extra": "Dizi gözünün boyutunu sabit kabul ediyoruz. Tek bağlı düğüm “sonraki”yi; çift bağlı düğüm hem “önceki”ni hem “sonraki”ni tutar. Çift bağlantı daha çok bellek ister. Gözcü (sentinel), gerçek veri olmayan yardımcı düğümdür; ilk/son düğüm özel durumlarını azaltır. Yeni düğümün ayrıldığını ve gerekli adreslerin bilindiğini varsayıyoruz. Düğüm ayırma maliyeti bu bağlantı sayımının dışında.",
+    "lesson": "Choose a structure for the operations you need most. There is no single best structure for every job.",
+    "check": "Does deleting the value 30 from a linked list always take constant work?",
+    "answer": "No. Finding it may take Θ(n) in the worst case. Once the needed nodes are known, updating the links takes O(1).",
+    "ref": "lecture-notes.html#topic-2-2",
+    "extra": "For a singly linked list, deletion usually needs the previous node too. A doubly linked node stores both previous and next links, using more memory. A sentinel is a dummy node that reduces special cases. The new node is assumed to be allocated already.",
     "widget": "",
     "id": 12,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 105,
     "end": 109
@@ -578,95 +554,95 @@ const cards = [
   {
     "id": 30,
     "week": "4",
-    "title": "Kargo rafı: yerini bilmek başka, aramak başka",
-    "question": "8 numaralı raftaki paketi getir; sonra müşteri adı “Deniz” olan paketi bul.",
+    "title": "Knowing a position is not the same as searching",
+    "question": "Get the item in slot 8. Then find the item labelled “Alex”.",
     "a": [
-      "Raf numarası verildi",
-      "Sabit boyutlu dizi gözünün adresi hesaplanır.\nTek erişim."
+      "You know its position",
+      "Calculate the address of a fixed-size array slot.\nOne access."
     ],
     "b": [
-      "Yalnız müşteri adı verildi",
-      "Ek bir arama yapısı yoksa etiketleri tara.\nEn kötü bütün paketlere bak."
+      "You know only its label",
+      "Without an extra search structure, read labels.\nYou may need to inspect every item."
     ],
-    "lesson": "“Diziye erişim sabit” demek, dizinin içindeki herhangi bir değeri bulmak da sabit demek değildir.",
-    "check": "6 paketi kâğıda yazın. Eşin önce bir konum, sonra bir isim söylesin. İki işin farkını anlatın.",
-    "answer": "Konumla erişim Θ(1); ek indeks olmadan değere göre arama en kötü Θ(n). Sıralı ve hızlı konum erişimli veride ikili arama ayrı bir seçenektir.",
-    "ref": "../",
-    "extra": "Bu bir RAM modeli benzetmesi: Θ(1), gerçek depoda yürüme süresi değil, sabit boyutlu bir dizi gözünün adresini hesaplayıp erişme işidir. Etiket karşılaştırmasını da sabit maliyetli kabul ediyoruz.",
+    "lesson": "Constant-time array access does not make every value search constant-time.",
+    "check": "Write six labels. Compare looking up a position with looking up a name.",
+    "answer": "Position access is Θ(1). A plain value search is Θ(n) in the worst case. A sorted array also allows binary search.",
+    "ref": "lecture-notes.html",
+    "extra": "This is a memory model, not a claim about walking time in a warehouse. Array slots have a fixed size, and label comparisons are treated as constant-cost operations.",
     "widget": "",
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 109,
     "end": 113
   },
   {
     "week": "4",
-    "title": "Bulmak mı, eklemek mi daha sık?",
-    "question": "Parça kodlarını tutan bir sözlük düşün: koda göre bul, ekle, sil.",
+    "title": "Do you search more often, or insert more often?",
+    "question": "Store part codes. You need to find, add and remove codes.",
     "a": [
-      "Sırasız dizi",
-      "Kod ara: tek tek bak, en kötü n.\nSonda boş yer varsa ekle: sabit iş."
+      "Unsorted array",
+      "Search: up to n checks.\nAppend: constant work if there is space."
     ],
     "b": [
-      "Sıralı dizi",
-      "Kod ara: ikili arama, logaritmik iş.\nSırayı koruyarak ekle: en kötü n kaydırma."
+      "Sorted array",
+      "Search: logarithmic work with binary search.\nInsert in order: up to n shifts."
     ],
-    "lesson": "Çok arama, az güncelleme varsa sıralı dizi mantıklı olabilir. Yapıyı seçmeden önce sık yaptığın işlemi söyle.",
-    "check": "Sırasız diziden bir elemanı silerken sırayı korumak gerekmiyorsa?",
-    "answer": "Yeri biliniyorsa son elemanı o boşluğa taşıyıp boyutu azaltabiliriz: sabit iş. Ama silinecek elemanı aramak ayrıca n’ye kadar iş ister.",
-    "ref": "../#topic-1-4",
-    "extra": "“Ekleme O(1)” derken boş kapasiteyi ve eklenecek yeri bilme koşulunu söyleyin. Sıralı dizide minimum ilk, maksimum son gözdedir; sırasız dizide minimumu bulmak bütün elemanlara bakmayı gerektirir.",
+    "lesson": "A sorted array can be a good choice for many searches and few updates. Name the frequent operation first.",
+    "check": "Can deletion be cheap in an unsorted array if order does not matter?",
+    "answer": "If the position is known, move the last item into the gap and reduce the size. Finding that position may still take n checks.",
+    "ref": "lecture-notes.html#topic-1-4",
+    "extra": "We assume spare capacity for a constant-time append and no resizing during this deletion. In a nonempty sorted array, the minimum is first and the maximum is last. In an unsorted array, finding the minimum needs a full scan.",
     "widget": "",
     "id": 13,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 113,
     "end": 117
   },
   {
     "week": "4",
-    "title": "Raf dolunca bir göz mü, iki katı mı?",
-    "question": "Boş, kapasitesi 1 olan dizinin SONUNA 8 ölçüm ekliyoruz. Dolunca daha büyük yere taşınıyor.",
+    "title": "When storage fills, add one slot or double it?",
+    "question": "Start with an empty array of capacity 1. Append 8 readings at the END.",
     "a": [
-      "Her seferinde +1 kapasite",
-      "Taşınan eski ölçümler:\n1+2+3+4+5+6+7=28\nYeni ölçümleri yazma: 8. Toplam: 36."
+      "Add one slot each time",
+      "Old items copied: 1+2+3+4+5+6+7=28.\nWrite 8 new items.\nTotal: 36."
     ],
     "b": [
-      "Her seferinde iki kat kapasite",
-      "Taşınan eski ölçümler:\n1+2+4=7\nYeni ölçümleri yazma: 8. Toplam: 15."
+      "Double the capacity",
+      "Old items copied: 1+2+4=7.\nWrite 8 new items.\nTotal: 15."
     ],
-    "lesson": "Bazen tek sona ekleme pahalıdır. İkiye katlamada n kez sona eklemenin toplam işi Θ(n): sona ekleme başına amortize O(1). Araya eklemenin kaydırma maliyeti ayrıdır.",
-    "check": "Bu, her eklemenin aynı kısa sürede biteceği anlamına mı gelir?",
-    "answer": "Hayır. Taşıma yapan tek ekleme Θ(n) olabilir. Amortize, bütün işlem dizisinin toplam maliyetini işlemlere paylaştırır; rastgelelik veya olasılık gerektirmez.",
-    "ref": "../#topic-3-1",
-    "extra": "+10 gibi sabit artış da büyük n’de toplam Θ(n²) kopyalamaya yol açar. İkiye katlama toplam Θ(n) iş sağlar ama boş kapasite bırakır. Muhasebe benzetmesi: ucuz eklemelerde bir miktar iş kredisi ayır, sonraki taşımayı onunla öde. 15 ve 36 sayıları yalnız eski öğe kopyaları ile yeni öğe yazmalarını sayar; bellek ayırma, sayaç ve kontrol işlemleri dahil değildir.",
+    "lesson": "Doubling gives Θ(n) total work for n appends: amortized O(1) per append. Inserting in the middle can still require shifts.",
+    "check": "Does amortized O(1) mean every append is quick?",
+    "answer": "No. An append that copies the array can take Θ(n). Amortized analysis spreads total work across a sequence; it does not need probabilities.",
+    "ref": "lecture-notes.html#topic-3-1",
+    "extra": "The counts include only item copies and new-item writes, not allocation or control overhead. Growing by a fixed amount such as 10 gives Θ(n²) total copies. Doubling uses extra empty space to reduce copying.",
     "widget": "resize",
     "id": 14,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 117,
     "end": 121
   },
   {
     "week": "4",
-    "title": "Son gelen mi, ilk gelen mi?",
-    "question": "A, sonra B, sonra C geldi. Şimdi birini çıkar.",
+    "title": "Last in, or first in?",
+    "question": "A arrives, then B, then C. Remove one item.",
     "a": [
-      "Yığın / stack: üst üste tabak",
-      "A → B → C\nÖnce C çıkar (LIFO).\nGeri al: son hareketi önce geri al."
+      "Stack: a pile of plates",
+      "A → B → C\nC leaves first: LIFO.\nUndo the most recent action first."
     ],
     "b": [
-      "Kuyruk / queue: test tezgâhı sırası",
-      "A → B → C\nÖnce A çıkar (FIFO).\nGelen ilk parçayı önce işle."
+      "Queue: a waiting line",
+      "A → B → C\nA leaves first: FIFO.\nServe the first arrival first."
     ],
-    "lesson": "Yığın ve kuyruk, işlem sırasını belirler. Altta dizi veya bağlı liste kullanılması ayrı bir tasarım seçimidir.",
-    "check": "Kuyruğu iki yığınla kurarsak A, B, C nasıl A’dan çıkar?",
-    "answer": "Giriş yığınına A,B,C gelir. Çıkış boşsa hepsini aktar: C,B,A. Artık çıkışın tepesinde A var. Her öğe bir kez aktarılır; işlem başına amortize O(1).",
-    "ref": "../#topic-5-3",
-    "extra": "Tek çıkarma, bütün öğeleri aktarıyorsa Θ(n) olabilir. Yığınla DFS bir dalın derinine gider; kuyrukla BFS komşuları katman katman işler. Henüz grafik algoritmalarını ezberlemeyin: farkı işlem sırası yaratıyor.",
+    "lesson": "Stack and queue rules tell us the removal order. Arrays or linked lists can implement those rules.",
+    "check": "How can two stacks act as a queue?",
+    "answer": "Push A,B,C onto the input stack. When the output stack is empty, move all items across: C,B,A. Now A is on top. Each item moves across once.",
+    "ref": "lecture-notes.html#topic-5-3",
+    "extra": "This gives amortized O(1) operations with constant-cost stack operations. A single transfer can take Θ(n). Stacks support depth-first exploration; queues support breadth-first exploration. The order makes the difference.",
     "widget": "order",
     "id": 15,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 121,
     "end": 125
@@ -674,71 +650,71 @@ const cards = [
   {
     "id": 31,
     "week": "4",
-    "title": "Oyun hamleleri ve yazıcı işleri",
-    "question": "A, B, C sırayla geldi. Şimdi iki iş çıkaracağız.",
+    "title": "Undo commands or print files?",
+    "question": "A, B and C arrive in that order. Remove two items.",
     "a": [
-      "Robot hareketini geri al",
-      "Son iki hareket: önce C, sonra B.\nGeri alma yığını."
+      "Undo commands",
+      "Undo C, then B.\nUse a stack."
     ],
     "b": [
-      "Yazıcı sırasını işlet",
-      "İlk iki dosya: önce A, sonra B.\nYazdırma kuyruğu."
+      "Print waiting files",
+      "Print A, then B.\nUse a queue."
     ],
-    "lesson": "Veri aynı olsa da doğru çıkarma sırası uygulamanın amacından gelir.",
-    "check": "A,B ekle; birini çıkar; C ekle; hepsini çıkar. Yığın ve kuyruk sonuçlarını ayrı yazın.",
-    "answer": "Yığın çıkarma sırası: B,C,A. Kuyruk çıkarma sırası: A,B,C. Aynı gelişler, farklı kurallar.",
-    "ref": "../",
-    "extra": "Geri alma için ters işlemin uygulanabilir olduğunu ve gerekli geçmiş bilginin saklandığını varsayıyoruz. Yığın doğru sırayı tutar; gerçek bir robot hareketinin güvenle tersine çevrilebileceğini garanti etmez.",
+    "lesson": "The same input can need a different output order because the purpose is different.",
+    "check": "Add A,B; remove one; add C; remove the rest. Write the output for each structure.",
+    "answer": "Stack: B,C,A. Queue: A,B,C.",
+    "ref": "lecture-notes.html",
+    "extra": "Undo requires a reversible operation and enough saved state. A stack gives an order; it does not guarantee that a physical robot motion is safe to reverse.",
     "widget": "",
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 125,
     "end": 129
   },
   {
     "week": "4",
-    "title": "Yığınla üç küçük iş",
-    "question": "Üç araçta da en son yarım kalan işe dönüyoruz.",
+    "title": "Three small uses of a stack",
+    "question": "A stack lets you return to the most recent unfinished task.",
     "a": [
-      "Parantez: ([ ]) ve ([ )]",
-      "([ ]) → açılanları yığına koy; ] için [, ) için ( çıkar → geçerli.\n([ )] → ) geldiğinde üstte [ var → yanlış."
+      "Check brackets",
+      "([ ]) is valid: close [ before (.\n([ )] fails: ) arrives while [ is on top."
     ],
     "b": [
-      "Postfix: 3 4 + 2 ×",
-      "3 ve 4’ü koy → + ile 7 üret.\n2’yi koy → × ile 14 üret.\nSonuç: 14."
+      "Read postfix: 3 4 + 2 ×",
+      "Push 3 and 4. Add them to get 7.\nPush 2. Multiply to get 14."
     ],
-    "lesson": "Minimumu da hızlı bilmek için her yığın kaydının yanında “buraya kadarki minimum”u sakla. 5,3,7 için minimumlar 5,3,3; 7 çıkınca minimum hâlâ 3.",
-    "check": "100 kez push, sonra hepsini tek multi-pop ile çıkar: kaç öğe çıkarıldı?",
-    "answer": "100. Son işlem tek başına pahalı; bütün dizi boyunca her öğe en çok bir kez kondu ve bir kez çıkarıldı. Toplam öğe işi 200.",
-    "ref": "../#topic-4-1",
-    "extra": "Postfix’te önce çıkan sağ, sonra çıkan sol işlenendir: “8 2 −” için 8−2=6. Parantez kontrolünde sonunda yığın boş olmalı. Multi-pop için çağrı başına sabit ek maliyet de vardır; m çağrının toplamı O(m) olur. Bu toplam sınır, başlangıçta boş yığın ve sabit maliyetli temel push/pop modeli içindir. Başlangıçta N öğe varsa onların çıkarılma maliyeti de eklenir: O(m+N).",
+    "lesson": "To track the minimum, save the minimum so far with each entry. For 5,3,7, save 5,3,3. Pop 7 and the minimum is still 3.",
+    "check": "Push 100 items, then remove them all with one multi-pop. How much item work is done?",
+    "answer": "100 pushes and 100 removals: 200 item actions. The final call is expensive, but each item is pushed and removed only once.",
+    "ref": "lecture-notes.html#topic-4-1",
+    "extra": "In postfix, the first popped value is the right operand: 8 2 − means 8−2. Bracket checking must finish with an empty stack and reject unmatched closings. Starting empty, m push/pop/multi-pop calls take O(m) total under constant-cost basic operations. With N initial items, use O(m+N).",
     "widget": "",
     "id": 16,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 129,
     "end": 133
   },
   {
     "week": "4",
-    "title": "Son üç ölçümü tut",
-    "question": "Sensör: 10, 20, 30, sonra 40. Yalnız son üç ölçüme ihtiyacımız var.",
+    "title": "Keep only the last three readings",
+    "question": "The sensor sends 10, 20, 30, then 40. Keep the last three.",
     "a": [
-      "Her defasında kaydır ve yeniden topla",
-      "10,20,30 → 20,30,40\nBüyük bir pencerede birçok öğeyi taşı ve yeniden oku."
+      "Shift and add again",
+      "10,20,30 → 20,30,40\nFor a large window, move and reread many items."
     ],
     "b": [
-      "Halka tampon + eldeki toplam",
-      "Eski 10’un gözüne 40 yaz; başlangıcı ilerlet.\nToplam: 60−10+40=90. Ortalama: 90/3=30."
+      "Ring buffer plus a running sum",
+      "Replace the old 10 with 40.\nSum: 60−10+40=90.\nAverage: 90/3=30."
     ],
-    "lesson": "Fiziksel gözler 40,20,30 olabilir; mantıksal sıra 20,30,40. Halka tamponda sırayı başlangıç konumu belirler.",
-    "check": "İlk iki ölçüm 10 ve 20 iken ortalama 30/3 mü?",
-    "answer": "Hayır. Yalnız iki geçerli ölçüm var: (10+20)/2=15. Pencere dolana kadar geçerli öğe sayısına böl.",
-    "ref": "../#topic-6-3",
-    "extra": "Kapasite 3 ise sonraki göz (i+1) % 3: 0→1→2→0. Okuma/yazma konumları aynı olduğunda boş ve doluyu ayırmak için sayaç, bayrak veya ayrılmış bir göz gerekir. Tampon dolunca eskiyi silmek burada bilinçli politika; her sistemde uygun değil. Kesme üreten sensör ile tüketici farklı hızlarda çalışırsa taşma politikasını belirtin.",
+    "lesson": "Physical slots may hold 40,20,30 while the time order is 20,30,40. A start position tells us where the oldest reading is.",
+    "check": "After just 10 and 20 arrive, should we divide by 3?",
+    "answer": "No. There are only two valid readings: (10+20)/2=15. Divide by the number actually stored.",
+    "ref": "lecture-notes.html#topic-6-3",
+    "extra": "For capacity 3, the next position is (i+1) % 3: 0→1→2→0. A count, flag or spare slot distinguishes full from empty. Overwriting the oldest item is a deliberate policy here; it is not suitable for every application.",
     "widget": "sensor",
     "id": 17,
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 4,
     "start": 133,
     "end": 137
@@ -746,23 +722,23 @@ const cards = [
   {
     "id": 32,
     "week": "4",
-    "title": "Acil durdurma için amortize yeterli mi?",
-    "question": "Bir sensör kaydı eklemek çoğu zaman ucuz; bazen bütün dizi taşınıyor.",
+    "title": "Can a rare slow append miss a deadline?",
+    "question": "Most sensor appends are cheap. Sometimes the whole array must move.",
     "a": [
-      "Uzun rapor hazırlama",
-      "Toplam iş önemli.\nİkiye katlanan dizi uygun olabilir."
+      "Build a report",
+      "Total work matters.\nA growing array may be suitable."
     ],
     "b": [
-      "Kesmede dar zaman bütçesi",
-      "Tek bir pahalı ekleme bile süreyi aşabilir.\nÖnceden ayrılmış tampon düşünülebilir."
+      "Handle a tight time limit",
+      "One slow append may be too late.\nConsider storage allocated in advance."
     ],
-    "lesson": "Amortize O(1), her çağrının en kötü süresinin sabit olduğunu söylemez. Mühendislikte hangi gecikmenin önemli olduğunu belirtin.",
-    "check": "Önceden ayrılan tampon dolarsa ne yapacaksınız? İki farklı uygulama için karar verin.",
-    "answer": "Canlı gösterge: en eskiyi atıp güncel veriyi tutabilir. Kayıpsız kayıt: taşmayı bildirip üretim/tüketim hızını veya kapasiteyi düzenlemeli. Sessiz veri kaybı uygun olmayabilir.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Amortized O(1) is not a worst-case bound for every call. Ask which delay matters.",
+    "check": "What should happen when a fixed buffer fills? Compare a live display with a lossless recorder.",
+    "answer": "A live display may discard old readings. A lossless recorder must prevent or handle overflow without silently losing required data.",
+    "ref": "lecture-notes.html",
+    "extra": "A real deadline needs more than a growth class: hardware, allocation, scheduling and maximum input sizes matter. This example explains why total cost alone is not enough.",
     "widget": "",
-    "block": "Veriyi düzenle · çizerek çalış",
+    "block": "Data structures",
     "minutes": 3,
     "start": 137,
     "end": 140
@@ -770,23 +746,23 @@ const cards = [
   {
     "id": 43,
     "week": "1–4",
-    "title": "10 dakika ara",
-    "question": "Ekrandan uzaklaşın. Sonraki bölümde nesnelerle ve çizerek devam edeceğiz.",
+    "title": "Take a 10-minute break",
+    "question": "Step away from the screen. We will continue with small examples.",
     "a": [
-      "Kısa mola",
-      "Ayağa kalkın; dinlenin."
+      "Take a break",
+      "Stand up and rest."
     ],
     "b": [
-      "Dönüşte hazır olsun",
-      "Bir kâğıt, kalem ve birkaç küçük kart."
+      "Ready for the next part",
+      "Have paper, a pen and a few small cards ready."
     ],
-    "lesson": "Bu süre 180 dakikalık ders planına dahildir.",
-    "check": "Dönüşte devam etmek için Sonraki düğmesini kullanın.",
-    "answer": "Mola sırasında tamamlanması gereken soru yok.",
-    "extra": "Süreler öğretmen rehberidir; otomatik ilerleme veya süre baskısı yoktur.",
-    "ref": "../",
+    "lesson": "This break is included in the three-hour lesson.",
+    "check": "Use Next when you are ready to continue.",
+    "answer": "There is no task to finish during the break.",
+    "extra": "The times are a teaching guide, not a countdown. The page will not move on automatically.",
+    "ref": "lecture-notes.html",
     "widget": "",
-    "block": "Ara",
+    "block": "Break",
     "minutes": 10,
     "start": 140,
     "end": 150
@@ -794,23 +770,23 @@ const cards = [
   {
     "id": 33,
     "week": "4",
-    "title": "Sensör atölyesi: iki pencereyi elle yürüt",
-    "question": "Ölçümler: 4, 8, 12, 16. Üç göz çizin; her yeni ölçümde toplamı ve ortalamayı yazın.",
+    "title": "Sensor exercise: update the window by hand",
+    "question": "Read 4, 8, 12, 16. Draw three slots. Record the sum and average after each arrival.",
     "a": [
-      "Yeniden topla",
-      "4 → ortalama 4\n4,8 → 6\n4,8,12 → 8\n8,12,16 → 12"
+      "Add the current readings again",
+      "4 → average 4\n4,8 → 6\n4,8,12 → 8\n8,12,16 → 12"
     ],
     "b": [
-      "Eski toplamı kullan",
-      "4\n4+8=12\n12+12=24\n24−4+16=36 → 36/3=12"
+      "Update the saved sum",
+      "4\n4+8=12\n12+12=24\n24−4+16=36 → average 12"
     ],
-    "lesson": "Aynı cevap, farklı yapılan iş. Büyük pencerede eldeki toplamı güncellemek her örnekte bütün pencereyi taramayı önler.",
-    "check": "İkinci turda pencereyi 2 yapın. Sonra 4,4,4,20 girdisini 3 gözle deneyin.",
-    "answer": "Pencere 2: ortalamalar 4,6,10,14. Diğer girdide pencere 3: 4,4,4,28/3≈9,33. Büyük son ölçüm ortalamayı yükseltir ama 20’ye eşitlemez.",
-    "ref": "../",
-    "extra": "Çift çalışması: biri sensör, diğeri tampon yöneticisi olsun. Her ölçümde fiziksel gözleri ve eskiden yeniye mantıksal sırayı ayrı yazın. Sonra rolleri değiştirin. Gerçek kayan noktalı toplamlarda yuvarlama birikimi olabilir; bu etkinlikte küçük sayıları tam sayıyoruz.",
+    "lesson": "Both methods give the same answer. Updating the sum avoids scanning the whole window each time.",
+    "check": "Repeat with a two-slot window. Then use three slots for 4,4,4,20.",
+    "answer": "Two slots: averages 4,6,10,14. Three slots for the second input: 4,4,4,28/3≈9.33.",
+    "ref": "lecture-notes.html",
+    "extra": "Draw both the physical slots and the readings from oldest to newest. Real floating-point sums can accumulate rounding error. These small integer sums are exact; the displayed decimal average may be rounded.",
     "widget": "",
-    "block": "Atölye · öğrenci çözer ve savunur",
+    "block": "Sensor and design practice",
     "minutes": 7,
     "start": 150,
     "end": 157
@@ -818,23 +794,23 @@ const cards = [
   {
     "id": 34,
     "week": "4",
-    "title": "Tasarım masası: üç iş, tek doğru yapı yok",
-    "question": "Bir fabrika uygulamasındaki üç göreve ayrı yapı seçin.",
+    "title": "Choose a structure for the job",
+    "question": "A factory application has three tasks.",
     "a": [
-      "Görevler",
-      "1. Son hareketi geri al.\n2. Gelen parçayı sırayla test et.\n3. Son 100 sıcaklığı göster."
+      "The tasks",
+      "1. Undo the last command.\n2. Test parts in arrival order.\n3. Display the last 100 temperatures."
     ],
     "b": [
-      "Gerekçeli başlangıç seçimleri",
-      "1. Yığın: son gelen önce.\n2. Kuyruk: ilk gelen önce.\n3. Halka tampon: sabit pencere."
+      "Starting choices",
+      "1. Stack: last in, first out.\n2. Queue: first in, first out.\n3. Ring buffer: a fixed recent window."
     ],
-    "lesson": "Bir yapı adı yazmak yetmez. Sık yapılan işlemi, çıkarma sırasını ve dolunca ne olacağını söyleyin.",
-    "check": "Eşiniz “hepsinde dizi kullanalım” derse yanlış mı? İki düzey arasındaki farkı açıklayın.",
-    "answer": "Mutlaka yanlış değil. Yığın/kuyruk işlem kurallarıdır; dizi bunları gerçekleştirmek için kullanılabilir. Verimli indeks yönetimi ve kapasite politikası ayrıca tasarlanır.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Explain the frequent operation, the removal order, and what happens when storage fills.",
+    "check": "Could all three be built using arrays?",
+    "answer": "Yes. Stack and queue are rules for operations. An array can implement them. Index and capacity choices determine the cost.",
+    "ref": "lecture-notes.html",
+    "extra": "These are reasonable starting designs, not the only possible designs. State your assumptions and explain the tradeoff.",
     "widget": "",
-    "block": "Atölye · öğrenci çözer ve savunur",
+    "block": "Sensor and design practice",
     "minutes": 7,
     "start": 157,
     "end": 164
@@ -842,47 +818,47 @@ const cards = [
   {
     "id": 35,
     "week": "1–4",
-    "title": "Yeni durum: takım kodu arşivi",
-    "question": "10.000 kodu bir kez yükleyeceğiz; sonra çok arayacağız. Güncelleme çok seyrek.",
+    "title": "Search an archive of part codes",
+    "question": "Load 10,000 codes once. Search them many times. Updates are rare.",
     "a": [
-      "Öneri A: sırasız tut",
-      "Kurması kolay.\nHer aramada tek tek kontrol gerekebilir."
+      "Keep them unsorted",
+      "Easy to load.\nEach search may scan all the codes."
     ],
     "b": [
-      "Öneri B: bir kez sırala",
-      "Başlangıçta sıralama işi var.\nSonraki aramalarda ikili arama kullan."
+      "Sort once",
+      "Pay an initial sorting cost.\nThen use binary search for later lookups."
     ],
-    "lesson": "Hazırlık maliyeti ile tekrar eden işi birlikte düşünün. Sayısal karşılaştırma için kaç arama yapılacağını da bilmek gerekir.",
-    "check": "Koşulu değiştirin: sürekli ortalara ekleme var, arama çok az. İlk kararınız hâlâ güçlü mü?",
-    "answer": "Sıralı diziyi korumak kaydırma maliyeti doğurur. İlk senaryodaki avantaj otomatik olarak taşınmaz. Baskın işlemi yeniden değerlendirin.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Count both setup work and repeated work. The number of searches matters.",
+    "check": "Now suppose there are many insertions in the middle and very few searches. Does the first choice still follow?",
+    "answer": "No. Maintaining sorted order can require many shifts. Reconsider which operation happens most often.",
+    "ref": "lecture-notes.html",
+    "extra": "Assume fast array access and fixed-cost code comparisons. The best choice can change when the workload changes.",
     "widget": "",
-    "block": "Atölye · öğrenci çözer ve savunur",
+    "block": "Sensor and design practice",
     "minutes": 6,
     "start": 164,
     "end": 170
   },
   {
     "week": "1–4",
-    "title": "Çıkış bileti: artık simgeden önce işi söyle",
-    "question": "Her soruyu önce günlük dilde, sonra istersen simgeyle cevapla.",
+    "title": "Quick check: explain the action first",
+    "question": "Use everyday words first. Add the symbol only after the explanation.",
     "a": [
-      "Dört hızlı karar",
-      "1. 20’den 40 sensöre tam tarama?\n2. Sıralı dizide boyut iki kat; her adım yarıyı ele?\n3. İlk gelen parçayı önce işle?\n4. 17 parça, kutu başına 5?"
+      "Four questions",
+      "1. Scan 20 sensors, then 40.\n2. Double a sorted array; keep halving the search.\n3. Serve the first arrival first.\n4. Put 17 parts in boxes holding 5."
     ],
     "b": [
-      "Cevap ve neden",
-      "1. Kontrol sayısı iki kat → Θ(n).\n2. Yalnız yaklaşık bir adım daha → Θ(log n).\n3. Kuyruk: FIFO.\n4. ⌈17/5⌉=4 kutu; üçü yetmez."
+      "Answers with reasons",
+      "1. Twice the checks: Θ(n).\n2. About one extra search step: Θ(log n).\n3. Queue: FIFO.\n4. ⌈17/5⌉=4 boxes."
     ],
-    "lesson": "Her örnekte üç soru: Doğru sonucu üretiyor mu? Hangi işi sayıyorum? Girdi büyüyünce bu iş nasıl değişiyor?",
-    "check": "Bir öğrenci bunları anlatamıyorsa neyi tekrar edelim?",
-    "answer": "Sembolleri yeniden ezberletmeyin. 4 nesneyi masaya koyun; işi birlikte sayın. Sonra 8 nesneyle aynı işi tekrarlayın.",
-    "ref": "../",
-    "extra": "Bireysel cevapları toplayın. Yanlışın kaynağını ayırın: soru anlaşılmadı mı, iş yanlış mı sayıldı, yoksa yalnız simge mi karıştı? Sonraki kart aynı kavramları yeni sayılarla yoklar.",
+    "lesson": "Ask: Is the result correct? What work am I counting? How does that work change when the input grows?",
+    "check": "Which answer can you explain without using its symbol?",
+    "answer": "Use 4 objects, then 8. Do the actions and count them. After that, name the growth pattern.",
+    "ref": "lecture-notes.html",
+    "extra": "These are checks of understanding, not a timed exam. If an answer is wrong, separate a misunderstood task from a counting error or an unfamiliar symbol.",
     "widget": "",
     "id": 18,
-    "block": "Bireysel çıkış kontrolü",
+    "block": "Final check",
     "minutes": 5,
     "start": 170,
     "end": 175
@@ -890,23 +866,23 @@ const cards = [
   {
     "id": 36,
     "week": "1–4",
-    "title": "Çıkış bileti B: aynı fikir, yeni sayılar",
-    "question": "Bireysel çözün; sonra bir arkadaşınızın gerekçesini denetleyin.",
+    "title": "One last check with new numbers",
+    "question": "Write your answers and one short reason for each.",
     "a": [
-      "Sorular",
-      "1. 9’dan 18 parçaya iki tam tarama?\n2. 22 kişi, 6’lık araç?\n3. Son yapılan ayarı geri al?"
+      "Questions",
+      "1. Two full scans: 9 items, then 18.\n2. 22 people, 6 seats per vehicle.\n3. Undo the latest saved setting."
     ],
     "b": [
-      "Çözümler",
-      "1. 18’den 36 işe: iki kat.\n2. ⌈22/6⌉=4 araç.\n3. Yığın: son işlem önce."
+      "Answers",
+      "1. 18 actions, then 36: twice the work.\n2. ⌈22/6⌉=4 vehicles.\n3. Stack: last action first."
     ],
-    "lesson": "Son soru: Θ(n) demek “tam n adım” mı? Cevabınızı 2n+3 örneğiyle savunun.",
-    "check": "İlk cevabınızla şimdi yazdığınızı karşılaştırın. Yanlış yaptığınız tek fikri seçip yeni bir örnek üretin.",
-    "answer": "Hayır. 2n+3, n≥1 için 2n ile 5n arasındadır; bu yüzden Θ(n). Yeni örneğinizde n’nin ne olduğunu ve sayılan işi mutlaka yazın.",
-    "ref": "../",
-    "extra": "Önce iki kişi birlikte çözün. Biriniz işlemi yapsın, diğeri her işi çizgiyle saysın. Sonra rolleri değiştirin; farklı bir sayı ile tekrar deneyin.",
+    "lesson": "Does Θ(n) mean exactly n steps? Use 2n+3 to explain.",
+    "check": "Choose one idea you found difficult. Make a new example with different numbers.",
+    "answer": "No. For n≥1, 2n ≤ 2n+3 ≤ 5n. This gives Θ(n), even though the exact count is not n.",
+    "ref": "lecture-notes.html",
+    "extra": "In your new example, state what n means and what one unit of work means. Then check a small input by hand.",
     "widget": "",
-    "block": "Bireysel çıkış kontrolü",
+    "block": "Final check",
     "minutes": 5,
     "start": 175,
     "end": 180
