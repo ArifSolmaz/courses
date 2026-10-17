@@ -1,0 +1,92 @@
+name: Release CP1 timed review
+on:
+  schedule:
+    # UTC. Opening: 2026-10-18 21:00 UTC = Oct 19 midnight in Istanbul.
+    # Retry window handles scheduler delays and temporary build failures.
+    - cron: '0,10,20,30,40,50 * 18-20 10 *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Validate privately or publish (release-time guard always applies)
+        type: choice
+        options: [validate, release]
+        default: validate
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: cp1-review-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check release window
+        id: gate
+        env:
+          MODE: ${{ inputs.mode || 'release' }}
+        run: |
+          python3 - <<'PY'
+          import os, urllib.request
+          from pathlib import Path
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          due = now >= datetime(2026,10,18,21,tzinfo=timezone.utc) and now.year == 2026
+          if due and os.environ['MODE'] != 'validate' and 'const DURATION=30*60*1000' in Path('fall/cp1/review/index.html').read_text():
+              try:
+                  live=urllib.request.urlopen('https://arifsolmaz.github.io/courses/fall/cp1/review/?release=20261019',timeout=20).read().decode()
+                  if 'const DURATION=30*60*1000' in live:
+                      due=False
+                      print('Already released and live; nothing to do.')
+              except Exception:
+                  pass
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('run=' + str(due or os.environ['MODE']=='validate').lower() + '\n')
+          print('Validation requested or release due:', due or os.environ['MODE']=='validate')
+          PY
+      - name: Validate sealed bundle and stage when due
+        if: steps.gate.outputs.run == 'true'
+        env:
+          CP1_REVIEW_BUNDLE: ${{ secrets.CP1_REVIEW_BUNDLE }}
+          RELEASE_MODE: ${{ inputs.mode || 'release' }}
+        run: python3 .github/scripts/release_cp1_review.py
+      - name: Commit release
+        if: steps.gate.outputs.run == 'true' && inputs.mode != 'validate'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add fall/cp1/review fall/cp1/tools/templates/dashboard.html fall/cp1/web/CP1_Course_Dashboard.html fall/cp1/tools/render_experiences.py fall/cp1/web/Week_06.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'CP1: publish 30-minute Weeks 1–5 review'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Request Pages build explicitly
+        if: steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # GITHUB_TOKEN pushes do not trigger branch-based Pages automatically.
+          # Validation rebuilds only the existing locked site to verify permission.
+          gh api --method POST "repos/$REPO/pages/builds" --jq '.status'
+      - name: Verify published page
+        if: steps.gate.outputs.run == 'true' && inputs.mode != 'validate'
+        run: |
+          python3 - <<'PY'
+          import time, urllib.request
+          for attempt in range(30):
+              try:
+                  html=urllib.request.urlopen('https://arifsolmaz.github.io/courses/fall/cp1/review/?release=20261019',timeout=20).read().decode()
+                  if 'const DURATION=30*60*1000' in html:
+                      print('Live timed quiz verified.'); break
+              except Exception:
+                  pass
+              time.sleep(15)
+          else:
+              raise SystemExit('Pages has not published the quiz yet; next scheduled run will retry.')
+          PY
