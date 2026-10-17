@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hafta 10 (Sade, 3 saatlik) — En küçük kapsayan ağaçlar (MST)</title>
+<meta name="description" content="Algorithm Analysis Hafta 10: Hafta 8-9 tekrarıyla birlikte, Prim, Kruskal, kesim özelliği ve union-find; 3 saatlik ders için ayrıntılı ve sade anlatım.">
+<style>
+:root{--bg:#10141b;--panel:#171d27;--panel2:#1d2431;--ink:#e8ecf3;--mute:#9aa6b8;--line:#2a3344;--acc:#6cb6ff;--ok:#5fd39a;--warn:#ffcb6b;--bad:#ff7b8a;--rule:#1b2a3d;--rev:#2a2140}
+[data-theme="light"]{--bg:#f7f6f2;--panel:#fff;--panel2:#f0eee8;--ink:#1c2330;--mute:#5d6878;--line:#dcd8cd;--acc:#1a64b8;--ok:#13804f;--warn:#9a6a00;--bad:#b3283b;--rule:#e6eefa;--rev:#efe9fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 90px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.tg{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 10px;font-size:13px}
+h1{font:500 clamp(30px,6vw,44px)/1.15 Georgia,"Times New Roman",serif;margin:.3em 0 .2em}
+h2{font:500 28px/1.25 Georgia,"Times New Roman",serif;margin:0 0 .4em}
+h3{font-size:18px;margin:1.5em 0 .3em}
+h4{font-size:16px;margin:1.2em 0 .2em;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{font-size:19px;color:var(--mute);margin:.2em 0 1em}
+.en{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.88em;color:var(--acc);white-space:nowrap}
+section{margin-top:64px;scroll-margin-top:16px}
+.num{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 6px;border-radius:16px;background:var(--acc);color:var(--bg);font-weight:700;font-size:15px;margin-right:8px;vertical-align:3px}
+.time{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--mute);margin-left:6px;vertical-align:4px;font-weight:600}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+.rule{background:var(--rule);border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.rule b.t{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.skip{border-left-color:var(--warn);background:var(--panel2)}.skip b.t{color:var(--warn)}
+.rev{border-left-color:#a98bff;background:var(--rev)}.rev b.t{color:#a98bff}
+[data-theme="light"] .rev b.t{color:#6b3fd1}
+.mistake{border-left-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--panel2))}.mistake b.t{color:var(--bad)}
+pre,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:14.5px;line-height:1.55;margin:12px 0}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.try{border:1.5px dashed var(--acc);border-radius:14px;padding:16px 18px;margin:20px 0;background:var(--panel)}
+.try .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:9px;padding:7px 14px;font-weight:600;font-size:15px}
+.btn.g{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:3px 9px;font-size:13px}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+input[type=text],input[type=number],select,textarea{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
+input[type=text]{width:100%}
+textarea{width:100%;min-height:96px;font-size:14px;resize:vertical}
+.big{font:500 26px ui-monospace,Menlo,Consolas,monospace}
+.mut{color:var(--mute);font-size:15px}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}.wn{color:var(--warn);font-weight:700}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+td.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+tr.hl td{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+tr.acc td{background:color-mix(in srgb,var(--ok) 13%,transparent)}
+tr.rej td{background:color-mix(in srgb,var(--bad) 11%,transparent)}
+.q{margin:14px 0}.q .opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.fb{margin-top:6px;font-size:15px;color:var(--mute);display:none}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+nav.toc a{font-size:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--panel)}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:60px;font-size:15px}
+.foot a{color:var(--acc);text-decoration:none}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+svg text{fill:var(--mute);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+/* graph svg */
+.gv{width:100%;height:auto;display:block;background:var(--panel2);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+.gv .e{stroke:var(--mute);stroke-width:2;opacity:.75}
+.gv .e.tree{stroke:var(--ok);stroke-width:5;opacity:1}
+.gv .e.cand{stroke:var(--warn);stroke-width:3.5;opacity:1}
+.gv .e.rej{stroke:var(--bad);stroke-width:2.5;stroke-dasharray:6 5;opacity:1}
+.gv .e.cur{stroke:var(--acc);stroke-width:5;opacity:1}
+.gv .e.dim{opacity:.3}
+.gv .wl rect{fill:var(--panel);stroke:var(--line)}
+.gv .wl text{fill:var(--ink);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.gv .vn circle{fill:var(--panel);stroke:var(--mute);stroke-width:2.5}
+.gv .vn.in circle{fill:color-mix(in srgb,var(--ok) 35%,var(--panel));stroke:var(--ok)}
+.gv .vn.cur circle{fill:color-mix(in srgb,var(--warn) 40%,var(--panel));stroke:var(--warn)}
+.gv .vn.sel circle{fill:color-mix(in srgb,var(--acc) 40%,var(--panel));stroke:var(--acc)}
+.gv .vn text{fill:var(--ink);font-size:15px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.gv .vn.click{cursor:pointer}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:0 9px;font-size:13px;margin:2px 3px 2px 0;background:var(--panel2);font-family:ui-monospace,Menlo,Consolas,monospace}
+.pill.acc{border-color:var(--ok);color:var(--ok)}.pill.rej{border-color:var(--bad);color:var(--bad)}.pill.cur{border-color:var(--warn);color:var(--warn)}
+.sets{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.sets span{border:1px solid var(--acc);border-radius:8px;padding:1px 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:color-mix(in srgb,var(--acc) 10%,var(--panel2))}
+.uf text{font-size:13px;font-weight:700}
+.two{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:700px){.two{grid-template-columns:1fr 1fr}}
+
+/* AA-GLOBAL-AUDIT-FIXES: responsive tables, formulas, controls and focus */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:normal}
+.wrap{width:100%;min-width:0}
+.en{white-space:normal}
+pre{max-width:100%}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+textarea{width:100%;box-sizing:border-box}
+.big{max-width:100%;overflow-wrap:anywhere}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,span.m{overflow-wrap:normal;word-break:normal}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead{overflow-wrap:break-word}
+img,svg,canvas{max-width:100%;height:auto}
+.foot{flex-wrap:wrap;gap:12px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px}
+  .foot{align-items:flex-start}
+}
+@media(max-width:480px){.foot{flex-direction:column}}
+</style>
+
+<style id="aa-sitewide-responsive-audit">
+/* Site-wide Week audit: table/component responsiveness */
+.wrap{width:100%;min-width:0}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m{overflow-wrap:normal;word-break:normal}
+.row>*{min-width:0}
+pre{max-width:100%;overflow:auto}
+code{overflow-wrap:anywhere}
+textarea,input,select,button,.card,details{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%;height:auto}
+.try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc,#6cb6ff);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px 7px}
+  h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+  .foot{flex-wrap:wrap;gap:10px}
+}
+</style>
+<style id="aa-inline-term-wrap">.en{white-space:normal}</style>
+<style id="aa-site-audit-fixes">
+html,body{max-width:100%}.en{white-space:normal!important}
+.wrap{width:100%;min-width:0}
+.scroll,.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m,.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-cols-4{min-width:620px}.aa-cols-5{min-width:700px}.aa-cols-6{min-width:760px}.aa-cols-7plus{min-width:860px}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{max-width:100%;overflow:auto} code{overflow-wrap:anywhere}
+img,svg,canvas{max-width:100%;height:auto}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+.foot{gap:12px;flex-wrap:wrap}
+@media(max-width:700px){
+ .wrap{padding-left:12px!important;padding-right:12px!important}
+ .scroll,.table-wrap{padding-bottom:4px}
+ th,td{padding-left:7px!important;padding-right:7px!important}
+}
+@media(max-width:480px){.foot{flex-direction:column;align-items:flex-start}}
+</style>
+<style>/* Keep the small adjacency matrix within its comparison column. */
+.two>div{min-width:0}#rv_mat{width:100%;min-width:0;table-layout:fixed}#rv_mat th,#rv_mat td{min-width:0!important;width:auto!important;padding:6px 3px!important;text-align:center}</style>
+</head>
+<body><p style="padding:12px"><a href="./">← Week 10: English examples</a></p>
+<div class="wrap">
+
+<header class="top">
+  <a href="../">← AA ana sayfa</a>
+  <button class="tg" id="tg">Açık / koyu</button>
+</header>
+
+<div class="kicker">Hafta 10 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
+<h1>En küçük kapsayan ağaçlar (MST) ve union-find</h1>
+<p class="lead">Tek fikir: <b>bütün noktaları en ucuz şekilde birbirine bağlamak istiyoruz; açgözlü (greedy) davranmak burada gerçekten doğru sonuç verir.</b> Bu sayfa Hafta 8 (çizgeler, BFS) ve Hafta 9 (DFS, döngü, topolojik sıra) konularını tekrar ederek başlar; sonra Prim, Kruskal, kesim özelliği ve union-find yapısını adım adım çalıştırır.</p>
+
+<div class="rule">
+  <b class="t">Bu sayfayı nasıl kullanmalı</b>
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular önceki haftalardan <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, kırmızı kutular <b>sık yapılan hata</b>, mavi kutular <b>sınav için kural</b>dır. Sınavda ezberlenecek şeyler mavi kutulardır; gerisi onları anlamak içindir. Sayfadaki tüm sayılar tarayıcıda gerçekten hesaplanır.
+</div>
+
+<h3>Ders akışı (180 dakika)</h3>
+<div class="scroll"><table>
+<tr><th>Blok</th><th>Konu</th><th>Süre</th><th>Hangi haftayı bağlar?</th></tr>
+<tr><td>0</td><td><a href="#s0" style="color:var(--acc)">Isınma ve tekrar</a>: çizge, BFS/DFS, ağaç, Θ ve log</td><td>20 dk</td><td>Hafta 8 + 9</td></tr>
+<tr><td>1</td><td><a href="#s1" style="color:var(--acc)">Ağırlıklı çizge, kapsayan ağaç, MST nedir?</a></td><td>15 dk</td><td>Hafta 8 (gösterim)</td></tr>
+<tr><td>2</td><td><a href="#s2" style="color:var(--acc)">Kesim özelliği (cut property)</a>: açgözlü neden güvenli?</td><td>25 dk</td><td>Hafta 1 (değiş-tokuş)</td></tr>
+<tr><td>3</td><td><a href="#s3" style="color:var(--acc)">Prim algoritması</a></td><td>25 dk</td><td>Hafta 8 (BFS’e benzerlik)</td></tr>
+<tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
+<tr><td>4</td><td><a href="#s4" style="color:var(--acc)">Kruskal algoritması</a></td><td>20 dk</td><td>Hafta 9 (döngü)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Union-find</a>: boyuta göre birleştirme, yol sıkıştırma</td><td>25 dk</td><td>Hafta 3 (log, yarılama)</td></tr>
+<tr><td>6</td><td><a href="#s6" style="color:var(--acc)">Karşılaştırma ve tuzaklar</a>: Prim vs Kruskal, tekillik, en kısa yol</td><td>20 dk</td><td>Hafta 2–3 (maliyet)</td></tr>
+<tr><td>7</td><td><a href="#s7" style="color:var(--acc)">Mühendislik uygulaması</a>: kablolama, kümeleme</td><td>10 dk</td><td>Hepsi</td></tr>
+<tr><td>8</td><td><a href="#s8" style="color:var(--acc)">Alıştırma, quiz</a>, <a href="#s9" style="color:var(--acc)">özet</a>, çıkış bileti</td><td>10 dk + ev</td><td>Hepsi</td></tr>
+</table></div>
+
+<nav class="toc">
+  <a href="#s0">0 Tekrar</a><a href="#s1">1 MST nedir</a><a href="#s2">2 Kesim</a><a href="#s3">3 Prim</a><a href="#s4">4 Kruskal</a><a href="#s5">5 Union-find</a><a href="#s6">6 Karşılaştırma</a><a href="#s7">7 Uygulama</a><a href="#s8">8 Alıştırma &amp; quiz</a><a href="#s9">9 Özet</a>
+</nav>
+
+<div class="box">
+  <b>Başlamadan önce tek cümle:</b>
+  Bir <b>ağaç (tree)</b> döngüsü olmayan bağlı çizgedir; n tepeli ağacın <b>tam n−1 kenarı</b> vardır. <b>En küçük kapsayan ağaç</b> (<span class="en">minimum spanning tree, MST</span>) ise bütün tepeleri bağlayan ağaçlar arasında <b>kenar ağırlıkları toplamı en küçük olanıdır</b>. Bugün bunu bulmanın iki hızlı yolunu göreceğiz.
+</div>
+
+<!-- ================= BLOK 0 ================= -->
+<section id="s0">
+<div class="kicker">Blok 0 · Hafta 8 + 9 tekrarı</div>
+<h2><span class="num">0</span>Isınma ve tekrar <span class="time">20 dk</span></h2>
+<p>Bu haftanın tamamı önceki iki haftanın üstüne kurulu: <b>(1)</b> çizgeyi nasıl saklarız ve BFS/DFS ile nasıl gezeriz (Hafta 8–9), <b>(2)</b> ağaç ve döngü nedir, <b>(3)</b> bir algoritmanın maliyetini Θ ve log ile nasıl söyleriz. Önce bunları hızla tazeleyelim.</p>
+
+<h3 id="topic-0-1">0.1 Çizge, derece, saklama biçimi (Hafta 8)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 8</b>
+Çizge (<span class="en">graph</span>) = tepeler (<span class="en">vertices</span>, sayısı n) + kenarlar (<span class="en">edges</span>, sayısı m). Yönsüz çizgede her kenar iki ucunda sayılır: <b>derecelerin toplamı = 2m</b>. Basit yönsüz çizgede en çok <b>n(n−1)/2</b> kenar olabilir.<br>
+Saklama: <b>komşuluk matrisi</b> (<span class="en">adjacency matrix</span>) O(n²) yer; <b>komşuluk listesi</b> (<span class="en">adjacency list</span>) O(n + m) yer. Ağırlıklı çizgede liste düğümüne bir <code>weight</code> alanı eklenir: gösterimde başka bir şey değişmez.</div>
+
+<p>Bugünün ana örnek çizgesi <b>W</b>’yi (resmî sayfadaki ile aynı) komşuluk listesi olarak görelim. Kenarlar: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10).</p>
+<div class="try"><div class="lab">Kendin dene — Çizge W: komşuluk listesi ve matris</div>
+<svg id="rv_svg" class="gv" viewBox="0 0 460 230" role="img" aria-label="Çizge W"></svg>
+<div class="two"><div><b>Komşuluk listesi</b><pre id="rv_list" style="margin-top:6px"></pre></div>
+<div><b>Komşuluk matrisi</b> (boş = kenar yok)<div class="scroll"><table id="rv_mat"></table></div></div></div>
+<div id="rv_note" class="mut"></div>
+</div>
+
+<h3 id="topic-0-2">0.2 BFS ve DFS ne yapar? (Hafta 8–9)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 8 ve 9</b>
+<b>BFS</b> bir <b>kuyruk (queue)</b> kullanır, tepeleri başlangıçtan uzaklığa (kenar sayısına) göre kat kat keşfeder; ağırlıksız çizgede en az kenarlı yolu bulur. Tepeyi <u>kuyruğa girerken</u> “keşfedildi” diye işaretleriz.<br>
+<b>DFS</b> bir yığın (özyineleme) kullanır, mümkün olduğunca derine iner. Yönlü çizgede bir <b>geri kenar (back edge)</b> = döngü demektir; topolojik sıra ancak döngüsüz yönlü çizgede (DAG) vardır.<br>
+Yönsüz çizgede her ikisi de <b>bağlı bileşenleri</b> bulabilir; ziyaret edilmemiş her tepeden yeni arama başlatılır. Yönlü çizgede tek yönlü erişim, güçlü bağlılık demek değildir.</div>
+
+<p>Aşağıdaki araç Hafta 8’in örnek çizgesini kullanır (kenarlar 1–2, 1–3, 2–4, 3–4, 4–5) ve “bu bir ağaç mı?” sorusunu cevaplar. Ağaç olmanın iki testi: <b>bağlı mı</b> ve <b>kenar sayısı n−1 mi</b> (ya da döngü var mı). Bunu bugün <b>union-find</b> ile daha ucuza yapmayı öğreneceğiz.</p>
+<div class="try"><div class="lab">Kendin dene — ağaç mı? (BFS + DFS + döngü testi)</div>
+<div class="row"><span>Tepe sayısı n =</span><input type="number" id="tr_n" value="5" min="1" max="12" style="width:70px"></div>
+<div class="row"><input type="text" id="tr_e" value="1-2, 1-3, 2-4, 3-4, 4-5"></div>
+<div class="row"><button class="btn g sm" data-tr="1-2, 1-3, 2-4, 3-4, 4-5|5">Hafta 8 örneği</button><button class="btn g sm" data-tr="1-2, 1-3, 2-4, 4-5|5">3–4’ü sil</button><button class="btn g sm" data-tr="1-2, 3-4|4">İki parça</button><button class="btn g sm" data-tr="1-2, 2-3, 3-1, 4-5|5">Üçgen + parça</button></div>
+<div id="tr_out"></div>
+<div class="mut">Hafta 8 örneğinde 5 tepe ve 5 kenar var: kenar sayısı n−1 = 4’ten fazla, bu yüzden bir döngü (1–2–4–3–1) var. 3–4’ü silince tam 4 kenar ve bağlı → ağaç. “İki parça” örneğinde 2 kenar var ama n−1 = 3 değil; bağlı değil.</div>
+</div>
+
+<h3 id="topic-0-3">0.3 Maliyet dili: Θ, log ve sıralama (Hafta 2–3)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
+Θ(f): sabitler ve küçük terimler atılır. Bir <b>yarılama</b> döngüsü Θ(log n)’dir; n’yi yarılaya yarılaya 1’e inmek ⌊lg n⌋ adımdır. <b>Sıralama</b> karşılaştırmaya dayalıysa Θ(n log n) mertebesindedir; m kenarı sıralamak <b>O(m log m)</b> sürer.<br>
+Bugün işimize yarayacak küçük bir gerçek: m ≤ n² olduğundan <b>log m ≤ 2·log n</b>; bu yüzden O(m log m) ⊆ O(m log n) her çizgede geçerlidir. <b>Bağlı basit çizgede</b> (<span class="en">connected simple graph</span>) n−1 ≤ m ≤ n(n−1)/2 olduğundan ayrıca log m = Θ(log n) olur ve iki sınıf <b>aynıdır</b> (sabit çarpan farkı). Bağlı olmayan çizgede ters yön yoktur: iki kenarlı ve çok sayıda yalıtık tepeli çizgede log m sabit, log n büyür.</div>
+
+<h3 id="topic-warmup">Isınma quizi (Hafta 8–9 ve araçlar)</h3>
+<div id="quiz0"></div>
+</section>
+
+<!-- ================= BLOK 1 ================= -->
+<section id="s1">
+<div class="kicker">Blok 1</div>
+<h2><span class="num">1</span>Ağırlıklı çizge, kapsayan ağaç, MST <span class="time">15 dk</span></h2>
+
+<h3 id="topic-1-1">1.1 Sorun: en ucuz şekilde hepsini bağla</h3>
+<p><b>Sezgi.</b> Bir mahallede 5 evi birbirine <b>internet kablosuyla</b> bağlamanız gerekiyor. Her ev çiftinin arasına kablo çekmenin bir maliyeti var (kenar ağırlığı). <b>Bütün evlerin birbirine ulaşabilmesini</b> istiyorsunuz (doğrudan ya da başka bir ev üzerinden), ama toplam kabloyu <b>en az</b> tutmak istiyorsunuz. Gereksiz kablo para demektir; bir ev iki yoldan bağlıysa, yollardan biri çıkarılabilir. Yani işi biten çözümde <b>döngü olmaz</b>: o bir ağaçtır.</p>
+
+<div class="rule"><b class="t">Tanımlar</b>
+<b>Ağaç</b> (<span class="en">tree</span>): döngüsü olmayan bağlı çizge. n tepeli ağaçta <b>tam n−1 kenar</b> vardır.<br>
+<b>Kapsayan ağaç</b> (<span class="en">spanning tree</span>): G’nin <b>bütün tepelerini</b> içeren ve ağaç olan alt çizge; n−1 kenar kullanır.<br>
+<b>En küçük kapsayan ağaç</b> (<span class="en">minimum spanning tree, MST</span>): kenar ağırlıkları toplamı en küçük olan kapsayan ağaç. <b>Birden fazla</b> olabilir (bütün ağırlıklar eşit olan çizgeyi düşünün).</div>
+
+<p>Neden “tam n−1”? Her yeni tepe bir ağaca <b>bir</b> kenarla bağlanır; ilk tepe bedavadır. Fazladan her kenar bir döngü kapatır. Bu Hafta 8–9’da gördüğünüz “tree has n−1 edges” gerçeğidir.</p>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 9</b>
+n tepeli bağlı bir çizgede kenar sayısı m ≥ n−1’dir; m = n−1 ise çizge zaten bir ağaçtır ve <b>tek</b> kapsayan ağacı kendisidir. Ağaca bir kenar eklersen <b>tam bir döngü</b> oluşur: o iki tepe arasında zaten bir yol vardı.</div>
+
+<h3 id="topic-1-2">1.2 Küçük örnek: üçgen</h3>
+<div class="scroll"><table>
+<tr><th>Çizge</th><th>Kapsayan ağaçlar (2 kenar)</th><th>Toplam</th></tr>
+<tr><td rowspan="3">Üçgen: AB = 1, BC = 2, AC = 3</td><td class="m">{AB, BC}</td><td class="m">1 + 2 = 3 ← <b class="ok">en küçük</b></td></tr>
+<tr><td class="m">{AB, AC}</td><td class="m">1 + 3 = 4</td></tr>
+<tr><td class="m">{BC, AC}</td><td class="m">2 + 3 = 5</td></tr>
+</table></div>
+<p class="mut">3 kenardan 2’sini seçeriz: 3 farklı kapsayan ağaç, MST toplamı 3. Üç kenarı birden seçmek bir döngü olurdu ve ağaç olmazdı.</p>
+
+<h3 id="topic-1-3">1.3 Kapsayan ağaçları sayarak MST’yi bulmak: çok yavaş</h3>
+<p>İlk akla gelen yol: tüm (n−1)’li kenar alt kümelerini dene, ağaç olanların en ucuzunu seç. Çizge W’de 7 kenardan 4’ünü seçmek C(7,4) = 35 alt küme demektir; bunlardan sadece <b>21’i</b> gerçekten kapsayan ağaçtır (diğerlerinde döngü var). Kaba kuvvet küçük çizgede çalışır; ama kenar sayısı büyüdükçe alt küme sayısı patlar. Aşağıdaki araç bunu <b>gerçekten yapar</b>; kendi çizgeni de yazabilirsin ve iki hızlı algoritmanın aynı toplamı bulduğunu görürsün.</p>
+
+<div class="try"><div class="lab">Kendin dene — kendi çizgeni kur, MST’yi hesapla</div>
+<div class="mut">Her satıra bir kenar: <code>A B 4</code> (iki uç ve ağırlık). En çok 10 tepe, 14 kenar.</div>
+<textarea id="bd_in" spellcheck="false">A B 4
+A C 1
+B C 2
+B D 5
+C D 8
+D E 3
+C E 10</textarea>
+<div class="row"><button class="btn" id="bd_run">Hesapla</button><button class="btn g sm" data-bd="W">Çizge W</button><button class="btn g sm" data-bd="T">Üçgen 1-2-3</button><button class="btn g sm" data-bd="K">Kablo (G, S1–S3)</button><button class="btn g sm" data-bd="X">İki parça</button></div>
+<svg id="bd_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="Kendi çizgen"></svg>
+<div id="bd_out"></div>
+<div class="legend"><span><b style="background:var(--ok)"></b>MST kenarı (Kruskal)</span><span><b style="background:var(--mute)"></b>MST dışı</span></div>
+<div class="mut">Çıktıda üç sayıya bakın: <b>Kruskal</b> toplamı, <b>Prim</b> toplamı ve <b>kaba kuvvet</b> (tüm kapsayan ağaçlar denenerek) bulunan en küçük toplam. Üçü aynı çıkmalı. Çizge bağlı değilse kapsayan ağaç yoktur; bu durumda her bileşen için ayrı ağaçtan oluşan bir <b>orman</b> (forest) elde edilir.</div>
+</div>
+
+<div class="rule"><b class="t">Kural 1 — kapsayan ağaç ve MST</b>
+Bağlı çizgede her kapsayan ağaç tam <b>n−1</b> kenara sahiptir. MST, bunlar arasında en küçük toplamlı olandır; <b>bir tane olmak zorunda değildir</b>. Çizge bağlı değilse kapsayan ağaç yoktur.</div>
+<div class="rule mistake"><b class="t">Sık yapılan hata</b>
+“MST, her tepe çifti arasında en kısa yolu verir.” <b>Hayır.</b> MST toplam ağırlığı küçültür, tek tek yolları değil (Blok 6’da sayılarla göreceğiz).</div>
+</section>
+
+<!-- ================= BLOK 2 ================= -->
+<section id="s2">
+<div class="kicker">Blok 2</div>
+<h2><span class="num">2</span>Kesim özelliği (cut property) <span class="time">25 dk</span></h2>
+<p>Hem Prim hem Kruskal <b>açgözlü</b>dür (<span class="en">greedy</span>): bir kez seçtikleri kenarı asla geri almazlar. Açgözlü yöntemlerin çoğu bir noktada yanılır (Hafta 1’de “en erken başlayan” ya da “en kısa süren” kuralı yanılıyordu). MST’de ise <b>yanılmazlar</b>. Bunun tek nedeni bu bölümdeki cümledir: kesim özelliği.</p>
+
+<h3 id="topic-2-1">2.1 Kesim nedir?</h3>
+<p><b>Sezgi.</b> Ülkenin şehirlerini iki gruba ayırın: <b>doğu adaları</b> ve <b>batı adaları</b> gibi. Bu ayrıma <b>kesim</b> (<span class="en">cut</span>) denir: tepeler iki boş olmayan kümeye bölünür, S ve geri kalanı (V∖S). İki grubu <b>birbirine bağlayan</b> kenarlara “kesimi geçen” (<span class="en">crossing</span>) kenarlar diyoruz. İki grubun bir şekilde birleşmesi gerekiyor; bunun için en az bir köprü kullanılacak. <b>Akıllı soru: hangi köprüyü?</b> En ucuzunu.</p>
+
+<div class="rule"><b class="t">Kural 2 — kesim özelliği (cut property)</b>
+Tepeleri iki boş olmayan kümeye ayır: S ve V∖S. Bu kesimi geçen kenarlar arasında <b>en hafif</b> olan e kenarı <b>bir MST’ye aittir</b> (yani “bazı MST, e’yi içerir”).<br>
+Dikkat: “<b>bazı</b> MST”. Ağırlıklar eşitse e her MST’de olmayabilir.</div>
+
+<div class="try"><div class="lab">Kendin dene — kesimi sen çiz</div>
+<div class="row"><span>Çizge:</span><select id="ct_g"><option value="W">Çizge W (5 tepe)</option><option value="H">Çizge H (7 tepe)</option><option value="K">Kablo: G, S1–S3</option></select><button class="btn g sm" id="ct_clr">Temizle</button><button class="btn g sm" id="ct_rnd">Rastgele kesim</button></div>
+<div class="mut">Tepelere tıklayın: mavi tepeler S kümesidir. Kesimi geçen kenarlar listelenir, en hafifi işaretlenir ve gerçekten bir MST’de olup olmadığı kontrol edilir (tüm MST’ler tek tek bulunarak).</div>
+<svg id="ct_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="Kesim özelliği"></svg>
+<div id="ct_out"></div>
+<div class="legend"><span><b style="background:var(--acc)"></b>S’deki tepe</span><span><b style="background:var(--warn)"></b>kesimi geçen kenar</span><span><b style="background:var(--ok)"></b>en hafif geçen kenar</span></div>
+<div class="mut">Deneyin: Çizge W’de S = {A} seçin: geçen kenarlar A–B (4) ve A–C (1); en hafif A–C ve gerçekten MST’de. S = {A, B, C}: geçen kenarlar B–D (5), C–D (8), C–E (10); en hafif B–D. Kablo çizgesinde S = {G}: geçen kenarlar G–S1 (3), G–S2 (5), G–S3 (8); en hafif G–S1.</div>
+</div>
+
+<h3 id="topic-2-2">2.2 Neden doğru? Değiş-tokuş (exchange) argümanı</h3>
+<p><b>Sezgi.</b> Elinizde bir MST olsun (T), ama içinde <b>e yok</b> diyelim. e’yi T’ye eklerseniz bir <b>döngü</b> oluşur: e’nin iki ucu zaten T içinde bir yolla bağlıydı. Bu döngü S tarafından başlar, V∖S tarafına geçer ve geri döner; yani kesimi <b>en az iki kez</b> geçer: bir kere e ile, bir kere de T’nin başka bir f kenarıyla. Şimdi f’yi çıkarın. Hâlâ bağlı ve hâlâ n−1 kenar: bir kapsayan ağaç. Ağırlığı w(T) − w(f) + w(e) ≤ w(T), çünkü e kesimdeki en hafif kenar. T zaten en küçük olduğundan eşitlik gelir: yeni ağaç <b>e’yi içeren bir MST</b>dir.</p>
+
+<div class="rule"><b class="t">İspat şablonu (sınavda yazılabilir): 5 cümle</b>
+1. T herhangi bir MST olsun; e ∈ T ise bitti.<br>
+2. Değilse T + e tam bir döngü içerir.<br>
+3. Döngü kesimi geçtiği için e dışında kesimi geçen bir f ∈ T kenarı vardır.<br>
+4. T′ = T − f + e bağlıdır, n−1 kenarlıdır: kapsayan ağaçtır.<br>
+5. w(T′) = w(T) − w(f) + w(e) ≤ w(T) (çünkü w(e) ≤ w(f)); T minimum olduğu için T′ de MST’dir ve e’yi içerir.</div>
+
+<p><b>Sayısal örnek 1 (Çizge W).</b> T = {A–B 4, B–C 2, C–D 8, D–E 3} (bir yol: A–B–C–D–E), toplam <b>17</b>. Kesim S = {A, B, C}. Geçen kenarlar: B–D (5), C–D (8), C–E (10). En hafifi e = B–D (5); T’de yok. T + e: B–C–D–B döngüsü; bu döngüde kesimi geçen diğer kenar f = C–D (8). T′ = T − C–D + B–D = {A–B, B–C, B–D, D–E}, toplam 4 + 2 + 5 + 3 = <b>14</b> ≤ 17. (Bu T zaten MST değildi, bu yüzden daha da küçüldü. MST olsaydı eşit kalırdı.)</p>
+<p><b>Sayısal örnek 2 (eşitlik).</b> Dört tepeli kare A–B–C–D–A, hepsi 1 ağırlıkta. S = {A}: geçen kenarlar A–B (1) ve A–D (1). T = {A–D, D–C, C–B}. e = A–B’yi ekleyin: döngü A–B–C–D–A; f = A–D’yi çıkarın: T′ = {A–B, B–C, C–D}, toplam hâlâ 3. T e’yi içermiyordu, T′ içeriyor; ikisi de MST. Kesim özelliği “e’yi içeren <b>bir</b> MST vardır” der, “her MST e’yi içerir” demez.</p>
+
+<div class="try"><div class="lab">Kendin dene — değiş-tokuşu adım adım izle</div>
+<div class="row"><span>Örnek:</span><select id="xc_ex"><option value="0">Çizge W: T = A–B–C–D–E yolu, S = {A,B,C}</option><option value="1">Kare (hepsi 1): T = {A–D, D–C, C–B}, S = {A}</option><option value="2">Çizge W: T = {A–B, B–C, B–D, D–E}, S = {A}</option></select>
+<button class="btn g" id="xc_b">◀ Geri</button><button class="btn" id="xc_f">İleri ▶</button></div>
+<svg id="xc_svg" class="gv" viewBox="0 0 460 230" role="img" aria-label="Değiş-tokuş argümanı"></svg>
+<div id="xc_note" style="min-height:4.5em"></div>
+<div class="mut">Adım <b id="xc_k">0</b>/<b id="xc_t">0</b> · yeşil kalın = T’deki kenar · mavi = eklenen e · kırmızı kesikli = çıkarılan f.</div>
+</div>
+
+<h3 id="topic-2-3">2.3 Prim ve Kruskal bunu nasıl kullanır?</h3>
+<div class="rule"><b class="t">Neden iki algoritma da güvenli?</b>
+<b>Prim:</b> kesim = (ağaçtaki tepeler, diğer tepeler). Prim bu kesimi geçen en hafif kenarı ekler → kesim özelliğiyle güvenli.<br>
+<b>Kruskal:</b> sıradaki kenar e = (u, v) iki <b>farklı bileşeni</b> birleştirir. S = u’nun bileşeni alınırsa, S’yi geçen e’den daha hafif bir kenar olsaydı Kruskal onu daha önce görürdü ve kabul ederdi; yani e kesimdeki en hafif kenardır → güvenli.<br>
+İkisi de şu değişmezi (invariant) korur: <b>“seçilen kenarlar bir MST’nin içindedir.”</b> n−1 kenar seçilince seçilen küme MST’nin kendisidir.</div>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 1 ve Hafta 3</b>
+Hafta 1’de açgözlü bir kuralın doğru olduğunu “değiş-tokuş argümanı” ile gösterdik (en erken biten rol). Burada aynı fikir. Hafta 3’te <b>döngü değişmezi</b> öğrendik: “her turun başında doğru kalan bir cümle”. Prim ve Kruskal için cümle: <i>seçilen kenarlar bir MST’ye genişletilebilir</i>. Başlangıçta (boş küme) doğru; her adımda kesim özelliği korur; bitişte n−1 kenar = MST.</div>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b>
+Negatif ağırlıklar kesim özelliğinin ispatını değiştirmez: ispat yalnızca “w(e) ≤ w(f)” karşılaştırmasını kullanır, işaret önemsizdir. Ağırlıklar eşitken “bazı MST” ile “her MST” farkına Blok 6’da (tekillik) döneceğiz.</div>
+</section>
+
+<!-- ================= BLOK 3 ================= -->
+<section id="s3">
+<div class="kicker">Blok 3</div>
+<h2><span class="num">3</span>Prim algoritması <span class="time">25 dk</span></h2>
+
+<h3 id="topic-3-1">3.1 Fikir: tek bir tepeden büyüyen ağaç</h3>
+<p><b>Sezgi.</b> Bir damla boya kâğıda düşer ve yayılır; ama her seferinde <b>en kolay ıslanan komşuya</b> geçer. Prim da böyle: tek bir tepeyle başlayın. Her turda, <b>ağaçtaki bir tepeyi ağaçta olmayan bir tepeye bağlayan en ucuz kenarı</b> ekleyin. Çalışma sırasında her tepe üç durumdan birindedir: <b>ağaçta</b> (<span class="en">in tree</span>), <b>sınırda</b> (<span class="en">fringe</span>: ağaçtan bir kenar uzakta) ya da <b>görülmemiş</b> (<span class="en">unseen</span>).</p>
+<pre>Prim(G):
+    herhangi bir s başlangıç tepesi seç; tree = {s}
+    while ağaç dışında bir tepe varsa:
+        x ağaçta, y ağaç dışında olacak şekilde
+        minimum ağırlıklı (x, y) kenarını seç
+        (x, y) kenarını ve y'yi ağaca ekle</pre>
+<div class="rule rev"><b class="t">Tekrar · Hafta 8</b>
+BFS’i hatırlayın: sınırdaki tepeler bir <b>kuyrukta</b> bekler ve <b>ilk gelen</b> işlenir. Prim’de sınırdaki tepeler bekler ama <b>en ucuz kenarla bağlanan</b> işlenir. Aynı iskelet; seçim kuralı farklı. Bir tepenin yeni ağaç tepesi olması, tepeye ulaşan <u>tek bir kenarın</u> ağırlığına bakılarak karar verilir.</div>
+<p><b>Neden her zaman bir ağaç çıkar?</b> Her adımda ağaç dışındaki <u>yeni</u> bir tepeye kenar ekliyoruz; yeni tepeye giden tek bir kenar bir <b>döngüyü kapatamaz</b>. <b>Neden en küçüğü?</b> Her adımdaki seçim, kesim (ağaç, geri kalanlar) için kesim özelliğinin tam karşılığıdır.</p>
+
+<h3 id="topic-3-2">3.2 Çözümlü örnek: Çizge W, A’dan başla</h3>
+<p>Her turda tutulacak iki bilgi: <code>distance[w]</code> = ağaçtan w’ye giden <b>en ucuz tek kenarın</b> ağırlığı, <code>parent[w]</code> = o kenarın ağaç tarafındaki ucu.</p>
+<div class="scroll"><table>
+<tr><th>Tur</th><th>Seçilen tepe (kenar)</th><th>Güncellenen komşular</th><th>distance A / B / C / D / E</th><th>Toplam</th></tr>
+<tr><td>1</td><td class="m">A (başlangıç, 0)</td><td>B: ∞→4 (A), C: ∞→1 (A)</td><td class="m">0 / 4 / 1 / ∞ / ∞</td><td class="m">0</td></tr>
+<tr class="acc"><td>2</td><td class="m">C (A–C, 1)</td><td>B: 4→2 (C), D: ∞→8 (C), E: ∞→10 (C)</td><td class="m">0 / 2 / 1 / 8 / 10</td><td class="m">1</td></tr>
+<tr class="acc"><td>3</td><td class="m">B (C–B, 2)</td><td>D: 8→5 (B); A ağaçta, atla</td><td class="m">0 / 2 / 1 / 5 / 10</td><td class="m">3</td></tr>
+<tr class="acc"><td>4</td><td class="m">D (B–D, 5)</td><td>E: 10→3 (D)</td><td class="m">0 / 2 / 1 / 5 / 3</td><td class="m">8</td></tr>
+<tr class="acc"><td>5</td><td class="m">E (D–E, 3)</td><td>güncellenecek komşu yok</td><td class="m">0 / 2 / 1 / 5 / 3</td><td class="m"><b>11</b></td></tr>
+</table></div>
+<p class="mut">Tur 4’te sınırda D (5), E (10) vardı; en ucuz D seçildi. “C–D = 8” ve “C–E = 10” kenarları hiç seçilmedi: onlardan daha ucuz bir yol (B–D, D–E) bulunmuştu. MST kenarları: A–C, B–C, B–D, D–E; toplam <b>11</b>.</p>
+
+<h3 id="topic-3-3">3.3 Gerçekten çalıştır: Prim adım adım</h3>
+<div class="try"><div class="lab">Kendin dene — Prim izleyici</div>
+<div class="row"><span>Çizge:</span><select id="pr_g"><option value="W">Çizge W</option><option value="H">Çizge H (7 tepe)</option><option value="K">Kablo: G, S1–S3</option></select>
+<span>Başlangıç:</span><select id="pr_s"></select></div>
+<svg id="pr_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="Prim izleyici"></svg>
+<div class="scroll"><table><thead id="pr_th"></thead><tbody id="pr_tb"></tbody></table></div>
+<div id="pr_note" style="min-height:4.6em"></div>
+<div class="row"><button class="btn g" id="pr_b">◀ Geri</button><button class="btn" id="pr_f">İleri ▶</button><button class="btn g" id="pr_p">Oynat</button><button class="btn g" id="pr_r">Başa dön</button>
+<span class="mut">Adım <b id="pr_k">0</b>/<b id="pr_t">0</b> · ağaç ağırlığı: <b id="pr_w">0</b> · distance güncellemesi: <b id="pr_u">0</b></span></div>
+<div class="legend"><span><b style="background:var(--ok)"></b>ağaçta</span><span><b style="background:var(--warn)"></b>sınırdaki aday kenar</span><span><b style="background:var(--acc)"></b>şimdi seçilen</span></div>
+<div class="mut">Başlangıç tepesini değiştirin: eklenme sırası değişir ama (ağırlıklar farklıysa) <b>ağaç ve toplam aynıdır</b>. Çizge H’de bazı ağırlıklar tekrarlanır (5, 5, 7, 7, 8, 8, 9, 9); yine de her başlangıç tepesinde toplam aynıdır: 39.</div>
+</div>
+
+<h3 id="topic-3-4">3.4 Maliyet: n turda n + n</h3>
+<p>Naif gerçekleştirim her turda tüm kenarları tarayıp en ucuz sınır kenarını arar: n tur × O(m) = <b>O(nm)</b>. Standart gerçekleştirim <code>distance[]</code> ve <code>parent[]</code> dizilerini tutar:</p>
+<pre>prim(G, start):
+    for her i tepesi: intree[i] = False; distance[i] = ∞; parent[i] = -1
+    distance[start] = 0; v = start
+    while v ağaçta değilse:
+        intree[v] = True            # v, (parent[v], v) kenarıyla ağaca katılır
+        for ağırlığı wt olan her (v, w) kenarı:
+            if not intree[w] and distance[w] &gt; wt:
+                distance[w] = wt; parent[w] = v
+        v = distance[] değeri en küçük olan ağaç dışı tepe</pre>
+<p>Her tur: komşuların distance’ını güncellemek O(n) (en çok n−1 komşu), en küçüğü diziyi tarayarak bulmak O(n). n tur var → <b>O(n²)</b>. Bu maliyet <b>m’den bağımsızdır</b>. Yoğun çizgede (m ≈ n²) her kenara zaten bakılmak zorundadır; O(n²) orada optimaldir.</p>
+<div class="rule"><b class="t">Kural 3 — Prim</b>
+Ağaç büyütür; her adımda (ağaç, geri kalan) kesimini geçen en hafif kenarı ekler. <code>distance[w]</code> = w’yi ağaca bağlayan en ucuz <b>tek kenar</b>. Diziyle gerçekleştirim: <span class="en">O(n²)</span>, yoğun çizgede ideal.</div>
+<div class="rule mistake"><b class="t">Sık yapılan hata</b>
+Prim’de <code>distance[w]</code> “başlangıçtan w’ye yol uzunluğu” <b>değildir</b>; sadece w’yi ağaca bağlayan <u>tek kenarın</u> ağırlığıdır. Toplam yol uzunluğu tutan algoritma en kısa yol (shortest path) algoritmasıdır (ileri haftalar); MST ile karıştırmayın.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b>
+Sınır tepelerini diziyi taramak yerine bir <b>öncelik kuyruğunda (heap)</b> tutarsanız Prim, seyrek çizgelerde O(m log n) olur. Bu hafta sınav için O(n²) dizi gerçekleştirimi yeterlidir.</div>
+
+<h3 id="topic-3-5">3.5 Python</h3>
+<pre>INF = float('inf')
+
+def prim(adj, start):                 # adj[v] = [(komsu, agirlik), ...]
+    n = len(adj)
+    intree = [False] * n; dist = [INF] * n; parent = [-1] * n
+    dist[start] = 0; total = 0; edges = []
+    for _ in range(n):
+        v = min((i for i in range(n) if not intree[i]), key=lambda i: dist[i])
+        if dist[v] == INF:
+            raise ValueError("Graph is disconnected: no spanning tree")
+        if dist[v] == INF:
+            raise ValueError("Graph is disconnected: no spanning tree")
+        intree[v] = True; total += dist[v]
+        if parent[v] != -1: edges.append((parent[v], v, dist[v]))
+        for w, wt in adj[v]:
+            if not intree[w] and dist[w] &gt; wt:
+                dist[w] = wt; parent[w] = v
+    return total, edges
+
+A, B, C, D, E = range(5)
+W = [(A,B,4), (A,C,1), (B,C,2), (B,D,5), (C,D,8), (D,E,3), (C,E,10)]
+adj = [[] for _ in range(5)]
+for u, v, w in W:
+    adj[u].append((v, w)); adj[v].append((u, w))
+print(prim(adj, A))     # (11, [(0, 2, 1), (2, 1, 2), (1, 3, 5), (3, 4, 3)])</pre>
+</section>
+
+<!-- ================= BLOK 4 ================= -->
+<section id="s4">
+<div class="kicker">Blok 4</div>
+<h2><span class="num">4</span>Kruskal algoritması <span class="time">20 dk</span></h2>
+
+<h3 id="topic-4-1">4.1 Fikir: en ucuz kenardan başla, döngü kapatmıyorsa al</h3>
+<p><b>Sezgi.</b> Kablo ustası olarak tüm olası kablo yollarını <b>fiyata göre sıralayın</b>. En ucuzdan başlayın: kablo, <b>henüz birbirine bağlı olmayan iki grubu</b> birleştiriyorsa çekin; zaten dolaylı olarak bağlı iki evi bağlıyorsa (döngü kapatır) atlayın. Prim tek bir ağacı büyütüyordu; Kruskal <b>birçok küçük ağaçlı bir orman</b> (<span class="en">forest</span>) ile başlar ve ormanı birleştirir.</p>
+<pre>Kruskal(G):
+    kenarları ağırlıklarına göre sırala
+    for bu sıradaki her (x, y) kenarı:
+        if x ve y ormanın farklı ağaçlarındaysa:
+            iki ağacı birleştirerek (x, y)'yi ekle</pre>
+<div class="rule rev"><b class="t">Tekrar · Hafta 9</b>
+Hafta 9’da “bir kenar döngü kapatıyor mu?” sorusunu yönlü çizgede <b>DFS’in geri kenarı</b> ile cevaplıyorduk. Kruskal’da soru yönsüz ve her kenar için tekrar tekrar sorulur: “bu iki tepe <b>zaten aynı bileşende mi</b>?” Her seferinde yeniden DFS/BFS yapmak O(n) olurdu; bu hafta bunu ucuzlatan veri yapısını (union-find, Blok 5) göreceğiz.</div>
+
+<h3 id="topic-4-2">4.2 Çözümlü örnek 1: üçgen</h3>
+<div class="scroll"><table>
+<tr><th>Adım</th><th>Kenar (ağırlık)</th><th>Uçlar aynı bileşende mi?</th><th>Karar</th><th>Bileşenler</th></tr>
+<tr><td>0</td><td colspan="3">kenarları sırala: AB (1), BC (2), AC (3)</td><td class="m">{A} {B} {C}</td></tr>
+<tr class="acc"><td>1</td><td class="m">AB (1)</td><td>hayır</td><td class="ok">kabul</td><td class="m">{A,B} {C}</td></tr>
+<tr class="acc"><td>2</td><td class="m">BC (2)</td><td>hayır</td><td class="ok">kabul</td><td class="m">{A,B,C}</td></tr>
+<tr class="rej"><td>3</td><td class="m">AC (3)</td><td>evet</td><td class="bad">red (döngü)</td><td class="m">{A,B,C}</td></tr>
+</table></div>
+<p class="mut">Toplam 1 + 2 = 3. 2 kenar (n−1) alındı; zaten AC bir döngü yapacaktı. AC = 2,5 olsaydı sıralama AB (1), BC (2), AC (2,5) olurdu ve yine AB, BC seçilirdi: MST aynı kalır, ama A’dan C’ye doğrudan yol (2,5) ağaçtaki yoldan (3) kısa olurdu (Blok 6).</p>
+
+<h3 id="topic-4-3">4.3 Çözümlü örnek 2: Çizge W</h3>
+<p>Sıralı kenarlar: A–C (1), B–C (2), D–E (3), A–B (4), B–D (5), C–D (8), C–E (10).</p>
+<div class="scroll"><table>
+<tr><th>Adım</th><th>Kenar</th><th>Karar</th><th>Neden?</th><th>Bileşenler</th></tr>
+<tr class="acc"><td>1</td><td class="m">A–C (1)</td><td class="ok">kabul</td><td>A, C farklı bileşenlerde</td><td class="m">{A,C} {B} {D} {E}</td></tr>
+<tr class="acc"><td>2</td><td class="m">B–C (2)</td><td class="ok">kabul</td><td>B ve C farklı</td><td class="m">{A,B,C} {D} {E}</td></tr>
+<tr class="acc"><td>3</td><td class="m">D–E (3)</td><td class="ok">kabul</td><td>D ve E farklı</td><td class="m">{A,B,C} {D,E}</td></tr>
+<tr class="rej"><td>4</td><td class="m">A–B (4)</td><td class="bad">red</td><td>A ve B aynı bileşende: A–C–B döngü yapardı</td><td class="m">değişmedi</td></tr>
+<tr class="acc"><td>5</td><td class="m">B–D (5)</td><td class="ok">kabul</td><td>{A,B,C} ile {D,E}’yi birleştirir</td><td class="m">{A,B,C,D,E}</td></tr>
+<tr><td>—</td><td class="m">C–D (8), C–E (10)</td><td>gerek yok</td><td>4 = n−1 kenar alındı, dur</td><td class="m">—</td></tr>
+</table></div>
+<p class="mut">Toplam 1 + 2 + 3 + 5 = <b>11</b>: Prim’in bulduğu ağaçla aynı kenar kümesi, farklı sırayla eklenmiş. Kruskal’da ilk reddedilen kenar A–B’dir.</p>
+
+<h3 id="topic-4-4">4.4 Çözümlü örnek 3: Çizge H (7 tepe)</h3>
+<p>Ağırlıklar tekrarlanıyor (5, 5, 7, 7, 8, 8, 9, 9); eşitlerde giriş sırasını koruyoruz. Sıralı: A–D 5, C–E 5, D–F 6, A–B 7, B–E 7, B–C 8, E–F 8, B–D 9, E–G 9, F–G 11, D–E 15.</p>
+<div class="scroll"><table>
+<tr><th>Adım</th><th>Kenar</th><th>Karar</th><th>Bileşenler</th></tr>
+<tr class="acc"><td>1</td><td class="m">A–D (5)</td><td class="ok">kabul</td><td class="m">{A,D}</td></tr>
+<tr class="acc"><td>2</td><td class="m">C–E (5)</td><td class="ok">kabul</td><td class="m">{A,D} {C,E}</td></tr>
+<tr class="acc"><td>3</td><td class="m">D–F (6)</td><td class="ok">kabul</td><td class="m">{A,D,F} {C,E}</td></tr>
+<tr class="acc"><td>4</td><td class="m">A–B (7)</td><td class="ok">kabul</td><td class="m">{A,B,D,F} {C,E}</td></tr>
+<tr class="acc"><td>5</td><td class="m">B–E (7)</td><td class="ok">kabul</td><td class="m">{A,B,C,D,E,F}</td></tr>
+<tr class="rej"><td>6</td><td class="m">B–C (8)</td><td class="bad">red</td><td>B, C aynı bileşende</td></tr>
+<tr class="rej"><td>7</td><td class="m">E–F (8)</td><td class="bad">red</td><td>E, F aynı bileşende</td></tr>
+<tr class="rej"><td>8</td><td class="m">B–D (9)</td><td class="bad">red</td><td>B, D aynı bileşende</td></tr>
+<tr class="acc"><td>9</td><td class="m">E–G (9)</td><td class="ok">kabul</td><td class="m">{A,B,C,D,E,F,G}</td></tr>
+</table></div>
+<p class="mut">6 = n−1 kenar alındı: 5 + 5 + 6 + 7 + 7 + 9 = <b>39</b>. F–G (11) ve D–E (15) hiç bakılmadı.</p>
+
+<h3 id="topic-4-5">4.5 Gerçekten çalıştır: Kruskal izleyici</h3>
+<div class="try"><div class="lab">Kendin dene — Kruskal izleyici</div>
+<div class="row"><span>Çizge:</span><select id="kr_g"><option value="W">Çizge W</option><option value="H">Çizge H (7 tepe)</option><option value="K">Kablo: G, S1–S3</option></select></div>
+<svg id="kr_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="Kruskal izleyici"></svg>
+<div class="scroll"><table><thead><tr><th>#</th><th>Kenar</th><th>Ağırlık</th><th>find(u) / find(v)</th><th>Karar</th></tr></thead><tbody id="kr_tb"></tbody></table></div>
+<div class="mut">Bileşenler (union-find’ın tuttuğu kümeler):</div><div class="sets" id="kr_sets"></div>
+<div id="kr_note" style="min-height:3.6em"></div>
+<div class="row"><button class="btn g" id="kr_b">◀ Geri</button><button class="btn" id="kr_f">İleri ▶</button><button class="btn g" id="kr_p">Oynat</button><button class="btn g" id="kr_r">Başa dön</button>
+<span class="mut">Adım <b id="kr_k">0</b>/<b id="kr_t">0</b> · kabul: <b id="kr_a">0</b> · toplam: <b id="kr_w">0</b></span></div>
+<div class="legend"><span><b style="background:var(--ok)"></b>kabul edildi</span><span><b style="background:var(--bad)"></b>reddedildi (döngü)</span><span><b style="background:var(--acc)"></b>şimdi bakılan</span></div>
+<div class="mut">Kablo çizgesinde 3 kenar alınınca duruş erken gelir: kalan 3 kenara hiç bakılmaz. Her çizgede kabul sayısı en çok n−1’dir.</div>
+</div>
+
+<h3 id="topic-4-6">4.6 Maliyet</h3>
+<p>Sıralama: <b>O(m log m)</b>. Döngü sınaması m kez “aynı bileşende mi?” sorusu; BFS ile her biri O(n) → toplam O(mn) (yavaş). Union-find ile her sınama neredeyse sabit zamanlı (Blok 5), yani sınamalar toplamda O(m α(n)) tutar ve <b>sıralama baskındır</b>:</p>
+<div class="rule"><b class="t">Kural 4 — Kruskal</b>
+Kenarları sırala, her kenar için “uçları farklı bileşende mi?” diye sor, evetse al ve bileşenleri birleştir. n−1 kenar alınınca dur. Maliyet: <span class="en">O(m log m)</span> (sıralama) + O(m α(n)) (union-find) = <span class="en">O(m log m)</span>. m ≤ n² olduğundan log m ≤ 2 log n; bağlı basit çizgede (n−1 ≤ m) ayrıca log m ≥ log(n−1) olduğundan log m = Θ(log n) ve <span class="en">O(m log m) = O(m log n)</span>.</div>
+<div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
+“O(m log n) mi daha iyi, O(m log m) mi?” Hayır: bağlı basit çizgede n−1 ≤ m ≤ n² olduğundan log m = Θ(log n) ve ikisi sabit çarpan farkıyla aynıdır (bağlı olmayan çizgede yalnızca log m ≤ 2 log n kesindir). Genel anahtarları <b>karşılaştırarak</b> sıralamanın alt sınırı Ω(m log m) olduğundan, karşılaştırmalı sıralamayla başlayan bu Kruskal gerçekleştiriminde sıralama adımı bu mertebenin altına inemez. (Sınırlı tamsayı ağırlıklarda farklı sıralama yöntemleri ayrı bir durumdur.)</div>
+
+<h3 id="topic-4-7">4.7 Python</h3>
+<pre>def kruskal(n, edges):                      # edges = [(u, v, w), ...]
+    parent = list(range(n)); size = [1] * n
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]   # yolu sıkıştır (path halving)
+            x = parent[x]
+        return x
+    total, chosen = 0, []
+    for u, v, w in sorted(edges, key=lambda e: e[2]):
+        ru, rv = find(u), find(v)
+        if ru == rv: continue               # aynı bileşen: döngü kapatır
+        if size[ru] &lt; size[rv]: ru, rv = rv, ru
+        parent[rv] = ru; size[ru] += size[rv]
+        total += w; chosen.append((u, v, w))
+        if len(chosen) == n - 1: break
+    return total, chosen
+
+A, B, C, D, E = range(5)
+W = [(A,B,4), (A,C,1), (B,C,2), (B,D,5), (C,D,8), (D,E,3), (C,E,10)]
+print(kruskal(5, W))    # (11, [(0, 2, 1), (1, 2, 2), (3, 4, 3), (1, 3, 5)])</pre>
+</section>
+
+<!-- ================= BLOK 5 ================= -->
+<section id="s5">
+<div class="kicker">Blok 5</div>
+<h2><span class="num">5</span>Union-find (birleştir-bul) <span class="time">25 dk</span></h2>
+
+<h3 id="topic-5-1">5.1 Problem: kümeleri hızlıca birleştir ve sorgula</h3>
+<p><b>Sezgi.</b> Bir okulda öğrenciler arkadaş grupları kuruyor. İki işlem var: <b>“A ile B aynı grupta mı?”</b> ve <b>“A’nın grubu ile B’nin grubunu birleştir.”</b> Her grubun bir <b>lideri</b> (kökü) olsun: iki kişi aynı gruptaysa liderleri aynıdır. Sorular: lideri nasıl bulacağız, birleşince kimin lideri kim olacak?</p>
+<p>Bu yapıya <b>union-find</b> denir (<span class="en">disjoint sets</span>, ayrık kümeler). İki işlem: <code>find(i)</code> i’nin kümesinin <b>etiketini (kökünü)</b> verir, <code>union(i, j)</code> iki kümeyi birleştirir. Her küme bir <b>ağaç</b>dır; <code>parent[i]</code> i’nin ebeveynidir; <b>kök kendi ebeveynidir</b> (<code>parent[root] = root</code>). <code>size[r]</code> kökün altındaki eleman sayısıdır.</p>
+<pre>find(x):
+    if parent[x] == x: return x
+    return find(parent[x])             # köke doğru yukarı yürü
+
+union(a, b):
+    r1 = find(a); r2 = find(b)
+    if r1 == r2: return                # zaten aynı kümede (Kruskal: bu kenarı reddet!)
+    küçük ağacı büyük ağacın kökünün altına bağla ve boyutları topla</pre>
+<p><b>Kruskal ile bağlantı:</b> bir kenarın (u, v) döngü kapatıp kapatmadığı = <code>find(u) == find(v)</code>.</p>
+
+<h3 id="topic-5-2">5.2 Çözümlü örnek 4: 6 elemanlı küme</h3>
+<p>Elemanlar 1–6, başta altı tek elemanlı küme. Sırayla: union(1,2), union(3,4), union(2,4), find(4), union(5,6), union(1,3). Kural: <b>boyuta göre birleştir</b> (eşitlikte ikinciyi birincinin altına bağla) ve <b>yol sıkıştır</b>.</p>
+<div class="scroll"><table>
+<tr><th>İşlem</th><th>Ne olur?</th><th>parent[1..6]</th><th>size</th></tr>
+<tr><td>başlangıç</td><td>her eleman kendi kökü</td><td class="m">1 2 3 4 5 6</td><td class="m">1 yok</td></tr>
+<tr><td class="m">union(1,2)</td><td>kökler 1 ve 2, boyutlar eşit → 2, 1’in altına: parent[2]=1</td><td class="m">1 1 3 4 5 6</td><td class="m">size[1]=2</td></tr>
+<tr><td class="m">union(3,4)</td><td>aynı: parent[4]=3</td><td class="m">1 1 3 3 5 6</td><td class="m">size[3]=2</td></tr>
+<tr><td class="m">union(2,4)</td><td>find(2)=1, find(4)=3; boyutlar eşit (2, 2) → 3, 1’in altına</td><td class="m">1 1 1 3 5 6</td><td class="m">size[1]=4</td></tr>
+<tr><td class="m">find(4)</td><td>4→3→1 (2 adım); yol sıkıştırma: parent[4]=1</td><td class="m">1 1 1 1 5 6</td><td class="m">değişmedi</td></tr>
+<tr><td class="m">union(5,6)</td><td>parent[6]=5</td><td class="m">1 1 1 1 5 5</td><td class="m">size[5]=2</td></tr>
+<tr class="rej"><td class="m">union(1,3)</td><td>find(1)=1, find(3)=1: <b>aynı kök</b>, hiçbir şey olmaz (Kruskal’da kenar reddedilir)</td><td class="m">1 1 1 1 5 5</td><td class="m">değişmedi</td></tr>
+</table></div>
+
+<h3 id="topic-5-3">5.3 Neden küçüğü büyüğün altına?</h3>
+<p>Kural olmazsa ağaç <b>zincire</b> dönüşebilir: union(1,2), union(2,3), union(3,4), … sonra tekrar tekrar find(1): her biri <b>O(n)</b>. Boyuta göre birleştirirsek yükseklik küçük kalır. <b>Sezgi:</b> bir elemanın derinliği ancak onun ağacı <b>küçük (ya da eşit)</b> taraf olduğunda 1 artar. O zaman elemanın kümesi <b>en az iki katına</b> çıkar. Bir küme n elemanı geçemeyeceğinden, bir eleman en çok <b>log₂ n kez</b> iki katına çıkabilir. Yani derinlik en çok ⌊lg n⌋: <b>find O(log n)</b>.</p>
+<div class="rule rev"><b class="t">Tekrar · Hafta 3</b>
+“Her adımda yarılayarak 1’e inmek ⌊lg n⌋ adımdır.” Aynı olgu burada tersten kullanılıyor: her “derinlik artışı” kümeyi ikiye katlar, ikiye katlaya katlaya n’ye en çok lg n adımda varılır.</div>
+
+<h3 id="topic-5-4">5.4 Yol sıkıştırma (path compression)</h3>
+<p><b>Sezgi.</b> İdeal ağacın derinliği 1’dir: herkes doğrudan lideri gösterir. find zaten bir yol boyunca yukarı yürüyor; neden yürürken <b>yoldaki her düğümü doğrudan köke bağlamayalım</b>? Bir sonraki find kısa sürer. Uzun bir yürüyüş bir kez ödenir ve <b>sonraki tüm sorguları ucuzlatır</b>.</p>
+<div class="rule"><b class="t">Kural 5 — union-find maliyeti</b>
+<b>Boyuta (ya da rank’e) göre birleştirme</b>: ağaç yüksekliği O(log n), find O(log n).<br>
+<b>Ayrıca yol sıkıştırma</b>: O(n) başlangıç kurulumundan sonra, n eleman üzerinde m find/union dizisi toplamda <span class="en">O(m α(n))</span> (<b>amortize</b>, yani işlem dizisinin toplamı üzerinden). α ters Ackermann fonksiyonudur; pratik her n için α(n) ≤ 4: <b>neredeyse sabit</b>.<br>
+Tek bir find yine uzun olabilir; ama o yürüyüş sonraki find’ları kısaltır. Hiçbir kural yoksa zincir ve O(n) olur. Yalnızca birini kullanmak da amortize O(log n) verir: Kruskal için yeter.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b>
+α(n)’nin ispatı bu dersin kapsamı dışındadır; yalnızca ifade bilinmelidir. Ayrıca <b>rank</b> = yüksekliğin üst sınırı; “boyuta göre” yerine “rank’e göre” birleştirmek de aynı log n sınırını verir.</div>
+
+<h3 id="topic-5-5">5.5 Union-find’ı kendin çalıştır</h3>
+<div class="try"><div class="lab">Kendin dene — union-find görselleştirici (8 eleman)</div>
+<div class="row"><label><input type="checkbox" id="uf_size" checked> boyuta göre birleştir</label><label><input type="checkbox" id="uf_comp" checked> yol sıkıştırma</label></div>
+<div class="row"><span>a</span><select id="uf_a"></select><span>b</span><select id="uf_b"></select>
+<button class="btn" id="uf_u">union(a, b)</button><button class="btn g" id="uf_fa">find(a)</button><button class="btn g" id="uf_r">Sıfırla</button></div>
+<div class="row"><button class="btn g sm" id="uf_p1">Zincir kur: union(1,2), union(2,3), …, union(7,8)</button><button class="btn g sm" id="uf_p2">Çözümlü örnek 4’ü oynat</button></div>
+<svg id="uf_svg" class="gv uf" viewBox="0 0 460 270" role="img" aria-label="Union-find ormanı"></svg>
+<div class="mut">parent: <span id="uf_par" class="pill"></span> size (kökler): <span id="uf_sz" class="pill"></span></div>
+<div id="uf_note" style="min-height:3.2em"></div>
+<div class="mut">Toplam parent-izleme adımı: <b id="uf_st">0</b> · yükseklik: <b id="uf_h">0</b> · küme sayısı: <b id="uf_c">8</b>. İşlem günlüğü: <span id="uf_log"></span></div>
+<div class="mut">Deneyin: iki kutuyu da kapatıp “zincir kur”a basın, sonra find(1)’i seçip adım sayısına bakın (7 adım). Aynı zinciri “boyuta göre” ile kurunca ağaç yıldız olur (yükseklik 1). Zinciri yalnızca yol sıkıştırmayla kurarsanız (boyutsuz), bir find(1) bütün yolu kısaltır.</div>
+</div>
+
+<h3 id="topic-5-6">5.6 Sayılarla: yükseklik ve toplam adım</h3>
+<p>Aşağıda iki kötü senaryo her n için <b>gerçekten</b> çalıştırılır. “Zincir”: union(1,2), union(2,3), …; “ikili birleştirme”: önce çiftler, sonra dörtlüler, sonra sekizliler… Her kural için en derin elemanın derinliği ve o elemana <b>n kez</b> find çağrılırsa toplam izlenen parent adımı ölçülür.</p>
+<div class="row"><span>n =</span><select id="he_n"><option>8</option><option>16</option><option selected>64</option><option>256</option><option>1024</option></select><span class="mut">⌊lg n⌋ = <b id="he_lg"></b></span></div>
+<div class="scroll"><table><thead><tr><th>Senaryo</th><th>Kural</th><th>Yükseklik</th><th>n × find(en derin) adım</th></tr></thead><tbody id="he_t"></tbody></table></div>
+<div class="mut">“Zincir + hiç kural” satırında yükseklik n−1 olur; “boyuta göre” ile 1’e iner. “İkili birleştirme + boyuta göre” yüksekliği tam ⌊lg n⌋’dir: log sınırı gerçekten ulaşılabilir. Yol sıkıştırma sütununda adım sayısı n × (n−1)’den yaklaşık 2n’ye düşer: ilk find pahalı, sonrakiler 1 adım.</div>
+
+<h3 id="topic-5-7">5.7 Python (resmî sayfadaki kod)</h3>
+<pre>parent = list(range(7)); size = [1] * 7      # elemanlar 1..6, 0 kullanılmıyor
+def find(x):
+    while parent[x] != x:
+        parent[x] = parent[parent[x]]        # yolu sıkıştır
+        x = parent[x]
+    return x
+def union(a, b):
+    ra, rb = find(a), find(b)
+    if ra == rb:
+        return False                         # aynı küme: bu kenar döngü kapatır
+    if size[ra] &lt; size[rb]:
+        ra, rb = rb, ra
+    parent[rb] = ra; size[ra] += size[rb]
+    return True
+for a, b in [(1, 2), (3, 4), (2, 4), (5, 6), (1, 3)]:
+    print((a, b), union(a, b))
+print(find(4), parent[1:])                   # 1 [1, 1, 1, 1, 5, 5]</pre>
+<p class="mut">Not: <code>parent[x] = parent[parent[x]]</code> “yol yarılama” (path halving) adlı hafif bir sıkıştırmadır: yol üzerinde bir düğüm atlayarak (yani her ikinci düğümü) onu büyükbabasına bağlar. Yoldaki <i>her</i> düğümü büyükbabasına bağlayan çeşide yol bölme (<span class="en">path splitting</span>) denir. Sayfadaki görselleştirici tam sıkıştırma kullanır (yoldaki her düğümü doğrudan köke bağlar); ikisi de aynı amortize sınıfındadır.</p>
+<div class="rule mistake"><b class="t">Sık yapılan hata</b>
+<code>union(a, b)</code>’de a ile b’yi doğrudan bağlamak yanlıştır: <b>kökleri</b> (find(a), find(b)) bağlamalısınız. Ayrıca iki eleman zaten aynı kökteyse birleştirme yapmayın: bu Kruskal’da “döngü”dür.</div>
+</section>
+
+<!-- ================= BLOK 6 ================= -->
+<section id="s6">
+<div class="kicker">Blok 6</div>
+<h2><span class="num">6</span>Karşılaştırma ve tuzaklar <span class="time">20 dk</span></h2>
+
+<h3 id="topic-6-1">6.1 Prim mi Kruskal mı? n ve m’ye bağlı</h3>
+<div class="scroll"><table>
+<tr><th></th><th>Prim (dizi)</th><th>Kruskal (union-find)</th></tr>
+<tr><td>Büyüttüğü şey</td><td>tek bir ağaç</td><td>bir orman (birleşen ağaçlar)</td></tr>
+<tr><td>Her adımda</td><td>ağaç ile dışarı arasındaki en ucuz kenar</td><td>sıradaki en ucuz kenar, döngü kapatmıyorsa</td></tr>
+<tr><td>Veri yapısı</td><td>distance[], parent[]</td><td>sıralı kenar listesi + union-find</td></tr>
+<tr><td>Maliyet</td><td class="m">O(n²)</td><td class="m">O(m log m)</td></tr>
+<tr><td>Seyrek (m ≈ n)</td><td>n² (boşa taramalar)</td><td><b>n log n</b> ✓ daha iyi</td></tr>
+<tr><td>Yoğun (m ≈ n²)</td><td><b>n²</b> ✓ daha iyi</td><td>n² log n</td></tr>
+</table></div>
+<p><b>Sezgi.</b> Prim hep n tur atar ve her turda n tepeye bakar: kaç kenar olduğuyla ilgilenmez. Kruskal ise kenar sayısıyla ölçeklenir. Az kenar varsa Kruskal çok az iş yapar; çok kenar varsa sıralamak pahalı olur.</p>
+
+<div class="try"><div class="lab">Kendin dene — model ve ölçüm</div>
+<div class="row"><span>n =</span><input type="range" id="pk_n" min="10" max="300" value="100"><b id="pk_nv">100</b></div>
+<div class="row"><span>yoğunluk</span><input type="range" id="pk_d" min="0" max="100" value="0"><b id="pk_dv"></b><button class="btn g sm" id="pk_new">Yeni rastgele çizge</button></div>
+<div class="scroll"><table><thead><tr><th></th><th>Prim (dizi)</th><th>Kruskal</th></tr></thead><tbody id="pk_t"></tbody></table></div>
+<div id="pk_out"></div>
+<div class="mut">Yoğunluk %0 = bağlı en seyrek çizge (m = n−1, bir ağaç); %100 = tam çizge (m = n(n−1)/2). “Model” satırları formüldür: n² ve m·lg m. “Ölçüm” satırları rastgele çizgede <b>gerçekten sayılmıştır</b>: Prim için ağaç dışı tepe taraması + komşu kontrolü, Kruskal için sıralama karşılaştırması + gerçek find çağrısı sayısı (her bakılan kenar için 2, kabul edilen her kenarın union’ı içinde 2 tane daha) + yol adımı (n−1 kenar alınınca durur). İki algoritmanın MST ağırlıkları her seferinde karşılaştırılır.</div>
+</div>
+
+<h3 id="topic-6-2">6.2 MST ≠ en kısa yol ağacı</h3>
+<p>MST toplam ağırlığı en küçük yapar. İki tepe arasındaki <b>yol</b>ın uzunluğunu küçük tutmayı garanti etmez. Üçgen örnekte AB = 1, BC = 2 ve AC = 3: MST {AB, BC}; A’dan C’ye ağaçtaki yol 1 + 2 = 3, doğrudan kenar da 3, eşit. AC = 2,5 olursa MST yine {AB, BC} (çünkü 2,5 hâlâ en büyük) ama doğrudan yol 2,5, ağaçtaki yol 3 → <b>MST en kısa yolu içermiyor</b>.</p>
+<div class="try"><div class="lab">Kendin dene — üçgen: MST yolu mu, en kısa yol mu?</div>
+<div class="row"><span>AB</span><input type="range" id="sp_ab" min="1" max="10" step="0.5" value="2"><b id="sp_abv"></b></div>
+<div class="row"><span>BC</span><input type="range" id="sp_bc" min="1" max="10" step="0.5" value="2"><b id="sp_bcv"></b></div>
+<div class="row"><span>AC</span><input type="range" id="sp_ac" min="1" max="10" step="0.5" value="3"><b id="sp_acv"></b></div>
+<svg id="sp_svg" class="gv" viewBox="0 0 460 190" role="img" aria-label="Üçgen"></svg>
+<div id="sp_out"></div>
+<div class="mut">Deneyin: AB=2, BC=2, AC=3 (resmî sayfadaki Soru 17): MST toplamı 4, ağaçta A→C = 4 ama en kısa A→C = 3. AB=1, BC=2, AC=2,5: yine fark var. AC en küçük kenar olursa (örn. AC=1) MST AC’yi seçer ve fark kalmaz.</div>
+</div>
+
+<h3 id="topic-6-3">6.3 Tüm kenar ağırlıkları birbirinden farklıysa MST tektir</h3>
+<p>Üçgenin kenarları hepsi 1 ise 3 farklı MST vardır (ikisini seç). Tüm kenar ağırlıkları <b>birbirinden farklıysa</b>, her kesimdeki en hafif kenar tektir; kesim özelliğiyle MST’nin de <b>tek</b> olduğu sonucuna varılır. Ama “eşit ağırlık varsa çok MST” demek yanlıştır: üçgen 1, 1, 2’de MST yine tektir ({AB, BC}).</p>
+<div class="try"><div class="lab">Kendin dene — kaç tane MST var? (tüm kapsayan ağaçlar denenir)</div>
+<div class="row"><span>Çizge:</span><select id="un_g"><option value="W">Çizge W (7 kenar, farklı ağırlıklar)</option><option value="T112">Üçgen 1, 1, 2</option><option value="T111">Üçgen 1, 1, 1</option><option value="C4">Kare (4 tepe), hepsi 1</option><option value="H">Çizge H (ağırlıklar tekrarlı)</option></select></div>
+<svg id="un_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="MST tekilliği"></svg>
+<div id="un_out"></div>
+<div class="mut">Sayılar kaba kuvvetle bulunur: tüm (n−1)’li kenar alt kümeleri denenir, ağaç olanların en küçük toplamına eşit olanlar sayılır.</div>
+</div>
+<p><b>İspat taslağı (zor, sınavda isteğe bağlı).</b> İki farklı MST T₁ ≠ T₂ olsun. Yalnızca birinde olan en hafif kenar e olsun, diyelim e ∈ T₁. e’yi T₂’ye eklersek bir döngü oluşur; bu döngüde T₁’de olmayan bir f vardır (yoksa T₁’de döngü olurdu). f, yalnızca birinde olan kenarlardan biri ve e en hafifi olduğundan, ağırlıklar farklıysa w(f) &gt; w(e). T₂ − f + e, T₂’den daha ucuz: çelişki.</p>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 2</b>
+Hafta 2’de iki katına çıkarma yöntemini öğrenmiştik: n’yi 2 katına çıkar, işin kaç katına çıktığına bak (≈2 → doğrusal, ≈4 → kare). Yukarıdaki ölçüm aracında yoğunluğu %0’da tutup n = 100 → 200 → 400 deneyin: Prim’in sayısı yaklaşık 4 katına çıkar (n²), seyrek çizgede Kruskal’ın sayısı ise yalnızca 2 katından biraz fazla artar (m log m).</div>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz — iki ek özellik</b>
+<b>Darboğaz:</b> MST aynı zamanda en <i>ağır</i> kenarı da en küçük yapan kapsayan ağaçtır (en ağır MST kenarını çıkarınca ağaç iki parçaya ayrılır; başka bir ağaç bu iki parçayı daha hafif bir kenarla birleştirseydi MST daha ucuz olurdu).<br>
+<b>Seçilen MST’den farklı en ucuz ağaç:</b> Eşit ağırlıklı başka bir MST varsa sonuç aynı maliyette olabilir; bu, mutlaka kesin daha pahalı ikinci ağırlık demek değildir.  her MST dışı kenar e için, e’yi ekle, oluşan döngüdeki en ağır kenarı çıkar; en ucuz sonucu seç. Yol taraması O(n), toplam O(nm). Çizge W için ikinci en iyi ağaç 13’tür (MST 11).</div>
+</section>
+
+<!-- ================= BLOK 7 ================= -->
+<section id="s7">
+<div class="kicker">Blok 7</div>
+<h2><span class="num">7</span>Mühendislik uygulaması: kablolama ve kümeleme <span class="time">10 dk</span></h2>
+
+<h3 id="topic-7-1">7.1 Üç sensör, bir geçit: en az kablo</h3>
+<p>Bir <b>geçit</b> (gateway, G) ve üç sensör (S1, S2, S3) var. Her sensörün geçide ulaşması gerekiyor, gerekirse başka bir sensör üzerinden (düğümler birbirini aktarabilir, <span class="en">relay</span>). Kablo metre başına ödeniyor. Olası kablo yolları (m): S1–S2 2, G–S1 3, S2–S3 4, G–S2 5, S1–S3 7, G–S3 8. <b>Bir düğüm aktarma yapabiliyorsa, en ucuz kablolama bir MST’dir.</b></p>
+
+<div class="scroll"><table>
+<tr><th>Adım</th><th>Kenar (m)</th><th>Karar</th><th>Bileşenler</th></tr>
+<tr><td>0</td><td colspan="2">sırala: S1–S2 2, G–S1 3, S2–S3 4, G–S2 5, S1–S3 7, G–S3 8</td><td class="m">{G} {S1} {S2} {S3}</td></tr>
+<tr class="acc"><td>1</td><td class="m">S1–S2 (2)</td><td class="ok">kabul</td><td class="m">{G} {S1,S2} {S3}</td></tr>
+<tr class="acc"><td>2</td><td class="m">G–S1 (3)</td><td class="ok">kabul</td><td class="m">{G,S1,S2} {S3}</td></tr>
+<tr class="acc"><td>3</td><td class="m">S2–S3 (4)</td><td class="ok">kabul</td><td class="m">{G,S1,S2,S3}</td></tr>
+<tr><td>—</td><td class="m">G–S2, S1–S3, G–S3</td><td>gerek yok</td><td>3 = n−1 kenar alındı; her biri döngü kapatırdı</td></tr>
+</table></div>
+<p><b>Toplam: 2 + 3 + 4 = 9 m.</b> Her sensörü doğrudan geçide bağlayan bir <b>yıldız</b> (G–S1, G–S2, G–S3) 3 + 5 + 8 = 16 m tutardı. Ama S3’ün geçide giden yolu MST’de S3 → S2 → S1 → G = 4 + 2 + 3 = <b>9 m</b>; MST’nin dışarıda bıraktığı doğrudan kablo yalnızca 8 m’ydi. MST <b>toplam kabloyu</b> küçültür, her sensörün gecikmesini ya da sıçrama (hop) sayısını değil.</p>
+
+<div class="try"><div class="lab">Kendin dene — kablolama hesaplayıcı</div>
+<div class="scroll"><table><tr><th>Kablo yolu</th><th>Uzunluk (m)</th></tr>
+<tr><td>S1–S2</td><td><input type="number" id="cb_0" value="2" min="1" max="99" style="width:80px"></td></tr>
+<tr><td>G–S1</td><td><input type="number" id="cb_1" value="3" min="1" max="99" style="width:80px"></td></tr>
+<tr><td>S2–S3</td><td><input type="number" id="cb_2" value="4" min="1" max="99" style="width:80px"></td></tr>
+<tr><td>G–S2</td><td><input type="number" id="cb_3" value="5" min="1" max="99" style="width:80px"></td></tr>
+<tr><td>S1–S3</td><td><input type="number" id="cb_4" value="7" min="1" max="99" style="width:80px"></td></tr>
+<tr><td>G–S3</td><td><input type="number" id="cb_5" value="8" min="1" max="99" style="width:80px"></td></tr></table></div>
+<div class="row"><span>Metre başına maliyet (birim):</span><input type="number" id="cb_p" value="1" min="0" step="0.5" style="width:80px"><button class="btn g sm" id="cb_rs">Varsayılanlar</button></div>
+<svg id="cb_svg" class="gv" viewBox="0 0 460 230" role="img" aria-label="Kablolama"></svg>
+<div id="cb_out"></div>
+<div class="mut">Tabloda “MST yolu” sensörün geçide MST üzerinden gidiş uzunluğu, “en kısa yol” çizgedeki gerçekten en kısa uzunluktur (Floyd–Warshall ile hesaplanır). “Doğrudan” G–Sx kenarıdır. Uzunlukları değiştirin: en çok kabloyu hangi koşulda yıldız kazanır? (Tüm doğrudan kablolar çok kısa olunca MST de yıldıza yaklaşır.)</div>
+</div>
+<div class="rule mistake"><b class="t">Mühendis sorusu</b>
+Hangi büyüklüğü minimize ediyorsunuz? <b>Toplam kablo maliyeti</b> → MST. <b>Her sensörün gecikmesi</b> ya da sıçrama sayısı → <i>en kısa yol ağacı</i> (shortest-path tree), yanıt farklı olabilir. Algoritmayı seçmeden önce müşterinin neyin parasını ödediğini sorun.</div>
+
+<h3 id="topic-7-2">7.2 Kümeleme: en uzun MST kenarlarını sil</h3>
+<p><b>Sezgi.</b> MST noktaları “en yakın komşu” bağlantılarıyla birbirine bağlar. Doğal gruplar içinde kısa kenarlar, gruplar arasında ise uzun kenarlar çıkar. <b>En uzun k−1 MST kenarını silerseniz</b> geriye k bileşen kalır: bunlar k kümedir. Bu, kaba bir <b>kümeleme</b> (clustering) yöntemidir (öğrenmede “single-linkage” denir).</p>
+<div class="try"><div class="lab">Kendin dene — MST ile kümeleme (12 nokta)</div>
+<div class="row"><span>Küme sayısı k =</span><input type="range" id="cl_k" min="1" max="4" value="3"><b id="cl_kv">3</b></div>
+<svg id="cl_svg" class="gv" viewBox="0 0 460 260" role="img" aria-label="MST kümeleme"></svg>
+<div id="cl_out"></div>
+<div class="mut">Çizgi = MST kenarı (Öklid uzaklığı), kesikli kırmızı = silinen en uzun kenarlar. k = 3’te iki çok uzun kenar silinir ve gözle de görünen üç grup ortaya çıkar. k = 4’te sıradaki en uzun kenar bile silinince üçüncü grup ikiye ayrılır.</div>
+</div>
+
+<h3 id="topic-7-3">7.3 Gezgin satıcı için hızlı sezgisel tur</h3>
+<div class="rule skip"><b class="t">İsteğe bağlı</b>
+Düzlemdeki noktalar için MST’nin etrafında dolaşın (her kenar iki kez, toplam 2·MST uzunluk), tekrar ziyaret edilen tepeleri atlayarak kısaltın: elde edilen tur 2·MST’den uzun değildir. Üstelik en iyi tur, bir kenarı atınca bir kapsayan ağaç olduğundan MST’den kısa olamaz. Bu yüzden MST etrafında yürümek <b>makul bir sezgisel tur</b> verir.</div>
+</section>
+
+<!-- ================= BLOK 8 ================= -->
+<section id="s8">
+<div class="kicker">Blok 8</div>
+<h2><span class="num">8</span>Alıştırmalar ve quiz <span class="time">10 dk + ev</span></h2>
+<p class="mut">Bu bölümdeki soruların bir kısmı Hafta 8–9’dan geri dönen sorulardır (BFS, DFS, ağaç, log, maliyet).</p>
+
+<h3 id="topic-8-1">8.1 Ana quiz (Hafta 10)</h3>
+<div id="quiz1"></div>
+
+<h3 id="topic-8-2">8.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
+<details><summary>A1 (kolay). Kenarları 1, 2 ve 3 olan üçgenin MST ağırlığı kaçtır? Bu üçgenin kaç tane kapsayan ağacı vardır?</summary>
+<p>3 kenardan 2’sini seçeriz: C(3,2) = 3 kapsayan ağaç. Toplamlar 1+2 = <b>3</b>, 1+3 = 4, 2+3 = 5. MST ağırlığı 3 (1 ve 2’lik kenarlar).</p></details>
+<details><summary>A2 (kolay). 8 tepeli bir ağacın kaç kenarı vardır? Bir kenar daha eklerseniz ne olur? Bağlı bir çizgenin 8 tepesi ve 7 kenarı varsa ne söyleyebilirsiniz?</summary>
+<p><b>7</b> kenar (n−1). Bir kenar daha eklemek <b>tam bir döngü</b> oluşturur: o iki tepe arasında zaten bir yol vardı. Bağlı bir çizge 8 tepeli ve 7 kenarlıysa zaten bir <b>ağaçtır</b> ve kendisi tek kapsayan ağacıdır.</p></details>
+<details><summary>A3 (orta). Çizge W’de Prim’i E’den başlatın. Eklenme sırasını ve toplamı yazın.</summary>
+<p>E’den: sınırda D–E (3), C–E (10) → D–E (3). Ağaç {E, D}: D–B (5), D–C (8), E–C (10) → <b>D–B (5)</b>. Ağaç {E, D, B}: B–C (2), B–A (4), D–C (8), E–C (10) → <b>B–C (2)</b>. Ağaç {E, D, B, C}: C–A (1), B–A (4) → <b>C–A (1)</b>. Sıra: D–E, B–D, B–C, A–C; toplam 3 + 5 + 2 + 1 = <b>11</b>, A’dan başladığınızdaki ağaçla aynı.</p></details>
+<details><summary>A4 (orta). Beş tepe (1–5), kenarlar: 1–2 (3), 1–3 (1), 2–3 (3), 2–4 (2), 3–4 (4), 4–5 (1). Kruskal’ı çalıştırın. MST tekil mi?</summary>
+<p>Sıralı (eşitlerde giriş sırası): 1–3 (1), 4–5 (1), 2–4 (2), 1–2 (3), 2–3 (3), 3–4 (4). 1–3 kabul {1,3}. 4–5 kabul {4,5}. 2–4 kabul {2,4,5}. 1–2 (3): 1 ∈ {1,3}, 2 ∈ {2,4,5}: farklı → kabul, hepsi {1,2,3,4,5}. 4 kenar alındı: dur. Toplam 1 + 1 + 2 + 3 = <b>7</b>. 2–3 (3) <i>de</i> aynı kesimi geçen eşit ağırlıkta bir kenardır: 1–2 yerine 2–3’ü alsaydık da toplam 7 olurdu. Yani <b>iki farklı MST</b> var (8 kapsayan ağaçtan ikisi 7 ağırlıklı); eşit ağırlıklı kenarlar varken tekillik garantisi yoktur.</p></details>
+<details><summary>A5 (orta). (1,2), (3,4), (2,3), (5,6), (1,4) kenarlarını sırayla union-find ile işleyin (boyuta göre birleştirme). Her adımdan sonra kümeleri yazın; Kruskal hangi kenarı reddederdi?</summary>
+<p>Başta {1} {2} {3} {4} {5} {6}. (1,2): {1,2} {3} {4} {5} {6}. (3,4): {1,2} {3,4} {5} {6}. (2,3): find(2) ≠ find(3) → birleşir: {1,2,3,4} {5} {6}. (5,6): {1,2,3,4} {5,6}. (1,4): find(1) = find(4) zaten aynı küme → hiçbir şey birleşmez; <b>(1,4) reddedilir</b> (döngü 1–2–3–4–1 kapatırdı).</p></details>
+<details><summary>A6 (orta). G ve S1, S2, S3: S1–S2 2, G–S1 3, S2–S3 4, G–S2 5, S1–S3 7, G–S3 8 (m). Kruskal ile toplam kabloyu bulun; S3’ün geçide MST yolunu ve doğrudan kabloyla farkını yorumlayın. Hangi amaç hangi sayıyı kullanır?</summary>
+<p>Sıralı: 2, 3, 4, 5, 7, 8. S1–S2 kabul, G–S1 kabul, S2–S3 kabul (3 = n−1 kenar), diğerleri döngü yapardı. <b>Toplam 9 m</b> (yıldız: 3+5+8 = 16 m). S3 → S2 → S1 → G = 4+2+3 = <b>9 m</b>, doğrudan G–S3 = 8 m. Toplam kablo maliyeti önemliyse MST (9 m) doğru amaçtır; sensör başına yol uzunluğu/gecikme önemliyse en kısa yol ağacı gerekir ve yanıt değişebilir.</p></details>
+<details><summary>A7 (orta). MST’nin her tepe çifti arasında en kısa yolu içerdiği doğru mu? Karşı örnek verin.</summary>
+<p>Hayır. Üçgen A–B (2), B–C (2), A–C (3): MST {A–B, B–C}, ağırlık 4. A’dan C’ye en kısa yol doğrudan kenar (3); ama ağaçta A–B–C yolu 4’tür.</p></details>
+<details><summary>A8 (orta). n = 1000 tepeli iki çizge: biri 2000 kenarlı, diğeri tam çizge (499 500 kenar). Dizi gerçekleştirimli Prim (n²) ve Kruskal (m·lg m) için yaklaşık işlem sayılarını karşılaştırın.</summary>
+<p>Prim her iki çizgede de yaklaşık n² = <b>1 000 000</b>. Kruskal: seyrekte 2000 · lg 2000 ≈ 2000 · 10,97 ≈ <b>21 900</b> (Prim’den ~45 kat az); yoğunda 499 500 · lg 499 500 ≈ 499 500 · 18,93 ≈ <b>9,46 milyon</b> (Prim’den ~9 kat fazla). Seyrek çizgede Kruskal, yoğunda Prim kazanır.</p></details>
+<details><summary>A9 (orta). Çizge W’de S = {A, D} kesimini düşünün. Geçen kenarları yazın, en hafifini bulun ve kesim özelliğine göre MST’de olması gerektiğini doğrulayın.</summary>
+<p>A’nın kenarları: A–B (4), A–C (1) → ikisi de D’nin karşı tarafına (B, C) gidiyor: geçer. D’nin kenarları: D–B (5), D–C (8), D–E (3): üçü de geçer. Geçen kenarlar: 4, 1, 5, 8, 3. En hafifi <b>A–C (1)</b>. MST {A–C, B–C, B–D, D–E} içinde A–C vardır ✓.</p></details>
+<details><summary>A10 (zor, isteğe bağlı). Bağlı bir çizgede bütün kenar ağırlıkları farklıysa MST’nin tekil olduğunu ispatlayın.</summary>
+<p>T₁ ≠ T₂ iki MST olsun. Yalnızca birinde olan en hafif kenar e olsun, diyelim e ∈ T₁ ∖ T₂. e’yi T₂’ye eklemek bir döngü yapar; T₁ ağaç olduğundan bu döngüde T₁’de olmayan bir f vardır (f ∈ T₂ ∖ T₁). e yalnızca birinde olan kenarların en hafifi ve ağırlıklar farklı olduğundan w(f) &gt; w(e). T₂ − f + e kapsayan bir ağaçtır ve T₂’den daha hafiftir: çelişki.</p></details>
+<details><summary>A11 (zor, isteğe bağlı). Bir MST’nin en ağır kenarının ağırlığını da en küçük yaptığını (darboğaz) gösterin.</summary>
+<p>MST’nin en ağır kenarı e (ağırlık B) olsun; başka bir kapsayan ağaç S’nin tüm kenarları B’den hafifse (en ağır kenarı w &lt; B). MST’den e’yi çıkarın: iki parça kalır. S bağlı olduğundan bu iki parçayı birleştiren bir f ∈ S kenarı vardır, w(f) ≤ w &lt; B = w(e). MST − e + f daha hafif bir kapsayan ağaçtır: MST minimum olduğu için çelişki.</p></details>
+<details><summary>A12 (zor, isteğe bağlı). Çizge W için ikinci en iyi kapsayan ağacı (MST’den farklı en hafif ağaç) bulun.</summary>
+<p>MST = {A–C 1, B–C 2, B–D 5, D–E 3} (11). Her MST dışı kenar için: <b>A–B (4)</b>: ağaçta A–C–B yolu; en ağır kenar B–C (2) → 11 − 2 + 4 = <b>13</b>. <b>C–D (8)</b>: yol C–B–D; en ağır B–D (5) → 11 − 5 + 8 = 14. <b>C–E (10)</b>: yol C–B–D–E; en ağır B–D (5) → 11 − 5 + 10 = 16. En iyisi 13 (A–B’yi ekleyip B–C’yi çıkarmak). Yol taraması O(n), kenar başına, toplam O(nm).</p></details>
+<details><summary>A13 (zor, isteğe bağlı). Kesim özelliğini ifade edin ve değiş-tokuş argümanıyla ispatlayın; ardından Prim ve Kruskal’ın ona nasıl dayandığını birer cümleyle söyleyin.</summary>
+<p><b>İfade:</b> V’yi S ve V∖S boş olmayan iki kümeye ayırın; kesimi geçen en hafif kenar e ise e’yi içeren bir MST vardır. <b>İspat:</b> T bir MST olsun; e ∈ T ise bitti. Değilse T + e tam bir döngü içerir (e’nin uçları arasındaki ağaç yolu + e). Bu döngü S’den çıkıp geri döndüğü için e dışında kesimi geçen bir f ∈ T kenarı içerir. T′ = T − f + e bağlıdır (f’yi kullanan yol artık döngünün öbür tarafından e üzerinden gider), n−1 kenarlıdır; w(T′) = w(T) − w(f) + w(e) ≤ w(T) çünkü w(e) ≤ w(f). T minimum olduğundan T′ de MST’dir ve e’yi içerir. <b>Prim:</b> her adımda kesim (ağaç, dışarısı) ve Prim bu kesimi geçen en hafif kenarı ekler. <b>Kruskal:</b> kabul edilen (u, v) için S = u’nun bileşeni; daha hafif bir geçen kenar olsaydı daha önce kabul edilirdi, o hâlde (u, v) kesimdeki en hafif kenardır.</p></details>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A10–A13 isteğe bağlıdır (zor); resmî sayfada da “hard” olarak işaretlidir. Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w10">kapsam listesine</a> bakın.</div>
+</section>
+
+<!-- ================= ÖZET ================= -->
+<section id="s9">
+<div class="kicker">Özet</div>
+<h2><span class="num">9</span>Tek sayfalık özet</h2>
+
+<div class="box"><b>Hafta 10’un 5 kuralı</b>
+<ol>
+<li><b>Kapsayan ağaç:</b> bütün tepeleri bağlayan, döngüsüz alt çizge; n−1 kenar. <b>MST:</b> en küçük toplamlı; tekil olmak zorunda değil.</li>
+<li><b>Kesim özelliği:</b> bir kesimi geçen en hafif kenar bazı MST’dedir. İspat: değiş-tokuş (T + e, döngüden f çıkar).</li>
+<li><b>Prim:</b> tek ağaç büyütür, her adım (ağaç, dışarı) kesiminin en ucuz kenarı. distance[], parent[] ile <b>O(n²)</b>: yoğun çizge için ideal.</li>
+<li><b>Kruskal:</b> kenarları sırala, döngü kapatmıyorsa al (uçlar farklı bileşenlerde). <b>O(m log m)</b>: seyrek çizge için iyi.</li>
+<li><b>Union-find:</b> kök ağaçları; boyuta göre birleştirme (yükseklik ≤ lg n) + yol sıkıştırma = <b>O(m α(n))</b>, α(n) ≤ 4 pratikte; amortize.</li>
+</ol></div>
+
+<div class="box"><b>Hafta 8–9’dan hatırlanacaklar</b>
+<ul>
+<li>Σ derece = 2m. En çok n(n−1)/2 kenar. Matris O(n²), liste O(n+m).</li>
+<li>BFS: kuyruk, en az kenarlı yol, tepeyi kuyruğa girerken işaretle. DFS: derine in; yönlü çizgede geri kenar = döngü.</li>
+<li>Ağaç: bağlı + döngüsüz; n tepe ⇒ n−1 kenar.</li>
+<li>O(m log m) ⊆ O(m log n) çünkü m ≤ n²; bağlı basit çizgede (n−1 ≤ m) ikisi aynı sınıftır.</li>
+<li>Hafta 1–3: değiş-tokuş argümanı, döngü değişmezi, yarılama = lg n.</li>
+</ul></div>
+
+<div class="box"><b>Sık yapılan hatalar</b>
+<ol>
+<li>“MST her çift arasında en kısa yolu verir.” → Hayır; toplam ağırlığı minimize eder (üçgen 2, 2, 3).</li>
+<li>“Kesimdeki en hafif kenar <i>her</i> MST’dedir.” → Hayır; <i>bazı</i> MST’de (eşitlik varsa).</li>
+<li>Prim’de <code>distance[w]</code>’yi başlangıçtan yol uzunluğu sanmak. → Yalnızca ağaçla w’yi bağlayan tek kenar.</li>
+<li>union’da a ile b’yi değil <b>köklerini</b> bağlamak; aynı kökteyse hiçbir şey yapmamak (Kruskal: reddet).</li>
+<li>“Eşit ağırlık varsa MST tekil değildir.” → Tekilliğin garantisi ağırlıkların farklı olmasıdır; eşitlik çoğu zaman yine tekil ağaç verebilir (1, 1, 2 üçgeni).</li>
+<li>Kruskal’da n−1 kenar alındıktan sonra da kenar işlemeye devam etmek (gerek yok, durun).</li>
+<li>Yoğun çizgede Kruskal’ı, seyrek çizgede dizi Prim’i seçmek (tersi doğru).</li>
+</ol></div>
+
+<div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
+<ol>
+<li>Kesim özelliğini bir cümleyle söyleyin. Prim ve Kruskal hangi kesimi kullanır?</li>
+<li>Kruskal’ın “döngü kapatıyor mu?” sorusu union-find’da hangi iki çağrıyla cevaplanır, ve hangi iki kural bu çağrıları neredeyse sabit zamanlı yapar?</li>
+<li>n = 1000, m = 2000 için Prim (dizi) mi Kruskal mı? m = 499 500 için?</li>
+</ol></div>
+</section>
+
+<div class="foot">
+  <a href="../w9/">← Önceki</a>
+  <a href="ek-notlar/">Ek notlar: orijinal Hafta 10 (tam sürüm)</a>
+  <a href="../w11/">Sonraki →</a>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toLocaleString("tr-TR");
+const fw=w=>String(w).replace(".",",");
+const lg=Math.log2;
+$("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==="dark"?"light":"dark"};
+if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
+
+/* ---------- generic quiz ---------- */
+function mkQuiz(id,Q){
+  const el=$(id);
+  el.innerHTML=Q.map((q,qi)=>`<div class="box q" data-q="${qi}"><b>${qi+1}. ${q[0]}</b><div class="opts">${q[1].map((o,oi)=>`<button class="opt" data-o="${oi}">${o}</button>`).join("")}</div><div class="fb"></div></div>`).join("")+`<div class="big" data-score></div>`;
+  const ans={};
+  el.querySelectorAll(".q").forEach(box=>{const qi=+box.dataset.q;box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(ans[qi]!==undefined)return;const o=+b.dataset.o;ans[qi]=o===Q[qi][2];
+    b.classList.add(ans[qi]?"right":"wrong");
+    if(!ans[qi])box.querySelectorAll(".opt")[Q[qi][2]].classList.add("right");
+    const fb=box.querySelector(".fb");fb.style.display="block";fb.textContent=(ans[qi]?"Doğru. ":"Yanlış. ")+Q[qi][3];
+    if(Object.keys(ans).length===Q.length)el.querySelector("[data-score]").textContent=`Sonuç: ${Object.values(ans).filter(Boolean).length} / ${Q.length}`;
+  })});
+}
+
+/* ---------- graphs ---------- */
+const GR={
+ W:{n:5,names:["A","B","C","D","E"],pos:[[50,130],[160,50],[180,190],[310,80],[400,170]],E:[[0,1,4],[0,2,1],[1,2,2],[1,3,5],[2,3,8],[3,4,3],[2,4,10]]},
+ H:{n:7,names:["A","B","C","D","E","F","G"],pos:[[50,140],[150,55],[260,40],[130,215],[250,150],[330,232],[420,110]],E:[[0,1,7],[0,3,5],[1,2,8],[1,3,9],[1,4,7],[2,4,5],[3,4,15],[3,5,6],[4,5,8],[4,6,9],[5,6,11]]},
+ K:{n:4,names:["G","S1","S2","S3"],pos:[[230,35],[70,215],[230,135],[390,215]],E:[[1,2,2],[0,1,3],[2,3,4],[0,2,5],[1,3,7],[0,3,8]]},
+ T112:{n:3,names:["A","B","C"],pos:[[230,45],[90,210],[370,210]],E:[[0,1,1],[1,2,1],[0,2,2]]},
+ T111:{n:3,names:["A","B","C"],pos:[[230,45],[90,210],[370,210]],E:[[0,1,1],[1,2,1],[0,2,1]]},
+ C4:{n:4,names:["A","B","C","D"],pos:[[120,50],[340,50],[340,210],[120,210]],E:[[0,1,1],[1,2,1],[2,3,1],[3,0,1]]}
+};
+const eName=(g,i)=>`${g.names[g.E[i][0]]}–${g.names[g.E[i][1]]}`;
+function drawGraph(svg,g,o={}){
+  const el=typeof svg==="string"?$(svg):svg;
+  el.setAttribute("viewBox",(g.vb||[0,0,460,260]).join(" "));
+  let s="";
+  g.E.forEach(([u,v,w],i)=>{const a=g.pos[u],b=g.pos[v];const cls=o.edgeCls?o.edgeCls(i):"";
+    s+=`<line class="e ${cls}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`});
+  g.E.forEach(([u,v,w],i)=>{const a=g.pos[u],b=g.pos[v];const t=o.t||0.5;const x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t;
+    const txt=fw(w),bw=txt.length*9+10;
+    s+=`<g class="wl"><rect x="${x-bw/2}" y="${y-10}" width="${bw}" height="20" rx="6"/><text x="${x}" y="${y}">${txt}</text></g>`});
+  g.names.forEach((nm,v)=>{const p=g.pos[v];const cls=o.nodeCls?o.nodeCls(v):"";
+    s+=`<g class="vn ${cls} ${o.onNode?"click":""}" data-v="${v}"><circle cx="${p[0]}" cy="${p[1]}" r="17"/><text x="${p[0]}" y="${p[1]}">${nm}</text></g>`});
+  el.innerHTML=s;
+  if(o.onNode)el.querySelectorAll(".vn").forEach(n=>n.onclick=()=>o.onNode(+n.dataset.v));
+}
+
+/* ---------- union-find engine ---------- */
+function mkUF(n){return {p:[...Array(n).keys()],s:Array(n).fill(1),steps:0,calls:0}}
+function ufFind(u,x,compress){u.calls++;let r=x;const path=[];while(u.p[r]!==r){path.push(r);r=u.p[r];u.steps++}
+  if(compress)for(const y of path)u.p[y]=r;return r}
+function ufUnion(u,a,b,bySize,compress){
+  const ra=ufFind(u,a,compress),rb=ufFind(u,b,compress);
+  if(ra===rb)return {ra,rb,ok:false};
+  let x,y; // y goes under x
+  if(bySize){x=ra;y=rb;if(u.s[x]<u.s[y]){x=rb;y=ra}}else{x=rb;y=ra}
+  u.p[y]=x;u.s[x]+=u.s[y];return {ra,rb,ok:true,child:y,par:x};
+}
+const ufRoot=(u,x)=>{while(u.p[x]!==x)x=u.p[x];return x};
+const ufDepth=(u,x)=>{let c=0;while(u.p[x]!==x){x=u.p[x];c++}return c};
+function ufGroups(u,n){const m=new Map();for(let i=0;i<n;i++){const r=ufRoot(u,i);if(!m.has(r))m.set(r,[]);m.get(r).push(i)}return [...m.values()].sort((a,b)=>a[0]-b[0])}
+
+/* ---------- MST engines ---------- */
+function kruskalTrace(g){
+  const idx=g.E.map((_,i)=>i).sort((a,b)=>g.E[a][2]-g.E[b][2]||a-b);
+  const u=mkUF(g.n),steps=[],mst=[];let total=0;
+  for(let k=0;k<idx.length;k++){
+    const i=idx[k],[x,y,w]=g.E[i];
+    const ru=ufFind(u,x,true),rv=ufFind(u,y,true),ok=ru!==rv;
+    if(ok){ufUnion(u,x,y,true,true);total+=w;mst.push(i)}
+    steps.push({k,i,ru,rv,ok,total,cnt:mst.length,groups:ufGroups(u,g.n)});
+    if(mst.length===g.n-1)break;
+  }
+  return {order:idx,steps,mst,total,comps:ufGroups(u,g.n).length};
+}
+function primTrace(g,s){
+  const n=g.n,adj=Array.from({length:n},()=>[]);
+  g.E.forEach(([a,b,w],i)=>{adj[a].push([b,w,i]);adj[b].push([a,w,i])});
+  const dist=Array(n).fill(Infinity),par=Array(n).fill(-1),pe=Array(n).fill(-1),inT=Array(n).fill(false);
+  dist[s]=0;let total=0,upd=0,scan=0,checks=0;const treeE=[],steps=[];
+  const snap=o=>steps.push(Object.assign({dist:[...dist],par:[...par],pe:[...pe],inT:[...inT],total,upd,treeE:[...treeE]},o));
+  snap({kind:"init",note:`Başlangıç: ağaç boş. distance[${g.names[s]}] = 0, diğer tepeler ∞.`});
+  for(let r=0;r<n;r++){
+    let v=-1;for(let i=0;i<n;i++)if(!inT[i]){scan++;if(dist[i]<Infinity&&(v<0||dist[i]<dist[v]))v=i}
+    if(v<0)break;
+    inT[v]=true;total+=dist[v];if(pe[v]>=0)treeE.push(pe[v]);
+    snap({kind:"pick",v,edge:pe[v],note:`Tur ${r+1}: ağaç dışındaki tepeler arasında distance’ı en küçük olan <b>${g.names[v]}</b> (distance = ${dist[v]===0?0:fw(dist[v])}). ${pe[v]>=0?`<b>${g.names[par[v]]}–${g.names[v]}</b> kenarı ağaca eklenir.`:"Başlangıç tepesi, kenar yok."} Ağaç ağırlığı: <b>${fw(total)}</b>.`});
+    const ups=[];
+    for(const [w,wt,i] of adj[v]){checks++;if(!inT[w]&&dist[w]>wt){ups.push(`${g.names[w]}: ${dist[w]===Infinity?"∞":fw(dist[w])}→${fw(wt)}`);dist[w]=wt;par[w]=v;pe[w]=i;upd++}}
+    snap({kind:"relax",v,note:`${g.names[v]}’nin komşularına bakılır: ${ups.length?ups.join(", ")+" (parent = "+g.names[v]+")":"güncelleme yok"}.`});
+  }
+  return {steps,treeE,total,scan,checks,connected:inT.every(Boolean)};
+}
+function enumTrees(g){
+  const n=g.n,E=g.E,p=[...Array(n).keys()];let cnt=0,best=Infinity,sets=[];const ch=[];
+  const f=x=>{while(p[x]!==x)x=p[x];return x};
+  (function rec(s,w){
+    if(ch.length===n-1){cnt++;if(w<best-1e-9){best=w;sets=[[...ch]]}else if(Math.abs(w-best)<1e-9)sets.push([...ch]);return}
+    if(E.length-s<n-1-ch.length)return;
+    for(let i=s;i<E.length;i++){const a=f(E[i][0]),b=f(E[i][1]);if(a===b)continue;p[a]=b;ch.push(i);rec(i+1,w+E[i][2]);ch.pop();p[a]=a}
+  })(0,0);
+  return {cnt,best,sets};
+}
+const ENUM_CACHE={};
+const enumCached=k=>ENUM_CACHE[k]||(ENUM_CACHE[k]=enumTrees(GR[k]));
+
+/* ---------- 0.1 review: adjacency list ---------- */
+(function(){const g=GR.W;
+  drawGraph("#rv_svg",g);
+  const adj=g.names.map(()=>[]);g.E.forEach(([a,b,w])=>{adj[a].push(`${g.names[b]}(${w})`);adj[b].push(`${g.names[a]}(${w})`)});
+  $("#rv_list").textContent=g.names.map((n,i)=>`${n}: ${adj[i].join(", ")}`).join("\n");
+  const M=g.names.map(()=>g.names.map(()=>""));g.E.forEach(([a,b,w])=>{M[a][b]=w;M[b][a]=w});
+  $("#rv_mat").innerHTML=`<tr><th></th>${g.names.map(n=>`<th>${n}</th>`).join("")}</tr>`+M.map((r,i)=>`<tr><th>${g.names[i]}</th>${r.map(c=>`<td class="m">${c}</td>`).join("")}</tr>`).join("");
+  const tot=adj.reduce((s,a)=>s+a.length,0);
+  $("#rv_note").innerHTML=`Liste girişi toplamı: <b>${tot}</b> = 2m = 2·${g.E.length} (her kenar iki uçta). Matris hücresi: <b>${g.n*g.n}</b> = n² (dolu hücre: ${tot}). Derecelerin toplamı da ${tot}.`;
+})();
+
+/* ---------- 0.2 tree test ---------- */
+function trParse(){
+  const n=Math.max(1,Math.min(12,+$("#tr_n").value||1));
+  const raw=$("#tr_e").value.split(/[,;]+/).map(x=>x.trim()).filter(Boolean);const E=[],bad=[];
+  raw.forEach(t=>{const m=t.match(/^(\d+)\s*-\s*(\d+)$/);if(!m||+m[1]<1||+m[1]>n||+m[2]<1||+m[2]>n||m[1]===m[2])bad.push(t);else E.push([+m[1]-1,+m[2]-1])});
+  return {n,E,bad};
+}
+function trUpdate(){
+  const {n,E,bad}=trParse();const adj=Array.from({length:n},()=>[]);E.forEach(([a,b])=>{adj[a].push(b);adj[b].push(a)});adj.forEach(a=>a.sort((x,y)=>x-y));
+  const seen=Array(n).fill(false);let comps=0;const bfsOrder=[];
+  for(let s=0;s<n;s++){if(seen[s])continue;comps++;const q=[s];seen[s]=true;while(q.length){const v=q.shift();if(s===0)bfsOrder.push(v+1);for(const w of adj[v])if(!seen[w]){seen[w]=true;q.push(w)}}}
+  const dseen=Array(n).fill(false),dfsOrder=[];(function d(v){dseen[v]=true;dfsOrder.push(v+1);for(const w of adj[v])if(!dseen[w])d(w)})(0);
+  const u=mkUF(n);let cyc=null;E.forEach(([a,b],i)=>{if(cyc===null&&ufFind(u,a,true)===ufFind(u,b,true))cyc=i;else ufUnion(u,a,b,true,true)});
+  const isTree=comps===1&&E.length===n-1;
+  $("#tr_out").innerHTML=`<div class="box" style="margin:8px 0">${bad.length?`<span class="bad">Geçersiz kenar: ${bad.join(", ")}</span><br>`:""}
+  n = <b>${n}</b>, m = <b>${E.length}</b>, n−1 = <b>${n-1}</b> · bağlı bileşen sayısı: <b>${comps}</b> · döngü kapatan ilk kenar: <b>${cyc===null?"yok":(E[cyc][0]+1)+"–"+(E[cyc][1]+1)}</b><br>
+  1’den BFS keşif sırası: <b>${bfsOrder.join(", ")}</b> · 1’den DFS keşif sırası: <b>${dfsOrder.join(", ")}</b><br>
+  Sonuç: <b class="${isTree?"ok":"bad"}">${isTree?"AĞAÇ (bağlı ve m = n−1)":comps>1?"ağaç değil: bağlı değil ("+comps+" parça)":"ağaç değil: bağlı ama m ≠ n−1, döngü var"}</b></div>`;
+}
+["#tr_n","#tr_e"].forEach(s=>$(s).oninput=trUpdate);
+document.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>{const [e,n]=b.dataset.tr.split("|");$("#tr_e").value=e;$("#tr_n").value=n;trUpdate()});
+trUpdate();
+
+/* ---------- 1.3 build your own ---------- */
+const BD_PRE={W:"A B 4\nA C 1\nB C 2\nB D 5\nC D 8\nD E 3\nC E 10",T:"A B 1\nB C 2\nA C 3",K:"S1 S2 2\nG S1 3\nS2 S3 4\nG S2 5\nS1 S3 7\nG S3 8",X:"A B 1\nB C 2\nA C 3\nD E 4"};
+function bdUpdate(){
+  const lines=$("#bd_in").value.split("\n").map(l=>l.trim()).filter(Boolean);
+  const names=[],E=[],bad=[];const id=s=>{let i=names.indexOf(s);if(i<0){names.push(s);i=names.length-1}return i};
+  lines.forEach(l=>{const t=l.split(/[\s,]+/);const w=Number(String(t[2]).replace(",","."));
+    if(t.length!==3||!isFinite(w)||t[0]===t[1])bad.push(l);else E.push([id(t[0]),id(t[1]),w])});
+  if(names.length>10||E.length>14){$("#bd_out").innerHTML=`<span class="bad">En çok 10 tepe ve 14 kenar.</span>`;return}
+  if(names.length<2||!E.length){$("#bd_out").innerHTML=`<span class="bad">En az bir geçerli kenar yazın.</span>${bad.length?" Geçersiz satır: "+bad.join(" | "):""}`;return}
+  const n=names.length,pos=names.map((_,i)=>{const a=2*Math.PI*i/n-Math.PI/2;return [Math.round(230+105*Math.cos(a)),Math.round(130+95*Math.sin(a))]});
+  const g={n,names,pos,E};const K=kruskalTrace(g);const connected=K.comps===1;
+  const inM=new Set(K.mst);
+  drawGraph("#bd_svg",g,{edgeCls:i=>inM.has(i)?"tree":"dim"});
+  let h=`<div class="box" style="margin:8px 0">n = <b>${n}</b> tepe, m = <b>${E.length}</b> kenar. ${bad.length?`<span class="bad">Geçersiz satır: ${bad.join(" | ")}</span><br>`:""}`;
+  if(!connected){h+=`<span class="wn">Çizge bağlı değil (${K.comps} bileşen): kapsayan ağaç yok.</span> Kruskal her bileşen için ayrı bir ağaç (orman) bulur: toplam ağırlık <b>${fw(+K.total.toFixed(6))}</b>, ${K.mst.length} kenar (n − bileşen sayısı = ${n-K.comps}).`}
+  else{
+    const P=primTrace(g,0);const T=enumTrees(g);const kt=+K.total.toFixed(6),pt=+P.total.toFixed(6),bt=+T.best.toFixed(6);
+    h+=`Kruskal toplamı: <b>${fw(kt)}</b> · Prim toplamı: <b>${fw(pt)}</b> · kaba kuvvet en küçüğü: <b>${fw(bt)}</b> <b class="${kt===pt&&pt===bt?"ok":"bad"}">${kt===pt&&pt===bt?"✓ üçü eşit":"✗ farklı!"}</b><br>
+    Kruskal MST kenarları: ${K.mst.map(i=>`<span class="pill acc">${eName(g,i)} (${fw(E[i][2])})</span>`).join("")}<br>
+    Denenen: C(${E.length},${n-1}) = ${fmt(binom(E.length,n-1))} alt küme, bunların <b>${fmt(T.cnt)}</b>’i kapsayan ağaç; en küçük toplamlı <b>${T.sets.length}</b> tanesi MST.`;
+  }
+  $("#bd_out").innerHTML=h+"</div>";
+}
+function binom(n,k){let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
+$("#bd_run").onclick=bdUpdate;
+document.querySelectorAll("[data-bd]").forEach(b=>b.onclick=()=>{$("#bd_in").value=BD_PRE[b.dataset.bd];bdUpdate()});
+bdUpdate();
+
+/* ---------- stepper helper ---------- */
+function bindNav(p,S,render,rebuild){
+  let timer=null;
+  const stop=()=>{clearInterval(timer);timer=null;$("#"+p+"_p").textContent="Oynat"};
+  $("#"+p+"_f").onclick=()=>{if(S.k<S.steps.length-1){S.k++;render()}};
+  $("#"+p+"_b").onclick=()=>{if(S.k>0){S.k--;render()}};
+  $("#"+p+"_r").onclick=()=>{stop();S.k=0;render()};
+  $("#"+p+"_p").onclick=()=>{if(timer){stop();return}$("#"+p+"_p").textContent="Duraklat";
+    timer=setInterval(()=>{if(S.k>=S.steps.length-1){stop();return}S.k++;render()},800)};
+  return stop;
+}
+
+/* ---------- 2.1 cut property ---------- */
+const CT={g:"W",S:new Set()};
+function ctUpdate(){
+  const g=GR[CT.g],S=CT.S;const T=enumCached(CT.g);
+  const inSome=new Set();T.sets.forEach(s=>s.forEach(i=>inSome.add(i)));
+  const cross=g.E.map((e,i)=>i).filter(i=>S.has(g.E[i][0])!==S.has(g.E[i][1]));
+  const valid=S.size>0&&S.size<g.n;
+  const minw=valid&&cross.length?Math.min(...cross.map(i=>g.E[i][2])):null;
+  const lightest=valid?cross.filter(i=>g.E[i][2]===minw):[];
+  drawGraph("#ct_svg",g,{edgeCls:i=>!valid?"":lightest.includes(i)?"tree":cross.includes(i)?"cand":"dim",nodeCls:v=>S.has(v)?"sel":"",onNode:v=>{S.has(v)?S.delete(v):S.add(v);ctUpdate()}});
+  if(!valid){$("#ct_out").innerHTML=`<div class="box" style="margin:8px 0">Kesim için en az bir tepeyi S’ye alın ve en az bir tepeyi dışarıda bırakın. (S = {${[...S].map(v=>g.names[v]).join(", ")}})</div>`;return}
+  const rows=[...cross].sort((a,b)=>g.E[a][2]-g.E[b][2]||a-b).map(i=>`<tr class="${lightest.includes(i)?"acc":""}"><td class="m">${eName(g,i)}</td><td class="m">${fw(g.E[i][2])}</td><td>${lightest.includes(i)?"<b>en hafif</b>":""}</td><td>${inSome.has(i)?`<span class="ok">✓ bir MST’de</span>`:"bu MST’lerin hiçbirinde değil"}</td></tr>`).join("");
+  $("#ct_out").innerHTML=`<div class="box" style="margin:8px 0">S = {${[...S].map(v=>g.names[v]).join(", ")}} · V∖S = {${g.names.map((n,v)=>v).filter(v=>!S.has(v)).map(v=>g.names[v]).join(", ")}} · kesimi geçen kenar sayısı: <b>${cross.length}</b>
+  <div class="scroll"><table><tr><th>Geçen kenar</th><th>Ağırlık</th><th></th><th>MST’de mi? (tüm MST’lere bakıldı)</th></tr>${rows}</table></div>
+  ${lightest.every(i=>inSome.has(i))?`<span class="ok">Kesim özelliği doğrulandı: en hafif geçen kenar${lightest.length>1?"ler (eşitlik var)":""} bazı MST’de.</span>`:`<span class="bad">Beklenmeyen: en hafif kenar hiçbir MST’de değil!</span>`}
+  ${lightest.length>1?`<div class="mut">Eşit ağırlıkta ${lightest.length} en hafif kenar var: her biri <i>bazı</i> MST’dedir, ama hepsi aynı MST’de olmak zorunda değildir.</div>`:""}</div>`;
+}
+$("#ct_g").onchange=()=>{CT.g=$("#ct_g").value;CT.S=new Set();ctUpdate()};
+$("#ct_clr").onclick=()=>{CT.S=new Set();ctUpdate()};
+$("#ct_rnd").onclick=()=>{const g=GR[CT.g];CT.S=new Set();while(CT.S.size===0||CT.S.size===g.n){CT.S=new Set();g.names.forEach((_,v)=>{if(Math.random()<.5)CT.S.add(v)})}ctUpdate()};
+CT.S=new Set([0,1,2]);ctUpdate();
+
+/* ---------- 2.2 exchange stepper ---------- */
+const XC_EX=[
+ {g:"W",T:[0,2,4,5],S:[0,1,2]},
+ {g:"C4",T:[3,2,1],S:[0]},
+ {g:"W",T:[0,2,3,5],S:[0]}
+];
+const XC={k:0,steps:[]};
+function treePath(g,Tset,a,b){ // edge idx path a->b in tree
+  const adj=Array.from({length:g.n},()=>[]);Tset.forEach(i=>{const [x,y]=g.E[i];adj[x].push([y,i]);adj[y].push([x,i])});
+  const prev=Array(g.n).fill(null);prev[a]=[-1,-1];const q=[a];
+  while(q.length){const v=q.shift();for(const [w,i] of adj[v])if(!prev[w]){prev[w]=[v,i];q.push(w)}}
+  const path=[];let c=b;while(c!==a){const [pv,i]=prev[c];path.push(i);c=pv}return path.reverse();
+}
+function xcBuild(){
+  const ex=XC_EX[+$("#xc_ex").value],g=GR[ex.g],S=new Set(ex.S),T=new Set(ex.T);
+  const wT=[...T].reduce((s,i)=>s+g.E[i][2],0);
+  const cross=g.E.map((e,i)=>i).filter(i=>S.has(g.E[i][0])!==S.has(g.E[i][1]));
+  const mw=Math.min(...cross.map(i=>g.E[i][2]));
+  const light=cross.filter(i=>g.E[i][2]===mw);
+  const e=light.find(i=>!T.has(i));
+  const sn=[...S].map(v=>g.names[v]).join(", ");
+  const steps=[];
+  steps.push({tree:[...T],note:`T = {${[...T].map(i=>eName(g,i)+" "+g.E[i][2]).join(", ")}}, ağırlık <b>${wT}</b>. Kesim S = {${sn}}.`,S});
+  steps.push({tree:[...T],cur:[],note:`Kesimi geçen kenarlar: ${cross.map(i=>eName(g,i)+" ("+g.E[i][2]+")").join(", ")}. En hafifi ${light.map(i=>eName(g,i)).join(" ve ")} (${mw}). ${e===undefined?"En hafif kenar zaten T’de: kesim özelliği bu ağaç için bitti.":`e = <b>${eName(g,e)}</b> seçilir; T’de değil.`}`,S,hl:cross});
+  if(e!==undefined){
+    const path=treePath(g,[...T],g.E[e][0],g.E[e][1]);
+    steps.push({tree:[...T],cyc:path,e,note:`e’yi T’ye ekleyin: T içindeki yol ${path.map(i=>eName(g,i)).join(", ")} ile birlikte bir <b>döngü</b> oluşur. Döngü S’den çıkıp geri döner; yani kesimi e dışında en az bir kez daha geçer.`,S});
+    const f=path.find(i=>S.has(g.E[i][0])!==S.has(g.E[i][1]));
+    steps.push({tree:[...T],cyc:path,e,f,note:`Döngüde kesimi geçen diğer kenar f = <b>${eName(g,f)}</b> (${g.E[f][2]}). f’yi çıkarın.`,S});
+    const T2=[...T].filter(i=>i!==f).concat([e]);const wT2=T2.reduce((s,i)=>s+g.E[i][2],0);
+    steps.push({tree:T2,e,note:`T′ = T − f + e: ağırlık = ${wT} − ${g.E[f][2]} + ${g.E[e][2]} = <b>${wT2}</b> ${wT2<wT?`&lt; ${wT}: T aslında MST değildi, yeni ağaç daha iyi.`:wT2===wT?`= ${wT}: ağırlık artmadı; T MST ise T′ de MST ve e’yi içeriyor.`:`(bu olmamalı)`} T′ hâlâ bağlı ve ${T2.length} = n−1 kenarlı: bir kapsayan ağaç.`,S});
+  }
+  XC.steps=steps;XC.k=0;xcRender();
+}
+function xcRender(){
+  const ex=XC_EX[+$("#xc_ex").value],g=GR[ex.g],s=XC.steps[XC.k];const tree=new Set(s.tree);
+  drawGraph("#xc_svg",g,{edgeCls:i=>s.f===i?"rej":s.e===i&&(s.cyc||tree.has(i))?"cur":(s.cyc&&s.cyc.includes(i))?"cand":tree.has(i)?"tree":(s.hl&&s.hl.includes(i))?"cand":"dim",nodeCls:v=>s.S.has(v)?"sel":""});
+  $("#xc_note").innerHTML=s.note;$("#xc_k").textContent=XC.k;$("#xc_t").textContent=XC.steps.length-1;
+}
+$("#xc_f").onclick=()=>{if(XC.k<XC.steps.length-1){XC.k++;xcRender()}};
+$("#xc_b").onclick=()=>{if(XC.k>0){XC.k--;xcRender()}};
+$("#xc_ex").onchange=xcBuild;xcBuild();
+
+/* ---------- 3 Prim stepper ---------- */
+const PR={k:0,steps:[],g:"W",s:0,res:null};
+function prBuild(){
+  PR.g=$("#pr_g").value;const g=GR[PR.g];
+  if($("#pr_s").dataset.g!==PR.g){$("#pr_s").innerHTML=g.names.map((n,i)=>`<option value="${i}">${n}</option>`).join("");$("#pr_s").dataset.g=PR.g}
+  PR.s=+$("#pr_s").value;PR.res=primTrace(g,PR.s);PR.steps=PR.res.steps;PR.k=0;prRender();
+}
+function prRender(){
+  const g=GR[PR.g],st=PR.steps[PR.k];
+  const fringe=new Set();g.names.forEach((_,v)=>{if(!st.inT[v]&&st.pe[v]>=0)fringe.add(st.pe[v])});
+  const tree=new Set(st.treeE);
+  drawGraph("#pr_svg",g,{edgeCls:i=>st.kind==="pick"&&st.edge===i?"cur":tree.has(i)?"tree":fringe.has(i)?"cand":"dim",nodeCls:v=>st.kind==="pick"&&st.v===v?"cur":st.inT[v]?"in":""});
+  $("#pr_th").innerHTML=`<tr><th>Tepe</th><th>Durum</th><th>distance</th><th>parent</th></tr>`;
+  $("#pr_tb").innerHTML=g.names.map((nm,v)=>{const state=st.inT[v]?"ağaçta":st.dist[v]<Infinity?"sınırda":"görülmemiş";
+    return `<tr class="${st.kind==="pick"&&st.v===v?"hl":st.inT[v]?"acc":""}"><td class="m">${nm}</td><td>${state}</td><td class="m">${st.dist[v]===Infinity?"∞":fw(st.dist[v])}</td><td class="m">${st.par[v]<0?"–":g.names[st.par[v]]}</td></tr>`}).join("");
+  $("#pr_note").innerHTML=st.note+(PR.k===PR.steps.length-1?` <b class="ok">Bitti: MST ağırlığı ${fw(st.total)}.</b>`:"");
+  $("#pr_k").textContent=PR.k;$("#pr_t").textContent=PR.steps.length-1;$("#pr_w").textContent=fw(st.total);$("#pr_u").textContent=st.upd;
+}
+bindNav("pr",PR,prRender);
+$("#pr_g").onchange=prBuild;$("#pr_s").onchange=prBuild;prBuild();
+
+/* ---------- 4 Kruskal stepper ---------- */
+const KR={k:0,steps:[],g:"W",res:null};
+function krBuild(){KR.g=$("#kr_g").value;KR.res=kruskalTrace(GR[KR.g]);KR.steps=[{init:true}].concat(KR.res.steps);KR.k=0;krRender()}
+function krRender(){
+  const g=GR[KR.g],R=KR.res,k=KR.k;
+  const done=R.steps.slice(0,k);
+  const acc=new Set(done.filter(s=>s.ok).map(s=>s.i)),rej=new Set(done.filter(s=>!s.ok).map(s=>s.i));
+  const cur=k>0?R.steps[k-1].i:-1;
+  drawGraph("#kr_svg",g,{edgeCls:i=>i===cur?(acc.has(i)?"tree":"rej"):acc.has(i)?"tree":rej.has(i)?"rej":""});
+  $("#kr_tb").innerHTML=R.order.map((i,j)=>{const s=R.steps[j];const proc=j<k;
+    return `<tr class="${j===k-1?"hl":proc&&s.ok?"acc":proc?"rej":""}"><td class="m">${j+1}</td><td class="m">${eName(g,i)}</td><td class="m">${fw(g.E[i][2])}</td><td class="m">${proc?g.names[s.ru]+" / "+g.names[s.rv]:s===undefined?"—":""}</td><td>${proc?(s.ok?`<span class="ok">kabul</span>`:`<span class="bad">red (döngü)</span>`):s===undefined?"gerek yok":""}</td></tr>`}).join("");
+  const groups=k>0?R.steps[k-1].groups:ufGroups(mkUF(g.n),g.n);
+  $("#kr_sets").innerHTML=groups.map(gr=>`<span>{${gr.map(v=>g.names[v]).join(",")}}</span>`).join("");
+  let note;
+  if(k===0)note=`Başlangıç: ${g.n} tek elemanlı bileşen. Kenarlar ağırlığa göre sıralandı. “İleri”ye basın.`;
+  else{const s=R.steps[k-1],[u,v,w]=g.E[s.i];
+    note=`${k}. kenar <b>${eName(g,s.i)}</b> (${fw(w)}): find(${g.names[u]}) = ${g.names[s.ru]}, find(${g.names[v]}) = ${g.names[s.rv]}. ${s.ok?`Farklı bileşenler → <b class="ok">kabul</b>, bileşenler birleşir.`:`Aynı bileşen → <b class="bad">red</b>: bu kenar bir döngü kapatırdı.`} Toplam: ${fw(s.total)}.`;
+    if(k===R.steps.length)note+=` <b class="ok">${R.mst.length} = n−1 kenar alındı; durun.</b>${R.order.length>k?` Bakılmayan kenarlar: ${R.order.slice(k).map(i=>eName(g,i)+" ("+fw(g.E[i][2])+")").join(", ")}.`:""}`}
+  $("#kr_note").innerHTML=note;
+  const lastS=k>0?R.steps[k-1]:null;
+  $("#kr_k").textContent=k;$("#kr_t").textContent=R.steps.length;$("#kr_a").textContent=lastS?lastS.cnt:0;$("#kr_w").textContent=lastS?fw(lastS.total):0;
+}
+bindNav("kr",KR,krRender);
+$("#kr_g").onchange=krBuild;krBuild();
+</script>
+<script>
+/* ---------- 5 union-find visualiser ---------- */
+const UFN=8;let UFV={u:mkUF(UFN),log:[],hl:[]};
+function ufLayout(u,n){
+  const kids=Array.from({length:n},()=>[]),roots=[];
+  for(let i=0;i<n;i++){if(u.p[i]===i)roots.push(i);else kids[u.p[i]].push(i)}
+  const pos={};let slot=0;
+  function place(v,d){if(!kids[v].length){pos[v]=[slot++,d];return}kids[v].forEach(c=>place(c,d+1));const xs=kids[v].map(c=>pos[c][0]);pos[v]=[(Math.min(...xs)+Math.max(...xs))/2,d]}
+  roots.forEach(r=>{place(r,0);slot+=0.5});
+  return {pos,roots};
+}
+function ufDraw(){
+  const u=UFV.u,n=UFN,L=ufLayout(u,n);
+  const xs=Object.values(L.pos).map(p=>p[0]),maxX=Math.max(...xs),maxD=Math.max(1,...Object.values(L.pos).map(p=>p[1]));
+  const sp=Math.min(56,420/Math.max(maxX,1)),off=(460-maxX*sp)/2,dy=Math.min(46,215/maxD);
+  const X=v=>off+L.pos[v][0]*sp,Y=v=>26+L.pos[v][1]*dy;
+  let s="";
+  for(let v=0;v<n;v++)if(u.p[v]!==v)s+=`<line x1="${X(v)}" y1="${Y(v)}" x2="${X(u.p[v])}" y2="${Y(u.p[v])}" stroke="${UFV.hl.includes(v)?"var(--warn)":"var(--mute)"}" stroke-width="${UFV.hl.includes(v)?3.5:2}"/>`;
+  for(let v=0;v<n;v++){const root=u.p[v]===v;s+=`<circle cx="${X(v)}" cy="${Y(v)}" r="14" fill="${UFV.hl.includes(v)?"color-mix(in srgb,var(--warn) 40%,var(--panel))":"var(--panel)"}" stroke="${root?"var(--acc)":"var(--mute)"}" stroke-width="${root?3.5:2}"/><text x="${X(v)}" y="${Y(v)}" text-anchor="middle" dominant-baseline="central" style="fill:var(--ink)">${v+1}</text>`}
+  $("#uf_svg").innerHTML=s;
+  $("#uf_par").textContent=u.p.map(x=>x+1).join(" ");
+  $("#uf_sz").textContent=u.p.map((x,i)=>x===i?`${i+1}:${u.s[i]}`:null).filter(Boolean).join("  ");
+  $("#uf_st").textContent=u.steps;$("#uf_h").textContent=Math.max(...u.p.map((_,i)=>ufDepth(u,i)));$("#uf_c").textContent=L.roots.length;
+  $("#uf_log").textContent=UFV.log.slice(-8).join(" · ")||"—";
+}
+const ufOpt=()=>({bySize:$("#uf_size").checked,comp:$("#uf_comp").checked});
+function ufDoUnion2(a,b){
+  const {bySize,comp}=ufOpt(),u=UFV.u;
+  const ra0=ufRoot(u,a),rb0=ufRoot(u,b),sa=u.s[ra0],sb=u.s[rb0];
+  const r=ufUnion(u,a,b,bySize,comp);UFV.log.push(`union(${a+1},${b+1})`);UFV.hl=[];
+  if(!r.ok)return `union(${a+1},${b+1}): find(${a+1}) = ${ra0+1}, find(${b+1}) = ${rb0+1} → <b>aynı kök</b>, hiçbir şey olmaz (Kruskal’da bu kenar reddedilirdi).`;
+  UFV.hl=[r.child];
+  return `union(${a+1},${b+1}): kökler ${ra0+1} (boyut ${sa}) ve ${rb0+1} (boyut ${sb}). ${bySize?(sa===sb?"Boyutlar eşit: ikinci kök birincinin altına bağlanır.":"Küçük ağaç büyüğün altına bağlanır."):"Boyut kuralı kapalı: ilk kök ikincinin altına bağlanır."} → parent[${r.child+1}] = ${r.par+1}, size[${r.par+1}] = ${u.s[r.par]}.`;
+}
+function ufDoFind(a){
+  const {comp}=ufOpt(),u=UFV.u;const path=[a];let r=a;while(u.p[r]!==r){r=u.p[r];path.push(r)}
+  const before=u.steps;ufFind(u,a,comp);UFV.log.push(`find(${a+1})`);UFV.hl=comp?path.slice(0,-1):[];
+  return `find(${a+1}): yol ${path.map(x=>x+1).join(" → ")}; kök = <b>${r+1}</b>; ${u.steps-before} parent adımı. ${comp&&path.length>2?"Yol sıkıştırma: yoldaki düğümler doğrudan köke bağlandı (sarı kenarlar).":comp?"Yol zaten kısa.":"Sıkıştırma kapalı: ağaç değişmedi."}`;
+}
+function ufShow(msg){$("#uf_note").innerHTML=msg;ufDraw()}
+function ufReset(){UFV={u:mkUF(UFN),log:[],hl:[]};ufShow("Başlangıç: 8 tek elemanlı küme; her eleman kendi kökü (mavi çerçeve).")}
+(function(){const o=[...Array(UFN)].map((_,i)=>`<option value="${i}">${i+1}</option>`).join("");$("#uf_a").innerHTML=o;$("#uf_b").innerHTML=o;$("#uf_b").value="1"})();
+$("#uf_u").onclick=()=>ufShow(ufDoUnion2(+$("#uf_a").value,+$("#uf_b").value));
+$("#uf_fa").onclick=()=>ufShow(ufDoFind(+$("#uf_a").value));
+$("#uf_r").onclick=ufReset;
+$("#uf_p1").onclick=()=>{ufReset();let last="";for(let i=0;i<UFN-1;i++)last=ufDoUnion2(i,i+1);UFV.log=["union(1,2)","…","union(7,8)"];UFV.hl=[];
+  const h=Math.max(...UFV.u.p.map((_,i)=>ufDepth(UFV.u,i)));ufShow(`Zincir kuruldu: yükseklik <b>${h}</b>. ${ufOpt().bySize?"Boyuta göre birleştirme açık: her yeni tek elemanlı küme, büyük ağacın köküne bağlandı (yıldız).":"Boyut kuralı kapalı: her union ilk kökü ikincinin altına bağladı, zincir oluştu. find(1) seçip adım sayısına bakın."}`)};
+$("#uf_p2").onclick=()=>{$("#uf_size").checked=true;$("#uf_comp").checked=true;ufReset();
+  ufDoUnion2(0,1);ufDoUnion2(2,3);ufDoUnion2(1,3);ufDoFind(3);ufDoUnion2(4,5);const last=ufDoUnion2(0,2);
+  UFV.log=["union(1,2)","union(3,4)","union(2,4)","find(4)","union(5,6)","union(1,3)"];UFV.hl=[];
+  ufShow(`Çözümlü örnek 4 tamamlandı. parent[1..6] = ${UFV.u.p.slice(0,6).map(x=>x+1).join(" ")} (beklenen: 1 1 1 1 5 5). Son işlem: ${last}`)};
+["#uf_size","#uf_comp"].forEach(s=>$(s).onchange=()=>ufShow("Ayar değişti: sonraki işlemler yeni kurala göre yapılır."));
+ufReset();
+
+/* ---------- 5.6 heights ---------- */
+function runPattern(n,pat,bySize,comp){
+  const u=mkUF(n);
+  if(pat==="chain"){for(let i=0;i<n-1;i++)ufUnion(u,i,i+1,bySize,comp)}
+  else{for(let s=1;s<n;s*=2)for(let i=0;i+s<n;i+=2*s)ufUnion(u,i,i+s,bySize,comp)}
+  let h=0,d=0;for(let i=0;i<n;i++){const c=ufDepth(u,i);if(c>h){h=c;d=i}}
+  u.steps=0;for(let t=0;t<n;t++)ufFind(u,d,comp);
+  return {h,tot:u.steps};
+}
+function heUpdate(){
+  const n=+$("#he_n").value;$("#he_lg").textContent=Math.floor(lg(n));
+  const rules=[["hiçbir kural",false,false],["yalnızca boyuta göre",true,false],["yalnızca yol sıkıştırma",false,true],["ikisi birden",true,true]];
+  let h="";[["chain","Zincir: union(i, i+1)"],["bal","İkili birleştirme (çiftler, dörtlüler, …)"]].forEach(([pat,nm])=>{rules.forEach(([rn,bs,cp],j)=>{const r=runPattern(n,pat,bs,cp);
+    h+=`<tr><td>${j===0?nm:""}</td><td>${rn}</td><td class="m">${r.h}</td><td class="m">${fmt(r.tot)}</td></tr>`})});
+  $("#he_t").innerHTML=h;
+}
+$("#he_n").onchange=heUpdate;heUpdate();
+
+/* ---------- 6.1 Prim vs Kruskal measured ---------- */
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function randGraph(n,mT,seed){
+  const r=rng(seed),E=[],seen=new Set();
+  const add=(u,v)=>{if(u===v)return false;const k=u<v?u*n+v:v*n+u;if(seen.has(k))return false;seen.add(k);E.push([u,v,1+Math.floor(r()*1000)]);return true};
+  for(let v=1;v<n;v++)add(v,Math.floor(r()*v));
+  let tries=0;while(E.length<mT&&tries<mT*15){add(Math.floor(r()*n),Math.floor(r()*n));tries++}
+  for(let u=0;u<n&&E.length<mT;u++)for(let v=u+1;v<n&&E.length<mT;v++)add(u,v);
+  return {n,E};
+}
+function pkPrim(g){
+  const n=g.n,adj=Array.from({length:n},()=>[]);g.E.forEach(([a,b,w])=>{adj[a].push([b,w]);adj[b].push([a,w])});
+  const dist=Array(n).fill(Infinity),inT=Array(n).fill(false);dist[0]=0;let tot=0,scan=0,chk=0;
+  for(let r=0;r<n;r++){let v=-1;for(let i=0;i<n;i++)if(!inT[i]){scan++;if(v<0||dist[i]<dist[v])v=i}
+    inT[v]=true;tot+=dist[v];for(const [w,wt] of adj[v]){chk++;if(!inT[w]&&dist[w]>wt)dist[w]=wt}}
+  return {tot,scan,chk};
+}
+function pkKruskal(g){
+  let cmp=0;const E=[...g.E].sort((a,b)=>{cmp++;return a[2]-b[2]});
+  const u=mkUF(g.n);let tot=0,cnt=0,ex=0;
+  for(const [a,b,w] of E){ex++;const ra=ufFind(u,a,true),rb=ufFind(u,b,true);if(ra!==rb){ufUnion(u,a,b,true,true);tot+=w;cnt++;if(cnt===g.n-1)break}}
+  return {tot,cmp,ex,steps:u.steps,calls:u.calls};
+}
+let PK_SEED=11;
+function pkUpdate(){
+  const n=+$("#pk_n").value,d=+$("#pk_d").value;$("#pk_nv").textContent=n;
+  const maxm=n*(n-1)/2,m=Math.round((n-1)+d/100*(maxm-(n-1)));$("#pk_dv").textContent=`${d}% (m = ${fmt(m)})`;
+  const g=randGraph(n,m,PK_SEED),mm=g.E.length;
+  const P=pkPrim(g),K=pkKruskal(g);const pt=P.scan+P.chk,kt=K.cmp+K.calls+K.steps;
+  $("#pk_t").innerHTML=`<tr><td>Model (formül)</td><td class="m">n² = ${fmt(n*n)}</td><td class="m">m·lg m = ${fmt(Math.round(mm*lg(Math.max(mm,2))))}</td></tr>
+  <tr><td>Ölçüm: parçalar</td><td class="m">tarama ${fmt(P.scan)} + komşu kontrolü ${fmt(P.chk)}</td><td class="m">sıralama karş. ${fmt(K.cmp)} + find çağrısı ${fmt(K.calls)} + yol adımı ${fmt(K.steps)}</td></tr>
+  <tr class="hl"><td><b>Ölçüm: toplam</b></td><td class="m"><b>${fmt(pt)}</b></td><td class="m"><b>${fmt(kt)}</b></td></tr>
+  <tr><td>Kruskal’ın baktığı kenar</td><td class="m">—</td><td class="m">${fmt(K.ex)} / ${fmt(mm)}</td></tr>`;
+  $("#pk_out").innerHTML=`<div class="box" style="margin:8px 0">n = ${n}, m = ${fmt(mm)}. Daha az iş yapan: <b class="ok">${pt<kt?"Prim":"Kruskal"}</b> (${fmt(Math.min(pt,kt))} ile ${fmt(Math.max(pt,kt))}). MST ağırlıkları: Prim ${fmt(P.tot)}, Kruskal ${fmt(K.tot)} → <b class="${P.tot===K.tot?"ok":"bad"}">${P.tot===K.tot?"✓ aynı":"✗ farklı!"}</b></div>`;
+}
+$("#pk_n").oninput=pkUpdate;$("#pk_d").oninput=pkUpdate;$("#pk_new").onclick=()=>{PK_SEED=(PK_SEED*7919+13)%100003;pkUpdate()};pkUpdate();
+
+/* ---------- 6.2 shortest path vs MST ---------- */
+function spUpdate(){
+  const ab=+$("#sp_ab").value,bc=+$("#sp_bc").value,ac=+$("#sp_ac").value;
+  $("#sp_abv").textContent=fw(ab);$("#sp_bcv").textContent=fw(bc);$("#sp_acv").textContent=fw(ac);
+  const g={n:3,names:["A","B","C"],pos:[[60,150],[230,30],[400,150]],vb:[0,0,460,190],E:[[0,1,ab],[1,2,bc],[0,2,ac]]};
+  const K=kruskalTrace(g),inM=new Set(K.mst);
+  drawGraph("#sp_svg",g,{edgeCls:i=>inM.has(i)?"tree":"rej"});
+  const mstPath=inM.has(2)?ac:ab+bc,shortest=Math.min(ac,ab+bc);
+  $("#sp_out").innerHTML=`<div class="box" style="margin:8px 0">MST kenarları: ${K.mst.map(i=>`<span class="pill acc">${eName(g,i)}</span>`).join("")} toplam <b>${fw(K.total)}</b><br>A→C: ağaçtaki yol = <b>${fw(mstPath)}</b>, çizgedeki en kısa yol = <b>${fw(shortest)}</b> → <b class="${mstPath===shortest?"ok":"bad"}">${mstPath===shortest?"bu çift için eşit":"MST en kısa yolu içermiyor (fark "+fw(mstPath-shortest)+")"}</b></div>`;
+}
+["#sp_ab","#sp_bc","#sp_ac"].forEach(s=>$(s).oninput=spUpdate);spUpdate();
+
+/* ---------- 6.3 uniqueness ---------- */
+function unUpdate(){
+  const k=$("#un_g").value,g=GR[k],T=enumCached(k);
+  const all=new Set(),some=new Set();T.sets.forEach((s,j)=>s.forEach(i=>{some.add(i)}));
+  g.E.forEach((_,i)=>{if(T.sets.every(s=>s.includes(i)))all.add(i)});
+  drawGraph("#un_svg",g,{edgeCls:i=>all.has(i)?"tree":some.has(i)?"cand":"dim"});
+  const ws=g.E.map(e=>e[2]),distinct=new Set(ws).size===ws.length;
+  $("#un_out").innerHTML=`<div class="box" style="margin:8px 0">n = ${g.n}, m = ${g.E.length}. Kapsayan ağaç sayısı: <b>${T.cnt}</b>. MST ağırlığı: <b>${T.best}</b>. MST sayısı: <b class="${T.sets.length===1?"ok":"wn"}">${T.sets.length}</b>.<br>Tüm ağırlıklar farklı mı? <b>${distinct?"evet":"hayır"}</b> ${distinct?"→ MST tekil olmalı: ✓":T.sets.length===1?"→ yine de MST tekil (eşitlik MST’yi bozmadı).":"→ MST tekil değil."}
+  <div style="margin-top:6px">${T.sets.slice(0,6).map(s=>`<span class="pill acc">{${s.map(i=>eName(g,i)).join(", ")}}</span>`).join("")}${T.sets.length>6?" …":""}</div>
+  <div class="mut">Yeşil kalın: bütün MST’lerde olan kenar · sarı: bazı MST’lerde olan · soluk: hiçbirinde yok.</div></div>`;
+}
+$("#un_g").onchange=unUpdate;unUpdate();
+
+/* ---------- 7.1 cable ---------- */
+const CB_DEF=[2,3,4,5,7,8];
+function cbUpdate(){
+  const w=CB_DEF.map((_,i)=>Math.max(1,+$("#cb_"+i).value||1)),p=+$("#cb_p").value||0;
+  const g={n:4,names:GR.K.names,pos:GR.K.pos,E:GR.K.E.map((e,i)=>[e[0],e[1],w[i]])};
+  const K=kruskalTrace(g),inM=new Set(K.mst);drawGraph("#cb_svg",g,{edgeCls:i=>inM.has(i)?"tree":"dim"});
+  // tree distances from G
+  const adj=Array.from({length:4},()=>[]);K.mst.forEach(i=>{const [a,b,x]=g.E[i];adj[a].push([b,x]);adj[b].push([a,x])});
+  const td=Array(4).fill(null);td[0]=0;const q=[0];while(q.length){const v=q.shift();for(const [x,c] of adj[v])if(td[x]===null){td[x]=td[v]+c;q.push(x)}}
+  const D=Array.from({length:4},(_,i)=>Array.from({length:4},(_,j)=>i===j?0:Infinity));g.E.forEach(([a,b,x])=>{D[a][b]=Math.min(D[a][b],x);D[b][a]=Math.min(D[b][a],x)});
+  for(let k=0;k<4;k++)for(let i=0;i<4;i++)for(let j=0;j<4;j++)if(D[i][k]+D[k][j]<D[i][j])D[i][j]=D[i][k]+D[k][j];
+  const direct=[null,w[1],w[3],w[5]],star=w[1]+w[3]+w[5];
+  $("#cb_out").innerHTML=`<div class="box" style="margin:8px 0">MST (Kruskal): ${K.mst.map(i=>`<span class="pill acc">${eName(g,i)} ${w[i]} m</span>`).join("")}<br>
+  <b>Toplam kablo: ${K.total} m</b> → maliyet ${fw(+(K.total*p).toFixed(2))} birim · yıldız (G–S1, G–S2, G–S3): ${star} m → maliyet ${fw(+(star*p).toFixed(2))} birim · tasarruf: <b class="ok">${star-K.total} m</b>
+  <div class="scroll"><table><tr><th>Sensör</th><th>MST yolu (G’ye)</th><th>Çizgedeki en kısa yol</th><th>Doğrudan kablo</th></tr>
+  ${[1,2,3].map(v=>`<tr><td>${g.names[v]}</td><td class="m">${td[v]} m</td><td class="m">${D[0][v]} m</td><td class="m">${direct[v]} m</td></tr>`).join("")}</table></div></div>`;
+}
+for(let i=0;i<6;i++)$("#cb_"+i).oninput=cbUpdate;$("#cb_p").oninput=cbUpdate;
+$("#cb_rs").onclick=()=>{CB_DEF.forEach((v,i)=>$("#cb_"+i).value=v);$("#cb_p").value=1;cbUpdate()};cbUpdate();
+
+/* ---------- 7.2 clustering ---------- */
+const CL_PTS=[[60,60],[85,45],[75,85],[100,70],[210,50],[235,70],[225,35],[250,45],[340,190],[365,170],[380,205],[355,225]];
+const CL_COL=["#6cb6ff","#5fd39a","#ffcb6b","#ff7b8a"];
+function clMST(){
+  const n=CL_PTS.length,d=(i,j)=>Math.hypot(CL_PTS[i][0]-CL_PTS[j][0],CL_PTS[i][1]-CL_PTS[j][1]);
+  const inT=Array(n).fill(false),dist=Array(n).fill(Infinity),par=Array(n).fill(-1);dist[0]=0;const E=[];
+  for(let r=0;r<n;r++){let v=-1;for(let i=0;i<n;i++)if(!inT[i]&&(v<0||dist[i]<dist[v]))v=i;inT[v]=true;if(par[v]>=0)E.push([dist[v],par[v],v]);
+    for(let w=0;w<n;w++)if(!inT[w]&&d(v,w)<dist[w]){dist[w]=d(v,w);par[w]=v}}
+  return E;
+}
+const CL_E=clMST();
+function clUpdate(){
+  const k=+$("#cl_k").value;$("#cl_kv").textContent=k;const n=CL_PTS.length;
+  const sorted=[...CL_E].sort((a,b)=>b[0]-a[0]);const removed=new Set(sorted.slice(0,k-1));
+  const u=mkUF(n);CL_E.forEach(e=>{if(!removed.has(e))ufUnion(u,e[1],e[2],true,true)});
+  const groups=ufGroups(u,n);const colorOf={};groups.forEach((gr,gi)=>gr.forEach(v=>colorOf[v]=CL_COL[gi%4]));
+  let s="";CL_E.forEach(e=>{const a=CL_PTS[e[1]],b=CL_PTS[e[2]];const rm=removed.has(e);s+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${rm?"var(--bad)":colorOf[e[1]]}" stroke-width="${rm?2.5:3.5}" ${rm?'stroke-dasharray="6 5"':""}/>`});
+  CL_PTS.forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="${colorOf[i]}" stroke="var(--bg)" stroke-width="2"/>`});
+  $("#cl_svg").setAttribute("viewBox","0 0 460 260");$("#cl_svg").innerHTML=s;
+  $("#cl_out").innerHTML=`<div class="box" style="margin:8px 0">Küme sayısı: <b>${groups.length}</b> · boyutlar: <b>${groups.map(g=>g.length).join(", ")}</b><div class="scroll"><table><tr><th>MST kenarları (uzundan kısaya)</th><th>Uzunluk</th><th></th></tr>${sorted.slice(0,5).map(e=>`<tr class="${removed.has(e)?"rej":""}"><td class="m">${e[1]+1}–${e[2]+1}</td><td class="m">${e[0].toFixed(1)}</td><td>${removed.has(e)?"silindi":""}</td></tr>`).join("")}</table></div><span class="mut">11 MST kenarı vardır (12 nokta); en uzun 5’i gösterildi.</span></div>`;
+}
+$("#cl_k").oninput=clUpdate;clUpdate();
+</script>
+<script>
+/* ---------- quizzes ---------- */
+const QZ0=[
+ ["5 tepeli basit bir yönsüz çizgede en çok kaç kenar olabilir?",["5","10","20","25"],1,"n(n−1)/2 = 5·4/2 = 10."],
+ ["Yönsüz bir çizgenin 7 kenarı var. Tepelerin derecelerinin toplamı kaçtır?",["7","14","21","49"],1,"Her kenar iki ucunda sayılır: 2m = 14."],
+ ["BFS, keşfedilmiş ama henüz işlenmemiş tepeleri neyde tutar?",["Yığında (stack)","Kuyrukta (queue)","Öncelik kuyruğunda (heap)","Sıralı listede"],1,"İlk bulunan ilk işlenir: bu yüzden tepeleri uzaklığa göre kat kat keşfeder."],
+ ["12 tepeli bir ağacın kaç kenarı vardır?",["11","12","13","66"],0,"Her ağaçta n−1 kenar vardır."],
+ ["Yönlü bir çizgenin topolojik sırası ne zaman vardır?",["Bağlıysa","Yönlü döngüsü yoksa (DAG)","Tam çizgeyse","Çift parçalıysa"],1,"Döngü, “önce bitmeli” kısıtlarını çelişkili yapar; DFS’te geri kenar = döngü."],
+ ["Kenarları 1–2, 1–3, 2–4, 3–4, 4–5 olan çizgede 1’den DFS (komşular artan sırada) keşif sırası?",["1, 2, 3, 4, 5","1, 2, 4, 3, 5","1, 3, 4, 2, 5","1, 2, 4, 5, 3"],1,"1→2→4; 4’ün en küçük keşfedilmemiş komşusu 3; geri dönüp 5."],
+ ["m ≤ n² ise log m ile log n arasında hangisi doğrudur?",["log m ≤ 2 log n","log m = n log n","log m ≥ n","Hiçbir ilişki yok"],0,"log m ≤ log n² = 2 log n. (Bağlı basit çizgede m ≥ n−1 olduğundan log m = Θ(log n) ve O(m log m) = O(m log n).)"],
+ ["<code>i = n; while i &gt; 1: i //= 2</code> döngüsü n = 1024 için kaç kez döner?",["10","32","512","1024"],0,"1024 = 2¹⁰: 10 kez yarılanır."]
+];
+const QZ1=[
+ ["Kenarları 1, 2 ve 3 olan üçgenin MST ağırlığı kaçtır?",["3","4","5","6"],0,"3 kenardan 2’si: en hafif iki kenar 1 + 2 = 3."],
+ ["10 tepeli bağlı bir çizgenin her kapsayan ağacında kaç kenar vardır?",["9","10","11","45"],0,"n − 1 = 9."],
+ ["Çizge W (A–B 4, A–C 1, B–C 2, B–D 5, C–D 8, D–E 3, C–E 10) için MST ağırlığı?",["10","11","12","14"],1,"A–C 1 + B–C 2 + D–E 3 + B–D 5 = 11."],
+ ["Çizge W’de Kruskal’ın ilk REDDETTİĞİ kenar hangisidir?",["A–B (4)","B–D (5)","C–D (8)","D–E (3)"],0,"A–C, B–C, D–E alındıktan sonra A ve B aynı bileşende: A–B (4) A–C–B döngüsü yapardı."],
+ ["Çizge W’de Prim’i A’dan başlatın. Eklenen ÜÇÜNCÜ kenar hangisidir?",["A–B (4)","D–E (3)","B–D (5)","C–D (8)"],2,"Sıra: A–C (1), C–B (2), B–D (5), D–E (3)."],
+ ["Kesim özelliği bir kesimi geçen en hafif kenar için ne der?",["Her kapsayan ağaçta bulunur","Bir MST’de bulunur (bazı MST’de)","Çizgenin en hafif kenarıdır","Kruskal onu asla seçmez"],1,"“Bazı MST”: eşit ağırlıklar varsa her MST’de olmayabilir; kesim geçen kenarlardan en hafifi olmak yeter."],
+ ["Çizge W’de S = {A, B} kesiminde geçen en hafif kenar hangisidir?",["A–B","A–C","B–C","B–D"],1,"Geçenler: A–C (1), B–C (2), B–D (5); A–B ikisi de S içinde, geçmez. En hafif A–C."],
+ ["Boyuta göre birleştirme (eşitlikte ikinciyi birincinin altına) ile union(1,2), union(3,4), union(2,4) yapılınca en derin elemanın derinliği?",["0","1","2","3"],2,"union(2,4): kökler 1 ve 3 (boyut 2, 2) → 3, 1’in altına. 4 → 3 → 1: derinlik 2."],
+ ["Bağlı basit çizgede Kruskal’ın toplam maliyeti (union-find ile) hangi mertebedir?",["O(m)","O(m log m)","O(n²)","O(mn)"],1,"Sıralama O(m log m) baskındır; union-find sınamaları O(m α(n))."],
+ ["m ≈ n² olan yoğun çizgede dizi gerçekleştirimli Prim ile Kruskal karşılaştırması?",["Kruskal daha hızlı: O(n)","Prim O(n²), Kruskal O(n² log n): Prim daha iyi","Tamamen aynı","Prim O(n³)"],1,"Kruskal sıralama için m log m ≈ n² log n; Prim m’den bağımsız n²."],
+ ["Bağlı bir çizgenin bütün kenar ağırlıkları birbirinden farklıysa MST hakkında ne söylenir?",["Bulunamaz","Tekildir","En az iki tane vardır","Ağırlıksız çizgenin MST’siyle aynıdır"],1,"Her kesimdeki en hafif kenar tektir, kesim özelliği onu zorunlu yapar."],
+ ["“MST her tepe çifti arasındaki en kısa yolu içerir” iddiası için doğru cevap?",["Her zaman doğru","Yanlış: AB=2, BC=2, AC=3 üçgeni karşı örnek","Yalnızca Prim için doğru","Yalnızca ağırlıklar eşitse doğru"],1,"MST {AB, BC} (4); A→C ağaçta 4, doğrudan 3."],
+ ["Geçit G ve sensörler: S1–S2 2, G–S1 3, S2–S3 4, G–S2 5, S1–S3 7, G–S3 8 (m). Hepsini bağlayan en az toplam kablo?",["8 m","9 m","10 m","16 m"],1,"Kruskal: 2 + 3 + 4 = 9; G–S2, S1–S3, G–S3 döngü yapar. Yıldız 16 m olurdu."],
+ ["Yol sıkıştırma açıkken 4 → 3 → 1 yolu üzerinde find(4) çağrılırsa sonra parent[4] kaç olur?",["4","3","1","0"],2,"Yoldaki her düğüm doğrudan köke (1) bağlanır."],
+ ["Boyut kuralı ve sıkıştırma OLMADAN, ilk kökü ikincinin altına bağlayan union ile union(1,2), union(2,3), …, union(n−1,n) yapılırsa find(1) kaç parent adımı sürer?",["1","log n","n − 1 (Θ(n))","α(n)"],2,"Zincir oluşur: 1 → 2 → … → n."],
+ ["n = 7 tepeli, m = 5 kenarlı bir çizgenin kapsayan ağacı olabilir mi?",["Evet","Hayır: bağlı olması için en az n−1 = 6 kenar gerekir","Evet, 7 kenarlıysa","Yalnızca yönlüyse"],1,"m < n−1 ise çizge bağlı olamaz; kapsayan ağaç yoktur."]
+];
+mkQuiz("#quiz0",QZ0);mkQuiz("#quiz1",QZ1);
+</script>
+<script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+<script>
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+      rows.forEach(function(r){
+        var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',s==='toplam'||s==='total'||s.startsWith('toplam '));
+      });
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var pos=0,cell=null;for(var k=0;k<r.cells.length;k++){var c=r.cells[k],sp=c.colSpan||1;if(ci>=pos&&ci<pos+sp){cell=c;break}pos+=sp}
+          if(cell&&(cell.colSpan||1)===1){cells.push(cell);if(cell.tagName==='TD'){var tx=(cell.textContent||'').trim();if(tx){seen++;if(cell.classList.contains('r'))right++}}}
+        });
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="aa-site-audit-tables">
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap'))return;
+    var w=document.createElement('div');w.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(w,t);w.appendChild(t);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      wrapTable(t);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6;
+      t.classList.toggle('aa-code-first',!!codeFirst);
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',!!s&&s.length<=36)});
+      rows.forEach(function(r){var c=r.cells&&r.cells[0],x=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';r.classList.toggle('aa-total-row',x==='toplam'||x==='total'||x.startsWith('toplam '))});
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var p=0,c=null;for(var k=0;k<r.cells.length;k++){var q=r.cells[k],sp=q.colSpan||1;if(ci>=p&&ci<p+sp){c=q;break}p+=sp}if(c&&(c.colSpan||1)===1){cells.push(c);if(c.tagName==='TD'){var tx=(c.textContent||'').trim();if(tx){seen++;if(c.classList.contains('r'))right++}}}});
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var queued=false;function later(){if(!queued){queued=true;requestAnimationFrame(function(){queued=false;audit()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+  new MutationObserver(later).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!--AA-SIDEBAR-->
+<style>
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb *{box-sizing:border-box}
+#aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
+#aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
+#aa-sb .pct{font:600 26px ui-monospace,Menlo,Consolas,monospace}
+#aa-sb .trk{height:6px;border-radius:99px;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);overflow:hidden;margin:0 4px 4px}
+#aa-sb .trk i{display:block;height:100%;width:0;background:var(--acc,#6cb6ff);transition:width .1s linear}
+#aa-sb .best{font-size:12px;color:var(--mute,#9aa6b8);margin:0 4px 12px}
+#aa-sb a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--mute,#9aa6b8);border-radius:8px;padding:6px 8px;border-left:3px solid transparent}
+#aa-sb a:hover{background:var(--panel2,#1d2431);color:var(--ink,#e8ecf3)}
+#aa-sb a .n{flex:none;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:700;display:grid;place-items:center;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);margin-top:1px}
+#aa-sb a.top.done .n{background:var(--ok,#5fd39a);border-color:var(--ok,#5fd39a);color:#0b1a12}
+#aa-sb a.top.active{color:var(--ink,#e8ecf3);background:var(--rule,#1b2a3d);border-left-color:var(--acc,#6cb6ff);font-weight:600}
+#aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
+#aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
+#aa-sb .sub.open{display:block}
+#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
+#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
+body.aa-open{overflow:hidden}
+body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
+body.aa-open #aa-back{display:block}
+@media (min-width:1200px){
+  #aa-sb{transform:none}
+  body.aa-has-sb{padding-left:272px}
+  #aa-fab,#aa-back{display:none!important}
+}
+@media (max-width:1199px){#aa-fab{display:flex}}
+@media print{#aa-sb,#aa-bar,#aa-fab,#aa-back{display:none!important}body.aa-has-sb{padding-left:0!important}}
+</style>
+<script>
+(function(){
+  try{
+    var secs=[].slice.call(document.querySelectorAll("section[id]"));
+    if(!secs.length)return;
+    var M=[],top=null,idx=0;
+    function clean(h){var c=h.cloneNode(true);[].slice.call(c.querySelectorAll(".time,.num")).forEach(function(x){x.remove()});return c.textContent.replace(/\s+/g," ").trim()}
+    secs.forEach(function(s){
+      var h2=s.querySelector("h2");
+      if(h2){
+        var num=h2.querySelector(".num");idx++;
+        top={el:h2,sec:s,type:"top",label:clean(h2),n:num?num.textContent.trim():String(idx),subs:[]};
+        M.push(top);
+      }
+      if(!top)return;
+      [].slice.call(s.querySelectorAll("h3")).forEach(function(h){
+        var t=clean(h);if(!t)return;
+        var m={el:h,sec:s,type:"sub",label:t,parent:top};top.subs.push(m);M.push(m);
+      });
+    });
+    var k=0;M.forEach(function(m){if(!m.el.id)m.el.id="aa-h"+(++k)});
+    var sb=document.createElement("nav");sb.id="aa-sb";sb.setAttribute("aria-label","İçindekiler");
+    var html='<div class="hd"><b>İçindekiler</b><span class="pct" id="aa-pct">0%</span></div><div class="trk"><i id="aa-trk"></i></div><div class="best" id="aa-best"></div>';
+    M.forEach(function(m){
+      if(m.type!=="top")return;
+      html+='<a class="top" href="#'+m.el.id+'" data-id="'+m.el.id+'"><span class="n">'+m.n+'</span><span>'+m.label.replace(/</g,"&lt;")+'</span></a>';
+      if(m.subs.length){html+='<div class="sub" data-for="'+m.el.id+'">'+m.subs.map(function(s){return '<a href="#'+s.el.id+'" data-id="'+s.el.id+'">'+s.label.replace(/</g,"&lt;")+'</a>'}).join("")+'</div>'}
+    });
+    sb.innerHTML=html;
+    var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var back=document.createElement("div");back.id="aa-back";
+    document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
+    document.body.classList.add("aa-has-sb");
+    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
+    back.onclick=function(){toggle(false)};
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
+    sb.addEventListener("click",function(e){if(e.target.closest("a")&&window.innerWidth<1200)toggle(false)});
+    var wk=(location.pathname.match(/\/w(\d+)\//)||[])[1]||"x",KEY="aa_read_w"+wk,best=0;
+    try{best=+localStorage.getItem(KEY)||0}catch(e){}
+    var links={},tops=[].slice.call(sb.querySelectorAll("a.top")),subWraps=[].slice.call(sb.querySelectorAll(".sub"));
+    [].slice.call(sb.querySelectorAll("a[data-id]")).forEach(function(a){links[a.getAttribute("data-id")]=a});
+    var pctEl=sb.querySelector("#aa-pct"),trk=sb.querySelector("#aa-trk"),bestEl=sb.querySelector("#aa-best"),fp=fab.querySelector("#aa-fpct");
+    var lastActive=null,ticking=false;
+    function update(){
+      ticking=false;
+      var de=document.documentElement,max=de.scrollHeight-window.innerHeight;
+      var pct=max>0?Math.min(100,Math.max(0,Math.round(100*window.pageYOffset/max))):100;
+      if(max>0&&window.pageYOffset>=max-4)pct=100;
+      bar.style.width=pct+"%";bar.setAttribute("aria-valuenow",pct);
+      pctEl.textContent=pct+"%";trk.style.width=pct+"%";fp.textContent=pct+"%";
+      if(pct>best){best=pct;try{localStorage.setItem(KEY,String(best))}catch(e){}}
+      bestEl.textContent=best>pct?"En ileri okunan: %"+best:"";
+      var act=M[0];
+      for(var i=0;i<M.length;i++){if(M[i].el.getBoundingClientRect().top<=150)act=M[i];else break}
+      var vh=window.innerHeight;
+      tops.forEach(function(a){
+        var m=M.filter(function(x){return x.el.id===a.getAttribute("data-id")})[0];
+        var r=m.sec.getBoundingClientRect();
+        var next=m.sec;
+        var passed=r.bottom<=vh*0.35;
+        a.classList.toggle("done",passed);
+        a.querySelector(".n").textContent=passed?"✓":m.n;
+      });
+      if(act!==lastActive){
+        lastActive=act;
+        var topM=act.type==="top"?act:act.parent;
+        [].slice.call(sb.querySelectorAll("a.active")).forEach(function(a){a.classList.remove("active")});
+        links[topM.el.id].classList.add("active");
+        if(act.type==="sub")links[act.el.id].classList.add("active");
+        subWraps.forEach(function(w){w.classList.toggle("open",w.getAttribute("data-for")===topM.el.id)});
+        var a=links[act.el.id],c=sb;
+        if(a&&c.scrollHeight>c.clientHeight){var ar=a.getBoundingClientRect(),cr=c.getBoundingClientRect();
+          if(ar.top<cr.top+90||ar.bottom>cr.bottom-40)c.scrollTop+=ar.top-cr.top-cr.height/3}
+      }
+    }
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",onScroll);
+    window.addEventListener("load",onScroll);setTimeout(update,300);update();
+  }catch(e){if(window.console)console.warn("aa sidebar",e)}
+})();
+</script>
+<!--/AA-SIDEBAR-->
+
+<script id="aa-sitewide-table-audit">
+(function(){
+  function isMathToken(s){
+    if(!s||s.length>34)return false;
+    return /^[\d\s.,:;()+\-×÷=<>≤≥≈ΘΩOonmVkEαφπ√²³⁴⁵ⁿ!⌊⌋⌈⌉→←↔∑Σ\/·%^_*]+$/u.test(s);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      if(!t.closest('.scroll')&&!t.closest('.table-wrap')){
+        var w=document.createElement('div');w.className='scroll';
+        t.parentNode.insertBefore(w,t);w.appendChild(t);
+      }
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td,th'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        if(c.classList.contains('m')||isMathToken(s))c.classList.add('aa-token');
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r')||/^[-+]?\d[\d\s.,%]*$/.test(tx))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')||c.querySelector('code')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+})();
+</script>
+</body>
+</html>

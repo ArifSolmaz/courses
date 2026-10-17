@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hafta 6 (Sade, 3 saatlik) — Öncelik kuyrukları ve öbekler (heap)</title>
+<meta name="description" content="Algorithm Analysis Hafta 6: Hafta 4-5 tekrarıyla birlikte, 3 saatlik ders için ayrıntılı ve sade anlatım.">
+<style>
+:root{--bg:#10141b;--panel:#171d27;--panel2:#1d2431;--ink:#e8ecf3;--mute:#9aa6b8;--line:#2a3344;--acc:#6cb6ff;--ok:#5fd39a;--warn:#ffcb6b;--bad:#ff7b8a;--rule:#1b2a3d;--rev:#2a2140}
+[data-theme="light"]{--bg:#f7f6f2;--panel:#fff;--panel2:#f0eee8;--ink:#1c2330;--mute:#5d6878;--line:#dcd8cd;--acc:#1a64b8;--ok:#13804f;--warn:#9a6a00;--bad:#b3283b;--rule:#e6eefa;--rev:#efe9fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 90px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.tg{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 10px;font-size:13px}
+h1{font:500 clamp(30px,6vw,44px)/1.15 Georgia,"Times New Roman",serif;margin:.3em 0 .2em}
+h2{font:500 28px/1.25 Georgia,"Times New Roman",serif;margin:0 0 .4em}
+h3{font-size:18px;margin:1.5em 0 .3em}
+h4{font-size:16px;margin:1.2em 0 .2em;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{font-size:19px;color:var(--mute);margin:.2em 0 1em}
+.en{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.88em;color:var(--acc);white-space:nowrap}
+section{margin-top:64px;scroll-margin-top:16px}
+.num{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 6px;border-radius:16px;background:var(--acc);color:var(--bg);font-weight:700;font-size:15px;margin-right:8px;vertical-align:3px}
+.time{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--mute);margin-left:6px;vertical-align:4px;font-weight:600}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+.rule{background:var(--rule);border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.rule b.t{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.skip{border-left-color:var(--warn);background:var(--panel2)}.skip b.t{color:var(--warn)}
+.rev{border-left-color:#a98bff;background:var(--rev)}.rev b.t{color:#a98bff}
+[data-theme="light"] .rev b.t{color:#6b3fd1}
+pre,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:14.5px;line-height:1.55;margin:12px 0}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.try{border:1.5px dashed var(--acc);border-radius:14px;padding:16px 18px;margin:20px 0;background:var(--panel)}
+.try .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:9px;padding:7px 14px;font-weight:600;font-size:15px}
+.btn.g{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+input[type=text],input[type=number],select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
+input[type=text]{width:100%}
+.big{font:500 26px ui-monospace,Menlo,Consolas,monospace}
+.mut{color:var(--mute);font-size:15px}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.grid{display:grid;gap:3px;margin:10px 0}
+.grid i{aspect-ratio:1;background:var(--panel2);border-radius:3px;display:block}
+.grid i.on{background:var(--acc)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+td.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.card{min-width:46px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font:500 20px ui-monospace,Menlo,Consolas,monospace}
+.card.sorted{border-color:var(--ok);color:var(--ok)}.card.cur{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}.card.min{border-color:var(--acc);color:var(--acc)}
+.card small{display:block;font-size:11px;color:var(--mute)}
+.q{margin:14px 0}.q .opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.fb{margin-top:6px;font-size:15px;color:var(--mute);display:none}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+nav.toc a{font-size:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--panel)}
+.foot{display:flex;justify-content:space-between;margin-top:60px;font-size:15px}
+.foot a{color:var(--acc);text-decoration:none}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+.bars{position:relative;margin:10px 0;border-left:1px solid var(--line)}
+.bar{position:absolute;height:18px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);font-size:12px;line-height:16px;padding-left:5px;overflow:hidden;white-space:nowrap}
+.bar.pick{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.cells{display:flex;flex-wrap:wrap;gap:2px;margin:10px 0}
+.cells span{width:22px;height:22px;font-size:9px;display:grid;place-items:center;border-radius:4px;background:var(--panel2);color:var(--mute)}
+.cells span.in{background:color-mix(in srgb,var(--acc) 35%,var(--panel2));color:var(--ink)}.cells span.mid{background:var(--warn);color:#000}.cells span.found{background:var(--ok);color:#000}
+svg text{fill:var(--mute);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+
+.hv{width:100%;height:auto;display:block;margin:6px auto}
+.cht text{font-size:17px}
+.hv .ed{stroke:var(--line);stroke-width:2}
+.hv .ed.bad{stroke:var(--bad);stroke-width:3}
+.hv .nd circle{fill:var(--panel2);stroke:var(--line);stroke-width:2}
+.hv .nd text{fill:var(--ink);font:600 16px ui-monospace,Menlo,Consolas,monospace;text-anchor:middle;dominant-baseline:central}
+.hv .nd text.ix{fill:var(--mute);font-size:10px;font-weight:400;text-anchor:start;dominant-baseline:auto}
+.hv .nd text.t1{font-size:11px;font-weight:500}
+.hv .nd text.t2{font-size:13px}
+.hv .nd.cmp circle{stroke:var(--warn);fill:color-mix(in srgb,var(--warn) 18%,var(--panel2))}
+.hv .nd.sw circle{stroke:var(--acc);fill:color-mix(in srgb,var(--acc) 22%,var(--panel2))}
+.hv .nd.done circle{stroke:var(--ok);fill:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.hv .nd.bad circle{stroke:var(--bad);fill:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.note{min-height:3.6em;margin:6px 0}
+.trace td,.trace th{font-size:14px}
+.trace td.m b{color:var(--acc)}
+.card.bad{border-color:var(--bad);color:var(--bad)}
+.card.dim{opacity:.4}
+.vz{margin:6px 0}
+.lbl{font-size:13px;color:var(--mute)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.logbox{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-height:190px;overflow:auto;margin:8px 0}
+td.ok,td.bad{font-weight:700}
+
+/* AA-GLOBAL-AUDIT-FIXES: responsive tables, formulas, controls and focus */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:normal}
+.wrap{width:100%;min-width:0}
+.en{white-space:normal}
+pre{max-width:100%}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+textarea{width:100%;box-sizing:border-box}
+.big{max-width:100%;overflow-wrap:anywhere}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,span.m{overflow-wrap:normal;word-break:normal}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead{overflow-wrap:break-word}
+img,svg,canvas{max-width:100%;height:auto}
+.foot{flex-wrap:wrap;gap:12px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px}
+  .foot{align-items:flex-start}
+}
+@media(max-width:480px){.foot{flex-direction:column}}
+</style>
+
+<style id="aa-sitewide-responsive-audit">
+/* Site-wide Week audit: table/component responsiveness */
+.wrap{width:100%;min-width:0}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m{overflow-wrap:normal;word-break:normal}
+.row>*{min-width:0}
+pre{max-width:100%;overflow:auto}
+code{overflow-wrap:anywhere}
+textarea,input,select,button,.card,details{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%;height:auto}
+.try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc,#6cb6ff);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px 7px}
+  h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+  .foot{flex-wrap:wrap;gap:10px}
+}
+</style>
+<style id="aa-inline-term-wrap">.en{white-space:normal}</style>
+<style id="aa-site-audit-fixes">
+html,body{max-width:100%}.en{white-space:normal!important}
+.wrap{width:100%;min-width:0}
+.scroll,.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m,.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-cols-4{min-width:620px}.aa-cols-5{min-width:700px}.aa-cols-6{min-width:760px}.aa-cols-7plus{min-width:860px}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{max-width:100%;overflow:auto} code{overflow-wrap:anywhere}
+img,svg,canvas{max-width:100%;height:auto}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+.foot{gap:12px;flex-wrap:wrap}
+@media(max-width:700px){
+ .wrap{padding-left:12px!important;padding-right:12px!important}
+ .scroll,.table-wrap{padding-bottom:4px}
+ th,td{padding-left:7px!important;padding-right:7px!important}
+}
+@media(max-width:480px){.foot{flex-direction:column;align-items:flex-start}}
+</style>
+<style>
+.wrap{max-width:1160px}
+.topic-row{display:grid;grid-template-columns:minmax(0,768px) minmax(230px,1fr);gap:32px;align-items:start;margin-top:24px}
+.topic-main{min-width:0}.topic-main>h3:first-child{margin-top:0}
+.english-summary{min-width:0;border-left:3px solid var(--acc);background:var(--panel);border-radius:0 10px 10px 0;padding:14px 16px;font-size:15px;line-height:1.65;overflow-wrap:anywhere}
+.english-summary h4{margin:0 0 8px;font-size:11px;color:var(--acc)}.english-summary b{font-size:16px}.english-summary p{margin:8px 0 0;color:var(--mute)}
+@media(max-width:900px){.wrap{max-width:800px}.topic-row{grid-template-columns:minmax(0,1fr);gap:12px}.english-summary{margin-bottom:14px}}
+@media print{.wrap{max-width:none}.topic-row{display:block}.english-summary{break-inside:avoid;margin:12px 0 20px}}
+</style><style id="week6-companion-style">
+.topic-row{grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:28px;scroll-margin-top:24px}
+.english-summary h4{font-size:19px;line-height:1.35;text-transform:none;letter-spacing:0;color:var(--ink);margin:10px 0}
+.section-reference{font-size:12px;color:var(--acc)}
+.quiz-answer-label{display:block;font-size:13px;color:var(--ok);font-weight:700;margin-top:4px}.fb p{margin:12px 0}.fb a{color:var(--acc)}
+@media(max-width:900px){.topic-row{grid-template-columns:1fr}.english-summary{grid-row:1}.topic-main{grid-row:2}}
+</style><style id="activity-guide-style">
+.activity-guide{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:16px;line-height:1.75}
+.activity-guide h4{margin:0 0 12px;font-size:18px;line-height:1.4;letter-spacing:0;text-transform:none;color:var(--ink)}
+.activity-guide p{margin:10px 0}.activity-guide ol{padding-left:24px;margin:14px 0}.activity-guide li{padding-left:4px;margin:12px 0}
+.activity-takeaway{border-left:3px solid var(--acc);padding-left:12px}
+</style><link rel="stylesheet" href="../assets/python-runner.css">
+<script defer src="../assets/python-runner.js"></script></head>
+<body>
+<div class="wrap">
+
+<header class="top"><a href="./" lang="en">Week 6 visual lesson →</a>
+  <a href="../">← AA ana sayfa</a>
+  <button class="tg" id="tg">Açık / koyu</button>
+</header>
+
+<div class="kicker">Hafta 6 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
+<h1>Öncelik kuyrukları ve öbekler (heap)</h1>
+<p class="lead">Tek fikir: <b>her seferinde “şimdi en küçük (ya da en büyük) hangisi?” sorusunu hızlı cevaplayan, ama tamamen sıralı olmak zorunda olmayan bir düzen kurabiliriz.</b> Bu düzenin adı <b>öbek</b>; bir dizinin içine saklanır, ekleme ve en küçük/en büyük öğeyi çıkarma <b>en kötü durumda</b> <span class="en">O(log n)</span> sürer. Bu sayfa Hafta 4–5’i tekrar ederek başlar, sonra öbeği sıfırdan kurar ve heapsort’a ulaşır.</p>
+
+<div class="rule">
+  <b class="t">Bu sayfayı nasıl kullanmalı</b>
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular önceki haftalardan <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>sınav için kural</b>dır. Sayfadaki tüm araçlar gerçekten çalışır: kendi sayılarınızı girip deneyin.
+</div>
+
+<div class="rule skip">
+  <b class="t">Terim notu: öbek ve yığın karışmasın</b>
+  Bu derste <b>heap = öbek</b>, <b>stack = yığın</b> (Hafta 4’teki LIFO yapısı) diye adlandırılır. İkisinin adı Türkçede benzer görünür ama birbirleriyle ilgisi yoktur. <b>Konum numaraları 1’den başlar</b> (orijinal sayfadaki gibi): kök = konum 1. Python listeleri 0’dan başlar; bunu Blok 3’te ayrıca anlatıyoruz.
+</div>
+
+<p class="box">Sade İngilizce açıklamalar yanlarındaki ders başlığıyla bire bir eşleşir. Quiz cevapları ve gerekçeleri açık gösterilir. <b>Çözümlü denemeler</b> verilen örnek değerleri anlatır; girişleri değiştirince canlı sonuçlar değişir, rehber metni değişmez. Python kutularında <b>Run</b> ile çalıştırın ve <b>Kodu düzenle</b> ile kendi girdilerinizi deneyin. Sözde kod kutuları çalıştırılmaz.</p><h3>Ders akışı (180 dakika)</h3>
+<div class="scroll"><table>
+<tr><th>Blok</th><th>Konu</th><th>Süre</th><th>Hangi haftayı bağlar?</th></tr>
+<tr><td>0</td><td><a href="#s0" style="color:var(--acc)">Isınma ve tekrar</a>: yapıların iki yüzü, dizi/liste, BST, karma tablosu, log ve toplamlar</td><td>25 dk</td><td>Hafta 4 + 5 (+ 2–3)</td></tr>
+<tr><td>1</td><td><a href="#s1" style="color:var(--acc)">Sıralama neden önemli?</a> Sıralamanın kolaylaştırdıkları, çift toplamı problemi</td><td>20 dk</td><td>Hafta 3 (n² ve n log n)</td></tr>
+<tr><td>2</td><td><a href="#s2" style="color:var(--acc)">Öncelik kuyruğu</a> ve “veri yapısı önemlidir” fikri</td><td>20 dk</td><td>Hafta 4 (yığın/kuyruk)</td></tr>
+<tr><td>3</td><td><a href="#s3" style="color:var(--acc)">İkili öbek</a>: kurallar, dizide saklama, yükseklik</td><td>25 dk</td><td>Hafta 5 (ağaç yüksekliği)</td></tr>
+<tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
+<tr><td>4</td><td><a href="#s4" style="color:var(--acc)">Ekleme ve en küçüğü çıkarma</a> (bubble up / bubble down)</td><td>30 dk</td><td>Hafta 3 (log, değişmez)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Öbek kurma O(n)</a> ve <b>heapsort</b></td><td>35 dk</td><td>Hafta 3 (toplamlar)</td></tr>
+<tr><td>6</td><td><a href="#s6" style="color:var(--acc)">Mühendislik uygulaması</a>: RTOS zamanlayıcısı, görev kuyruğu (+ isteğe bağlı ileri konular)</td><td>15 dk</td><td>Hepsi</td></tr>
+<tr><td>7</td><td><a href="#s7" style="color:var(--acc)">Alıştırmalar ve quiz</a> · <a href="#s8" style="color:var(--acc)">özet, çıkış bileti</a></td><td>ev</td><td>Hepsi</td></tr>
+</table></div>
+<div class="mut">Toplam: 25 + 20 + 20 + 25 + 10 (ara) + 30 + 35 + 15 = 180 dakika. Blok 7 ev çalışmasıdır; çıkış bileti (3 soru) derste Blok 6’nın son 5 dakikasında yapılır.</div>
+
+<nav class="toc">
+  <a href="#s0">0 Tekrar</a><a href="#s1">1 Sıralama</a><a href="#s2">2 Öncelik kuyruğu</a><a href="#s3">3 İkili öbek</a><a href="#s4">4 Ekle/Çıkar</a><a href="#s5">5 Kurma &amp; heapsort</a><a href="#s6">6 Uygulama</a><a href="#s7">7 Alıştırma &amp; quiz</a><a href="#s8">8 Özet</a>
+</nav>
+
+<div class="box">
+  <b>Başlamadan önce üç cümle:</b>
+  (1) <b>Öbek sıralı bir dizi değildir.</b> Sadece “her ebeveyn çocuklarından küçük (ya da eşit)” der; bu yüzden bakımı ucuzdur. (2) Yine de <b>en küçük her zaman kökte</b>dir, aramak gerekmez. (3) n eleman için ağaç yüksekliği yalnızca <span class="en">⌊lg n⌋</span> olduğundan ekleme ve çıkarma <b>en kötü durumda</b> <span class="en">O(log n)</span> sürer; 64 zamanlayıcı için bu sadece 6 düzeydir.
+</div>
+
+<!-- ================= BLOK 0 ================= -->
+<section id="s0">
+<div class="kicker">Blok 0 · Hafta 4 + 5 tekrarı</div>
+<h2><span class="num">0</span>Isınma ve tekrar <span class="time">25 dk</span></h2>
+<p>Hafta 6’nın tamamı, önceki iki haftanın üstüne kurulu. Hafta 4’te <b>dizileri, bağlı listeleri, yığın ve kuyruğu</b> öğrendik ve “hiçbir yapı her işlemde en hızlı değildir” dedik. Hafta 5’te <b>ikili arama ağaçlarını (BST) ve karma tablolarını</b> gördük. Bu hafta, tam olarak bu tablolardaki bir boşluğu dolduruyoruz: <b>“ekleme de ucuz olsun, en küçüğü bulup çıkarma da.”</b></p>
+
+<div class="topic-row" id="topic-0-1"><div class="topic-main"><h3>0.1 Hafta 4: her veri yapısının iki yüzü, dizi ve bağlı liste</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 4</b>
+Her veri yapısının iki yüzü vardır: <b>ne yapar</b> (soyut işlemler: Push, Pop, Insert, Min …) ve <b>nasıl yapar</b> (gerçekleştirim). Algoritma yalnızca soyut işlemlere bağlıdır; gerçekleştirimi değiştirerek hız kazanabiliriz. İki tür yapı vardır: <b>bitişik</b> (dizi, matris, <i>öbek</i>, karma tablosu) ve <b>bağlı</b> (bağlı liste, ağaç, komşuluk listesi). Bu hafta ilk kez “öbek” bitişik yapılar arasında listelendiğini göreceksiniz: ağaç gibi düşünülür ama <b>dizide</b> saklanır.<br>
+<b>Yığın (stack)</b>: son giren ilk çıkar (LIFO). <b>Kuyruk (queue)</b>: ilk giren ilk çıkar (FIFO). Dizi: <code>i</code>. elemana O(1) erişim; başa ekleme Θ(n) (hepsi kayar). Bağlı liste: yeri biliyorsak başa ekleme O(1); i. elemana erişim O(n).</div>
+
+<p><b>Tekrar örneği 1 (doğrusal sayı).</b> Boş bir dizi dolunca kapasitesini ikiye katlıyoruz. n elemanı sırayla eklediğimizde toplamda kaç <i>kopyalama</i> yapılır? Aşağıda gerçekten sayılıyor:</p>
+<div class="try"><div class="lab">Kendin dene — ikiye katlanan dizi (Hafta 4)</div>
+<div class="row"><span>n = 2<sup>e</sup>, e =</span><input type="range" id="db_e" min="1" max="14" value="10"><b id="db_ev">10</b></div>
+<div class="scroll"><table><tr><th>n</th><th>yazma (n)</th><th>kopyalama</th><th>toplam</th><th>toplam / n</th></tr><tbody id="db_t"></tbody></table></div>
+<div class="mut">n = 1024 için kopyalama: 1 + 2 + 4 + … + 512 = <b>1023</b> (n−1). Bu n=2ᵉ duraklarında toplam 2n’den az; yani ekleme başına 2 işlemden az tutar: amortize O(1). Bu <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1</b> toplamı bu hafta öbeğin yüksekliğini hesaplarken yeniden çıkacak.</div><div class="activity-guide"><h4>Kopyalama ile yeni yazmayı ayrı sayın</h4><p><b>Kontrolleri okuyun.</b> e kaydırıcısı n=2ᵉ elemanlık bir denemeyi seçer; tablo her seçimde boş diziden başlar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>e=3 seçin: n=8, kopyalar 1+2+4=7, yeni yazmalar 8; toplam 15.</li><li>e=10 için 1024 yazma+1023 kopya=2047; işlem başına 2047/1024≈1,999.</li><li>e’yi artırın. Bu ikinin kuvveti duraklarında oran 2’ye alttan yaklaşır. Kapasiteyi aşan tek ekleme yine çok pahalı olabilir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Amortize sınır bütün işlem dizisine aittir. Tablodaki seçilmiş durakları bütün tekil eklemelerin maliyeti sanmayın.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-1"><a class="section-reference" href="#topic-0-1">Lecture §0.1</a><h4 id="simple-topic-0-1">Same operations, different storage</h4><p>A stack removes the newest item; a queue removes the oldest. A priority queue removes the item with the best key. The storage you choose determines how much work each operation needs.</p><p>A heap looks like a tree but lives in an array. Array growth can occasionally copy many items; distinguish that storage cost from repairing the heap order.</p></aside></div><div class="topic-row" id="topic-0-2"><div class="topic-main"><h3>0.2 Hafta 5: sözlük yapıları ve “en küçük” sorusu</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 5</b>
+<b>BST:</b> her düğümün solu küçük, sağı büyük. En küçük = sürekli sola git. In-order gezi anahtarları sıralı verir (O(n)). Tek-yol sözlük işlemleri O(h + 1), tam dolaşım Θ(n) sürer (h = kenar yüksekliği). Ama BST’yi dengeli tutan hiçbir şey yoktur: 1, 2, …, n sırayla eklenirse ağaç bir <b>zincir</b> olur, h = n − 1. Dengeli ağaçlarda h ≈ lg n.<br>
+<b>Karma tablosu:</b> arama/ekleme/silme <i>beklenen</i> O(1), en kötü O(n). Ama <b>en küçüğü bulmak için tüm tabloyu taramak gerekir</b> (Θ(n+m)), çünkü karma fonksiyonu anahtarları sıraya koymaz.</div>
+
+<p>Şimdi iki hafta boyunca gördüğümüz yapıları <b>“ekle / en küçüğü bul / en küçüğü sil”</b> üçlüsüne göre tek tabloya koyalım. Son satır bu haftanın yıldızı:</p>
+<div class="scroll"><table>
+<tr><th>Yapı</th><th>Ekle</th><th>En küçüğü bul</th><th>En küçüğü sil</th></tr>
+<tr><td>Sırasız dizi</td><td>O(1), kapasite varsa; büyümede amortize</td><td>O(n)</td><td>O(n)</td></tr>
+<tr><td>Sıralı dizi (artan)</td><td>O(n)</td><td>O(1)</td><td>O(n) (başı silince kayar; azalan düzende sondan çıkarma O(1) olabilir)</td></tr>
+<tr><td>Sıralı bağlı liste</td><td>O(n) (yerini bul)</td><td>O(1) (baş)</td><td>O(1)</td></tr>
+<tr><td>BST (dengesiz)</td><td>O(h), en kötü O(n)</td><td>O(h)</td><td>O(h)</td></tr>
+<tr><td>Dengeli BST</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td></tr>
+<tr><td>Karma tablosu</td><td>O(1) beklenen</td><td>Θ(n+m)</td><td>Θ(n+m)</td></tr>
+<tr><td><b>İkili öbek (bu hafta)</b></td><td><b>O(log n) onarım</b></td><td><b>O(1)</b></td><td><b>O(log n) onarım</b></td></tr>
+</table></div>
+<div class="mut">Öbek bu üç öncelik-kuyruğu işlemini destekler; dengeli BST’nin bütün sıralı sözlük işlemlerini desteklemez. Yapısı daha basittir: işaretçi yok, tek bir dizi var; şekli sabit olduğu için “dengeli kalsın” diye hiçbir şey yapmamız gerekmez.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-2"><a class="section-reference" href="#topic-0-2">Lecture §0.2</a><h4 id="simple-topic-0-2">Make the smallest easy to reach</h4><p>An ordinary BST may require a long walk to its minimum. A hash table does not preserve order. A min-heap keeps the minimum at its root, ready to read.</p><p>A heap supports this narrower job; it does not replace every ordered-dictionary operation. Finding an arbitrary key still takes O(n) in the worst case.</p></aside></div><div class="topic-row" id="topic-0-3"><div class="topic-main"><h3>0.3 Kalıcı araçlar: logaritma, Θ, toplamlar, değişmez</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 1–3</b>
+<b>lg n</b> = n’yi 1’e kadar kaç kez yarılayabileceğimiz (lg 1024 = 10, lg 64 = 6; “yukarı yuvarlanmamış” hali için ⌊lg n⌋). <b>Θ:</b> en hızlı büyüyen terim kalır, sabit atılır: 5n² + 3n = Θ(n²). <b>İç içe → çarp, arka arkaya → topla.</b> <b>1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1.</b> <b>Döngü değişmezi:</b> her turun başında doğru olan, başlangıç + adım + bitiş ile kanıtlanan cümle. Bu hafta bubble up/down için de bir değişmez yazacağız (isteğe bağlı kutu, Blok 4).</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-3"><a class="section-reference" href="#topic-0-3">Lecture §0.3</a><h4 id="simple-topic-0-3">Count the work, not just the loops</h4><p>Halving an index gives logarithmic depth. But a whole algorithm may process many different paths. Add their costs instead of assuming every operation takes the maximum depth.</p><p>Heapify is the main example: many nodes are close to leaves and can move only one or two levels. A loop invariant explains why each repair preserves the work already done.</p></aside></div><div class="topic-row" id="topic-warmup"><div class="topic-main"><h3>Isınma quizi (Hafta 4–5 ve kalıcı araçlar)</h3>
+<div id="quiz0"></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-warmup"><a class="section-reference" href="#topic-warmup">Warm-up</a><h4 id="simple-topic-warmup">Reconnect Weeks 4 and 5</h4><p>Use the visible answers to check the assumptions behind each cost. Knowing the minimum, finding the minimum, and removing it are different operations.</p><p>Trace the example first, then read why the other options fail. Each answer links back to its matching review section.</p></aside></div></section>
+
+<!-- ================= BLOK 1 ================= -->
+<section id="s1">
+<div class="kicker">Blok 1</div>
+<h2><span class="num">1</span>Sıralama neden bu kadar önemli? <span class="time">20 dk</span></h2>
+<p>Orijinal Ders 7 şu soruyla açılır: neden bu kadar çok zamanımızı sıralamaya harcıyoruz? Öbek sıralamasına (heapsort) gelmeden önce kısa bir motivasyon, sonra bir ısınma problemi.</p>
+
+<div class="topic-row" id="topic-1-1"><div class="topic-main"><h3>1.1 Dört neden</h3>
+<div class="rule"><b class="t">Kural 1 — sıralama neden önemli</b>
+(1) Sıralama, tarihsel olarak en çok incelenen ve pek çok gerçek sistemde yoğun kullanılan temel işlemlerden biridir. (2) Sıralama bilgisayar biliminde en ayrıntılı incelenmiş problemdir; birçok algoritma vardır, karşılaştırmak kolaydır. (3) Dersin büyük fikirlerinin çoğu (böl ve yönet, rastgeleleştirme, alt sınırlar) sıralama üzerinden öğretilebilir. (4) Veri sıralı olunca <b>başka birçok problem kolaylaşır</b>.</div>
+
+<p><b>Sezgi.</b> Telefon rehberini düşünün: adlar sıralı olduğu için bir kişiyi bulmak saniyeler sürer. Rehber karışık olsaydı her aramada tüm sayfaları gezerdiniz. Sıralama, <i>bir kez</i> ödenen masraftır; sonra her arama ucuzdur.</p>
+
+<p>İki kuadratik/n log n arasındaki fark küçük değildir. Aşağıdaki tablo bunu gerçek hesapla gösterir (n²/4 ve n lg n; 1 ns = bir işlem varsayımıyla süre):</p>
+<div class="try"><div class="lab">Kendin dene — n² mi, n log n mi?</div>
+<div class="row"><span>İşlem başına süre (ns):</span><input type="number" id="sq_ns" value="1" min="0.1" step="0.1" style="width:90px"></div>
+<div class="scroll"><table><tr><th>n</th><th>n²/4</th><th>n lg n</th><th>Oran</th><th>Süre n²/4</th><th>Süre n lg n</th></tr><tbody id="sq_t"></tbody></table></div>
+<div class="mut">Orijinal tablo ile aynı n değerleri. Not: orijinal sayfadaki son satırda n lg n için 13.815.551 yazıyor; bu aslında n·ln n değeridir. n·lg n için doğru değer, tabloda hesaplandığı gibi 19.931.569’dur (tablodaki 1000 satırı da yuvarlama farkıyla 9.966 çıkar). Sonuç değişmez: milyon eleman için kuadratik sıralama pratik değildir.</div><div class="activity-guide"><h4>Büyüme hızını zaman birimine çevirin</h4><p><b>Kontrolleri okuyun.</b> İşlem başına ns alanı modeldeki çarpandır. Tablodaki n değerleri sabittir; süreler ölçülmüş değil hesaplanmıştır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>1 ns seçin. n=1000 için n²/4=250000, n log₂ n≈9966; oran yaklaşık 25,1.</li><li>n=1000000 satırında 250 milyar işlem≈250 saniye; 19,93 milyon işlem≈0,0199 saniye olur.</li><li>Süreyi 10 ns yapın: iki süre de on kat artar, işlem sayıları ve oran aynı kalır.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Gerçek işlem maliyetleri aynı olmayabilir; bellek erişimi ve sabitler burada yoktur. Grafik belirli algoritmaların kesin çalışma süresini değil büyüme farkını anlatır.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-1"><a class="section-reference" href="#topic-1-1">Lecture §1.1</a><h4 id="simple-topic-1-1">Pay once to make later work cheaper</h4><p>Sorting sensor readings or event timestamps puts related values together. After sorting, repeated searches and neighbor comparisons become easier.</p><p>The timing table is a model: operation count multiplied by an assumed cost per operation. It is not a measurement of your laptop.</p></aside></div><div class="topic-row" id="topic-1-2"><div class="topic-main"><h3>1.2 Sıralı veri neleri kolaylaştırır?</h3>
+<div class="scroll"><table>
+<tr><th>Problem</th><th>Sıralandıktan sonra</th></tr>
+<tr><td>Arama</td><td>İkili arama O(log n). “Arama için ön işleme”, sıralamanın muhtemelen en önemli kullanımıdır.</td></tr>
+<tr><td>En yakın çift</td><td>En yakın iki sayı sıralı düzende komşudur; tek O(n) tarama.</td></tr>
+<tr><td>Eleman benzersizliği</td><td>Her tekrar, yan yana iki eşit eleman olarak görünür; bitişik çiftleri tara, O(n).</td></tr>
+<tr><td>Mod / sıklık sayımı</td><td>Eşit elemanlar blok oluşturur; blok uzunluklarını tek taramada ölç. Belirli bir anahtarın sayısı ilk ve son görülme konumlarının ikili aramasıyla O(log n)’de bulunur.</td></tr>
+<tr><td>Medyan ve seçim</td><td>Artan sıralı dizide k’ncı en küçük, 1 tabanlı k. konumda; k’ncı en büyük, n−k+1. konumdadır: O(1). (Kısmi sıralamaya dayanan O(n)’lik daha akıllı bir algoritma da vardır.)</td></tr>
+<tr><td>Dışbükey zarf</td><td>Noktaları x’e göre sırala, soldan sağa ekle: en yeni nokta hep sınırdadır, eklemek yalnızca önceki bazı zarf noktalarını siler.</td></tr>
+</table></div>
+<div class="try"><div class="lab">Kendin dene — sıralayıp komşuya bak</div>
+<div class="row"><input type="text" id="cp_in" value="41, 7, 19, 3, 25, 12, 8" style="flex:1;min-width:200px"></div>
+<div id="cp_out" class="mut"></div><div class="activity-guide"><h4>En yakın iki sayıyı komşular arasında arayın</h4><p><b>Kontrolleri okuyun.</b> Virgülle ayrılmış sayıları değiştirin; sonuç sıralamayı ve komşu farklarını yeniden hesaplar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>41,7,19,3,25,12,8 girin. Sıralı sıra 3,7,8,12,19,25,41; en küçük fark 8−7=1.</li><li>Bir 7 daha ekleyin: iki 7 komşu olur ve en küçük fark 0’dır. Bu aynı zamanda tekrar bulunduğunu gösterir.</li><li>7,8,9 deneyin: iki çift aynı en küçük farkı paylaşır. Bir geçerli çift gösterilmesi başka bir çift olmadığı anlamına gelmez.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Sıralı komşuların arasına başka bir sayı girerse daha küçük veya eşit aralık yaratır; bu nedenle en yakın çift komşulardan seçilebilir. Önce sıralama maliyetini de sayın.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-2"><a class="section-reference" href="#topic-1-2">Lecture §1.2</a><h4 id="simple-topic-1-2">Neighbors reveal useful information</h4><p>Sort 41,7,19,3,25,12,8 to get 3,7,8,12,19,25,41. The closest pair is 7 and 8. You only need to compare adjacent numbers after sorting.</p><p>Equal values also become neighbors. The scan costs O(n), but include the initial sorting cost unless the input was already sorted.</p></aside></div><div class="topic-row" id="topic-1-3"><div class="topic-main"><h3>1.3 Uygulamada sıralama: üç ayrıntı</h3>
+<div class="rule"><b class="t">Kural 2 — pratik ayrıntılar</b>
+<b>Karşılaştırma fonksiyonu:</b> “sıralı” ancak “önce”nin ne demek olduğunu söyleyince anlamlıdır (Skiena ile skiena aynı anahtar mı? artan mı, azalan mı?). Sıralama yordamı “x, y’den önce mi gelir?” diye sorar. <b>Eşit anahtarlar:</b> yan yana gelirler ama kendi aralarındaki sıra önemli olabilir; ikincil anahtarı karşılaştırma fonksiyonuna koyun. <b>Kütüphane:</b> her ciddi dilin hazır sıralaması vardır (C’de <code>qsort</code>, Python’da <code>sorted</code>); neredeyse her zaman kendi sıralamanızı yazmaktan iyidir.</div>
+<pre class="python-example" data-python="1">ogrenciler = [(&quot;Ece&quot;, 90), (&quot;Ali&quot;, 85), (&quot;Can&quot;, 90), (&quot;Deniz&quot;, 85)]
+# önce nota göre azalan, eşitse ada göre artan (ikincil anahtar):
+print(sorted(ogrenciler, key=lambda o: (-o[1], o[0])))
+# [(&#x27;Can&#x27;, 90), (&#x27;Ece&#x27;, 90), (&#x27;Ali&#x27;, 85), (&#x27;Deniz&#x27;, 85)]</pre>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-3"><a class="section-reference" href="#topic-1-3">Lecture §1.3</a><h4 id="simple-topic-1-3">Define what comes first</h4><p>For students, sort by decreasing grade, then increasing name. The key (-grade, name) expresses both choices: Can precedes Ece when both have 90.</p><p>An explicit secondary key is different from stability. A stable sort preserves original order when the complete sort keys are equal.</p></aside></div><div class="topic-row" id="topic-1-4"><div class="topic-main"><h3>1.4 Isınma problemi: çift toplamı</h3>
+<p><b>Problem.</b> 2n sayı verilmiş. Bunları n çifte ayırın; <b>en büyük çift toplamı mümkün olduğunca küçük</b> olsun. <b>Örnek:</b> (1, 3, 5, 9) için üç eşleştirme vardır: (1,3)+(5,9) → toplamlar 4 ve 14; (1,5)+(3,9) → 6 ve 12; (1,9)+(3,5) → 10 ve 8. Üçüncüsü en iyisidir: en büyük toplam 10.</p>
+<p><b>Sezgi.</b> Büyük bir sayı tek başına tehlikelidir; ona en küçük sayıyı eşleyerek “yastıklarız”. <b>O(n log n) cevap:</b> sırala, en küçüğü en büyükle, ikinci en küçüğü ikinci en büyükle eşle… Sıralama O(n log n), eşleştirme tek O(n) tarama.</p>
+<div class="try"><div class="lab">Kendin dene — küçük–büyük eşleştirme gerçekten en iyi mi?</div>
+<div class="row"><input type="text" id="pr_in" value="1, 3, 5, 9" style="flex:1;min-width:200px"><button class="btn" id="pr_go">Hesapla</button></div>
+<div id="pr_out"></div>
+<div class="mut">Araç, 8 sayıya kadar <b>tüm eşleştirmeleri</b> deneyip en iyisini bulur ve “sırala–küçük–büyük” yöntemiyle karşılaştırır. Neden hep işe yaradığının ispatı Blok 7’de (A15, isteğe bağlı).</div><div class="activity-guide"><h4>En büyük çift toplamını küçültün</h4><p><b>Kontrolleri okuyun.</b> Çift sayıda, en fazla sekiz sayı girip Hesapla’ya basın. Araç bütün eşleştirmeleri de deneyerek küçük örneği doğrular.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>1,3,5,9 için küçük-büyük çiftleri (1,9),(3,5); toplamlar 10,8, amaç değeri 10.</li><li>(1,3),(5,9) çiftlerinde amaç 14; (1,5),(3,9) çiftlerinde 12. Bu örnekte 10 en iyidir.</li><li>Negatif veya eşit sayılarla, örneğin -4,0,2,8 ile deneyin: uç çiftler 4 ve 2 toplamlarını verir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bütün sayıların toplamı her eşleştirmede aynıdır; optimize edilen en büyük çift toplamıdır. Kaba kuvvet küçük örnek kontrolüdür, genel doğruluk ispatı değildir.</p></div></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-4"><a class="section-reference" href="#topic-1-4">Lecture §1.4</a><h4 id="simple-topic-1-4">Balance a large number with a small one</h4><p>For 1,3,5,9, pair 1 with 9 and 3 with 5. The sums are 10 and 8; the largest is 10. Pairing the two largest gives 14, which is worse.</p><p>The objective is to minimize the largest pair sum, not the total sum. Every complete pairing has the same total. The input must contain an even number of values.</p></aside></div></section>
+
+<!-- ================= BLOK 2 ================= -->
+<section id="s2">
+<div class="kicker">Blok 2</div>
+<h2><span class="num">2</span>Öncelik kuyruğu ve “veri yapısı önemlidir” <span class="time">20 dk</span></h2>
+
+<div class="topic-row" id="topic-2-1"><div class="topic-main"><h3>2.1 Öncelik kuyruğu nedir?</h3>
+<p><b>Sezgi.</b> Hastane acil servisini düşünün. Hastalar <i>geliş sırasına</i> göre değil, <b>aciliyetine</b> göre çağrılır: yeni gelen ağır bir hasta, bekleyen hafif bir hastanın önüne geçer. Kuyruğun “sıra”sı gelişle değil, bir <b>önceliğe</b> göredir. Bu, <b>öncelik kuyruğu (priority queue)</b>’dur.</p>
+<div class="rule"><b class="t">Kural 3 — öncelik kuyruğunun üç işlemi</b>
+<span class="en">Insert(Q, x)</span>: x elemanını anahtarıyla (key) birlikte ekle.<br>
+<span class="en">Find-Minimum(Q)</span> (ya da Find-Maximum): en küçük (en büyük) anahtarlı elemanı <i>göster</i>.<br>
+<span class="en">Delete-Minimum(Q)</span> (ya da Delete-Maximum): o elemanı <i>çıkar</i>.<br>
+Öbek ya da dengeli ikili ağaçla her biri O(log n)’de yapılabilir (öbekte Find-Minimum aslında O(1)’dir). Yığın ve kuyruk <b>özel durumlardır</b>: önceliği “geliş zamanı” seçerseniz kuyruk (ilk gelen önce), tersini seçerseniz yığın (son gelen önce) elde edersiniz.</div>
+
+<p><b>Neden bir kez sıralayıp bitirmiyoruz?</b> Çünkü işler <i>rastgele zamanlarda</i> gelir. Her yeni iş için tüm listeyi yeniden sıralamak çok pahalıdır; yeni bir işi doğru yere eklemek çok ucuzdur.</p>
+<p><b>Üç gerçek uygulama:</b> (1) <b>Flört kuyruğu</b> (Skiena’nın örneği): insanları adlarına göre değil çekiciliğe göre getir; puanlar değişince yeni puanla yeniden ekle. (2) <b>Ayrık olay benzetimi</b> (havaalanı, otopark): planlanan en erken olay sıradaki olaydır. (3) <b>RTOS zamanlayıcıları</b> (Blok 6): “hangi zamanlayıcının vakti ilk geliyor?”</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-1"><a class="section-reference" href="#topic-2-1">Lecture §2.1</a><h4 id="simple-topic-2-1">Priority replaces arrival order</h4><p>A timer queue picks the earliest due time. A task queue may pick the highest priority number. Choose the key and whether smaller or larger means more urgent.</p><p>Peek reads the best item without removing it. Extract removes it. Equal keys need an explicit tie-break rule if FIFO behavior matters.</p></aside></div><div class="topic-row" id="topic-2-2"><div class="topic-main"><h3>2.2 Seçmeli sıralamaya yeniden bakış: veri yapısı farkı yaratır</h3>
+<p>Hafta 3’te selection sort’u gördük: her turda <b>(A) kalanların en küçüğünü bul</b>, <b>(B) onu çıkarıp sıradaki yere koy</b>. Bu aslında <i>bir öncelik kuyruğunun</i> işidir. n tur boyunca:</p>
+<div class="rule"><b class="t">Kural 4 — veri yapısını değiştir</b>
+Toplam maliyet = n × (A’nın maliyeti + B’nin maliyeti).<br>
+<b>Dizi / sırasız liste:</b> A = O(n), B = O(1) → toplam <b>O(n²)</b> (selection sort).<br>
+<b>Öbek ya da dengeli ağaç:</b> A de B de O(log n) → toplam <b>O(n log n)</b>. Öbek kullanılan sürüm <b>heapsort</b>, dengeli arama ağacı kullanılan sürüm ağaç sıralamasıdır.<br>
+Yavaş bir algoritma gördüğünüzde sorulacak ilk soru: <b>“farklı bir veri yapısı kullanabilir miyim?”</b></div>
+
+<div class="try"><div class="lab">Kendin dene — dizi mi, sıralı liste mi, öbek mi? (ölçülen karşılaştırma sayısı)</div>
+<div class="row"><span>n =</span><select id="co_n"><option>16</option><option selected>64</option><option>256</option><option>1024</option><option>4096</option></select><button class="btn g" id="co_r">Yeni rastgele anahtarlar</button></div>
+<div class="scroll"><table><thead><tr><th>Yapı</th><th>Ekle (ort.)</th><th>Ekle (en kötü)</th><th>Min bul</th><th>Min sil (ort.)</th><th>Bir zamanlayıcı tetiklenince (sil + ekle)</th></tr></thead><tbody id="co_t"></tbody></table></div>
+<div class="mut">Sayılar, her yapının gerçek bir gerçekleştirimini rastgele anahtarlarla çalıştırıp karşılaştırmaları saymaktan gelir. n = 64 için öbek onarımında ekle için üst sınır ⌊lg 65⌋ = 6 karşılaştırmadır; rastgele ölçüm bu sınıra ulaşmayabilir; çıkarma en kötü 2·lg n karşılaştırma yapar, ortalama bunun biraz altında kalır. Sırasız dizide “min bul” her seferinde n − 1 karşılaştırmadır; sıralı listede “ekle” ortalama n/2 yürüyüştür. Öbeği Blok 3–5’te kuracağız; şimdilik <b>sadece maliyetlere bakın</b>.</div><div class="activity-guide"><h4>Karşılaştırmaları sayın, saniye sanmayın</h4><p><b>Kontrolleri okuyun.</b> n aynı büyüklükteki yapıların işlemlerini karşılaştırır. Yeni rastgele anahtarlar örneği değiştirir; hücrelerdeki değerler bu deneyin sayımlarıdır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=64 seçin: sırasız dizide minimum bulmak 63 karşılaştırma gerektirir. Öbek kökünü okumak anahtar karşılaştırması gerektirmez.</li><li>Öbek eklemesinin ölçülen en kötü değerini 6 düzeylik üst sınırla karşılaştırın. Bu deneyin o sınıra ulaşması zorunlu değildir.</li><li>n’yi büyütün ve yeni girdi deneyin. Sıralı liste eklemesinin, sırasız dizi minimum aramasının ve öbek onarımının farklı büyüdüğünü görün.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Sıfır karşılaştırma sıfır zaman değildir: kökü okumak veya belleğe yazmak hâlâ iştir. Dinamik kapasite büyütme ve gerçek donanım maliyetleri bu sayacın dışında kalabilir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-2"><a class="section-reference" href="#topic-2-2">Lecture §2.2</a><h4 id="simple-topic-2-2">Keep the idea, change the expensive step</h4><p>Selection sort repeatedly scans for the smallest remaining value. A heap maintains access to that value, avoiding a full scan on every extraction.</p><p>The sum (n−1)+(n−2)+…+1 is quadratic. Heap construction plus logarithmic extractions gives O(n log n). A balanced-tree version is tree sort, not heapsort.</p></aside></div><div class="topic-row" id="topic-2-3"><div class="topic-main"><h3>2.3 Python’da hazır öncelik kuyruğu</h3>
+<p>Python’un <code>heapq</code> modülü bir <b>min-öbek</b>i sıradan bir listenin içinde tutar:</p>
+<pre class="python-example" data-python="2">import heapq
+pq = []
+for x in [5, 9, 7, 12, 10]:
+    heapq.heappush(pq, x)
+print(pq)                    # [5, 9, 7, 12, 10]   (liste öbek düzeninde; sıralı DEĞİL)
+print(heapq.heappop(pq))     # 5   (en küçük çıktı)
+print(pq)                    # [7, 9, 10, 12]</pre>
+<div class="rule skip"><b class="t">Python hatırlatma</b>
+<code>heapq</code> küçük olanı üstte tutar; <b>en büyükle çalışmak</b> için sayıların işaretini çevirip (−x) ekleyin. Liste 0’dan başlar; bizim konum numaralarımız 1’den (Blok 3). Listenin <i>yazdırılmış hali</i> sıralı görünmeyebilir: bu normaldir, çünkü öbek tam sıralı değildir (Blok 3).</div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-3"><a class="section-reference" href="#topic-2-3">Lecture §2.3</a><h4 id="simple-topic-2-3">Use Python’s heap operations</h4><p>heapq.heappush adds and repairs; heapq.heappop removes the minimum and repairs. The remaining list need not be sorted: only parent-child heap order is maintained.</p><p>The library uses zero-based indices. Our hand-written teaching examples reserve index 0, so their root is at index 1. Do not mix the formulas.</p></aside></div></section>
+
+<!-- ================= BLOK 3 ================= -->
+<section id="s3">
+<div class="kicker">Blok 3</div>
+<h2><span class="num">3</span>İkili öbek: kurallar, dizide saklama, yükseklik <span class="time">25 dk</span></h2>
+
+<div class="topic-row" id="topic-3-1"><div class="topic-main"><h3>3.1 Sezgi: “kısmi sıra”</h3>
+<p><b>Sezgi.</b> Bir şirketin organizasyon şemasını düşünün: her müdür, altındaki çalışanlardan <i>kıdemlidir</i>. Ama aynı müdürün iki çalışanı arasında kim kıdemli, bilmeyiz; farklı müdürlerin altındakiler arasında da bir sıra yoktur. Yine de <b>en kıdemli kişi en tepededir</b>. İşte öbek budur: <b>tam sıralı değil</b> (sıralamak pahalı), <b>rastgele de değil</b> (en küçük kolay bulunuyor). Bu ara düzene <b>kısmi sıra (partial order)</b> denir.</p>
+<div class="rule"><b class="t">Kural 5 — ikili öbek (binary heap) = 3 kural</b>
+<b>Şekil kuralları</b> (ağacın <i>nasıl görüneceği</i>):<br>
+1. Bütün yapraklar (leaf) en fazla <b>iki komşu düzeyde</b> (level) bulunur.<br>
+2. En alt düzey dışındaki bütün düzeyler <b>tamamen doludur</b>; en alt düzeydeki yapraklar <b>sola yaslıdır</b>.<br>
+<b>Etiket kuralı</b> (ağacın <i>içindeki sayılar</i>):<br>
+3. Her düğümün anahtarı çocuklarının anahtarından <b>küçük ya da eşittir</b> (<b>min-öbek</b>); alt ağaçların kendileri de öbektir. Eşitsizlik ters çevrilirse <b>maks-öbek</b>.<br>
+Sonuç: <b>en küçük anahtar her zaman köktedir</b> (min-öbek).</div>
+
+<p><b>Küçük örnek.</b> [1, 3, 2, 5, 4] bir min-öbektir: kök 1; çocukları 3 ve 2; 3’ün çocukları 5 ve 4. Ama 3 ile 2 arasında sıra yok (3 solda, 2 sağda). [1, 5, 2, 3, 4] değildir: 5’in çocuğu 3, 5’ten küçük.</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-1"><a class="section-reference" href="#topic-3-1">Lecture §3.1</a><h4 id="simple-topic-3-1">Keep just enough order</h4><p>In [1,3,2,5,4], every parent is at most its children. That makes 1 the minimum, although 3 comes before 2 in the array. Siblings do not need to be ordered.</p><p>The shape is complete: fill each level left to right. Values may repeat. This combination of shape and parent-child order defines a binary min-heap.</p></aside></div><div class="topic-row" id="topic-3-2"><div class="topic-main"><h3>3.2 “Bu bir öbek mi?” denetleyici</h3>
+<div class="try"><div class="lab">Kendin dene — öbek doğrulayıcı (konumlar 1’den başlar)</div>
+<div class="row"><select id="vl_pre"><option value="">— Hazır örnek seç —</option><option value="1, 3, 2, 5, 4">[1,3,2,5,4] (geçerli)</option><option value="1, 5, 2, 3, 4">[1,5,2,3,4] (geçersiz)</option><option value="2, 1, 3, 4, 5">[2,1,3,4,5] (geçersiz)</option><option value="1, 2, 3, 1, 0">[1,2,3,1,0] (geçersiz)</option><option value="3, 5, 4, 10, 8, 7">[3,5,4,10,8,7] (geçerli)</option><option value="1, 2, 3, 4, 5, 6, 7">sıralı dizi (geçerli!)</option><option value="1492, 1783, 1776, 1804, 1865, 1945, 1963, 1918, 2001, 1941">Slayttaki yıllar öbeği</option></select>
+<select id="vl_mode"><option value="min">min-öbek</option><option value="max">maks-öbek</option></select></div>
+<div class="row"><input type="text" id="vl_in" value="1, 3, 2, 5, 4" style="flex:1;min-width:200px"><button class="btn" id="vl_go">Denetle</button></div>
+<svg id="vl_svg" class="hv" role="img" aria-label="Öbek denetleyici ağaç çizimi"></svg>
+<div class="cards" id="vl_cards"></div>
+<div id="vl_out" class="note"></div>
+<div class="mut">Kırmızı kenar: çocuk, ebeveyninden “daha iyi” olduğu için 3. kuralı bozuyor. En fazla 15 sayı girin. Denemeler: sıralı (artan) bir dizi her zaman geçerli bir min-öbektir, ama bir min-öbek çoğu zaman sıralı değildir. Yıllar öbeği Skiena’nın slaytlarındaki örnektir.</div><div class="activity-guide"><h4>Her kenarı doğrulayın</h4><p><b>Kontrolleri okuyun.</b> Hazır örnek, min/maks seçimi ve sayı alanı deneyi belirler. Değişikliklerden sonra Denetle ile sonucu okuyun; kırmızı kenarlar ihlaldir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Min-öbekte 1,3,2,5,4 geçerlidir: 1≤3,1≤2,3≤5,3≤4. Kardeş 3 ve 2’nin sırasını önemsemeyin.</li><li>1,5,2,3,4 ile 5’in iki çocuğunu inceleyin: 5&gt;3 ve 5&gt;4 ihlalleri bulunur.</li><li>Aynı sayıları maks-öbek olarak kontrol edin; eşitsizlik yönü değişir. Eşit sayılar, örneğin 2,2,2, her iki etiket kuralını da sağlar.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Araçta dizi boşluksuz olduğundan şekil kuralı otomatik sağlanır. Kökte minimum bulunması tek başına bütün alt kenarların geçerli olduğunu kanıtlamaz.</p></div></div>
+
+<div class="rule skip"><b class="t">Sık yapılan hata</b>
+(1) “Öbek sıralı bir dizidir.” Hayır: [1, 3, 2, 5, 4] öbektir ama sıralı değildir. (2) “Soldaki çocuk sağdakinden küçük olmalı.” Hayır: kardeşler arasında sıra yoktur. (3) “Min-öbekte en <i>büyük</i> eleman son konumdadır.” Hayır: en büyük, <i>yapraklardan biridir</i> (herhangi biri). Örneğin [1, 3, 2, 5, 4]’te 5 son değil, 4 son.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-2"><a class="section-reference" href="#topic-3-2">Lecture §3.2</a><h4 id="simple-topic-3-2">Check each parent-child edge</h4><p>[1,5,2,3,4] fails because parent 5 is greater than children 3 and 4. Checking only that the root is smallest is not enough.</p><p>A compact list automatically supplies the complete shape in this tool. The validator checks value order; it does not test an arbitrary drawing with missing positions.</p></aside></div><div class="topic-row" id="topic-3-3"><div class="topic-main"><h3>3.3 Ağacı bir dizinin içinde saklamak</h3>
+<p><b>Sezgi.</b> Şekil kuralları o kadar düzenli ki ağaca işaretçi gerekmez. Düğümleri <b>düzey düzey, soldan sağa, 1’den başlayarak</b> numaralandırın (bir okul sırasına dizilir gibi): numara = dizideki konum. Çocukların ve ebeveynin yeri <i>hesaplanır</i>:</p>
+<div class="rule"><b class="t">Kural 6 — indeks aritmetiği (konumlar 1’den başlar)</b>
+k konumundaki düğümün <b>sol çocuğu 2k</b>, <b>sağ çocuğu 2k + 1</b>, <b>ebeveyni ⌊k/2⌋</b> konumundadır. Kök k = 1’dir. n elemanlı öbekte konumu n’den büyük olan çocuk yoktur.</div>
+<p><b>Örnekler.</b> Konum 9’un ebeveyni ⌊9/2⌋ = 4. Konum 6’nın çocukları 12 ve 13. Konum 13’ün ebeveyni ⌊13/2⌋ = 6. Konum 1’in çocukları 2 ve 3; konum 2’nin çocukları 4 ve 5.</p>
+<div class="try"><div class="lab">Kendin dene — indeks hesaplayıcı</div>
+<div class="row"><span>n =</span><input type="range" id="ix_n" min="1" max="15" value="10"><b id="ix_nv">10</b><span>k =</span><input type="range" id="ix_k" min="1" max="15" value="4"><b id="ix_kv">4</b></div>
+<svg id="ix_svg" class="hv" role="img" aria-label="Konum numaralı ağaç"></svg>
+<div id="ix_out" class="note"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>seçilen k</span><span><b style="background:var(--acc)"></b>ebeveyn</span><span><b style="background:var(--ok)"></b>çocuklar</span></div>
+<div class="mut">k = 4, n = 10 için: ebeveyn 2; çocuklar 8 ve 9. Konum 5’in çocukları 10 ve 11’dir, ama n = 10 olduğundan yalnızca 10 vardır. Kökten k’ya yolun uzunluğu ⌊lg k⌋’dır: her adım konum numarasını yarılar (Hafta 3 hatırlatma).</div><div class="activity-guide"><h4>Konum hesabını değer hesabından ayırın</h4><p><b>Kontrolleri okuyun.</b> n mevcut düğüm sayısı, k seçilen bir tabanlı konumdur. Renkler ebeveyn ve var olan çocukları işaretler.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=10,k=4: ebeveyn 4//2=2; çocuklar 8 ve 9. Kökten 4’e iki kenar vardır.</li><li>k=5: hesaplanan çocuklar 10 ve 11’dir ama 11&gt;n olduğu için sağ çocuk yoktur.</li><li>k=1: kökün ebeveyni yoktur. Sıfır tabanlı karşılığında kök indeks 0 olur; formüller 2i+1,2i+2’ye dönüşür.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> 2k hesabı bir konum üretir; o konumun mevcut olduğunu ayrıca n ile denetleyin. Bu aritmetik tam şeklin sağladığı bağlantıdır.</p></div></div>
+
+<div class="rule skip"><b class="t">Python hatırlatma: 0’dan başlayan liste</b>
+Python listeleri 0’dan indekslenir. Konumları 1’den başlatmak için listenin başına kullanılmayan bir yer koyarız: <code>Q = [None, 5, 9, 7]</code>; böylece <code>Q[1]</code> kök olur ve formüller değişmez. Hazır <code>heapq</code> ise 0 tabanlıdır: <code>i</code> indeksli düğümün çocukları <code>2*i+1</code> ve <code>2*i+2</code>, ebeveyni <code>(i−1)//2</code>’dir. İkisi aynı ağaçtır: <code>i = k − 1</code> deyin. İndeks hesaplayıcının çıktısında her ikisini görebilirsiniz. <b>Bu derste ve sınavda konumlar 1’den başlar.</b></div>
+
+<p><b>Neden şekil kuralları şart?</b> Dizide saklama sadece ağaç neredeyse dolu olduğu için çalışır. Seyrek bir ağaçta her eksik düğüm dizide boş bir göz bırakırdı. Bedeli esneklik: dizi tabanlı ağacı işaretçili ağaç kadar serbestçe yeniden şekillendiremeyiz. Ama öbek için buna gerek yok.</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-3"><a class="section-reference" href="#topic-3-3">Lecture §3.3</a><h4 id="simple-topic-3-3">The array index is the link</h4><p>Using one-based positions, node 4 has parent 2 and children 8 and 9. With n=10, node 5 has only child 10; position 11 does not exist.</p><p>For Python heapq index i, children are 2i+1 and 2i+2; the parent is (i−1)//2 when i&gt;0. An index is a location, not the stored value.</p></aside></div><div class="topic-row" id="topic-3-4"><div class="topic-main"><h3>3.4 Yükseklik: neden O(log n)?</h3>
+<p><b>Sezgi.</b> Her düzey bir üsttekinin <b>iki katı</b> düğüm tutar: 1, 2, 4, 8… Son düzey hariç hepsi dolu olduğundan, h yüksekliğindeki bir öbeğin düğüm sayısı n şu aralıktadır: <code>2<sup>h</sup> ≤ n ≤ 2<sup>h+1</sup> − 1</code>. Yani <b>yükseklik h = ⌊lg n⌋</b>.</p>
+<div class="rule"><b class="t">Kural 7 — yükseklik</b>
+n elemanlı öbeğin yüksekliği <b>⌊lg n⌋</b>’dir, çünkü 1 + 2 + 4 + … + 2<sup>h</sup> = 2<sup>h+1</sup> − 1 ≥ n. Örnekler: n = 10 → 3; n = 64 → 6; n = 1000 → 9; n = 10⁶ → 19. <b>BST ile fark:</b> BST’nin yüksekliği ekleme sırasına bağlıdır ve zincir olabilir (h = n − 1); öbeğin şekli sabit olduğundan yüksekliği <i>her zaman</i> ⌊lg n⌋’dır.</div>
+<div class="try"><div class="lab">Kendin dene — düzeyleri say, yüksekliğe göre düğümleri say</div>
+<div class="row"><span>n =</span><input type="range" id="ht_n" min="1" max="100" value="10"><b id="ht_nv">10</b></div>
+<div class="scroll"><table><tr><th>Düzey</th><th>Kapasite 2<sup>d</sup></th><th>Gerçek düğüm</th><th>Konumlar</th></tr><tbody id="ht_lv"></tbody></table></div>
+<div class="scroll"><table><tr><th>Yükseklik h (altında kaç düzey var)</th><th>Düğüm sayısı (saydık)</th><th>Üst sınır ⌈n / 2<sup>h+1</sup>⌉</th><th>h × düğüm</th></tr><tbody id="ht_hh"></tbody></table></div>
+<div id="ht_out" class="note"></div>
+<div class="mut">“Düğümün yüksekliği” = o düğümden en uzak yaprağa inen yol uzunluğu. Yaprakların yüksekliği 0’dır ve <b>düğümlerin yarısına yakını yapraktır</b>. Bu gözlem Blok 5’te öbek kurmanın neden hızlı olduğunu açıklayacak: sağdaki sütunun toplamı hep n’den küçük kalır.</div><div class="activity-guide"><h4>Derinlik ve yükseklik aynı şey değildir</h4><p><b>Kontrolleri okuyun.</b> n kaydırıcısı tam şeklin boyutunu değiştirir. İlk tablo kökten düzeyleri, ikinci tablo düğümlerin aşağıya doğru yüksekliklerini sayar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=15: düzeylerde 1,2,4,8 düğüm; kök yüksekliği 3. Yapraklar 8 adet ve yükseklikleri 0.</li><li>Yüksekliği 1 olan 4 düğüm, 2 olan 2 düğüm, 3 olan 1 düğüm vardır. Ağırlıklı toplam 4+4+3=11.</li><li>n=16’da yeni düzey açılır ve kök yüksekliği 4 olur. Düğüm sayısı yalnız bir arttığı hâlde yükseklik bir artabilir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> h×düğüm toplamı mümkün aşağı hareketlerin üst sınırıdır, belirli girdide yapılan takas sayısı değildir. Heapify’nin doğrusal analizinde bu ayrım önemlidir.</p></div></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-4"><a class="section-reference" href="#topic-3-4">Lecture §3.4</a><h4 id="simple-topic-3-4">Count edges, not levels</h4><p>A heap with 1000 items has height 9 because 512≤1000&lt;1024. That is ten occupied levels, numbered 0 through 9.</p><p>A node’s depth measures distance from the root. Its height measures distance down to its farthest leaf. Heapify costs depend on the second quantity.</p></aside></div></section>
+
+<div class="box" style="text-align:center"><b>☕ Ara — 10 dakika</b><br><span class="mut">Dönünce: ekleme ve çıkarma (Blok 4).</span></div>
+
+<!-- ================= BLOK 4 ================= -->
+<section id="s4">
+<div class="kicker">Blok 4</div>
+<h2><span class="num">4</span>Ekleme ve en küçüğü çıkarma <span class="time">30 dk</span></h2>
+<p>İki işlemin de tek ilkesi var: <b>önce şekli koru, sonra sayıları onar.</b> Şekil kuralları dizinin sonuna ekleyip sonundan çıkardığımız sürece bozulmaz; bozulabilecek tek şey 3. kuraldır. Onu da bir düğümü <b>tek yönde</b> kaydırarak onarırız.</p>
+
+<div class="topic-row" id="topic-4-1"><div class="topic-main"><h3>4.1 Ekleme: yukarı taşıma (bubble up)</h3>
+<p><b>Sezgi.</b> Yeni çalışanı en alttaki ilk boş masaya oturtun (konum n + 1). Eğer müdüründen “daha kıdemli” (min-öbekte: daha küçük) ise müdürüyle <b>yer değiştirir</b>; sonra yeni müdürüyle karşılaştırılır… Müdürü zaten daha küçükse ya da köke gelindiyse durur.</p>
+<pre>insert(Q, x):
+    n = n + 1
+    Q[n] = x
+    bubble_up(Q, n)
+
+bubble_up(Q, p):
+    if p is the root: return
+    if Q[parent(p)] &gt; Q[p]:        # ebeveyn daha büyükse kural bozuk
+        swap Q[p] and Q[parent(p)]
+        bubble_up(Q, parent(p))</pre>
+<pre class="python-example" data-python="3"># Python: Q[0] kullanılmaz, öbek Q[1..n]
+def bubble_up(Q, p):
+    while p &gt; 1 and Q[p // 2] &gt; Q[p]:
+        Q[p // 2], Q[p] = Q[p], Q[p // 2]
+        p //= 2
+
+def insert(Q, x):
+    Q.append(x)
+    bubble_up(Q, len(Q) - 1)
+
+Q = [None, 2, 4, 3]
+insert(Q, 1)
+print(Q[1:])      # [1, 2, 3, 4]</pre>
+<p>Her yer değiştirme elemanı <b>bir düzey yukarı</b> taşır; düzey sayısı ⌊lg n⌋ olduğundan en çok ⌊lg n⌋ yer değiştirme olur: <b>ekleme O(log n)</b>.</p>
+
+<p><b>Çözümlü örnek 1 (orijinal).</b> Min-öbek [2, 4, 3]’e 1 ekleyin. 1, konum 4’e yazılır; ebeveyni konum 2 (4); 4 &gt; 1 → yer değiştir; ebeveyni konum 1 (2); 2 &gt; 1 → yer değiştir; kök, dur. Aşağıda adım adım:</p>
+<div class="trace" data-k="ins" data-arr="2,4,3" data-x="1" data-mx="0" data-expect="1,2,3,4" data-open="1"></div>
+<p><b>Çözümlü örnek 2 (orijinal, RTOS).</b> Zamanlayıcı öbeği [5, 9, 7, 12, 10]’a vakti 6 olan bir zamanlayıcı ekleyin.</p>
+<div class="trace" data-k="ins" data-arr="5,9,7,12,10" data-x="6" data-mx="0" data-expect="5,9,6,12,10,7" data-open="1"></div>
+<p><b>Çözümlü örnek 3 (orijinal).</b> [3, 5, 4, 10, 8, 7]’ye 2 ekleyin (iki yer değiştirme, köke kadar).</p>
+<div class="trace" data-k="ins" data-arr="3,5,4,10,8,7" data-x="2" data-mx="0" data-expect="2,5,3,10,8,7,4"></div>
+
+<div class="try"><div class="lab">Kendin dene — ekleme izleyicisi</div>
+<div class="vz" id="v_ins"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>karşılaştırılan</span><span><b style="background:var(--acc)"></b>yer değiştiren / yeni</span><span><b style="background:var(--ok)"></b>yerleşti</span></div>
+<div class="mut">Girdi dizisinin geçerli bir öbek olması gerekir (aksi hâlde araç uyarır). Maks-öbeği seçerseniz “büyük olan yukarı çıkar”. Denemeler: (1) [2,4,3] + 1 → 2 yer değiştirme. (2) [1,2,3] + 9 → hiç yer değiştirme yok, tek karşılaştırma. (3) Azalan eklemeler her seferinde köke kadar çıkar (en kötü durum).</div><div class="activity-guide"><h4>Şekli koruyup yalnızca yeni yolu onarın</h4><p><b>Kontrolleri okuyun.</b> Hazır örnek veya kendi öbek diziniz ve eklenecek değeri seçin. Yükle hesaplamayı başlatır; İleri tek adım, Oynat otomatik ilerleme, Başa dön aynı girdinin ilk adımıdır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Min-öbek 2,4,3 ve yeni değer 1: son konum 4’e eklenince dizi 2,4,3,1 olur.</li><li>1 önce ebeveyn 4 ile, sonra ebeveyn 2 ile takas edilir: son dizi 1,2,3,4. İki takas vardır.</li><li>1,2,3 öbeğine 9 ekleyin: ebeveyn 2≤9 olduğu için hiç takas yoktur, bir anahtar karşılaştırması yeterlidir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Girdi zaten geçerli öbek olmalıdır; aksi hâlde bu tek yol onarımı yeterli değildir ve araç uyarır. Maks-öbek seçilirse büyük değer yukarı çıkar.</p></div></div>
+
+<div class="rule skip"><b class="t">İsteğe bağlı: bubble_up için döngü değişmezi (Hafta 3 hatırlatma)</b>
+<b>Değişmez:</b> her turun başında, <i>p konumu dışında</i> hiçbir ebeveyn–çocuk çifti 3. kuralı bozmaz (bozuk olabilecek tek çift p ile ebeveynidir) ve p’deki değer, p’nin altındaki çocuklarından büyük değildir. <b>Başlangıç:</b> p = n, yeni eleman en altta; yeni elemandan önceki öbek geçerliydi. <b>Adım:</b> ebeveynle takas, bozuk çifti bir düzey yukarı iter. <b>Bitiş:</b> p köktür ya da ebeveyn ≤ p; bozuk çift kalmadı. Her tur p’yi yarıladığı için tur sayısı ≤ ⌊lg n⌋.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-1"><a class="section-reference" href="#topic-4-1">Lecture §4.1</a><h4 id="simple-topic-4-1">Add at the end, then move up</h4><p>Append 1 to [2,4,3]: [2,4,3,1]. Swap it with parent 4, then parent 2. Result: [1,2,3,4]. The complete shape never changes.</p><p>Only the new value’s ancestor path needs repair. Appending to a resizable array may separately trigger a copy; the logarithmic bound describes heap repair or preallocated storage.</p></aside></div><div class="topic-row" id="topic-4-2"><div class="topic-main"><h3>4.2 En küçüğü çıkarma: aşağı taşıma (bubble down)</h3>
+<p><b>Sezgi.</b> En küçük kökte; onu alırsak kökte bir <i>delik</i> kalır. Delikle uğraşmak yerine, <b>dizinin son elemanını köke koyarız</b> (böylece şekil bozulmaz: ağaç yalnızca sondan bir düğüm kaybeder). Bu eleman muhtemelen çok büyüktür ve yanlış yerdedir; onu <b>çocuklarından küçük olanıyla</b> yer değiştirerek aşağı indiririz, ta ki çocukları kendisinden büyük olana ya da bir yaprağa dek.</p>
+<pre>extract_min(Q):
+    min = Q[1]
+    Q[1] = Q[n]
+    n = n − 1
+    bubble_down(Q, 1)
+    return min
+
+bubble_down(Q, p):
+    find the smallest among Q[p] and its (up to two) children
+    if that smallest is a child c:
+        swap Q[p] and Q[c]
+        bubble_down(Q, c)</pre>
+<pre class="python-example" data-python="4"># Python
+def bubble_down(Q, p, n):
+    while 2 * p &lt;= n:
+        c = 2 * p                          # sol çocuk
+        if c + 1 &lt;= n and Q[c + 1] &lt; Q[c]:
+            c += 1                         # sağ çocuk daha küçükse onu al
+        if Q[c] &lt; Q[p]:
+            Q[c], Q[p] = Q[p], Q[c]
+            p = c
+        else:
+            break
+
+def extract_min(Q):
+    n = len(Q) - 1
+    if n == 0:
+        raise ValueError(&quot;Boş öbekten eleman çıkarılamaz.&quot;)
+    m = Q[1]
+    Q[1] = Q[n]; Q.pop(); n -= 1
+    bubble_down(Q, 1, n)
+    return m
+
+Q = [None, 1, 3, 2, 7, 4]
+print(extract_min(Q), Q[1:])     # 1 [2, 3, 4, 7]</pre>
+<div class="rule"><b class="t">Kural 8 — neden <u>küçük</u> çocukla takas?</b>
+İki çocuk varsa <b>küçüğüyle</b> yer değiştirilir. Çünkü küçük çocuk yukarı çıkınca hem yeni ebeveyni olarak kendi kardeşinden küçük kalır hem de kök kuralını sağlar. Büyük çocukla takas edilirse, yukarı çıkan büyük çocuk kardeşinden büyük olur ve 3. kural yine bozulur.</div>
+
+<p><b>Çözümlü örnek 4 (orijinal).</b> [2, 5, 3, 10, 8, 7, 4]’ten minimumu çıkarın. 2 gider, son eleman 4 köke gelir: [4, 5, 3, 10, 8, 7]. Çocuklar 5 ve 3; küçüğü 3, 3 &lt; 4 → takas: [3, 5, 4, 10, 8, 7]. Konum 3’ün (4) tek çocuğu konum 6’dadır (7; konum 7 yok); 7 ≥ 4 → dur.</p>
+<div class="trace" data-k="ext" data-arr="2,5,3,10,8,7,4" data-mx="0" data-expect="3,5,4,10,8,7" data-open="1"></div>
+<p><b>Çözümlü örnek 5 (orijinal).</b> [1, 3, 2, 7, 4]’ten minimumu çıkarın. Beklenen sonuç [2, 3, 4, 7].</p>
+<div class="trace" data-k="ext" data-arr="1,3,2,7,4" data-mx="0" data-expect="2,3,4,7" data-open="1"></div>
+
+<div class="try"><div class="lab">Kendin dene — en küçüğü çıkarma izleyicisi</div>
+<div class="vz" id="v_ext"></div>
+<div class="mut">Sayılara dikkat: <b>iki çocuk</b> olduğunda önce çocuklar birbirleriyle (1 karşılaştırma), sonra küçük olan düğümle (1 karşılaştırma) kıyaslanır. Aşağı inen düğüm her adımda bir düzey iner; en çok ⌊lg n⌋ takas. Maks-öbekte “küçük” yerine “büyük çocuk” seçilir.</div><div class="activity-guide"><h4>Küçük çocuk neden doğru seçim?</h4><p><b>Kontrolleri okuyun.</b> Geçerli min veya maks öbeği yükleyin. Ağaç, dizi, açıklama ve sayaçlar aynı adımı gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Min-öbek 1,3,2,7,4’ten 1’i çıkarın. Son değer 4 köke taşınır: 4,3,2,7.</li><li>Çocuklar 3 ve 2 karşılaştırılır; küçük 2 seçilir. 2&lt;4 olduğundan takas edilir; sonuç 2,3,4,7.</li><li>Tek elemanlı 5 öbeğiyle deneyin: 5 çıkar, boş öbek kalır. Boş öbekten çıkarma isteğinin sonuç üretmediğini kontrol edin.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Her takas bir düzey aşağı indirir. İki çocuk varken çocuk seçimi ve ebeveyn karşılaştırması ayrı işlerdir; takas sayısını karşılaştırma sayısıyla eşitlemeyin.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-2"><a class="section-reference" href="#topic-4-2">Lecture §4.2</a><h4 id="simple-topic-4-2">Fill the root from the end</h4><p>Remove 1 from [1,3,2,7,4]. Move the last value 4 to the root, leaving [4,3,2,7]. Swap with the smaller child 2 to get [2,3,4,7].</p><p>Choose the smaller child in a min-heap, not automatically the left child. Handle empty and single-item heaps explicitly. Every other subtree must already be a heap.</p></aside></div><div class="topic-row" id="topic-4-3"><div class="topic-main"><h3>4.3 Maliyet ve tekrar</h3>
+<div class="rule"><b class="t">Kural 9 — iki işlemin maliyeti</b>
+<b>Ekleme:</b> en çok ⌊lg n⌋ takas, en çok ⌊lg n⌋ karşılaştırma → O(log n). <b>Min çıkarma:</b> en çok ⌊lg n⌋ takas, en çok 2⌊lg n⌋ karşılaştırma → O(log n). <b>Min bulma:</b> köke bak → O(1). Örnek: n = 64 zamanlayıcıda yükseklik lg 64 = 6; ekle ≈ 6, çıkar ≈ 6 takas (en kötü), yani bir zamanlayıcının tetiklenip yeniden eklenmesi yaklaşık 12 düzey hareketiyle sınırlanır; karşılaştırma, kopyalama ve çağrı maliyetleri ayrıca sayılır. n = 10⁶ için ⌊lg n⌋ = 19, bu yüzden her işlem ~20 adımdır.</div>
+<div class="rule rev"><b class="t">Tekrar · Hafta 4–5</b>
+Hafta 4: yığın ve kuyruk, uygun bir öncelik anahtarı seçilerek öncelik kuyruğu davranışıyla ifade edilebilir: FIFO için daha erken geliş daha yüksek öncelik, LIFO için daha geç geliş daha yüksek önceliktir. Hafta 5: BST’de her işlem O(h) idi, ama h = n − 1 olabiliyordu; öbekte şekil sabit olduğundan h = ⌊lg n⌋ <b>garantidir</b>. “Dengeli ağacı korumak için uğraşmak” zorunda kalmadan O(log n) elde ederiz; karşılığında yalnızca minimum/maksimum’a hızlı erişim vardır, <b>keyfi anahtarı aramak</b> yine O(n)’dir.</div>
+
+<div class="try"><div class="lab">Kendin dene — hata avı</div>
+<div class="row"><span>Öbek</span><input type="text" id="eh_in" value="4, 5, 3, 10, 8, 7" style="flex:1;min-width:180px"></div>
+<div id="eh_out" class="mut"></div>
+<div class="mut">[4, 5, 3, 10, 8, 7] örnek 4’ün ara halidir: kök kuralı bozuk (4 &gt; 3). Araç, hangi çiftlerin bozuk olduğunu ve kökten aşağı taşımanın nereye götüreceğini gösterir. Bir öbek mi olduğuna kendiniz tahmin edin, sonra denetleyin.</div><div class="activity-guide"><h4>Kök onarımı her bozuk diziyi düzeltemez</h4><p><b>Kontrolleri okuyun.</b> Sayı alanı bozuk kenarları ve yalnızca kökten aşağı taşımanın sonucunu gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>4,5,3,10,8,7 için kökte 4&gt;3 ihlali vardır. 3 ile takas sonucu 3,5,4,10,8,7 geçerli olur.</li><li>1,5,2,3,4 deneyin. Kök zaten uygundur; fakat 5&gt;3 ve 5&gt;4 alt ihlalleri vardır. Kökten tek onarım bunları düzeltmez.</li><li>İkinci girdiyi aşağıdan yukarı heapify aracına taşıyın: alt kökler önce onarıldığı için bütün dizi düzeltilebilir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bubble down başlangıcında çocuk alt ağaçların zaten öbek olması gerekir. Bu önkoşul olmadan tek çağrı için doğruluk iddiası yapılamaz.</p></div></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-3"><a class="section-reference" href="#topic-4-3">Lecture §4.3</a><h4 id="simple-topic-4-3">One path, at most logarithmic repair</h4><p>Insertion moves upward on one path; extraction moves downward on one path. A downward level may use two comparisons: compare children, then compare the chosen child with the parent.</p><p>A level count is not a count of machine instructions or microseconds. Reading the root is O(1); searching for an arbitrary key can still require O(n).</p></aside></div></section>
+
+<!-- ================= BLOK 5 ================= -->
+<section id="s5">
+<div class="kicker">Blok 5</div>
+<h2><span class="num">5</span>Öbek kurma O(n) ve heapsort <span class="time">35 dk</span></h2>
+
+<div class="topic-row" id="topic-5-1"><div class="topic-main"><h3>5.1 Öbek kurmanın saf yolu: n kez ekle</h3>
+<p>Elimizde n sayı var ve onlardan bir öbek istiyoruz. En akla yakın yol: boş bir öbeğe sayıları <b>tek tek eklemek</b>. Her ekleme O(log n) olduğundan toplam O(n log n). Bu sınır <i>sıkıdır (Θ)</i>: örneğin min-öbek için sayılar <b>azalan</b> sırada gelirse her yeni eleman tüm öbekten küçüktür ve köke kadar çıkar. Son n/2 ekleme, derinlikleri yaklaşık lg n olan yapraklara eklendiği için her biri yaklaşık lg n takas yapar: n/2 × lg n ≈ <b>(n lg n)/2</b>. (Rastgele sıralı girdide ortalama çok daha iyidir; ama garanti arıyorsak en kötü durum geçerlidir.)</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-1"><a class="section-reference" href="#topic-5-1">Lecture §5.1</a><h4 id="simple-topic-5-1">Repeated insertion can do too much work</h4><p>Insert descending values into a min-heap. Each new value is the smallest so far and climbs to the root. Many insertions start deep in the tree.</p><p>This gives Θ(n log n) worst-case construction. Random inputs may perform better; a favorable experiment is not a worst-case guarantee.</p></aside></div><div class="topic-row" id="topic-5-2"><div class="topic-main"><h3>5.2 Daha hızlı yol: aşağıdan yukarı öbekleştirme (heapify)</h3>
+<p><b>Sezgi.</b> İki küçük öbek ve yeni bir eleman şunu verir: yeni elemanı <b>kök</b> yapın (iki öbeğin üstüne koyun), sonra onu <b>aşağı taşıyın</b>; tek büyük bir öbek olur. Üstelik <b>yapraklar zaten tek elemanlı öbeklerdir</b>, onlarla uğraşmaya gerek yok. O hâlde diziyi olduğu gibi (herhangi sırada) alın ve <b>aşağıdan yukarı</b> her iç düğümde aşağı taşıma uygulayın.</p>
+<div class="rule"><b class="t">Kural 10 — heapify (build-heap)</b>
+Elemanları diziye <b>herhangi bir sırayla</b> koyun; sonra <code>bubble_down</code>’ı <b>n/2, n/2 − 1, …, 2, 1</b> konumlarında (bu sırayla, geriye doğru) çağırın. n/2’den büyük konumlar yapraktır. İş bitince dizi geçerli bir öbektir. Maliyet <b>O(n)</b>.</div>
+<pre class="python-example" data-python="5">def bubble_down(Q, p, n):
+    while 2 * p &lt;= n:
+        c = 2 * p                          # sol çocuk
+        if c + 1 &lt;= n and Q[c + 1] &lt; Q[c]:
+            c += 1                         # sağ çocuk daha küçükse onu al
+        if Q[c] &lt; Q[p]:
+            Q[c], Q[p] = Q[p], Q[c]
+            p = c
+        else:
+            break
+
+def heapify(Q, n):               # Q[1..n], rastgele sırada
+    for p in range(n // 2, 0, -1):    # n//2, ..., 1
+        bubble_down(Q, p, n)
+
+Q = [None, 9, 4, 7, 1, 3, 8, 2]
+heapify(Q, 7)
+print(Q[1:])      # [1, 3, 2, 4, 9, 8, 7]</pre>
+<p><b>Çözümlü örnek 6 (orijinal).</b> [9, 4, 7, 1, 3, 8, 2] dizisini min-öbeğe çevirin (konum 3, 2, 1 sırasıyla aşağı taşı). Adımlar: konum 3 (7), çocukları 8 ve 2 → 2 ile takas → [9, 4, 2, 1, 3, 8, 7]. Konum 2 (4), çocukları 1 ve 3 → 1 ile takas → [9, 1, 2, 4, 3, 8, 7]. Konum 1 (9), çocukları 1 ve 2 → 1 ile takas → [1, 9, 2, 4, 3, 8, 7]; 9 artık konum 2’de, çocukları 4 ve 3 → 3 ile takas → [1, 3, 2, 4, 9, 8, 7]. Bitti.</p>
+<div class="trace" data-k="build" data-arr="9,4,7,1,3,8,2" data-mx="0" data-expect="1,3,2,4,9,8,7"></div>
+
+<div class="try"><div class="lab">Kendin dene — öbek kurma izleyicisi (aşağıdan yukarı)</div>
+<div class="vz" id="v_build"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>karşılaştırılan</span><span><b style="background:var(--acc)"></b>aşağı taşınan / takas</span><span><b style="background:var(--ok)"></b>yerleşti</span></div>
+<div class="mut">Karşılaştırma sayacına bakın: [9,4,7,1,3,8,2] için toplam karşılaştırma sayısı 2n = 14’ü geçmez. Konum 4–7 yapraktır: bu konumlardan ayrı bir aşağı taşıma çağrısı başlatılmaz; üstten gelen değerlerle yine takas edilebilirler.</div><div class="activity-guide"><h4>Çocuk öbekleri hazırlayın, sonra ebeveyni onarın</h4><p><b>Kontrolleri okuyun.</b> Herhangi sıradaki diziyi ve min/maks modunu seçip Yükle’ye basın. İleri her karşılaştırma ve takası gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Min modunda 9,4,7,1,3,8,2 yükleyin. Son iç konum 7//2=3: 7 ve küçük çocuğu 2 takas olur; dizi 9,4,2,1,3,8,7.</li><li>Konum 2’de 4 ile 1 takas: 9,1,2,4,3,8,7.</li><li>Konum 1’de 9 önce 1, sonra 3 ile takas eder. Sonuç 1,3,2,4,9,8,7; dört takas.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Yapraklardan ayrı onarım çağrısı başlatılmaz; yaprak konumları üstten gelen değerlerle takas edilebilir. Geçerli öbek, sıralı dizi olmak zorunda değildir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-2"><a class="section-reference" href="#topic-5-2">Lecture §5.2</a><h4 id="simple-topic-5-2">Repair the lowest parents first</h4><p>For [9,4,7,1,3,8,2], repair one-based positions 3,2,1 in that order. Their children are already heaps when each repair starts.</p><p>Leaves need no repair. The final heap [1,3,2,4,9,8,7] is valid but not sorted. Starting from the root once is insufficient for arbitrary input.</p></aside></div><div class="topic-row" id="topic-5-3"><div class="topic-main"><h3>5.3 Neden yalnızca O(n)? (n log n değil)</h3>
+<p><b>Sezgi.</b> “n/2 çağrı, her biri en çok lg n” demek O(n log n) verir; bu <b>doğru ama cömert bir üst sınırdır</b>. Gerçekte bir <code>bubble_down</code>’ın maliyeti lg n değil, <b>düğümün yüksekliği</b>dir (aşağıda en fazla o kadar düzey var). Düğümlerin yarısı yapraktır (yükseklik 0, maliyet 0), dörtte biri yükseklik 1, sekizde biri yükseklik 2… Çok az düğüm yüksektir.</p>
+<p><b>Sayısal örnek (n = 15, tam dolu).</b> Yükseklik 0: 8 düğüm × 0 = 0. Yükseklik 1: 4 düğüm × 1 = 4. Yükseklik 2: 2 düğüm × 2 = 4. Yükseklik 3: 1 düğüm × 3 = 3. Toplam en çok <b>11 takas</b>. Cömert sınır ise 7 çağrı × 3 = 21. n = 1023 için düzey hareketi üst sınırı 1013, cömert sınır 511 × 9 = 4599.</p>
+<div class="rule"><b class="t">Kural 11 — heapify neden O(n)</b>
+Yüksekliği h olan düğüm sayısı yaklaşık n / 2<sup>h+1</sup> ile sınırlıdır ve her biri en çok h düzey aşağı iner. Bu nedenle toplam <b>düzey hareketi</b> yaklaşık <b>n · Σ<sub>h≥0</sub> h / 2<sup>h+1</sup> = n</b> ile sınırlıdır. Aşağı taşımanın her düzeyinde en fazla iki anahtar karşılaştırması yapıldığından toplam karşılaştırma sayısı da yaklaşık <b>2n</b> ile sınırlanır. Sonuç: doğrusal zaman, <b>O(n)</b>. <b>Genel ders (Skiena):</b> “her biri en çok y sürede en çok x işlem” = O(xy), her zaman doğrudur ama bazen büyük bir fazla tahmindir. Analiz sıkı mı diye sorun: burada özensiz sınır O(n log n), dikkatli sınır O(n).</div>
+
+<div class="try"><div class="lab">Kendin dene — n büyüdükçe: ekleyerek kurma ile heapify (ölçülen karşılaştırma sayısı)</div>
+<div class="row"><button class="btn g" id="hc_r">Yeni rastgele girdi</button><span class="mut">n = 2<sup>k</sup> − 1 (tam dolu öbek)</span></div>
+<div class="scroll"><table><thead><tr><th>n</th><th>heapify karş.</th><th>/ n</th><th>n kez ekle (azalan, en kötü)</th><th>/ n</th><th>n kez ekle (rastgele ort.)</th><th>/ n</th></tr></thead><tbody id="hc_t"></tbody></table></div>
+<svg id="hc_svg" class="cht" viewBox="0 0 640 230" width="100%" role="img" aria-label="Karşılaştırma / n oranı"></svg>
+<div class="legend"><span><b style="background:var(--ok)"></b>heapify (rastgele girdi)</span><span><b style="background:var(--bad)"></b>ekleyerek, azalan girdi</span><span><b style="background:var(--warn)"></b>ekleyerek, rastgele girdi</span></div>
+<div class="mut">Gözlem: heapify için <b>karşılaştırma/n 2’nin altında sabit kalır</b> (n büyüse de), ekleyerek kurmanın en kötü durumunda oran lg n gibi artar (sağdaki sütun). Rastgele girdide ekleyerek kurmak da doğrusal görünür; ama bu bir <i>garanti</i> değil, ortalama davranıştır.</div><div class="activity-guide"><h4>Toplamı n’ye bölün ve büyümeyi görün</h4><p><b>Kontrolleri okuyun.</b> Tablo ve grafik aynı karşılaştırma ölçüsünü kullanır. Yeni rastgele girdi ölçülen değerleri yeniler; azalan ekleme satırı kasıtlı en kötü örnektir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=7 için azalan eklemede derinlikler 0,1,1,2,2,2,2; toplam 10 karşılaştırma.</li><li>n=15 için azalan ekleme toplamı 1×2+2×4+3×8=34’tür. Karşılaştırma/n oranı 34/15≈2,27.</li><li>Büyük n satırlarında bu oran artarken heapify/n’nin 2’nin altında kaldığını karşılaştırın. Rastgele ekleme de iyi görünebilir ama aynı en kötü garantiye sahip değildir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Tek rastgele ölçüm ispat değildir. Doğrusal heapify sınırını düğüm yüksekliklerinin toplamı açıklar; grafik bu analizi somutlaştırır.</p></div></div>
+
+<div class="rule skip"><b class="t">Şimdilik atla: Σ h/2<sup>h</sup> = 2 neden?</b>
+Geometrik seri Σ x<sup>k</sup> = 1/(1 − x) için iki tarafın türevi: Σ k x<sup>k−1</sup> = 1/(1 − x)². İki tarafı x ile çarpın, x = 1/2 koyun: Σ k/2<sup>k</sup> = (1/2)/(1/2)² = 2. Sınav için sonucu (≈ 2) bilmek ve “çoğu düğüm aşağıda olduğu için” gerekçesini söyleyebilmek yeterlidir.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-3"><a class="section-reference" href="#topic-5-3">Lecture §5.3</a><h4 id="simple-topic-5-3">Most nodes have very little distance to travel</h4><p>In a perfect 15-node tree, 8 leaves move zero levels, 4 nodes can move one, 2 can move two, and the root can move three. Total capacity: 0+4+4+3=11 downward moves.</p><p>That is an upper bound, not the actual swaps for every input. Summing node heights gives linear total work; charging log n to every node overestimates it.</p></aside></div><div class="topic-row" id="topic-5-4"><div class="topic-main"><h3>5.4 Heapsort</h3>
+<p><b>Sezgi.</b> Öbek kuruldu mu, en küçük her zaman kökte. O hâlde n kez “en küçüğü çıkar”: çıkanlar sırayla küçükten büyüğe gelir. Bu, Blok 2’deki <i>seçmeli sıralamanın öbekle yapılmış hali</i>dir.</p>
+<pre>heapsort(s, n):
+    build a heap from s            # O(n) — heapify
+    for i from 1 to n:
+        s[i] = extract_min(heap)   # n kez O(log n)</pre>
+<div class="rule"><b class="t">Kural 12 — heapsort maliyeti</b>
+Kurma O(n) + n çıkarma × O(log n) = <b>O(n log n)</b>, en kötü durumda da. <b>O(n) olamaz</b>: n minimumu sırayla çıkarmak zaten sıralamadır ve Hafta 7’de göreceğimiz karar-ağacı alt sınırı, karşılaştırmaya dayalı sıralamanın Ω(n log n) karşılaştırma gerektirdiğini gösterir.<br>
+<b>Yerinde (in-place) sürüm:</b> <b>maks-öbek</b> kurun (kök = en büyük). Kökü, aktif öbeğin <b>son konumuyla takas edin</b>: o konum artık kesinlikle son (sıralı) değerini taşır. Aktif öbeği bir kısaltın, yeni kökü aşağı taşıyın. Tekrarlayın: sıralı kısım dizinin sonundan büyür, ikinci bir diziye gerek kalmaz (aşağıdaki kod girdi listesini doğrudan değiştirir; ek bellek O(1)). Girdiyi korumak istenirse önce <code>s[:]</code> ile kopyalamak gerekir; o durumda Θ(n) ek bellek kullanılır, ama bu algoritmanın değil, kopyalamanın bedelidir.</div>
+<pre class="python-example" data-python="6">def heapsort(s):                  # artan sıralar; doğrudan s üzerinde, yerinde (maks-öbek), O(1) ek bellek
+    n = len(s)
+    def down(p, m):               # 0 tabanlı maks-öbek: çocuklar 2p+1, 2p+2; aktif boyut m
+        while 2 * p + 1 &lt; m:
+            c = 2 * p + 1
+            if c + 1 &lt; m and s[c + 1] &gt; s[c]: c += 1
+            if s[c] &gt; s[p]:
+                s[c], s[p] = s[p], s[c]; p = c
+            else: break
+    for p in range(n // 2 - 1, -1, -1): down(p, n)   # 1) maks-öbek kur
+    for last in range(n - 1, 0, -1):                 # 2) n−1 kez:
+        s[0], s[last] = s[last], s[0]                #    kökü sona at
+        down(0, last)                                #    öbeği onar
+    return s                                         # aynı liste (girdi değişti)
+
+a = [4, 1, 3, 2, 5]; heapsort(a)
+print(a)     # [1, 2, 3, 4, 5]</pre>
+<p><b>Çözümlü örnek 7.</b> [4, 1, 3, 2, 5] dizisi heapsort ile (adımlar ayrıntılı; yeşil: sıralı kuyruk).</p>
+<div class="trace" data-k="hsort" data-arr="4,1,3,2,5" data-mx="1" data-expect="1,2,3,4,5"></div>
+
+<div class="try"><div class="lab">Kendin dene — heapsort izleyicisi (yerinde, maks-öbek)</div>
+<div class="vz" id="v_hs"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>karşılaştırılan</span><span><b style="background:var(--acc)"></b>takas</span><span><b style="background:var(--ok)"></b>sıralı kısım (dizinin sonu)</span></div>
+<div class="mut">Önce maks-öbek kurulur, sonra her turda kök (şimdiki en büyük) dizinin boş kalan son gözüne gider. Ağaç küçülürken dizi aynı kalır: ağaçtan çıkan değerler diziyi sağdan sola doldurur.</div><div class="activity-guide"><h4>Sıralı kuyruk artık öbeğe dahil değildir</h4><p><b>Kontrolleri okuyun.</b> Diziyi yükleyin veya hazır beş elemanlı örneği seçin. Yeşil son bölüm nihai sıralı değerleri gösterir; aktif ağaç giderek küçülür.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>4,1,3,2,5 örneğinde önce maks-öbek kurulur: 5,4,3,2,1.</li><li>Kök 5 son aktif değer 1 ile takas edilir; 5 artık son konumunda sabittir. Yalnız kalan dört elemanın öbeği onarılır.</li><li>Sona ilerleyin: 1,2,3,4,5 elde edilir. Tekrarlı 3,1,3,1,2 örneğinde 1,1,2,3,3 olmalı; hiçbir tekrar kaybolmaz.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Maks-öbek burada artan çıktı üretir çünkü büyük değerler sağa sabitlenir. Eşit kayıtların eski sırası korunmak zorunda değildir: heapsort genel olarak kararlı değildir.</p></div></div>
+
+<div class="try"><div class="lab">Kendin dene — selection sort mu, heapsort mu? (rastgele girdi, ölçülen karşılaştırma)</div>
+<div class="row"><button class="btn g" id="sh_r">Yeniden ölç</button></div>
+<div class="scroll"><table><thead><tr><th>n</th><th>selection = n(n−1)/2</th><th>heapsort (build + çıkarma)</th><th>n lg n</th><th>selection / heapsort</th></tr></thead><tbody id="sh_t"></tbody></table></div>
+<div class="mut">Her iki sayı da gerçekten sayılmıştır (selection’da iki iç içe döngü, heapsort’ta öbek işlemleri). n arttıkça selection/heapsort oranı büyür: “farklı veri yapısı” fikrinin somut kazancı. Küçük n’de fark azdır; heapsort’un sabiti büyüktür.</div><div class="activity-guide"><h4>Aynı girdide bütün sıralama işini karşılaştırın</h4><p><b>Kontrolleri okuyun.</b> Yeniden ölç yeni rastgele girdiler oluşturur. Tablo karşılaştırmaları sayar; son sütun selection/heapsort oranıdır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=16 için selection 16×15/2=120 karşılaştırmadır. Heapsort sayısı girdiyle değişebilir.</li><li>n=64 için selection 2016’dır. Yeniden ölçün: selection değişmez, heapsort değişebilir.</li><li>n=4096 satırındaki oranı küçük n ile karşılaştırın. Heapify’nin ucuzluğu tek başına değil, bütün çıkarmalarla birlikte ölçülür.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Karşılaştırma sayısı ile gerçek süre farklıdır. Heapsort’un burada görülen avantajı tam taramalar yerine kısa onarım yolları kullanmasıdır.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-4"><a class="section-reference" href="#topic-5-4">Lecture §5.4</a><h4 id="simple-topic-5-4">Put the largest into its final position</h4><p>For in-place ascending heapsort, use a max-heap. Swap its root with the last active slot, shrink the heap, and repair the root. The sorted suffix grows from the right.</p><p>Bottom-up construction is O(n); all extractions together are O(n log n) worst case. The iterative implementation uses O(1) extra space and is not generally stable.</p></aside></div><div class="topic-row" id="topic-5-5"><div class="topic-main"><h3>5.5 Öbekle k’ncı en küçüğü bulmak</h3>
+<div class="rule"><b class="t">Kural 13 — k’ncı en küçük, iki yol</b>
+<b>Sırala, k. konuma bak:</b> O(n log n). <b>Öbek kur (O(n)), k kez minimum çıkar (k × O(log n)):</b> <b>O(n + k log n)</b>. k küçükken (örneğin n = 10⁶, k = 10) ikincisi çok daha iyidir: yaklaşık 10⁶ + 10·20 işlem, sıralamanın ~2·10⁷’sine karşı.</div>
+<div class="try"><div class="lab">Kendin dene — k’ncı en küçük</div>
+<div class="row"><input type="text" id="kk_in" value="9, 4, 7, 1, 3, 8, 2" style="flex:1;min-width:200px"><span>k =</span><input type="number" id="kk_k" value="3" min="1" style="width:70px"></div>
+<div id="kk_out" class="mut"></div><div class="activity-guide"><h4>Gereken sıraya ulaşınca durun</h4><p><b>Kontrolleri okuyun.</b> Diziyi ve tam sayı k’yi değiştirin. Araç heapify+k çıkarma ile sıralayıp okuma sonuçlarını karşılaştırır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>9,4,7,1,3,8,2 ve k=3: çıkan ilk üç değer 1,2,3; cevap 3.</li><li>k=1 minimum 1; k=7 maksimum 9 verir. k=0 veya 8 geçerli sıra değildir.</li><li>2,2,5 ve k=2 deneyin: cevap 2. İkinci farklı değer değil, ikinci sıradaki kayıt sorulmaktadır.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bu yöntem girdiyi öbeğe çevirip kayıtları çıkarır. Kurma O(n), k çıkarma O(k log n); k küçükken bütün diziyi sıralamaktan kaçınılır.</p></div></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-5"><a class="section-reference" href="#topic-5-5">Lecture §5.5</a><h4 id="simple-topic-5-5">Stop after the answer you need</h4><p>Heapify [9,4,7,1,3,8,2], then extract three times: 1,2,3. The third smallest is 3; sorting every remaining item was unnecessary.</p><p>This method costs O(n+k log n). Repeated values count as separate occurrences. Require 1≤k≤n, and remember that extraction changes the heap.</p></aside></div></section>
+
+<!-- ================= BLOK 6 ================= -->
+<section id="s6">
+<div class="kicker">Blok 6</div>
+<h2><span class="num">6</span>Mühendislik uygulaması: gerçek zamanlı zamanlayıcılar <span class="time">15 dk</span></h2><div class="topic-row" id="topic-6"><div class="topic-main">
+<p>Gerçek zamanlı bir işletim sistemi (RTOS) birçok <b>yazılım zamanlayıcısı</b> tutar: “A görevini 5 ms’de uyandır”, “LED’i 9 ms’de yak-söndür”. <b>Her tikte</b> zamanlayıcı şunu sorar: <b>“vakti ilk gelen hangisi?”</b> Sonra tetiklenen zamanlayıcıyı bir sonraki periyoduyla <b>yeniden ekler</b>.</p>
+<p><b>Üç yapının karşılaştırması (64 zamanlayıcı):</b></p>
+<div class="scroll"><table>
+<tr><th>Yapı</th><th>Min bul</th><th>Ekle</th><th>Bir tik (1 zamanlayıcı tetiklenir)</th></tr>
+<tr><td>Sırasız dizi</td><td>O(n): 64 adım</td><td>O(1)</td><td>≈ 64 + 1</td></tr>
+<tr><td>Sıralı bağlı liste</td><td>O(1) (baş)</td><td>O(n): ≤ 64 yürüyüş</td><td>≈ 1 + 64</td></tr>
+<tr><td>Min-öbek (vakte göre)</td><td>O(1) (kök)</td><td>O(log n): lg 64 = 6</td><td>≈ 6 + 6 = 12 (en kötü)</td></tr>
+</table></div>
+<p class="rule">Bu simülatörde “Tik” bir sonraki olaya atlar. Gerçek bir tikte r zamanlayıcı tetiklenirse toplam öbek işi O(r log n), ayrıca geri çağırım işidir. Sert zaman sınırları için önceden ayrılmış kapasite ve gerçek yürütme süreleri ayrıca incelenir.</p><div class="mut">Öbeğin kazancı n büyüdükçe artar ve <b>tek çıkarma/ekleme için öbek onarımı logaritmik sayıda düzeyle sınırlıdır</b>: sınırlı bir tik içinde bitmesi gereken bir zamanlayıcı için önemlidir. <b>Öbeğin vermediği garanti:</b> aynı vakte sahip iki zamanlayıcı <i>herhangi bir sırada</i> çıkabilir. FIFO sırası gerekiyorsa anahtara bir <b>sıra numarası</b> ekleyin: (vakit, sıra).</div>
+
+<div class="try"><div class="lab">Kendin dene — RTOS zamanlayıcı simülatörü (min-öbek, anahtar = vakit)</div>
+<div class="row"><span>Başlangıç: A5, B9, C7, D12, E10 (ad + vakit = periyot).</span></div>
+<div class="row"><label><input type="checkbox" id="tm_seq"> eşit vakitte sıra numarasına göre (FIFO)</label>
+<button class="btn" id="tm_tick">Tik ▶ (min’i çıkar, yeniden ekle)</button><button class="btn g" id="tm_10">10 olay</button><button class="btn g" id="tm_rst">Sıfırla</button></div>
+<div class="row"><span>Yeni zamanlayıcı: ad</span><input type="text" id="tm_nm" value="F" style="width:60px"><span>vakit</span><input type="number" id="tm_due" value="6" style="width:80px"><button class="btn g" id="tm_add">Ekle</button></div>
+<svg id="tm_svg" class="hv" role="img" aria-label="Zamanlayıcı öbeği"></svg>
+<div class="cards" id="tm_cards"></div>
+<div class="logbox" id="tm_log"></div>
+<div class="mut">Sayaç: toplam karşılaştırma <b id="tm_c">0</b> · öbek boyutu <b id="tm_n">0</b>. <b>Mini problem (orijinal):</b> başlangıç öbeği [5, 9, 7, 12, 10]. “F, 6”yı ekleyin: dizi [5, 9, 6, 12, 10, 7] olur (6 konum 6’ya yazılır, ebeveyni konum 3 (7) → takas; sonra konum 1 (5) ≤ 6 → dur). Tik’e basarak periyodik tetiklemeyi izleyin: t = 10’da hem A (yeniden eklenen) hem E vakti 10’dur; onay kutusunu açıp kapatarak sıranın nasıl değiştiğine bakın. Saat geri gitmez: o anki saatten önceki bir vakit eklenemez (reddedilir).</div><div class="activity-guide"><h4>Vakti gelen olayı çıkarıp yeniden planlayın</h4><p><b>Kontrolleri okuyun.</b> Sıfırla başlangıç zamanlayıcılarını getirir. Tik bir sonraki olayı işler; 10 olay bunu on kez yapar. FIFO kutusunu değiştirmek simülasyonu sıfırlar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Sıfırlayın ve F,6 ekleyin: vakit dizisi 5,9,6,12,10,7 olur. F’nin 6 değeri 7’nin üzerinden yükselir, 5’in altında kalır.</li><li>F olmadan sıfırlayıp ilerleyin: A t=5’te tetiklenir ve t=10’a; C t=7’de tetiklenir ve t=14’e; B t=9’da tetiklenir ve t=18’e eklenir.</li><li>FIFO açıkken t=10’da E, yeniden eklenen A’dan önce gelir: E’nin bu kuyruk kaydı daha eskidir. Bir eşitlik grubu birden fazla olay adımı gerektirir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bu deney sabit donanım tiklerini değil olay zamanlarına sıçramayı modeller. Yeni kaydın periyodu burada ekleme anından ilk vakte uzaklıktır (en az 1). Geçmiş vakit reddedilir; gerçek son teslim süresi garantisi bu veri yapısından tek başına çıkmaz.</p></div></div>
+
+<div class="try"><div class="lab">Kendin dene — görev öncelik kuyruğu (maks-öbek, anahtar = öncelik)</div>
+<div class="row"><label><input type="checkbox" id="tq_seq" checked> eşit önceliklilerde geliş sırası (FIFO)</label>
+<button class="btn" id="tq_run">Çalıştır ▶ (en yüksek öncelik)</button><button class="btn g" id="tq_all">Hepsini çalıştır</button><button class="btn g" id="tq_rst">Sıfırla</button></div>
+<div class="row"><span>Yeni görev: ad (≤3 harf)</span><input type="text" id="tq_nm" value="NEW" style="width:70px"><span>öncelik (1–10)</span><input type="number" id="tq_pr" value="8" min="1" max="10" style="width:70px"><button class="btn g" id="tq_add">Ekle</button></div>
+<svg id="tq_svg" class="hv" role="img" aria-label="Görev öbeği"></svg>
+<div class="logbox" id="tq_log"></div>
+<div class="mut">Mekatronik bağlam: bir motor sürücüsünde “acil durdurma” (öncelik 10) her zaman PID döngüsünün (9) önüne geçmelidir; log yazma (2) en sona kalabilir. Görevler rastgele zamanlarda geldiği için kuyruk <i>sürekli</i> değişir: her yeni görevden sonra yeniden sıralamak yerine öbeğe eklemek yeterlidir. (Gerçek RTOS’larda önceliğin yanında kesme, gecikme sınırı, öncelik tersine dönmesi gibi başka konular da vardır; bu araç yalnızca <i>veri yapısı</i> kısmını gösterir.) Düğümde: üstte ad, altta öncelik.</div><div class="activity-guide"><h4>En büyük öncelik sayısı önce çıkar</h4><p><b>Kontrolleri okuyun.</b> Çalıştır en yüksek öncelikli görevi çıkarır; Hepsini çalıştır kuyruğu boşaltır. FIFO seçimini değiştirmek başlangıç kuyruğunu yeniden kurar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Sıfırla ve FIFO açıkken çalıştırın: ES(10), sonra PID(9) çıkar.</li><li>SNS ve COM ikisi de 7’dir. Başlangıçta SNS önce eklendiği için önce SNS çıkar; sonra COM, LCD(4), LOG(2).</li><li>Sıfırlayıp NEW öncelik 8 ekleyin: ES ve PID’den sonra, 7 önceliklilerden önce çalışır.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Burada görev yalnız kuyruktan seçilip çıkarılır; CPU yürütmesi, kesmeler ve öncelik tersine dönmesi modellenmez. Eşitler için FIFO ayrı anahtar kuralıdır.</p></div></div>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz: iki ileri uygulama (Blok 7’de A13, A14)</b>
+Aşağıdaki iki araç, öbeği başka problemlerde kullanma örnekleridir (orijinalde “zor” işaretli).</div>
+
+<div class="try"><div class="lab">İsteğe bağlı — akan sayıların medyanı (iki öbek)</div>
+<div class="row"><input type="text" id="md_in" value="5, 15, 1, 3, 8, 7, 9, 10, 20, 2" style="flex:1;min-width:200px"><button class="btn" id="md_go">Hesapla</button></div>
+<div class="scroll"><table><thead><tr><th>Gelen</th><th>Alt yarı (maks-öbek)</th><th>Üst yarı (min-öbek)</th><th>Medyan</th><th>Sıralı kontrol</th></tr></thead><tbody id="md_t"></tbody></table></div>
+<div class="mut">Alt yarı bir maks-öbektir (en büyüğü kökte görünür), üst yarı bir min-öbektir (en küçüğü kökte görünür). Boyutlar en çok 1 farklıdır. Tek sayıda eleman varsa büyük öbeğin kökü, çift sayıdaysa iki kökün ortalaması medyandır. Her geliş sabit sayıda O(log n) işlemdir. Son sütun, diziyi sıralayıp ortadan okuyarak aynı sonucu doğrular.</div><div class="activity-guide"><h4>Ortadaki sınırı iki kökle tutun</h4><p><b>Kontrolleri okuyun.</b> Sayı akışını girip Hesapla’ya basın. Her satır yeni sayıdan sonraki alt/maks ve üst/min öbekleri gösterir; son sütun sıralama ile kontrol eder.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>5,15,1,3 girin. İlk 5 için medyan 5; sonra (5+15)/2=10.</li><li>1 geldikten sonra sıralı sıra 1,5,15 ve medyan 5’tir. 3 gelince 1,3,5,15 ve medyan (3+5)/2=4 olur.</li><li>İki öbeğin boyut farkının en çok 1 olduğuna ve alt yarıdaki her değerin üst yarıdakilerden büyük olmadığına bakın.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Öbek dizileri kendi içlerinde sıralı değildir. Gereken yalnız iki sınır kökü ve boyut dengesidir. Çift kayıt sayısında bu araç ortadaki iki değerin aritmetik ortalamasını kullanır.</p></div></div>
+
+<div class="try"><div class="lab">İsteğe bağlı — k sıralı listeyi birleştirme (k elemanlı öbek)</div>
+<div class="row"><span>Listeler (her satır sıralı, virgülle):</span></div>
+<div class="row"><input type="text" id="mg_a" value="1, 4, 7, 10" style="flex:1;min-width:160px"><input type="text" id="mg_b" value="2, 5, 8" style="flex:1;min-width:160px"><input type="text" id="mg_c" value="3, 6, 9, 11, 12" style="flex:1;min-width:160px"><button class="btn" id="mg_go">Birleştir</button></div>
+<div id="mg_out" class="mut"></div>
+<div class="scroll"><table><thead><tr><th>#</th><th>Çıkan</th><th>Hangi liste</th><th>Öbek (değer:liste)</th></tr></thead><tbody id="mg_t"></tbody></table></div>
+<div class="mut">Öbekte <b>her listeden yalnızca bir aday</b> bulunur; bu yüzden öbek hiçbir zaman k elemandan büyük olmaz ve n çıkarmanın her biri O(log k) tutar: toplam <b>O(n log k)</b>.</div><div class="activity-guide"><h4>Her listeden yalnız sıradaki adayı tutun</h4><p><b>Kontrolleri okuyun.</b> Her alana artan sıralı bir liste yazın ve Birleştir’e basın. Tablo çıkan değerin hangi listeden geldiğini ve yeni adayları gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>Varsayılan listelerde ilk adaylar 1,2,3’tür. 1 çıkarılınca yalnız ilk listeden sonraki 4 aday olur.</li><li>2 çıkınca ikinci listeden 5; 3 çıkınca üçüncü listeden 6 gelir. Öbekte bütün kayıtlar değil, en fazla üç aday bulunur.</li><li>Sona kadar sonuç 1,2,…,12 olur. Tekrarlı değerler eklerseniz her kayıt korunur. Sırasız bir liste girerek önkoşul denetimini de kontrol edin.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Toplam n kayıt, k liste için başlangıç dahil O(k + n log(k+1)); k≤n ve k≥2 ise O(n log k) ve O(k) aday alanı gerekir. Yöntem her giriş listesinin önceden sıralı olmasına dayanır.</p></div></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-6"><a class="section-reference" href="#topic-6">Lecture §6</a><h4 id="simple-topic-6">Choose the next event, then repair the queue</h4><p>A min-heap schedules the earliest timer. After firing, add its period to its due time and insert it again. A max-heap instead chooses the largest task-priority number.</p><p>This demo advances one event at a time. If r timers expire during one real tick, processing all of them costs O(r log n) heap work, plus callbacks. Tie order needs (due time, sequence number); hard deadlines require additional system analysis.</p></aside></div></section>
+
+<!-- ================= BLOK 7 ================= -->
+<section id="s7">
+<div class="kicker">Blok 7</div>
+<h2><span class="num">7</span>Alıştırmalar ve quiz <span class="time">ev çalışması</span></h2>
+
+<div class="topic-row" id="topic-7-1"><div class="topic-main"><h3>7.1 Ana quiz (Hafta 6)</h3>
+<div id="quiz1"></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-7-1"><a class="section-reference" href="#topic-7-1">Lecture §7.1</a><h4 id="simple-topic-7-1">Explain the path as well as the answer</h4><p>The correct answers and reasoning are visible. For array questions, trace the specified swaps; several different arrays may be valid heaps, but only one follows that exact procedure.</p><p>Use the linked lecture section to revisit indexing, heap order, construction, or complexity assumptions.</p></aside></div><div class="topic-row" id="topic-7-2"><div class="topic-main"><h3>7.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
+<p class="mut">Orijinal sayfadaki 12–26. soruların hepsini kapsar, ayrıca bir ek bağlantı sorusu (A16) vardır.</p>
+<details><summary>A1 (kolay). Derste sıralamaya bu kadar zaman ayırmanın üç nedenini yazın.</summary>
+<p>Bilgisayarlar zamanlarının büyük bir kısmını sıralamaya harcar; sıralama en ayrıntılı incelenmiş problemdir (çok sayıda algoritma karşılaştırılabilir); dersin büyük fikirleri (böl ve yönet, rastgeleleştirme, alt sınırlar) sıralama bağlamında öğretilebilir. Ayrıca veri sıralı olunca birçok başka problem kolaylaşır (arama, en yakın çift, benzersizlik, medyan).</p></details>
+<details><summary>A2 (kolay). [3, 5, 4, 10, 8, 7] (konumlar 1–6) geçerli bir min-öbek mi?</summary>
+<p><b>Evet.</b> Konum 1 (3): çocukları 5 ve 4; konum 2 (5): çocukları 10 ve 8; konum 3 (4): tek çocuğu 7. Her ebeveyn çocuklarından küçük ya da eşit.</p></details>
+<details><summary>A3 (kolay). Konum 6’nın çocukları nerede, konum 13’ün ebeveyni nerede?</summary>
+<p>Çocuklar 2·6 = 12 ve 2·6 + 1 = 13. Konum 13’ün ebeveyni ⌊13/2⌋ = 6.</p></details>
+<details><summary>A4 (kolay). Maks-öbeğin kökünde ne var? En küçük eleman nerede olabilir?</summary>
+<p>Kökte bir <b>en büyük</b> anahtar var. Anahtarlar farklıysa en küçük bir <b>yapraktır</b> (herhangi bir yaprak olabilir). Eşit anahtarlara izin varsa en küçük bir iç düğümde de olabilir (örneğin hepsi eşit bir öbekte).</p></details>
+<details><summary>A5 (kolay). Min-öbek [3, 5, 4, 10, 8, 7]’ye 2 ekleyin. Yukarı taşıma adımlarını ve son diziyi yazın.</summary>
+<p>2, konum 7’ye yazılır (ebeveyni konum 3 = 4). 4 &gt; 2 → takas: [3, 5, 2, 10, 8, 7, 4]. Ebeveyni şimdi konum 1 (3); 3 &gt; 2 → takas: <b>[2, 5, 3, 10, 8, 7, 4]</b>. Kökte durur.</p></details>
+<details><summary>A6 (kolay). [2, 5, 3, 10, 8, 7, 4]’ten minimumu çıkarın.</summary>
+<p>2 çıkar; son eleman 4 köke gelir: [4, 5, 3, 10, 8, 7]. Çocuklar 5 ve 3; küçüğü 3 &lt; 4 → takas: [3, 5, 4, 10, 8, 7]. Konum 3’teki 4’ün tek çocuğu konum 6 (7); 7 &gt; 4 → dur. Sonuç <b>[3, 5, 4, 10, 8, 7]</b>.</p></details>
+<details><summary>A7 (kolay). Heapsort hangi iki işlemden oluşur, her birinin maliyeti nedir?</summary>
+<p>Öbeği bir kez kurmak (heapify ile <b>O(n)</b>) ve minimumu n kez çıkarmak (her biri <b>O(log n)</b>). Toplam <b>O(n log n)</b>.</p></details>
+<details><summary>A8 (orta). [9, 4, 7, 1, 3, 8, 2]’yi doğrusal zamanlı heapify ile min-öbeğe çevirin; her konumdan sonraki diziyi yazın.</summary>
+<p>Konum 3: 7’nin çocukları 8, 2 → 2 ile takas: [9, 4, 2, 1, 3, 8, 7]. Konum 2: 4’ün çocukları 1, 3 → 1 ile takas: [9, 1, 2, 4, 3, 8, 7]. Konum 1: 9’un çocukları 1, 2 → 1 ile takas: [1, 9, 2, 4, 3, 8, 7]; konum 2’deki 9’un çocukları 4, 3 → 3 ile takas: <b>[1, 3, 2, 4, 9, 8, 7]</b>. Her ebeveyn çocuklarından küçük ya da eşit.</p></details>
+<details><summary>A9 (orta). Her bubble_down O(log n) olabilir ve heapify bunu n/2 kez çağırır. Neden heapify O(n log n) değil de O(n)?</summary>
+<p>Bir bubble_down’ın maliyeti <b>düğümün yüksekliğidir</b>, lg n değil. Düğümlerin yarısı yapraktır (yükseklik 0, maliyet 0), dörtte biri yükseklik 1, sekizde biri yükseklik 2… Toplam n · Σ h/2<sup>h+1</sup> ve Σ h/2<sup>h</sup> 2’ye yakınsar; toplam en çok yaklaşık 2n.</p></details>
+<details><summary>A10 (orta). n sayının k’ncı en küçüğünü bulmanın biri sıralamaya, biri öbeğe dayanan iki yolunu ve maliyetlerini yazın.</summary>
+<p>Sırala ve k. konuma bak: O(n log n). Ya da O(n)’de min-öbek kur ve k kez minimum çıkar: <b>O(n + k log n)</b>; k küçükken daha iyidir.</p></details>
+<details><summary>A11 (orta). Heapsort bir diziyi ikinci bir dizi olmadan nasıl artan sıraya sokar?</summary>
+<p>Dizinin içinde <b>maks-öbek</b> kurulur. En büyük öğe konum 1’dedir; son aktif konumla takas edilir (o konum artık nihai değerini taşır), aktif öbek bir kısaltılır, yeni kök aşağı taşınır. Bu tekrarlanır; sıralı kısım diziyi sondan doldurur.</p></details>
+<details><summary>A12 (orta). Bir RTOS’ta 64 periyodik zamanlayıcı var; her 1 ms tikte vakti gelen zamanlayıcı çıkarılıp bir sonraki vaktiyle yeniden ekleniyor. Sırasız dizi, sıralı bağlı liste ve min-öbeği karşılaştırın: min bul ve ekle maliyetleri, tikte bir zamanlayıcı tetiklenince iş, ve öbeğin vermediği bir garanti.</summary>
+<p><b>Sırasız dizi:</b> ekle O(1), min bul O(n) → tikte ≈ 64 + 1. <b>Sıralı liste:</b> min bul O(1), ama yeniden ekleme listeyi yürür O(n) → ≈ 1 + 64. <b>Min-öbek:</b> min bul O(1), min çıkar ve ekle O(log n): lg 64 = 6 düzey → ≈ 6 + 6 = 12. Öbek n büyüdükçe kazanır ve tek çıkarma/ekleme için öbek onarımı logaritmik sayıda düzeyle sınırlıdır. Vermediği garanti: aynı vakitli iki zamanlayıcı herhangi bir sırada çıkabilir; FIFO gerekiyorsa anahtara sıra numarası ekleyin.</p></details>
+<details><summary>A13 (zor, isteğe bağlı). Sayılar tek tek geliyor. Her gelişten sonra o ana kadarki medyanı O(log n)’de veren bir yapı tasarlayın.</summary>
+<p><b>İki öbek:</b> küçük yarı için maks-öbek, büyük yarı için min-öbek; boyutları en çok 1 farklı. Yeni sayıyı uygun öbeğe ekleyin (alt öbeğin kökünden küçük-eşitse alta, değilse üste); boyut dengesi bozulursa bir kökü karşı öbeğe taşıyın. Her alt değer her üst değerden ≤ olmalıdır. Medyan: tek sayıda büyük öbeğin kökü; çift sayıda iki kökün ortalaması. Her adımda sabit sayıda O(log n) öbek işlemi. (Yukarıdaki araç bunu çalıştırır.)</p></details>
+<details><summary>A14 (zor, isteğe bağlı). Toplam n elemanlı k sıralı listeyi (2 ≤ k ≤ n) O(n log k)’de birleştirin.</summary>
+<p>Her listenin ilk elemanını, hangi listeden geldiğini hatırlayarak, k boyutlu bir min-öbeğe koyun. Tekrar tekrar minimumu çıkarıp çıktıya yazın ve çıkanın listesindeki bir sonraki elemanı öbeğe ekleyin. Öbek k’yı aşmaz; n çıkarmanın her biri O(log k). (İlk kurma O(k).)</p></details>
+<details><summary>A15 (zor, isteğe bağlı). En küçüğü en büyükle, ikinci en küçüğü ikinci en büyükle… eşleştirmenin en büyük çift toplamını en aza indirdiğini ispatlayın.</summary>
+<p><b>Değiş-tokuş argümanı.</b> Sıralı a₁ ≤ … ≤ a₂ₙ olsun. İyi bir eşleştirmede a₁ bir x ile, a₂ₙ bir y ile eşleşmiş olsun (x ≠ a₂ₙ). Yeni çiftler (a₁, a₂ₙ) ve (x, y) olsun. a₁ ≤ y olduğundan a₁ + a₂ₙ ≤ y + a₂ₙ; x ≤ a₂ₙ olduğundan x + y ≤ a₂ₙ + y. İkisi de eski toplam a₂ₙ + y’den büyük değil, yani maksimum artmaz. Kalan sayılar için aynı argümanı tekrar edin; tümevarımla sıralı eşleştirme optimaldir.</p></details>
+<details><summary>A16 (orta, bağlantı). Öbekte keyfi bir x anahtarını aramak neden O(n)’dir? Hafta 5’teki hangi yapıyla fark nedir?</summary>
+<p>Öbek yalnızca ebeveyn–çocuk ilişkisini sıralar; kardeşler ve farklı dallar arasında sıra yoktur. x’in hangi dalda olduğunu söyleyemeyiz; en kötü durumda tüm düğümlere bakılır: O(n). BST’de “küçükse sola, büyükse sağa” kuralı her adımda yarısını eler (dengeliyse O(log n)); karma tablosu da ortalama O(1) ile arar. Öbek yalnızca <b>min/maks</b>’a hızlı erişim için tasarlanmıştır.</p></details>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A13, A14 ve A15 isteğe bağlıdır (orijinalde “zor”). Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w6">kapsam listesine</a> bakın.</div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-7-2"><a class="section-reference" href="#topic-7-2">Lecture §7.2</a><h4 id="simple-topic-7-2">State the rule before doing the arithmetic</h4><p>Write the indexing convention, min/max choice, and the initial array. Then show each swap and the final heap check.</p><p>For complexity, distinguish actual operations on one input from worst-case upper bounds. The two-heap median and multiway merge exercises are optional extensions.</p></aside></div></section>
+
+<!-- ================= ÖZET ================= -->
+<section id="s8">
+<div class="kicker">Özet</div>
+<h2><span class="num">8</span>Tek sayfalık özet</h2><div class="topic-row" id="topic-8"><div class="topic-main">
+
+<div class="box"><b>Hafta 6’nın 7 kuralı</b>
+<ol>
+<li><b>Öncelik kuyruğu:</b> Insert, Find-Min (ya da Max), Delete-Min. Veri yapısını değiştirmek maliyeti değiştirir: selection sort O(n²) → heapsort O(n log n).</li>
+<li><b>İkili öbek:</b> şekil (neredeyse dolu, sola yaslı) + etiket (ebeveyn ≤ çocuk). Kısmi sıra: sıralıdan zayıf, rastgeleden güçlü. Kök = en küçük.</li>
+<li><b>Dizide saklama (konum 1’den):</b> sol çocuk 2k, sağ çocuk 2k + 1, ebeveyn ⌊k/2⌋. Yükseklik ⌊lg n⌋.</li>
+<li><b>Ekle:</b> sona yaz, ebeveynden küçükse takas, yukarı çık (bubble up). O(log n).</li>
+<li><b>Min çıkar:</b> kökü al, son elemanı köke koy, <b>küçük çocukla</b> takas ederek in (bubble down). O(log n).</li>
+<li><b>Heapify:</b> n/2, …, 1 konumlarında bubble down. O(n), çünkü bir bubble down’ın maliyeti düğüm yüksekliğidir ve çoğu düğüm yapraktır. n kez ekleme ise Θ(n log n) (en kötü).</li>
+<li><b>Heapsort:</b> O(n) kurma + n × O(log n) = O(n log n). Yerinde sürüm maks-öbek kullanır; kök sona takas edilir.</li>
+</ol></div>
+
+<div class="box"><b>Hafta 4–5’ten hatırlanacaklar</b>
+<ul>
+<li>Yığın LIFO, kuyruk FIFO’dur. İkisi de uygun bir öncelik anahtarıyla öncelik kuyruğu davranışı olarak modellenebilir: FIFO’da eski geliş, LIFO’da yeni geliş önce çıkar.</li>
+<li>Dizi: indeksle O(1); başa ekleme Θ(n). İkiye katlanan dizide n ekleme toplam &lt; 3n işlem (amortize O(1)).</li>
+<li>BST: O(h); dengesizse h = n − 1. Karma tablosu: ortalama O(1) arama, ama min için Θ(n + m).</li>
+<li>Öbek: dengeli BST’ye göre çok basit; ama keyfi anahtarı aramak O(n).</li>
+</ul></div>
+
+<div class="box"><b>Sık yapılan hatalar</b>
+<ol>
+<li>“Öbek sıralı bir dizidir.” → Hayır; yalnızca ebeveyn ≤ çocuk. Kardeşler sıralı olmak zorunda değil.</li>
+<li>Konumları 0’dan sayıp 2k, 2k + 1 formüllerini kullanmak. → Bu derste konum 1’den başlar; 0 tabanlı listede çocuklar 2i + 1, 2i + 2.</li>
+<li>Çıkarmada boşluğu <i>büyük</i> çocukla doldurmak. → Küçük çocukla takas edilir (min-öbek).</li>
+<li>Çıkarmada son elemanı köke taşımayı ve öbeği bir kısaltmayı unutmak.</li>
+<li>“Heapify n/2 çağrı × lg n = O(n log n).” → Cömert sınır doğru ama sıkı değil; gerçek O(n).</li>
+<li>“Yükseklik ≈ n gibi olabilir.” → BST için evet, öbek için hayır: şekil sabit, h = ⌊lg n⌋.</li>
+<li>Heapsort’ta min-öbek ile yerinde sıralamaya çalışmak. → Artan sıra için maks-öbek (en büyük sona gider).</li>
+<li>Eşit anahtarlarda sıranın korunacağını sanmak. → Öbek bunu garanti etmez; sıra numarası ekleyin.</li>
+</ol></div>
+
+<div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
+<ol>
+<li>[2, 4, 3] min-öbeğine 1 eklenince dizi ne olur ve kaç takas yapılır?</li>
+<li>Heapify neden O(n)’dir, n kez ekleme neden en kötü durumda Θ(n log n)?</li>
+<li>64 zamanlayıcı için öbeğin yüksekliği kaçtır ve bir tikte ≈ kaç adım gerekir?</li>
+</ol></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-8"><a class="section-reference" href="#topic-8">Week 6 recap</a><h4 id="simple-topic-8">Remember the two different jobs</h4><p>A heap keeps the best item accessible without sorting everything. Heapify builds that partial order in O(n); heapsort repeatedly extracts to produce full order in O(n log n).</p><p>Shape gives logarithmic height. Parent-child order puts the best key at the root. Neither rule gives fast arbitrary-key lookup or FIFO order among ties.</p></aside></div></section>
+
+<div class="foot">
+  <a href="../w5/">← Önceki</a>
+  <a href="ek-notlar/">Ek notlar: orijinal Hafta 6 (tam sürüm)</a>
+  <a href="../w7/">Sonraki →</a>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toLocaleString("tr-TR");
+const lg=n=>Math.log2(n);
+Number.prototype.tf=function(d){return this.toFixed(d).replace(".",",")};
+$("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==="dark"?"light":"dark"};
+if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
+
+/* ---------- generic quiz ---------- */
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function mkQuiz(id,Q){
+  const el=$(id), prefix=id.slice(1);
+  el.innerHTML=Q.map((q,qi)=>`<div class="box q" data-q="${qi}"><b>${qi+1}. ${q[0]}</b><div class="opts">${q[1].map((o,oi)=>`<div class="opt${oi===q[2]?" right":""}">${o}${oi===q[2]?'<span class="quiz-answer-label">✓ Doğru cevap</span>':""}</div>`).join("")}</div><div class="fb" style="display:block" id="${prefix}-feedback-${qi}"><p class="quiz-result"><b>Doğru seçenek: ${q[1][q[2]]}</b></p><p><b>Neden?</b> ${esc(q[3])}</p><p><b>Diğer seçenekler neden uygun değil?</b> ${esc(q[4])}</p><a href="#topic-${q[5].replace(".","-")}">İlgili anlatım: §${q[5]}</a></div></div>`).join("");
+}
+
+/* ---------- helpers ---------- */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(a,r){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const bef=mx=>mx?(x,y)=>x>y:(x,y)=>x<y;            // "x, y'nin üstünde olmalı" (kesin)
+function isHeap(arr,mx){const B=bef(mx),bad=[];for(let k=2;k<=arr.length;k++){if(B(arr[k-1],arr[(k>>1)-1]))bad.push(k)}return bad}
+function parseNums(s,max){const t=s.split(/[\s,;]+/).filter(Boolean);if(t.length>max)return `En fazla ${max} sayı girin.`;const a=t.map(Number);if(a.some(x=>!isFinite(x)))return "Yalnızca sayı girin (virgülle ayırın).";return a}
+const jn=a=>"["+a.join(", ")+"]";
+
+/* ---------- lean (sayaçlı, adımsız) öbek işlemleri; 1-tabanlı dizi h[0]=dummy ---------- */
+function leanDown(h,n,k,B,t){while(true){const l=2*k,r=l+1;if(l>n)return;let b=l;if(r<=n){t.c++;if(B(h[r],h[l]))b=r}t.c++;if(B(h[b],h[k])){const x=h[b];h[b]=h[k];h[k]=x;t.s++;k=b}else return}}
+function leanHeapify(arr,mx){const h=[0,...arr],n=arr.length,B=bef(mx),t={c:0,s:0};for(let p=n>>1;p>=1;p--)leanDown(h,n,p,B,t);return{h:h.slice(1),c:t.c,s:t.s}}
+function leanPush(h,x,B,t){h.push(x);let k=h.length-1;while(k>1){t.c++;const p=k>>1;if(B(h[k],h[p])){const y=h[k];h[k]=h[p];h[p]=y;t.s++;k=p}else break}}
+function leanInsertAll(arr,mx){const B=bef(mx),h=[0],t={c:0,s:0};for(const x of arr)leanPush(h,x,B,t);return{h:h.slice(1),c:t.c,s:t.s}}
+function leanExtract(h,B,t){const n=h.length-1,m=h[1];h[1]=h[n];h.pop();leanDown(h,n-1,1,B,t);return m}
+function leanHeapsort(arr){const h=[0,...arr],N=arr.length,B=bef(true),t={c:0,s:0};for(let p=N>>1;p>=1;p--)leanDown(h,N,p,B,t);const build=t.c;for(let n=N;n>1;n--){const x=h[1];h[1]=h[n];h[n]=x;t.s++;leanDown(h,n-1,1,B,t)}return{a:h.slice(1),c:t.c,build}}
+function selCount(a){a=a.slice();let c=0;for(let i=0;i<a.length;i++){let m=i;for(let j=i+1;j<a.length;j++){c++;if(a[j]<a[m])m=j}const x=a[i];a[i]=a[m];a[m]=x}return c}
+
+/* ---------- adım kaydedici ---------- */
+function rec(arr,full){const R={h:[0,...arr],n:arr.length,N:arr.length,c:0,s:0,st:[]};
+  R.P=(note,hl)=>R.st.push({a:R.h.slice(1,(full?R.N:R.n)+1),n:R.n,c:R.c,s:R.s,note,hl:hl||{}});return R}
+function recDown(R,k,B,mx){
+  const h=R.h,cm=mx?"büyük":"küçük";
+  while(true){const l=2*k,r=l+1,n=R.n;
+    if(l>n){R.P(`Konum ${k} (${h[k]}) bir yaprak: çocuğu yok, aşağı taşıma biter.`,{done:[k]});return}
+    let b=l;
+    if(r<=n){R.c++;b=B(h[r],h[l])?r:l;R.P(`İki çocuk: konum ${l} (${h[l]}) ve konum ${r} (${h[r]}) karşılaştırılır; ${cm} olan ${h[b]} (konum ${b}).`,{cmp:[l,r]})}
+    else R.P(`Tek çocuk var: konum ${l} (${h[l]}).`,{cmp:[l]});
+    R.c++;
+    if(B(h[b],h[k])){
+      R.P(`Konum ${k} (${h[k]}) ile çocuğu ${h[b]} (konum ${b}) karşılaştırılır: ${h[b]} ${mx?">":"<"} ${h[k]} → yer değiştir.`,{cmp:[k,b]});
+      const x=h[b];h[b]=h[k];h[k]=x;R.s++;
+      R.P(`Yer değiştirdi. ${h[k]} konum ${k}’de; ${h[b]} bir düzey aşağı indi (konum ${b}).`,{sw:[k,b]});
+      k=b;
+    }else{
+      R.P(`Konum ${k} (${h[k]}) ile çocuğu ${h[b]} karşılaştırılır: ${h[b]} ${mx?"≤":"≥"} ${h[k]} → ${h[k]} yerinde kalır, dur.`,{cmp:[k,b],done:[k]});return}
+  }
+}
+function insSteps(arr,x,mx){const B=bef(mx),R=rec(arr),h=R.h,t=mx?"maks":"min";
+  R.P(`Başlangıç: ${arr.length} elemanlı ${t}-öbek. Eklenecek: ${x}.`);
+  h.push(x);R.n++;let k=R.n;
+  R.P(`${x}, ilk boş göze (konum ${k}) yazıldı. 3. kural bozulmuş olabilir.`,{new:[k]});
+  while(k>1){const p=k>>1;R.c++;
+    if(B(h[k],h[p])){
+      R.P(`Konum ${k} (${h[k]}) ile ebeveyni konum ${p} (${h[p]}) karşılaştırılır: ${h[k]} ${mx?">":"<"} ${h[p]} → ebeveynle yer değiştir.`,{cmp:[k,p]});
+      const y=h[k];h[k]=h[p];h[p]=y;R.s++;
+      R.P(`Yer değiştirdi: ${h[p]} bir düzey yukarı çıktı (konum ${p}).`,{sw:[k,p]});k=p;
+    }else{R.P(`Konum ${k} (${h[k]}) ile ebeveyni konum ${p} (${h[p]}) karşılaştırılır: ${h[k]} ${mx?"≤":"≥"} ${h[p]} → yerinde kalır, dur.`,{cmp:[k,p],done:[k]});break}
+  }
+  R.P(k===1&&R.n>1?`Köke ulaşıldı, dur. Son dizi: ${jn(h.slice(1,R.n+1))}.`:`Bitti. Son dizi: ${jn(h.slice(1,R.n+1))}.`,{done:[k]});
+  return R.st}
+function extSteps(arr,mx){if(!arr.length)return "Öbek boş: çıkaracak eleman yok.";
+  const B=bef(mx),R=rec(arr),h=R.h,t=mx?"maksimum":"minimum";
+  R.P(`Başlangıç. Kök (konum 1) = ${h[1]}: çıkaracağımız ${t}.`,{done:[1]});
+  const m=h[1];h[1]=h[R.n];R.n--;
+  R.P(`${m} çıkarıldı. Dizinin son elemanı köke taşındı ve öbek bir kısaldı (n = ${R.n}).`,{new:[1]});
+  if(R.n>0)recDown(R,1,B,mx);
+  R.P(`Bitti. Çıkan: ${m}. Kalan öbek: ${jn(h.slice(1,R.n+1))}.`);
+  return R.st}
+function buildSteps(arr,mx){const B=bef(mx),R=rec(arr),h=R.h,n=R.n;
+  R.P(n<2?`Başlangıç: ${n} eleman, yapılacak iş yok.`:`Başlangıç: herhangi sırada ${n} eleman. Konum ${(n>>1)+1}…${n} yapraktır (zaten öbek). Konum ${n>>1}’den 1’e kadar aşağı taşıyacağız.`);
+  for(let p=n>>1;p>=1;p--){R.P(`Konum ${p} (${h[p]}) için aşağı taşıma başlar.`,{new:[p]});recDown(R,p,B,mx)}
+  R.P(`Bitti: geçerli ${mx?"maks":"min"}-öbek ${jn(h.slice(1,n+1))}. Toplam karşılaştırma ${R.c}.`);
+  return R.st}
+function hsSteps(arr){const B=bef(true),R=rec(arr,true),h=R.h,N=R.N;
+  R.P(`Başlangıç: ${N} eleman. Önce yerinde bir maks-öbek kuracağız.`);
+  for(let p=N>>1;p>=1;p--){R.P(`Maks-öbek kurma: konum ${p} (${h[p]}) aşağı taşınır.`,{new:[p]});recDown(R,p,B,true)}
+  R.P(`Maks-öbek hazır: kök ${h[1]} = en büyük. Şimdi kökü dizinin sonuna atma turları başlıyor.`);
+  for(let last=N;last>=2;last--){
+    R.P(`Kök (${h[1]}) ile son aktif konum ${last} (${h[last]}) yer değiştirir.`,{cmp:[1,last]});
+    const x=h[1];h[1]=h[last];h[last]=x;R.s++;R.n=last-1;
+    R.P(`${h[last]} artık nihai yerinde (konum ${last}). Aktif öbek ${R.n} elemanlı; yeni kök aşağı taşınacak.`,{sw:[1,last]});
+    if(R.n>1)recDown(R,1,B,true);
+  }
+  R.n=0;R.P(`Bitti: dizi artan sırada ${jn(h.slice(1,N+1))}. Toplam karşılaştırma ${R.c}, takas ${R.s}.`);
+  return R.st}
+
+/* ---------- çizim ---------- */
+function drawTree(svg,o){
+  const n=o.n,N=Math.max(o.N||n,1),L=Math.floor(Math.log2(N))+1,W=Math.max(2,2**(L-1))*64,H=24+(L-1)*58+30,hl=o.hl||{};
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.style.maxWidth=Math.round(W*1.25)+"px";
+  if(n<1){svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" style="font-size:15px">(aktif öbek boş)</text>`;return}
+  const inn=(a,k)=>a&&a.includes(k);
+  const cls=k=>inn(hl.bad,k)?"bad":(inn(hl.sw,k)||inn(hl.new,k))?"sw":inn(hl.cmp,k)?"cmp":inn(hl.done,k)?"done":"";
+  const P=k=>{const lev=Math.floor(Math.log2(k)),j=k-(1<<lev);return[(j+.5)*W/(1<<lev),24+lev*58]};
+  let s="";
+  for(let k=2;k<=n;k++){const[a,b]=P(k>>1),[c,d]=P(k);s+=`<line class="ed${inn(hl.bad,k)?" bad":""}" x1="${a.toFixed(1)}" y1="${b}" x2="${c.toFixed(1)}" y2="${d}"/>`}
+  for(let k=1;k<=n;k++){const[x,y]=P(k),lab=o.lab[k-1];let t;
+    if(Array.isArray(lab))t=`<text class="t1" x="${x.toFixed(1)}" y="${y-6}">${lab[0]}</text><text class="t2" x="${x.toFixed(1)}" y="${y+8}">${lab[1]}</text>`;
+    else{const q=String(lab);t=`<text x="${x.toFixed(1)}" y="${y}"${q.length>4?' style="font-size:12px"':""}>${q}</text>`}
+    s+=`<g class="nd ${cls(k)}"><circle cx="${x.toFixed(1)}" cy="${y}" r="20"/>${t}<text class="ix" x="${(x+15).toFixed(1)}" y="${y-18}">${k}</text></g>`}
+  svg.innerHTML=s}
+function drawCards(el,o){const hl=o.hl||{},inn=(a,k)=>a&&a.includes(k);
+  el.innerHTML=o.lab.map((v,i)=>{const k=i+1;let c="";
+    if(k>o.n)c="sorted";else if(inn(hl.bad,k))c="bad";else if(inn(hl.sw,k)||inn(hl.new,k))c="min";else if(inn(hl.cmp,k))c="cur";else if(inn(hl.done,k))c="sorted";
+    return `<div class="card ${c}"><small>${k}</small>${Array.isArray(v)?v[0]+v[1]:v}</div>`}).join("")||`<span class="mut">(boş)</span>`}
+
+/* ---------- genel adım adım izleyici ---------- */
+function mkViz(sel,cfg){
+  const root=$(sel);
+  const pre=cfg.presets?`<select data-f="preset"><option value="">— Hazır örnek —</option>${cfg.presets.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join("")}</select>`:"";
+  root.innerHTML=`<div class="row">${pre}${cfg.controls}<button class="btn" data-a="load">Yükle</button></div>
+  <svg class="hv" role="img" aria-label="Öbeğin ağaç görünümü"></svg><div class="cards" data-cards></div><div class="note" data-note></div>
+  <div class="row"><button class="btn g" data-a="back">◀ Geri</button><button class="btn" data-a="fwd">İleri ▶</button><button class="btn g" data-a="play">Oynat</button><button class="btn g" data-a="reset">Başa dön</button>
+  <span class="mut">Karşılaştırma: <b data-c>0</b> · Takas: <b data-s>0</b> · Adım <b data-k>0</b>/<b data-t>0</b></span></div>`;
+  const V=n=>root.querySelector(`[data-f="${n}"]`),Q=s=>root.querySelector(s);
+  let st=[],i=0,timer=null,Nmax=1;
+  const stop=()=>{if(timer){clearInterval(timer);timer=null;Q('[data-a=play]').textContent="Oynat"}};
+  function show(){
+    if(!st.length){Q("[data-k]").textContent=0;Q("[data-t]").textContent=0;return}
+    const s=st[i];
+    drawTree(Q("svg"),{lab:s.a,n:s.n,N:Nmax,hl:s.hl});
+    drawCards(Q("[data-cards]"),{lab:s.a,n:s.n,hl:s.hl});
+    Q("[data-note]").innerHTML=s.note;Q("[data-c]").textContent=s.c;Q("[data-s]").textContent=s.s;
+    Q("[data-k]").textContent=i;Q("[data-t]").textContent=st.length-1}
+  function load(){stop();const r=cfg.gen(V);
+    if(typeof r==="string"){st=[];i=0;Q("[data-note]").innerHTML=`<span class="bad">${r}</span>`;Q("svg").innerHTML="";Q("[data-cards]").innerHTML="";Q("[data-c]").textContent=0;Q("[data-s]").textContent=0;Q("[data-k]").textContent=0;Q("[data-t]").textContent=0;return}
+    st=r;i=0;Nmax=Math.max(...st.map(s=>s.a.length),1);show()}
+  root.addEventListener("click",e=>{const a=e.target.dataset&&e.target.dataset.a;if(!a)return;
+    if(a==="load")load();
+    else if(a==="fwd"){stop();if(i<st.length-1){i++;show()}}
+    else if(a==="back"){stop();if(i>0){i--;show()}}
+    else if(a==="reset"){stop();i=0;show()}
+    else if(a==="play"){if(timer){stop();return}if(i>=st.length-1)i=0;Q('[data-a=play]').textContent="Duraklat";timer=setInterval(()=>{if(i<st.length-1){i++;show()}else stop()},650);show()}
+  });
+  if(cfg.presets)V("preset").onchange=()=>{const p=cfg.presets[+V("preset").value];if(!p)return;for(const k in p[1])V(k).value=p[1][k];load()};
+  root._v={get st(){return st},go:j=>{i=j;show()},load};
+  load();
+}
+
+/* ---------- çözümlü örnek izleri (otomatik) ---------- */
+function arrFmt(s){return "["+s.a.map((v,i)=>{const k=i+1,h=s.hl||{};const b=(h.sw&&h.sw.includes(k))||(h.new&&h.new.includes(k));
+  const t=k>s.n?`<span class="ok">${v}</span>`:b?`<b>${v}</b>`:v;return t}).join(", ")+"]"}
+document.querySelectorAll(".trace").forEach(el=>{
+  const arr=el.dataset.arr.split(",").map(Number),mx=el.dataset.mx==="1",kind=el.dataset.k;
+  let st;
+  if(kind==="ins")st=insSteps(arr,Number(el.dataset.x),mx);
+  else if(kind==="ext")st=extSteps(arr,mx);
+  else if(kind==="build")st=buildSteps(arr,mx);
+  else st=hsSteps(arr);
+  const fin=st[st.length-1].a.join(","),ok=fin===el.dataset.expect;
+  const rows=st.map((s,i)=>`<tr><td>${i}</td><td>${s.note}</td><td class="m">${arrFmt(s)}</td></tr>`).join("");
+  const head=kind==="ins"?`Ekle: ${el.dataset.x} → ${jn(arr)}`:kind==="ext"?`Min çıkar: ${jn(arr)}`:kind==="build"?`Öbek kur: ${jn(arr)}`:`Heapsort: ${jn(arr)}`;
+  el.innerHTML=`<details${el.dataset.open?" open":""}><summary>${head} · izleme (${st.length-1} adım)</summary><div class="scroll"><table><tr><th>#</th><th>Ne oluyor?</th><th>Dizi (konum 1…)</th></tr>${rows}</table></div>
+  <div data-ok="${ok?1:0}" class="${ok?"ok":"bad"}">${ok?"✓":"✗"} Sonuç: ${jn(st[st.length-1].a)} ${ok?"(beklenenle aynı)":"(BEKLENEN: ["+el.dataset.expect+"])"}</div></details>`;
+});
+
+/* ---------- 0.1 ikiye katlanan dizi ---------- */
+function dblCopies(n){let cap=1,len=0,c=0;for(let i=0;i<n;i++){if(len===cap){c+=len;cap*=2}len++}return c}
+function dbUpdate(){const e=+$("#db_e").value,n=2**e;$("#db_ev").textContent=e;const c=dblCopies(n);
+  $("#db_t").innerHTML=`<tr><td class="m">${fmt(n)}</td><td class="m">${fmt(n)}</td><td class="m">${fmt(c)}</td><td class="m">${fmt(n+c)}</td><td class="m">${((n+c)/n).tf(3)}</td></tr>`}
+$("#db_e").oninput=dbUpdate;dbUpdate();
+
+/* ---------- 1.1 n² / n lg n tablosu ---------- */
+function dur(ns){const s=ns/1e9;if(s<1e-6)return (ns).tf(0)+" ns";if(s<1e-3)return (s*1e6).tf(1)+" µs";if(s<1)return (s*1e3).tf(1)+" ms";if(s<120)return s.tf(1)+" s";if(s<7200)return (s/60).tf(1)+" dk";if(s<172800)return (s/3600).tf(1)+" saat";return (s/86400).tf(1)+" gün"}
+function sqUpdate(){const ns=+$("#sq_ns").value||1;
+  $("#sq_t").innerHTML=[10,100,1e3,1e4,1e5,1e6].map(n=>{const a=n*n/4,b=Math.round(n*lg(n));return `<tr><td class="m">${fmt(n)}</td><td class="m">${fmt(a)}</td><td class="m">${fmt(b)}</td><td class="m">${(a/b).tf(1)}×</td><td class="m">${dur(a*ns)}</td><td class="m">${dur(b*ns)}</td></tr>`}).join("")}
+$("#sq_ns").oninput=sqUpdate;sqUpdate();
+
+/* ---------- 1.2 en yakın çift ---------- */
+function cpUpdate(){const a=parseNums($("#cp_in").value,40);if(typeof a==="string"){$("#cp_out").innerHTML=`<span class="bad">${a}</span>`;return}
+  if(a.length<2){$("#cp_out").textContent="En az iki sayı girin.";return}
+  const s=a.slice().sort((x,y)=>x-y);let best=Infinity,bi=0,dup=false;
+  for(let i=0;i+1<s.length;i++){const d=s[i+1]-s[i];if(d<best){best=d;bi=i}if(d===0)dup=true}
+  $("#cp_out").innerHTML=`Sıralı: <b>${jn(s)}</b> (O(n log n)). Bitişik farklar tek taramada (O(n)): en küçük fark <b>${best}</b> → en yakın çift <b>(${s[bi]}, ${s[bi+1]})</b>. Tekrar eden eleman: <b>${dup?"var":"yok"}</b>.`}
+$("#cp_in").oninput=cpUpdate;cpUpdate();
+
+/* ---------- 1.4 çift toplamı ---------- */
+function pairings(a){if(!a.length)return[[]];const x=a[0],r=a.slice(1),out=[];for(let i=0;i<r.length;i++){const rest=r.filter((_,j)=>j!==i);for(const p of pairings(rest))out.push([[x,r[i]],...p])}return out}
+function prRun(){const a=parseNums($("#pr_in").value,8);const o=$("#pr_out");
+  if(typeof a==="string"){o.innerHTML=`<span class="bad">${a}</span>`;return}
+  if(a.length<2||a.length%2){o.innerHTML=`<span class="bad">Çift sayıda (2, 4, 6 ya da 8) sayı girin.</span>`;return}
+  const s=a.slice().sort((x,y)=>x-y),m=s.length/2,mine=[];for(let i=0;i<m;i++)mine.push([s[i],s[s.length-1-i]]);
+  const mx=ps=>Math.max(...ps.map(p=>p[0]+p[1])),mymax=mx(mine);
+  const all=pairings(a),best=Math.min(...all.map(mx)),nb=all.filter(p=>mx(p)===best).length;
+  o.innerHTML=`<div>Sırala: <b>${jn(s)}</b>; küçük–büyük çiftler: <b>${mine.map(p=>`(${p[0]}, ${p[1]})`).join(" ")}</b> → toplamlar <b>${mine.map(p=>p[0]+p[1]).join(", ")}</b>, en büyüğü <b>${mymax}</b>.</div>
+  <div>Tüm <b>${all.length}</b> eşleştirme denendi; en küçük “en büyük toplam” = <b>${best}</b> (${nb} eşleştirme bunu sağlıyor). <span class="${mymax===best?"ok":"bad"}">${mymax===best?"✓ Sırala–küçük–büyük yöntemi en iyi değeri verdi.":"✗ Yöntem en iyiyi vermedi!"}</span></div>`}
+$("#pr_go").onclick=prRun;prRun();
+
+/* ---------- 2.2 maliyet tablosu ---------- */
+let coSeed=1;
+function costTable(n,seed){
+  const r=rng(seed*7919+n),keys=Array.from({length:n},()=>Math.floor(r()*1e6)),T=200;
+  const sorted=keys.slice().sort((a,b)=>a-b);let sIns=0;
+  for(let t=0;t<T;t++){const x=Math.floor(r()*1e6);let c=0;while(c<n&&sorted[c]<x)c++;sIns+=c+(c<n?1:0)}
+  const B=bef(false),hp=[0,...leanHeapify(keys,false).h];let hIns=0;
+  for(let t=0;t<T;t++){const x=Math.floor(r()*1e6),h2=hp.slice(),tt={c:0,s:0};leanPush(h2,x,B,tt);hIns+=tt.c}
+  const wt={c:0,s:0};leanPush(hp.slice(),-1,B,wt);
+  let hDel=0;const h3=hp.slice(),D=Math.min(40,n-1);for(let t=0;t<D;t++){const tt={c:0,s:0};leanExtract(h3,B,tt);hDel+=tt.c}
+  return{n,uns:{ins:0,insW:0,min:n-1,del:n-1,tick:n-1},sor:{ins:sIns/T,insW:n,min:0,del:0,tick:sIns/T},hea:{ins:hIns/T,insW:wt.c,min:0,del:hDel/D,tick:hDel/D+hIns/T}}}
+function coUpdate(){const n=+$("#co_n").value,c=costTable(n,coSeed),f=x=>Number.isInteger(x)?fmt(x):x.tf(1);
+  const row=(nm,o)=>`<tr><td>${nm}</td><td class="m">${f(o.ins)}</td><td class="m">${f(o.insW)}</td><td class="m">${f(o.min)}</td><td class="m">${f(o.del)}</td><td class="m"><b>${f(o.tick)}</b></td></tr>`;
+  $("#co_t").innerHTML=row("Sırasız dizi",c.uns)+row("Sıralı bağlı liste",c.sor)+row("Min-öbek",c.hea)}
+$("#co_n").onchange=coUpdate;$("#co_r").onclick=()=>{coSeed++;coUpdate()};coUpdate();
+
+/* ---------- 3.2 doğrulayıcı ---------- */
+const VLP={};
+function vlRun(){const mx=$("#vl_mode").value==="max",a=parseNums($("#vl_in").value,15),o=$("#vl_out");
+  if(typeof a==="string"){o.innerHTML=`<span class="bad">${a}</span>`;return}
+  if(!a.length){o.textContent="Boş dizi.";return}
+  const bad=isHeap(a,mx);
+  drawTree($("#vl_svg"),{lab:a,n:a.length,hl:{bad}});drawCards($("#vl_cards"),{lab:a,n:a.length,hl:{bad}});
+  if(!bad.length)o.innerHTML=`<span class="ok">✓ Geçerli ${mx?"maks":"min"}-öbek.</span> Her ebeveyn çocuklarından ${mx?"büyük":"küçük"} ya da eşit. Kök (konum 1) = ${a[0]}${a.slice().sort((x,y)=>x-y).join()===a.join()?" · Bu dizi aynı zamanda sıralı (artan) bir dizidir.":" · Dizi sıralı DEĞİL; öbek olmak sıralı olmayı gerektirmez."}`;
+  else o.innerHTML=`<span class="bad">✗ Öbek değil.</span> ${bad.map(k=>`Konum ${k} (${a[k-1]}), ebeveyni konum ${k>>1} (${a[(k>>1)-1]}) karşısında ${mx?"büyük":"küçük"}: kural bozuk.`).join(" ")}`}
+$("#vl_go").onclick=vlRun;$("#vl_mode").onchange=vlRun;$("#vl_in").onkeydown=e=>{if(e.key==="Enter")vlRun()};
+$("#vl_pre").onchange=()=>{const v=$("#vl_pre").value;if(v){$("#vl_in").value=v;vlRun()}};vlRun();
+
+/* ---------- 3.3 indeks hesaplayıcı ---------- */
+function ixUpdate(){const n=+$("#ix_n").value;$("#ix_k").max=n;let k=+$("#ix_k").value;if(k>n){k=n;$("#ix_k").value=k}
+  $("#ix_nv").textContent=n;$("#ix_kv").textContent=k;
+  const lab=Array.from({length:n},(_,i)=>i+1),ch=[2*k,2*k+1].filter(c=>c<=n);
+  drawTree($("#ix_svg"),{lab,n,hl:{cmp:[k],sw:k>1?[k>>1]:[],done:ch}});
+  const path=[];for(let p=k;p>=1;p>>=1)path.push(p);const i=k-1;
+  $("#ix_out").innerHTML=`<b>k = ${k}</b> (n = ${n}) · ebeveyn ⌊${k}/2⌋ = <b>${k>1?k>>1:"yok (kök)"}</b> · sol çocuk 2·${k} = <b>${2*k}</b>${2*k<=n?"":" (yok, n’den büyük)"} · sağ çocuk 2·${k}+1 = <b>${2*k+1}</b>${2*k+1<=n?"":" (yok, n’den büyük)"} · düzey ⌊lg ${k}⌋ = <b>${Math.floor(lg(k))}</b><br>Kökten yol: ${path.join(" → ")} (${path.length-1} adım = ⌊lg ${k}⌋).<br><span class="mut">Python (0 tabanlı) indeks i = k − 1 = ${i}: ebeveyn ${i>0?"(i−1)//2 = "+((i-1)>>1):"yok"}, çocuklar 2i+1 = ${2*i+1}, 2i+2 = ${2*i+2}. (Aynı düğümler: konum ${i>0?((i-1)>>1)+1:"–"}, ${2*i+2}, ${2*i+3}.)</span>`}
+$("#ix_n").oninput=ixUpdate;$("#ix_k").oninput=ixUpdate;ixUpdate();
+
+/* ---------- 3.4 yükseklik ---------- */
+function htUpdate(){const n=+$("#ht_n").value;$("#ht_nv").textContent=n;const H=Math.floor(lg(n));
+  let rows="";for(let d=0;d<=H;d++){const lo=2**d,hi=Math.min(2**(d+1)-1,n);rows+=`<tr><td>${d}</td><td class="m">${2**d}</td><td class="m">${hi-lo+1}</td><td class="m">${lo}–${hi}</td></tr>`}
+  $("#ht_lv").innerHTML=rows;
+  const ht=new Array(n+2).fill(0);for(let k=n;k>=1;k--){if(2*k<=n)ht[k]=1+Math.max(ht[2*k],2*k+1<=n?ht[2*k+1]:0)}
+  const cnt=new Array(H+1).fill(0);for(let k=1;k<=n;k++)cnt[ht[k]]++;
+  let sum=0,r2="";for(let h=0;h<=H;h++){const f=Math.ceil(n/2**(h+1));sum+=h*cnt[h];r2+=`<tr><td>${h}</td><td class="m">${cnt[h]}</td><td class="m">${f}${cnt[h]<=f?"":" ✗"}</td><td class="m">${h*cnt[h]}</td></tr>`}
+  $("#ht_hh").innerHTML=r2;
+  $("#ht_out").innerHTML=`Yükseklik ⌊lg ${n}⌋ = <b>${H}</b> (kök = ${ht[1]}) · yaprak sayısı = <b>${cnt[0]}</b> (⌈n/2⌉ = ${Math.ceil(n/2)}) · heapify’ın toplam en fazla takas sayısı = Σ h × düğüm = <b>${sum}</b> (n = ${n}’den küçük) · “cömert” sınır ⌊n/2⌋ × ⌊lg n⌋ = <b>${(n>>1)*H}</b>.`}
+$("#ht_n").oninput=htUpdate;htUpdate();
+
+/* ---------- 4.x hata avı ---------- */
+function ehRun(){const a=parseNums($("#eh_in").value,15),o=$("#eh_out");if(typeof a==="string"){o.innerHTML=`<span class="bad">${a}</span>`;return}
+  const bad=isHeap(a,false);if(!bad.length){o.innerHTML=`<span class="ok">Geçerli min-öbek.</span>`;return}
+  const h=[0,...a],t={c:0,s:0};leanDown(h,a.length,1,bef(false),t);const r=h.slice(1),b2=isHeap(r,false);
+  o.innerHTML=`Bozuk çiftler (çocuk konumu): ${bad.join(", ")}. Kökten <b>bubble_down(1)</b> uygularsak: <b>${jn(r)}</b> (${t.s} takas, ${t.c} karşılaştırma) → ${b2.length?`<span class="bad">hâlâ bozuk (konum ${b2.join(", ")}); başka düğümlerde de onarım gerekir</span>`:`<span class="ok">geçerli öbek</span>`}.`}
+$("#eh_in").oninput=ehRun;ehRun();
+
+/* ---------- 5.3 heapify vs ekleme ---------- */
+let hcSeed=1;
+function hcCompute(seed){const out=[];for(let k=3;k<=16;k++){const n=2**k-1,r=rng(seed*131+k),base=Array.from({length:n},(_,i)=>i+1);
+  const rnd=shuffle(base,r),hp=leanHeapify(rnd,false),desc=leanInsertAll(base.slice().reverse(),false);
+  let ra=0;for(let t=0;t<3;t++)ra+=leanInsertAll(shuffle(base,r),false).c;
+  out.push({k,n,hp:hp.c,desc:desc.c,rnd:ra/3})}return out}
+function hcUpdate(){const d=hcCompute(hcSeed),show=[3,4,5,6,8,10,12,14,16];
+  $("#hc_t").innerHTML=d.filter(x=>show.includes(x.k)).map(x=>`<tr><td class="m">${fmt(x.n)}</td><td class="m">${fmt(x.hp)}</td><td class="m">${(x.hp/x.n).tf(2)}</td><td class="m">${fmt(x.desc)}</td><td class="m">${(x.desc/x.n).tf(2)}</td><td class="m">${fmt(Math.round(x.rnd))}</td><td class="m">${(x.rnd/x.n).tf(2)}</td></tr>`).join("");
+  const W=640,H=230,P=34,X=i=>P+(W-P-12)*i/(d.length-1),ymax=Math.max(16,...d.map(x=>x.desc/x.n)),Y=v=>H-P-(H-P-12)*v/ymax;
+  const path=f=>d.map((x,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(f(x)).toFixed(1)).join(" ");
+  let g=`<line x1="${P}" y1="${H-P}" x2="${W-8}" y2="${H-P}" stroke="var(--line)"/><line x1="${P}" y1="10" x2="${P}" y2="${H-P}" stroke="var(--line)"/>`;
+  for(let v=0;v<=ymax;v+=4)g+=`<text x="4" y="${Y(v)+4}">${v}</text><line x1="${P}" y1="${Y(v)}" x2="${W-8}" y2="${Y(v)}" stroke="var(--line)" stroke-dasharray="2 4"/>`;
+  g+=`<line x1="${P}" y1="${Y(2)}" x2="${W-8}" y2="${Y(2)}" stroke="var(--mute)" stroke-dasharray="6 4"/><text x="${W-60}" y="${Y(2)-4}">2 (sınır)</text>`;
+  d.forEach((x,i)=>{if(i%3===0||i===d.length-1)g+=`<text x="${X(i)-10}" y="${H-12}">${fmt(x.n)}</text>`});
+  g+=`<path d="${path(x=>x.hp/x.n)}" fill="none" stroke="var(--ok)" stroke-width="2.5"/><path d="${path(x=>x.desc/x.n)}" fill="none" stroke="var(--bad)" stroke-width="2.5"/><path d="${path(x=>x.rnd/x.n)}" fill="none" stroke="var(--warn)" stroke-width="2.5"/>`;
+  $("#hc_svg").innerHTML=g}
+$("#hc_r").onclick=()=>{hcSeed++;hcUpdate()};hcUpdate();
+
+/* ---------- 5.4 selection vs heapsort ---------- */
+let shSeed=1;
+function shUpdate(){$("#sh_t").innerHTML=[16,64,256,1024,4096].map(n=>{const r=rng(shSeed*977+n),a=Array.from({length:n},()=>Math.floor(r()*1e6)),sc=selCount(a),hs=leanHeapsort(a),ok=hs.a.every((v,i)=>i===0||hs.a[i-1]<=v);
+  return `<tr><td class="m">${fmt(n)}</td><td class="m">${fmt(sc)}</td><td class="m">${fmt(hs.c)}${ok?"":" ✗"}</td><td class="m">${fmt(Math.round(n*lg(n)))}</td><td class="m">${(sc/hs.c).tf(1)}×</td></tr>`}).join("")}
+$("#sh_r").onclick=()=>{shSeed++;shUpdate()};shUpdate();
+
+/* ---------- 5.5 k'ncı en küçük ---------- */
+function kkUpdate(){const a=parseNums($("#kk_in").value,200),k=+$("#kk_k").value,o=$("#kk_out");
+  if(typeof a==="string"){o.innerHTML=`<span class="bad">${a}</span>`;return}
+  if(!(Number.isInteger(k)&&k>=1&&k<=a.length)){o.textContent=`k, 1 ile ${a.length} arasında bir tam sayı olmalı.`;return}
+  const hp=leanHeapify(a,false),h=[0,...hp.h],B=bef(false),t={c:0,s:0};let x;for(let i=0;i<k;i++)x=leanExtract(h,B,t);
+  const sx=a.slice().sort((p,q)=>p-q)[k-1];
+  o.innerHTML=`Öbekle: ${k}. en küçük = <b>${x}</b> (kurma ${hp.c} + ${k} çıkarma ${t.c} = ${hp.c+t.c} karşılaştırma). Sıralayıp okuyarak: <b>${sx}</b> <span class="${x===sx?"ok":"bad"}">${x===sx?"✓ aynı":"✗ farklı"}</span>.`}
+$("#kk_in").oninput=kkUpdate;$("#kk_k").oninput=kkUpdate;kkUpdate();
+
+/* ---------- öncelik kuyruğu sınıfı ---------- */
+class PQ{constructor(lt){this.h=[null];this.lt=lt;this.c=0}
+  get n(){return this.h.length-1}
+  push(x){const h=this.h;h.push(x);let k=this.n;while(k>1){this.c++;const p=k>>1;if(this.lt(h[k],h[p])){const y=h[k];h[k]=h[p];h[p]=y;k=p}else break}}
+  pop(){const h=this.h,n=this.n;if(!n)return null;const m=h[1];h[1]=h[n];h.pop();const N=n-1;let k=1;
+    while(2*k<=N){let b=2*k;if(b+1<=N){this.c++;if(this.lt(h[b+1],h[b]))b++}this.c++;if(this.lt(h[b],h[k])){const y=h[b];h[b]=h[k];h[k]=y;k=b}else break}return m}}
+
+/* ---------- 6 zamanlayıcı ---------- */
+let TM;
+function tmInit(){const useSeq=$("#tm_seq").checked;
+  TM={seq:0,now:0,log:[],pq:new PQ((a,b)=>a.due<b.due||(useSeq&&a.due===b.due&&a.seq<b.seq))};
+  [["A",5],["B",9],["C",7],["D",12],["E",10]].forEach(([nm,d])=>TM.pq.push({nm,due:d,per:d,seq:TM.seq++}));
+  TM.pq.c=0;tmShow()}
+function tmShow(){const h=TM.pq.h.slice(1),lab=h.map(x=>[x.nm,x.due]);
+  drawTree($("#tm_svg"),{lab,n:h.length,N:Math.max(h.length,7)});drawCards($("#tm_cards"),{lab,n:h.length});
+  $("#tm_log").innerHTML=TM.log.slice(-14).join("<br>")||"(henüz tik yok; saat t = 0)";$("#tm_log").scrollTop=1e6;
+  $("#tm_c").textContent=TM.pq.c;$("#tm_n").textContent=h.length}
+function tmTick(){const x=TM.pq.pop();if(!x)return;TM.now=x.due;x.due+=x.per;x.seq=TM.seq++;
+  TM.log.push(`t = ${TM.now}: <b>${x.nm}</b> tetiklendi → yeni vakit ${x.due}`);TM.pq.push(x)}
+$("#tm_tick").onclick=()=>{tmTick();tmShow()};$("#tm_10").onclick=()=>{for(let i=0;i<10;i++)tmTick();tmShow()};
+$("#tm_rst").onclick=tmInit;$("#tm_seq").onchange=tmInit;
+$("#tm_add").onclick=()=>{const nm=($("#tm_nm").value||"?").slice(0,3),d=+$("#tm_due").value;if(!isFinite(d)||TM.pq.n>=15)return;if(d<TM.now){TM.log.push(`t = ${TM.now}: <b>${nm}</b> reddedildi (vakit ${d} geçmişte; saat geri gitmez)`);tmShow();return}TM.pq.push({nm,due:d,per:Math.max(1,d-TM.now),seq:TM.seq++});TM.log.push(`t = ${TM.now}: <b>${nm}</b> eklendi (vakit ${d})`);tmShow()};
+tmInit();
+
+/* ---------- 6 görev kuyruğu ---------- */
+let TQ;
+function tqInit(){const fifo=$("#tq_seq").checked;
+  TQ={seq:0,log:[],pq:new PQ((a,b)=>a.pr>b.pr||(fifo&&a.pr===b.pr&&a.seq<b.seq))};
+  [["SNS",7],["LOG",2],["PID",9],["LCD",4],["COM",7],["ES",10]].forEach(([nm,pr])=>TQ.pq.push({nm,pr,seq:TQ.seq++}));tqShow()}
+function tqShow(){const h=TQ.pq.h.slice(1),lab=h.map(x=>[x.nm,x.pr]);drawTree($("#tq_svg"),{lab,n:h.length,N:Math.max(h.length,7)});
+  $("#tq_log").innerHTML=(TQ.log.slice(-12).join("<br>")||"(henüz çalışan görev yok)")+`<br><span class="mut">Kuyruk dizisi: ${jn(h.map(x=>x.nm+":"+x.pr))} · karşılaştırma: ${TQ.pq.c}</span>`;$("#tq_log").scrollTop=1e6}
+function tqRun(){const x=TQ.pq.pop();if(x)TQ.log.push(`Çalıştı: <b>${x.nm}</b> (öncelik ${x.pr}, geliş #${x.seq})`)}
+$("#tq_run").onclick=()=>{tqRun();tqShow()};$("#tq_all").onclick=()=>{while(TQ.pq.n)tqRun();tqShow()};
+$("#tq_rst").onclick=tqInit;$("#tq_seq").onchange=tqInit;
+$("#tq_add").onclick=()=>{const nm=($("#tq_nm").value||"?").slice(0,3),pr=Math.max(1,Math.min(10,Math.round(+$("#tq_pr").value||1)));if(TQ.pq.n>=15)return;TQ.pq.push({nm,pr,seq:TQ.seq++});TQ.log.push(`Geldi: <b>${nm}</b> (öncelik ${pr})`);tqShow()};
+tqInit();
+
+/* ---------- 6 medyan ---------- */
+function mdRun(){const a=parseNums($("#md_in").value,30),tb=$("#md_t");if(typeof a==="string"){tb.innerHTML=`<tr><td colspan="5" class="bad">${a}</td></tr>`;return}
+  const lo=new PQ((x,y)=>x>y),hi=new PQ((x,y)=>x<y),seen=[];let rows="";
+  for(const x of a){if(!lo.n||x<=lo.h[1])lo.push(x);else hi.push(x);
+    if(lo.n>hi.n+1)hi.push(lo.pop());else if(hi.n>lo.n)lo.push(hi.pop());
+    const med=lo.n>hi.n?lo.h[1]:(lo.h[1]+hi.h[1])/2;seen.push(x);const s=seen.slice().sort((p,q)=>p-q),m=s.length;const ref=m%2?s[(m-1)/2]:(s[m/2-1]+s[m/2])/2;
+    rows+=`<tr><td class="m">${x}</td><td class="m">${jn(lo.h.slice(1))}</td><td class="m">${jn(hi.h.slice(1))}</td><td class="m"><b>${med}</b></td><td class="${med===ref?"ok":"bad"}">${med===ref?"✓":"✗ "+ref}</td></tr>`}
+  tb.innerHTML=rows}
+$("#md_go").onclick=mdRun;mdRun();
+
+/* ---------- 6 k-liste birleştirme ---------- */
+function mgRun(){const L=["#mg_a","#mg_b","#mg_c"].map(s=>parseNums($(s).value,20)),o=$("#mg_out"),tb=$("#mg_t");
+  if(L.some(x=>typeof x==="string")){o.innerHTML=`<span class="bad">Her satıra yalnızca sayı girin.</span>`;tb.innerHTML="";return}
+  for(const l of L)for(let i=1;i<l.length;i++)if(l[i]<l[i-1]){o.innerHTML=`<span class="bad">Listeler artan sıralı olmalı.</span>`;tb.innerHTML="";return}
+  const pq=new PQ((a,b)=>a.v<b.v||(a.v===b.v&&a.l<b.l)),idx=L.map(()=>0),out=[];let rows="",mxs=0;
+  L.forEach((l,j)=>{if(l.length)pq.push({v:l[0],l:j})});pq.c=0;mxs=pq.n;let step=0;
+  while(pq.n){const x=pq.pop();out.push(x.v);idx[x.l]++;if(idx[x.l]<L[x.l].length)pq.push({v:L[x.l][idx[x.l]],l:x.l});mxs=Math.max(mxs,pq.n);
+    rows+=`<tr><td>${++step}</td><td class="m">${x.v}</td><td class="m">L${x.l+1}</td><td class="m">${pq.h.slice(1).map(y=>y.v+":L"+(y.l+1)).join("  ")||"(boş)"}</td></tr>`}
+  const ref=[].concat(...L).sort((p,q)=>p-q),ok=ref.join()===out.join();
+  o.innerHTML=`Birleşik: <b>${jn(out)}</b> · n = ${out.length}, k = ${L.filter(l=>l.length).length} · en büyük öbek boyutu <b>${mxs}</b> (≤ k) · öbek karşılaştırması ${pq.c} · <span class="${ok?"ok":"bad"}">${ok?"✓ sıralı birleşimle aynı":"✗ hata"}</span>`;tb.innerHTML=rows}
+$("#mg_go").onclick=mgRun;mgRun();
+
+/* ---------- izleyiciler ---------- */
+const modeSel=`<select data-f="mode"><option value="min">min-öbek</option><option value="max">maks-öbek</option></select>`;
+mkViz("#v_ins",{controls:`${modeSel}<span>Öbek:</span><input type="text" data-f="arr" value="2, 4, 3" style="flex:1;min-width:140px"><span>Ekle:</span><input type="number" data-f="x" value="1" style="width:80px">`,
+  presets:[["[2,4,3] + 1 (orijinal)",{arr:"2, 4, 3",x:"1",mode:"min"}],["[5,9,7,12,10] + 6 (RTOS)",{arr:"5, 9, 7, 12, 10",x:"6",mode:"min"}],["[3,5,4,10,8,7] + 2",{arr:"3, 5, 4, 10, 8, 7",x:"2",mode:"min"}],["[1,2,3] + 9 (hiç takas yok)",{arr:"1, 2, 3",x:"9",mode:"min"}],["maks-öbek [9,5,8,2,4] + 10",{arr:"9, 5, 8, 2, 4",x:"10",mode:"max"}]],
+  gen:V=>{const mx=V("mode").value==="max",a=parseNums(V("arr").value,14);if(typeof a==="string")return a;const xs=V("x").value;if(xs===""||!isFinite(+xs))return "Eklenecek sayıyı girin.";
+    const bad=isHeap(a,mx);if(bad.length)return `Girdi geçerli bir ${mx?"maks":"min"}-öbek değil (konum ${bad[0]}, ebeveyninden ${mx?"büyük":"küçük"}). Önce 3.2’deki doğrulayıcıyla deneyin.`;return insSteps(a,+xs,mx)}});
+mkViz("#v_ext",{controls:`${modeSel}<span>Öbek:</span><input type="text" data-f="arr" value="1, 3, 2, 7, 4" style="flex:1;min-width:140px">`,
+  presets:[["[1,3,2,7,4] (orijinal)",{arr:"1, 3, 2, 7, 4",mode:"min"}],["[2,5,3,10,8,7,4] (orijinal)",{arr:"2, 5, 3, 10, 8, 7, 4",mode:"min"}],["15 elemanlı öbek",{arr:"1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15",mode:"min"}],["maks-öbek [10,8,9,3,5,1]",{arr:"10, 8, 9, 3, 5, 1",mode:"max"}]],
+  gen:V=>{const mx=V("mode").value==="max",a=parseNums(V("arr").value,15);if(typeof a==="string")return a;const bad=isHeap(a,mx);if(bad.length)return `Girdi geçerli bir ${mx?"maks":"min"}-öbek değil (konum ${bad[0]}). Önce 3.2’deki doğrulayıcıyla deneyin.`;return extSteps(a,mx)}});
+mkViz("#v_build",{controls:`${modeSel}<span>Dizi (herhangi sırada):</span><input type="text" data-f="arr" value="9, 4, 7, 1, 3, 8, 2" style="flex:1;min-width:140px">`,
+  presets:[["[9,4,7,1,3,8,2] (orijinal)",{arr:"9, 4, 7, 1, 3, 8, 2",mode:"min"}],["azalan 15 sayı",{arr:"15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1",mode:"min"}],["zaten öbek",{arr:"1, 2, 3, 4, 5, 6, 7",mode:"min"}],["maks-öbek: [3,1,4,1,5,9,2]",{arr:"3, 1, 4, 1, 5, 9, 2",mode:"max"}]],
+  gen:V=>{const mx=V("mode").value==="max",a=parseNums(V("arr").value,15);if(typeof a==="string")return a;if(!a.length)return "En az bir sayı girin.";return buildSteps(a,mx)}});
+mkViz("#v_hs",{controls:`<span>Dizi:</span><input type="text" data-f="arr" value="4, 1, 3, 2, 5, 9, 7" style="flex:1;min-width:160px">`,
+  presets:[["[4,1,3,2,5]",{arr:"4, 1, 3, 2, 5"}],["[4,1,3,2,5,9,7]",{arr:"4, 1, 3, 2, 5, 9, 7"}],["zaten sıralı [1..7]",{arr:"1, 2, 3, 4, 5, 6, 7"}],["ters sıralı [7..1]",{arr:"7, 6, 5, 4, 3, 2, 1"}],["tekrarlı [3,1,3,1,2]",{arr:"3, 1, 3, 1, 2"}]],
+  gen:V=>{const a=parseNums(V("arr").value,15);if(typeof a==="string")return a;if(a.length<2)return "En az iki sayı girin.";return hsSteps(a)}});
+
+/* ---------- quizler ---------- */
+mkQuiz("#quiz0",[
+ ["Boş bir yığına (stack) sırasıyla 5, 6, 7 itiyoruz, sonra bir kez pop yapıyoruz. Çıkan?", ["5", "6", "7", "Hiçbiri"], 2, "5, sonra 6, sonra 7 eklenince tepe 7’dir. Pop tepedeki tek elemanı çıkarır; kalanlar alttan üste 5,6 olur.", "5 FIFO kuyruğunun ilk çıkışı olurdu. 6 ikinci pop ile çıkar. Yapı boş olmadığı için “hiçbiri” yanlış.", "0.1"],
+ ["Baş işaretçisi elimizdeyken bağlı listenin başına eleman eklemek:", ["O(1)", "O(log n)", "O(n)", "O(n²)"], 0, "Yeni düğümün next bağlantısını eski başa ayarlayın, sonra head’i yeni düğüme taşıyın. n boyunca dolaşmaya gerek yoktur; sabit maliyetli düğüm ayırma varsayılır.", "Logaritmik, doğrusal veya karesel sayıda bağlantı değişmez. Araya anahtara göre eklemek ayrı bir arama gerektirebilir, ama burada baş işaretçisi hazır.", "0.1"],
+ ["Kapasitesi 1’den 1024’e ikiye katlanarak büyüyen dizide toplam kaç mevcut eleman kopyalanır?", ["1024", "1023", "10 240", "1 048 576"], 1, "Büyümeler 1→2, 2→4, …, 512→1024 olur. Her seferinde eski kapasite kadar eleman taşınır: 1+2+…+512=1023. Yeni elemanların ilk yazmaları bu soruya dahil değil.", "1024 son kapasitedir, kopya toplamı değil. 10240 her büyümede 1024 kopyalandığını varsayar. 1048576 gereksiz bir kare alma işlemidir.", "0.1"],
+ ["Bir BST’de en küçük anahtar nasıl bulunur?", ["Sürekli sağa giderek", "Sürekli sola giderek", "Kökün kendisidir", "Karma ile"], 1, "Sol alt ağaçtaki bütün değerler düğümden küçüktür. Sol bağlantı kalmayana kadar ilerleyince minimuma ulaşırsınız. En fazla h+1 düğüm ziyaret edilir; boş ağaçta minimum yoktur.", "Sağa gitmek maksimumu bulur. Kök yalnızca sol alt ağaç yoksa minimumdur. Karma hesabı BST bağlantılarının yerine geçmez.", "0.2"],
+ ["Anahtarlar 1, 2, …, n sırasıyla boş, dengelenmeyen bir BST’ye eklenirse yükseklik (kenar sayısıyla):", ["yaklaşık lg n", "n − 1", "1", "yaklaşık √n"], 1, "1 kök olur; her yeni büyük sayı bir öncekinin sağ çocuğu olur. n düğümlü zincirde kökten en sona n−1 kenar vardır.", "Logaritmik yükseklik denge gerektirir. 1 ve √n bu zincirin uzunluğunu saymaz. Öbeğin tam şekil kuralı sıradan BST’de yoktur.", "0.2"],
+ ["Bir karma tablosunda en küçük anahtarı bulmak için ne yapmak gerekir?", ["Bir karma hesabı yeter, O(1)", "Tüm tabloyu taramak, Θ(n + m)", "İkili arama, O(log n)", "Kökten sola inmek"], 1, "Ek bir minimum indeksi tutulmayan standart tabloda m gözü ve içlerindeki n kaydı taramak gerekir. Daha küçük bir anahtar herhangi bir kovada olabilir.", "O(1) beklenen anahtar aramasıdır; hangi anahtarın minimum olduğunu vermez. İkili arama sıralı erişim ister. Kökten sola yürümek BST işlemidir.", "0.2"],
+ ["Dolu, 5 düzeyli (derinlik 0…4) bir ikili ağaçta kaç düğüm vardır?", ["16", "31", "32", "25"], 1, "Derinlikler 0,1,2,3,4; düğüm sayıları 1,2,4,8,16’dır. Toplam 31. Beş düzey vardır ama kenar yüksekliği 4’tür.", "16 yalnızca son düzeydir. 32 bir sonraki ikinin kuvvetidir; toplamdan 1 çıkarılmalıdır. 25, düzeylerin eşit sayıda düğüm tuttuğunu varsayar.", "0.3"],
+ ["Yeterli boş kapasite varken hangi yapıda ekleme O(1), en küçüğü bulma O(n)’dir?", ["Sıralı dizi", "Sırasız dizi", "Sıralı bağlı liste", "Min-öbek"], 1, "Yeterli kapasite varsa sırasız dizinin sonuna yazmak sabit iştir. En küçüğü bulmak için n elemanın tamamına bakılır; n−1 anahtar karşılaştırması yeterlidir. Dinamik dizide büyüme varsa ekleme amortize O(1)’dir.", "Sıralı dizi/liste ekleme yerini korumak için doğrusal iş yapabilir. Min-öbek minimumu O(1)’de verir, ekleme onarımı O(log n)’dir.", "0.2"]
+]);
+mkQuiz("#quiz1",[
+ ["Konumlar 1’den başlıyor. Hangi dizi geçerli bir min-öbektir?", ["[1, 3, 2, 5, 4]", "[1, 5, 2, 3, 4]", "[2, 1, 3, 4, 5]", "[1, 2, 3, 1, 0]"], 0, "[1,3,2,5,4] için 1≤3, 1≤2, 3≤5, 3≤4. Bütün ebeveyn-çocuk kenarları min-öbek koşulunu sağlar; 3’ün 2’den önce gelmesi sorun değildir.", "İkinci dizide 5>3 ve 5>4; üçüncüde kök 2>1; dördüncüde 2>1 ve 2>0. Kardeşleri değil ebeveyn-çocuk kenarlarını test edin.", "3.2"],
+ ["Öbeğin dizi yerleşiminde konum 9’un ebeveyni hangi konumdur?", ["3", "4", "5", "18"], 1, "Bir tabanlı k konumunun ebeveyni k//2’dir: 9//2=4. 4’ün çocukları 8 ve 9 olduğundan ters kontrol de sonucu doğrular.", "3 ve 5 yanlış ebeveynlerdir. 18, 9’un sol çocuk konumudur. Bu formüller yalnızca bir tabanlı konumlar içindir.", "3.3"],
+ ["Konum 6’nın çocukları hangi konumlardadır?", ["3 ve 4", "11 ve 12", "12 ve 13", "6 ve 7"], 2, "Bir tabanlı konum 6 için sol çocuk 2×6=12, sağ çocuk 2×6+1=13. Bu konumlar ancak n yeterince büyükse gerçekten vardır.", "3 ebeveyndir. 11 ve 12 sıfır/bir tabanlı formüllerin karışmasıyla çıkabilir. 6 ve 7 konumun çocukları değildir.", "3.3"],
+ ["Maks-öbeğin kökünde ne bulunur?", ["en küçük anahtar", "medyan", "en büyük anahtar", "rastgele bir anahtar"], 2, "Maks-öbekte her ebeveyn çocuklarından büyük ya da eşittir. Kökten herhangi bir düğüme inen yol boyunca değer artamaz; bu yüzden kök bir maksimum taşır.", "Minimum min-öbeğin kökündedir. Medyan veya rastgele değer için böyle bir garanti yoktur. Eşit maksimumlar bulunabilir.", "3.1"],
+ ["Min-öbek [2,4,3]’e 1, sona ekle + ebeveynle takas yöntemiyle eklenince sonuç?", ["[2, 4, 3, 1]", "[1, 2, 3, 4]", "[1, 4, 3, 2]", "[1, 3, 2, 4]"], 1, "1 sona eklenir: [2,4,3,1]. Konum 4 ile 2 takas: [2,1,3,4]. Konum 2 ile 1 takas: [1,2,3,4]. Kökte durur; iki takas.", "İlk seçenek onarılmamış durumdur. [1,4,3,2] geçersizdir (4>2). [1,3,2,4] başka bir geçerli öbek olsa da bu yukarı taşıma işleminin sonucu değildir.", "4.1"],
+ ["[1,3,2,7,4] min-öbeğinde son elemanı köke taşıyıp küçük çocukla takas ederek minimum çıkarılınca sonuç?", ["[2, 3, 4, 7]", "[3, 2, 4, 7]", "[2, 4, 3, 7]", "[3, 7, 2, 4]"], 0, "1 çıkar; son değer 4 köke gelir: [4,3,2,7]. Küçük çocuk 2 seçilip 4 ile takas edilir: [2,3,4,7]. 4’ün artık çocuğu yoktur.", "[3,2,4,7] ve [3,7,2,4] kök koşulunu bozar. [2,4,3,7] geçerli bir başka öbektir fakat belirtilen sonu-köke taşıma algoritmasının çıktısı değildir.", "4.2"],
+ ["RTOS zamanlayıcı öbeği [5, 9, 7, 12, 10]’a vakti 6 olan zamanlayıcı eklenince:", ["[5, 9, 6, 12, 10, 7]", "[5, 6, 9, 12, 10, 7]", "[5, 9, 7, 12, 10, 6]", "[6, 5, 9, 12, 10, 7]"], 0, "6 konum 6’ya yazılır, ebeveyni 6//2=3 konumundaki 7’dir. Takas sonrası [5,9,6,12,10,7]. Yeni ebeveyn 5≤6 olduğu için durur.", "[5,6,9,12,10,7] içinde 9>7 ihlali vardır. Son seçenekte 6>5 kök ihlali vardır. [5,9,7,12,10,6] yeni elemanı hiç onarmaz (7>6).", "4.1"],
+ ["1000 elemanlı bir öbeğin yüksekliği nedir?", ["9", "10", "500", "1000"], 0, "512=2⁹≤1000<2¹⁰=1024. Dolayısıyla ⌊log₂1000⌋=9 kenar; on dolu veya kısmen dolu düzey bulunur.", "10 düzey sayısıyla yükseklik karışıklığıdır. 500 ve 1000 tam ikili ağaç şeklinin logaritmik yüksekliğini göz ardı eder.", "3.4"],
+ ["20 elemanlı bir öbekte kaç yaprak vardır? (heapify hangi konumdan başlar?)", ["5", "10", "11", "20"], 1, "Bir tabanlı konum p’nin çocuğu olması için 2p≤20 gerekir. İç düğümler 1…10, yapraklar 11…20: 10 yaprak. Son iç düğüm 10’dan geriye doğru onarım başlar.", "5 yaprakların yarısını unutur. 11 ilk yaprağın konumudur, yaprak sayısı değil. 20 bütün düğüm sayısıdır.", "5.2"],
+ ["Aşağıdan yukarı heapify için listelenen en sıkı üst sınır nedir?", ["O(n)", "O(n log n)", "O(n²)", "O(log n)"], 0, "Alt seviyelerde çok düğüm vardır ama az iş gerekir. 15 düğümlü tam ağaçta toplam aşağı inme kapasitesi 8×0+4×1+2×2+1×3=11’dir. Genel toplam O(n)’dir.", "O(n log n) ve O(n²) daha gevşek üst sınırlardır. O(log n) bütün iç düğümlerin kontrolünü karşılamaz. Soru listelenen en sıkı sınırı ister.", "5.3"],
+ ["Boş öbeğe n sayıyı tek tek ekleyerek öbek kurmanın en kötü durumu nedir?", ["Θ(n)", "Θ(n log n)", "Θ(n²)", "Θ(log n)"], 1, "Min-öbeğe azalan anahtarlar ekleyin. Her yeni anahtar köke kadar çıkar. Son yaklaşık n/2 ekleme Θ(log n) derinlikten başladığı için toplam Θ(n log n)’dir.", "Θ(n) bazı iyi girdilerde görülebilir ama en kötü sınır değildir. Θ(n²) gereksiz büyüktür; Θ(log n) ise tek işlemle bütün kurmayı karıştırır.", "5.1"],
+ ["Standart heapsort için en sıkı en kötü durum üst sınırı nedir?", ["O(n)", "O(n log n)", "O(n²)", "O(log n)"], 1, "Önce O(n) heapify, ardından küçülen öbek üzerinde n−1 çıkarma/onarım turu vardır. Toplam en kötü O(n log n)’dir; doğrusal kurma bu toplamı değiştirmez.", "O(n) yalnızca kurma aşamasına aittir. O(log n) tek onarıma ait sınırdır. O(n²) daha gevşek bir üst sınırdır.", "5.4"],
+ ["Heapify neden O(n log n) değil de O(n)’dir?", ["Her bubble_down O(1) sürer", "Bir bubble_down’ın maliyeti düğümün yüksekliğidir ve çoğu düğüm yapraktır", "Dizi zaten sıralıdır", "Yalnızca n/2 eleman öbeğe girer"], 1, "Her düğüme log n iş yüklemek gereğinden fazladır. Yapraklar sıfır düzey iner; yaprağın ebeveyni en çok bir düzey iner. Yüksekliği h olan düğümlerin sayısı hızla azalır ve ağırlıklı toplam doğrusal kalır.", "Her çağrı O(1) değildir: kök logaritmik inebilir. Girdi sıralı olmak zorunda değildir. Bütün n eleman öbektedir; yalnızca iç düğümler onarım çağrısı başlatır.", "5.3"],
+ ["Min-öbekte aşağı taşıma sırasında ebeveyn çocuklarından büyükse hangisiyle takas edilir?", ["küçük olan çocukla", "büyük olan çocukla", "her zaman soldakiyle", "her zaman sağdakiyle"], 0, "Onarım gerekiyorsa küçük çocuk yukarı çıkmalıdır; böylece hem kardeşinden hem aşağı gönderilen ebeveynden büyük olmaz. Örneğin ebeveyn 4, çocuklar 3 ve 2: 2 ile takas edilir.", "3 ile takas kökte 3>2 ihlalini bırakır. Küçük çocuk bazen solda bazen sağdadır. Ebeveyn zaten iki çocuktan da küçükse takas yapılmaz.", "4.2"],
+ ["Heapsort’u ikinci dizi kullanmadan artan sıralı yapmak için hangi öbek ve hangi hareket kullanılır?", ["Maks-öbek; kök, aktif öbeğin son konumuyla takas edilir", "Min-öbek; kök, aktif öbeğin son konumuyla takas edilir", "Min-öbek; çıkanlar ikinci diziye yazılır", "İkili arama ağacı"], 0, "Aktif dizinin en büyüğü maks-öbeğin kökündedir. Onu aktif son gözle değiştirip o gözü öbekten çıkarın: artık nihai konumundadır. Geri kalan öbeği onarıp devam edin.", "Min-öbeği sona taşıma aynı yöntemle azalan sıra üretir. İkinci diziye yazmak sorudaki yerinde koşuluna aykırıdır. BST farklı bir veri yapısıdır.", "5.4"],
+ ["Sırasız dizide min bulma ile n kez seçim yapan selection sort için en sıkı toplam maliyet seçeneği?", ["O(n)", "O(n log n)", "O(n²)", "O(n³)"], 2, "Aramalar küçülen boyutlarda yapılır: (n−1)+(n−2)+…+1=n(n−1)/2 karşılaştırma, yani Θ(n²). Seçileni son aktif elemanla değiştirerek çıkarma sabit iş olabilir.", "O(n) yalnızca tek tam taramayı sayar. O(n log n) öbekle elde edilir. O(n³) fazladan bir n çarpanı ekler ve sıkı değildir.", "2.2"],
+ ["Vakitleri eşit iki zamanlayıcı için min-öbek ne garanti eder?", ["Geliş sırasına (FIFO) göre çıkarırlar", "Hiçbir sıra garantisi vermez; gerekirse anahtara sıra numarası eklenir", "Soldaki önce çıkar", "Her zaman rastgele ama adil çıkar"], 1, "Yalnız vakit karşılaştırılıyorsa eşitler arasında seçim kuralı yoktur. (vakit, artan sıra numarası) anahtarı, eşit vakitlerde kuyruğa daha önce konmuş kaydı önce çıkarır.", "Öbek kendiliğinden FIFO veya adalet garantisi vermez. Soldaki düğüm fiziksel yerleşimdir, geliş sırası değildir. Sonuç deterministik de olabilir; rastgele olmak zorunda değildir.", "6"],
+ ["Aşağıdakilerden hangisi YANLIŞTIR?", ["Min-öbekte kök en küçüktür", "Öbekte her düğümün solundaki çocuk sağdakinden küçük ya da eşittir", "Artan sıralı bir dizi geçerli bir min-öbektir", "Öbek bir dizide saklanabilir"], 1, "[1,3,2] geçerli min-öbektir: 1≤3 ve 1≤2. Buna rağmen soldaki 3 sağdaki 2’den büyüktür. Böylece kardeşlerin sıralı olduğu iddiasına karşı örnek bulunur.", "Diğer üç ifade doğrudur: minimum köktedir; artan dizi ebeveynleri önce koyduğu için min-öbektir; tam şekil dizide saklamaya uygundur.", "3.1"]
+]);
+</script>
+<script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+<script>
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+      rows.forEach(function(r){
+        var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',s==='toplam'||s==='total'||s.startsWith('toplam '));
+      });
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var pos=0,cell=null;for(var k=0;k<r.cells.length;k++){var c=r.cells[k],sp=c.colSpan||1;if(ci>=pos&&ci<pos+sp){cell=c;break}pos+=sp}
+          if(cell&&(cell.colSpan||1)===1){cells.push(cell);if(cell.tagName==='TD'){var tx=(cell.textContent||'').trim();if(tx){seen++;if(cell.classList.contains('r'))right++}}}
+        });
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="aa-site-audit-tables">
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap'))return;
+    var w=document.createElement('div');w.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(w,t);w.appendChild(t);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      wrapTable(t);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6;
+      t.classList.toggle('aa-code-first',!!codeFirst);
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',!!s&&s.length<=36)});
+      rows.forEach(function(r){var c=r.cells&&r.cells[0],x=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';r.classList.toggle('aa-total-row',x==='toplam'||x==='total'||x.startsWith('toplam '))});
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var p=0,c=null;for(var k=0;k<r.cells.length;k++){var q=r.cells[k],sp=q.colSpan||1;if(ci>=p&&ci<p+sp){c=q;break}p+=sp}if(c&&(c.colSpan||1)===1){cells.push(c);if(c.tagName==='TD'){var tx=(c.textContent||'').trim();if(tx){seen++;if(c.classList.contains('r'))right++}}}});
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var queued=false;function later(){if(!queued){queued=true;requestAnimationFrame(function(){queued=false;audit()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+  new MutationObserver(later).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!--AA-SIDEBAR-->
+<style>
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb *{box-sizing:border-box}
+#aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
+#aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
+#aa-sb .pct{font:600 26px ui-monospace,Menlo,Consolas,monospace}
+#aa-sb .trk{height:6px;border-radius:99px;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);overflow:hidden;margin:0 4px 4px}
+#aa-sb .trk i{display:block;height:100%;width:0;background:var(--acc,#6cb6ff);transition:width .1s linear}
+#aa-sb .best{font-size:12px;color:var(--mute,#9aa6b8);margin:0 4px 12px}
+#aa-sb a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--mute,#9aa6b8);border-radius:8px;padding:6px 8px;border-left:3px solid transparent}
+#aa-sb a:hover{background:var(--panel2,#1d2431);color:var(--ink,#e8ecf3)}
+#aa-sb a .n{flex:none;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:700;display:grid;place-items:center;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);margin-top:1px}
+#aa-sb a.top.done .n{background:var(--ok,#5fd39a);border-color:var(--ok,#5fd39a);color:#0b1a12}
+#aa-sb a.top.active{color:var(--ink,#e8ecf3);background:var(--rule,#1b2a3d);border-left-color:var(--acc,#6cb6ff);font-weight:600}
+#aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
+#aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
+#aa-sb .sub.open{display:block}
+#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
+#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
+body.aa-open{overflow:hidden}
+body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
+body.aa-open #aa-back{display:block}
+@media (min-width:1200px){
+  #aa-sb{transform:none}
+  body.aa-has-sb{padding-left:272px}
+  #aa-fab,#aa-back{display:none!important}
+}
+@media (max-width:1199px){#aa-fab{display:flex}}
+@media print{#aa-sb,#aa-bar,#aa-fab,#aa-back{display:none!important}body.aa-has-sb{padding-left:0!important}}
+</style>
+<script>
+(function(){
+  try{
+    var secs=[].slice.call(document.querySelectorAll("section[id]"));
+    if(!secs.length)return;
+    var M=[],top=null,idx=0;
+    function clean(h){var c=h.cloneNode(true);[].slice.call(c.querySelectorAll(".time,.num")).forEach(function(x){x.remove()});return c.textContent.replace(/\s+/g," ").trim()}
+    secs.forEach(function(s){
+      var h2=s.querySelector("h2");
+      if(h2){
+        var num=h2.querySelector(".num");idx++;
+        top={el:h2,sec:s,type:"top",label:clean(h2),n:num?num.textContent.trim():String(idx),subs:[]};
+        M.push(top);
+      }
+      if(!top)return;
+      [].slice.call(s.querySelectorAll("h3")).forEach(function(h){
+        var t=clean(h);if(!t)return;
+        var m={el:h,sec:s,type:"sub",label:t,parent:top};top.subs.push(m);M.push(m);
+      });
+    });
+    var k=0;M.forEach(function(m){if(!m.el.id)m.el.id="aa-h"+(++k)});
+    var sb=document.createElement("nav");sb.id="aa-sb";sb.setAttribute("aria-label","İçindekiler");
+    var html='<div class="hd"><b>İçindekiler</b><span class="pct" id="aa-pct">0%</span></div><div class="trk"><i id="aa-trk"></i></div><div class="best" id="aa-best"></div>';
+    M.forEach(function(m){
+      if(m.type!=="top")return;
+      html+='<a class="top" href="#'+m.el.id+'" data-id="'+m.el.id+'"><span class="n">'+m.n+'</span><span>'+m.label.replace(/</g,"&lt;")+'</span></a>';
+      if(m.subs.length){html+='<div class="sub" data-for="'+m.el.id+'">'+m.subs.map(function(s){return '<a href="#'+s.el.id+'" data-id="'+s.el.id+'">'+s.label.replace(/</g,"&lt;")+'</a>'}).join("")+'</div>'}
+    });
+    sb.innerHTML=html;
+    var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var back=document.createElement("div");back.id="aa-back";
+    document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
+    document.body.classList.add("aa-has-sb");
+    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
+    back.onclick=function(){toggle(false)};
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
+    sb.addEventListener("click",function(e){if(e.target.closest("a")&&window.innerWidth<1200)toggle(false)});
+    var wk=(location.pathname.match(/\/w(\d+)\//)||[])[1]||"x",KEY="aa_read_w"+wk,best=0;
+    try{best=+localStorage.getItem(KEY)||0}catch(e){}
+    var links={},tops=[].slice.call(sb.querySelectorAll("a.top")),subWraps=[].slice.call(sb.querySelectorAll(".sub"));
+    [].slice.call(sb.querySelectorAll("a[data-id]")).forEach(function(a){links[a.getAttribute("data-id")]=a});
+    var pctEl=sb.querySelector("#aa-pct"),trk=sb.querySelector("#aa-trk"),bestEl=sb.querySelector("#aa-best"),fp=fab.querySelector("#aa-fpct");
+    var lastActive=null,ticking=false;
+    function update(){
+      ticking=false;
+      var de=document.documentElement,max=de.scrollHeight-window.innerHeight;
+      var pct=max>0?Math.min(100,Math.max(0,Math.round(100*window.pageYOffset/max))):100;
+      if(max>0&&window.pageYOffset>=max-4)pct=100;
+      bar.style.width=pct+"%";bar.setAttribute("aria-valuenow",pct);
+      pctEl.textContent=pct+"%";trk.style.width=pct+"%";fp.textContent=pct+"%";
+      if(pct>best){best=pct;try{localStorage.setItem(KEY,String(best))}catch(e){}}
+      bestEl.textContent=best>pct?"En ileri okunan: %"+best:"";
+      var act=M[0];
+      for(var i=0;i<M.length;i++){if(M[i].el.getBoundingClientRect().top<=150)act=M[i];else break}
+      var vh=window.innerHeight;
+      tops.forEach(function(a){
+        var m=M.filter(function(x){return x.el.id===a.getAttribute("data-id")})[0];
+        var r=m.sec.getBoundingClientRect();
+        var next=m.sec;
+        var passed=r.bottom<=vh*0.35;
+        a.classList.toggle("done",passed);
+        a.querySelector(".n").textContent=passed?"✓":m.n;
+      });
+      if(act!==lastActive){
+        lastActive=act;
+        var topM=act.type==="top"?act:act.parent;
+        [].slice.call(sb.querySelectorAll("a.active")).forEach(function(a){a.classList.remove("active")});
+        links[topM.el.id].classList.add("active");
+        if(act.type==="sub")links[act.el.id].classList.add("active");
+        subWraps.forEach(function(w){w.classList.toggle("open",w.getAttribute("data-for")===topM.el.id)});
+        var a=links[act.el.id],c=sb;
+        if(a&&c.scrollHeight>c.clientHeight){var ar=a.getBoundingClientRect(),cr=c.getBoundingClientRect();
+          if(ar.top<cr.top+90||ar.bottom>cr.bottom-40)c.scrollTop+=ar.top-cr.top-cr.height/3}
+      }
+    }
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",onScroll);
+    window.addEventListener("load",onScroll);setTimeout(update,300);update();
+  }catch(e){if(window.console)console.warn("aa sidebar",e)}
+})();
+</script>
+<!--/AA-SIDEBAR-->
+
+<script id="aa-sitewide-table-audit">
+(function(){
+  function isMathToken(s){
+    if(!s||s.length>34)return false;
+    return /^[\d\s.,:;()+\-×÷=<>≤≥≈ΘΩOonmVkEαφπ√²³⁴⁵ⁿ!⌊⌋⌈⌉→←↔∑Σ\/·%^_*]+$/u.test(s);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      if(!t.closest('.scroll')&&!t.closest('.table-wrap')){
+        var w=document.createElement('div');w.className='scroll';
+        t.parentNode.insertBefore(w,t);w.appendChild(t);
+      }
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td,th'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        if(c.classList.contains('m')||isMathToken(s))c.classList.add('aa-token');
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r')||/^[-+]?\d[\d\s.,%]*$/.test(tx))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')||c.querySelector('code')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+})();
+</script>
+</body>
+</html>

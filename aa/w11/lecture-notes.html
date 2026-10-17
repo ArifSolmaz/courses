@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hafta 11 (Sade, 3 saatlik) — En kısa yollar</title>
+<meta name="description" content="Algorithm Analysis Hafta 11: En kısa yollar (gevşetme, Dijkstra, Bellman–Ford, DAG, Floyd); Hafta 9-10 tekrarıyla, 3 saatlik ders için ayrıntılı ve sade anlatım.">
+<style>
+:root{--bg:#10141b;--panel:#171d27;--panel2:#1d2431;--ink:#e8ecf3;--mute:#9aa6b8;--line:#2a3344;--acc:#6cb6ff;--ok:#5fd39a;--warn:#ffcb6b;--bad:#ff7b8a;--rule:#1b2a3d;--rev:#2a2140}
+[data-theme="light"]{--bg:#f7f6f2;--panel:#fff;--panel2:#f0eee8;--ink:#1c2330;--mute:#5d6878;--line:#dcd8cd;--acc:#1a64b8;--ok:#13804f;--warn:#9a6a00;--bad:#b3283b;--rule:#e6eefa;--rev:#efe9fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 90px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.tg{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 10px;font-size:13px}
+h1{font:500 clamp(30px,6vw,44px)/1.15 Georgia,"Times New Roman",serif;margin:.3em 0 .2em}
+h2{font:500 28px/1.25 Georgia,"Times New Roman",serif;margin:0 0 .4em}
+h3{font-size:18px;margin:1.5em 0 .3em}
+h4{font-size:16px;margin:1.2em 0 .2em;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{font-size:19px;color:var(--mute);margin:.2em 0 1em}
+.en{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.88em;color:var(--acc);white-space:nowrap}
+section{margin-top:64px;scroll-margin-top:16px}
+.num{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 6px;border-radius:16px;background:var(--acc);color:var(--bg);font-weight:700;font-size:15px;margin-right:8px;vertical-align:3px}
+.time{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--mute);margin-left:6px;vertical-align:4px;font-weight:600}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+.rule{background:var(--rule);border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.rule b.t{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.skip{border-left-color:var(--warn);background:var(--panel2)}.skip b.t{color:var(--warn)}
+.rev{border-left-color:#a98bff;background:var(--rev)}.rev b.t{color:#a98bff}
+[data-theme="light"] .rev b.t{color:#6b3fd1}
+pre,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:14.5px;line-height:1.55;margin:12px 0}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.try{border:1.5px dashed var(--acc);border-radius:14px;padding:16px 18px;margin:20px 0;background:var(--panel)}
+.try .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:9px;padding:7px 14px;font-weight:600;font-size:15px}
+.btn.g{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+input[type=text],input[type=number],select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
+input[type=text]{width:100%}
+.big{font:500 26px ui-monospace,Menlo,Consolas,monospace}
+.mut{color:var(--mute);font-size:15px}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.grid{display:grid;gap:3px;margin:10px 0}
+.grid i{aspect-ratio:1;background:var(--panel2);border-radius:3px;display:block}
+.grid i.on{background:var(--acc)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+td.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.card{min-width:46px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font:500 20px ui-monospace,Menlo,Consolas,monospace}
+.card.sorted{border-color:var(--ok);color:var(--ok)}.card.cur{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}.card.min{border-color:var(--acc);color:var(--acc)}
+.card small{display:block;font-size:11px;color:var(--mute)}
+.q{margin:14px 0}.q .opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.fb{margin-top:6px;font-size:15px;color:var(--mute);display:none}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+nav.toc a{font-size:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--panel)}
+.foot{display:flex;justify-content:space-between;margin-top:60px;font-size:15px}
+.foot a{color:var(--acc);text-decoration:none}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+.bars{position:relative;margin:10px 0;border-left:1px solid var(--line)}
+.bar{position:absolute;height:18px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);font-size:12px;line-height:16px;padding-left:5px;overflow:hidden;white-space:nowrap}
+.bar.pick{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.cells{display:flex;flex-wrap:wrap;gap:2px;margin:10px 0}
+.cells span{width:22px;height:22px;font-size:9px;display:grid;place-items:center;border-radius:4px;background:var(--panel2);color:var(--mute)}
+.cells span.in{background:color-mix(in srgb,var(--acc) 35%,var(--panel2));color:var(--ink)}.cells span.mid{background:var(--warn);color:#000}.cells span.found{background:var(--ok);color:#000}
+svg text{fill:var(--mute);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.nd circle{fill:var(--panel2);stroke:var(--line);stroke-width:2.5}
+.nd.set circle{stroke:var(--ok);fill:color-mix(in srgb,var(--ok) 14%,var(--panel2))}
+.nd.cur circle{stroke:var(--warn);stroke-width:4}
+.nd.bad circle{stroke:var(--bad);fill:color-mix(in srgb,var(--bad) 16%,var(--panel2))}
+.nd.src circle{stroke:var(--acc)}
+.nd text{fill:var(--ink);font-size:15px;font-weight:700}
+.nd text.ds{fill:var(--acc);font-size:13px}
+.eg{stroke:var(--mute);stroke-width:2;fill:none}
+.eg.hl{stroke:var(--warn);stroke-width:4}
+.eg.tree{stroke:var(--ok);stroke-width:4}
+.eg.bad{stroke:var(--bad);stroke-width:4}
+.wl{font-size:13px;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round;font-weight:600}
+.wl.neg{fill:var(--bad)}
+.gsvg,.gsvg2{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:8px 0}
+.chip{display:inline-block;margin:2px 4px 2px 0;padding:2px 9px;border:1px solid var(--line);border-radius:99px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:var(--panel2)}
+.chip.st{text-decoration:line-through;opacity:.5}
+.chip.top{border-color:var(--warn);color:var(--warn)}
+td.hi{background:color-mix(in srgb,var(--warn) 22%,transparent)}
+td.ch{background:color-mix(in srgb,var(--ok) 26%,transparent);font-weight:700}
+td.bd{background:color-mix(in srgb,var(--bad) 24%,transparent);font-weight:700}
+td.k,th.k{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.gridm{border-collapse:collapse;margin:8px 0;width:auto}
+.gridm td{width:27px;height:27px;min-width:27px;text-align:center;padding:0;font-size:10.5px;border:1px solid var(--bg);color:var(--ink)}
+.gridm td.a{background:var(--panel2)}
+.gridm td.g{background:color-mix(in srgb,var(--warn) 30%,var(--panel2))}
+.gridm td.m{background:color-mix(in srgb,#a0522d 55%,var(--panel2))}
+.gridm td.w{background:#000;color:#fff}
+[data-theme="light"] .gridm td.w{background:#444}
+.gridm td.x{box-shadow:inset 0 0 0 100px color-mix(in srgb,var(--acc) 30%,transparent)}
+.gridm td.p{outline:2.5px solid var(--ok);outline-offset:-3px;font-weight:700}
+.gridm td.s,.gridm td.e{font-weight:800;color:var(--bg);background:var(--acc)}
+.gridm td.e{background:var(--ok)}
+textarea{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:14px/1.3 ui-monospace,Menlo,Consolas,monospace;max-width:100%;width:100%}
+.mini{font-size:14px}
+.bigres{font:600 17px ui-monospace,Menlo,Consolas,monospace;margin:6px 0}
+.bar2{height:16px;border-radius:4px;background:var(--acc);margin:3px 0;min-width:2px}
+.bar2.w{background:var(--warn)}
+.kpi{display:inline-block;margin:4px 8px 4px 0;padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font:600 15px ui-monospace,Menlo,Consolas,monospace}
+@media(max-width:480px){body{font-size:16px}h2{font-size:24px}.box,.rule,.try{padding:13px 13px}}
+
+/* AA-GLOBAL-AUDIT-FIXES: responsive tables, formulas, controls and focus */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:normal}
+.wrap{width:100%;min-width:0}
+.en{white-space:normal}
+pre{max-width:100%}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+textarea{width:100%;box-sizing:border-box}
+.big{max-width:100%;overflow-wrap:anywhere}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,span.m{overflow-wrap:normal;word-break:normal}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead{overflow-wrap:break-word}
+img,svg,canvas{max-width:100%;height:auto}
+.foot{flex-wrap:wrap;gap:12px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px}
+  .foot{align-items:flex-start}
+}
+@media(max-width:480px){.foot{flex-direction:column}}
+</style>
+
+<style id="aa-sitewide-responsive-audit">
+/* Site-wide Week audit: table/component responsiveness */
+.wrap{width:100%;min-width:0}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m{overflow-wrap:normal;word-break:normal}
+.row>*{min-width:0}
+pre{max-width:100%;overflow:auto}
+code{overflow-wrap:anywhere}
+textarea,input,select,button,.card,details{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%;height:auto}
+.try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc,#6cb6ff);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px 7px}
+  h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+  .foot{flex-wrap:wrap;gap:10px}
+}
+</style>
+<style id="aa-inline-term-wrap">.en{white-space:normal}</style>
+<style id="aa-site-audit-fixes">
+html,body{max-width:100%}.en{white-space:normal!important}
+.wrap{width:100%;min-width:0}
+.scroll,.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m,.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-cols-4{min-width:620px}.aa-cols-5{min-width:700px}.aa-cols-6{min-width:760px}.aa-cols-7plus{min-width:860px}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{max-width:100%;overflow:auto} code{overflow-wrap:anywhere}
+img,svg,canvas{max-width:100%;height:auto}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+.foot{gap:12px;flex-wrap:wrap}
+@media(max-width:700px){
+ .wrap{padding-left:12px!important;padding-right:12px!important}
+ .scroll,.table-wrap{padding-bottom:4px}
+ th,td{padding-left:7px!important;padding-right:7px!important}
+}
+@media(max-width:480px){.foot{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body><p style="padding:12px"><a href="./">← Week 11: English examples</a></p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="mk-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker>
+<marker id="mk-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--warn)"/></marker>
+<marker id="mk-tree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ok)"/></marker>
+<marker id="mk-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker>
+</defs></svg>
+<div class="wrap">
+
+<header class="top">
+  <a href="../">← AA ana sayfa</a>
+  <button class="tg" id="tg">Açık / koyu</button>
+</header>
+
+<div class="kicker">Hafta 11 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
+<h1>En kısa yollar (shortest paths)</h1>
+<p class="lead">Tek fikir: <b>“bir yolun ucuz olduğunu” kenar kenar gevşeterek (relaxation) öğreniriz.</b> Dijkstra, Bellman–Ford, DAG yöntemi ve Floyd aynı fikrin dört farklı düzenidir; hangisini seçeceğimiz kenar ağırlıklarının cinsine (negatif var mı?) ve çizgenin biçimine (DAG mı?) bağlıdır.</p>
+
+<div class="rule">
+  <b class="t">Bu sayfayı nasıl kullanmalı</b>
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular Hafta 9–10’dan <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>sınav için kural</b>dır. Sayfadaki tüm izleyicilerde (stepper) <b>◀ Geri / İleri ▶ / Oynat</b> düğmeleri vardır; kutudaki grafiği kendi kenar listenizle değiştirebilirsiniz: <code>A&gt;B 3</code> yönlü kenar (A’dan B’ye, ağırlık 3), <code>A-B 3</code> yönsüz kenardır.
+</div>
+
+<h3>Ders akışı (180 dakika)</h3>
+<div class="scroll"><table>
+<tr><th>Blok</th><th>Konu</th><th>Süre</th><th>Hangi haftayı bağlar?</th></tr>
+<tr><td>0</td><td><a href="#s0" style="color:var(--acc)">Isınma ve tekrar</a>: DFS/topolojik sıra, MST, union-find, Θ ve log</td><td>20 dk</td><td>Hafta 9 + 10 (+ 3)</td></tr>
+<tr><td>1</td><td><a href="#s1" style="color:var(--acc)">Ağırlıklı çizge, gevşetme, dist/parent, yol geri izleme</a></td><td>30 dk</td><td>Hafta 8 (BFS)</td></tr>
+<tr><td>2</td><td><a href="#s2" style="color:var(--acc)">Dijkstra algoritması</a>: adım adım, doğruluk, maliyet</td><td>35 dk</td><td>Hafta 10 (Prim, kesme özelliği)</td></tr>
+<tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
+<tr><td>3</td><td><a href="#s3" style="color:var(--acc)">Negatif kenar ve Bellman–Ford</a>: tur tur, negatif döngü</td><td>30 dk</td><td>Hafta 3 (döngü sayma)</td></tr>
+<tr><td>4</td><td><a href="#s4" style="color:var(--acc)">DAG üzerinde en kısa yol</a> ve <a href="#s4b" style="color:var(--acc)">Floyd–Warshall</a></td><td>30 dk</td><td>Hafta 9 (topolojik sıra)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Mühendislik uygulaması</a>: arazi maliyetli robot, A*, algoritma seçimi</td><td>20 dk</td><td>Hepsi</td></tr>
+<tr><td>6</td><td><a href="#s7" style="color:var(--acc)">Özet</a>, çıkış bileti (<a href="#s6" style="color:var(--acc)">quiz ve alıştırmalar ev çalışması</a>)</td><td>5 dk</td><td>Hepsi</td></tr>
+</table></div>
+
+<nav class="toc">
+  <a href="#s0">0 Tekrar</a><a href="#s1">1 Gevşetme</a><a href="#s2">2 Dijkstra</a><a href="#s3">3 Bellman–Ford</a><a href="#s4">4 DAG</a><a href="#s4b">4b Floyd</a><a href="#s5">5 Uygulama</a><a href="#s6">6 Alıştırma &amp; quiz</a><a href="#s7">7 Özet</a>
+</nav>
+
+<div class="box">
+  <b>Başlamadan önce üç cümle:</b>
+  (1) <b>Ağırlıklı çizgede yol uzunluğu = kenar ağırlıklarının toplamıdır</b> (kenar sayısı değil). (2) <b>Gevşetme</b> = “u üzerinden gitmek v’ye daha ucuz mu?” diye sormak. (3) <b>Dijkstra</b> negatif olmayan kenar ağırlıkları ister. Genel bir çizgede negatif kenarlar varsa ve kaynaktan erişilebilen negatif döngü yoksa <b>Bellman–Ford</b> kullanılır. Çizge bir <b>DAG</b> ise negatif kenarlar olsa bile topolojik sırada gevşetme yeterlidir. Tüm tepe çiftleri için <b>Floyd–Warshall</b> negatif kenarlarla çalışabilir; negatif döngü varsa bunu köşegenden tespit eder ve ilgili sonlu en kısa yol değerleri iyi tanımlı değildir.
+</div>
+
+<!-- ================= BLOK 0 ================= -->
+<section id="s0">
+<div class="kicker">Blok 0 · Hafta 9 + 10 tekrarı</div>
+<h2><span class="num">0</span>Isınma ve tekrar <span class="time">20 dk</span></h2>
+<p>Bugünkü konu önceki iki haftanın üstüne kurulu: <b>DFS ve topolojik sıra</b> (Hafta 9) DAG’da en kısa yolun anahtarıdır; <b>MST, Prim ve union-find</b> (Hafta 10) ise Dijkstra’nın “kuzenleridir”. Önce ikisini hızlıca tazeleyelim.</p>
+
+<h3 id="topic-0-1">0.1 Hafta 9: DFS, geri kenar, topolojik sıra</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 9</b>
+<b>DFS</b> bir dalı sonuna kadar gezer, sonra geri döner. Yönlü çizgede kenarlar <b>ağaç (tree), geri (back), ileri (forward), çapraz (cross)</b> diye ayrılır. <b>Geri kenar</b>, hâlâ yığında olan (bitmemiş) bir atasına dönen kenardır ve <b>döngü</b> demektir.<br>
+<b>Topolojik sıra</b> (topological order): her kenar u→v için u’nun v’den önce geldiği dizilim. <b>Yalnızca DAG’larda</b> (yönlü, döngüsüz çizge) vardır. İki yol: (a) DFS bitiş zamanlarının tersi, (b) <b>giriş derecesi (in-degree) 0 olan tepeyi sürekli çıkar</b> (Kahn).<br>
+Neden önemli: bugün DAG’da en kısa yolu bulurken tepeleri <b>tam bu sırayla</b> işleyeceğiz.</div>
+
+<div class="try"><div class="lab">Kendin dene — topolojik sıra denetleyicisi (Hafta 9 mini-problemi)</div>
+<div class="row"><span class="mut">Kenarlar: A→C, B→C, C→D, D→E, C→E</span>
+<label class="mut"><input type="checkbox" id="tp_cyc"> E→A kenarını ekle</label></div>
+<div class="row"><span>Sıra:</span><input type="text" id="tp_in" value="A B C D E" style="flex:1;min-width:180px"></div>
+<div id="tp_out"></div>
+<div class="mut">“A B C D E” geçerlidir; “A C B D E” geçerli değildir (B→C bozulur). Kutuyu işaretleyince döngü A→C→D→E→A oluşur ve hiçbir sıra geçerli olmaz: geçerli sıra sayısı 0’a düşer. Araç tüm 120 dizilimi gerçekten dener.</div></div>
+
+<h3 id="topic-0-2">0.2 Hafta 10: MST, Prim, Kruskal, union-find</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 10</b>
+<b>MST</b> (minimum spanning tree): tüm tepeleri bağlayan en ucuz <b>ağaç</b> (n−1 kenar). <b>Kesme özelliği</b> (cut property): bir kesmeyi (tepeleri iki gruba ayırma) geçen <b>en hafif kenar</b> bir MST’de yer alır; bu yüzden açgözlü seçim güvenlidir.<br>
+<b>Prim:</b> bir ağaç büyütür, her adımda ağaca <i>en ucuz bağlanan</i> tepeyi ekler. <b>Kruskal:</b> kenarları sıralar, <b>döngü kapatmayan</b> en hafif kenarı alır; döngüyü <b>union-find</b> ile (neredeyse sabit amortize maliyetle) kontrol eder.<br>
+<b>Önemli tuzak:</b> MST <u>toplam</u> ağırlığı küçültür; <u>tek tek</u> yolları küçültmez. Bugün tam bu soruyu soran algoritmaları göreceğiz: “A’dan B’ye <i>en kısa yol</i>”.</div>
+
+<div class="try"><div class="lab">Kendin dene — MST, en kısa yol demek değildir</div>
+<div class="row"><span>A–B</span><input type="range" id="tr_ab" min="1" max="9" value="2"><b id="tr_abv">2</b></div>
+<div class="row"><span>B–C</span><input type="range" id="tr_bc" min="1" max="9" value="2"><b id="tr_bcv">2</b></div>
+<div class="row"><span>A–C</span><input type="range" id="tr_ac" min="1" max="9" value="3"><b id="tr_acv">3</b></div>
+<svg id="tr_svg" class="gsvg" viewBox="0 0 480 270" width="100%" role="img" aria-label="Üçgen: MST ve en kısa yol"></svg>
+<div id="tr_out"></div>
+<div class="mut">Yeşil kenarlar MST’dir (Kruskal: iki en hafif kenar). Varsayılan 2, 2, 3: MST’nin A→C yolu 2+2 = 4, oysa doğrudan kenar 3. Bu, Hafta 10’un “Q13” cevabıdır. A–C’yi 5 yapın: ikisi de 4 olur ve fark kaybolur.</div></div>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 10 / Ders 14 ısınması — MST’ye bir kenar eklenirse</b>
+T, G’nin MST’si olsun ve ağırlığı w olan yeni bir e = (u, v) eklensin. T’ye e’yi eklemek <b>tam bir döngü</b> kapatır (u’dan v’ye ağaç yolu + e). Yeni MST = <b>T + e − (bu döngüdeki en ağır kenar)</b>; en ağır kenar e’nin kendisiyse hiçbir şey değişmez. Ağaç yolunu bulmak T’de (n−1 kenar) bir DFS’tir: <b>O(n)</b>.<br>
+<i>Örnek:</i> T = {A–C 1, B–C 2, D–E 3, B–D 5}. Yeni kenar A–D = 4: döngü A–C, C–B, B–D, D–A; en ağırı B–D (5) çıkar, A–D (4) girer. Yeni toplam 1+2+3+4 = 10 (eskisi 11).</div>
+
+<h3 id="topic-0-3">0.3 Kalıcı araçlar: Θ, log, döngü sayma (Hafta 3)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
+Yavaş büyüyenden hızlı büyüyene: <b>1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ</b>. “n’yi yarılayarak 1’e inmek” ≈ log₂ n adım (n = 10⁶ için ≈ 20). Üç iç içe döngü Θ(n³): n iki katına çıkınca iş <b>8 katına</b> çıkar. “Arka arkaya → topla, iç içe → çarp.” Bugün göreceğiniz maliyetler (O(n²), O((n+m) log n), O(V·E), Θ(n³)) bu araçlarla okunur.</div>
+
+<h3 id="topic-warmup">Isınma quizi (Hafta 9–10 ve kalıcı araçlar)</h3>
+<div id="quiz0"></div>
+</section>
+
+<!-- ================= BLOK 1 ================= -->
+<section id="s1">
+<div class="kicker">Blok 1</div>
+<h2><span class="num">1</span>Ağırlıklı çizge ve gevşetme (relaxation) <span class="time">30 dk</span></h2>
+
+<h3 id="topic-1-1">1.1 Kenar sayısı mı, toplam ağırlık mı?</h3>
+<p><b>Sezgi.</b> Haritada İstanbul’dan Ankara’ya giderken “en az kaç ilçeden geçeyim?” diye sormazsınız; <b>kaç kilometre</b> ya da <b>kaç dakika</b> diye sorarsınız. Kenarlara bir <b>ağırlık</b> (weight; km, ms, enerji, maliyet) koyduğumuzda <b>yolun uzunluğu = kenar ağırlıklarının toplamıdır</b>. <b>En kısa yol</b> (shortest path), toplamı en küçük olan yoldur. Kaynak s’den v’ye en kısa uzaklığa δ(s, v) diyeceğiz (“delta”); yol yoksa ∞.</p>
+<p><b>Ağırlıksız</b> çizgede (Hafta 8) en kısa yol “en az kenarlı yol”dur ve <b>BFS</b> bunu O(n+m) sürede bulur. Ağırlıklıda BFS yanlış cevap verebilir: çok kenarlı bir yol daha kısa olabilir (1+1+1+1+1+1+1 = 7 &lt; 10).</p>
+
+<div class="try"><div class="lab">Kendin dene — BFS (en az kenar) ↔ Dijkstra (en az toplam)</div>
+<div class="row"><select id="hc_g"></select><span class="mut">Kaynak</span><select id="hc_s"></select><span class="mut">Hedef</span><select id="hc_t"></select>
+<label class="mut"><input type="checkbox" id="hc_one"> tüm ağırlıkları 1 yap</label></div>
+<svg id="hc_svg" class="gsvg" viewBox="0 0 480 280" width="100%" role="img" aria-label="BFS ve Dijkstra yolları"></svg>
+<div id="hc_out"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>BFS yolu (en az kenar)</span><span><b style="background:var(--ok)"></b>Dijkstra yolu (en az toplam)</span></div>
+<div class="mut">Çizge W’de A→D: BFS A–B–D’yi bulur (2 kenar, toplam 9); gerçek en kısa yol A–C–B–D’dir (3 kenar, toplam 8). “Zincir” çizgesinde S→T: BFS tek kenarı (10) seçer, en kısa yol 7 küçük kenardır. “Tüm ağırlıkları 1 yap” kutusunu işaretleyin: iki yol <b>aynı uzunluğa</b> iner. Yani <b>BFS, tüm ağırlıkları 1 olan Dijkstra’dır</b>.</div></div>
+
+<div class="rule"><b class="t">Kural 1 — BFS ile Dijkstra ilişkisi</b>
+Ağırlıklar eşitse (hepsi 1): <b>BFS</b>, O(n+m). Ağırlıklar farklıysa: BFS’in <b>kuyruğu</b> (FIFO) yerine <b>öncelik kuyruğu</b> (priority queue; en küçük uzaklığı önce veren) koyarız; bu <b>Dijkstra</b>’dır. İkisi de “en yakın olanı önce kesinleştir” mantığıyla çalışır.</div>
+
+<h3 id="topic-1-2">1.2 Her kenara aynı sabiti eklemek yolu korur mu?</h3>
+<p>Sık sorulan bir tuzak (Ders 14, ısınma 2): “Ağırlıkları negatif olmaktan kurtarmak için hepsine aynı k’yi eklesem?” Hayır! <b>Çok kenarlı bir yol k’yi daha çok kez öder.</b> 3 kenarlı yol 1+1+1 = 3 iken tek kenarlı yol 4 ise, k = 10 eklenince 3 kenarlı yol 33, tek kenarlı yol 14 olur.</p>
+<div class="try"><div class="lab">Kendin dene — her kenara k ekle</div>
+<div class="row"><span>k =</span><input type="range" id="ka_k" min="0" max="12" value="0"><b id="ka_kv">0</b></div>
+<svg id="ka_svg" class="gsvg" viewBox="0 0 480 220" width="100%" role="img" aria-label="Her kenara k eklenmiş graf"></svg>
+<div id="ka_out"></div>
+<div class="mut">k = 0’da 3 kenarlı yol (toplam 3) kazanır. k = 1 olur olmaz tek kenar (5) önde çıkar: <b>en kısa yol ağacı değişti</b>. Sonuç: kenarlara sabit eklemek en kısa yolları korumaz. (MST bu işlemden etkilenmez; çünkü her ağaç aynı sayıda, n−1, kenar içerir. Bu fark ilginçtir ama sınavda “neden?” diye sorulabilir.)</div></div>
+
+<h3 id="topic-1-3">1.3 Altyapı ilkesi: en kısa yolun parçaları da en kısadır</h3>
+<p><b>Sezgi.</b> İstanbul → Bolu → Ankara en kısa rotaysa, İstanbul → Bolu kısmı da İstanbul’dan Bolu’ya en kısa rota <u>olmak zorundadır</u>. Aksi hâlde o kısmı daha kısasıyla değiştirip bütün rotayı kısaltırdınız. Buna <b>en iyi altyapı</b> (optimal substructure) denir. Sonuç: uzak tepelerin en kısa yolları, <b>yakın tepelerin en kısa yollarının üstüne kurulur</b>. Dijkstra tam olarak bunu kullanır; Floyd da (Blok 4b).</p>
+
+<h3 id="topic-1-4">1.4 Gevşetme (relaxation): tek bir kenarlık iş</h3>
+<p><b>Sezgi.</b> Her tepede bir <b>tahmin</b> (şimdiye kadar bulunan en iyi uzaklık) yazılı: d[v]. Başta kaynak için 0, diğerleri için ∞ (“henüz yol bilmiyorum”). Bir kenar u→v (ağırlık w) şunu sorar: <i>“u’ya d[u] ile gelmiştim. Oradan bu kenarı da kullanırsam v’ye d[u] + w’de varırım. Bu, elimdeki d[v]’den daha iyi mi?”</i> İyiyse tahmini düşürürüz ve v’nin <b>ebeveynini</b> (parent / predecessor) u yaparız.</p>
+<pre>def relax(u, v, w, d, parent):
+    if d[u] + w &lt; d[v]:       # u üzerinden gitmek daha ucuz mu?
+        d[v] = d[u] + w
+        parent[v] = u
+        return True            # iyileşme oldu
+    return False
+
+# Çözümlü örnek 1: A→B=2, A→C=5, B→C=1
+d = {"A": 0, "B": 2, "C": 5}
+relax("B", "C", 1, d, {})      # 2 + 1 = 3 &lt; 5
+print(d["C"])                  # 3</pre>
+<div class="try"><div class="lab">Kendin dene — tek kenarı gevşet</div>
+<div class="row"><span>d[u] =</span><input type="range" id="rx_u" min="0" max="20" value="2"><b id="rx_uv">2</b></div>
+<div class="row"><span>w =</span><input type="range" id="rx_w" min="-5" max="10" value="1"><b id="rx_wv">1</b></div>
+<div class="row"><span>d[v] =</span><input type="range" id="rx_v" min="0" max="25" value="5"><b id="rx_vv">5</b><label class="mut"><input type="checkbox" id="rx_inf"> d[v] = ∞</label></div>
+<div id="rx_out"></div>
+<div class="mut">Çözümlü örnek 1’in ayarları: d[u]=2, w=1, d[v]=5 → 3 &lt; 5, güncellenir. Şunları deneyin: (a) d[v]’yi 3 yapın: eşit, <b>değişmez</b> (sadece <i>kesin küçükse</i> güncelleriz; ebeveyn de değişmez). (b) d[v] = ∞ işaretleyin: her sonlu aday ∞’dan küçüktür. (c) w’yi negatif yapın: aday d[u]’dan bile küçük olabilir.</div></div>
+
+<div class="rule"><b class="t">Kural 2 — gevşetme</b>
+<b>relax(u→v):</b> d[v] ← min( d[v], d[u] + w(u,v) ). Gevşetme tahmini <b>asla artırmaz</b>; her zaman bir <b>gerçek yolun</b> uzunluğunu temsil eder. Hiçbir zaman gerçek en kısa uzaklığın <b>altına</b> inmez (δ(s,v) ≤ d[v] hep geçerlidir; negatif döngü yoksa). Tüm algoritmalar sadece gevşetmenin <b>hangi sırada</b> yapılacağında farklılaşır: Dijkstra “en yakın kesin olandan”, Bellman–Ford “tüm kenarları n−1 tur”, DAG “topolojik sırada”.</div>
+<div class="box"><b>Sık yapılan hata:</b> d[u] = ∞ iken d[u] + w hesaplamak. ∞ + (−3) hâlâ ∞’dur; “−3 uzaklık” bulmuş olmayız. Kodda <code>float("inf")</code> bunu zaten doğru yapar, elle izlerken ∞’lu kenarı atlayın.</div>
+
+<h3 id="topic-1-5">1.5 İki tablo: dist ve parent; yolu geri izleme</h3>
+<p>Algoritma bittiğinde elimizde iki tablo vardır: <b>dist</b> (en kısa uzaklık) ve <b>parent</b> (o uzaklığı veren son kenarın başlangıcı). <code>dist</code> sadece <i>sayı</i> verir; <b>yolun kendisi</b> parent zincirinden okunur: hedeften başlayıp kaynağa kadar geri yürürüz, sonra diziyi ters çeviririz. Parent’lar birlikte bir <b>en kısa yol ağacı</b> (shortest-path tree) oluşturur.</p>
+<pre>def yol(parent, s, t):
+    p = []
+    v = t
+    while v is not None:         # hedeften kaynağa
+        p.append(v)
+        v = parent[v]
+    p.reverse()                  # kaynak → hedef
+    return p if p[0] == s else None   # p[0] != s ise t'ye ulaşılamıyor</pre>
+<div class="try"><div class="lab">Kendin dene — yolu geri izle</div>
+<div class="row"><select id="pt_g"></select><span class="mut">Hedef</span><select id="pt_t"></select></div>
+<svg id="pt_svg" class="gsvg" viewBox="0 0 480 280" width="100%" role="img" aria-label="En kısa yol ağacı"></svg>
+<div class="scroll"><table><tbody id="pt_tab"></tbody></table></div>
+<div id="pt_out"></div>
+<div class="mut">Yeşil kenarlar parent tablosunun çizimidir (en kısa yol ağacı). Hedefi değiştirip geri yürüyüşü okuyun: örneğin Çizge W’de E için E ← C ← A. “Erişilemeyen tepe” çizgesinde D, A’dan ulaşılamaz: dist = ∞ ve parent boş kalır; “yol yok” demek için ∞ yeterlidir.</div></div>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b>
+Negatif <b>döngü</b> (toplamı negatif olan kapalı yol) varsa “en kısa” kavramı anlamsızlaşır: döngüyü bir kez daha dolaşmak yolu hep kısaltır. Bu yüzden negatif döngü olan çizgede δ(s,v) = −∞ olabilir. Bunu Blok 3’te Bellman–Ford ile <b>tespit</b> edeceğiz; şimdilik “negatif döngü yoksa her şey iyi tanımlıdır” demek yeter.</div>
+</section>
+
+<!-- ================= BLOK 2 ================= -->
+<section id="s2">
+<div class="kicker">Blok 2</div>
+<h2><span class="num">2</span>Dijkstra algoritması <span class="time">35 dk</span></h2>
+
+<h3 id="topic-2-1">2.1 Sezgi: su dalgası</h3>
+<p><b>Sezgi.</b> Kaynak tepeye bir damla boya düşürdüğünüzü ve boyanın boru ağında yayıldığını düşünün; kısa borulara önce, uzunlara sonra ulaşır. Boya bir tepeye <b>ilk ulaştığı an</b>, o tepenin kaynağa en kısa uzaklığıdır. Dijkstra, bu dalgayı bir <b>öncelik kuyruğuyla</b> (en küçük tahminli tepeyi öne çıkaran sıra) taklit eder: <i>“Şu an elimdeki tahminler arasında en küçüğü olan tepe artık <b>kesindir</b> (settled); kimse ona daha kısa bir yoldan ulaşamaz.”</i></p>
+<p>Neden böyle bir şey söyleyebiliriz? Daha kısa olduğunu varsaydığımız bir yolda, kesinleşmiş bölgeden ilk çıkılan y tepesine bakın. Önceki kesin tepe işlendiğinde y için bu yolun önek uzunluğu zaten aday olmuştur. <b>Ağırlıklar negatif değilse</b> yolun kalan kısmı bu uzunluğu azaltamaz. Bu yüzden daha kısa bir yol varsa y, şimdi seçtiğimiz tepeden önce kuyruktan çıkardı. (Negatif kenar bu cümleyi bozar; Blok 3.)</p>
+
+<h3 id="topic-2-2">2.2 Algoritma</h3>
+<div class="rule"><b class="t">Kural 3 — Dijkstra(s)</b>
+1) dist[s] = 0, diğerlerinde ∞; parent hepsinde boş; kuyruğa (0, s) koy.<br>
+2) Kuyruk boşalana kadar: <b>en küçük</b> (d, u) kaydını çıkar. u zaten kesinse bu kayıt <b>bayat</b> (stale): atla. Değilse <b>u’yu kesinleştir</b>.<br>
+3) u’dan çıkan her kenar u→v için <b>gevşet</b>: dist[u] + w &lt; dist[v] ise dist[v] ve parent[v]’yi güncelle ve (dist[v], v)’yi kuyruğa ekle.<br>
+<b>Şart: tüm w ≥ 0.</b> Kesinleşen tepenin dist’i bir daha değişmez (“settled-once”).</div>
+<pre>import heapq
+
+def dijkstra(graph, s):          # graph[u] = [(v, w), ...]
+    dist = {v: float("inf") for v in graph}
+    parent = {v: None for v in graph}
+    dist[s] = 0
+    pq = [(0, s)]                # (tahmin, tepe) çiftleri; heapq en küçüğü verir
+    done = set()
+    while pq:
+        d, u = heapq.heappop(pq)
+        if u in done:            # bayat kayıt
+            continue
+        done.add(u)              # u KESİNLEŞTİ
+        for v, w in graph[u]:
+            if v in done:
+                continue         # kesin tepe değişmez
+            if d + w &lt; dist[v]:  # gevşetme
+                dist[v] = d + w
+                parent[v] = u
+                heapq.heappush(pq, (dist[v], v))
+    return dist, parent
+
+g = {"A": [("B", 2), ("C", 5)], "B": [("C", 1)], "C": []}
+print(dijkstra(g, "A"))          # ({'A': 0, 'B': 2, 'C': 3}, {'A': None, 'B': 'A', 'C': 'B'})</pre>
+<div class="mut">Python notu: <code>heapq.heappush/heappop</code> küçük elemanı önce verir ve çiftleri ilk elemana göre karşılaştırır. Ayrı bir “tahmini düşür” (decrease-key) işlemi yerine <b>yeni kayıt ekleyip eskiyi bayat sayarız</b>; bu en yaygın ve en kısa yazılan biçimdir.</div>
+
+<h3 id="topic-2-3">2.3 Çözümlü örnek 1 (adım adım)</h3>
+<p>Yönlü kenarlar: A→B = 2, A→C = 5, B→C = 1. Kaynak A. Aşağıdaki tablo algoritma çalıştırılarak üretilmiştir (“dist (parent)” biçiminde).</p>
+<div class="scroll" id="tr_d1"></div>
+<p class="mut">Okuma: Adım 1’de A kesinleşir, B = 2 ve C = 5 yazılır. Adım 2’de en küçük tahmin B’dir (2): B kesinleşir ve B→C kenarı C’yi <b>5’ten 3’e</b> düşürür (gevşetme!). Adım 3’te C kesinleşir. Sonuç: 0, 2, 3; yollar: B için A→B, C için A→B→C. Doğrudan A→C kenarı (5) “kazanamadı”.</p>
+
+<h3 id="topic-2-4">2.4 Adım adım izleyici</h3>
+<div class="try"><div class="lab">Kendin dene — Dijkstra izleyici (kuyruk, dist, parent)</div>
+<div id="gw_dj"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>şu an işlenen</span><span><b style="background:var(--ok)"></b>kesinleşti / ağaç kenarı</span><span><b style="background:var(--bad)"></b>yanlış kesinleşmiş</span></div>
+<div class="mut">Kutuda üç şeye bakın: (1) <b>kuyruk</b>: çizgili kayıtlar bayat olanlardır. (2) <b>dist</b> satırı: yeşil hücre az önce düştü. (3) Sağdaki sayaç adım sayısını gösterir. “Çizge W” ön ayarında A→D’nin 9’dan 8’e düşmesini izleyin. Kendi grafınızı yazın (en çok 9 tepe); <b>negatif kenar</b> girerseniz Blok 3’teki hatayı yakalarsınız.</div></div>
+
+<h3 id="topic-2-5">2.5 Çözümlü örnek 2: Çizge W (ders örneği)</h3>
+<p>Yönsüz kenarlar: A–B (4), A–C (1), B–C (2), B–D (5), C–D (8), D–E (3), C–E (10). Kaynak A.</p>
+<div class="scroll" id="tr_d2"></div>
+<p class="mut">Önemli anlar: C kesinleşince B <b>4’ten 3’e</b>, D = 9 ve E = 11 olur. B kesinleşince D <b>9’dan 8’e</b> düşer (A–C–B–D = 1+2+5). D kesinleşince E’ye 8+3 = 11 teklif edilir; <b>mevcut 11’e eşit olduğu için güncellenmez</b> (kesin küçüklük şartı), bu yüzden E’nin ebeveyni C kalır. İki yol da 11 tutar (A–C–E ve A–C–B–D–E); hangisinin ağaçta görüneceği eşitlik kuralına bağlıdır. Sonuç: A 0, C 1, B 3, D 8, E 11.</p>
+
+<h3 id="topic-2-6">2.6 Neden doğru? (iki katman)</h3>
+<div class="rule"><b class="t">Kısa gerekçe (sınavda yeterli)</b>
+u kuyruktan çıktığında dist[u] en küçük tahmindir. Kaynak → u’ya giden <b>herhangi başka</b> bir yol, bir noktada kesin kümeden çıkıp henüz kesin olmayan bir tepeye y gider; y’nin tahmini ≥ dist[u]’dur (u en küçüktü). y’den u’ya kalan kısım <b>negatif olmayan</b> ağırlıklarla uzar ya da aynı kalır; yani o yol dist[u]’dan kısa olamaz. Dolayısıyla dist[u] gerçek en kısa uzaklıktır.</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz — resmî kanıt</b>
+Varsayalım ki v, <i>dist[v] &gt; δ(s,v)</i> olan ilk çıkarılan tepe olsun. s’den v’ye gerçek bir en kısa yola bakın; üzerindeki ilk kesinleşmemiş tepe y, ondan hemen önceki kesin tepe x olsun. x doğru kesinleşti ve x→y kenarı gevşetildi: dist[y] ≤ δ(s,x) + w(x,y) = δ(s,y). Ağırlıklar ≥ 0 olduğu için δ(s,y) ≤ δ(s,v) &lt; dist[v]. Demek ki dist[y] &lt; dist[v]: y, v’den <b>önce</b> çıkarılırdı. Çelişki. (δ(s,y) ≤ δ(s,v) adımı tam olarak w ≥ 0 varsayımını kullanır.)</div>
+
+<h3 id="topic-2-7">2.7 Maliyet ve Prim ile ilişkisi</h3>
+<p>Dijkstra’nın Prim’e benzemesi tesadüf değil: Prim “ağaca <i>tek kenarla</i> en ucuz bağlanan tepeyi” alır, Dijkstra “kaynağa <i>tüm yolla</i> en ucuz bağlanan tepeyi” alır. Koddaki fark tek satırdır: Prim <code>dist[v] = w(u,v)</code> yazar; Dijkstra <code>dist[v] = dist[u] + w(u,v)</code> yazar.</p>
+<div class="rule"><b class="t">Kural 4 — Dijkstra’nın maliyeti</b>
+<b>Dizi (array) ile:</b> n tur, her turda minimum için O(n) tarama + O(n) güncelleme → <span class="en">O(n²)</span> (yoğun çizgede iyi).<br>
+<b>İkili yığın (binary heap) ile:</b> en çok m gevşetme, her biri O(log n); n çıkarma, her biri O(log n) → <span class="en">O((n + m) log n)</span>, çoğu zaman O(m log n) yazılır (seyrek çizgede iyi).<br>
+<b>Bellman–Ford:</b> O(V·E), Floyd: Θ(n³) (Blok 3–4).</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> <b>Fibonacci yığını</b> anahtarı amortize O(1)’de azaltır ve Dijkstra’yı O(n log n + m) yapar; bu, <i>bu Dijkstra gerçekleştiriminin</i> (yığınlı, negatif kenarsız) standart sınırıdır, tek kaynaklı en kısa yolun genel “en iyi bilinen” sınırı olarak okunmamalıdır: Dijkstra’nın klasik sınırı SSSP için genel olarak optimal değildir. 2025’te yönlü, negatif olmayan gerçek ağırlıklı çizgeler için O(m·log<sup>2/3</sup> n) sınırı elde edildi. ICALP 2026’da Duan, Mao, Shu ve Yin bunu <b>O(m√log n + √(mn log n log log n))</b> deterministik sınırına iyileştirdi (karşılaştırma-toplama modeli). Bu güncel araştırma notu sınav kapsamı dışıdır; ders için ikili yığınlı Dijkstra sınırı yeterlidir.</div>
+
+<div class="try"><div class="lab">Kendin dene — maliyet hesaplayıcı (n ve m’ye göre işlem sayısı)</div>
+<div class="row"><span>n (tepe) =</span><input type="number" id="cw_n" value="1000" min="2" max="100000" style="width:110px"><span>ortalama çıkış derecesi d =</span><input type="number" id="cw_d" value="5" min="1" max="5000" style="width:90px">
+<button class="btn g" data-cw="10000,3">Yol ağı (seyrek)</button><button class="btn g" data-cw="1000,500">Yoğun</button><button class="btn g" data-cw="100,99">Tam çizge</button></div>
+<div id="cw_m" class="mut"></div>
+<div class="scroll"><table><thead><tr><th>Algoritma</th><th>Formül</th><th>İşlem sayısı</th><th>1 ns/işlem ile süre</th></tr></thead><tbody id="cw_t"></tbody></table></div>
+<div id="cw_win"></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+<div class="row"><b>Ölçülen:</b><span>n =</span><input type="number" id="cm_n" value="100" min="5" max="400" style="width:80px"><span>m =</span><input type="number" id="cm_m" value="400" min="4" max="6000" style="width:90px"><button class="btn" id="cm_run">Rastgele çizge üret ve çalıştır</button></div>
+<div class="scroll"><table><thead><tr><th>Algoritma</th><th>Sayılan</th><th>Değer</th></tr></thead><tbody id="cm_t"></tbody></table></div>
+<div id="cm_out" class="mut"></div>
+<div class="mut">Üstteki tablo <b>formülleri</b> sayıya çevirir (sabitler yok sayılır). “Yol ağı” için dizi tabanlı Dijkstra n² = 10⁸ iken yığınlı yaklaşık (n+m) lg n ≈ 5×10⁵: seyrek çizgede yığın çok kazanır. “Tam çizge”de m ≈ n² olduğundan fark kapanır (dizi sürümü en az yığın kadar iyidir). Alt tablo ise rastgele bir çizgede iki algoritmayı <b>gerçekten çalıştırıp</b> yaptıkları işi sayar ve sonuçlarını karşılaştırır.</div></div>
+
+<div class="box"><b>Sık yapılan hatalar (Dijkstra)</b>
+<ol>
+<li>“Negatif kenar varsa da Dijkstra biraz çalışır.” → Bazen sonuç doğru çıkar (sıra şans eseri uygunsa), ama <b>garanti yoktur</b> (Blok 3).</li>
+<li>Kesinleşmiş tepenin dist’ini tekrar gevşetmek: kodda <code>if v in done: continue</code> bunu önler; gerekmez ve negatif kenarlarda zararlı olur.</li>
+<li>Tüm tepeler yerine yalnızca hedefi aramak: s→t tek çiftte bile en kötü durumda s’den her yere hesaplanır; hedef kesinleşir kesinleşmez durmak mümkündür ve çoğu zaman yeterince erken biter.</li>
+<li>“Dijkstra = Prim.” → Benzerler ama farklı soruları çözer: Prim toplam ağaç ağırlığını, Dijkstra kaynaktan yolları minimize eder (Blok 0’daki üçgen).</li>
+</ol></div>
+</section>
+
+<!-- ================= BLOK 3 ================= -->
+<section id="s3">
+<div class="kicker">Blok 3</div>
+<h2><span class="num">3</span>Negatif kenar ve Bellman–Ford <span class="time">30 dk</span></h2>
+
+<h3 id="topic-3-1">3.1 Negatif ağırlık gerçek bir şey mi?</h3>
+<p><b>Sezgi.</b> Evet. Bir robotun <b>iniş yolunda</b> rejeneratif frenle bataryaya enerji geri vermesi “enerji maliyeti negatif” bir kenar olabilir. Bir kur dönüşümü zinciri “kazanç” gösterebilir. Kenar ağırlığı “ne kadar zaman/enerji harcadım?” sorusunun cevabıdır; bazen cevap eksidir. Ama bir sorun var: <b>toplamı negatif bir döngü</b> (negative cycle) varsa, döngüyü her dolaştığınızda yol kısalır; “en kısa yol” tanımsızdır (−∞).</p>
+
+<h3 id="topic-3-2">3.2 Dijkstra negatif kenarda neden bozulur?</h3>
+<p>Dijkstra “şu an en küçük tahmin olan tepe kesindir” der. Negatif kenar bu cümleyi bozar: <b>sonradan bulunan bir negatif kenar</b>, kesinleştirdiğimiz bir tepeye daha kısa bir yol açabilir. Klasik örnek: A→B = 2, A→C = 5, C→B = −4.</p>
+<div class="try"><div class="lab">Kendin dene — Dijkstra ↔ gerçek sonuç (Bellman–Ford) yan yana</div>
+<div id="gw_fail"></div>
+<div class="mut">İlk ön ayar: A önce B’yi 2 ile kesinleştirir; sonra C (5) kesinleşir ve C→B (−4) teklif eder: 5−4 = <b>1 &lt; 2</b>, ama B zaten kesin. Dijkstra B = 2 der, gerçek 1’dir. Üçüncü ön ayara (“Örnek 2 grafı”) bakın: negatif kenar var ama Dijkstra <b>yine doğru</b> çıkar, çünkü negatif kenarın ucundaki A henüz kesin değildi. <b>Garanti</b> “negatif kenar varsa mutlaka yanlış” değil, “negatif kenar varsa <u>yanlış çıkabilir</u>”dir.</div></div>
+<div class="scroll" id="tr_d3"></div>
+<div class="rule"><b class="t">Kural 5 — Dijkstra’nın şartı</b>
+Dijkstra yalnızca <b>negatif olmayan</b> ağırlıklarda (sıfır serbest) doğrudur. Kanıtın “kalan yol mesafeyi kısaltamaz” adımı w ≥ 0 ister. Karşı örnek: A→B 2, A→C 5, C→B −4 (Dijkstra B = 2 der, gerçek 1). Ders notları “ağırlıklar pozitif” varsayar; “negatif olmayan” bundan biraz daha geniş ve yeterlidir.</div>
+
+<h3 id="topic-3-3">3.3 Bellman–Ford: sabırlı yöntem</h3>
+<p><b>Sezgi.</b> Bir dedikodu düşünün: ilk turda kaynak komşularına “bana uzaklığın şu” der. Her tur, en az bir kenar daha uzun yolların bilgisini garanti eder; yerinde güncellemede uygun kenar sırası sayesinde aynı turda birkaç kenar ilerleyebilir. Ulaşılabilir negatif döngü yoksa basit bir en kısa yol en fazla <b>n−1 kenarlıdır</b> (aynı tepeyi iki kez geçmez), o hâlde <b>n−1 tur</b> sonra herkes doğru bilgiyi alır. Bellman–Ford sırayla düşünmez; <b>her turda tüm kenarları bir kez gevşetir</b>.</p>
+<div class="rule"><b class="t">Kural 6 — Bellman–Ford(s)</b>
+dist[s] = 0, diğerleri ∞. <b>n−1 kez</b> tekrarla: listedeki <b>her kenar</b> için gevşet. Bir turda hiçbir şey değişmediyse <b>erken dur</b>.<br>
+<b>Garanti:</b> k. turdan sonra, en kısa yolu en çok k kenar olan her tepenin dist’i doğrudur (tümevarım). Negatif döngü yoksa n−1 tur yeter.<br>
+<b>Maliyet:</b> (n−1) tur × m kenar = <span class="en">O(V·E)</span>. Negatif ağırlıkla çalışır.<br>
+<b>Negatif döngü testi:</b> n−1 turdan sonra <b>bir tur daha</b> yapın; hâlâ bir dist düşüyorsa ulaşılabilir bir negatif döngü vardır.</div>
+<pre>def bellman_ford(nodes, edges, s):     # edges = [(u, v, w), ...] verilen sırada
+    INF = float("inf")
+    dist = {v: INF for v in nodes}
+    parent = {v: None for v in nodes}
+    dist[s] = 0
+    for tur in range(len(nodes) - 1):
+        degisti = False
+        for u, v, w in edges:
+            if dist[u] + w &lt; dist[v]:    # inf + w = inf, asla &lt; olmaz: güvenli
+                dist[v] = dist[u] + w
+                parent[v] = u
+                degisti = True
+        if not degisti:
+            break                        # erken dur
+    for u, v, w in edges:                # kontrol turu
+        if dist[u] + w &lt; dist[v]:
+            return None                  # ulaşılabilir negatif döngü
+    return dist, parent</pre>
+
+<h3 id="topic-3-4">3.4 Çözümlü örnek 2: bir tur Bellman–Ford</h3>
+<p>Yönlü kenarlar, <b>bu sırayla</b>: S→A = 4, S→B = 2, B→A = −3, A→C = 1, B→C = 5. Başlangıç: d(S) = 0, diğerleri ∞.</p>
+<div class="scroll" id="tr_b1"></div>
+<p class="mut">1. tur: S→A: A = 4; S→B: B = 2; B→A: 2−3 = −1 &lt; 4, <b>A = −1</b> (negatif kenar A’yı B üzerinden düşürdü); A→C: −1+1 = 0, C = 0; B→C: 2+5 = 7 ≥ 0, değişmez. 1. tur sonunda S 0, A −1, B 2, C 0. 2. turda hiçbir şey değişmez; durabiliriz. (n−1 = 3 tur her zaman yeter; çoğu zaman daha azı yeter.)</p>
+
+<div class="try"><div class="lab">Kendin dene — Bellman–Ford tur tur (kenar sırası ve negatif döngü)</div>
+<div id="gw_bf"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>şu an gevşetilen kenar</span><span><b style="background:var(--ok)"></b>parent (ağaç) kenarı</span><span><b style="background:var(--bad)"></b>negatif döngüde düşmeye devam eden</span></div>
+<div class="mut">“Tur sonu ▶▶” düğmesi bir sonraki tur sonuna atlar. Denemeler: (1) <b>Örnek 2</b> ve <b>Örnek 2, değişik sıra</b> ön ayarlarını karşılaştırın: sonuç aynı (A = −1, C = 0), ama değişik sırada <b>3 tur</b> gerekir (A→C, B→C, B→A, S→A, S→B sırası, bilgiyi geriye doğru tutar). (2) “Kenar sırası: ters” seçeneğiyle aynı grafiği ters sırada deneyin. (3) <b>Negatif döngü</b> ön ayarında kontrol turunun hâlâ iyileştirme bulduğunu görün: S→A 1, A→B 2, B→C −4, C→A 1; A→B→C→A toplamı 2−4+1 = −1.</div></div>
+
+<div class="rule"><b class="t">Kural 7 — kenar sırası</b>
+Kenar sırası <b>sonucu</b> değiştirmez, yalnızca <b>kaç turun yararlı olduğunu</b> değiştirir. n−1 sınırı en kötü sırayı da kapsar. Elle tutulan bir turun “nasıl göründüğü” sıraya bağlıdır; sınavda sırayı açıkça yazın.</div>
+
+<h3 id="topic-3-5">3.5 Çözümlü örnek 3: Ders 14 sorusu (Q22)</h3>
+<p>Kenarlar bu sırayla: S→A = 6, S→B = 7, A→C = 5, B→C = −2, C→A = −3.</p>
+<div class="scroll" id="tr_b2"></div>
+<p class="mut">1. tur: A = 6, B = 7, C = 11; sonra B→C: 7−2 = 5 &lt; 11 → C = 5; C→A: 5−3 = 2 &lt; 6 → A = 2. Tur sonu [S 0, A 2, B 7, C 5]. 2. turda hiçbir şey değişmez → son. Yollar: A için S→B→C→A (7−2−3 = 2), C için S→B→C (5). Negatif döngü? A→C→A = 5−3 = 2 &gt; 0: pozitif, kontrol turu hiçbir şey bulmaz. En kötü maliyet 3 tur × 5 kenar = 15 gevşetme.</p>
+
+<h3 id="topic-3-6">3.6 Neden n−1 tur yeter? (kısa tümevarım)</h3>
+<p><b>Taban:</b> 0 kenarlı yol yalnızca kaynaktır, d[s] = 0 doğru. <b>Adım:</b> en kısa yolu k kenarlı olan v’yi alın; sondan bir önceki tepe u’nun yolu k−1 kenarlıdır ve (k−1). turdan sonra d[u] doğrudur. k. turda u→v gevşetilir ve d[v] doğru olur. Basit bir yol en çok n−1 kenar içerdiğinden n−1 tur yeter.</p>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Neden “n. turda iyileşme = negatif döngü”? Negatif döngü yoksa n−1 turdan sonra hiçbir dist azalamaz (hepsi doğru). Azalıyorsa, sonsuza kadar dolaşılabilen bir kısa yol vardır: bu ancak negatif döngüyle mümkündür.</div>
+
+<h3 id="topic-3-7">3.7 Dijkstra mı, Bellman–Ford mu?</h3>
+<div class="scroll"><table>
+<tr><th></th><th>Dijkstra (yığınlı)</th><th>Bellman–Ford</th></tr>
+<tr><td>Negatif kenar</td><td class="bad">✗ yanlış olabilir</td><td class="ok">✓ çalışır</td></tr>
+<tr><td>Negatif döngü tespiti</td><td>✗ yok</td><td class="ok">✓ n. tur testi</td></tr>
+<tr><td>Maliyet</td><td class="m">O((n+m) log n)</td><td class="m">O(V·E)</td></tr>
+<tr><td>Yöntem</td><td>en yakın kesin tepeden gevşet</td><td>tüm kenarları n−1 kez gevşet</td></tr>
+<tr><td>Ne zaman?</td><td>negatif olmayan ağırlık</td><td>negatif ağırlık olabilir / döngü testi gerek</td></tr>
+</table></div>
+
+<div class="box"><b>Sık yapılan hatalar (negatif kenar ve Bellman–Ford)</b>
+<ol>
+<li>“Her kenara aynı sabiti ekleyip negatiflerden kurtulurum.” → Yanlış: yol sayısı kenar sayısıyla k ödenir (Blok 1.2).</li>
+<li>“Yönsüz çizgede negatif kenar sorun değil.” → Yönsüz negatif kenar, iki yönde de gidilebildiği için <b>kendi başına bir negatif döngüdür</b> (A–B −3: A→B→A = −6).</li>
+<li>“n−1 tur her zaman gerekir.” → Üst sınırdır; hiçbir şey değişmeyince durun.</li>
+<li>“n. turda değişim = yanlış kod.” → Hayır; bu <b>negatif döngü</b> ihbarıdır, sonuç tanımsızdır.</li>
+<li>Kaynaktan <b>ulaşılamayan</b> negatif döngüyü yanlış raporlamak: ∞ olan tepelerden gevşetme yapmayın (kodda inf + w zaten sonlu olmaz).</li>
+</ol></div>
+</section>
+
+<!-- ================= BLOK 4 ================= -->
+<section id="s4">
+<div class="kicker">Blok 4</div>
+<h2><span class="num">4</span>DAG üzerinde en kısa yol ve Floyd–Warshall <span class="time">30 dk</span></h2>
+
+<h3 id="topic-4-1">4.1 DAG’da en kısa yol: topolojik sırada gevşet</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 9</b> DAG = döngüsüz yönlü çizge. Topolojik sıra: her kenar soldan sağa. Bugün bu sırayı “işleme sırası” olarak kullanacağız.</div>
+<p><b>Sezgi.</b> Bir robot, yalnızca ileri aşamalara giden alternatif rotalardan birini seçiyor. Her noktaya <b>en düşük toplam maliyetle</b> ulaşmak istiyoruz; bazı geçişler enerji geri kazandırdığı için negatif maliyetli olabilir. Bu, bütün ön koşulları tamamlamayı gerektiren görev çizelgeleme probleminden farklıdır; o problemde en erken başlama zamanı için maksimum alınır. Çizge <b>DAG</b> ise bir tepeye gelen <b>tüm kenarlar, o tepe işlenmeden önce işlenmiş olur</b>. O hâlde tepeyi <i>topolojik sırada</i> bir kez işlemek yeter: negatif kenar bile “sonradan gelip” kesin bir tepeyi bozamaz, çünkü geri dönüş yoktur.</p>
+<div class="rule"><b class="t">Kural 8 — DAG’da en kısa yol (O(n+m))</b>
+1) Topolojik sırayı bul (O(n+m)). 2) dist[s] = 0, diğerleri ∞. 3) Sırayla her tepe u için, çıkan her kenar u→v’yi <b>gevşet</b>. Her tepe ve kenar bir kez görülür: <span class="en">O(n + m)</span>. <b>Negatif ağırlık serbesttir</b> (döngü yok). Dijkstra’dan da, Bellman–Ford’dan da hızlıdır.</div>
+<pre>from collections import deque
+
+def dag_en_kisa(nodes, edges, s):
+    # topolojik sıra: giriş derecesi 0 olanı çıkar (Kahn)
+    indeg = {v: 0 for v in nodes}
+    out = {v: [] for v in nodes}
+    for u, v, w in edges:
+        out[u].append((v, w)); indeg[v] += 1
+    order, q = [], deque(v for v in nodes if indeg[v] == 0)   # from collections import deque
+    while q:
+        u = q.popleft(); order.append(u)
+        for v, w in out[u]:
+            indeg[v] -= 1
+            if indeg[v] == 0: q.append(v)
+    if len(order) != len(nodes):
+        raise ValueError("Graph is not a DAG")
+    if len(order) != len(nodes):
+        raise ValueError("Graph is not a DAG")
+    INF = float("inf")
+    dist = {v: INF for v in nodes}; dist[s] = 0
+    for u in order:                      # topolojik sırada
+        for v, w in out[u]:
+            dist[v] = min(dist[v], dist[u] + w)   # gevşet
+    return dist</pre>
+
+<div class="try"><div class="lab">Kendin dene — DAG izleyici (aynı anda yol sayısı da hesaplanır)</div>
+<div id="gw_dag"></div>
+<div class="mut">Ön ayardaki kenarlarda A→B = −3 negatif; yine de her tepe tek kez işlenir ve sonuç doğrudur. “yol sayısı” satırı, aynı sırayla <b>S’den v’ye kaç farklı yol olduğunu</b> sayar: kenar u→v işlenirken paths[v] += paths[u]. Bu, ders sorusu Q18’in cevabıdır (O(n+m)). Kenar listesine bir döngü kapatın (örneğin <code>D&gt;S 1</code> ekleyin): topolojik sıra kalmaz ve izleyici “DAG değil” der.</div></div>
+<div class="scroll" id="tr_g1"></div>
+
+<p><b>Gerçek hayat:</b> Skiena’nın grubu telefon tuş takımıyla yazılmış metni geri çözdü: her tuş birkaç harfi temsil ettiğinden her konum için aday sözcükler vardır. Tepeler = aday sözcükler, kenarlar = komşu sözcüklerin yan yana gelmesi, kenar ağırlığı = o ikilinin ne kadar olası olduğu (“give me”, “hive me”den daha ucuz). <b>En olası cümle bu DAG’daki en kısa yoldur</b> ve Viterbi algoritmasıyla (dinamik programlama) bulunur. Sistem karakterlerin %99’undan fazlasını doğru buldu.</p>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> DAG’da <b>en uzun</b> yol (kritik yol, proje planlamada) için ağırlıkların işaretini çevirip aynı yöntemi uygularız; genel çizgede en uzun yol çok zordur ama DAG’da kolaydır.</div>
+</section>
+
+<section id="s4b" style="margin-top:36px">
+<h3 id="topic-4-2">4.2 Floyd–Warshall: tüm çiftler arasında en kısa yol</h3>
+<p><b>Sezgi.</b> Bir şehirler arası “tüm mesafeler tablosu” (otobüs kitabı sonundaki üçgen tablo) istiyorsunuz. Tek tek her şehirden Dijkstra çalıştırmak n kez Dijkstra’dır: n × O(n²) = O(n³). Floyd daha basittir: <b>“Ara duraklara teker teker izin ver.”</b> Önce hiç ara durak kullanılmasın (sadece doğrudan kenarlar), sonra yalnızca 1 numaralı tepe ara durak olabilsin, sonra 1 ve 2, … sonunda hepsi.</p>
+<div class="rule"><b class="t">Kural 9 — Floyd–Warshall</b>
+Başla: D[i][j] = w(i,j) kenar varsa, D[i][i] = 0, aksi hâlde ∞ (<b>ara durağı olmayan</b> yollar). Sonra k = 1…n için:<br>
+<b>D[i][j] = min( D[i][j], D[i][k] + D[k][j] )</b> (her i, j için).<br>
+Anlam: i’den j’ye ara durakları {1..k} olan en iyi yol ya k’yi <u>kullanmaz</u> (eski değer) ya da <u>bir kez kullanır</u> (i→k en iyisi + k→j en iyisi, ikisi de {1..k−1} ile). Üç iç içe döngü: <span class="en">Θ(n³)</span>. Yoğun çizgelerde ve orta boyutlarda, düzenli bellek erişimi ve küçük sabitler nedeniyle pratikte rekabetçi olabilir; ancak <b>seyrek çizgelerde n kez Dijkstra genellikle asimptotik olarak daha iyidir</b>. Floyd–Warshall’ın önemli avantajı, kısa ve doğrudan bir tüm-çiftler çözümü olmasıdır.<br>
+<b>k en dış döngü olmalıdır</b> (“izin verilen ara durak” kümesi tur tur büyür).</div>
+<pre>def floyd(D):                      # D n×n liste listesi, D[i][i] = 0, kenar yoksa inf
+    n = len(D)
+    for k in range(n):             # ara durak: EN DIŞ döngü
+        for i in range(n):
+            for j in range(n):
+                if D[i][k] + D[k][j] &lt; D[i][j]:
+                    D[i][j] = D[i][k] + D[k][j]
+    return D                       # herhangi bir D[i][i] &lt; 0 ise çizgede negatif döngü var</pre>
+<div class="try"><div class="lab">Kendin dene — Floyd izleyici (k = 1, 2, …)</div>
+<div id="gw_fl"></div>
+<div class="mut">Ön ayar <b>Q20</b>: 1→2 = 4, 1→3 = 11, 2→3 = 2. k = 1: hiçbir şey iyileşmez (1’e giren kenar yok). <b>k = 2: D[1,3] = min(11, D[1,2] + D[2,3]) = min(11, 6) = 6</b>. k = 3: değişiklik yok. Başka ön ayarlar: negatif kenarlı 4 tepeli bir çizge ve negatif döngülü bir çizge (köşegende <span class="bad">negatif</span> bir sayı belirir: D[i][i] &lt; 0 ⇒ i’den erişilip yeniden i’ye dönülebilen bir negatif döngü vardır). <b>“Geçişli kapanış”</b> kipinde min ve + yerine <i>veya</i> ve <i>ve</i> kullanılır: hangi tepeden hangisine <i>bir yol var mı?</i> sorusunu yanıtlar (veri tabanlarında “x, y ile ilişkili mi?”).</div></div>
+<div class="scroll" id="tr_f1"></div>
+<div class="rule"><b class="t">Kural 10 — tüm çiftler ne zaman neyle?</b>
+<b>Floyd:</b> Θ(n³), negatif kenar serbest (negatif döngüyü köşegen gösterir), yoğun çizgelerde ve kısa yazılı koda ihtiyaç olduğunda.<br>
+<b>n × Dijkstra:</b> O(n (n+m) log n), seyrek çizgelerde daha hızlı, ama negatif kenar yok.<br>
+<b>n × BFS:</b> ağırlıksız çizge. <i>Çizge çapı</i> (diameter) = en büyük en kısa uzaklık: ağırlıksız bağlı çizgede her tepeden BFS çalıştırıp en büyük uzaklığı alın: O(n(n+m)).</div>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> Floyd ile <b>yolu</b> da bulmak için ikinci bir “sonraki tepe” matrisi tutulur (D[i][j] her güncellendiğinde next[i][j] = next[i][k]). Sınav kapsamında yalnızca mesafe matrisinin izlenmesi var. Floyd Ders 16’da anlatılacak dört adımlı dinamik programlama tarifinin bir örneğidir (yapıyı tanımla → özyineleme → aşağıdan yukarı hesapla → çözümü tablodan çıkar).</div>
+<div class="box"><b>Sık yapılan hatalar (DAG ve Floyd)</b>
+<ol>
+<li>DAG olmayan çizgede topolojik sıra aramak: döngü varsa sıra yoktur; önce DFS/Kahn ile kontrol edin.</li>
+<li>DAG’da Dijkstra çalıştırmak: negatif kenar yoksa doğrudur ama gereksiz yavaştır (O((n+m) log n) vs O(n+m)).</li>
+<li>Floyd’da <b>k’yi iç döngüye almak</b> (i, j, k sırası): yanlış sonuç verir; k en dıştadır.</li>
+<li>Floyd’un tablosunu “her tur yeni tablo” sanmak: aynı tablo yerinde güncellenir ve sonuç yine doğrudur.</li>
+<li>Floyd’un negatif <b>döngülü</b> çizgede “çalışmasını” beklemek: köşegen negatif olur, mesafeler anlamsızdır.</li>
+</ol></div>
+</section>
+
+<!-- ================= BLOK 5 ================= -->
+<section id="s5">
+<div class="kicker">Blok 5</div>
+<h2><span class="num">5</span>Mühendislik uygulaması: arazi maliyetli robot, A*, algoritma seçimi <span class="time">20 dk</span></h2>
+<p>Bir mobil robot doluluk ızgarasında (occupancy grid) gidiyor; <b>her hamlenin maliyeti girilen hücrenin arazi süresidir</b>: asfalt 1, çakıl 3, çamur 8 (çamur asfalttan sekiz kat yavaş). BFS hamle sayar, Dijkstra <b>maliyet</b> sayar. Hiçbir maliyet negatif olmadığından en ucuz tahmini hücre güvenle kesinleştirilebilir; Dijkstra’nın dayandığı şey tam budur.</p>
+<p><b>A* (A-star)</b>, “ipucu verilmiş Dijkstra”dır: kuyruğu <b>şimdiye kadarki maliyet g + kalan maliyet tahmini h</b> ile sıralar (h örneğin hedefe kuş uçuşu/Manhattan uzaklık). h <b>hiçbir zaman gerçek kalan maliyeti olduğundan fazla söylemezse</b> (kabul edilebilir / admissible) ağaç-arama sürümü A* en ucuz yolu bulur. Aşağıdaki gibi <b>kapalı küme (closed set)</b> tutan çizge-arama sürümünde, bir hücre kapatıldıktan sonra yeniden açılmıyorsa, yalnızca admissible olmak yetmez: h’nin ayrıca <b>tutarlı (consistent)</b> olması, yani her u→v kenarı için h(u) ≤ c(u,v) + h(v) sağlanması gerekir (ya da iyileşen hücreler yeniden açılmalıdır). Burada 4 yönlü hareketle Manhattan uzaklığı tutarlıdır (bir adımda h en çok 1 değişir, hücre maliyeti ≥ 1); bu yüzden A* aynı en ucuz yolu bulur ve genelde çok daha az hücre açar. Abartılı h en iyi yolu kaçırabilir.</p>
+<div class="try"><div class="lab">Kendin dene — ızgarada BFS / Dijkstra / A* (çözümlü mini-problem hazır)</div>
+<div class="row"><select id="gd_p"></select><span class="mut">Göster:</span><select id="gd_a"><option value="bfs">BFS (hamle sayar)</option><option value="dij" selected>Dijkstra (maliyet)</option><option value="ast">A* (Manhattan ipucu)</option></select></div>
+<textarea id="gd_txt" rows="4" spellcheck="false"></textarea>
+<div class="mut mini">Harfler: <b>S</b> başlangıç, <b>G</b> hedef, <b>.</b> asfalt (1), <b>g</b> çakıl (3), <b>m</b> çamur (8), <b>#</b> duvar. Hücre maliyeti, girilen hücrenin maliyetidir; 4 yönlü hareket.</div>
+<div class="scroll"><table class="gridm" id="gd_grid"></table></div>
+<div class="scroll"><table><thead><tr><th>Algoritma</th><th>Bulunan yol</th><th>Maliyet</th><th>Hamle</th><th>Açılan hücre</th></tr></thead><tbody id="gd_t"></tbody></table></div>
+<div class="legend"><span><b style="background:var(--acc)"></b>açılan hücre (sıra no)</span><span><b style="background:var(--ok)"></b>yol</span></div>
+<div class="mut">Mini-problem (ilk ön ayar): S (0,0); M (0,1) çamur 8; G (0,2) asfalt 1; A (1,0) çakıl 3; B (1,1) çakıl 3; C (1,2) asfalt 1. Dijkstra sırayla S 0, A 3, B 6, C 7, sonra G 8 (C üzerinden; M de 8 ile eşit) kesinleştirir. En ucuz yol <b>S→A→B→C→G, maliyet 8</b>. BFS iki hamlelik S→M→G’yi seçer ve <b>maliyeti 9</b>’dur: az hamle ≠ az maliyet. Eşitlik kuralı: eşit maliyette hedefe yakın hücre önce açılır. Büyük ön ayarda “Açılan hücre” sütununa bakın: A* aynı maliyeti çok daha az hücre açarak bulur.</div></div>
+<div class="scroll" id="tr_e1"></div>
+<div class="mut"><b>Mini-problem:</b> yukarıdaki mini ızgarada çamur hücresini 8 yerine 1 yapın (<code>m</code> yerine <code>.</code> yazın). BFS ve Dijkstra ne yapar? (Cevap: ikisi de S→M→G’yi seçer, maliyet 2. Diğer çakıl hücreleri hâlâ 3 maliyetlidir; tüm ağırlıklar eşit değildir. Bu örnekte en az hamleli yol aynı zamanda en ucuz yoldur.)</div>
+
+<h3 id="topic-5-1">5.1 Hangi algoritmayı seçeyim?</h3>
+<div class="try"><div class="lab">Kendin dene — algoritma seçici</div>
+<div class="row"><label>Soru:
+<select id="ch_q"><option value="1">Tek kaynaktan tüm tepelere</option><option value="2">Tüm çiftler arasında</option></select></label>
+<label>Çizge:
+<select id="ch_dag"><option value="0">genel (döngü olabilir)</option><option value="1">DAG (döngüsüz)</option></select></label>
+<label>Ağırlıklar:
+<select id="ch_w"><option value="u">eşit (ağırlıksız)</option><option value="p">negatif olmayan</option><option value="n">negatif olabilir</option></select></label></div>
+<div id="ch_out"></div>
+<div class="mut">Karar ağacı: DAG ise tek kaynakta topolojik gevşetme (her ağırlık için en hızlı). Ağırlıksızsa BFS. Negatif olmayan ağırlıkta Dijkstra. Negatif olabiliyorsa Bellman–Ford. Tüm çiftlerde Floyd ya da (negatif yoksa, seyrek çizgede) n kez tek-kaynak algoritması. Maliyetleri Blok 2’deki hesaplayıcıyla kıyaslayın.</div></div>
+
+<h3 id="topic-5-2">5.2 Başka mekatronik bağlamlar</h3>
+<div class="scroll"><table>
+<tr><th>Durum</th><th>Tepe / kenar / ağırlık</th><th>Algoritma</th></tr>
+<tr><td>AGV fabrika rotası</td><td>kavşak / koridor / süre</td><td>Dijkstra (süre ≥ 0)</td></tr>
+<tr><td>Ağ yönlendirme (router)</td><td>yönlendirici / bağlantı / gecikme</td><td>Dijkstra (link-state); mesafe-vektörü protokolleri Bellman–Ford’a dayanır</td></tr>
+<tr><td>Elektrikli robot, enerji</td><td>nokta / yol / enerji (inişte negatif)</td><td>Bellman–Ford; negatif döngü ayrıca denetlenir. Enerji modeli ve robotun durumu doğru tanımlanmadan döngü olmadığı varsayılamaz.</td></tr>
+<tr><td>Görev bağımlılıkları</td><td>görev / “ardından” / süre</td><td>DAG yöntemi (O(n+m))</td></tr>
+<tr><td>Bina içi tüm oda çiftleri</td><td>oda / kapı / metre</td><td>Floyd (n=200 → 8×10⁶) ya da n × Dijkstra</td></tr>
+</table></div>
+</section>
+
+<!-- ================= BLOK 6 ================= -->
+<section id="s6">
+<div class="kicker">Blok 6</div>
+<h2><span class="num">6</span>Alıştırmalar ve quiz <span class="time">ev çalışması</span></h2>
+<p class="mut">Ders sonunda zaman kalırsa 1–2 soru birlikte çözülür. Çizge W: yönsüz, A–B 4, A–C 1, B–C 2, B–D 5, C–D 8, D–E 3, C–E 10.</p>
+
+<h3 id="topic-6-1">6.1 Ana quiz (Hafta 11)</h3>
+<div id="quiz1"></div>
+
+<h3 id="topic-6-2">6.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
+<details><summary>A1 (kolay). Dijkstra hangi kenar ağırlığı koşulunu ister ve neden?</summary>
+<p><b>Negatif olmayan</b> ağırlık (ders notları “pozitif” varsayar; sıfır da zarar vermez). Dijkstra “en küçük tahminli tepe kesindir” der; bu, kalan yolun mesafeyi kısaltamayacağına dayanır. Negatif kenar sonradan kesinleşmiş bir tepeye daha kısa bir yol açabilir.</p></details>
+<details><summary>A2 (kolay). Şu algoritmaları çalışma süresiyle eşleştirin: Prim (dizi), Kruskal (union-find), Dijkstra (yığın), Bellman–Ford, Floyd.</summary>
+<p>Prim (basit dizi): O(n²). Kruskal: O(m log m) (sıralama baskın; union-find işi neredeyse doğrusal). Dijkstra (komşuluk listesi + ikili yığın): O((n+m) log n), çoğu zaman O(m log n). Bellman–Ford: O(V·E). Floyd: Θ(n³).</p></details>
+<details><summary>A3 (orta). Çizge W’de A’dan Dijkstra çalıştırın: tüm uzaklıkları ve en kısa yol ağacını yazın.</summary>
+<p>Uzaklıklar: A = 0, C = 1, B = 3, D = 8, E = 11. A–C–B 3 (doğrudan 4’ten iyi); A–C–B–D 8. E için iki eşit yol var: A–C–E ve A–C–B–D–E, ikisi de 11. Bir ağaç: A–C, C–B, B–D, C–E (D–E seçilirse de geçerli). Yalnızca kesin küçüklükte güncelleyen kuralla E’nin ebeveyni C kalır.</p></details>
+<details><summary>A4 (orta). Bir negatif kenarlı küçük yönlü çizgede Dijkstra’nın yanlış cevap verdiği bir örnek verin; hangi adım bozuluyor?</summary>
+<p>A→B 2, A→C 5, C→B −4. A kesinleşir: B = 2, C = 5. En küçük B (2) kesinleşir (çıkan kenarı yok). C (5) kesinleşir ve C→B: 5−4 = 1 &lt; 2 teklif eder, ama B kesin olduğundan değişmez. Dijkstra B = 2 der; gerçek A→C→B = 1. Bozulan adım: “y’den v’ye kalan yol mesafeyi kısaltamaz” (w ≥ 0). Burada kalan kenar C→B negatiftir; δ(C) = 5 &gt; δ(B) = 1 olduğundan C, B’den <i>sonra</i> çıkarılır ama B’nin en kısa yolu C’den geçer.</p></details>
+<details><summary>A5 (orta). Bellman–Ford: S→A 6, S→B 7, A→C 5, B→C −2, C→A −3 (bu sırada). Her turu gösterin, ne zaman durabileceğinizi ve negatif döngüyü nasıl anlayacağınızı söyleyin.</summary>
+<p>Başlangıç [S 0, A ∞, B ∞, C ∞]. Tur 1: A = 6, B = 7, C = 11, sonra B→C ile C = 5, C→A ile A = 2. Tur sonu [0, 2, 7, 5]. Tur 2: hiçbir şey değişmez → dur. Sonuç A = 2 (S→B→C→A), B = 7, C = 5 (S→B→C). Maliyet en kötü 3 × 5 = 15 gevşetme. Negatif döngü testi: n−1 turdan sonra bir tur daha; hâlâ düşen varsa negatif döngü. Burada A→C→A = 5−3 = 2 &gt; 0: kontrol turu bir şey bulmaz.</p></details>
+<details><summary>A6 (orta). Floyd: yönlü w(1,2) = 4, w(1,3) = 11, w(2,3) = 2. Her k’de ne değişir?</summary>
+<p>Başlangıç: D[1,2] = 4, D[1,3] = 11, D[2,3] = 2, köşegen 0, diğerleri ∞. k = 1: değişiklik yok (1’e giren kenar yok). k = 2: D[1,3] = min(11, D[1,2] + D[2,3]) = min(11, 6) = <b>6</b>. k = 3: değişiklik yok (3’ten çıkan yok). Sonuç: 1’den 3’e en kısa uzaklık 6.</p></details>
+<details><summary>A7 (orta). Bir DAG’da s’den t’ye giden farklı yol sayısını O(n+m)’de bulun.</summary>
+<p>paths[s] = 1, diğerleri 0. Topolojik sırada her tepe u için çıkan her kenar u→v’de paths[v] += paths[u]. Tepe işlenirken tüm öncülleri işlenmiş olur, bu yüzden değeri tamdır. n+m aritmetik işlem. (Yol sayısı üstel büyüyebilir; çok büyük sayılarda her toplamın bit maliyeti sabit sayılmaz.) Örnek: S→A, S→B, A→B, A→C, B→C, B→D, C→D için paths: A 1, B 2, C 3, D 5.</p></details>
+<details><summary>A8 (orta). Ağırlıksız bir çizgenin çapını (en büyük en kısa uzaklık) nasıl ve hangi maliyetle hesaplarsınız?</summary>
+<p>Bağlı ağırlıksız çizgede her tepeden BFS çalıştırıp en büyük uzaklığı alın: n kez O(n+m) = <b>O(n(n+m))</b>. Bağlı olmayan çizgede bir kural belirleyin: erişilemeyen çiftler ∞ sayılırsa çap ∞’dur; ya da bileşen başına çap raporlanır. Örnek: 5 tepeli yol çizgesinin çapı 4.</p></details>
+<details><summary>A9 (orta). Mini ızgarada Dijkstra’yı S’den G’ye çalıştırın (arazi: M çamur 8, A, B çakıl 3, G, C asfalt 1), sırayı ve en ucuz yolu söyleyin; BFS ne verir?</summary>
+<p>S = 0; M = 8, A = 3. A (3) kesinleşir: B = 6. B (6): M üzerinden 14 (iyileşme yok), C = 7. C (7): G = 8. Şimdi G ve M ikisi de 8: G (8) kesinleşir, bitti. Yol S→A→B→C→G, maliyet 3+3+1+1 = <b>8</b>. BFS en az hamleli S→M→G’yi seçer, maliyeti 8+1 = <b>9</b>. Kesinleştirme güvenlidir çünkü hamle maliyeti ≥ 0. A*, Manhattan ipucuyla (G’ye uzaklık) hedefe yakın hücreleri önce açar ve admissible olduğundan yine maliyet 8’i bulur.</p></details>
+<details><summary>A10 (orta). Her kenara aynı k eklenirse en kısa yol ağacı korunur mu? Örnek verin.</summary>
+<p>Hayır. Çok kenarlı bir yol k’yi daha çok kez öder. 3 kenarlı yol (1+1+1 = 3) tek kenarlı yoldan (4) iyidir; k = 10 sonrası 3 kenarlı yol 33, tek kenarlı yol 14 olur. (MST ise korunur: her kapsayan ağaç n−1 kenar içerdiğinden hepsine aynı (n−1)k eklenir.)</p></details>
+<details><summary>A11 (orta). Dört durum için algoritma seçin: (a) 10⁶ yol parçalı haritada km, tek kaynak; (b) kur dönüşümü zincirinde döngüsel kazanç aramak (logaritmik ağırlıklarla); (c) görev bağımlılık DAG’ında süre farkları (bazıları negatif); (d) 200 odalı binada tüm oda çiftleri.</summary>
+<p>(a) Dijkstra (yığın): ağırlıklar ≥ 0, seyrek. (b) Bellman–Ford: negatif ağırlık ve negatif döngü testi gerekir (negatif döngü = kazanç). (c) DAG’da topolojik sırada gevşetme: O(n+m), negatif sorun değil. (d) Floyd: 200³ = 8×10⁶ işlem; ya da 200 kez Dijkstra.</p></details>
+<details><summary>A12 (orta). G’nin MST’si T elinizde ve yeni bir e = (u, v) kenarı ekleniyor. Yeni MST’yi O(n)’de nasıl bulursunuz?</summary>
+<p>T’ye e’yi eklemek tek bir döngü kapatır (T’deki u–v yolu + e). Yeni MST = T + e − (döngüdeki en ağır kenar); en ağır kenar e ise hiçbir şey değişmez. T’de u–v yolunu DFS ile bulmak O(n) (T’de n−1 kenar var). Bu, bugünkü “gevşetme” fikrinin tersi bir bakıştır: orada tahmini düşürürdük, burada en ağır kenarı çıkarırız.</p></details>
+<details><summary>A13 (zor, isteğe bağlı). Her kenarın ağırlığı negatif olabilen bir DAG’da O(n+m)’de tek kaynak en kısa yolları nasıl bulunur, neden doğrudur?</summary>
+<p>Topolojik sırayı bulun (O(n+m)); dist[s] = 0, diğerleri ∞. Tepeleri sırayla işleyip her çıkan kenarı gevşetin. Bir tepeye gelen tüm yollar daha önceki tepelerden geldiği için, tepe işlendiğinde dist’i kesindir; negatif ağırlıklar sonradan geri dönüp kesin bir tepeyi bozamaz çünkü döngü yoktur. Her tepe ve kenar bir kez görülür: O(n+m).</p></details>
+<details><summary>A14 (zor, isteğe bağlı). Bellman–Ford’da kontrol turunda neden hâlâ iyileşme olursa negatif döngü vardır?</summary>
+<p>Negatif döngü olmazsa her en kısa yol basit olur ve en çok n−1 kenar içerir; n−1 turdan sonra hiçbir dist azalamaz. Azalıyorsa, n veya daha çok kenarlı bir yol herhangi bir n−1 kenarlı yoldan kısadır; bu ancak bir tepenin tekrarlandığı yani bir döngünün negatif olduğu durumda mümkündür.</p></details>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A13 ve A14 isteğe bağlıdır; resmî Dijkstra kanıtı (2.6), Floyd’da yol geri kurma ve Fibonacci yığını da öyle. Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w11">kapsam listesine</a> bakın.</div>
+</section>
+
+<!-- ================= ÖZET ================= -->
+<section id="s7">
+<div class="kicker">Özet</div>
+<h2><span class="num">7</span>Tek sayfalık özet</h2>
+
+<div class="box"><b>Hafta 11’in 10 kuralı</b>
+<ol>
+<li><b>Yol uzunluğu = kenar ağırlıkları toplamı.</b> BFS yalnızca ağırlıksız (eşit ağırlıklı) çizgede en kısa yoldur.</li>
+<li><b>Gevşetme:</b> d[v] = min(d[v], d[u] + w). Tahmin hiç artmaz; parent güncellenir.</li>
+<li><b>dist + parent</b> tabloları → yol hedeften geri okunur, ağaç oluşur. Erişilemeyen: ∞.</li>
+<li><b>Dijkstra:</b> en küçük tahminli tepeyi kesinleştir, çıkan kenarları gevşet. <b>Şart: w ≥ 0.</b> Maliyet O(n²) (dizi) ya da O((n+m) log n) (yığın).</li>
+<li><b>Dijkstra ≈ Prim</b> (tek satır fark: dist[u]+w yerine w); BFS = tüm ağırlıkları 1 olan Dijkstra.</li>
+<li><b>Negatif kenar → Dijkstra yanlış olabilir:</b> A→B 2, A→C 5, C→B −4: Dijkstra 2, gerçek 1.</li>
+<li><b>Bellman–Ford:</b> tüm kenarları n−1 kez gevşet, O(V·E); <b>n. turda iyileşme = negatif döngü.</b> Kenar sırası turların sayısını etkiler, sonucu değil.</li>
+<li><b>DAG:</b> topolojik sırada gevşet, O(n+m), negatif ağırlık serbest; aynı sırayla yol sayısı da sayılır.</li>
+<li><b>Floyd:</b> k en dışta, D[i][j] = min(D[i][j], D[i][k] + D[k][j]), Θ(n³); köşegen &lt; 0 ⇒ negatif döngü; min/+ yerine veya/ve ⇒ geçişli kapanış.</li>
+<li><b>A*</b> = ipucu (h) eklenmiş Dijkstra; h hiçbir zaman fazla söylemezse (admissible) ve kapalı küme kullanılıyorsa ayrıca tutarlıysa (consistent; Manhattan + 4 yönlü ızgara + maliyet ≥ 1 tutarlıdır) en ucuz yolu bulur, genelde daha az hücre açar. <b>Her kenara sabit eklemek yolu korumaz.</b></li>
+</ol></div>
+
+<div class="box"><b>Hafta 9–10’dan hatırlanacaklar</b>
+<ul>
+<li>Geri kenar ⇒ yönlü çizgede döngü; DAG’da topolojik sıra vardır (DFS bitiş zamanlarının tersi ya da giriş derecesi 0’ı çıkar).</li>
+<li>Kesme özelliği: kesmeyi geçen en hafif kenar bir MST’dedir. Kruskal döngü kapatanı reddeder; union-find neredeyse sabit amortize.</li>
+<li>MST toplam ağırlığı küçültür, tekil yolları değil (2, 2, 3 üçgeni).</li>
+<li>Maliyet okuma: yarılama ≈ lg n, üç iç içe döngü Θ(n³), n iki katına → n³ sekiz katına.</li>
+</ul></div>
+
+<div class="box"><b>Hangi algoritma? (hızlı tablo)</b>
+<div class="scroll"><table>
+<tr><th>Durum</th><th>Algoritma</th><th>Maliyet</th></tr>
+<tr><td>Ağırlıksız, tek kaynak</td><td>BFS</td><td class="m">O(n+m)</td></tr>
+<tr><td>Ağırlık ≥ 0, tek kaynak</td><td>Dijkstra</td><td class="m">O((n+m) log n)</td></tr>
+<tr><td>Negatif kenar olabilir</td><td>Bellman–Ford</td><td class="m">O(V·E)</td></tr>
+<tr><td>DAG (her ağırlık)</td><td>topolojik gevşetme</td><td class="m">O(n+m)</td></tr>
+<tr><td>Tüm çiftler</td><td>Floyd</td><td class="m">Θ(n³)</td></tr>
+</table></div></div>
+
+<div class="box"><b>Sık yapılan hatalar</b>
+<ol>
+<li>“Negatif kenar varsa Dijkstra biraz çalışır.” → Garanti yoktur; karşı örnek A→B 2, A→C 5, C→B −4.</li>
+<li>Gevşetmeyi <b>büyüten</b> güncelleme yazmak, ya da eşit teklifle ebeveyni değiştirmek (kesin küçüklük arayın).</li>
+<li>Bellman–Ford’da “n. turda değişim” ile negatif döngüyü karıştırmak ya da kontrol turunu unutmak.</li>
+<li>Her kenara k ekleyip en kısa yolun aynı kalacağını sanmak.</li>
+<li>Floyd’da k’yi içe almak; DAG olmayan çizgede topolojik sıra aramak.</li>
+<li>BFS’i ağırlıklı çizgede kullanıp “en kısa” sanmak (S→M→G maliyet 9, S→A→B→C→G maliyet 8).</li>
+</ol></div>
+
+<div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
+<ol>
+<li>Dijkstra hangi koşulda doğrudur ve ona karşı örnek nedir?</li>
+<li>Bir gevşetme adımı tam olarak ne yapar? (d[u]=3, w=4, d[v]=9 için sonuç?)</li>
+<li>5 tepeli, 8 kenarlı bir çizgede Bellman–Ford en kötü kaç gevşetme yapar (kontrol turu dahil)? Neden?</li>
+</ol>
+<details><summary>Cevaplar</summary><p>1) Negatif olmayan ağırlık; A→B 2, A→C 5, C→B −4. 2) d[v] = min(9, 3+4) = 7; parent[v] = u. 3) n−1 = 4 tur × 8 kenar = 32; kontrol turuyla 5 tur × 8 = 40 gevşetme denemesi.</p></details></div>
+</section>
+
+<div class="foot">
+  <a href="../w10/">← Önceki</a>
+  <a href="ek-notlar/">Ek notlar: orijinal Hafta 11 (tam sürüm)</a>
+  <a href="../w12/">Sonraki →</a>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const INF=Infinity;
+const fmt=n=>n.toLocaleString("tr-TR");
+const lg=n=>Math.log2(n);
+const D=x=>x===INF?"∞":x===-INF?"−∞":String(x).replace("-","−");
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+$("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==="dark"?"light":"dark"};
+if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
+
+/* ---------- generic quiz ---------- */
+function mkQuiz(id,Q0){
+  const Q=Q0.map((q,i)=>{const n=q[1].length,r=(i*2+1)%n,o=new Array(n);q[1].forEach((t,j)=>o[(j+r)%n]=t);return [q[0],o,(q[2]+r)%n,q[3]]});
+  const el=$(id);
+  el.innerHTML=Q.map((q,qi)=>`<div class="box q" data-q="${qi}"><b>${qi+1}. ${q[0]}</b><div class="opts">${q[1].map((o,oi)=>`<button class="opt" data-o="${oi}">${o}</button>`).join("")}</div><div class="fb"></div></div>`).join("")+`<div class="big" data-score></div>`;
+  const ans={};
+  el.querySelectorAll(".q").forEach(box=>{const qi=+box.dataset.q;box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(ans[qi]!==undefined)return;const o=+b.dataset.o;ans[qi]=o===Q[qi][2];
+    b.classList.add(ans[qi]?"right":"wrong");
+    if(!ans[qi])box.querySelectorAll(".opt")[Q[qi][2]].classList.add("right");
+    const fb=box.querySelector(".fb");fb.style.display="block";fb.textContent=(ans[qi]?"Doğru. ":"Yanlış. ")+Q[qi][3];
+    if(Object.keys(ans).length===Q.length)el.querySelector("[data-score]").textContent=`Sonuç: ${Object.values(ans).filter(Boolean).length} / ${Q.length}`;
+  })});
+}
+
+/* ======================= graph core ======================= */
+function parseG(txt){
+  const nodes=[],edges=[],bad=[];const add=n=>{if(!nodes.includes(n))nodes.push(n)};
+  txt.replace(/−/g,"-").replace(/→/g,">").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{
+    const m=s.match(/^([A-Za-z0-9_]+)\s*([>-])\s*([A-Za-z0-9_]+)\s+(-?\d+(?:\.\d+)?)$/);
+    if(!m){bad.push(s);return}
+    add(m[1]);add(m[3]);edges.push({u:m[1],v:m[3],w:+m[4],und:m[2]==="-"});
+  });
+  return {nodes,edges,bad};
+}
+function arcsOf(g){const r=[];g.edges.forEach((e,i)=>{r.push({u:e.u,v:e.v,w:e.w,ei:i});if(e.und)r.push({u:e.v,v:e.u,w:e.w,ei:i})});return r}
+function adjOf(g){const a={};g.nodes.forEach(n=>a[n]=[]);arcsOf(g).forEach(x=>a[x.u].push(x));return a}
+function circlePos(nodes){const o={},n=nodes.length;nodes.forEach((v,i)=>{const a=-Math.PI/2+2*Math.PI*i/n;o[v]=[240+190*Math.cos(a),122+82*Math.sin(a)]});return o}
+function drawG(svg,g,pos,o){
+  o=o||{};const R=18;let s="";
+  g.edges.forEach((e,i)=>{
+    const a=pos[e.u],b=pos[e.v];if(!a||!b)return;
+    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,px=-uy,py=ux;
+    const rev=!e.und&&g.edges.some(f=>!f.und&&f.u===e.v&&f.v===e.u),off=rev?8:0;
+    const x1=a[0]+px*off+ux*R,y1=a[1]+py*off+uy*R,x2=b[0]+px*off-ux*(R+(e.und?0:4)),y2=b[1]+py*off-uy*(R+(e.und?0:4));
+    const cls=(o.edge&&o.edge(i))||"";
+    s+=`<line class="eg ${cls}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" ${e.und?"":`marker-end="url(#mk-${cls||"n"})"`}/>`;
+    const mx=(x1+x2)/2+px*(rev?15:11),my=(y1+y2)/2+py*(rev?15:11);
+    s+=`<text class="wl ${e.w<0?"neg":""}" x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${D(e.w)}</text>`;
+  });
+  g.nodes.forEach(n=>{const p=pos[n];if(!p)return;const c=(o.node&&o.node(n))||"",sub=o.sub?o.sub(n):"";
+    s+=`<g class="nd ${c}"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${R}"/><text x="${p[0].toFixed(1)}" y="${(p[1]+5).toFixed(1)}" text-anchor="middle">${n}</text>${sub!==""&&sub!=null?`<text class="ds" x="${p[0].toFixed(1)}" y="${(p[1]+36).toFixed(1)}" text-anchor="middle">${sub}</text>`:""}</g>`});
+  svg.innerHTML=s;
+}
+function nodeTable(g,rows){return `<table><thead><tr><th></th>${g.nodes.map(n=>`<th>${n}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r[0]}</b></td>${g.nodes.map(n=>`<td class="m ${r[2]?r[2](n):""}">${r[1](n)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+
+/* ---------- Dijkstra (settled-once) ---------- */
+function dijkSteps(g,src){
+  const adj=adjOf(g),dist={},par={},pe={},settled=[],bad=[];
+  g.nodes.forEach(v=>{dist[v]=INF;par[v]=null;pe[v]=null});
+  dist[src]=0;let pq=[[0,src]];const st=[];
+  const snap=o=>st.push(Object.assign({dist:{...dist},par:{...par},pe:{...pe},settled:[...settled],pq:pq.map(x=>x.slice()),bad:[...bad],cur:null,edge:-1,chg:null,kind:"x",note:""},o));
+  snap({note:`Başlangıç: dist[${src}] = 0, diğerleri ∞. Kuyrukta yalnızca (0, ${src}) var.`});
+  const sortPQ=()=>pq.sort((a,b)=>a[0]-b[0]||(a[1]<b[1]?-1:a[1]>b[1]?1:0));
+  while(pq.length){
+    sortPQ();const [d,u]=pq.shift();
+    if(settled.includes(u)){snap({kind:"stale",note:`Kuyruktan (${D(d)}, ${u}) çıktı ama ${u} zaten kesinleşmişti: <b>bayat kayıt</b>, atla.`});continue}
+    settled.push(u);const outs=adj[u];
+    const skip=outs.filter(a=>settled.includes(a.v)&&!(dist[u]+a.w<dist[a.v])).map(a=>a.v);
+    snap({kind:"settle",cur:u,note:`En küçük kayıt: (${D(d)}, ${u}). <b>${u} KESİNLEŞTİ</b> (dist = ${D(dist[u])}). Şimdi ${u}’dan çıkan kenarları gevşetiriz${skip.length?` (kesin olanlar atlanır: ${skip.join(", ")})`:""}${outs.length===0?" (çıkan kenar yok)":""}.`});
+    for(const a of outs){
+      const nd=dist[u]+a.w,old=dist[a.v];
+      if(settled.includes(a.v)){
+        if(nd<old){bad.push(a.v);snap({kind:"warn",cur:u,edge:a.ei,chg:a.v,note:`<span class="bad">⚠ ${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} &lt; ${D(old)}</span>, ama ${a.v} zaten kesinleşmişti; Dijkstra onu <b>değiştirmez</b>. ${a.v}’nin dist’i artık yanlış.`})}
+        continue}
+      if(nd<old){dist[a.v]=nd;par[a.v]=u;pe[a.v]=a.ei;pq.push([nd,a.v]);
+        snap({kind:"relax",cur:u,edge:a.ei,chg:a.v,note:`Gevşet ${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} &lt; ${D(old)} → <b>dist[${a.v}] = ${D(nd)}</b>, parent = ${u}, kuyruğa (${D(nd)}, ${a.v}) eklendi.`})}
+      else snap({kind:"nochg",cur:u,edge:a.ei,note:`${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} ≥ ${D(old)} → iyileşme yok, değişmez.`});
+    }
+  }
+  snap({kind:"end",note:`Kuyruk boş: bitti. ∞ kalan tepeler kaynaktan ulaşılamaz.`+(bad.length?` <span class="bad">Yanlış kesinleşen tepe(ler): ${bad.join(", ")}.</span>`:"")});
+  return st;
+}
+function dijkRun(g,s){const st=dijkSteps(g,s);return st[st.length-1]}
+function pathTo(fin,t){if(fin.dist[t]===INF)return null;const nodes=[],edges=[];let v=t,gd=0;while(v!==null&&gd++<60){nodes.push(v);if(fin.pe[v]!=null)edges.push(fin.pe[v]);v=fin.par[v]}return{nodes:nodes.reverse(),edges}}
+
+/* ---------- Bellman–Ford ---------- */
+function bfSteps(g,src,rev){
+  let arcs=arcsOf(g);if(rev)arcs=arcs.slice().reverse();
+  const n=g.nodes.length,dist={},par={},pe={},bad=[];g.nodes.forEach(v=>{dist[v]=INF;par[v]=null;pe[v]=null});dist[src]=0;
+  const st=[];let round=0,cnt=0;
+  const snap=o=>st.push(Object.assign({dist:{...dist},par:{...par},pe:{...pe},bad:[...bad],round,cnt,edge:-1,chg:null,kind:"x",note:"",roundEnd:false,neg:false},o));
+  snap({note:`Başlangıç: dist[${src}] = 0, diğerleri ∞. En çok ${n-1} tur yapılacak, sonra negatif döngü için 1 kontrol turu.`});
+  for(round=1;round<=n;round++){
+    let changed=false;const lab=round<=n-1?`Tur ${round}`:`Kontrol turu (${n}. tur)`;
+    for(const a of arcs){
+      cnt++;
+      if(dist[a.u]===INF){snap({kind:"skip",edge:a.ei,note:`${lab}: ${a.u}→${a.v}: dist[${a.u}] = ∞, henüz bir şey öğretemez (atla).`});continue}
+      const nd=dist[a.u]+a.w,old=dist[a.v];
+      if(nd<old){dist[a.v]=nd;par[a.v]=a.u;pe[a.v]=a.ei;changed=true;if(round===n)bad.push(a.v);
+        snap({kind:"relax",edge:a.ei,chg:a.v,note:`${lab}: ${a.u}→${a.v}: ${D(dist[a.u])} + ${D(a.w)} = ${D(nd)} &lt; ${D(old)} → <b>dist[${a.v}] = ${D(nd)}</b>.`})}
+      else snap({kind:"nochg",edge:a.ei,note:`${lab}: ${a.u}→${a.v}: ${D(dist[a.u])} + ${D(a.w)} = ${D(nd)} ≥ ${D(old)} → değişmez.`});
+    }
+    if(round===n){
+      if(changed)snap({kind:"end",roundEnd:true,neg:true,note:`<span class="bad">Kontrol turunda hâlâ iyileşme var → kaynaktan ulaşılabilen bir NEGATİF DÖNGÜ var.</span> En kısa yollar tanımsız (−∞).`});
+      else snap({kind:"end",roundEnd:true,note:`Kontrol turunda iyileşme yok: negatif döngü yok. Sonuç kesin.`});
+      break}
+    if(!changed){snap({kind:"end",roundEnd:true,note:`<b>Tur ${round}’de hiçbir şey değişmedi</b> → durabiliriz: kalan turlar gereksiz ve negatif döngü yok. Sonuç kesin.`});break}
+    snap({kind:"round",roundEnd:true,note:`Tur ${round} bitti.`});
+  }
+  return st;
+}
+function bfFinal(g,src){const st=bfSteps(g,src,false);const f=st[st.length-1];return {dist:f.dist,neg:f.neg,steps:st}}
+
+/* ---------- DAG ---------- */
+function dagSteps(g,src){
+  const adj=adjOf(g),deg={};g.nodes.forEach(v=>deg[v]=0);arcsOf(g).forEach(a=>deg[a.v]++);
+  const order=[],q=g.nodes.filter(v=>deg[v]===0);
+  while(q.length){q.sort((a,b)=>g.nodes.indexOf(a)-g.nodes.indexOf(b));const u=q.shift();order.push(u);adj[u].forEach(a=>{if(--deg[a.v]===0)q.push(a.v)})}
+  const dist={},par={},pe={},cnt={};g.nodes.forEach(v=>{dist[v]=INF;par[v]=null;pe[v]=null;cnt[v]=0});
+  if(order.length<g.nodes.length)return [{err:true,dist,par,pe,cnt,order:[],done:[],cur:null,edge:-1,chg:null,note:`<span class="bad">Bu çizge bir DAG değil</span> (döngü ya da yönsüz kenar var): giriş derecesi 0 olan tepe kalmadı, topolojik sıra yok. Tepeler: ${order.length}/${g.nodes.length} sıralanabildi.`}];
+  dist[src]=0;cnt[src]=1;const done=[],st=[];
+  const snap=o=>st.push(Object.assign({dist:{...dist},par:{...par},pe:{...pe},cnt:{...cnt},order:[...order],done:[...done],cur:null,edge:-1,chg:null,note:""},o));
+  snap({note:`Topolojik sıra (giriş derecesi 0’ı çıkar): <b>${order.join(" → ")}</b>. dist[${src}] = 0, yol sayısı[${src}] = 1.`});
+  for(const u of order){
+    snap({cur:u,note:`Sıradaki tepe <b>${u}</b> (dist = ${D(dist[u])}). Tüm öncülleri zaten işlendi; bu yüzden dist[${u}] <b>kesindir</b>. Çıkan kenarları gevşetiriz.`});
+    for(const a of adj[u]){
+      const nd=dist[u]+a.w,old=dist[a.v];cnt[a.v]+=cnt[u];
+      if(dist[u]!==INF&&nd<old){dist[a.v]=nd;par[a.v]=u;pe[a.v]=a.ei;snap({cur:u,edge:a.ei,chg:a.v,note:`Gevşet ${u}→${a.v}: ${D(dist[u])} + ${D(a.w)} = ${D(nd)} &lt; ${D(old)} → <b>dist[${a.v}] = ${D(nd)}</b>. Yol sayısı[${a.v}] += yol sayısı[${u}] → ${cnt[a.v]}.`})}
+      else snap({cur:u,edge:a.ei,chg:a.v,note:`${u}→${a.v}: ${dist[u]===INF?"dist[u] = ∞ (atla)":`${D(dist[u])} + ${D(a.w)} = ${D(nd)} ≥ ${D(old)} → dist değişmez`}. Yol sayısı[${a.v}] += ${cnt[u]} → ${cnt[a.v]}.`});
+    }
+    done.push(u);
+  }
+  snap({note:`Bitti: her tepe ve her kenar yalnızca <b>bir kez</b> işlendi: O(n + m).`});
+  return st;
+}
+
+/* ---------- Floyd–Warshall ---------- */
+function floydSteps(g,bool){
+  const V=g.nodes,n=V.length,idx={};V.forEach((v,i)=>idx[v]=i);
+  const M=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>bool?(i===j?1:0):(i===j?0:INF)));
+  arcsOf(g).forEach(a=>{const i=idx[a.u],j=idx[a.v];if(bool)M[i][j]=1;else M[i][j]=Math.min(M[i][j],a.w)});
+  const cp=()=>M.map(r=>r.slice()),st=[];
+  st.push({M:cp(),k:-1,ch:[],V,bool,note:bool?"Başlangıç: 1 = doğrudan kenar (ya da kendisi), 0 = yok. Hiçbir ara tepe kullanılmadı.":"Başlangıç: D[i][j] = kenar ağırlığı, köşegen 0, kenar yoksa ∞. Hiçbir ara tepe kullanılmadı."});
+  for(let k=0;k<n;k++){
+    const ch=[];
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+      if(bool){if(!M[i][j]&&M[i][k]&&M[k][j]){M[i][j]=1;ch.push({i,j,old:0,nv:1,via:k})}}
+      else{const c=M[i][k]+M[k][j];if(M[i][k]!==INF&&M[k][j]!==INF&&c<M[i][j]){ch.push({i,j,old:M[i][j],nv:c,a:M[i][k],b:M[k][j],via:k});M[i][j]=c}}
+    }
+    const kn=V[k];
+    const lines=ch.map(c=>bool?`D[${V[c.i]},${V[c.j]}]: ${V[c.i]}→${kn}→${V[c.j]} yolu var → 1`:`D[${V[c.i]},${V[c.j]}] = min(${D(c.old)}, D[${V[c.i]},${kn}] + D[${kn},${V[c.j]}] = ${D(c.a)} + ${D(c.b)} = ${D(c.nv)}) = <b>${D(c.nv)}</b>`);
+    st.push({M:cp(),k,ch,V,bool,note:`<b>k = ${kn}</b>: artık ${V.slice(0,k+1).join(", ")} ara tepe olabilir. `+(ch.length?`İyileşenler:<br>${lines.join("<br>")}`:"Hiçbir hücre iyileşmedi.")});
+  }
+  const neg=!bool&&M.some((r,i)=>r[i]<0);
+  st[st.length-1].note+=neg?`<br><span class="bad">köşegende negatif sayı var → negatif döngü: mesafeler anlamsız.</span>`:`<br>Bitti. Θ(n³) = ${n}³ = ${n*n*n} iç adım.`;
+  st[st.length-1].neg=neg;
+  return st;
+}
+function matHTML(s){
+  const V=s.V,n=V.length,chs=new Set(s.ch.map(c=>c.i+","+c.j));
+  let h=`<table><thead><tr><th class="k">${s.bool?"ulaşılır":"D"}</th>${V.map((v,j)=>`<th class="${j===s.k?"k":""}">${v}</th>`).join("")}</tr></thead><tbody>`;
+  for(let i=0;i<n;i++){h+=`<tr><td class="${i===s.k?"k":""}"><b>${V[i]}</b></td>`;for(let j=0;j<n;j++){const v=s.M[i][j];const neg=!s.bool&&i===j&&v<0;const c=neg?"bd":chs.has(i+","+j)?"ch":(i===s.k||j===s.k)?"hi":"";h+=`<td class="m ${c}">${s.bool?(v?"✓":"·"):D(v)}</td>`}h+="</tr>"}
+  return h+"</tbody></table>";
+}
+
+/* ---------- static trace tables ---------- */
+function dijkTrace(txt,src,extraTruth){
+  const g=parseG(txt),st=dijkSteps(g,src);const idxs=[];st.forEach((s,i)=>{if(s.kind==="settle")idxs.push(i)});
+  const cell=(s,n)=>`${D(s.dist[n])}${s.par[n]?` (${s.par[n]})`:""}`;
+  let h=`<table><thead><tr><th>Adım</th><th>Kesinleşen</th>${g.nodes.map(n=>`<th>${n}</th>`).join("")}</tr></thead><tbody>`;
+  h+=`<tr><td>0</td><td>–</td>${g.nodes.map(n=>`<td class="m">${cell(st[0],n)}</td>`).join("")}</tr>`;
+  idxs.forEach((i,j)=>{const end=(j+1<idxs.length?idxs[j+1]:st.length)-1;const s=st[end];const u=st[i].cur;
+    h+=`<tr><td>${j+1}</td><td class="m"><b>${u}</b> (${D(st[i].dist[u])})</td>${g.nodes.map(n=>{const prev=j===0?st[0]:st[idxs[j]-1];const c=s.dist[n]!==st[i].dist[n]||s.par[n]!==st[i].par[n];return `<td class="m ${c?"ch":""}${s.bad.includes(n)?" bd":""}">${cell(s,n)}</td>`}).join("")}</tr>`});
+  if(extraTruth){const t=bfFinal(g,src);h+=`<tr><td>gerçek</td><td>(Bellman–Ford)</td>${g.nodes.map(n=>`<td class="m">${D(t.dist[n])}</td>`).join("")}</tr>`}
+  return h+"</tbody></table><div class='mut mini'>Hücre: dist (parent). Yeşil = bu adımda gevşetmeyle değişti; kırmızı = yanlış kesinleşmiş.</div>";
+}
+function bfTrace(txt,src){
+  const g=parseG(txt),st=bfSteps(g,src,false);
+  let h=`<table><thead><tr><th>Tur</th>${g.nodes.map(n=>`<th>${n}</th>`).join("")}<th>Not</th></tr></thead><tbody>`;
+  h+=`<tr><td>0</td>${g.nodes.map(n=>`<td class="m">${D(st[0].dist[n])}</td>`).join("")}<td>başlangıç</td></tr>`;
+  let prev=st[0];
+  st.forEach(s=>{if(s.roundEnd){h+=`<tr><td>${s.kind==="end"&&s.round===g.nodes.length?"kontrol":s.round}</td>${g.nodes.map(n=>`<td class="m ${s.dist[n]!==prev.dist[n]?"ch":""}">${D(s.dist[n])}</td>`).join("")}<td>${s.neg?"<span class='bad'>negatif döngü</span>":s.kind==="end"?"değişmedi → dur":"turun sonu"}</td></tr>`;prev=s}});
+  return h+"</tbody></table>";
+}
+function dagTrace(txt,src){
+  const g=parseG(txt),st=dagSteps(g,src);if(st[0].err)return "";
+  let h=`<table><thead><tr><th>İşlenen</th>${g.nodes.map(n=>`<th>${n}</th>`).join("")}<th>Yol sayısı (S→v)</th></tr></thead><tbody>`;
+  const order=st[0].order;let prev=st[0];
+  order.forEach((u,j)=>{let last=null;st.forEach((s,i)=>{if(s.done.length===j+1&&!s.cur)last=s});const s=last||st[st.length-1];
+    // snapshot right after u is done = first snapshot where done.length===j+1
+    const after=st.find(x=>x.done.length===j+1)||s;
+    h+=`<tr><td class="m"><b>${u}</b></td>${g.nodes.map(n=>`<td class="m ${after.dist[n]!==prev.dist[n]?"ch":""}">${D(after.dist[n])}</td>`).join("")}<td class="m">${g.nodes.map(n=>after.cnt[n]).join(", ")}</td></tr>`;prev=after});
+  return h+"</tbody></table><div class='mut mini'>Yol sayısı sütunu tepe sırasıyla: "+g.nodes.join(", ")+".</div>";
+}
+function floydTrace(txt){
+  const g=parseG(txt),st=floydSteps(g,false);
+  return `<div class="row" style="align-items:flex-start;gap:16px">`+st.map(s=>`<div><div class="mut mini"><b>${s.k<0?"başlangıç":"k = "+s.V[s.k]}</b></div>${matHTML(s)}</div>`).join("")+`</div>`;
+}
+
+/* ======================= presets ======================= */
+const PX={
+ EX1:{A:[70,150],B:[240,55],C:[410,150]},
+ W:{A:[50,140],B:[170,50],C:[170,230],D:[330,60],E:[430,190]},
+ NEG1:{A:[60,150],B:[410,150],C:[235,45]},
+ NEG2:{S:[60,150],A:[235,50],B:[410,160]},
+ BF:{S:[50,140],A:[200,50],B:[200,230],C:[410,140]},
+ Q22:{S:[50,140],A:[240,50],B:[240,230],C:[420,140]},
+ NC:{S:[50,140],A:[180,140],B:[340,50],C:[340,230]},
+ DAG:{S:[40,140],A:[170,50],B:[190,230],C:[340,60],D:[440,190]},
+ DAG2:{S:[40,140],A:[160,50],B:[160,230],C:[310,140],D:[440,140]},
+ G6:{S:[40,140],A:[170,50],B:[170,230],C:[300,60],D:[300,220],T:[440,140]},
+ UN:{A:[110,140],B:[270,50],C:[430,140],D:[60,240]},
+ F3:{"1":[60,150],"2":[240,50],"3":[420,150]},
+ F4:{"1":[60,140],"2":[200,50],"3":[380,50],"4":[380,230]},
+ KA:{S:[50,110],X:[170,40],Y:[310,40],T:[430,110]},
+ TRI:{A:[60,200],B:[240,45],C:[420,200]}
+};
+const T={
+ EX1:"A>B 2, A>C 5, B>C 1",
+ W:"A-B 4, A-C 1, B-C 2, B-D 5, C-D 8, D-E 3, C-E 10",
+ NEG1:"A>B 2, A>C 5, C>B -4",
+ NEG2:"S>A 4, S>B 2, A>B -3",
+ BF2:"S>A 4, S>B 2, B>A -3, A>C 1, B>C 5",
+ BF2ALT:"A>C 1, B>C 5, B>A -3, S>A 4, S>B 2",
+ BFLEC:"S>A 4, S>B 2, B>A -3, A>C 2, B>C 6",
+ Q22:"S>A 6, S>B 7, A>C 5, B>C -2, C>A -3",
+ NC:"S>A 1, A>B 2, B>C -4, C>A 1",
+ DAG:"S>A 2, S>B 6, A>B -3, A>C 5, B>C 1, B>D 4, C>D -2",
+ DAG2:"S>A 3, S>B 2, A>C 1, B>C 4, C>D 2, B>D 7",
+ G6:"S-A 7, S-B 2, B-A 3, A-C 1, B-D 9, C-D 4, C-T 6, D-T 2",
+ UN:"A>B 2, A>C 5, B>C 1, D>A 1",
+ Q20:"1>2 4, 1>3 11, 2>3 2",
+ F4:"1>2 3, 2>3 -2, 3>4 2, 1>4 8, 4>2 1",
+ FNC:"1>2 1, 2>3 -3, 3>1 1",
+ CHAIN:"S-T 10, S-A 1, A-B 1, B-C 1, C-D 1, D-E 1, E-F 1, F-T 1"
+};
+
+/* ======================= stepper factory ======================= */
+function mkGW(id,cfg){
+  const root=$(id);
+  root.innerHTML=`<div class="row"><select class="gp">${cfg.presets.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("")}</select><label class="mut gsl" ${cfg.nosrc?'style="display:none"':""}>Kaynak <select class="gs"></select></label>${cfg.extra||""}</div>
+<input type="text" class="gtxt" spellcheck="false" aria-label="kenar listesi"><div class="gerr mut"></div>
+<svg class="gsvg" viewBox="0 0 480 280" width="100%" role="img" aria-label="${cfg.label||"graf"}"></svg>
+<div class="gnote" style="min-height:3.6em"></div><div class="scroll gtab"></div>
+<div class="row"><button class="btn g gb">◀ Geri</button><button class="btn gf">İleri ▶</button>${cfg.jump?`<button class="btn g gj">${cfg.jump[0]}</button>`:""}<button class="btn g gpl">Oynat</button><button class="btn g gr">Başa dön</button><span class="mut">Adım <b class="gk">0</b>/<b class="gtot">0</b></span></div>`;
+  const q=s=>root.querySelector(s);
+  let g,pos,steps=[],k=0,timer=null,ctx=null;
+  const sel=q(".gp"),ssel=q(".gs"),txt=q(".gtxt");
+  function stop(){if(timer){clearInterval(timer);timer=null}q(".gpl").textContent="Oynat"}
+  function render(){
+    const s=steps[k];const extra=cfg.render(s,g,pos,root,ctx)||"";
+    q(".gnote").innerHTML=s.note+extra;q(".gk").textContent=k;q(".gtot").textContent=steps.length-1;
+    q(".gb").disabled=k===0;q(".gf").disabled=k>=steps.length-1;
+  }
+  function build(keep){
+    stop();const p=cfg.presets[+sel.value],ng=parseG(txt.value),err=q(".gerr");
+    err.innerHTML=ng.bad.length?`<span class="bad">Anlaşılmayan: ${esc(ng.bad.join(" | "))}</span> — biçim: <code>A&gt;B 3</code> (yönlü) ya da <code>A-B 3</code> (yönsüz)`:"";
+    if(!ng.nodes.length||ng.nodes.length>9||ng.edges.length>24){err.innerHTML+=` <span class="bad">1–9 tepe ve en çok 24 kenar girin.</span>`;return}
+    g=ng;pos=(p.pos&&g.nodes.every(n=>p.pos[n]))?p.pos:circlePos(g.nodes);
+    const prev=ssel.value;ssel.innerHTML=g.nodes.map(n=>`<option>${n}</option>`).join("");
+    ssel.value=(keep&&g.nodes.includes(prev))?prev:(g.nodes.includes(p.src)?p.src:g.nodes[0]);
+    ctx=cfg.prep?cfg.prep(g,ssel.value,root):null;steps=cfg.steps(g,ssel.value,root);k=0;render();
+  }
+  sel.onchange=()=>{txt.value=cfg.presets[+sel.value].t;build(false)};
+  ssel.onchange=()=>build(true);txt.oninput=()=>build(true);
+  root.querySelectorAll(".gx select").forEach(e=>e.onchange=()=>build(true));
+  q(".gf").onclick=()=>{if(k<steps.length-1){k++;render()}};
+  q(".gb").onclick=()=>{if(k>0){k--;render()}};
+  q(".gr").onclick=()=>{stop();k=0;render()};
+  if(cfg.jump)q(".gj").onclick=()=>{k=cfg.jump[1](steps,k);render()};
+  q(".gpl").onclick=()=>{if(timer){stop();return}q(".gpl").textContent="Duraklat";timer=setInterval(()=>{if(k>=steps.length-1){stop();return}k++;render()},cfg.ms||800)};
+  txt.value=cfg.presets[0].t;build(false);
+  root._gw={steps:()=>steps,k:()=>k,set:i=>{k=i;render()},g:()=>g};
+}
+
+/* ----- Dijkstra widget ----- */
+function renderDij(s,g,pos,root,ctx){
+  const tree=new Set();g.nodes.forEach(v=>{if(s.settled.includes(v)&&s.pe[v]!=null)tree.add(s.pe[v])});
+  drawG(root.querySelector(".gsvg"),g,pos,{node:n=>s.bad.includes(n)?"bad":s.cur===n?"cur":s.settled.includes(n)?"set":"",edge:i=>i===s.edge?"hl":tree.has(i)?"tree":"",sub:n=>D(s.dist[n])});
+  const rows=[["dist",n=>D(s.dist[n]),n=>s.chg===n?"ch":""],["parent",n=>s.par[n]??"–",n=>s.chg===n?"ch":""],["kesin",n=>s.settled.includes(n)?"✓":"",null]];
+  if(ctx&&ctx.truth)rows.push(["gerçek (BF)",n=>ctx.truth.neg?"?":D(ctx.truth.dist[n]),n=>s.settled.includes(n)&&!ctx.truth.neg&&s.dist[n]!==ctx.truth.dist[n]?"bd":""]);
+  const pq=[...s.pq].sort((a,b)=>a[0]-b[0]||(a[1]<b[1]?-1:1)).map((e,i)=>{const st=s.settled.includes(e[1]);return `<span class="chip ${st?"st":""} ${i===0&&!st?"top":""}">(${D(e[0])}, ${e[1]})</span>`}).join("")||`<span class="mut">(boş)</span>`;
+  root.querySelector(".gtab").innerHTML=`<div class="mini"><b>Öncelik kuyruğu</b> (çizgili = bayat): ${pq}</div>`+nodeTable(g,rows);
+  if(ctx&&ctx.truth&&s.kind==="end"){
+    const diff=g.nodes.filter(n=>!ctx.truth.neg&&s.dist[n]!==ctx.truth.dist[n]);
+    return `<br><b>Karşılaştırma:</b> `+(ctx.truth.neg?"çizgede negatif döngü var, gerçek uzaklıklar tanımsız.":diff.length?`<span class="bad">Dijkstra ${diff.map(n=>`${n}=${D(s.dist[n])} (gerçek ${D(ctx.truth.dist[n])})`).join(", ")} bulur: YANLIŞ.</span>`:`<span class="ok">Dijkstra bu çizgede doğru sonucu verdi</span> (ama bu bir garanti değil, şans eseri sıra uygun).`);
+  }
+}
+mkGW("#gw_dj",{label:"Dijkstra izleyici",presets:[
+  {n:"Çözümlü örnek 1 (A, B, C)",t:T.EX1,pos:PX.EX1,src:"A"},
+  {n:"Çizge W (ders örneği)",t:T.W,pos:PX.W,src:"A"},
+  {n:"Altı tepeli örnek",t:T.G6,pos:PX.G6,src:"S"},
+  {n:"Erişilemeyen tepe (D)",t:T.UN,pos:PX.UN,src:"A"},
+  {n:"Negatif kenar (hata)",t:T.NEG1,pos:PX.NEG1,src:"A"}],
+  steps:(g,s)=>dijkSteps(g,s),render:renderDij,jump:["Sonuca atla ▶▶",(st)=>st.length-1],ms:750});
+mkGW("#gw_fail",{label:"Dijkstra ve gerçek sonuç",presets:[
+  {n:"Karşı örnek 1: A→B 2, A→C 5, C→B −4",t:T.NEG1,pos:PX.NEG1,src:"A"},
+  {n:"Karşı örnek 2: S→A 4, S→B 2, A→B −3",t:T.NEG2,pos:PX.NEG2,src:"S"},
+  {n:"Örnek 2 grafı: negatif var ama Dijkstra doğru",t:T.BF2,pos:PX.BF,src:"S"}],
+  steps:(g,s)=>dijkSteps(g,s),prep:(g,s)=>({truth:bfFinal(g,s)}),render:renderDij,jump:["Sonuca atla ▶▶",(st)=>st.length-1],ms:900});
+
+/* ----- Bellman–Ford widget ----- */
+mkGW("#gw_bf",{label:"Bellman–Ford izleyici",presets:[
+  {n:"Örnek 2 (S, A, B, C)",t:T.BF2,pos:PX.BF,src:"S"},
+  {n:"Örnek 2, değişik sıra",t:T.BF2ALT,pos:PX.BF,src:"S"},
+  {n:"Ders anlatımı (A→C = 2, B→C = 6)",t:T.BFLEC,pos:PX.BF,src:"S"},
+  {n:"Q22",t:T.Q22,pos:PX.Q22,src:"S"},
+  {n:"Negatif döngü: A→B→C→A = −1",t:T.NC,pos:PX.NC,src:"S"}],
+  extra:`<label class="mut gx">Kenar sırası <select class="bo"><option value="0">yazıldığı</option><option value="1">ters</option></select></label>`,
+  steps:(g,s,root)=>bfSteps(g,s,root.querySelector(".bo").value==="1"),
+  jump:["Tur sonu ▶▶",(st,k)=>{for(let i=k+1;i<st.length;i++)if(st[i].roundEnd)return i;return st.length-1}],
+  render:(s,g,pos,root)=>{
+    const tree=new Set();if(!s.neg)g.nodes.forEach(v=>{if(s.pe[v]!=null)tree.add(s.pe[v])});
+    drawG(root.querySelector(".gsvg"),g,pos,{node:n=>s.bad.includes(n)?"bad":s.chg===n?"cur":"",edge:i=>i===s.edge?"hl":s.neg?"":tree.has(i)?"tree":"",sub:n=>D(s.dist[n])});
+    root.querySelector(".gtab").innerHTML=`<div class="mini">Tur: <b>${s.round}</b> · yapılan kenar denemesi: <b>${s.cnt}</b></div>`+nodeTable(g,[["dist",n=>D(s.dist[n]),n=>s.chg===n&&s.kind==="relax"?(s.neg||s.bad.includes(n)?"bd":"ch"):""],["parent",n=>s.par[n]??"–",null]]);
+  },ms:600});
+
+/* ----- DAG widget ----- */
+mkGW("#gw_dag",{label:"DAG izleyici",presets:[
+  {n:"DAG (negatif kenarlı: A→B = −3)",t:T.DAG,pos:PX.DAG,src:"S"},
+  {n:"Pozitif ağırlıklı DAG",t:T.DAG2,pos:PX.DAG2,src:"S"}],
+  steps:(g,s)=>dagSteps(g,s),jump:["Sonuca atla ▶▶",(st)=>st.length-1],ms:800,
+  render:(s,g,pos,root)=>{
+    const svg=root.querySelector(".gsvg"),tab=root.querySelector(".gtab");
+    if(s.err){drawG(svg,g,pos,{});tab.innerHTML="";return}
+    const tree=new Set();g.nodes.forEach(v=>{if(s.pe[v]!=null)tree.add(s.pe[v])});
+    drawG(svg,g,pos,{node:n=>s.cur===n?"cur":s.done.includes(n)?"set":"",edge:i=>i===s.edge?"hl":tree.has(i)?"tree":"",sub:n=>D(s.dist[n])});
+    tab.innerHTML=`<div class="mini"><b>Topolojik sıra:</b> ${s.order.map(v=>`<span class="chip ${s.done.includes(v)?"":s.cur===v?"top":""}" style="${s.done.includes(v)?"border-color:var(--ok);color:var(--ok)":""}">${v}</span>`).join("")}</div>`+nodeTable(g,[["dist",n=>D(s.dist[n]),n=>s.chg===n?"ch":""],["parent",n=>s.par[n]??"–",null],["yol sayısı",n=>s.cnt[n],n=>s.chg===n?"ch":""]]);
+  }});
+
+/* ----- Floyd widget ----- */
+mkGW("#gw_fl",{label:"Floyd izleyici",nosrc:true,presets:[
+  {n:"Q20: 1→2 4, 1→3 11, 2→3 2",t:T.Q20,pos:PX.F3,src:"1"},
+  {n:"4 tepe, negatif kenarlı",t:T.F4,pos:PX.F4,src:"1"},
+  {n:"Negatif döngü (1→2→3→1 = −1)",t:T.FNC,pos:PX.F3,src:"1"}],
+  extra:`<label class="mut gx">Kip <select class="fm"><option value="0">en kısa yol (min, +)</option><option value="1">geçişli kapanış (veya, ve)</option></select></label>`,
+  steps:(g,s,root)=>floydSteps(g,root.querySelector(".fm").value==="1"),ms:1100,
+  jump:["Sonuca atla ▶▶",(st)=>st.length-1],
+  render:(s,g,pos,root)=>{drawG(root.querySelector(".gsvg"),g,pos,{node:n=>s.k>=0&&s.V[s.k]===n?"cur":""});root.querySelector(".gtab").innerHTML=matHTML(s)}});
+
+/* ======================= 0.1 topological checker ======================= */
+(function(){
+  const base=[["A","C"],["B","C"],["C","D"],["D","E"],["C","E"]];
+  function perms(a){if(a.length<=1)return [a];const r=[];a.forEach((x,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).forEach(p=>r.push([x,...p])));return r}
+  function ok(order,E){const pos={};order.forEach((v,i)=>pos[v]=i);return E.every(e=>pos[e[0]]<pos[e[1]])}
+  function up(){
+    const E=$("#tp_cyc").checked?base.concat([["E","A"]]):base;
+    const ord=$("#tp_in").value.toUpperCase().split(/[\s,]+/).filter(Boolean);
+    const all=perms(["A","B","C","D","E"]).filter(p=>ok(p,E));
+    let msg;const set=new Set(ord);
+    if(ord.length!==5||set.size!==5||!"ABCDE".split("").every(v=>set.has(v)))msg=`<span class="bad">A, B, C, D, E harflerini birer kez yazın.</span>`;
+    else{const bad=E.filter(e=>ord.indexOf(e[0])>ord.indexOf(e[1]));msg=bad.length?`<span class="bad">✗ Geçersiz:</span> ${bad.map(e=>`${e[0]}→${e[1]}`).join(", ")} kenar(lar)ı sağdan sola gidiyor.`:`<span class="ok">✓ Geçerli topolojik sıra:</span> her kenar soldan sağa.`}
+    $("#tp_out").innerHTML=`${msg}<div class="bigres">Geçerli sıra sayısı: <span id="tp_cnt">${all.length}</span> (120 dizilimden)</div><div class="mut">${all.length?all.map(p=>p.join(" ")).join(" · "):"Döngü A→C→D→E→A olduğu için hiçbir sıra geçerli değil (deadlock)."}</div>`;
+  }
+  $("#tp_in").oninput=up;$("#tp_cyc").onchange=up;up();
+})();
+
+/* ======================= 0.2 triangle MST ======================= */
+(function(){
+  function up(){
+    const w={AB:+$("#tr_ab").value,BC:+$("#tr_bc").value,AC:+$("#tr_ac").value};
+    $("#tr_abv").textContent=w.AB;$("#tr_bcv").textContent=w.BC;$("#tr_acv").textContent=w.AC;
+    const es=[["A","B",w.AB],["B","C",w.BC],["A","C",w.AC]];const order=es.map((e,i)=>i).sort((x,y)=>es[x][2]-es[y][2]||x-y);
+    const par={A:"A",B:"B",C:"C"};const find=x=>par[x]===x?x:find(par[x]);const mst=new Set();
+    order.forEach(i=>{const a=find(es[i][0]),b=find(es[i][1]);if(a!==b){par[a]=b;mst.add(i)}});
+    const g={nodes:["A","B","C"],edges:es.map(e=>({u:e[0],v:e[1],w:e[2],und:true}))};
+    drawG($("#tr_svg"),g,PX.TRI,{edge:i=>mst.has(i)?"tree":""});
+    const total=[...mst].reduce((s,i)=>s+es[i][2],0);
+    const mstPath=mst.has(2)?w.AC:w.AB+w.BC,best=Math.min(w.AC,w.AB+w.BC);
+    $("#tr_out").innerHTML=`<div class="bigres">MST toplamı = ${total} · MST’de A→C yolu = ${mstPath} · gerçek en kısa A→C = ${best}</div>`+(mstPath>best?`<span class="bad">MST, A→C için en kısa yolu içermiyor (${mstPath} &gt; ${best}).</span>`:`<span class="ok">Bu ağırlıklarda MST yolu da en kısa yol (${mstPath}).</span>`);
+  }
+  ["#tr_ab","#tr_bc","#tr_ac"].forEach(s=>$(s).oninput=up);up();
+})();
+
+/* ======================= 1.1 BFS vs Dijkstra ======================= */
+function bfsPath(g,s,t){
+  const adj=adjOf(g),par={[s]:null},pe={},q=[s];
+  while(q.length){const u=q.shift();for(const a of adj[u])if(!(a.v in par)){par[a.v]=u;pe[a.v]=a.ei;q.push(a.v)}}
+  if(!(t in par))return null;const nodes=[],edges=[];for(let v=t;v!==null;v=par[v]){nodes.push(v);if(pe[v]!=null)edges.push(pe[v])}
+  return {nodes:nodes.reverse(),edges};
+}
+(function(){
+  const PR=[{n:"Çizge W (ders örneği)",t:T.W,pos:PX.W,s:"A",d:"D"},{n:"Zincir: 7 küçük kenar mı, 1 büyük kenar mı?",t:T.CHAIN,pos:null,s:"S",d:"T"}];
+  $("#hc_g").innerHTML=PR.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");
+  let cur;
+  function load(){const p=PR[+$("#hc_g").value];cur=parseG(p.t);const o=cur.nodes.map(n=>`<option>${n}</option>`).join("");$("#hc_s").innerHTML=o;$("#hc_t").innerHTML=o;$("#hc_s").value=p.s;$("#hc_t").value=p.d;up()}
+  function up(){
+    const p=PR[+$("#hc_g").value];let g=parseG(p.t);if($("#hc_one").checked)g={nodes:g.nodes,edges:g.edges.map(e=>({...e,w:1})),bad:[]};
+    const pos=p.pos||circlePos(g.nodes),s=$("#hc_s").value,t=$("#hc_t").value;
+    const b=bfsPath(g,s,t),fin=dijkRun(g,s),d=pathTo(fin,t);
+    const cost=P=>P.edges.reduce((x,i)=>x+g.edges[i].w,0);
+    const bs=new Set(b?b.edges:[]),ds=new Set(d?d.edges:[]);
+    drawG($("#hc_svg"),g,pos,{edge:i=>ds.has(i)?"tree":bs.has(i)?"hl":""});
+    if(!b){$("#hc_out").innerHTML=`<span class="bad">${t}, ${s}’den ulaşılamaz.</span>`;return}
+    const same=cost(b)===cost(d);
+    $("#hc_out").innerHTML=`<div class="bigres">BFS: ${b.nodes.join("→")} · ${b.edges.length} kenar · toplam <span id="hc_bc">${D(cost(b))}</span><br>Dijkstra: ${d.nodes.join("→")} · ${d.edges.length} kenar · toplam <span id="hc_dc">${D(cost(d))}</span></div>`+(same?`<span class="ok">İkisi de aynı toplam uzunlukta.</span>`:`<span class="bad">BFS’in yolu en kısa değil: ${D(cost(b))} &gt; ${D(cost(d))}.</span>`);
+  }
+  $("#hc_g").onchange=load;["#hc_s","#hc_t"].forEach(s=>$(s).onchange=up);$("#hc_one").onchange=up;load();
+})();
+
+/* ======================= 1.2 add constant k ======================= */
+(function(){
+  function up(){
+    const k=+$("#ka_k").value;$("#ka_kv").textContent=k;
+    const g=parseG(`S>T ${4+k}, S>X ${1+k}, X>Y ${1+k}, Y>T ${1+k}`);
+    const fin=dijkRun(g,"S"),p=pathTo(fin,"T"),ds=new Set(p.edges);
+    drawG($("#ka_svg"),g,PX.KA,{edge:i=>ds.has(i)?"tree":""});
+    const three=3+3*k,one=4+k;
+    $("#ka_out").innerHTML=`<div class="bigres">3 kenarlı yol: 3 + 3·${k} = <span id="ka_3">${three}</span> · tek kenar: 4 + ${k} = <span id="ka_1">${one}</span></div>En kısa yol: <b>${p.nodes.join("→")}</b> (${p.edges.length} kenar, toplam ${D(fin.dist.T)}) `+(three===one?"(eşit)":three<one?"→ 3 kenarlı kazanır":"→ tek kenar kazanır");
+  }
+  $("#ka_k").oninput=up;up();
+})();
+
+/* ======================= 1.4 relax toy ======================= */
+(function(){
+  function up(){
+    const du=+$("#rx_u").value,w=+$("#rx_w").value,inf=$("#rx_inf").checked,dv=inf?INF:+$("#rx_v").value;
+    $("#rx_uv").textContent=du;$("#rx_wv").textContent=D(w);$("#rx_vv").textContent=D(dv);$("#rx_v").disabled=inf;
+    const cand=du+w,imp=cand<dv,nv=imp?cand:dv,mx=Math.max(25,cand,du)||1;
+    const bar=(v,c)=>v===INF?`<div class="bar2 ${c}" style="width:100%;opacity:.35"></div>`:`<div class="bar2 ${c}" style="width:${Math.max(2,Math.abs(v)/mx*100)}%"></div>`;
+    $("#rx_out").innerHTML=`<div class="bigres">aday = d[u] + w = ${du} + ${D(w)} = <span id="rx_c">${D(cand)}</span> &nbsp;·&nbsp; d[v] şimdi ${D(dv)}</div>${bar(cand,"w")}<div class="mut mini">aday</div>${bar(dv,"")}<div class="mut mini">mevcut d[v]</div>`+
+      (imp?`<div class="bigres ok">${D(cand)} &lt; ${D(dv)} → d[v] = <span class="rx_n">${D(nv)}</span>, parent[v] = u (güncellendi)</div>`:`<div class="bigres bad">${D(cand)} ≥ ${D(dv)} → d[v] = <span class="rx_n">${D(nv)}</span> (değişmez)</div>`);
+  }
+  ["#rx_u","#rx_w","#rx_v"].forEach(s=>$(s).oninput=up);$("#rx_inf").onchange=up;up();
+})();
+
+/* ======================= 1.5 path trace ======================= */
+(function(){
+  const PR=[{n:"Çizge W, kaynak A",t:T.W,pos:PX.W,s:"A",d:"E"},{n:"Altı tepeli örnek, kaynak S",t:T.G6,pos:PX.G6,s:"S",d:"T"},{n:"Erişilemeyen tepe, kaynak A",t:T.UN,pos:PX.UN,s:"A",d:"D"}];
+  $("#pt_g").innerHTML=PR.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");
+  function load(){const p=PR[+$("#pt_g").value],g=parseG(p.t);$("#pt_t").innerHTML=g.nodes.map(n=>`<option>${n}</option>`).join("");$("#pt_t").value=p.d;up()}
+  function up(){
+    const p=PR[+$("#pt_g").value],g=parseG(p.t),fin=dijkRun(g,p.s),t=$("#pt_t").value,pa=pathTo(fin,t);
+    const tree=new Set();g.nodes.forEach(v=>{if(fin.pe[v]!=null)tree.add(fin.pe[v])});
+    drawG($("#pt_svg"),g,p.pos,{edge:i=>tree.has(i)?"tree":"",sub:n=>D(fin.dist[n]),node:n=>pa&&pa.nodes.includes(n)?"set":""});
+    $("#pt_tab").innerHTML=`<tr><th></th>${g.nodes.map(n=>`<th>${n}</th>`).join("")}</tr><tr><td><b>dist</b></td>${g.nodes.map(n=>`<td class="m">${D(fin.dist[n])}</td>`).join("")}</tr><tr><td><b>parent</b></td>${g.nodes.map(n=>`<td class="m ${t===n?"hi":""}">${fin.par[n]??"–"}</td>`).join("")}</tr>`;
+    if(!pa){$("#pt_out").innerHTML=`<span class="bad">${t}: dist = ∞ → ${p.s}’den ulaşılamaz, yol yok.</span>`;return}
+    $("#pt_out").innerHTML=`<div class="bigres">Geri yürüyüş: ${[...pa.nodes].reverse().join(" ← ")}</div><div class="bigres">Yol: <span id="pt_p">${pa.nodes.join(" → ")}</span> · uzunluk <span id="pt_d">${D(fin.dist[t])}</span></div>`;
+  }
+  $("#pt_g").onchange=load;$("#pt_t").onchange=up;load();
+})();
+
+/* ======================= 2.7 cost calculator ======================= */
+function fmtT(sec){
+  if(sec<1e-6)return (sec*1e9).toFixed(0)+" ns";if(sec<1e-3)return (sec*1e6).toFixed(1)+" µs";if(sec<1)return (sec*1e3).toFixed(1)+" ms";
+  if(sec<60)return sec.toFixed(1)+" sn";if(sec<3600)return (sec/60).toFixed(1)+" dk";if(sec<86400)return (sec/3600).toFixed(1)+" saat";
+  if(sec<3.15e7)return (sec/86400).toFixed(1)+" gün";return fmt(Math.round(sec/3.156e7))+" yıl";
+}
+(function(){
+  function up(){
+    const n=Math.max(2,Math.floor(+$("#cw_n").value||2));let d=Math.max(1,Math.floor(+$("#cw_d").value||1));
+    const m=Math.min(n*d,n*(n-1));$("#cw_m").textContent=`m = n·d = ${fmt(m)} kenar (en çok n(n−1) = ${fmt(n*(n-1))}); lg n = ${lg(n).toFixed(1)}`;
+    const L=lg(n);
+    const rows=[["Dijkstra, dizi","n²",n*n,1],["Dijkstra, ikili yığın","(n+m)·lg n",(n+m)*L,1],["Bellman–Ford (en kötü)","(n−1)·m",(n-1)*m,1],
+      ["BFS (ağırlıksız)","n+m",n+m,1],["DAG yöntemi","n+m",n+m,1],["Floyd–Warshall","n³",n*n*n,2],["n × Dijkstra (yığın)","n·(n+m)·lg n",n*(n+m)*L,2]];
+    const single=rows.filter(r=>r[3]===1&&r[0]!=="BFS (ağırlıksız)"&&r[0]!=="DAG yöntemi");
+    const best=single.reduce((a,b)=>b[2]<a[2]?b:a),bestAll=rows.filter(r=>r[3]===2).reduce((a,b)=>b[2]<a[2]?b:a);
+    $("#cw_t").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="m">${r[1]}</td><td class="m ${r===best||r===bestAll?"ch":""}">${fmt(Math.round(r[2]))}</td><td class="m">${fmtT(r[2]/1e9)}</td></tr>`).join("");
+    $("#cw_win").innerHTML=`Tek kaynak (negatif kenarsız, ağırlıklı) için en az işlem: <b id="cw_b1">${best[0]}</b>. Tüm çiftler için: <b id="cw_b2">${bestAll[0]}</b>. (Yeşil hücreler.)`;
+  }
+  ["#cw_n","#cw_d"].forEach(s=>$(s).oninput=up);
+  document.querySelectorAll("[data-cw]").forEach(b=>b.onclick=()=>{const [n,d]=b.dataset.cw.split(",");$("#cw_n").value=n;$("#cw_d").value=d;up()});up();
+  /* measured */
+  function heap(){const a=[];return{push(x){a.push(x);let i=a.length-1;while(i>0){const p=(i-1)>>1;if(a[p][0]<=a[i][0])break;[a[p],a[i]]=[a[i],a[p]];i=p}},pop(){const t=a[0],l=a.pop();if(a.length){a[0]=l;let i=0;for(;;){let c=2*i+1;if(c>=a.length)break;if(c+1<a.length&&a[c+1][0]<a[c][0])c++;if(a[i][0]<=a[c][0])break;[a[i],a[c]]=[a[c],a[i]];i=c}}return t},get size(){return a.length}}}
+  function run(){
+    const n=Math.min(400,Math.max(5,Math.floor(+$("#cm_n").value||5)));let m=Math.max(n-1,Math.floor(+$("#cm_m").value||n-1));m=Math.min(m,n*(n-1),6000);
+    $("#cm_n").value=n;$("#cm_m").value=m;
+    const used=new Set(),E=[],rnd=()=>1+Math.floor(Math.random()*20);
+    for(let i=0;i<n-1;i++){E.push([i,i+1,rnd()]);used.add(i*n+i+1)}
+    let gd=0;while(E.length<m&&gd++<400000){const u=Math.floor(Math.random()*n),v=Math.floor(Math.random()*n);if(u===v||used.has(u*n+v))continue;used.add(u*n+v);E.push([u,v,rnd()])}
+    const adj=Array.from({length:n},()=>[]);E.forEach(e=>adj[e[0]].push([e[1],e[2]]));
+    // Dijkstra with lazy heap
+    const dist=Array(n).fill(INF),done=Array(n).fill(false);dist[0]=0;const h=heap();h.push([0,0]);let pushes=1,pops=0,stale=0,rel=0;
+    while(h.size){const [d,u]=h.pop();pops++;if(done[u]){stale++;continue}done[u]=true;for(const [v,w] of adj[u]){rel++;if(!done[v]&&d+w<dist[v]){dist[v]=d+w;h.push([dist[v],v]);pushes++}}}
+    // Bellman-Ford with early stop
+    const bd=Array(n).fill(INF);bd[0]=0;let rounds=0;
+    for(let r=1;r<=n-1;r++){rounds=r;let ch=false;for(const [u,v,w] of E){if(bd[u]!==INF&&bd[u]+w<bd[v]){bd[v]=bd[u]+w;ch=true}}if(!ch)break}
+    const same=dist.every((x,i)=>x===bd[i]);
+    $("#cm_t").innerHTML=`<tr><td rowspan="3">Dijkstra (yığın)</td><td>gevşetme denemesi</td><td class="m" id="cm_rel">${fmt(rel)}</td></tr><tr><td>kuyruğa eklenen / çıkan</td><td class="m">${fmt(pushes)} / ${fmt(pops)} (bayat: ${fmt(stale)})</td></tr><tr><td>teorik üst sınır (n+m)·lg n</td><td class="m">${fmt(Math.round((n+E.length)*lg(n)))}</td></tr>
+<tr><td rowspan="3">Bellman–Ford</td><td>çalışılan tur (erken durdurma ile)</td><td class="m" id="cm_r">${rounds}</td></tr><tr><td>gevşetme denemesi = tur × m</td><td class="m" id="cm_bf">${fmt(rounds*E.length)}</td></tr><tr><td>en kötü (n−1)·m</td><td class="m">${fmt((n-1)*E.length)}</td></tr>`;
+    $("#cm_out").innerHTML=`n = ${n}, m = ${E.length} (hepsi 0’dan ulaşılabilir, ağırlık 1–20). İki algoritmanın uzaklıkları ${same?`<b class="ok" id="cm_same">birebir aynı ✓</b>`:`<b class="bad">FARKLI ✗</b>`}. Bellman–Ford rastgele çizgede çoğu zaman n−1 turun çok altında biter, ama en kötü sınıf yine O(V·E)’dir.`;
+  }
+  $("#cm_run").onclick=run;run();
+})();
+
+/* ======================= 5 grid robot ======================= */
+const GRIDS=[
+ {n:"Çözümlü mini-problem (2×3)",t:"SmG\ngg.",names:{"0,0":"S","0,1":"M","0,2":"G","1,0":"A","1,1":"B","1,2":"C"}},
+ {n:"Büyük arazi (8×12)",t:"S....mm.....\n.##..mm.##..\n.#gg.mm.#...\n..gg.....#.#\nmmgg###..#.#\nmm.......#..\n...##.ggg...\n......g....G"},
+ {n:"Hepsi asfalt (BFS = Dijkstra)",t:"S......\n.......\n......G"}
+];
+function parseGrid(txt){
+  const rows=txt.split("\n").map(r=>r.replace(/\s/g,"")).filter(Boolean);if(!rows.length)return null;
+  const C=Math.max(...rows.map(r=>r.length)),R=rows.length;let S=null,G=null;
+  const cells=rows.map((r,i)=>Array.from({length:C},(_,j)=>{const c=r[j]||"#";if(c==="S")S=[i,j];if(c==="G")G=[i,j];return "SG.gm#".includes(c)?c:"#"}));
+  if(!S||!G)return null;return {cells,R,C,S,G};
+}
+const TC={".":1,"g":3,"m":8,"S":1,"G":1};
+function gridRun(gr,mode){
+  const {cells,R,C,S,G}=gr,key=(r,c)=>r*C+c,h=(r,c)=>mode==="ast"?Math.abs(r-G[0])+Math.abs(c-G[1]):0,hh=(r,c)=>Math.abs(r-G[0])+Math.abs(c-G[1]);
+  const dirs=[[-1,0],[0,1],[1,0],[0,-1]],par=new Map(),gg=new Map(),order=[];let seq=0;
+  if(mode==="bfs"){
+    const q=[S],seen=new Set([key(...S)]);par.set(key(...S),null);gg.set(key(...S),0);
+    while(q.length){const [r,c]=q.shift();order.push({r,c,g:gg.get(key(r,c))});if(r===G[0]&&c===G[1])break;
+      for(const [dr,dc] of dirs){const a=r+dr,b=c+dc;if(a<0||b<0||a>=R||b>=C||cells[a][b]==="#"||seen.has(key(a,b)))continue;seen.add(key(a,b));par.set(key(a,b),key(r,c));gg.set(key(a,b),gg.get(key(r,c))+TC[cells[a][b]]);q.push([a,b])}}
+  }else{
+    let pq=[[h(...S)+0,hh(...S),seq++,S[0],S[1]]];gg.set(key(...S),0);par.set(key(...S),null);const closed=new Set();
+    while(pq.length){pq.sort((x,y)=>x[0]-y[0]||x[1]-y[1]||x[2]-y[2]);const [f,hv,sq,r,c]=pq.shift();const k=key(r,c);if(closed.has(k))continue;closed.add(k);order.push({r,c,g:gg.get(k)});if(r===G[0]&&c===G[1])break;
+      for(const [dr,dc] of dirs){const a=r+dr,b=c+dc;if(a<0||b<0||a>=R||b>=C||cells[a][b]==="#")continue;const kk=key(a,b);if(closed.has(kk))continue;const ng=gg.get(k)+TC[cells[a][b]];if(!gg.has(kk)||ng<gg.get(kk)){gg.set(kk,ng);par.set(kk,k);pq.push([ng+h(a,b),hh(a,b),seq++,a,b])}}}
+  }
+  const gk=key(...G);if(!par.has(gk)||!order.length||!(order[order.length-1].r===G[0]&&order[order.length-1].c===G[1]))return {ok:false,order};
+  const path=[];for(let k=gk;k!==null;k=par.get(k))path.push([Math.floor(k/C),k%C]);path.reverse();
+  let cost=0;for(let i=1;i<path.length;i++)cost+=TC[cells[path[i][0]][path[i][1]]];
+  const arrows=path.slice(1).map((p,i)=>{const dr=p[0]-path[i][0],dc=p[1]-path[i][1];return dr===1?"↓":dr===-1?"↑":dc===1?"→":"←"}).join("");
+  return {ok:true,path,cost,moves:path.length-1,order,arrows};
+}
+(function(){
+  $("#gd_p").innerHTML=GRIDS.map((x,i)=>`<option value="${i}">${x.n}</option>`).join("");
+  function load(){$("#gd_txt").value=GRIDS[+$("#gd_p").value].t;up()}
+  function up(){
+    const gr=parseGrid($("#gd_txt").value);if(!gr){$("#gd_t").innerHTML=`<tr><td colspan="5" class="bad">S ve G içeren bir ızgara girin.</td></tr>`;$("#gd_grid").innerHTML="";return}
+    const mode=$("#gd_a").value,res={bfs:gridRun(gr,"bfs"),dij:gridRun(gr,"dij"),ast:gridRun(gr,"ast")};
+    const names=["bfs","dij","ast"],lab={bfs:"BFS",dij:"Dijkstra",ast:"A*"};
+    $("#gd_t").innerHTML=names.map(a=>{const r=res[a];return `<tr><td>${lab[a]}</td><td class="m">${r.ok?r.arrows:"yol yok"}</td><td class="m" data-c="${a}">${r.ok?r.cost:"–"}</td><td class="m">${r.ok?r.moves:"–"}</td><td class="m" data-x="${a}">${r.order.length}</td></tr>`}).join("");
+    const r=res[mode],ord=new Map();r.order.forEach((o,i)=>ord.set(o.r+","+o.c,i+1));const ps=new Set(r.ok?r.path.map(p=>p.join(",")):[]);
+    const pn=GRIDS[+$("#gd_p").value];const nm=(+$("#gd_p").value===0&&$("#gd_txt").value===GRIDS[0].t)?GRIDS[0].names:null;
+    $("#gd_grid").innerHTML=gr.cells.map((row,i)=>`<tr>${row.map((c,j)=>{const k=i+","+j;let cls=c==="#"?"w":c==="m"?"m":c==="g"?"g":"a";let txt="";
+      if(ord.has(k)){cls+=" x";txt=ord.get(k)}if(ps.has(k))cls+=" p";if(c==="S"){cls+=" s";txt="S"}if(c==="G"){cls+=" e";txt="G"}
+      return `<td class="${cls}" title="${nm&&nm[k]?nm[k]+" · ":""}${c==="#"?"duvar":"maliyet "+TC[c]}">${txt}</td>`}).join("")}</tr>`).join("");
+  }
+  $("#gd_p").onchange=load;$("#gd_a").onchange=up;$("#gd_txt").oninput=up;load();
+})();
+
+/* ======================= 5.1 chooser ======================= */
+(function(){
+  function up(){
+    const all=$("#ch_q").value==="2",dag=$("#ch_dag").value==="1",w=$("#ch_w").value;let a,why,cost;
+    if(all){
+      if(w==="u"){a="n kez BFS";why="Ağırlıksızda her tepeden BFS çalıştırın (çap da böyle bulunur).";cost="O(n(n+m))"}
+      else if(w==="p"){a="Floyd–Warshall (ya da n × Dijkstra)";why="Yoğun çizgede Floyd kısa ve yeterince hızlıdır; seyrek çizgede n kez yığınlı Dijkstra daha az iş yapar.";cost="Θ(n³)  /  O(n(n+m) log n)"}
+      else{a="Floyd–Warshall";why="Negatif kenar var: Dijkstra yok. Floyd negatif kenarı kaldırır; negatif döngü varsa köşegende negatif sayı çıkar.";cost="Θ(n³)"}
+    }else if(dag){a="Topolojik sırada gevşetme";why="DAG’da her tepe öncüllerinden sonra işlenir; negatif ağırlık bile sorun değildir. En hızlısı budur.";cost="O(n+m)"}
+    else if(w==="u"){a="BFS";why="Tüm ağırlıklar eşit: en kısa yol = en az kenar.";cost="O(n+m)"}
+    else if(w==="p"){a="Dijkstra (ikili yığın)";why="Ağırlıklar negatif olmadığından en küçük tahminli tepe güvenle kesinleştirilir.";cost="O((n+m) log n)  (yoğunda dizi: O(n²))"}
+    else{a="Bellman–Ford";why="Negatif kenar var: Dijkstra yanlış olabilir. n−1 tur gevşet, bir kontrol turuyla negatif döngüyü yakala.";cost="O(V·E)"}
+    $("#ch_out").innerHTML=`<div class="bigres">Öneri: <span id="ch_a">${a}</span></div><div>${why}</div><div class="kpi">${cost}</div>`;
+  }
+  ["#ch_q","#ch_dag","#ch_w"].forEach(s=>$(s).onchange=up);up();
+})();
+
+/* ======================= computed traces ======================= */
+$("#tr_d1").innerHTML=dijkTrace(T.EX1,"A");
+$("#tr_d2").innerHTML=dijkTrace(T.W,"A");
+$("#tr_d3").innerHTML=`<div class="mini"><b>Çözümlü örnek 3 — Dijkstra’nın hatası (A→B 2, A→C 5, C→B −4):</b></div>`+dijkTrace(T.NEG1,"A",true);
+$("#tr_b1").innerHTML=bfTrace(T.BF2,"S");
+$("#tr_b2").innerHTML=`<div class="mini"><b>Q22 (S→A 6, S→B 7, A→C 5, B→C −2, C→A −3):</b></div>`+bfTrace(T.Q22,"S");
+$("#tr_g1").innerHTML=`<div class="mini"><b>Çözümlü örnek 4 — DAG izi (S→A 2, S→B 6, A→B −3, A→C 5, B→C 1, B→D 4, C→D −2):</b></div>`+dagTrace(T.DAG,"S");
+$("#tr_f1").innerHTML=`<div class="mini"><b>Çözümlü örnek 5 — Floyd (Q20):</b></div>`+floydTrace(T.Q20);
+(function(){
+  const gr=parseGrid(GRIDS[0].t),r=gridRun(gr,"dij"),nm=GRIDS[0].names;
+  $("#tr_e1").innerHTML=`<div class="mini"><b>Çözümlü örnek 6 — mini ızgarada Dijkstra, hücrelerin kesinleşme sırası:</b></div><table><thead><tr><th>Sıra</th>${r.order.map((o,i)=>`<th>${i+1}</th>`).join("")}</tr></thead><tbody><tr><td><b>hücre</b></td>${r.order.map(o=>`<td class="m">${nm[o.r+","+o.c]}</td>`).join("")}</tr><tr><td><b>maliyet</b></td>${r.order.map(o=>`<td class="m">${o.g}</td>`).join("")}</tr></tbody></table><div class="mini">En ucuz yol: ${r.path.map(p=>nm[p.join(",")]).join("→")}, maliyet ${r.cost}.</div>`;
+})();
+
+/* ======================= quizzes ======================= */
+mkQuiz("#quiz0",[
+ ["Kruskal bir kenarı ne zaman reddeder?",["Ağırlığı pozitifse","İki ucu zaten aynı bileşendeyse (döngü kapatır)","En hafif kenarsa","Başlangıç tepesine değiyorsa"],1,"Aynı bileşende olan iki tepeyi bağlamak döngü kapatır; union-find bunu find(u) = find(v) ile anlar."],
+ ["O(n) başlangıç kurulumu tamamlandıktan sonra union by rank + path compression ile n elemanda m işlemin amortize maliyeti?",["O(m·n)","O(m α(n)) amortize; pratikte neredeyse sabit","Her find en kötü O(n)","O(m²)"],1,"α(n) ≤ 4 (pratikte); tek bir find uzun olabilir ama amortize bedel çok küçüktür."],
+ ["Üçgen A–B 2, B–C 2, A–C 3. MST’de A’dan C’ye yolun uzunluğu?",["3","4","2","5"],1,"MST, iki 2’lik kenarı seçer; A→B→C = 4, oysa doğrudan kenar 3: MST en kısa yolu garanti etmez."],
+ ["DFS’te geri (back) kenar neyi gösterir?",["Yönlü çizgede döngü","En kısa yol","Çizgenin bağlı olduğunu","Topolojik sıranın var olduğunu"],0,"Hâlâ yığında olan bir atasına dönen kenar döngü kapatır; döngülü çizgede topolojik sıra yoktur."],
+ ["Kenarlar A→C, B→C, C→D, D→E, C→E. Hangisi geçerli bir topolojik sıradır?",["A C B D E","B A C D E","C A B D E","A B C E D"],1,"B A C D E’de her kenar soldan sağa. Diğerlerinde sırasıyla B→C, A→C ve D→E bozulur."],
+ ["BFS hangi problemde en kısa yolu verir ve maliyeti nedir?",["Ağırlıksız çizgede en az kenarlı yol; O(n+m)","Negatif ağırlıkta; O(n²)","DAG’da; O(n log n)","Tüm çiftlerde; O(n³)"],0,"BFS katman katman (kenar sayısına göre) genişler."],
+ ["n = 1 000 000’u yarılayarak 1’e indirmek yaklaşık kaç adım sürer?",["10","20","1 000","500 000"],1,"lg 10⁶ ≈ 20, çünkü 2²⁰ ≈ 1 048 576."],
+ ["Θ(n³) bir algoritmada n iki katına çıkarsa iş yaklaşık kaç katına çıkar?",["2","4","8","16"],2,"(2n)³ = 8n³."]
+]);
+mkQuiz("#quiz1",[
+ ["d[u] = 3, w = 4, d[v] = 9. relax(u→v) sonrası d[v] kaçtır?",["9","7","13","3"],1,"min(9, 3+4) = 7; ebeveyn de u olur."],
+ ["Dijkstra’nın doğru çalışması için kenar ağırlıkları hakkında hangisi yeterlidir?",["Hepsi eşit olmalı","Negatif olmamalı","Çizge DAG olmalı","Çizge ağaç olmalı"],1,"Negatif olmayan ağırlık: kesinleşen tepe sonradan kısalmaz."],
+ ["Parent (öncül) tablosu ne işe yarar?",["Yolu geri kurmaya","Negatif ağırlığı güvenli yapmaya","Çizgeyi sıralamaya","Tüm kapsayan ağaçları saymaya"],0,"Dist yalnızca sayıyı verir; yol parent zincirinden okunur."],
+ ["Kaynaktan ulaşılamayan tepenin en kısa uzaklığı nedir?",["0","1","∞","n"],2,"∞: henüz hiçbir yol bulunamadı (tamamlanmış aramada erişilemez)."],
+ ["Çizge W’de A’dan Dijkstra: D’ye uzaklık?",["5","8","9","11"],1,"A–C–B–D = 1+2+5 = 8; A–C–D = 9’dan iyidir."],
+ ["Çizge W’de A’dan E’ye en kısa uzaklık?",["8","10","11","13"],2,"A–C–E = 1+10 = 11 ve A–C–B–D–E = 1+2+5+3 = 11."],
+ ["A→B 2, A→C 5, C→B −4. Dijkstra (kesinleşen değişmez) B için ne bulur, gerçek değer nedir?",["2 ve 1","1 ve 1","2 ve 2","5 ve 1"],0,"B, 2 ile kesinleşir; ama A→C→B = 5−4 = 1."],
+ ["Bellman–Ford, 6 tepeli ve 9 kenarlı bir çizgede en kötü durumda (kontrol turu hariç) kaç gevşetme denemesi yapar?",["15","45","54","81"],1,"(n−1)·m = 5 · 9 = 45."],
+ ["Bellman–Ford’da negatif döngü nasıl anlaşılır?",["n−1 turdan sonra bir tur daha yapınca hâlâ bir dist düşüyorsa","Kuyruk boşalırsa","Bir tur hiçbir şey değiştirmezse","d[s] negatif olursa"],0,"Negatif döngü yoksa n−1 turdan sonra hiçbir dist azalamaz."],
+ ["Negatif kenarlı bir DAG’da tek kaynak en kısa yolları en hızlı hangi yöntem verir?",["Dijkstra (yığın), O((n+m) log n)","Topolojik sırada gevşetme, O(n+m)","Floyd, Θ(n³)","BFS"],1,"DAG’da döngü yok; negatif kenar sorun değil ve her tepe bir kez işlenir."],
+ ["100 tepeli bir çizgede Floyd–Warshall’ın en iç satırı (D[i][j] güncellemesi) kaç kez çalışır?",["10⁴","10⁶","10⁸","300"],1,"n³ = 100³ = 10⁶."],
+ ["Q20: 1→2 = 4, 1→3 = 11, 2→3 = 2. Floyd sonunda D[1][3] kaçtır?",["11","6","4","2"],1,"k = 2’de min(11, 4+2) = 6."],
+ ["Mini ızgarada (M çamur 8, G asfalt 1) BFS’in bulduğu S→M→G yolunun maliyeti?",["2","8","9","11"],2,"M’ye girmek 8, G’ye girmek 1: toplam 9. Dijkstra’nın yolu 8’dir."],
+ ["Bu ızgarada (4 yönlü, maliyet ≥ 1, Manhattan ipucu: kabul edilebilir ve tutarlı) A*, Dijkstra’ya göre ne yapar?",["Aynı en ucuz yolu bulur, genelde daha az hücre açar","Daha kısa bir yol bulur","En az hamleli yolu bulur","Yalnızca engelsiz ızgarada çalışır"],0,"Manhattan ipucu burada admissible ve tutarlıdır (bir adımda h en çok 1 değişir, maliyet ≥ 1); kapalı kümeli A* de kesindir. Yalnızca admissible h, kapalı kümeyle yeniden açma olmadan yetmeyebilir; ipucu açılma sırasını değiştirir."],
+ ["Hangisi YANLIŞTIR?",["Ağırlıksız çizgede BFS ağacındaki yollar en kısa yollardır","Her MST, her tepe çifti için bir en kısa yol içerir","Her kenara aynı pozitif sabit eklemek en kısa yol ağacını değiştirebilir","Negatif kenar Dijkstra’nın yanlış sonuç vermesine yol açabilir"],1,"Üçgen 2, 2, 3: MST’de A→C yolu 4, doğrudan kenar 3."],
+ ["Her kenara k = 10 eklenirse, uzunlukları 1+1+1 = 3 ve 4 olan 3 kenarlı ve 1 kenarlı yolların yeni maliyetleri?",["13 ve 14","33 ve 14","3 ve 4","33 ve 4"],1,"3 kenarlı yol 3 + 3·10 = 33, tek kenar 4 + 10 = 14: sıralama tersine döner."]
+]);
+window.__t={dijkSteps,bfSteps,bfFinal,dagSteps,floydSteps,gridRun,parseGrid,parseG,dijkRun,pathTo,T,GRIDS,bfsPath};
+</script>
+<script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+<script>
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+      rows.forEach(function(r){
+        var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',s==='toplam'||s==='total'||s.startsWith('toplam '));
+      });
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var pos=0,cell=null;for(var k=0;k<r.cells.length;k++){var c=r.cells[k],sp=c.colSpan||1;if(ci>=pos&&ci<pos+sp){cell=c;break}pos+=sp}
+          if(cell&&(cell.colSpan||1)===1){cells.push(cell);if(cell.tagName==='TD'){var tx=(cell.textContent||'').trim();if(tx){seen++;if(cell.classList.contains('r'))right++}}}
+        });
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="aa-site-audit-tables">
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap'))return;
+    var w=document.createElement('div');w.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(w,t);w.appendChild(t);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      wrapTable(t);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6;
+      t.classList.toggle('aa-code-first',!!codeFirst);
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',!!s&&s.length<=36)});
+      rows.forEach(function(r){var c=r.cells&&r.cells[0],x=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';r.classList.toggle('aa-total-row',x==='toplam'||x==='total'||x.startsWith('toplam '))});
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var p=0,c=null;for(var k=0;k<r.cells.length;k++){var q=r.cells[k],sp=q.colSpan||1;if(ci>=p&&ci<p+sp){c=q;break}p+=sp}if(c&&(c.colSpan||1)===1){cells.push(c);if(c.tagName==='TD'){var tx=(c.textContent||'').trim();if(tx){seen++;if(c.classList.contains('r'))right++}}}});
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var queued=false;function later(){if(!queued){queued=true;requestAnimationFrame(function(){queued=false;audit()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+  new MutationObserver(later).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!--AA-SIDEBAR-->
+<style>
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb *{box-sizing:border-box}
+#aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
+#aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
+#aa-sb .pct{font:600 26px ui-monospace,Menlo,Consolas,monospace}
+#aa-sb .trk{height:6px;border-radius:99px;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);overflow:hidden;margin:0 4px 4px}
+#aa-sb .trk i{display:block;height:100%;width:0;background:var(--acc,#6cb6ff);transition:width .1s linear}
+#aa-sb .best{font-size:12px;color:var(--mute,#9aa6b8);margin:0 4px 12px}
+#aa-sb a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--mute,#9aa6b8);border-radius:8px;padding:6px 8px;border-left:3px solid transparent}
+#aa-sb a:hover{background:var(--panel2,#1d2431);color:var(--ink,#e8ecf3)}
+#aa-sb a .n{flex:none;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:700;display:grid;place-items:center;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);margin-top:1px}
+#aa-sb a.top.done .n{background:var(--ok,#5fd39a);border-color:var(--ok,#5fd39a);color:#0b1a12}
+#aa-sb a.top.active{color:var(--ink,#e8ecf3);background:var(--rule,#1b2a3d);border-left-color:var(--acc,#6cb6ff);font-weight:600}
+#aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
+#aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
+#aa-sb .sub.open{display:block}
+#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
+#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
+body.aa-open{overflow:hidden}
+body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
+body.aa-open #aa-back{display:block}
+@media (min-width:1200px){
+  #aa-sb{transform:none}
+  body.aa-has-sb{padding-left:272px}
+  #aa-fab,#aa-back{display:none!important}
+}
+@media (max-width:1199px){#aa-fab{display:flex}}
+@media print{#aa-sb,#aa-bar,#aa-fab,#aa-back{display:none!important}body.aa-has-sb{padding-left:0!important}}
+</style>
+<script>
+(function(){
+  try{
+    var secs=[].slice.call(document.querySelectorAll("section[id]"));
+    if(!secs.length)return;
+    var M=[],top=null,idx=0;
+    function clean(h){var c=h.cloneNode(true);[].slice.call(c.querySelectorAll(".time,.num")).forEach(function(x){x.remove()});return c.textContent.replace(/\s+/g," ").trim()}
+    secs.forEach(function(s){
+      var h2=s.querySelector("h2");
+      if(h2){
+        var num=h2.querySelector(".num");idx++;
+        top={el:h2,sec:s,type:"top",label:clean(h2),n:num?num.textContent.trim():String(idx),subs:[]};
+        M.push(top);
+      }
+      if(!top)return;
+      [].slice.call(s.querySelectorAll("h3")).forEach(function(h){
+        var t=clean(h);if(!t)return;
+        var m={el:h,sec:s,type:"sub",label:t,parent:top};top.subs.push(m);M.push(m);
+      });
+    });
+    var k=0;M.forEach(function(m){if(!m.el.id)m.el.id="aa-h"+(++k)});
+    var sb=document.createElement("nav");sb.id="aa-sb";sb.setAttribute("aria-label","İçindekiler");
+    var html='<div class="hd"><b>İçindekiler</b><span class="pct" id="aa-pct">0%</span></div><div class="trk"><i id="aa-trk"></i></div><div class="best" id="aa-best"></div>';
+    M.forEach(function(m){
+      if(m.type!=="top")return;
+      html+='<a class="top" href="#'+m.el.id+'" data-id="'+m.el.id+'"><span class="n">'+m.n+'</span><span>'+m.label.replace(/</g,"&lt;")+'</span></a>';
+      if(m.subs.length){html+='<div class="sub" data-for="'+m.el.id+'">'+m.subs.map(function(s){return '<a href="#'+s.el.id+'" data-id="'+s.el.id+'">'+s.label.replace(/</g,"&lt;")+'</a>'}).join("")+'</div>'}
+    });
+    sb.innerHTML=html;
+    var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var back=document.createElement("div");back.id="aa-back";
+    document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
+    document.body.classList.add("aa-has-sb");
+    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
+    back.onclick=function(){toggle(false)};
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
+    sb.addEventListener("click",function(e){if(e.target.closest("a")&&window.innerWidth<1200)toggle(false)});
+    var wk=(location.pathname.match(/\/w(\d+)\//)||[])[1]||"x",KEY="aa_read_w"+wk,best=0;
+    try{best=+localStorage.getItem(KEY)||0}catch(e){}
+    var links={},tops=[].slice.call(sb.querySelectorAll("a.top")),subWraps=[].slice.call(sb.querySelectorAll(".sub"));
+    [].slice.call(sb.querySelectorAll("a[data-id]")).forEach(function(a){links[a.getAttribute("data-id")]=a});
+    var pctEl=sb.querySelector("#aa-pct"),trk=sb.querySelector("#aa-trk"),bestEl=sb.querySelector("#aa-best"),fp=fab.querySelector("#aa-fpct");
+    var lastActive=null,ticking=false;
+    function update(){
+      ticking=false;
+      var de=document.documentElement,max=de.scrollHeight-window.innerHeight;
+      var pct=max>0?Math.min(100,Math.max(0,Math.round(100*window.pageYOffset/max))):100;
+      if(max>0&&window.pageYOffset>=max-4)pct=100;
+      bar.style.width=pct+"%";bar.setAttribute("aria-valuenow",pct);
+      pctEl.textContent=pct+"%";trk.style.width=pct+"%";fp.textContent=pct+"%";
+      if(pct>best){best=pct;try{localStorage.setItem(KEY,String(best))}catch(e){}}
+      bestEl.textContent=best>pct?"En ileri okunan: %"+best:"";
+      var act=M[0];
+      for(var i=0;i<M.length;i++){if(M[i].el.getBoundingClientRect().top<=150)act=M[i];else break}
+      var vh=window.innerHeight;
+      tops.forEach(function(a){
+        var m=M.filter(function(x){return x.el.id===a.getAttribute("data-id")})[0];
+        var r=m.sec.getBoundingClientRect();
+        var next=m.sec;
+        var passed=r.bottom<=vh*0.35;
+        a.classList.toggle("done",passed);
+        a.querySelector(".n").textContent=passed?"✓":m.n;
+      });
+      if(act!==lastActive){
+        lastActive=act;
+        var topM=act.type==="top"?act:act.parent;
+        [].slice.call(sb.querySelectorAll("a.active")).forEach(function(a){a.classList.remove("active")});
+        links[topM.el.id].classList.add("active");
+        if(act.type==="sub")links[act.el.id].classList.add("active");
+        subWraps.forEach(function(w){w.classList.toggle("open",w.getAttribute("data-for")===topM.el.id)});
+        var a=links[act.el.id],c=sb;
+        if(a&&c.scrollHeight>c.clientHeight){var ar=a.getBoundingClientRect(),cr=c.getBoundingClientRect();
+          if(ar.top<cr.top+90||ar.bottom>cr.bottom-40)c.scrollTop+=ar.top-cr.top-cr.height/3}
+      }
+    }
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",onScroll);
+    window.addEventListener("load",onScroll);setTimeout(update,300);update();
+  }catch(e){if(window.console)console.warn("aa sidebar",e)}
+})();
+</script>
+<!--/AA-SIDEBAR-->
+
+<script id="aa-sitewide-table-audit">
+(function(){
+  function isMathToken(s){
+    if(!s||s.length>34)return false;
+    return /^[\d\s.,:;()+\-×÷=<>≤≥≈ΘΩOonmVkEαφπ√²³⁴⁵ⁿ!⌊⌋⌈⌉→←↔∑Σ\/·%^_*]+$/u.test(s);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      if(!t.closest('.scroll')&&!t.closest('.table-wrap')){
+        var w=document.createElement('div');w.className='scroll';
+        t.parentNode.insertBefore(w,t);w.appendChild(t);
+      }
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td,th'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        if(c.classList.contains('m')||isMathToken(s))c.classList.add('aa-token');
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r')||/^[-+]?\d[\d\s.,%]*$/.test(tx))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')||c.querySelector('code')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+})();
+</script>
+</body>
+</html>

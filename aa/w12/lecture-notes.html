@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hafta 12 (Sade, 3 saatlik) — Geri izleme ve dinamik programlamaya giriş</title>
+<meta name="description" content="Algorithm Analysis Hafta 12: Hafta 10-11 tekrarıyla birlikte, geri izleme (backtracking), budama, memoization ve dinamik programlamaya giriş; 3 saatlik ders için ayrıntılı ve sade anlatım.">
+<style>
+:root{--bg:#10141b;--panel:#171d27;--panel2:#1d2431;--ink:#e8ecf3;--mute:#9aa6b8;--line:#2a3344;--acc:#6cb6ff;--ok:#5fd39a;--warn:#ffcb6b;--bad:#ff7b8a;--rule:#1b2a3d;--rev:#2a2140}
+[data-theme="light"]{--bg:#f7f6f2;--panel:#fff;--panel2:#f0eee8;--ink:#1c2330;--mute:#5d6878;--line:#dcd8cd;--acc:#1a64b8;--ok:#13804f;--warn:#9a6a00;--bad:#b3283b;--rule:#e6eefa;--rev:#efe9fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 90px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.tg{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 10px;font-size:13px}
+h1{font:500 clamp(30px,6vw,44px)/1.15 Georgia,"Times New Roman",serif;margin:.3em 0 .2em}
+h2{font:500 28px/1.25 Georgia,"Times New Roman",serif;margin:0 0 .4em}
+h3{font-size:18px;margin:1.5em 0 .3em}
+h4{font-size:16px;margin:1.2em 0 .2em;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{font-size:19px;color:var(--mute);margin:.2em 0 1em}
+.en{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.88em;color:var(--acc);white-space:nowrap}
+section{margin-top:64px;scroll-margin-top:16px}
+.num{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 6px;border-radius:16px;background:var(--acc);color:var(--bg);font-weight:700;font-size:15px;margin-right:8px;vertical-align:3px}
+.time{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--mute);margin-left:6px;vertical-align:4px;font-weight:600}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+.rule{background:var(--rule);border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.rule b.t{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.skip{border-left-color:var(--warn);background:var(--panel2)}.skip b.t{color:var(--warn)}
+.rev{border-left-color:#a98bff;background:var(--rev)}.rev b.t{color:#a98bff}
+[data-theme="light"] .rev b.t{color:#6b3fd1}
+pre,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:14.5px;line-height:1.55;margin:12px 0}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.try{border:1.5px dashed var(--acc);border-radius:14px;padding:16px 18px;margin:20px 0;background:var(--panel)}
+.try .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:9px;padding:7px 14px;font-weight:600;font-size:15px}
+.btn.g{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+input[type=text],input[type=number],select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
+input[type=text]{width:100%}
+.big{font:500 26px ui-monospace,Menlo,Consolas,monospace}
+.mut{color:var(--mute);font-size:15px}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.grid{display:grid;gap:3px;margin:10px 0}
+.grid i{aspect-ratio:1;background:var(--panel2);border-radius:3px;display:block}
+.grid i.on{background:var(--acc)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+td.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.card{min-width:46px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font:500 20px ui-monospace,Menlo,Consolas,monospace}
+.card.sorted{border-color:var(--ok);color:var(--ok)}.card.cur{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}.card.min{border-color:var(--acc);color:var(--acc)}
+.card small{display:block;font-size:11px;color:var(--mute)}
+.q{margin:14px 0}.q .opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.fb{margin-top:6px;font-size:15px;color:var(--mute);display:none}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+nav.toc a{font-size:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--panel)}
+.foot{display:flex;justify-content:space-between;margin-top:60px;font-size:15px}
+.foot a{color:var(--acc);text-decoration:none}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+.bars{position:relative;margin:10px 0;border-left:1px solid var(--line)}
+.bar{position:absolute;height:18px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);font-size:12px;line-height:16px;padding-left:5px;overflow:hidden;white-space:nowrap}
+.bar.pick{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.cells{display:flex;flex-wrap:wrap;gap:2px;margin:10px 0}
+.cells span{width:22px;height:22px;font-size:9px;display:grid;place-items:center;border-radius:4px;background:var(--panel2);color:var(--mute)}
+.cells span.in{background:color-mix(in srgb,var(--acc) 35%,var(--panel2));color:var(--ink)}.cells span.mid{background:var(--warn);color:#000}.cells span.found{background:var(--ok);color:#000}
+svg text{fill:var(--mute);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+
+.bd{aspect-ratio:1;display:grid;place-items:center;font-size:clamp(15px,5.5vw,28px);background:var(--panel2);border-radius:4px;border:1px solid transparent;line-height:1}
+.bd.dk{background:color-mix(in srgb,var(--acc) 12%,var(--panel2))}
+.bd.qn{color:var(--ink)}
+.bd.try{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 22%,var(--panel2))}
+.bd.rej{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 22%,var(--panel2))}
+.bd.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.board{display:grid;gap:2px;margin:10px 0;max-width:340px}
+.treebox{overflow-x:auto;margin:8px 0}
+.treebox svg{display:block;min-width:520px}
+.treebox svg text{font-size:10px}
+.dpc{min-width:48px;text-align:center;padding:8px 6px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font:500 17px ui-monospace,Menlo,Consolas,monospace}
+.dpc small{display:block;font-size:11px;color:var(--mute)}
+.dpc.cur{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}
+.dpc.dep{border-color:var(--acc);color:var(--acc)}
+.dpc.done{border-color:var(--ok)}
+.dpc.emp{color:var(--mute);opacity:.55}
+.sg{display:grid;grid-template-columns:repeat(9,1fr);max-width:380px;margin:10px 0;border:2px solid var(--ink);border-radius:4px}
+.sg div{aspect-ratio:1;display:grid;place-items:center;font:500 clamp(13px,4.6vw,20px) ui-monospace,Menlo,monospace;border:1px solid var(--line);cursor:pointer;background:var(--panel)}
+.sg div:nth-child(3n){border-right:2px solid var(--ink)}
+.sg div:nth-child(9n){border-right:1px solid var(--line)}
+.sg div:nth-child(n+19):nth-child(-n+27),.sg div:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid var(--ink)}
+.sg div.giv{background:var(--panel2);font-weight:700}
+.sg div.fil{color:var(--ok)}
+.sg div.sel{outline:2px solid var(--acc);outline-offset:-2px}
+.sg div.pk{background:color-mix(in srgb,var(--acc) 14%,var(--panel))}
+.gcell{min-width:0;aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;font:500 clamp(11px,3.4vw,16px) ui-monospace,Menlo,monospace;color:var(--ink);padding:0}
+.gcell.obs{background:var(--bad);color:var(--bg);border-color:var(--bad)}
+.gcell.st{border-color:var(--ok);color:var(--ok)}
+.gcell.gl{border-color:var(--acc);color:var(--acc)}
+.ggrid{display:grid;gap:3px;max-width:420px;margin:10px 0}
+td.hl,.hl{background:color-mix(in srgb,var(--warn) 20%,transparent)}
+.cmpbar{height:14px;border-radius:4px;background:var(--acc);min-width:2px}
+
+/* AA-GLOBAL-AUDIT-FIXES: responsive tables, formulas, controls and focus */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:normal}
+.wrap{width:100%;min-width:0}
+.en{white-space:normal}
+pre{max-width:100%}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+textarea{width:100%;box-sizing:border-box}
+.big{max-width:100%;overflow-wrap:anywhere}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,span.m{overflow-wrap:normal;word-break:normal}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead{overflow-wrap:break-word}
+img,svg,canvas{max-width:100%;height:auto}
+.foot{flex-wrap:wrap;gap:12px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px}
+  .foot{align-items:flex-start}
+}
+@media(max-width:480px){.foot{flex-direction:column}}
+</style>
+
+<style id="aa-sitewide-responsive-audit">
+/* Site-wide Week audit: table/component responsiveness */
+.wrap{width:100%;min-width:0}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m{overflow-wrap:normal;word-break:normal}
+.row>*{min-width:0}
+pre{max-width:100%;overflow:auto}
+code{overflow-wrap:anywhere}
+textarea,input,select,button,.card,details{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%;height:auto}
+.try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc,#6cb6ff);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px 7px}
+  h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+  .foot{flex-wrap:wrap;gap:10px}
+}
+</style>
+<style id="aa-inline-term-wrap">.en{white-space:normal}</style>
+<style id="aa-site-audit-fixes">
+html,body{max-width:100%}.en{white-space:normal!important}
+.wrap{width:100%;min-width:0}
+.scroll,.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m,.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-cols-4{min-width:620px}.aa-cols-5{min-width:700px}.aa-cols-6{min-width:760px}.aa-cols-7plus{min-width:860px}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{max-width:100%;overflow:auto} code{overflow-wrap:anywhere}
+img,svg,canvas{max-width:100%;height:auto}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+.foot{gap:12px;flex-wrap:wrap}
+@media(max-width:700px){
+ .wrap{padding-left:12px!important;padding-right:12px!important}
+ .scroll,.table-wrap{padding-bottom:4px}
+ th,td{padding-left:7px!important;padding-right:7px!important}
+}
+@media(max-width:480px){.foot{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body><p style="padding:12px"><a href="./">← Week 12: English examples</a></p>
+<div class="wrap">
+
+<header class="top">
+  <a href="../">← AA ana sayfa</a>
+  <button class="tg" id="tg">Açık / koyu</button>
+</header>
+
+<div class="kicker">Hafta 12 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
+<h1>Geri izleme ve dinamik programlamaya giriş</h1>
+<p class="lead">İki fikir: <b>(1) bütün seçenekleri sistematik dene, çıkmaza giren dalı erken kes</b> (geri izleme), <b>(2) aynı küçük soruyu iki kez çözme, cevabını bir tabloya yaz</b> (dinamik programlama). Bu sayfa Hafta 10–11’i tekrar ederek başlar; sonra N-vezir, alt kümeler, Fibonacci, basamak çıkma ve robot ızgarası gibi örneklerle iki fikri adım adım kurar.</p>
+
+<div class="rule">
+  <b class="t">Bu sayfayı nasıl kullanmalı</b>
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular Hafta 10–11’den <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>sınav için kural</b>dır. Sınavda ezberlenecek şeyler mavi kutulardır; gerisi onları anlamak içindir. Bu hafta sınavda <b>vurgulu</b> (final emphasis) bir haftadır: Fibonacci’nin üç yolu, budama ve “durum (state)” kavramı mutlaka bilinmeli.
+</div>
+
+<h3>Ders akışı (180 dakika)</h3>
+<div class="scroll"><table>
+<tr><th>Blok</th><th>Konu</th><th>Süre</th><th>Hangi haftayı bağlar?</th></tr>
+<tr><td>0</td><td><a href="#s0" style="color:var(--acc)">Isınma ve tekrar</a>: MST/union-find, en kısa yollar, özyineleme ve Θ</td><td>25 dk</td><td>Hafta 10 + 11 (+ 7)</td></tr>
+<tr><td>1</td><td><a href="#s1" style="color:var(--acc)">Geri izleme</a>: alt kümeler, permütasyonlar, genel yordam</td><td>25 dk</td><td>Hafta 7 (özyineleme) + DFS</td></tr>
+<tr><td>2</td><td><a href="#s2" style="color:var(--acc)">N-vezir ve Sudoku</a>: aday üretimi ve budama</td><td>30 dk</td><td>Hafta 10–11 (açgözlü ↔ tam arama)</td></tr>
+<tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
+<tr><td>3</td><td><a href="#s3" style="color:var(--acc)">Budama güvenli mi?</a> görev seçimi, sağlam budama ↔ sezgisel</td><td>20 dk</td><td>Hafta 10 (kesim özelliği)</td></tr>
+<tr><td>4</td><td><a href="#s4" style="color:var(--acc)">Tekrar eden alt problemler</a>: Fibonacci çağrı ağacı, memoization</td><td>25 dk</td><td>Hafta 7 (özyineleme)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Dinamik programlamaya giriş</a>: durum, yineleme, tablo, doldurma sırası</td><td>30 dk</td><td>Hafta 11 (Floyd)</td></tr>
+<tr><td>6</td><td><a href="#s6" style="color:var(--acc)">Mühendislik uygulaması</a>, <a href="#s7" style="color:var(--acc)">alıştırmalar</a>, <a href="#s8" style="color:var(--acc)">özet</a></td><td>15 dk + ev</td><td>Hepsi</td></tr>
+</table></div>
+
+<nav class="toc">
+  <a href="#s0">0 Tekrar</a><a href="#s1">1 Geri izleme</a><a href="#s2">2 N-vezir</a><a href="#s3">3 Budama</a><a href="#s4">4 Fibonacci</a><a href="#s5">5 DP girişi</a><a href="#s6">6 Uygulama</a><a href="#s7">7 Alıştırma &amp; quiz</a><a href="#s8">8 Özet</a>
+</nav>
+
+<div class="box">
+  <b>Başlamadan önce tek cümle:</b>
+  Bu bölümde birçok küçük kombinatoryal problem için önce <b>doğru ama yavaş</b> bir özyinelemeli/tam arama çözümü kurarız. Sonra iki soru sorarız: <b>“Hangi dalları hiç denemesek de olur?”</b> (budama) ve <b>“Aynı alt problemi tekrar tekrar mı çözüyorum?”</b> (tablo). İlk soru geri izlemeyi, ikinci soru dinamik programlamayı doğurur.
+</div>
+
+<!-- ================= BLOK 0 ================= -->
+<section id="s0">
+<div class="kicker">Blok 0 · Hafta 10 + 11 tekrarı</div>
+<h2><span class="num">0</span>Isınma ve tekrar <span class="time">25 dk</span></h2>
+<p>Son iki hafta iki ayrı strateji gösterdi: <b>açgözlü (greedy)</b> seçimler (MST, Dijkstra) ve çizge algoritmalarının maliyet hesabı. Bu hafta onların üstüne üçüncü ve dördüncü bir fikir ekliyoruz. Önce eskileri tazeleyelim.</p>
+
+<h3 id="topic-0-1">0.1 Hafta 10: en küçük kapsayan ağaç ve union-find</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 10</b>
+<b>Kapsayan ağaç (spanning tree):</b> bütün tepeleri bağlayan, döngüsüz çizge parçası. <b>MST</b> (minimum spanning tree) toplam ağırlığı en az olanıdır. <b>Kruskal:</b> kenarları ağırlığa göre sırala, döngü oluşturmayanı kabul et. <b>Prim:</b> bir tepeden başla, ağaca bağlanan en hafif kenarı ekle. İkisi de <b>açgözlüdür</b>: bir kez seçtiğini geri almaz. Güvenli olmalarının nedeni <b>kesim özelliği (cut property)</b>: bir kesimi geçen en hafif kenar bir MST’de yer alır.<br>
+<b>Union-find:</b> “u ve v aynı bileşende mi?” sorusunu hızlı cevaplar. <b>Boyuta göre birleştirme (union by size)</b> ağaç yüksekliğini ≤ lg n tutar; <b>yol sıkıştırma (path compression)</b> sonraki sorguları kısaltır.</div>
+<p><b>Örnek (Hafta 10):</b> üçgen, AB=1, BC=2, AC=3. Kruskal sıralar: AB, BC, AC. AB kabul, BC kabul (artık hepsi bağlı, toplam 3), AC döngü kapatır → reddedilir. <b>Sensör örneği:</b> G–S1 3, S1–S2 2, S2–S3 4, G–S2 5, S1–S3 7, G–S3 8 m: Kruskal 2, 3, 4’ü kabul eder, 5’i reddeder; toplam <b>9 m</b>.</p>
+
+<h3 id="topic-0-2">0.2 Hafta 11: en kısa yollar</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 11</b>
+<b>Dijkstra:</b> en yakın “kesinleşmemiş” tepeyi kesinleştir, çıkan kenarları gevşet (relax). <b>Negatif olmayan</b> ağırlık ister. <b>Bellman–Ford:</b> bütün kenarları |V|−1 tur gevşet; negatif kenarlarla çalışır. Ancak kaynaktan erişilebilen negatif ağırlıklı bir döngü varsa sonlu en kısa yol değerleri iyi tanımlı değildir; ek bir gevşetme turunda hâlâ bir uzaklık azalabiliyorsa bu durum saptanır. Maliyet O(V·E). <b>Floyd:</b> her tepe çifti için d[i][j] = min(d[i][j], d[i][k] + d[k][j]); üç iç içe döngü, Θ(n³).<br>
+<b>Örnek:</b> A→B=2, A→C=5, B→C=1. A’dan: önce B=2, C=5; B kesinleşince C = 2+1 = 3. Sonuç: 0, 2, 3.<br>
+Bu hafta önemli olan bir ipucu: <b>Floyd bir “tablo” algoritmasıdır</b>: küçük cevapları (k’ya kadar olan ara tepelerle) tabloya yazar, büyükleri onlardan kurar. Bu, dinamik programlamanın ilk örneğiydi.</div>
+
+<h3 id="topic-0-3">0.3 Kalıcı araçlar: özyineleme, Θ ve döngü değişmezi (Hafta 1, 2, 7)</h3>
+<div class="rule rev"><b class="t">Tekrar · kalıcı araçlar</b>
+<b>Özyineleme (recurrence) cetveli (Hafta 7):</b> T(n) = 2T(n/2) + n → Θ(n log n) (iki yarım problem + doğrusal iş). T(n) = T(n−1) + 1 → Θ(n) (bir çağrı, bir küçük). T(n) = <b>2</b>T(n−1) + 1 → Θ(2ⁿ) (iki çağrı, ikisi de sadece 1 küçük: patlar). Bu hafta bu üç satırın üçüncüsüyle ilk ikisi arasındaki farkı <b>kapatacağız</b>.<br>
+<b>Θ ve log:</b> sabitleri at, en hızlı büyüyen terimi tut; log₂ n “kaç kez yarılarım?” sorusudur. 1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ &lt; n!.<br>
+<b>Döngü değişmezi:</b> başlangıç, adım, bitiş. Geri izlemede de benzeri var: “şu ana kadar yerleştirilen kısmi çözüm geçerlidir.”</div>
+
+<h3 id="topic-0-4">0.4 Köprü: açgözlü ne zaman yanılır?</h3>
+<p><b>Sezgi.</b> Kasada “her seferinde elindeki en büyük parayı ver” (açgözlü) diyorsunuz. Türk lirası kuruşlarıyla çoğunlukla işe yarar. Ama bozuk para sistemi tuhafsa (örneğin 1, 3, 4 birimlik paralar) bu kural en az sayıda para vermez. Hafta 1’deki karşı örnek fikrini hatırlayın: tek bir kötü girdi bir kuralı çürütür.</p>
+<div class="try"><div class="lab">Kendin dene — açgözlü mü, tam arama mı?</div>
+<div class="row"><span>Para birimleri:</span><input type="text" id="cn_c" value="1, 3, 4" style="flex:1;min-width:140px"></div>
+<div class="row"><span>Tutar =</span><input type="range" id="cn_a" min="1" max="40" value="6"><b id="cn_av">6</b></div>
+<div id="cn_out"></div>
+<div class="mut">Birimler 1, 3, 4 ve tutar 6 iken açgözlü 4+1+1 (3 para) verir; en iyisi 3+3 (2 para). “Tüm seçenekleri dene” her zaman doğru ama pahalıdır; açgözlü ucuz ama garanti yoktur. Dinamik programlama ikisinin iyi yanını alır: <b>bütün seçenekleri sistematik değerlendirir, sonuçları saklar.</b> Birimleri 1, 5, 10, 25 yaparak açgözlünün işe yaradığı bir sistem görün.</div>
+</div>
+
+<h3 id="topic-warmup">Isınma quizi (Hafta 10–11 ve kalıcı araçlar)</h3>
+<div id="quiz0"></div>
+</section>
+
+<!-- ================= BLOK 1 ================= -->
+<section id="s1">
+<div class="kicker">Blok 1</div>
+<h2><span class="num">1</span>Geri izleme (backtracking) <span class="time">25 dk</span></h2>
+
+<h3 id="topic-1-1">1.1 Sezgi: kilidin şifresini bulmak</h3>
+<p><b>Sezgi.</b> Dört haneli bir bisiklet kilidinin şifresini unuttunuz. Yöntem: ilk haneyi 0 yapın, ikinciyi 0, üçüncüyü 0, dördüncüyü 0, 1, 2, … deneyin. Dördüncü hane bitince <b>geri dönüp</b> üçüncü haneyi 1 yapın. Bu bir <b>geri izleme</b> (backtracking): “önce ileri git, olmuyorsa son verdiğin kararı geri al, sıradaki seçeneği dene.”</p>
+<p>Labirentte de aynıdır: bir kavşaktasınız, bir yola girersiniz; çıkmazsa kavşağa dönüp başka yola girersiniz. Bu, Hafta 11’de gördüğünüz çizge gezmesinin (derinlik öncelikli arama, DFS) aynısıdır; tek fark çizgenin <b>elle çizilmemiş</b> olmasıdır: köşeler “şu ana kadar verdiğimiz kararlar”dır (kısmi çözüm, partial solution) ve kenarlar “bir karar daha ver”dir.</p>
+
+<h3 id="topic-1-2">1.2 Çözümü bir vektör olarak yazmak</h3>
+<p>Çözümü <code>a = (a₁, a₂, …, aₙ)</code> diye yazarız. Her aᵢ, sonlu bir aday kümesinden seçilir. Dört haneli kilitte a = (4, 0, 7, 2). Bir <b>permütasyon</b> için aᵢ “i. konuma koyduğum eleman”dır. Bir <b>alt küme</b> için aᵢ “i. elemanı aldım mı?” sorusunun cevabıdır (doğru/yanlış).</p>
+
+<h3 id="topic-1-3">1.3 Genel yordam (şablon)</h3>
+<pre>def backtrack(a, k, n):
+    if is_a_solution(a, k, n):          # ilk k seçim tam bir çözüm mü?
+        process_solution(a, k, n)       # yazdır, say, sakla
+    else:
+        for c in construct_candidates(a, k, n):   # k+1. konum için geçerli adaylar
+            a.append(c)                 # make_move: seçimi yap
+            backtrack(a, k + 1, n)      # derine in
+            a.pop()                     # unmake_move: seçimi geri al</pre>
+<div class="rule"><b class="t">Kural 1 — geri izlemenin üç parçası</b>
+Her problem şu üç yordamı verir, gerisi aynıdır:<br>
+<b>is_a_solution(a, k, n)</b>: ilk k eleman tam bir çözüm mü?<br>
+<b>construct_candidates(a, k, n)</b>: önceki konumlar verilmişken, sıradaki konum için <b>geçerli</b> değerleri listeler. <b>Bütün akıllılık (budama) burada</b> yaşar: hiç işe yaramayacak adaylar baştan önerilmez.<br>
+<b>process_solution(a, k, n)</b>: biten çözümü yazdırır, sayar veya kullanır.<br>
+Her özyinelemeli çağrının kendi aday listesi vardır; bu yüzden farklı derinliklerdeki “henüz denenmemiş” adaylar birbirine karışmaz. Seçimi geri almayı (<code>a.pop()</code>) <b>unutmayın</b>: geri izlemenin “geri”si budur.</div>
+<div class="rule rev"><b class="t">Tekrar · Hafta 7 ve 11</b> Özyineleme + yığın (call stack) = DFS. <code>backtrack</code> özyinelemeli çağrı yığınında “son karar” en üsttedir; <code>pop</code> o kararı yığından çıkarmaktır. Standart çizge DFS’sinde keşfedildi işaretini silmeyiz. Burada ise farklı aday çözümleri ararken geçici seçimleri pop ile geri alırız.</div>
+
+<h3 id="topic-1-4">1.4 Alt kümeleri üretmek (2ⁿ tane)</h3>
+<p><b>Sezgi.</b> Çantaya 3 eşya (1, 2, 3) koyup koymamaya karar veriyorsunuz. Her eşya için iki seçenek: <b>al</b> ya da <b>alma</b>. 2×2×2 = 8 alt küme.</p>
+<pre>def subsets(n):
+    a = []
+    def rec(k):                      # k: kaç eşya hakkında karar verdik
+        if k == n:                   # is_a_solution
+            print([i+1 for i in range(n) if a[i]])   # process_solution
+            return
+        for take in (True, False):   # construct_candidates: iki aday
+            a.append(take)
+            rec(k + 1)
+            a.pop()
+    rec(0)
+subsets(3)   # {1,2,3} {1,2} {1,3} {1} {2,3} {2} {3} {}</pre>
+<p>Alt kümenin çıktısı sırası: {1,2,3}, {1,2}, {1,3}, {1}, {2,3}, {2}, {3}, {}. Neden bu sıra? Çünkü her yerde önce “al” denenir, <b>sonra</b> “alma”.</p>
+
+<div class="rule skip"><b class="t">Çözümlü örnek 1 — alt kümeler, n = 3: adım adım</b>
+<div class="scroll"><table>
+<tr><th>Adım</th><th>a (T=al, F=alma)</th><th>Ne oluyor?</th></tr>
+<tr><td>1</td><td class="m">[T]</td><td>1. eşya alındı</td></tr>
+<tr><td>2</td><td class="m">[T, T]</td><td>2. eşya alındı</td></tr>
+<tr><td>3</td><td class="m">[T, T, T]</td><td>k = 3 = n → <b>çözüm: {1,2,3}</b></td></tr>
+<tr><td>4</td><td class="m">[T, T]</td><td>geri al (pop); 3. eşya için ikinci aday</td></tr>
+<tr><td>5</td><td class="m">[T, T, F]</td><td><b>çözüm: {1,2}</b></td></tr>
+<tr><td>6</td><td class="m">[T]</td><td>iki kez geri alındı; 2. eşya için ikinci aday</td></tr>
+<tr><td>7–9</td><td class="m">[T,F,T], [T,F,F]</td><td><b>{1,3}</b>, sonra <b>{1}</b></td></tr>
+<tr><td>10–15</td><td class="m">[F,…]</td><td>aynısı 1. eşya alınmadan: <b>{2,3}, {2}, {3}, {}</b></td></tr>
+</table></div>
+Toplam 15 düğüm (1 kök + 2 + 4 + 8), 8 yaprak. Genel olarak n eşya için 2ⁿ yaprak ve 2ⁿ⁺¹−1 düğüm.</div>
+
+<h3 id="topic-1-5">1.5 Permütasyonlar (n! tane)</h3>
+<p><b>Sezgi.</b> 3 kişi 3 sandalyeye oturacak. İlk sandalye için 3 aday, ikinci için kalan 2, sonuncu için 1: 3×2×1 = 6. Adaylar “henüz oturmamış olanlar”dır; bunun için bir <code>used</code> (kullanıldı) işaret dizisi tutarız.</p>
+<pre>def perms(n):
+    a, used = [], [False] * (n + 1)
+    def rec(k):
+        if k == n:
+            print(a); return
+        for v in range(1, n + 1):
+            if not used[v]:             # construct_candidates: kullanılmamışlar
+                used[v] = True; a.append(v)
+                rec(k + 1)
+                a.pop(); used[v] = False   # unmake_move: ikisini de geri al
+    rec(0)
+perms(3)   # 123 132 213 231 312 321</pre>
+<div class="rule"><b class="t">Kural 2 — sayılar</b>
+n elemanlı kümenin <b>2ⁿ alt kümesi</b> ve <b>n! permütasyonu</b> vardır. n = 3: 8 ve 6. n = 4: 16 ve 24. n = 6: 64 ve 720. n = 5 için permütasyon: 120.</div>
+
+<div class="try"><div class="lab">Kendin dene — geri izleme ağacını adım adım gez</div>
+<div class="row"><select id="bt_mode">
+<option value="sub">Alt kümeler (al / alma)</option>
+<option value="per" selected>Permütasyonlar</option>
+<option value="derP">Sabit noktasız permütasyon, budamalı</option>
+<option value="derN">Sabit noktasız permütasyon, budamasız</option>
+<option value="mul">Çoklu küme {1,1,2,2} permütasyonları</option></select>
+<span>n =</span><select id="bt_n"><option>2</option><option selected>3</option><option>4</option></select></div>
+<div class="treebox"><svg id="bt_svg" viewBox="0 0 600 200" role="img" aria-label="Geri izleme arama ağacı"></svg></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>şu an burada</span><span><b style="background:var(--acc)"></b>ziyaret edildi</span><span><b style="background:var(--ok)"></b>çözüm</span><span><b style="background:var(--bad)"></b>çıkmaz yaprak</span><span><b style="background:var(--panel2);border:1px solid var(--line)"></b>henüz yok</span></div>
+<div id="bt_vec" class="big" style="margin-top:6px;min-height:1.4em"></div>
+<div id="bt_note" style="min-height:3.2em"></div>
+<div class="row"><button class="btn g" id="bt_b">◀ Geri</button><button class="btn" id="bt_f">İleri ▶</button><button class="btn g" id="bt_p">Oynat</button><button class="btn g" id="bt_r">Başa dön</button></div>
+<div class="mut">Ziyaret edilen düğüm: <b id="bt_vis">0</b>/<b id="bt_tot">0</b> · bulunan çözüm: <b id="bt_sol">0</b>/<b id="bt_stot">0</b> · adım <b id="bt_k">0</b>/<b id="bt_t">0</b></div>
+<div id="bt_found" class="mut" style="font-family:ui-monospace,Menlo,monospace"></div>
+<div id="bt_cmp" class="mut"></div>
+</div>
+<p class="mut">Deneyin: “Permütasyonlar”, n = 3 için yapraklar 123, 132, 213, 231, 312, 321 sırasıyla bulunur. “Alt kümeler”de önce {1,2,3} çıkar. “Sabit noktasız, budamalı” ile “budamasız”ı karşılaştırın: aynı iki çözüm, ama budamasız ağaç daha çok düğüm gezer ve çıkmaz yapraklar (kırmızı) bulur.</p>
+
+<h3 id="topic-1-6">1.6 Budamanın ilk örneği: sabit noktasız permütasyon (derangement)</h3>
+<p><b>Sezgi.</b> Dört arkadaş hediye çekilişi yapıyor; kimse kendi adını çekmesin. Yani <b>pᵢ ≠ i</b> olan permütasyon. Hepsini üretip sonra elemek yerine <b>aday listesine i değerini baştan koymayız</b>: i. konum için “i” asla önerilmez. Böylece sabit nokta oluşturan seçimler hemen elenir. Yine de sonraki konumda hiç uygun aday kalmayabilir; bu durumda geri dönülür.</p>
+<pre>for v in range(1, n + 1):
+    if not used[v] and v != k + 1:      # v != konum: tek satırlık budama
+        ...</pre>
+<p>n = 4 için sonuç <b>9</b> çözüm (2143, 2341, 2413, 3142, 3412, 3421, 4123, 4312, 4321). Budamasız tüm permütasyon ağacı 65 düğüm gezer; budamalı sürüm <b>31</b>. Yukarıdaki aracın sayacı bunu gösterir.</p>
+<div class="rule"><b class="t">Kural 3 — budama nerede yaşar?</b>
+<b>Budama (pruning)</b> = geçerli bir çözüme <b>götüremeyecek</b> kısmi çözümü genişletmemek; yani ağacın bütün bir dalını hiç gezmemek. Kodda yeri <b>construct_candidates</b>tir: kötü adaylar hiç sunulmaz.</div>
+
+<h3 id="topic-1-7">1.7 Çoklu küme: tekrarlı elemanlar</h3>
+<p>{1, 1, 2, 2} kümesinde 4! = 24 değil, yalnızca <b>6</b> farklı dizilim vardır (1122, 1212, 1221, 2112, 2121, 2211). Yöntem: her değerden <b>kaç kopya kaldığını</b> tutun; konum için adaylar “kalan sayısı pozitif olan <b>farklı değerler</b>”dir. Her değer her konumda bir kez önerilir; hiçbir dizilim iki kez çıkmaz. Yukarıdaki araçta “Çoklu küme”yi deneyin.</p>
+
+<div class="rule skip"><b class="t">Sık yapılan hatalar (geri izleme)</b>
+<ol>
+<li><b>pop’u unutmak:</b> seçimi geri almazsanız sonraki dal kirli başlar (a dizisi büyümeye devam eder).</li>
+<li><b>Çözümü bulunca fazladan devam etmek / durmak:</b> “tüm çözümleri say” ile “ilk çözümde dur” farklı kodlardır (<code>if finished: return</code> isteğe bağlıdır).</li>
+<li><b>Budamayı sonda yapmak:</b> önce üretip sonra elemek (budamasız) yine doğrudur ama çok yavaştır. Elemeyi <b>adayları kurarken</b> yapın.</li>
+<li><b>“Geri izleme = rastgele deneme” sanmak:</b> hayır; sistematiktir, hiçbir kısmi çözümü iki kez gezmez.</li>
+</ol></div>
+</section>
+
+<!-- ================= BLOK 2 ================= -->
+<section id="s2">
+<div class="kicker">Blok 2</div>
+<h2><span class="num">2</span>N-vezir ve Sudoku <span class="time">30 dk</span></h2>
+
+<h3 id="topic-2-1">2.1 Problem ve akıllı gösterim</h3>
+<p><b>Problem.</b> n × n tahtaya n vezir (queen) koy; hiçbiri diğerini tehdit etmesin. Vezir aynı satırı, aynı sütunu ve iki çaprazı tehdit eder.</p>
+<p><b>Gösterim (representation) her şeydir.</b> n = 8 için üç seçenek:</p>
+<div class="scroll"><table>
+<tr><th>Gösterim</th><th>Aday sayısı (n = 8)</th></tr>
+<tr><td>64 kareden 8’ini seç</td><td class="m">C(64, 8) = 4 426 165 368</td></tr>
+<tr><td>her satıra bir vezir, sütunu serbest seç</td><td class="m">8⁸ = 16 777 216</td></tr>
+<tr><td>her satıra bir vezir ve sütunlar farklı</td><td class="m">8! = 40 320</td></tr>
+</table></div>
+<p>İki vezir aynı satırda olamayacağı için her satıra <b>tam bir</b> vezir koyarız ve aᵢ = “i. satırdaki vezirin sütunu” deriz. İki vezir aynı sütunda da olamayacağı için aᵢ’ler bir <b>permütasyon</b> oluşturur: n! aday. Çapraz tehditler bunların çoğunu da eler.</p>
+
+<h3 id="topic-2-2">2.2 Aday üretimi: tehdit testi</h3>
+<p><b>Sezgi (çapraz).</b> Satranç tahtasında iki kare, <b>satır farkı = sütun farkı</b> ise aynı çaprazdadır. Örneğin (satır 1, sütun 2) ve (satır 3, sütun 4): fark 2 ve 2 → çapraz.</p>
+<pre>def candidates(a, k, n):               # a[0..k-1] yerleşti; k. satır için sütun listesi
+    out = []
+    for i in range(n):
+        legal = True
+        for j in range(k):             # önceki her vezirle karşılaştır
+            if i == a[j]:                    legal = False   # aynı sütun
+            if abs(k - j) == abs(i - a[j]):  legal = False   # aynı çapraz
+        if legal: out.append(i)
+    return out</pre>
+<div class="rule"><b class="t">Kural 4 — vezir tehdit testi</b>
+k. satıra i sütununa vezir konabilir ⇔ her önceki j. satır için: <b>i ≠ aⱼ</b> (sütun) ve <b>|k − j| ≠ |i − aⱼ|</b> (çapraz). Satır testi gerekmez: gösterim zaten satır başına bir vezir verir.</div>
+
+<div class="rule skip"><b class="t">Çözümlü örnek 2 — 4 vezir, ilk çözüme giden yol</b>
+Sütunlar 1–4 olarak yazıldı. Her satır girişi bir “düğüm”dür (özyinelemeli çağrı).
+<div class="scroll"><table>
+<tr><th>#</th><th>Kısmi çözüm (satır başına sütun)</th><th>Ne oluyor?</th></tr>
+<tr><td>1</td><td class="m">[ ]</td><td>kök</td></tr>
+<tr><td>2</td><td class="m">[1]</td><td>1. satır, 1. sütun</td></tr>
+<tr><td>3</td><td class="m">[1, 3]</td><td>2. satırda 1 (sütun) ve 2 (çapraz) olmaz; ilk aday 3</td></tr>
+<tr><td>—</td><td class="m">[1, 3, ?]</td><td>3. satırda hiç aday yok → <b>çıkmaz, geri dön</b> (yeni düğüm açılmadı)</td></tr>
+<tr><td>4</td><td class="m">[1, 4]</td><td>2. satır için sıradaki aday</td></tr>
+<tr><td>5</td><td class="m">[1, 4, 2]</td><td>3. satır: 2 mümkün</td></tr>
+<tr><td>—</td><td class="m">[1, 4, 2, ?]</td><td>4. satırda aday yok → geri dön; 3. satırın başka adayı da yok → geri dön; 2. satır da bitti → geri dön</td></tr>
+<tr><td>6</td><td class="m">[2]</td><td>1. satır için ikinci aday</td></tr>
+<tr><td>7</td><td class="m">[2, 4]</td><td>2. satır</td></tr>
+<tr><td>8</td><td class="m">[2, 4, 1]</td><td>3. satır</td></tr>
+<tr><td>9</td><td class="m">[2, 4, 1, 3]</td><td><b>çözüm!</b> (sütunlar 2, 4, 1, 3)</td></tr>
+</table></div>
+İlk çözüme <b>9 düğümle</b> ulaşıldı. 4 × 4 için toplam 2 çözüm vardır: (2, 4, 1, 3) ve (3, 1, 4, 2), birbirinin ayna görüntüsü. n = 2 ve n = 3 için çözüm <b>yoktur</b>.</div>
+
+<div class="try"><div class="lab">Kendin dene — N-vezir geri izleme izleyicisi</div>
+<div class="row"><span>n =</span><select id="nq_n"><option>4</option><option>5</option><option>6</option></select>
+<button class="btn g" id="nq_b">◀ Geri</button><button class="btn" id="nq_f">İleri ▶</button><button class="btn g" id="nq_p">Oynat</button><button class="btn g" id="nq_s">Sonraki çözüme git ⏭</button><button class="btn g" id="nq_r">Başa dön</button></div>
+<div id="nq_board" class="board"></div>
+<div id="nq_note" style="min-height:3.4em"></div>
+<div class="mut">Gezilen düğüm (kök dahil): <b id="nq_pl">1</b> · bulunan çözüm: <b id="nq_so">0</b> · adım <b id="nq_k">0</b>/<b id="nq_t">0</b></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>deneniyor / yerleşti</span><span><b style="background:var(--bad)"></b>reddedildi (tehdit)</span></div>
+</div>
+<p class="mut">n = 4 için “Sonraki çözüme git”e basın: düğüm sayacı 9’a geldiğinde ilk çözüm gelir; yukarıdaki tablonun aynısı. İki kez basınca ikinci çözüm (3,1,4,2) gelir. Tehdit nedeni notta yazar: “sütun” mu “çapraz” mı.</p>
+
+<h3 id="topic-2-3">2.3 Budama ne kadar kazandırır? Düğüm sayacı</h3>
+<p>Aşağıdaki tablo gerçek bir programın çıktısıdır (sayfa açılırken bilgisayarınızda çalıştı). “Budamalı düğüm” = yukarıdaki <code>candidates</code> ile gezilen çağrı sayısı.</p>
+<div class="try"><div class="lab">Kendin dene — budamasız ve budamalı karşılaştırma</div>
+<div class="row"><span>n =</span><input type="range" id="nc_n" min="4" max="11" value="8"><b id="nc_nv">8</b></div>
+<div id="nc_card"></div>
+<div class="scroll"><table><tr><th>n</th><th>C(n², n)</th><th>nⁿ</th><th>n!</th><th>permütasyon ağacı düğümü</th><th>budamalı düğüm</th><th>çözüm</th><th>ilk çözüme kadar düğüm</th></tr><tbody id="nc_t"></tbody></table></div>
+<div class="mut">n = 8 satırı: 8! = 40 320 permütasyon varken budama yalnızca <b>2 057</b> düğüm gezer ve 92 çözümün hepsini bulur. Çözüm sayıları 4, 5, 6, …, 11 için 2, 10, 4, 40, 92, 352, 724, 2680’dir. (Orijinal not: n = 14 için 365 596 çözüm vardır; bu program onu dakikalar içinde bulur.)</div>
+</div>
+
+<div class="rule"><b class="t">Kural 5 — N-vezir çıkarımı</b>
+Gösterimi akıllı seçmek (satır başına bir vezir → permütasyon) aday sayısını milyarlardan yüzbinlere indirir; <b>diyagonal budama</b> bunu bir kez daha binlere indirir. Arama uzayının çoğuna hiç bakmayız, ama <b>doğruluk bozulmaz</b>: budanan dalların hiçbirinde çözüm olamazdı.</div>
+
+<h3 id="topic-2-4">2.4 Sudoku: adaylar ve “en az adaylı hücre” hilesi</h3>
+<p><b>Sezgi.</b> Boş bir hücreye hangi rakam girebilir? 1–9 arasından, <b>aynı satırda, aynı sütunda ve aynı 3×3 kutuda zaten bulunanları çıkarırsınız</b>. Kalanlar o hücrenin adaylarıdır. Aday kalmazsa bu dal çıkmazdır. Aday listesi geri izlemenin <code>construct_candidates</code> yordamıdır.</p>
+<p><b>Hile.</b> Hücreleri sırayla doldurmak yerine her seferinde <b>en az adayı olan boş hücreyi</b> seçin (çoğu zaman tek aday vardır). Çelişkiler erken ortaya çıkar, ağaç dar kalır. Bu bir <b>sezgisel yöntem</b> (<span class="en">heuristic</span>): çok işe yarar ama “polinom zamanlı” garantisi vermez.</p>
+<div class="try"><div class="lab">Kendin dene — Sudoku adayları ve iki çözücü</div>
+<div class="row"><select id="su_p"><option value="A">Bulmaca A (kolay)</option><option value="B">Bulmaca B (zor)</option></select>
+<button class="btn g" id="su_m">En az adaylı hücreyi göster</button><button class="btn" id="su_s1">Çöz: soldan sağa sırayla</button><button class="btn" id="su_s2">Çöz: en az adaylı önce</button><button class="btn g" id="su_r">Sıfırla</button></div>
+<div id="su_g" class="sg"></div>
+<div id="su_o" style="min-height:4.4em"></div>
+<div class="mut">Bir hücreye tıklayın: satır, sütun ve kutudaki rakamlar ile adaylar yazılır. Çözücüler gerçek geri izleme koşar ve “çağrı sayısı”nı sayar. Bulmaca A’da sıralı çözücü 4 209 çağrı yapar, “en az adaylı önce” yalnızca 52. Bulmaca B’de 49 559 ve 10 102. Aynı doğru cevap, çok farklı iş.</div>
+</div>
+
+<div class="rule skip"><b class="t">Hikâye (isteğe bağlı): satranç tahtasını örtme</b>
+Soru: bir şah, bir vezir, iki kale, iki fil, iki at, tahtadaki <b>64 karenin hepsini</b> tehdit edecek biçimde yerleştirilebilir mi? 1849’dan beri bilinen en iyi düzen 63 kareyi örtüyordu. Kaba kuvvet: 64!/56! ≈ 1,8 × 10¹⁴ yapılandırma, makul değil (bir PC için ~10⁸ üstü zor). Aşamalar: <b>simetri</b> (vezir yalnızca 10 eşdeğer kareyle denenir) → yaklaşık 2,3 × 10¹²; <b>imkânsızlık budaması</b> (kalan taşların tehdit edebileceği en çok kare, hâlâ örtülmemiş kare sayısından azsa dalı bırak) aramanın %95’ini budadı, saniyede 1 000 konum; hâlâ 10¹² / 10³ = 10⁹ saniye. Daha akıllı bir algoritma sonunda, bir günden kısa sürede, <b>böyle bir örtmenin olmadığını</b> kanıtladı. Ders: akıllı budamayla çok büyük aramalar mümkün olur, ama uzayın çoğuna <i>hiç bakmamanın</i> yollarını aramaya devam etmek gerekir.<br>
+<b>Yarışma problemleri (Skiena):</b> <i>bandwidth</i> (n tepeyi bir sıraya diz, en uzun kenar en kısa olsun): hepsini denemek O(n!·m); <i>set cover</i> (en az sayıda alt kümeyle her şeyi kapla): hepsini denemek O(2ᵐ·nm). İkisi de NP-tamdır; amaç mümkün olduğunca güçlü budamaktır. Hız önerisi: erken optimizasyon yapmayın, asıl kazanç ağacı budamaktır; zamanın nereye gittiğini profilleyici (profiler) söylesin.</div>
+</section>
+
+<!-- ================= BLOK 3 ================= -->
+<section id="s3">
+<div class="kicker">Blok 3</div>
+<h2><span class="num">3</span>Budama güvenli mi? Görev seçimi <span class="time">20 dk</span></h2>
+
+<h3 id="topic-3-1">3.1 Problem: boşluğa tam sığan görevler</h3>
+<p><b>Sezgi.</b> Bir mikrodenetleyicide 9 ms’lik boş bir zaman dilimi var. Elinizde süreleri <b>3, 34, 4, 12, 5, 2 ms</b> olan altı görev var. Dilimi <b>tam doldurmayı</b> sağlayan görev kümelerini bulun. Bu, <b>alt küme toplamı (subset sum)</b> problemidir: her görev için “al / alma” kararı. Blok 1’deki alt küme ağacını kullanırız: 2⁶ = 64 yaprak, 127 düğüm.</p>
+<p>El hesabı: 4 + 5 = 9 ✓ ve 3 + 4 + 2 = 9 ✓. Başka çözüm yok (34 ve 12 zaten 9’dan büyük). Peki bilgisayar 127 düğümün hepsini gezmek zorunda mı? <b>Hayır:</b> kısmi toplam 9’u geçtiyse (örneğin 3 + 34 = 37) <b>sonradan eklenen görevler süreyi artırır, asla azaltmaz</b> (süreler pozitif). Bu dalın hiçbir yaprağı çözüm olamaz → dalı kes.</p>
+
+<div class="try"><div class="lab">Kendin dene — alt küme toplamı: budama sağlam mı?</div>
+<div class="row"><span>Hazır:</span><select id="ss_pre">
+<option value="0">Süreler 3, 34, 4, 12, 5, 2 · hedef 9</option>
+<option value="1">Süreler 8, 6, 7, 5, 3, 10, 9 · hedef 15</option>
+<option value="2">Negatif sayı var: 5, 4, −3, 2 · hedef 6</option>
+<option value="3">Kendi girdim</option></select></div>
+<div class="row"><span>Değerler:</span><input type="text" id="ss_it" value="3, 34, 4, 12, 5, 2" style="flex:1;min-width:180px"><span>Hedef:</span><input type="number" id="ss_t" value="9" style="width:80px"></div>
+<div class="scroll"><table><tr><th>Budama kuralı</th><th>Gezilen düğüm</th><th>Bulunan çözüm</th><th>Kaçırılan</th><th>Hüküm</th></tr><tbody id="ss_tb"></tbody></table></div>
+<div id="ss_sol" class="mut"></div>
+<div class="mut">Kurallar: (A) <b>kısmi toplam &gt; hedef ise kes</b>; (B) A + <b>kalan elemanların toplamı bile hedefe yetmiyorsa kes</b>; (C) <b>sezgisel</b>: kısmi toplam hedefin yarısını geçerse vazgeç (kulağa makul gelir ama doğru değildir). İlk hazır girdide A ve B yine 2 çözümü bulur, düğüm sayısı 127’den çok daha küçüktür. C ise çözüm kaçırır. “Negatif sayı var” girdisinde <b>A bile</b> çözüm kaçırır: çünkü 5 + 4 = 9 &gt; 6 iken sonradan −3 gelip toplamı 6’ya indirir; {5, 4, −3} kaçırılır.</div>
+</div>
+
+<h3 id="topic-3-2">3.2 Budama ne zaman “sağlam” (sound)?</h3>
+<div class="rule"><b class="t">Kural 6 — sağlam budama</b>
+Bir kısmi çözümü kesmek <b>ancak</b> “bu kısmi çözümün <b>hiçbir</b> tamamlaması geçerli çözüm olamaz” kanıtlanabiliyorsa güvenlidir (sağlam, sound). Örnek: çarpışma zaten olmuş bir robot kolu (sonraki eklemler çarpışmayı <b>geri alamaz</b>); pozitif sürelerde hedefi aşmış toplam.<br>
+Aksi hâlde kesim bir <b>sezgisel yöntemdir</b> (<span class="en">heuristic</span>): hızlı olabilir, ama tek geçerli çözümü atabilir. “Kulağa tuhaf geliyor” budama gerekçesi değildir.</div>
+<div class="rule rev"><b class="t">Tekrar · Hafta 10 (kesim özelliği)</b> Açgözlü seçimi güvenli yapan şey bir <b>kanıttı</b> (değiş-tokuş argümanı). Budama için de aynı disiplin geçerli: “şu dalı kesmek hiçbir çözümü kaybettirmez” bir iddiadır ve gerekçesi yazılmalıdır. Karşı örnek bu iddiayı da çürütür (yukarıdaki −3 örneği).</div>
+
+<h3 id="topic-3-3">3.3 Ne kadar budandı?</h3>
+<p>Budanan oran = 1 − (budamalı düğüm / budamasız düğüm). Yukarıdaki araçta ilk girdi için A kuralı 127 düğümden 41’e iner: dalların yaklaşık üçte ikisi gezilmez. B kuralı daha da çok keser. <b>Önemli:</b> budama kazancı girdiye bağlıdır; en kötü durumda (örneğin hedef çok büyük, hiçbir kısmi toplam aşmıyor) budama hiçbir şey kesmez ve arama hâlâ üsteldir (2ⁿ). Geri izleme bir <b>iyileştirmedir, mucize değil</b>.</p>
+
+<div class="rule skip"><b class="t">Çözümlü örnek 3 — alt küme toplamında A kuralı, el ile</b>
+Süreler (3, 4, 2), hedef 5. Düğüm = (karar verilen sayı, kısmi toplam).
+<div class="scroll"><table>
+<tr><th>Düğüm</th><th>Kısmi toplam</th><th>Ne olur?</th></tr>
+<tr><td>kök</td><td class="m">0</td><td>başla</td></tr>
+<tr><td>3 al</td><td class="m">3</td><td>≤ 5 devam</td></tr>
+<tr><td>3, 4 al</td><td class="m">7</td><td>7 &gt; 5 → <b>kes</b> (4 sonrası dal gezilmez)</td></tr>
+<tr><td>3 al, 4 alma</td><td class="m">3</td><td>devam</td></tr>
+<tr><td>3, (4 yok), 2 al</td><td class="m">5</td><td>= hedef → <b>çözüm {3, 2}</b></td></tr>
+<tr><td>3 al, 4 alma, 2 alma</td><td class="m">3</td><td>≠ 5, çözüm değil</td></tr>
+<tr><td>3 alma, 4 al</td><td class="m">4</td><td>devam; 2 al → 6 &gt; 5 kes; 2 alma → 4 ≠ 5</td></tr>
+<tr><td>3 alma, 4 alma</td><td class="m">0</td><td>2 al → 2, 2 alma → 0; ikisi de ≠ 5</td></tr>
+</table></div>
+Tek çözüm {3, 2}. Budamasız ağaç 15 düğüm gezer; A kuralı 13 düğüm gezer: (3, 4) düğümü ziyaret edilip reddedilir ve altındaki iki yaprak hiç gezilmez. Küçük ağaçta kazanç küçüktür; n büyüdükçe kesilen dalların boyu artar. Aracı bu girdiyle (3, 4, 2, hedef 5) deneyip 15 ve 13’ü görün.</div>
+</section>
+
+<!-- ================= BLOK 4 ================= -->
+<section id="s4">
+<div class="kicker">Blok 4</div>
+<h2><span class="num">4</span>Tekrar eden alt problemler: Fibonacci <span class="time">25 dk</span></h2>
+
+<h3 id="topic-4-1">4.1 Özyinelemeli tanım ve doğrudan koda çevirmek</h3>
+<p><b>Yineleme bağıntısı (recurrence relation)</b> = başlangıç değerleriyle birlikte kendi cinsinden yazılmış denklem. Bilgisayar, kapalı formül olmasa bile onu doğrudan hesaplayabilir.</p>
+<div class="scroll"><table>
+<tr><th>Yineleme</th><th>Başlangıç</th><th>Kapalı biçim</th></tr>
+<tr><td class="m">aₙ = aₙ₋₁ + 1</td><td class="m">a₁ = 1</td><td class="m">aₙ = n</td></tr>
+<tr><td class="m">aₙ = 2·aₙ₋₁</td><td class="m">a₁ = 2</td><td class="m">aₙ = 2ⁿ</td></tr>
+<tr><td class="m">aₙ = n·aₙ₋₁</td><td class="m">a₁ = 1</td><td class="m">aₙ = n!</td></tr>
+<tr><td class="m">Fₙ = Fₙ₋₁ + Fₙ₋₂</td><td class="m">F₀ = 0, F₁ = 1</td><td>0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, …</td></tr>
+</table></div>
+<p><b>Sezgi.</b> Fibonacci: “bugünkü sayı, önceki iki sayının toplamı”. Tavşan nüfusu hikâyesiyle ünlüdür; biz basamak çıkmakla da göreceğiz. Tanımı doğrudan koda aktaralım:</p>
+<pre>def fib_r(n):
+    if n == 0: return 0
+    if n == 1: return 1
+    return fib_r(n - 1) + fib_r(n - 2)</pre>
+<p>Kolay ve <b>felaket derecesinde yavaş</b>. Neden? Çağrı ağacına bakın.</p>
+
+<div class="try"><div class="lab">Kendin dene — Fibonacci çağrı ağacı: naif ve memoization</div>
+<div class="row"><span>n =</span><input type="range" id="ft_n" min="2" max="8" value="6"><b id="ft_nv">6</b>
+<select id="ft_m"><option value="naive">Naif özyineleme</option><option value="memo">Memoization (önbellekli)</option></select>
+<span>Vurgula F(</span><select id="ft_h"></select><span>)</span></div>
+<div class="treebox"><svg id="ft_svg" viewBox="0 0 600 200" role="img" aria-label="Fibonacci çağrı ağacı"></svg></div>
+<div class="legend"><span><b style="background:var(--acc)"></b>hesaplanan çağrı</span><span><b style="background:var(--ok)"></b>tablodan gelen (önbellek isabeti / taban)</span><span><b style="background:var(--warn)"></b>vurgulanan değer</span></div>
+<div class="scroll"><table><tr><th>Toplam çağrı</th><th>Toplama yapılan çağrı</th><th>Hazır cevapla dönen çağrı</th><th>Vurgulanan F(k) kaç kez çağrıldı</th></tr><tr><td class="big" id="ft_c">0</td><td class="big" id="ft_d">0</td><td class="big" id="ft_hit">0</td><td class="big" id="ft_hk">0</td></tr></table></div>
+<div id="ft_note" class="mut"></div>
+</div>
+<p class="mut">n = 6 naif: toplam 25 çağrı; F(4) 2 kez, F(3) 3 kez, F(2) 5 kez hesaplanır. Memoization’a geçince n = 6 için yalnızca 11 çağrı vardır ve her F(k) bir kez hesaplanır. Ağaç bir <b>zincire</b> (ve yan yapraklara) dönüşür.</p>
+
+<h3 id="topic-4-2">4.2 Çağrı sayısı: kesin ve üstel</h3>
+<p>C(n) = “F(n) için yapılan toplam çağrı sayısı” olsun. Kök bir çağrıdır; ardından F(n−1) ve F(n−2) için çağrılar: <b>C(n) = 1 + C(n−1) + C(n−2)</b>, C(0) = C(1) = 1.</p>
+<div class="scroll"><table>
+<tr><th>n</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+<tr><td>F(n)</td><td class="m">0</td><td class="m">1</td><td class="m">1</td><td class="m">2</td><td class="m">3</td><td class="m">5</td><td class="m">8</td><td class="m">13</td><td class="m">21</td><td class="m">34</td><td class="m">55</td></tr>
+<tr><td>C(n) çağrı</td><td class="m">1</td><td class="m">1</td><td class="m">3</td><td class="m">5</td><td class="m">9</td><td class="m">15</td><td class="m">25</td><td class="m">41</td><td class="m">67</td><td class="m">109</td><td class="m">177</td></tr>
+</table></div>
+<p>Dikkat: C(n) = <b>2·F(n+1) − 1</b> (n = 5: 2·8 − 1 = 15 ✓). Yani çağrı sayısı Fibonacci sayısının kendisi kadar büyür. Ardışık Fibonacci sayılarının oranı altın orana (φ ≈ 1,618) yaklaşır; bu yüzden <b>C(n) = Θ(φⁿ)</b>. “1,6ⁿ gibi” demek gayri resmî doğrudur, ama kesin taban 1,6 değil φ’dir.</p>
+<div class="rule rev"><b class="t">Tekrar · Hafta 7 — özyineleme cetveli</b>
+<b>İki çağrı n−1 → üstel.</b> <b>Tek çağrı n−1 → doğrusal.</b> <b>İki çağrı n/2 + doğrusal iş → n log n.</b> Naif Fibonacci tam “iki küçük çağrı”dır (n−1 ve n−2). Alt sınır hızlı yolu: T(n) ≥ 2T(n−2) olduğundan T(n) ≥ 2<sup>n/2</sup> ≈ 1,414ⁿ: zaten üstel.</div>
+
+<div class="rule skip"><b class="t">Çözümlü örnek 4 — F(6) çağrı ağacında hangi değer kaç kez?</b>
+<div class="scroll"><table>
+<tr><th>Değer</th><th>F(6)</th><th>F(5)</th><th>F(4)</th><th>F(3)</th><th>F(2)</th><th>F(1)</th><th>F(0)</th><th>toplam</th></tr>
+<tr><td>kaç kez çağrıldı</td><td class="m">1</td><td class="m">1</td><td class="m">2</td><td class="m">3</td><td class="m">5</td><td class="m">8</td><td class="m">5</td><td class="m"><b>25</b></td></tr>
+</table></div>
+Sayılar kendisi bir Fibonacci dizisi gibi büyür: 1, 1, 2, 3, 5, 8. 25 çağrıdan yalnızca 7’si <b>farklı</b> değerdir (F(0)…F(6)). Geri kalan 18 çağrı <b>aynı işin tekrarı</b>dır. Aracın tablosu da aynı sayıları verir; kontrol edin.</div>
+
+<h3 id="topic-4-3">4.3 Bellekleme (memoization): özyinelemeyi koru, cevapları sakla</h3>
+<p><b>Sezgi.</b> Sınavda bir türev hesabını yaptınız ve cevabı kenara yazdınız. Aynı hesap tekrar çıkınca baştan yapmaz, kenardaki cevaba bakarsınız. Bu <b>bellekleme (memoization)</b>: <b>önce tabloya bak; varsa onu döndür; yoksa hesapla, tabloya yaz, döndür.</b></p>
+<pre>def fib_c(n, f):
+    if f[n] is None:                       # henüz bilinmiyor
+        f[n] = fib_c(n - 1, f) + fib_c(n - 2, f)
+    return f[n]
+
+def fib_memo(n):
+    f = [None] * (n + 1)
+    f[0] = 0
+    if n >= 1: f[1] = 1
+    return fib_c(n, f)
+
+# Python'da hazır: from functools import lru_cache, ardından @lru_cache(None) fib_r'nin üstüne</pre>
+<p>Her F(k) değeri <b>tam bir kez</b> hesaplanır (k = 2, …, n). Her yeni durum iki çağrı yapar (biri hesaplanır, biri tablodan döner): toplam çağrı = 1 + 2(n−1) = <b>2n − 1</b>. n = 6 için 11. Maliyeti <b>durumları sayarak</b> buluruz, çağrıları değil: n + 1 durum, her biri sabit iş → <b>Θ(n)</b>.</p>
+<div class="rule"><b class="t">Kural 7 — durum sayarak maliyet</b>
+Memoization’lı özyinelemede maliyet ≈ <b>(farklı durum sayısı) × (durum başına iş)</b>. Fibonacci: (n+1) × O(1) = Θ(n). Naif sürümde aynı durum defalarca gezildiği için toplam çağrı üsteldir. Yineleme olarak: naif T(n) = T(n−1) + T(n−2) + 1 = Θ(φⁿ); memoization’lı yeni durum başına T(n) = T(n−1) + O(1) = Θ(n) (F(n−2) o zaman zaten tablodadır).</div>
+
+<h3 id="topic-4-4">4.4 Tabloyu aşağıdan yukarı doldurmak</h3>
+<p>Özyinelemeyi tamamen bırakın; küçükten büyüğe bir döngüyle doldurun. Bir değer gerektiğinde zaten hesaplanmıştır:</p>
+<pre>def fib_dp(n):
+    f = [0, 1] + [0] * max(0, n - 1)
+    for i in range(2, n + 1):
+        f[i] = f[i - 1] + f[i - 2]
+    return f[n]
+
+print(fib_dp(6))      # 8 · tablo: [0, 1, 1, 2, 3, 5, 8]</pre>
+<p>Doğrusal zaman, özyineleme yükü yok. Yalnızca son iki değer gerekli olduğundan tablo iki değişkene de küçülür (<code>a, b = b, a + b</code>); fikir aynıdır: <b>bellek alanını zamanla takas ettik</b>; n sayılık tablo üstel algoritmayı doğrusala çevirdi.</p>
+
+<div class="try"><div class="lab">Kendin dene — üç yöntem yan yana</div>
+<div class="row"><span>n =</span><input type="range" id="tv_n" min="5" max="100" value="30"><b id="tv_nv">30</b><button class="btn" id="tv_go">Üçünü çalıştır</button></div>
+<div class="scroll"><table><tr><th>Yöntem</th><th>Çağrı / adım</th><th>Toplama sayısı</th><th>Ek bellek</th><th>Ölçülen süre</th></tr><tbody id="tv_t"></tbody></table></div>
+<div id="tv_o" class="mut"></div>
+<div class="mut">Naif yöntem yalnızca n ≤ 36 için gerçekten çalıştırılır (n = 36’da yaklaşık 48 milyon çağrı); daha büyük n’de sayıyı formülle (2F(n+1)−1) veririz ve “çalıştırılmadı” yazarız. Memoization ve tablo her n için gerçekten koşar. F(n) tam sayısı yukarıda <b>BigInt</b> ile hesaplanır: işaretsiz 64 bit F(93)’e kadar yeter (F(94) taşar); işaretli 64 bit ise F(92)’de kalır.</div>
+</div>
+
+<div class="rule"><b class="t">Kural 8 — Fibonacci’nin üç yolu</b>
+<b>Naif özyineleme:</b> Θ(φⁿ) çağrı. <b>Memoization:</b> özyineleme + önbellek, Θ(n) (n+1 durum). <b>Aşağıdan yukarı tablo:</b> döngü, Θ(n), özyineleme yükü yok; ek bellek n+1 (iki değişkenle O(1)).<br>
+<b>Maliyet modeli notu:</b> “n+1 durum × O(1)” <i>birim maliyet</i> modelidir (bir toplama = 1 adım). F(n) yaklaşık 0,7·n bit uzunluğunda olduğundan, gerçek bit maliyeti sayılırsa memoization Θ(n²) olur. Hangi modeli kullandığınızı söyleyin.</div>
+
+<h3 id="topic-4-5">4.5 Tabloya geçmek her zaman gerekli mi? İki ayrı fikir</h3>
+<div class="box">
+<b>Sorulması gereken iki soru:</b>
+<ul>
+<li><b>Tekrar eden alt problem var mı?</b> Naif Fibonacci’de evet; bu yüzden tablo işe yarar. Alt kümelerde yok: her düğüm farklı bir karar dizisidir; tablo kazandırmaz.</li>
+<li><b>Özyineleme (memo) mi, döngü (tablo) mu?</b> İkisi aynı durumlar kümesini hesaplar. Memo yalnızca <i>gerekli</i> durumları hesaplar; tablo hepsini sırayla doldurur ama yükü azdır.</li>
+</ul></div>
+
+<div class="rule skip"><b class="t">Sık yapılan hatalar (Fibonacci)</b>
+<ol>
+<li>“Memoization ile toplama daha hızlı oldu.” → Hayır; toplama aynı. Değişen şey <b>kaç kez toplama yapıldığı</b>.</li>
+<li>“Naif Fibonacci O(n²)’dir.” → Hayır; Θ(φⁿ), üstel.</li>
+<li>Önbelleği her çağrıda sıfırlamak (örneğin <code>f = []</code>’yi fonksiyonun içinde kurmak): memoization yok olur.</li>
+<li>Başlangıç değerlerini unutmak: F(0) = 0, F(1) = 1 olmadan özyineleme hiç bitmez.</li>
+</ol></div>
+</section>
+
+<!-- ================= BLOK 5 ================= -->
+<section id="s5">
+<div class="kicker">Blok 5</div>
+<h2><span class="num">5</span>Dinamik programlamaya giriş <span class="time">30 dk</span></h2>
+
+<h3 id="topic-5-1">5.1 Neden dinamik programlama (DP)?</h3>
+<p>Şimdiye kadar iki strateji gördük:</p>
+<div class="scroll"><table>
+<tr><th>Strateji</th><th>Avantaj</th><th>Dezavantaj</th></tr>
+<tr><td><b>Açgözlü (greedy)</b>: her adımda en iyi yerel seçim</td><td>hızlı</td><td>doğruluğu <b>garanti edilmez</b>; karşı örnek bulunabilir (bkz. 1, 3, 4 paraları)</td></tr>
+<tr><td><b>Tam arama / geri izleme</b>: her şeyi dene</td><td>her zaman <b>doğru</b></td><td>çoğu zaman <b>üstel</b></td></tr>
+<tr><td><b>Dinamik programlama</b>: alt problemleri sistematik değerlendir <b>ve sonuçları sakla</b></td><td>doğru durum ve yineleme kurulduğunda <b>kesin</b> çözüm verir; tekrar hesaplarını azaltabilir</td><td>durum sayısı yine çok büyük, hatta üstel olabilir; doğru <b>durumu</b> (state) bulmak ustalık ister</td></tr>
+</table></div>
+<p>DP, özellikle <b>soldan sağa sıralı</b> nesneler (diziler, yazılar, basamaklar) ve “en iyisini bul / kaç yol var?” sorularında güçlüdür. İlk başta sihir gibi görünür; birkaç örnekten sonra kolaylaşır. <b>Çalışma yöntemi:</b> önce <b>doğru bir özyinelemeli çözüm</b> yazın, sonra aynı alt problemleri tekrar çözdüğünü fark edip cevapları bir tabloya saklayın.</p>
+
+<h3 id="topic-5-2">5.2 Durum (state) nedir?</h3>
+<p><b>Sezgi.</b> Bir merdivenin tepesine çıkmak istiyorsunuz ve 3 basamak kaldı. Önceki basamakları nasıl çıktığınızın önemi var mı? Hayır. <b>Kalan iş yalnızca “3 basamak kaldı” bilgisine bağlı.</b> “3 basamak kaldı” <b>durumdur</b>. İki farklı geçmiş aynı duruma getirse de, ondan sonrası aynıdır; o yüzden cevabı <b>bir kez</b> hesaplayıp paylaşırız.</p>
+<div class="rule"><b class="t">Kural 9 — durum</b>
+Bir <b>DP durumu</b>, <b>yeniden kullanılabilir bir alt problemi</b> tanımlamaya yetecek bilgidir. <b>Eşit iki durumun kalan alt problemi aynı olmalıdır</b>; aksi hâlde cevabı önbelleğe yazmak yanlış sonuç verir. Durum çok az bilgi içerirse yanlış cevap; çok fazla (örneğin “bütün geçmiş”) içerirse paylaşım olmaz ve tablo yararsız kalır.</div>
+<p><b>Örnek 1 (iyi durum):</b> basamak çıkmada durum = “kalan basamak sayısı n”. <b>Örnek 2 (kötü durum):</b> aynı problemde durum = “şimdiye kadar attığım adımların listesi”. (1,2) ile (2,1) farklı “durum” sayılırdı; ikisi de 3. basamakta, ama ayrı hesaplanırdı: paylaşım yok, tablo büyük ve yararsız. Doğru durum, geçmişi <b>unutan</b> durumdur.</p>
+
+<h3 id="topic-5-3">5.3 Basamak çıkma (climbing stairs)</h3>
+<p><b>Problem.</b> n basamaklı merdiveni her seferinde 1 ya da 2 basamak atlayarak kaç farklı sırayla çıkabilirsiniz? (Mühendislik: bir robot kolu, 1 ya da 2 birimlik adımlarla bir hedef konuma kaç farklı hareket dizisiyle gidebilir.)</p>
+<p><b>Sezgi.</b> Tepeye varmadan <b>son hamle</b> ya 1’lik ya 2’likti. Son hamle 1’likse bir önceki durum “n−1 basamak”, 2’likse “n−2 basamak”. İki ayrı yolun sayılarını toplarız:</p>
+<div class="rule"><b class="t">Yineleme — basamak çıkma</b>
+<b>yol(n) = yol(n−1) + yol(n−2)</b>, taban: yol(1) = 1, yol(2) = 2 (isterseniz yol(0) = 1 deyin: “hiç basamak yok, hiçbir şey yapma” bir yol).<br>
+n = 5: yol(3) = 3, yol(4) = 5, yol(5) = <b>8</b>. n = 6: <b>13</b>. Bunlar <b>Fibonacci sayılarıdır</b> (kaydırılmış): yol(n) = F(n+1).</div>
+<pre>def stairs(n):
+    ways = [1, 1] + [0] * (n - 1)          # ways[0]=1, ways[1]=1
+    for i in range(2, n + 1):
+        ways[i] = ways[i - 1] + ways[i - 2]
+    return ways[n]</pre>
+
+<div class="rule skip"><b class="t">Çözümlü örnek 5 — n = 4 için 5 yolu tek tek yazmak</b>
+1+1+1+1 · 1+1+2 · 1+2+1 · 2+1+1 · 2+2 → <b>5</b> yol. Son hamleye göre ayırın: son hamle 1 ise önceki kısım 3 basamak çıkar (1+1+1, 1+2, 2+1 → 3 yol); son hamle 2 ise önceki kısım 2 basamak (1+1, 2 → 2 yol). 3 + 2 = 5 = yol(3) + yol(2) ✓.</div>
+
+<h3 id="topic-5-4">5.4 DP tarifi: beş soru</h3>
+<div class="rule"><b class="t">Kural 10 — DP tasarım kontrol listesi</b>
+<b>1. Durum:</b> alt problemi hangi parametreler tanımlar? <b>2. Yineleme:</b> bu durumun cevabı daha küçük durumlardan nasıl çıkar? <b>3. Taban durumları:</b> en küçükler neler? <b>4. Doldurma sırası:</b> küçükler büyüklerden <b>önce</b> hesaplanıyor mu? <b>5. Cevap + maliyet:</b> cevap hangi hücre? Maliyet = <b>durum sayısı × durum başına iş</b>.</div>
+
+<div class="try"><div class="lab">Kendin dene — DP tablosunu hücre hücre doldur</div>
+<div class="row"><select id="dp_sel">
+<option value="fib">Fibonacci F(n)</option>
+<option value="st12" selected>Basamak çıkma (1 veya 2 adım)</option>
+<option value="st123">Basamak çıkma (1, 2 veya 3 adım)</option>
+<option value="der">Sabit noktasız permütasyon sayısı D(n)</option>
+<option value="coin">Para üstü: en az kaç para? (1, 3, 4)</option>
+<option value="pas">Pascal üçgeni C(n, k)</option></select>
+<span id="dp_lab">n =</span><input type="range" id="dp_n" min="2" max="12" value="6"><b id="dp_nv">6</b></div>
+<div id="dp_tab" class="cards" style="justify-content:flex-start"></div>
+<div id="dp_note" style="min-height:3.4em"></div>
+<div class="row"><button class="btn g" id="dp_b">◀ Geri</button><button class="btn" id="dp_f">İleri ▶</button><button class="btn g" id="dp_p">Oynat</button><button class="btn g" id="dp_r">Başa dön</button>
+<button class="btn g" id="dp_a">Hepsini doldur</button></div>
+<div class="mut">Doldurulan hücre: <b id="dp_c">0</b>/<b id="dp_t">0</b> · toplam toplama/karşılaştırma: <b id="dp_w">0</b></div>
+<div id="dp_x" class="mut"></div>
+<div class="legend"><span><b style="background:var(--warn)"></b>şimdi hesaplanan</span><span><b style="background:var(--acc)"></b>kullanılan önceki hücreler</span><span><b style="background:var(--ok)"></b>doldu</span></div>
+</div>
+<p class="mut">Her problemde aynı şeyi görün: <b>bir hücre yalnızca daha önce dolmuş hücrelere bağlıdır</b> (mavi çerçeveler). Para üstü seçeneğinde 6 için tablo 2 verir (3 + 3); açgözlü 3 para verirdi. “Sabit noktasız” için tablo 1, 0, 1, 2, 9, 44, 265, …</p>
+
+<h3 id="topic-5-5">5.5 Binom katsayıları: iki boyutlu tablo</h3>
+<p><b>Sezgi.</b> n kişiden k kişilik komite seçmek: C(n, k) yol. <b>n. kişiye bakın:</b> ya komitede (kalan n−1 kişiden k−1 kişi seçilir) ya da değil (kalan n−1 kişiden k kişi seçilir). Toplayın:</p>
+<div class="rule"><b class="t">Kural 11 — Pascal kuralı</b>
+<b>C(n, k) = C(n−1, k−1) + C(n−1, k)</b>, taban: <b>C(n, 0) = 1</b> (boş küme) ve <b>C(k, k) = 1</b> (hepsini seç). Pascal üçgeninde her sayı, hemen üstündeki iki sayının toplamıdır. Örnek: C(5, 2) = C(4, 1) + C(4, 2) = 4 + 6 = <b>10</b>.</div>
+<pre>def binom(n, k):
+    bc = [[0] * (n + 1) for _ in range(n + 1)]
+    for i in range(n + 1):
+        bc[i][0] = 1; bc[i][i] = 1        # taban durumlar
+    for i in range(2, n + 1):              # satır satır: ebeveynler hazır
+        for j in range(1, i):
+            bc[i][j] = bc[i - 1][j - 1] + bc[i - 1][j]
+    return bc[n][k]</pre>
+<p>Neden formül <code>n! / ((n−k)! k!)</code> değil? Doğrudur ama bilgisayarda <b>tehlikelidir</b>: faktöriyeller cevaptan çok önce taşar. Tablo yalnızca toplama yapar. <b>Maliyet:</b> O(n²) durum, her biri O(1) → O(n²) (isteyene O(nk), çünkü yalnızca j ≤ k sütunları gerekir).</p>
+<p><b>Izgara yolları:</b> Burada n × m, <b>adım (hamle)</b> sayısını gösterir: n adım aşağı, m adım sağa. Sol üstten sağ alta yalnızca aşağı veya sağa yürümek C(n+m, n) yoldur (her yol n+m adım; hangi n adımın aşağı gittiğini seçin). 3×3 adım için C(6,3) = 20. Aynı ızgara <b>hücre</b> sayısıyla verilirse (r satır × c sütun) formül C(r+c−2, r−1) olur; 3×3 adım = 4×4 hücre, yani C(6,3) = 20. Aşağıdaki araç hücre sayısıyla çalışır.</p>
+<div class="rule skip"><b class="t">Çözümlü örnek 6 — Pascal üçgeni 6. satıra kadar, C(6,3) = ?</b>
+<pre>satır 0:              1
+satır 1:            1   1
+satır 2:          1   2   1
+satır 3:        1   3   3   1
+satır 4:      1   4   6   4   1
+satır 5:    1   5  10  10   5   1
+satır 6:  1   6  15  20  15   6   1</pre>
+Pascal kuralı: C(6, 3) = C(5, 2) + C(5, 3) = 10 + 10 = <b>20</b>. Satır 6’nın orta sayısı 20 ✓.</div>
+
+<h3 id="topic-5-6">5.6 Alt problem çizgesi: tekrar nerede?</h3>
+<p>Durumları <b>köşe</b>, “şu durum şunu kullanır” bağlarını <b>ok</b> yaparsak <b>alt problem çizgesi</b> olur. Naif özyineleme bu çizgeyi bir <b>ağaç</b> olarak (her yolu ayrı) gezer; DP onu <b>her köşe bir kez</b> gezer. Köşe sayısı = durum sayısı = tablo boyutu.</p>
+<div class="try"><div class="lab">Kendin dene — durum sayısı ↔ çağrı sayısı</div>
+<div class="row"><select id="sg_m"><option value="fib">Fibonacci F(n)</option><option value="bin">Binom C(n, k)</option></select>
+<span>n =</span><input type="range" id="sg_n" min="3" max="12" value="7"><b id="sg_nv">7</b>
+<span id="sg_klab">k =</span><input type="range" id="sg_k" min="1" max="6" value="3"><b id="sg_kv">3</b></div>
+<div class="treebox"><svg id="sg_svg" viewBox="0 0 600 200" role="img" aria-label="Alt problem çizgesi"></svg></div>
+<div id="sg_o"></div>
+<div class="mut">Fibonacci’de n + 1 durum, 2(n−1) ok; ama naif ağaç 2F(n+1)−1 çağrı yapar. Binom’da C(n, k) için durumlar bir <b>paralelkenar</b> bölgesidir (en çok (k+1)(n−k+1) durum); naif çağrı sayısı ise yolların sayısıyla büyür. Aradaki fark, tablonun kazancıdır.</div>
+</div>
+
+<h3 id="topic-5-7">5.7 Sabit noktasız permütasyon sayısı (isteğe bağlı bir yineleme)</h3>
+<div class="rule skip"><b class="t">Yineleme</b>
+<b>D(n) = (n−1)·(D(n−1) + D(n−2))</b>, D(1) = 0, D(2) = 1. Böylece D(3) = 2, D(4) = 3·(2+1) = 9, D(5) = 4·(9+2) = <b>44</b>. Mantık: 1. kişi n−1 farklı kişinin adını çekebilir. Çektiği kişi de 1’in adını çekmişse kalan n−2 kişi bağımsız çekiliş yapar (D(n−2)); çekmemişse bu iki kişiyi “birleştirip” n−1 kişilik bir çekiliş gibi düşünürüz (D(n−1)). Blok 1’deki geri izleme aracı n = 4 için 9, n = 3 için 2 çözüm bulur; yineleme aynı sayıları üretir, ama <b>çözümleri listelemeden</b>.</div>
+<p><b>Büyük ders:</b> geri izleme çözümleri <i>listeler</i> (çıktı büyükse zorunlu olarak pahalı), DP çoğu zaman yalnızca <i>sayar</i> veya <i>en iyisini</i> bulur ve bunu polinom zamanda yapabilir.</p>
+
+<h3 id="topic-5-8">5.8 Isınma problemi: tam k kenarlı en kısa yürüyüş</h3>
+<p><b>Sezgi.</b> Yönlü, pozitif ağırlıklı bir çizgede v’den w’ye <b>tam k kenarla</b> (tepeler tekrar edebilir) en kısa yolu isteyelim. <b>Durum:</b> “x tepesindeyim ve tam i kenar kullandım” → d[x, i] = v’den x’e tam i kenarla en kısa yürüyüş. <b>Taban:</b> d[v, 0] = 0, diğer d[x, 0] = ∞. <b>Yineleme:</b> d[x, i] = min over (y→x) of d[y, i−1] + w(y, x). Tabloyu i = 1…k doldurun, d[w, k]’yi okuyun. <b>Maliyet O(k·(n+m))</b>: k·n tablo hücresi başlatılır ve her kenara her turda bir kez bakılır. n = O(m) olduğunda bu O(k·m) diye kısaltılabilir. Bu, Hafta 11’de Bellman–Ford’un turlarına benzer; sonraki derslerin konusu olan DP’dir.</p>
+<div class="try"><div class="lab">Kendin dene — d[x, i] tablosu (bizim örnek çizge)</div>
+<div class="mut">Kenarlar: A→B = 2, A→C = 5, B→C = 1, C→A = 4. Başlangıç tepesi v = A. (Bu çizge bu sayfaya özgüdür; orijinal sayfada yalnızca yöntem verilir.)</div>
+<div class="row"><span>k =</span><input type="range" id="kw_k" min="1" max="6" value="3"><b id="kw_kv">3</b></div>
+<div class="scroll"><table id="kw_t"></table></div>
+<div id="kw_o" class="mut">Bir hücreye tıklayın: hangi kenarın kazandığı yazılır.</div>
+</div>
+
+<h3 id="topic-5-9">5.9 Tablo ne zaman kazandırır? Karar rehberi</h3>
+<div class="scroll"><table>
+<tr><th>Soru</th><th>Evet ise</th><th>Hayır ise</th></tr>
+<tr><td>Yerel en iyi seçimin doğruluğu ispatlı mı? (kesim özelliği / değiş-tokuş)</td><td>açgözlü (Hafta 10–11)</td><td>aşağıya bak</td></tr>
+<tr><td>Aynı alt problem tekrar tekrar çıkıyor mu? (durumlar paylaşılıyor mu?)</td><td><b>memoization / DP</b></td><td>geri izleme (+ budama)</td></tr>
+<tr><td>Bütün çözümleri <i>listelemek</i> gerekiyor mu?</td><td>geri izleme (çıktı büyüklüğü kadar iş şart)</td><td>sayma / en iyiyi bulma → DP olabilir</td></tr>
+</table></div>
+
+<div class="try"><div class="lab">Kendin dene — DP tasarım kontrol listesi</div>
+<div class="row"><select id="ck_p"></select></div>
+<div class="scroll"><table><tbody id="ck_t"></tbody></table></div>
+<div id="ck_o" class="mut"></div>
+</div>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 11</b> Floyd–Warshall’ı hatırlayın: d[i][j] için “ara tepe olarak yalnızca 1…k’yı kullanabilirim” durumu. Durum = (i, j, k): n³ durum, her biri O(1) → Θ(n³). Yineleme küçük k’dan büyüğe doldurulur: doldurma sırası. Aynı 5 soru!</div>
+</section>
+
+<!-- ================= BLOK 6 ================= -->
+<section id="s6">
+<div class="kicker">Blok 6</div>
+<h2><span class="num">6</span>Mühendislik uygulaması: robot kolu ve gezgin robot <span class="time">15 dk</span></h2>
+
+<h3 id="topic-6-1">6.1 Üç eklemli robot kolu: budamanın değeri</h3>
+<p>Üç eklemli bir kolun her ekleminde 12 izinli açı var: 12³ = <b>1 728</b> yapılandırma. Altı eklemde milyonlar. Çarpışmasız bir yapılandırma bulmak için geri izleme: önce 1. eklemi kur, sonra 2., sonra 3.; yanlış gidince son seçimi geri al.</p>
+<p><b>Budama burada kazanır.</b> 1. bağlantı (link) zaten duvardan geçiyorsa, o açıyı koruyan her yapılandırma geçersizdir; <b>bütün alt ağaç atlanır</b>. Bu kesim <b>sağlamdır (sound)</b>: gerçekleşmiş bir çarpışma sonraki eklemlerle onarılamaz. Kolu “tuhaf göründüğü için” elemek ise sezgiseldir ve tek çözümü atabilir (Kural 6).</p>
+<div class="rule"><b class="t">Mini problem (orijinal)</b>
+1. eklemde 12 açıdan 4’ü duvarda. Kalan 8 açının her biri için 2. eklemde 3 açı çarpışıyor. Toplam kaç çarpışma denetimi yapılır, 1 728 ile karşılaştırın.</div>
+<details><summary>Cevap</summary>
+<p>1. eklem: 12 denetim; duvardaki 4 açı × 12 × 12 = <b>576</b> yapılandırma atlanır. 2. eklem: 8 × 12 = <b>96</b> denetim; 8 × 3 × 12 = <b>288</b> yapılandırma atlanır. 3. eklem: kalan 8 × 9 = 72 çift için 72 × 12 = <b>864</b> denetim. Toplam 12 + 96 + 864 = <b>972</b> kısmi yapılandırma denetimi. Aynı tür denetimleri budamasız sayarsak 12 + 144 + 1728 = <b>1884</b> olur. 1728 ise yalnız tam yapılandırma sayısıdır; farklı bir ölçüdür. Gezilmeyen yapılandırma: 576 + 288 = 864.</p></details>
+<div class="try"><div class="lab">Kendin dene — kol hesaplayıcısı</div>
+<div class="row"><span>Eklem başına açı:</span><input type="number" id="ra_a" value="12" min="2" max="30" style="width:80px">
+<span>Eklem başına çarpışan açı sayıları (virgülle, eklem sayısı = eleman sayısı):</span></div>
+<div class="row"><input type="text" id="ra_b" value="4, 3, 0" style="flex:1;min-width:140px"></div>
+<div class="scroll"><table><tr><th>Eklem</th><th>Denetim</th><th>Hayatta kalan kısmi yapılandırma</th><th>Atlanan tam yapılandırma</th></tr><tbody id="ra_t"></tbody></table></div>
+<div id="ra_o"></div>
+<div class="mut">Varsayılan 12 açı ve (4, 3, 0): toplam 972 denetim, 864 yapılandırma atlandı. Eklem sayısını artırın (örneğin 4, 3, 3, 3, 3, 3: altı eklem) ve atlanan oranın nasıl büyüdüğüne bakın. Her eklemde sürekli çarpışma olmazsa (hepsi 0) budama hiç kazandırmaz: üç eklem için A + A² + A³ kısmi denetim ve A³ tam yapılandırma vardır.</div>
+</div>
+
+<h3 id="topic-6-2">6.2 Gezgin robot: ızgarada yol sayısı (DP)</h3>
+<p><b>Sezgi.</b> Bir depo robotu ızgaranın sol üstünden sağ altına gidecek; yalnızca <b>aşağı</b> veya <b>sağa</b> hareket eder. Bazı hücreler engel (palet). Kaç farklı rota var? Bir hücreye ya <b>üstteki</b> ya da <b>soldaki</b> hücreden gelinir: <b>yol(i, j) = yol(i−1, j) + yol(i, j−1)</b>; engel hücrede yol = 0; başlangıçta 1. Tamamen Pascal kuralı gibi: iki ebeveynin toplamı.</p>
+<div class="try"><div class="lab">Kendin dene — engellere tıkla, DP tablosu ve naif özyineleme sayısı</div>
+<div class="row"><span>Satır:</span><input type="range" id="gr_r" min="2" max="8" value="5"><b id="gr_rv">5</b><span>Sütun:</span><input type="range" id="gr_c" min="2" max="8" value="6"><b id="gr_cv">6</b>
+<button class="btn g" id="gr_x">Engelleri temizle</button><button class="btn g" id="gr_rnd">Rastgele engel</button></div>
+<div id="gr_g" class="ggrid"></div>
+<div id="gr_o"></div>
+<div class="mut">Hücre sayısı kadar durum (DP) ↔ naif özyinelemenin çağrı sayısı. Engelsiz 5×6’da toplam C(9, 4) = 126 rota vardır: aracın cevabı bu formülle eşleşmeli. Engel koydukça rota sayısı düşer; bir engel çemberi hedefi kapatırsa 0’a iner.</div>
+</div>
+
+<h3 id="topic-6-3">6.3 Mikro denetleyici görev seçimi: sağlam budama ve DP bir arada</h3>
+<p>Blok 3’teki dilim doldurma problemini hatırlayın: pozitif sürelerde “kısmi toplam &gt; hedef → kes” sağlamdı. Süreler tam sayı ve hedef T ise, bir DP tablosu <b>ok[t] = “toplamı t yapan bir görev kümesi var mı?”</b> durumlarını (t = 0…T) tutar ve maliyeti geri izlemenin 2ⁿ’i yerine <b>O(n·T)</b> olur. İki yaklaşım arasındaki fark: geri izleme <b>hangi</b> kümelerin tam sığdığını listeler; DP “sığar mı?” sorusunu çok daha ucuza cevaplar. (Ayrıntı bu haftanın konusu değildir; yalnızca fikir.)</p>
+</section>
+
+<!-- ================= BLOK 7 ================= -->
+<section id="s7">
+<div class="kicker">Blok 7</div>
+<h2><span class="num">7</span>Alıştırmalar ve quiz <span class="time">ev çalışması</span></h2>
+
+<h3 id="topic-7-1">7.1 Ana quiz (Hafta 12)</h3>
+<div id="quiz1"></div>
+
+<h3 id="topic-7-2">7.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
+<details><summary>A1 (kolay). 4 elemanlı bir kümenin kaç alt kümesi, kaç permütasyonu vardır?</summary>
+<p>2⁴ = <b>16</b> alt küme, 4! = <b>24</b> permütasyon.</p></details>
+<details><summary>A2 (kolay). Genel geri izleme yordamının ihtiyaç duyduğu üç probleme özel yordamı adlandırın ve ne yaptıklarını söyleyin.</summary>
+<p><b>is_a_solution</b> (ilk k seçim tam bir çözüm mü?), <b>construct_candidates</b> (önceki konumlar verilmişken k. konum için hangi değerler geçerli?), <b>process_solution</b> (biten çözümü yazdır, say ya da kullan).</p></details>
+<details><summary>A3 (kolay). Budama (pruning) nedir ve geri izleme kodunda hangi yordamda yaşar?</summary>
+<p>Geçerli bir çözüme götüremeyecek kısmi çözümü genişletmeyi reddetmek; ağacın bütün bir dalı hiç gezilmez. <b>construct_candidates</b> içinde yaşar: umutsuz adaylar hiç sunulmaz.</p></details>
+<details><summary>A4 (kolay). F(0) = 0 ve F(1) = 1’den başlayarak tabloyu doldurup F(10)’u bulun.</summary>
+<p>0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 → <b>F(10) = 55</b>. Her hücre öncekilerin iki toplamıdır.</p></details>
+<details><summary>A5 (kolay). Naif özyinelemeli Fibonacci neden üsteldir?</summary>
+<p>Aynı alt problemler tekrar tekrar hesaplanır. Çağrı sayısı C(n) = 1 + C(n−1) + C(n−2), C(0) = C(1) = 1; çözüm C(n) = 2F(n+1) − 1 = Θ(φⁿ), φ ≈ 1,618. “Yaklaşık 1,6ⁿ” gayri resmî söylemdir.</p></details>
+<details><summary>A6 (kolay). Memoization ile aşağıdan yukarı DP’yi birer cümleyle tanımlayın.</summary>
+<p><b>Memoization:</b> özyineleme yapısını korur, her sonucu ilk hesaplandığında önbelleğe yazar. <b>Aşağıdan yukarı DP:</b> özyinelemeyi döngülere çevirir; tabloyu en küçük durumdan başlayıp büyüğe doğru doldurur.</p></details>
+<details><summary>A7 (kolay). Pascal kuralıyla C(5, 2)’yi daha küçük binom katsayılarından hesaplayın.</summary>
+<p>C(5, 2) = C(4, 1) + C(4, 2) = 4 + 6 = <b>10</b>.</p></details>
+<details><summary>A8 (orta). Pascal üçgenini 6. satıra kadar yazın ve C(6, 3)’ü okuyun.</summary>
+<p>1; 1 1; 1 2 1; 1 3 3 1; 1 4 6 4 1; 1 5 10 10 5 1; 1 6 15 20 15 6 1. <b>C(6, 3) = 20</b>.</p></details>
+<details><summary>A9 (orta). N-vezir için n = 2, 3, 4’te çözüm sayısı nedir? Neden en çok n! tahta incelenir?</summary>
+<p>n = 2 ve 3 için <b>çözüm yok</b> (her yerleşimde iki vezir birbirini tehdit eder). n = 4 için <b>2</b> çözüm: sütunlar (2, 4, 1, 3) ve (3, 1, 4, 2) (ayna görüntüleri). İki vezir aynı satırda ya da sütunda olamayacağından her satıra bir vezir koyarız ve sütunlar bir <b>permütasyon</b> oluşturur: en çok n! aday; çapraz kontrol bunların çoğunu da eler.</p></details>
+<details><summary>A10 (orta). Basamak çıkma için yinelemeyi yazın, n = 5’i hesaplayın; adımlar 1, 2 <i>veya 3</i> olsaydı sonuç ne olurdu?</summary>
+<p>1 veya 2: yol(n) = yol(n−1) + yol(n−2), yol(1) = 1, yol(2) = 2 → 3, 5, <b>8</b>. 1, 2 veya 3: yol(n) = yol(n−1) + yol(n−2) + yol(n−3), yol(0) = 1, yol(1) = 1, yol(2) = 2 → yol(3) = 4, yol(4) = 7, yol(5) = <b>13</b>. Her yeni adım uzunluğu yinelemeye bir terim ekler.</p></details>
+<details><summary>A11 (orta). {1, 2, 3, 4} üzerinde sabit noktasız permütasyon (derangement) kaç tanedir? Geri izlemeyi nasıl budarsınız?</summary>
+<p><b>9</b> tane: 2143, 2341, 2413, 3142, 3412, 3421, 4123, 4312, 4321. Budama: i. konum için i değerini <b>hiç aday göstermeyin</b>. Böylece budamasız 65 düğümlük ağaç yerine 31 düğüm gezilir ; yine de aday kalmayan çıkmaz düğümler olabilir.</p></details>
+<details><summary>A12 (orta). Sudoku için construct_candidates yordamını tasarlayın ve bir sıralama hilesi söyleyin.</summary>
+<p>Boş hücrenin satırındaki, sütunundaki ve 3×3 kutusundaki rakamları toplayın (bu 20 komşu hücre); adaylar 1…9 eksi bu küme. Aday yoksa bu dal çıkmazdır. <b>Hile:</b> hücreleri sabit sırayla değil, her seferinde en az adayı olan boş hücreden doldurun; çelişkiler erken ortaya çıkar. Bu bir sezgiseldir; polinom zaman garantisi vermez.</p></details>
+<details><summary>A13 (orta). 3 eklemli bir kolda eklem başına 8 açı var. 1. eklemde 2 açı, kalan her 1. eklem açısı için 2. eklemde 1 açı çarpışıyor; 3. eklemde çarpışma yok. Toplam çarpışma denetimini ve budamasız tam test sayısını bulun.</summary>
+<p>1. eklem: 8 denetim, 6 açı kalır. 2. eklem: 6 × 8 = 48 denetim; kalan çift 6 × 7 = 42. 3. eklem: 42 × 8 = 336 denetim. Toplam 8 + 48 + 336 = <b>392</b> kısmi denetim; budamasız aynı ölçü 8 + 64 + 512 = <b>584</b>. Budamasız tam yapılandırma sayısı ayrı olarak 8³ = <b>512</b>. Budama sağlam çünkü gerçekleşmiş çarpışma sonraki eklemlerle düzelmez.</p></details>
+<details><summary>A14 (orta). Naif ve memoization’lı Fibonacci için yinelemeleri yazın ve Hafta 7 yöntemiyle Θ’yı bulun.</summary>
+<p><b>Naif:</b> T(n) = T(n−1) + T(n−2) + 1, T(0) = T(1) = 1. T(n−1) ≥ T(n−2) olduğundan T(n) ≥ 2T(n−2); açarsak T(n) ≥ 2<sup>n/2</sup>: üstel. Kesin: T(n) = Θ(φⁿ). <b>Memoization’lı:</b> her F(k) bir kez hesaplanır, sonraki istekler O(1); yeni durum başına T(n) = T(n−1) + O(1) = Θ(n). Hafta 7 bağlantısı: n−1 üzerinde iki çağrı üstel, bir çağrı doğrusaldır; memoization ikinci çağrıyı tablo bakışına çevirir.</p></details>
+<details><summary>A15 (orta). Basamak çıkmada 4. basamak kırık (üzerine basılamaz). 6 basamak için kaç yol? Durum ne olmalı?</summary>
+<p>Durum yine “şu an hangi basamaktayım” (geçmiş önemsiz). yol(0) = 1, yol(1) = 1, yol(2) = 2, yol(3) = 3, <b>yol(4) = 0</b> (kırık), yol(5) = yol(4) + yol(3) = 3, yol(6) = yol(5) + yol(4) = <b>3</b>. Kırık basamak yalnızca o hücrenin değerini 0 yapar; yineleme aynı kalır.</p></details>
+<details><summary>A16 (orta). Birimleri 1, 3, 4 olan para sisteminde 6 birimi en az kaç parayla verirsiniz? Açgözlü neden yanılır? DP tablosunu yazın.</summary>
+<p>Açgözlü: 4 + 1 + 1 = 3 para. En iyi: 3 + 3 = <b>2</b> para. DP: d[0] = 0; d[a] = 1 + min(d[a−1], d[a−3], d[a−4]) → d[1] = 1, d[2] = 2, d[3] = 1, d[4] = 1, d[5] = 2, <b>d[6] = 2</b>. Açgözlü “şimdilik en büyük” der ama o seçimin geri kalanı iyi kapatıp kapatmadığını sormaz; tablo bütün seçenekleri değerlendirir.</p></details>
+<details><summary>A17 (zor, isteğe bağlı). Naif Fibonacci’nin F(n) için en az F(n) çağrı yaptığını tümevarımla kanıtlayın.</summary>
+<p>C(n) çağrı sayısı: C(0) = C(1) = 1 ve n ≥ 2 için C(n) = 1 + C(n−1) + C(n−2). <b>Taban:</b> C(0) = 1 ≥ F(0) = 0, C(1) = 1 ≥ F(1) = 1. <b>Varsayım:</b> C(n−1) ≥ F(n−1), C(n−2) ≥ F(n−2). <b>Adım:</b> C(n) = 1 + C(n−1) + C(n−2) ≥ F(n−1) + F(n−2) = F(n). F(n) ≈ φⁿ/√5 olduğundan çağrı sayısı üsteldir.</p></details>
+<details><summary>A18 (zor, isteğe bağlı). {1, 1, 2, 2, 3} çoklu kümesinin kaç farklı dizilimi vardır? Geri izlemeyle nasıl üretirsiniz?</summary>
+<p>5! / (2! · 2!) = 120 / 4 = <b>30</b>. Her farklı değerden kaç kopya kaldığını tutun; konum için adaylar kalan sayısı pozitif olan <b>farklı değerlerdir</b>. Her değer her konumda bir kez önerilir, bu yüzden hiçbir dizilim iki kez çıkmaz.</p></details>
+
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A17 ve A18 isteğe bağlıdır; Satranç tahtasını örtme hikâyesi, bandwidth/set cover yarışması ve Sudoku sezgiseli de ek bilgidir. Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w12">kapsam listesine</a> bakın.</div>
+</section>
+
+<!-- ================= ÖZET ================= -->
+<section id="s8">
+<div class="kicker">Özet</div>
+<h2><span class="num">8</span>Tek sayfalık özet</h2>
+
+<div class="box"><b>Hafta 12’nin 8 kuralı</b>
+<ol>
+<li><b>Geri izleme = kısmi çözümler üzerinde DFS.</b> Üç parça: is_a_solution, construct_candidates, process_solution. Seçimi <code>pop</code> ile geri al.</li>
+<li><b>Sayılar:</b> n eleman → 2ⁿ alt küme, n! permütasyon.</li>
+<li><b>Budama</b> construct_candidates içinde yaşar; geçersiz adayı hiç sunmaz. Sağlam budama: hiçbir tamamlama kusuru onaramaz. Aksi sezgiseldir.</li>
+<li><b>N-vezir:</b> satır başına bir vezir → permütasyon; tehdit: i = aⱼ veya |k−j| = |i−aⱼ|. n = 4 için 2 çözüm, n = 8 için 92.</li>
+<li><b>Fibonacci:</b> naif Θ(φⁿ) (C(n) = 2F(n+1)−1), memoization Θ(n), aşağıdan yukarı tablo Θ(n). Maliyet = <b>durum sayısı × durum başına iş</b>.</li>
+<li><b>DP durumu</b> yeniden kullanılabilir bir alt problemi tanımlar; eşit durumlar aynı alt probleme sahip olmalı.</li>
+<li><b>DP tarifi:</b> durum → yineleme + taban → doldurma sırası → cevap hücresi → maliyet.</li>
+<li><b>Pascal:</b> C(n,k) = C(n−1,k−1) + C(n−1,k), C(n,0) = C(k,k) = 1; basamak çıkma yol(n) = yol(n−1)+yol(n−2); D(n) = (n−1)(D(n−1)+D(n−2)).</li>
+</ol></div>
+
+<div class="box"><b>Hafta 10–11’den hatırlanacaklar</b>
+<ul>
+<li>Kruskal/Prim açgözlüdür; güvenli olmalarının nedeni kesim özelliği. Union-find: yüksekliği ≤ lg n (boyuta göre birleştirme), yol sıkıştırma ile neredeyse sabit.</li>
+<li>Dijkstra negatif olmayan ağırlık ister; Bellman–Ford |V|−1 tur, O(V·E), negatif kenarda da çalışır; Floyd Θ(n³), bir tablo algoritmasıdır.</li>
+<li>Özyineleme cetveli: iki çağrı n−1 → üstel; bir çağrı n−1 → doğrusal; iki çağrı n/2 + doğrusal iş → n log n.</li>
+<li>Açgözlü kanıt ister; 1, 3, 4 paralarında 6 birim için açgözlü 3 para, en iyi 2 para.</li>
+</ul></div>
+
+<div class="box"><b>Terimler (Türkçe / İngilizce)</b>
+<div class="scroll"><table>
+<tr><td>geri izleme</td><td class="m">backtracking</td><td>budama</td><td class="m">pruning</td></tr>
+<tr><td>kısmi çözüm</td><td class="m">partial solution</td><td>aday</td><td class="m">candidate</td></tr>
+<tr><td>bellekleme</td><td class="m">memoization</td><td>durum</td><td class="m">state</td></tr>
+<tr><td>alt problem</td><td class="m">subproblem</td><td>yineleme bağıntısı</td><td class="m">recurrence relation</td></tr>
+<tr><td>aşağıdan yukarı</td><td class="m">bottom-up</td><td>sezgisel</td><td class="m">heuristic</td></tr>
+<tr><td>sabit noktasız permütasyon</td><td class="m">derangement</td><td>binom katsayısı</td><td class="m">binomial coefficient</td></tr>
+</table></div></div>
+
+<div class="box"><b>Sık yapılan hatalar</b>
+<ol>
+<li>“Geri izleme hızlıdır.” → Bazı girdilerde hâlâ üsteldir; budama kazancı girdiye bağlıdır.</li>
+<li><code>a.pop()</code>’u unutmak veya <code>used[v] = False</code>’u geri almamak.</li>
+<li>Sezgisel kesimi “budama” sanmak: “kulağa tuhaf geliyor” tek çözümü atabilir.</li>
+<li>Naif Fibonacci’yi doğrusal veya karesel sanmak; Θ(φⁿ).</li>
+<li>“Memoization toplamayı hızlandırır.” → Değişen, toplamanın <b>kaç kez</b> yapıldığıdır.</li>
+<li>Çok geniş durum seçmek (tüm geçmiş) → paylaşım olmaz; çok dar seçmek → yanlış cevap.</li>
+<li>Pascal tablosunda taban durumlarını (C(n,0) = C(k,k) = 1) kurmadan doldurmaya başlamak.</li>
+<li>Maliyeti <b>çağrı</b> sayarak değil <b>durum</b> sayarak bulmak gerektiğini unutmak (memoization’da).</li>
+</ol></div>
+
+<div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
+<ol>
+<li>Geri izlemenin üç problem-özel yordamı nedir ve budama hangisinde yaşar?</li>
+<li>Naif Fibonacci neden üsteldir, memoization maliyeti neden Θ(n)’dir? “Durum” kelimesini kullanın.</li>
+<li>Bir DP problemi için kontrol listesinin beş sorusunu sayın ve basamak çıkma için cevaplayın.</li>
+</ol></div>
+</section>
+
+<div class="foot">
+  <a href="../w11/">← Önceki</a>
+  <a href="ek-notlar/">Ek notlar: orijinal Hafta 12 (tam sürüm)</a>
+  <a href="../w13/">Sonraki →</a>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>typeof n==="bigint"?n.toLocaleString("tr-TR"):Number(n).toLocaleString("tr-TR");
+$("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==="dark"?"light":"dark"};
+if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light";
+
+/* ---------- generic quiz ---------- */
+function mkQuiz(id,Q){
+  const el=$(id);
+  el.innerHTML=Q.map((q,qi)=>`<div class="box q" data-q="${qi}"><b>${qi+1}. ${q[0]}</b><div class="opts">${q[1].map((o,oi)=>`<button class="opt" data-o="${oi}">${o}</button>`).join("")}</div><div class="fb"></div></div>`).join("")+`<div class="big" data-score></div>`;
+  const ans={};
+  el.querySelectorAll(".q").forEach(box=>{const qi=+box.dataset.q;box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(ans[qi]!==undefined)return;const o=+b.dataset.o;ans[qi]=o===Q[qi][2];
+    b.classList.add(ans[qi]?"right":"wrong");
+    if(!ans[qi])box.querySelectorAll(".opt")[Q[qi][2]].classList.add("right");
+    const fb=box.querySelector(".fb");fb.style.display="block";fb.innerHTML=(ans[qi]?"Doğru. ":"Yanlış. ")+Q[qi][3];
+    if(Object.keys(ans).length===Q.length)el.querySelector("[data-score]").textContent=`Sonuç: ${Object.values(ans).filter(Boolean).length} / ${Q.length}`;
+  })});
+}
+/* ---------- generic stepper ---------- */
+function Stp(p,render,ms){
+  const o={k:0,n:1,t:null};
+  o.stop=()=>{clearInterval(o.t);o.t=null;const b=$("#"+p+"_p");if(b)b.textContent="Oynat"};
+  o.set=n=>{o.stop();o.n=n;o.k=0;render(0)};
+  o.go=k=>{o.k=Math.max(0,Math.min(o.n-1,k));render(o.k)};
+  $("#"+p+"_f").onclick=()=>o.go(o.k+1);
+  $("#"+p+"_b").onclick=()=>o.go(o.k-1);
+  $("#"+p+"_r").onclick=()=>{o.stop();o.go(0)};
+  $("#"+p+"_p").onclick=()=>{
+    if(o.t){o.stop();return}
+    $("#"+p+"_p").textContent="Duraklat";
+    o.t=setInterval(()=>{if(o.k>=o.n-1){o.stop();return}o.go(o.k+1)},ms||600)};
+  return o;
+}
+
+/* ---------- 0.4 coin: greedy vs optimal ---------- */
+function coinOpt(coins,a){
+  const d=[0],pick=[-1];
+  for(let x=1;x<=a;x++){let best=Infinity,pc=-1;for(const c of coins)if(c<=x&&d[x-c]+1<best){best=d[x-c]+1;pc=c}d[x]=best;pick[x]=pc}
+  const list=[];if(isFinite(d[a])){let x=a;while(x>0){list.push(pick[x]);x-=pick[x]}}
+  return {n:d[a],list};
+}
+function coinGreedy(coins,a){
+  const cs=[...coins].sort((x,y)=>y-x);const list=[];let x=a;
+  for(const c of cs){while(x>=c){list.push(c);x-=c}}
+  return {n:x===0?list.length:Infinity,list};
+}
+function cnUpdate(){
+  const a=+$("#cn_a").value;$("#cn_av").textContent=a;
+  const coins=[...new Set($("#cn_c").value.split(/[ ,;]+/).map(Number).filter(x=>x>0&&Number.isInteger(x)))].slice(0,8);
+  if(!coins.length||!coins.includes(1)){$("#cn_out").innerHTML=`<span class="bad">Lütfen en az 1 birimlik para içeren, pozitif tam sayılardan bir liste yazın (örnek: 1, 3, 4).</span>`;return}
+  const g=coinGreedy(coins,a),o=coinOpt(coins,a);
+  let fail=[];for(let x=1;x<=40;x++){if(coinGreedy(coins,x).n!==coinOpt(coins,x).n)fail.push(x)}
+  $("#cn_out").innerHTML=`<div class="scroll"><table><tr><th></th><th>Para sayısı</th><th>Paralar</th></tr>
+  <tr><td>Açgözlü (en büyüğü ver)</td><td class="m">${g.n}</td><td class="m">${g.list.join(" + ")}</td></tr>
+  <tr><td>En iyi (tam arama / DP ile)</td><td class="m">${o.n}</td><td class="m">${o.list.join(" + ")}</td></tr></table></div>
+  <div>${g.n===o.n?`<span class="ok">Bu tutarda açgözlü de en iyiyi buldu.</span>`:`<span class="bad">Açgözlü yanıldı: ${g.n} para, en iyisi ${o.n}.</span>`} 1–40 arasında açgözlünün yanıldığı tutar sayısı: <b>${fail.length}</b>${fail.length?` (ilk birkaçı: ${fail.slice(0,8).join(", ")})`:""}.</div>`;
+}
+$("#cn_a").oninput=cnUpdate;$("#cn_c").oninput=cnUpdate;cnUpdate();
+
+/* ---------- 1.5 backtracking tree stepper ---------- */
+function buildBT(mode,n){
+  let id=0;const mk=(a,edge)=>({id:id++,a,edge,kids:[],sol:false,dead:false});
+  const root=mk([],"");
+  if(mode==="sub"){
+    (function rec(nd,k){if(k===n){nd.sol=true;return}
+      for(const v of [true,false]){const c=mk([...nd.a,v],`${k+1}${v?"✓":"✗"}`);nd.kids.push(c);rec(c,k+1)}})(root,0);
+  }else if(mode==="mul"){
+    const cnt={1:2,2:2};
+    (function rec(nd,k){if(k===4){nd.sol=true;return}
+      for(const v of [1,2]){if(cnt[v]>0){cnt[v]--;const c=mk([...nd.a,v],String(v));nd.kids.push(c);rec(c,k+1);cnt[v]++}}})(root,0);
+  }else{
+    const used=new Array(n+1).fill(false);const prune=mode==="derP",der=mode==="derP"||mode==="derN";
+    (function rec(nd,k){
+      if(k===n){if(der&&nd.a.some((v,i)=>v===i+1))nd.dead=true;else nd.sol=true;return}
+      for(let v=1;v<=n;v++){if(used[v])continue;if(prune&&v===k+1)continue;
+        used[v]=true;const c=mk([...nd.a,v],String(v));nd.kids.push(c);rec(c,k+1);used[v]=false}})(root,0);
+  }
+  return root;
+}
+const countNodes=r=>1+r.kids.reduce((s,c)=>s+countNodes(c),0);
+const countSols=r=>(r.sol?1:0)+r.kids.reduce((s,c)=>s+countSols(c),0);
+let BT={root:null,ev:[],pos:new Map(),mode:"",n:3,W:600,H:200};
+function btLayout(){
+  let leaf=0,maxd=0;const pos=new Map();
+  (function lay(nd,d){maxd=Math.max(maxd,d);
+    if(!nd.kids.length){pos.set(nd.id,{x:leaf++,d});return}
+    nd.kids.forEach(c=>lay(c,d+1));
+    const xs=nd.kids.map(c=>pos.get(c.id).x);pos.set(nd.id,{x:(xs[0]+xs[xs.length-1])/2,d})})(BT.root,0);
+  const dx=Math.max(26,Math.min(48,600/Math.max(leaf,1)));
+  BT.dx=dx;BT.dy=46;BT.W=Math.max(520,leaf*dx+30);BT.H=(maxd+1)*BT.dy+20;BT.pos=pos;
+}
+function btBuild(){
+  const mode=$("#bt_mode").value;let n=+$("#bt_n").value;
+  BT.mode=mode;BT.n=n;BT.root=buildBT(mode,n);btLayout();
+  BT.ev=[];(function w(nd){BT.ev.push({t:"in",nd});nd.kids.forEach(w);BT.ev.push({t:"out",nd})})(BT.root);
+  BT.stot=countSols(BT.root);
+  btS.set(BT.ev.length);
+}
+const aStr=(mode,a)=>mode==="sub"?"{"+a.map((v,i)=>v?i+1:null).filter(x=>x).join(",")+"}":a.join(" ");
+function btRender(k){
+  const ev=BT.ev,mode=BT.mode;const seen=new Set(),sols=[];let cur=null;
+  for(let i=0;i<=k;i++){const e=ev[i];if(e.t==="in"){seen.add(e.nd.id);if(e.nd.sol)sols.push(aStr(mode,e.nd.a))}}
+  const e=ev[k];cur=e.nd;
+  const P=BT.pos,dx=BT.dx,dy=BT.dy;
+  let s="";
+  const X=id=>15+P.get(id).x*dx,Y=id=>18+P.get(id).d*dy;
+  (function ed(nd){nd.kids.forEach(c=>{s+=`<line x1="${X(nd.id)}" y1="${Y(nd.id)}" x2="${X(c.id)}" y2="${Y(c.id)}" stroke="${seen.has(c.id)?"var(--acc)":"var(--line)"}" stroke-width="1.6"/>`;
+    s+=`<text x="${(X(nd.id)+X(c.id))/2+(X(c.id)>=X(nd.id)?4:-4)}" y="${(Y(nd.id)+Y(c.id))/2}" text-anchor="${X(c.id)>=X(nd.id)?"start":"end"}" style="font-size:9px">${c.edge}</text>`;ed(c)})})(BT.root);
+  (function nodes(nd){
+    const vis=seen.has(nd.id),isCur=nd.id===cur.id&&e.t==="in"||(nd.id===cur.id&&e.t==="out");
+    let fill="var(--panel2)";if(vis)fill=nd.sol?"var(--ok)":nd.dead?"var(--bad)":"var(--acc)";if(isCur)fill="var(--warn)";
+    s+=`<circle cx="${X(nd.id)}" cy="${Y(nd.id)}" r="7" fill="${fill}" stroke="var(--line)"/>`;nd.kids.forEach(nodes)})(BT.root);
+  const svg=$("#bt_svg");svg.setAttribute("viewBox",`0 0 ${BT.W} ${BT.H}`);svg.style.minWidth=Math.min(BT.W,900)+"px";svg.innerHTML=s;
+  // vector
+  const full=cur.a;
+  $("#bt_vec").textContent="a = "+(mode==="sub"?"["+full.map(v=>v?"T":"F").join(", ")+"]  "+aStr(mode,full):"["+full.join(", ")+"]");
+  let note;
+  if(e.t==="in"){
+    if(cur.sol)note=`<b>Çözüm bulundu:</b> ${aStr(mode,cur.a)}. (is_a_solution doğru → process_solution çalışır.)`;
+    else if(cur.dead)note=`<b>Çıkmaz yaprak:</b> ${cur.a.join(" ")} içinde bir eleman kendi konumunda (sabit nokta). Budamasız sürüm bunu ancak <b>üretip sonra</b> eler.`;
+    else if(cur.a.length===0)note="Kök: hiçbir karar verilmedi. Sıradaki konum için adaylar deneniyor.";
+    else note=`Seçim yapıldı (make_move): <b>${BT.mode==="sub"?(cur.a[cur.a.length-1]?"eşya "+cur.a.length+" alındı":"eşya "+cur.a.length+" alınmadı"):"konum "+cur.a.length+" ← "+cur.a[cur.a.length-1]}</b>. Derine iniliyor.`;
+  }else{
+    note=cur.a.length===0?"Kök de bitti: bütün arama tamamlandı.":`Geri dön (unmake_move): son seçim silindi → a = [${cur.a.slice(0,-1).join(", ")}]. Aynı konum için sıradaki aday denenecek (varsa).`;
+  }
+  $("#bt_note").innerHTML=note;
+  $("#bt_vis").textContent=seen.size;$("#bt_tot").textContent=countNodes(BT.root);
+  $("#bt_sol").textContent=sols.length;$("#bt_stot").textContent=BT.stot;
+  $("#bt_k").textContent=k;$("#bt_t").textContent=ev.length-1;
+  $("#bt_found").textContent=sols.length?"Çözümler: "+sols.join("  "):"";
+  let cmp="";
+  if(mode==="derP"||mode==="derN"){const a=countNodes(buildBT("derP",BT.n)),b=countNodes(buildBT("derN",BT.n));cmp=`n = ${BT.n}: budamalı ağaç <b>${a}</b> düğüm, budamasız ağaç <b>${b}</b> düğüm; ikisi de ${BT.stot} çözüm bulur.`}
+  if(mode==="mul")cmp=`{1,1,2,2} için 4! = 24 diziliş yerine <b>${BT.stot}</b> farklı diziliş, ağaçta ${countNodes(BT.root)} düğüm.`;
+  if(mode==="sub")cmp=`n = ${BT.n}: 2<sup>${BT.n}</sup> = ${2**BT.n} yaprak, ${2**(BT.n+1)-1} düğüm.`;
+  if(mode==="per"){let f=1,tot=1,t=1;for(let i=0;i<BT.n;i++){t*=(BT.n-i);tot+=t;f=t}cmp=`n = ${BT.n}: ${BT.n}! = ${f} yaprak, ${tot} düğüm.`}
+  $("#bt_cmp").innerHTML=cmp;
+}
+const btS=Stp("bt",btRender,450);
+$("#bt_mode").onchange=()=>{if($("#bt_mode").value==="mul")$("#bt_n").disabled=true;else $("#bt_n").disabled=false;btBuild()};$("#bt_n").onchange=btBuild;btBuild();
+
+/* ---------- 2.2 N-queens stepper ---------- */
+function nqSteps(n){
+  const st=[],a=[];let place=0,sols=0;
+  const snap=o=>st.push(Object.assign({a:[...a],place,sols},o));
+  snap({t:"start",note:"Başlangıç: tahta boş. 1. satırdan başlıyoruz; sütunları soldan sağa deneyeceğiz."});
+  (function rec(k){
+    if(k===n){sols++;snap({t:"sol",row:k-1,col:a[k-1],note:`<b>Çözüm!</b> Sütunlar (${a.map(v=>v+1).join(", ")}). Her satırda bir vezir, hiçbiri tehdit etmiyor. (Çözüm #${sols})`});return}
+    let any=false;
+    for(let i=0;i<n;i++){
+      let why=null;
+      for(let j=0;j<k;j++){
+        if(i===a[j]){why=`sütun çakışması: ${j+1}. satırdaki vezirle aynı sütun (${i+1})`;break}
+        if(Math.abs(k-j)===Math.abs(i-a[j])){why=`çapraz çakışma: ${j+1}. satır, ${a[j]+1}. sütundaki vezirle |${k+1}−${j+1}| = |${i+1}−${a[j]+1}| = ${Math.abs(k-j)}`;break}
+      }
+      if(why){snap({t:"rej",row:k,col:i,note:`${k+1}. satır, ${i+1}. sütun <b>reddedildi</b>: ${why}.`});continue}
+      any=true;a.push(i);place++;
+      snap({t:"put",row:k,col:i,note:`${k+1}. satır, ${i+1}. sütun uygun → vezir yerleşti (düğüm #${place+1}). Sıradaki satıra geçiliyor.`});
+      rec(k+1);
+      a.pop();
+      snap({t:"back",row:k,col:i,note:`Geri dön: ${k+1}. satırdaki vezir (${i+1}. sütun) kaldırıldı; aynı satır için sıradaki sütun denenecek.`});
+    }
+    if(!any)snap({t:"dead",row:k,note:`${k+1}. satırda <b>hiç aday yok</b> → çıkmaz. Bir üst satıra geri dönülür.`});
+  })(0);
+  return st;
+}
+let NQ=[],nqN=4;
+function nqRender(k){
+  const s=NQ[k];const n=nqN;
+  const b=$("#nq_board");b.style.gridTemplateColumns=`repeat(${n},1fr)`;
+  let h="";
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    const q=s.a[r]===c;let cls="bd"+((r+c)%2?" dk":"");
+    if(s.t==="try"||s.t==="put"){if(s.row===r&&s.col===c&&!q)cls+=" try"}
+    if(s.t==="rej"&&s.row===r&&s.col===c)cls+=" rej";
+    if(s.t==="put"&&s.row===r&&s.col===c)cls+=" try";
+    h+=`<div class="${cls}">${q?"♛":""}</div>`}
+  b.innerHTML=h;
+  $("#nq_note").innerHTML=s.note;$("#nq_pl").textContent=s.place+1;$("#nq_so").textContent=s.sols;
+  $("#nq_k").textContent=k;$("#nq_t").textContent=NQ.length-1;
+}
+const nqS=Stp("nq",nqRender,380);
+function nqBuild(){nqN=+$("#nq_n").value;NQ=nqSteps(nqN);nqS.set(NQ.length)}
+$("#nq_n").onchange=nqBuild;
+$("#nq_s").onclick=()=>{nqS.stop();let k=nqS.k+1;while(k<NQ.length&&NQ[k].t!=="sol")k++;if(k<NQ.length)nqS.go(k)};
+nqBuild();
+
+/* ---------- 2.3 N-queens node counter ---------- */
+function nqCount(n){
+  const a=[];let nodes=0,sols=0,first=0;
+  (function rec(k){
+    nodes++;
+    if(k===n){sols++;if(!first)first=nodes;return}
+    for(let i=0;i<n;i++){let ok=true;for(let j=0;j<k;j++){if(i===a[j]||Math.abs(k-j)===Math.abs(i-a[j])){ok=false;break}}
+      if(ok){a[k]=i;rec(k+1)}}
+  })(0);
+  return {nodes,sols,first};
+}
+const bigFact=n=>{let r=1n;for(let i=2n;i<=BigInt(n);i++)r*=i;return r};
+const bigComb=(n,k)=>{let r=1n;for(let i=1n;i<=BigInt(k);i++)r=r*(BigInt(n)-BigInt(k)+i)/i;return r};
+function permNodes(n){let t=1n,s=1n;for(let i=0;i<n;i++){t*=BigInt(n-i);s+=t}return s}
+const NQC={};
+function nqRow(n){if(!NQC[n])NQC[n]=nqCount(n);const r=NQC[n];
+  return {n,c:bigComb(n*n,n),p:BigInt(n)**BigInt(n),f:bigFact(n),pn:permNodes(n),r}}
+function ncUpdate(){
+  const n=+$("#nc_n").value;$("#nc_nv").textContent=n;
+  const r=nqRow(n);
+  $("#nc_card").innerHTML=`<div class="box"><div>n = <b>${n}</b>: <span class="mut">budamasız permütasyon ağacı</span> <b>${fmt(r.pn)}</b> düğüm · <span class="mut">budamalı</span> <b class="ok">${fmt(r.r.nodes)}</b> düğüm · budanan oran <b>${(100*(1-r.r.nodes/Number(r.pn))).toFixed(1)}%</b> · çözüm <b>${fmt(r.r.sols)}</b> · ilk çözüme <b>${fmt(r.r.first)}</b> düğümle ulaşılır.</div></div>`;
+}
+$("#nc_n").oninput=ncUpdate;
+$("#nc_t").innerHTML=[4,5,6,7,8,9,10].map(n=>{const r=nqRow(n);return `<tr><td class="m">${n}</td><td class="m">${fmt(r.c)}</td><td class="m">${fmt(r.p)}</td><td class="m">${fmt(r.f)}</td><td class="m">${fmt(r.pn)}</td><td class="m">${fmt(r.r.nodes)}</td><td class="m">${fmt(r.r.sols)}</td><td class="m">${fmt(r.r.first)}</td></tr>`}).join("");
+ncUpdate();
+
+/* ---------- 2.4 Sudoku ---------- */
+const SUP={A:"530070000600195000098000060800060003400803001700020006060000280000419005000080079",
+B:"800000000003600000070090200050007000000045700000100030001000068008500010090000400"};
+let SU={g:[],giv:[],sel:-1,hl:[]};
+function suCands(g,i){
+  const r=Math.floor(i/9),c=i%9,used=new Set();
+  for(let k=0;k<9;k++){used.add(g[r*9+k]);used.add(g[k*9+c])}
+  const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;
+  for(let a=0;a<3;a++)for(let b=0;b<3;b++)used.add(g[(br+a)*9+bc+b]);
+  const out=[];for(let d=1;d<=9;d++)if(!used.has(d))out.push(d);return out;
+}
+function suSolve(g0,mrv,limit){
+  const g=[...g0];let nodes=0;
+  function rec(){
+    nodes++;if(nodes>limit)return false;
+    let best=-1,bc=null;
+    for(let i=0;i<81;i++){if(g[i]!==0)continue;const c=suCands(g,i);
+      if(!mrv){best=i;bc=c;break}
+      if(bc===null||c.length<bc.length){best=i;bc=c}}
+    if(best<0)return true;
+    for(const d of bc){g[best]=d;if(rec())return true;g[best]=0}
+    return false;
+  }
+  const ok=rec();return {ok,nodes,g};
+}
+function suDraw(){
+  const rows=SU.sel>=0?Math.floor(SU.sel/9):-1,cols=SU.sel>=0?SU.sel%9:-1;
+  $("#su_g").innerHTML=SU.g.map((v,i)=>{const r=Math.floor(i/9),c=i%9;
+    let cls=SU.giv[i]?"giv":(v?"fil":"");
+    if(i===SU.sel)cls+=" sel";else if(SU.sel>=0&&(r===rows||c===cols||(Math.floor(r/3)===Math.floor(rows/3)&&Math.floor(c/3)===Math.floor(cols/3))))cls+=" pk";
+    if(SU.hl.includes(i))cls+=" sel";
+    return `<div class="${cls}" data-i="${i}">${v||""}</div>`}).join("");
+  document.querySelectorAll("#su_g div").forEach(d=>d.onclick=()=>{SU.sel=+d.dataset.i;SU.hl=[];suInfo();suDraw()});
+}
+function suInfo(){
+  const i=SU.sel;if(i<0)return;const g=SU.g;
+  if(g[i]){$("#su_o").innerHTML=`Seçilen hücre (satır ${Math.floor(i/9)+1}, sütun ${i%9+1}) dolu: <b>${g[i]}</b>. Boş bir hücre seçin.`;return}
+  const r=Math.floor(i/9),c=i%9,rowD=[],colD=[],boxD=[];
+  for(let k=0;k<9;k++){if(g[r*9+k])rowD.push(g[r*9+k]);if(g[k*9+c])colD.push(g[k*9+c])}
+  const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;
+  for(let a=0;a<3;a++)for(let b=0;b<3;b++){const v=g[(br+a)*9+bc+b];if(v)boxD.push(v)}
+  const cs=suCands(g,i);
+  $("#su_o").innerHTML=`Hücre (satır ${r+1}, sütun ${c+1}) · satırda: <b>${rowD.sort().join(" ")||"-"}</b> · sütunda: <b>${colD.sort().join(" ")||"-"}</b> · kutuda: <b>${boxD.sort().join(" ")||"-"}</b><br>Adaylar (1–9 eksi bunların birleşimi): <b class="ok">${cs.join(", ")||"yok → çıkmaz!"}</b> (${cs.length} aday)`;
+}
+function suLoad(){const s=SUP[$("#su_p").value];SU.g=[...s].map(Number);SU.giv=SU.g.map(v=>v>0);SU.sel=-1;SU.hl=[];$("#su_o").innerHTML="Bir hücreye tıklayın.";suDraw()}
+$("#su_p").onchange=suLoad;$("#su_r").onclick=suLoad;
+$("#su_m").onclick=()=>{let best=-1,bc=null;for(let i=0;i<81;i++){if(SU.g[i])continue;const c=suCands(SU.g,i);if(bc===null||c.length<bc.length){best=i;bc=c}}
+  if(best<0){$("#su_o").textContent="Boş hücre kalmadı.";return}SU.sel=best;SU.hl=[];suInfo();suDraw()};
+function suRun(mrv){
+  const t0=performance.now();const r=suSolve(SU.g.map((v,i)=>SU.giv[i]?v:0),mrv,3e6);const ms=performance.now()-t0;
+  if(!r.ok){$("#su_o").innerHTML=`<span class="bad">Çağrı sınırı aşıldı (${fmt(r.nodes)}).</span>`;return}
+  SU.g=r.g;SU.sel=-1;SU.hl=[];suDraw();
+  $("#su_o").innerHTML=`<b>${mrv?"En az adaylı önce":"Soldan sağa sırayla"}</b>: çözüldü. Geri izleme çağrı sayısı: <b class="ok">${fmt(r.nodes)}</b> · süre ≈ ${ms.toFixed(0)} ms.`;
+}
+$("#su_s1").onclick=()=>suRun(false);$("#su_s2").onclick=()=>suRun(true);
+suLoad();
+
+/* ---------- 3.1 subset sum ---------- */
+const SSP=[{it:"3, 34, 4, 12, 5, 2",t:9},{it:"8, 6, 7, 5, 3, 10, 9",t:15},{it:"5, 4, -3, 2",t:6}];
+function ssRun(items,t,mode){
+  let nodes=0;const sols=[];const suf=items.map((_,i)=>items.slice(i).reduce((a,b)=>a+b,0));suf.push(0);
+  (function rec(i,s,ch){
+    nodes++;
+    if((mode==="A"||mode==="AB")&&s>t)return;
+    if(mode==="AB"&&s+suf[i]<t)return;
+    if(mode==="H"&&s>t/2)return;
+    if(i===items.length){if(s===t)sols.push(ch);return}
+    rec(i+1,s+items[i],[...ch,items[i]]);rec(i+1,s,ch);
+  })(0,0,[]);
+  return {nodes,sols};
+}
+function ssUpdate(){
+  const items=$("#ss_it").value.split(/[ ,;]+/).map(Number).filter(x=>!isNaN(x)&&$("#ss_it").value.trim()!=="").slice(0,12);
+  const t=+$("#ss_t").value;
+  if(!items.length){$("#ss_tb").innerHTML="";return}
+  const base=ssRun(items,t,"N");
+  const names={N:"Budama yok",A:"A: toplam &gt; hedef ise kes",AB:"B: A + kalan toplam yetmezse kes",H:"C: toplam &gt; hedef/2 ise vazgeç (sezgisel)"};
+  const hasNeg=items.some(x=>x<0);
+  $("#ss_tb").innerHTML=["N","A","AB","H"].map(m=>{const r=ssRun(items,t,m);const miss=base.sols.length-r.sols.length;
+    const verdict=m==="N"?"referans":miss===0?`<span class="ok">bu girdide doğru</span>`:`<span class="bad">çözüm kaçırdı</span>`;
+    return `<tr><td>${names[m]}</td><td class="m">${r.nodes} <span class="mut">(${(100*(1-r.nodes/base.nodes)).toFixed(0)}% az)</span></td><td class="m">${r.sols.length}</td><td class="m">${miss}</td><td>${verdict}</td></tr>`}).join("");
+  $("#ss_sol").innerHTML=`Tüm çözümler (budamasız): ${base.sols.length?base.sols.map(s=>"{"+s.join(", ")+"}").join("  "):"yok"} ${hasNeg?`<br><b class="bad">Dikkat:</b> girdide negatif sayı var; A ve B kuralları bu durumda sağlam değildir.`:""}`;
+}
+$("#ss_pre").onchange=()=>{const v=+$("#ss_pre").value;if(v<3){$("#ss_it").value=SSP[v].it;$("#ss_t").value=SSP[v].t}ssUpdate()};
+$("#ss_it").oninput=$("#ss_t").oninput=()=>{$("#ss_pre").value="3";ssUpdate()};ssUpdate();
+
+/* ---------- 4.1 Fibonacci call tree ---------- */
+function buildFib(n,memo){
+  let id=0;const known=new Set([0,1]);
+  function node(k){
+    const nd={id:id++,k,kids:[],type:"base"};
+    if(memo){if(known.has(k)){nd.type="hit";return nd}
+      nd.type="comp";nd.kids=[node(k-1),node(k-2)];known.add(k);return nd}
+    if(k<2){nd.type="base";return nd}
+    nd.type="comp";nd.kids=[node(k-1),node(k-2)];return nd;
+  }
+  return node(n);
+}
+function ftUpdate(){
+  const n=+$("#ft_n").value;$("#ft_nv").textContent=n;
+  const memo=$("#ft_m").value==="memo";
+  const cur=$("#ft_h").value;
+  const h=$("#ft_h");if(h.options.length!==n+1){h.innerHTML=Array.from({length:n+1},(_,i)=>`<option value="${i}">${i}</option>`).join("");h.value=String(Math.min(+cur||2,n))}
+  const hk=+h.value;
+  const root=buildFib(n,memo);
+  let leaf=0,maxd=0;const pos=new Map(),nodes=[];
+  (function lay(nd,d){nodes.push(nd);maxd=Math.max(maxd,d);
+    if(!nd.kids.length){pos.set(nd.id,{x:leaf++,d});return}
+    nd.kids.forEach(c=>lay(c,d+1));
+    const xs=nd.kids.map(c=>pos.get(c.id).x);pos.set(nd.id,{x:(xs[0]+xs[xs.length-1])/2,d})})(root,0);
+  const dx=30,dy=40,W=Math.max(520,leaf*dx+30),H=(maxd+1)*dy+24;
+  const X=nd=>16+pos.get(nd.id).x*dx,Y=nd=>18+pos.get(nd.id).d*dy;
+  let s="";nodes.forEach(nd=>nd.kids.forEach(c=>{s+=`<line x1="${X(nd)}" y1="${Y(nd)}" x2="${X(c)}" y2="${Y(c)}" stroke="var(--line)" stroke-width="1.4"/>`}));
+  let hits=0,comp=0,hkc=0;
+  nodes.forEach(nd=>{const isH=nd.k===hk;if(isH)hkc++;if(nd.type==="comp")comp++;else hits++;
+    const fill=isH?"var(--warn)":nd.type==="comp"?"var(--acc)":"var(--ok)";
+    s+=`<circle cx="${X(nd)}" cy="${Y(nd)}" r="11" fill="${fill}" stroke="var(--line)"/><text x="${X(nd)}" y="${Y(nd)+3.5}" text-anchor="middle" style="fill:#000;font-size:10px;font-weight:700">${nd.k}</text>`});
+  const svg=$("#ft_svg");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.style.minWidth=Math.min(W,900)+"px";svg.innerHTML=s;
+  $("#ft_c").textContent=nodes.length;$("#ft_d").textContent=comp;$("#ft_hit").textContent=hits;$("#ft_hk").textContent=hkc;
+  const cnt={};nodes.forEach(nd=>cnt[nd.k]=(cnt[nd.k]||0)+1);
+  $("#ft_note").innerHTML="Her F(k) kaç kez çağrıldı: "+Object.keys(cnt).map(Number).sort((a,b)=>b-a).map(k=>`F(${k})×${cnt[k]}`).join(" · ")+(memo?"":` · toplam ${nodes.length} = 2·F(${n+1}) − 1`);
+}
+$("#ft_n").oninput=ftUpdate;$("#ft_m").onchange=ftUpdate;$("#ft_h").onchange=ftUpdate;ftUpdate();
+
+/* ---------- 4.4 three versions ---------- */
+function fibBig(n){let a=0n,b=1n;for(let i=0;i<n;i++){[a,b]=[b,a+b]}return a}
+function tvRun(){
+  const n=+$("#tv_n").value;$("#tv_nv").textContent=n;
+  const rows=[];let ref=fibBig(n),okAll=true,msg="";
+  // naive
+  if(n<=36){let calls=0;const f=m=>{calls++;return m<2?m:f(m-1)+f(m-2)};
+    const t0=performance.now();const v=f(n);const ms=performance.now()-t0;
+    okAll=okAll&&BigInt(v)===ref;
+    rows.push(["Naif özyineleme",fmt(calls),fmt((calls-1)/2),"çağrı yığını derinliği n","≈ "+ms.toFixed(1)+" ms"]);
+  }else{let c=[1n,1n];for(let i=2;i<=n;i++)c.push(1n+c[i-1]+c[i-2]);
+    rows.push(["Naif özyineleme",fmt(c[n])+" <span class=\"mut\">(2F(n+1)−1 formülü)</span>",fmt((c[n]-1n)/2n),"çağrı yığını derinliği n","<span class=\"bad\">çalıştırılmadı</span>"])}
+  // memo
+  {let calls=0,adds=0;const f=new Array(n+1).fill(null);f[0]=0n;if(n>=1)f[1]=1n;
+    const fc=m=>{calls++;if(f[m]===null){f[m]=fc(m-1)+fc(m-2);adds++}return f[m]};
+    const t0=performance.now();const v=fc(n);const ms=performance.now()-t0;okAll=okAll&&v===ref;
+    rows.push(["Memoization",fmt(calls)+` <span class="mut">(2n−1 = ${2*n-1})</span>`,fmt(adds),"önbellek n+1 hücre + yığın n","≈ "+ms.toFixed(2)+" ms"])}
+  // bottom-up
+  {const f=[0n,1n];let adds=0;const t0=performance.now();for(let i=2;i<=n;i++){f.push(f[i-1]+f[i-2]);adds++}const ms=performance.now()-t0;
+    okAll=okAll&&f[n]===ref;
+    rows.push(["Aşağıdan yukarı tablo",fmt(n-1)+" döngü turu","<b>"+fmt(adds)+"</b>","tablo n+1 hücre (iki değişkenle O(1))","≈ "+ms.toFixed(2)+" ms"])}
+  $("#tv_t").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="m">${r[1]}</td><td class="m">${r[2]}</td><td>${r[3]}</td><td class="m">${r[4]}</td></tr>`).join("");
+  const bits=ref.toString(2).length;
+  $("#tv_o").innerHTML=`F(${n}) = <b>${fmt(ref)}</b> (${bits} bit; yaklaşık 0,7·n = ${(0.694*n).toFixed(0)}). Üç yöntem aynı değeri verdi: <b class="${okAll?"ok":"bad"}">${okAll?"✓":"✗"}</b>${n<=92?" · işaretli ve işaretsiz 64 bit tam sayıya sığar.":n<=93?" · işaretsiz 64 bit tam sayıya sığar (F(93)’e kadar), işaretli 64 bite sığmaz (F(92)’den sonra).":" · işaretsiz 64 bit de taşar (F(93)’ten sonra)."}`;
+}
+$("#tv_n").oninput=()=>{$("#tv_nv").textContent=$("#tv_n").value};$("#tv_go").onclick=tvRun;tvRun();
+
+/* ---------- 5.4 DP table stepper ---------- */
+const COINS=[1,3,4];
+function dpCells(kind,n){
+  const c=[];
+  const one=(label,deps,val,formula,work)=>c.push({label,deps,val,formula,work});
+  if(kind==="fib"||kind==="st12"){
+    const L=kind==="fib"?i=>`F(${i})`:i=>`yol(${i})`;const b0=kind==="fib"?0:1,b1=1;
+    for(let i=0;i<=n;i++){
+      if(i===0)one(L(0),[],b0,`${L(0)} = ${b0} (taban)`,0);
+      else if(i===1)one(L(1),[],b1,`${L(1)} = ${b1} (taban)`,0);
+      else{const v=c[i-1].val+c[i-2].val;one(L(i),[i-1,i-2],v,`${L(i)} = ${L(i-1)} + ${L(i-2)} = ${c[i-1].val} + ${c[i-2].val} = <b>${v}</b>`,1)}}
+  }else if(kind==="st123"){
+    const base=[1,1,2];
+    for(let i=0;i<=n;i++){
+      if(i<3)one(`yol(${i})`,[],base[i],`yol(${i}) = ${base[i]} (taban)`,0);
+      else{const v=c[i-1].val+c[i-2].val+c[i-3].val;one(`yol(${i})`,[i-1,i-2,i-3],v,`yol(${i}) = yol(${i-1}) + yol(${i-2}) + yol(${i-3}) = ${c[i-1].val} + ${c[i-2].val} + ${c[i-3].val} = <b>${v}</b>`,2)}}
+  }else if(kind==="der"){
+    for(let i=0;i<=n;i++){
+      if(i===0)one("D(0)",[],1,"D(0) = 1 (taban; boş permütasyon)",0);
+      else if(i===1)one("D(1)",[],0,"D(1) = 0 (taban; tek eleman kendi yerinde)",0);
+      else{const v=(i-1)*(c[i-1].val+c[i-2].val);one(`D(${i})`,[i-1,i-2],v,`D(${i}) = ${i-1}·(D(${i-1}) + D(${i-2})) = ${i-1}·(${c[i-1].val} + ${c[i-2].val}) = <b>${v}</b>`,2)}}
+  }else if(kind==="coin"){
+    for(let a=0;a<=n;a++){
+      if(a===0){one("d[0]",[],0,"d[0] = 0 (taban: 0 birim için 0 para)",0);continue}
+      const deps=COINS.filter(x=>x<=a).map(x=>a-x);
+      const m=Math.min(...deps.map(d=>c[d].val));
+      one(`d[${a}]`,deps,m+1,`d[${a}] = 1 + min(${deps.map(d=>`d[${d}]=${c[d].val}`).join(", ")}) = 1 + ${m} = <b>${m+1}</b>`,deps.length)}
+  }else if(kind==="pas"){
+    const idx={};
+    for(let r=0;r<=n;r++)for(let k=0;k<=r;k++){
+      idx[r+","+k]=c.length;
+      if(k===0||k===r)one(`C(${r},${k})`,[],1,`C(${r},${k}) = 1 (taban)`,0);
+      else{const p=idx[(r-1)+","+(k-1)],q=idx[(r-1)+","+k];const v=c[p].val+c[q].val;
+        one(`C(${r},${k})`,[p,q],v,`C(${r},${k}) = C(${r-1},${k-1}) + C(${r-1},${k}) = ${c[p].val} + ${c[q].val} = <b>${v}</b>`,1)}
+      c[c.length-1].r=r;c[c.length-1].k=k}
+  }
+  return c;
+}
+let DP={cells:[],kind:""};
+function dpRender(k){
+  const cells=DP.cells,cur=cells[k],kind=DP.kind;
+  const cls=i=>i>k?"dpc emp":i===k?"dpc cur":cur.deps.includes(i)?"dpc dep":"dpc done";
+  const cellHTML=(c,i)=>`<div class="${cls(i)}">${i>k?"?":c.val}<small>${c.label}</small></div>`;
+  if(kind==="pas"){
+    const rows={};cells.forEach((c,i)=>{(rows[c.r]=rows[c.r]||[]).push(cellHTML(c,i))});
+    $("#dp_tab").innerHTML=Object.values(rows).map(r=>`<div class="cards" style="justify-content:center;width:100%;margin:2px 0">${r.join("")}</div>`).join("");
+  }else $("#dp_tab").innerHTML=cells.map(cellHTML).join("");
+  $("#dp_note").innerHTML=`<b>Adım ${k+1}:</b> ${cur.formula}`+(cur.deps.length?` <span class="mut">(mavi hücreler kullanıldı)</span>`:"");
+  $("#dp_c").textContent=k+1;$("#dp_t").textContent=cells.length;
+  let w=0;for(let i=0;i<=k;i++)w+=cells[i].work;$("#dp_w").textContent=w;
+  let x="";
+  if(kind==="coin"){const a=+$("#dp_n").value;const g=coinGreedy(COINS,a),o=cells[a].val;x=`Tutar ${a} için tablo sonucu: <b>${o}</b> para; açgözlü: <b>${g.n}</b> para (${g.list.join("+")}). ${g.n===o?"Aynı.":"<b class=\"bad\">Açgözlü yanıldı.</b>"}`}
+  if(kind==="fib"||kind==="st12"){const last=cells[cells.length-1].val;x=`Son hücre = <b>${fmt(last)}</b>. ${kind==="st12"?"Basamak çıkma sayıları Fibonacci’dir (kaydırılmış): yol(n) = F(n+1).":"Maliyet: n+1 durum × O(1) = Θ(n)."}`}
+  if(kind==="pas"){x=`Maliyet: yaklaşık n²/2 hücre, hücre başına 1 toplama → O(n²). Faktöriyel formülü kullanılmadı; taşma yok.`}
+  if(kind==="der"){x=`Hücre başına O(1) → Θ(n); geri izleme ise çözümleri tek tek üretirdi (D(${DP.n}) = ${fmt(cells[cells.length-1].val)} çözüm).`}
+  if(kind==="st123")x=`Her hücre üç öncekine bakar; hücre başına O(1) → Θ(n).`;
+  $("#dp_x").innerHTML=x;
+}
+const dpS=Stp("dp",dpRender,550);
+function dpBuild(){
+  const kind=$("#dp_sel").value;let n=+$("#dp_n").value;
+  const inp=$("#dp_n");
+  const cfg={fib:["n =",2,14],st12:["n =",2,14],st123:["n =",3,14],der:["n =",2,10],coin:["Tutar =",2,14],pas:["Satır n =",2,8]}[kind];
+  $("#dp_lab").textContent=cfg[0];inp.min=cfg[1];inp.max=cfg[2];if(n<cfg[1])n=cfg[1];if(n>cfg[2])n=cfg[2];inp.value=n;$("#dp_nv").textContent=n;
+  DP.kind=kind;DP.n=n;DP.cells=dpCells(kind,n);dpS.set(DP.cells.length);
+}
+$("#dp_sel").onchange=dpBuild;$("#dp_n").oninput=dpBuild;
+$("#dp_a").onclick=()=>{dpS.stop();dpS.go(DP.cells.length-1)};
+dpBuild();
+
+/* ---------- 5.6 subproblem graph ---------- */
+function sgUpdate(){
+  const mode=$("#sg_m").value,n=+$("#sg_n").value;
+  $("#sg_nv").textContent=n;
+  const ks=$("#sg_k");ks.max=Math.max(1,n-1);if(+ks.value>+ks.max)ks.value=ks.max;if(+ks.value<1)ks.value=1;
+  const k=+ks.value;$("#sg_kv").textContent=k;
+  $("#sg_klab").style.opacity=mode==="bin"?1:.35;ks.disabled=mode!=="bin";
+  let s="",W=600,H=200,info="";
+  if(mode==="fib"){
+    const dx=Math.max(34,Math.min(50,560/(n+1)));W=Math.max(520,(n+1)*dx+40);H=150;
+    const X=i=>30+i*dx,Y=110;
+    for(let i=2;i<=n;i++){for(const d of [1,2]){const x1=X(i),x2=X(i-d);const r=Math.abs(x1-x2)/2*0.9;
+      s+=`<path d="M${x1} ${Y-12} Q${(x1+x2)/2} ${Y-12-r*1.1} ${x2} ${Y-12}" fill="none" stroke="${d===1?"var(--acc)":"var(--warn)"}" stroke-width="1.4"/>`}}
+    for(let i=0;i<=n;i++)s+=`<circle cx="${X(i)}" cy="${Y}" r="13" fill="${i<2?"var(--ok)":"var(--panel2)"}" stroke="var(--line)"/><text x="${X(i)}" y="${Y+4}" text-anchor="middle" style="font-size:11px;fill:var(--ink)">${i}</text>`;
+    let c=[1n,1n];for(let i=2;i<=n;i++)c.push(1n+c[i-1]+c[i-2]);
+    info=`<div class="box">Durum (köşe): <b>${n+1}</b> · ok: <b>${2*(n-1)}</b> · naif çağrı ağacı: <b>${fmt(c[n])}</b> çağrı. Tablo, her köşeyi <b>bir kez</b> doldurur: ${fmt(c[n])} çağrı yerine ${n+1} hücre. <span class="mut">(Mavi ok k→k−1, sarı ok k→k−2; yeşil: taban.)</span></div>`;
+  }else{
+    const key=(r,j)=>r+","+j,seen=new Map(),order=[];let q=[[n,k]];seen.set(key(n,k),[n,k]);
+    while(q.length){const [r,j]=q.shift();order.push([r,j]);if(j===0||j===r)continue;
+      for(const [a,b] of [[r-1,j-1],[r-1,j]])if(!seen.has(key(a,b))){seen.set(key(a,b),[a,b]);q.push([a,b])}}
+    const dx=36,dy=34;const rmin=Math.min(...order.map(o=>o[0]));
+    const posx=(r,j)=>300+(j-r/2)*dx,posy=r=>20+(n-r)*dy;
+    W=600;H=(n-rmin+1)*dy+30;
+    let edges=0,calls=0;
+    const cnt=(r,j)=>{calls++;return (j===0||j===r)?1:cnt(r-1,j-1)+cnt(r-1,j)};
+    const val=cnt(n,k);
+    order.forEach(([r,j])=>{if(j===0||j===r)return;for(const [a,b] of [[r-1,j-1],[r-1,j]]){edges++;
+      s+=`<line x1="${posx(r,j)}" y1="${posy(r)}" x2="${posx(a,b)}" y2="${posy(a)}" stroke="var(--line)" stroke-width="1.4"/>`}});
+    order.forEach(([r,j])=>{const base=j===0||j===r,root=r===n&&j===k;
+      s+=`<circle cx="${posx(r,j)}" cy="${posy(r)}" r="12" fill="${root?"var(--warn)":base?"var(--ok)":"var(--acc)"}" stroke="var(--line)"/><text x="${posx(r,j)}" y="${posy(r)+3.5}" text-anchor="middle" style="fill:#000;font-size:8.5px;font-weight:700">${r},${j}</text>`});
+    info=`<div class="box">C(${n}, ${k}) = <b>${fmt(val)}</b> · farklı durum (köşe): <b>${order.length}</b> · ok: <b>${edges}</b> · naif özyineleme çağrısı: <b>${fmt(calls)}</b>. Tablo ${order.length} hücre doldurur, naif yöntem ${fmt(calls)} çağrı yapar. <span class="mut">(Köşe etiketi: n,k; yeşil: taban C(n,0) = C(k,k) = 1; sarı: sorulan.)</span></div>`;
+  }
+  const svg=$("#sg_svg");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.style.minWidth=Math.min(W,900)+"px";svg.innerHTML=s;$("#sg_o").innerHTML=info;
+}
+$("#sg_m").onchange=sgUpdate;$("#sg_n").oninput=sgUpdate;$("#sg_k").oninput=sgUpdate;sgUpdate();
+
+/* ---------- 5.8 k-edge walks ---------- */
+const KE={nodes:["A","B","C"],edges:[["A","B",2],["A","C",5],["B","C",1],["C","A",4]]};
+function keTable(k){
+  const T=[{}];KE.nodes.forEach(x=>T[0][x]=x==="A"?0:Infinity);
+  for(let i=1;i<=k;i++){const row={};KE.nodes.forEach(x=>{let best=Infinity;KE.edges.forEach(([y,z,w])=>{if(z===x&&T[i-1][y]+w<best)best=T[i-1][y]+w});row[x]=best});T.push(row)}
+  return T;
+}
+function keUpdate(){
+  const k=+$("#kw_k").value;$("#kw_kv").textContent=k;const T=keTable(k);
+  const f=v=>v===Infinity?"∞":v;
+  $("#kw_t").innerHTML=`<tr><th>i (kenar sayısı)</th>${KE.nodes.map(x=>`<th>d[${x}, i]</th>`).join("")}</tr>`+T.map((row,i)=>`<tr><td class="m">${i}</td>${KE.nodes.map(x=>`<td class="m ${i===k&&x==="C"?"hl":""}" data-i="${i}" data-x="${x}" style="cursor:pointer">${f(row[x])}</td>`).join("")}</tr>`).join("");
+  document.querySelectorAll("#kw_t td[data-x]").forEach(td=>td.onclick=()=>{
+    const i=+td.dataset.i,x=td.dataset.x;
+    if(i===0){$("#kw_o").innerHTML=`d[${x}, 0] = ${x==="A"?0:"∞"} (taban: 0 kenarla yalnızca başlangıç tepesine ulaşılır).`;return}
+    const parts=KE.edges.filter(e=>e[1]===x).map(([y,z,w])=>`d[${y}, ${i-1}] + w(${y}→${x}) = ${f(T[i-1][y])} + ${w} = <b>${f(T[i-1][y]+w)}</b>`);
+    $("#kw_o").innerHTML=`d[${x}, ${i}] = min( ${parts.join(" ; ")} ) = <b>${f(T[i][x])}</b>`});
+  const wC=T[k]["C"];
+  $("#kw_o").innerHTML=`Cevap örneği: A’dan C’ye <b>tam ${k} kenarlı</b> en kısa yürüyüş = <b>${f(wC)}</b>${wC===Infinity?" (böyle bir yürüyüş yok)":""}. Maliyet: ${k} tur × ${KE.edges.length} kenar = ${k*KE.edges.length} kenar bakışı (O(k·m)).`;
+}
+$("#kw_k").oninput=keUpdate;keUpdate();
+
+/* ---------- 5.9 checklist ---------- */
+const CK=[
+ {n:"Fibonacci F(n)",st:"n (hangi Fibonacci sayısı)",rec:"F(n) = F(n−1) + F(n−2)",base:"F(0) = 0, F(1) = 1",ord:"n artan: 2, 3, …, n",ans:"F(n) hücresi",cost:"n+1 durum × O(1) = Θ(n)",ex:()=>`F(10) = ${fibBig(10)}`},
+ {n:"Basamak çıkma (1 veya 2 adım)",st:"n (kalan basamak sayısı)",rec:"yol(n) = yol(n−1) + yol(n−2)",base:"yol(0) = yol(1) = 1",ord:"n artan",ans:"yol(n)",cost:"Θ(n)",ex:()=>"yol(6) = 13"},
+ {n:"Binom katsayısı C(n, k)",st:"(n, k): n kişiden k seç",rec:"C(n,k) = C(n−1,k−1) + C(n−1,k)",base:"C(n,0) = C(k,k) = 1",ord:"satır satır (n artan)",ans:"C(n, k) hücresi",cost:"O(n²) durum × O(1)",ex:()=>"C(6,3) = 20"},
+ {n:"Sabit noktasız permütasyon sayısı",st:"n (eleman sayısı)",rec:"D(n) = (n−1)(D(n−1) + D(n−2))",base:"D(0) = 1, D(1) = 0 (veya D(1) = 0, D(2) = 1)",ord:"n artan",ans:"D(n)",cost:"Θ(n)",ex:()=>"D(5) = 44"},
+ {n:"Para üstü (1, 3, 4 birim)",st:"a (verilecek tutar)",rec:"d[a] = 1 + min(d[a−1], d[a−3], d[a−4])",base:"d[0] = 0",ord:"a artan",ans:"d[tutar]",cost:"tutar × (para çeşidi) karşılaştırma",ex:()=>`d[6] = ${coinOpt(COINS,6).n} (3+3); açgözlü 3 para`},
+ {n:"Izgarada rota sayısı (engelli)",st:"(i, j): bu hücreye kaç rotayla gelinir",rec:"yol(i,j) = yol(i−1,j) + yol(i,j−1); engelde 0",base:"yol(0,0) = 1",ord:"satır satır, soldan sağa",ans:"sağ alt hücre",cost:"R·C durum × O(1)",ex:()=>"engelsiz 5×6: C(9,4) = 126"},
+ {n:"Tam k kenarlı en kısa yürüyüş",st:"(x, i): x tepesi, tam i kenar",rec:"d[x,i] = min over (y→x) of d[y,i−1] + w(y,x)",base:"d[v,0] = 0, diğer d[x,0] = ∞",ord:"i artan",ans:"d[w, k]",cost:"O(k·(n+m))",ex:()=>`A→C, tam 2 kenar: ${keTable(2)[2]["C"]}`}
+];
+$("#ck_p").innerHTML=CK.map((c,i)=>`<option value="${i}">${c.n}</option>`).join("");
+function ckUpdate(){const c=CK[+$("#ck_p").value];
+  $("#ck_t").innerHTML=[["1. Durum",c.st],["2. Yineleme",c.rec],["3. Taban durumlar",c.base],["4. Doldurma sırası",c.ord],["5a. Cevap hangi hücre?",c.ans],["5b. Maliyet",c.cost]].map(r=>`<tr><th style="white-space:nowrap">${r[0]}</th><td class="m">${r[1]}</td></tr>`).join("");
+  $("#ck_o").innerHTML=`Örnek sonuç: <b>${c.ex()}</b>. Kendinize sorun: “eşit iki durum için kalan problem gerçekten aynı mı?”`}
+$("#ck_p").onchange=ckUpdate;ckUpdate();
+
+/* ---------- 6.1 robot arm ---------- */
+function raUpdate(){
+  const A=Math.max(2,Math.min(30,Math.floor(+$("#ra_a").value)||12));
+  const bs=$("#ra_b").value.split(/[ ,;]+/).filter(x=>x!=="").map(Number).filter(x=>!isNaN(x)&&x>=0).map(x=>Math.min(Math.floor(x),A)).slice(0,6);
+  if(bs.length<1){$("#ra_o").innerHTML=`<span class="bad">En az bir eklem için sayı girin.</span>`;$("#ra_t").innerHTML="";return}
+  const J=bs.length;let surv=1,tot=0,skipTot=0;const rows=[];
+  for(let l=0;l<J;l++){const checks=surv*A,bad=bs[l];const skip=surv*bad*Math.pow(A,J-1-l);
+    const ns=surv*(A-bad);rows.push(`<tr><td>${l+1}</td><td class="m">${fmt(checks)}</td><td class="m">${fmt(ns)}</td><td class="m">${fmt(skip)}</td></tr>`);
+    tot+=checks;skipTot+=skip;surv=ns}
+  const full=Math.pow(A,J),unprunedChecks=Array.from({length:J},(_,i)=>A**(i+1)).reduce((a,b)=>a+b,0);
+  $("#ra_t").innerHTML=rows.join("");
+  $("#ra_o").innerHTML=`<div class="box">Budamalı toplam denetim: <b class="ok">${fmt(tot)}</b> · budamasız (A<sup>${J}</sup>) tam yapılandırma: <b>${fmt(full)}</b> · atlanan yapılandırma: <b>${fmt(skipTot)}</b> · çarpışmasız tam yapılandırma: <b>${fmt(surv)}</b> · budamasız kısmi denetim: <b>${fmt(unprunedChecks)}</b> · aynı ölçüyle denetim oranı: <b>${(100*tot/unprunedChecks).toFixed(1)}%</b></div>`;
+}
+$("#ra_a").oninput=$("#ra_b").oninput=raUpdate;raUpdate();
+
+/* ---------- 6.2 grid robot ---------- */
+let GR={r:5,c:6,obs:new Set()};
+function grCompute(){
+  const {r,c,obs}=GR;const key=(i,j)=>i*c+j;
+  const dp=Array.from({length:r},()=>Array(c).fill(0));
+  for(let i=0;i<r;i++)for(let j=0;j<c;j++){if(obs.has(key(i,j))){dp[i][j]=0;continue}
+    if(i===0&&j===0){dp[i][j]=1;continue}
+    dp[i][j]=(i>0?dp[i-1][j]:0)+(j>0?dp[i][j-1]:0)}
+  let calls=0;
+  const f=(i,j)=>{calls++;if(i<0||j<0)return 0;if(obs.has(key(i,j)))return 0;if(i===0&&j===0)return 1;return f(i-1,j)+f(i,j-1)};
+  const v=f(r-1,c-1);
+  return {dp,calls,v};
+}
+function grDraw(){
+  const {r,c,obs}=GR;const {dp,calls,v}=grCompute();
+  const g=$("#gr_g");g.style.gridTemplateColumns=`repeat(${c},1fr)`;
+  let h="";for(let i=0;i<r;i++)for(let j=0;j<c;j++){const k=i*c+j;let cls="gcell";if(obs.has(k))cls+=" obs";if(i===0&&j===0)cls+=" st";if(i===r-1&&j===c-1)cls+=" gl";
+    h+=`<button class="${cls}" data-k="${k}" aria-label="hücre ${i+1},${j+1}">${obs.has(k)?"▇":fmt(dp[i][j])}</button>`}
+  g.innerHTML=h;
+  g.querySelectorAll("button").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(k===0||k===r*c-1)return;if(GR.obs.has(k))GR.obs.delete(k);else GR.obs.add(k);grDraw()});
+  const free=obs.size===0;
+  const ok=dp[r-1][c-1]===v;
+  let binom=1n;{const n=r+c-2,kk=r-1;binom=bigComb(n,kk)}
+  $("#gr_o").innerHTML=`<div class="box">Hedefe rota sayısı (DP tablosu): <b class="ok">${fmt(dp[r-1][c-1])}</b> · naif özyineleme sonucu: <b>${fmt(v)}</b> <b class="${ok?"ok":"bad"}">${ok?"✓ aynı":"✗ farklı"}</b><br>DP durum sayısı: <b>${r*c}</b> · naif özyineleme çağrı sayısı: <b>${fmt(calls)}</b>${free?`<br>Engelsiz ${r} × ${c} hücrelik ızgara (${r-1} aşağı, ${c-1} sağ adım): C(${r+c-2}, ${r-1}) = <b>${fmt(binom)}</b> ${binom===BigInt(dp[r-1][c-1])?"<b class=\"ok\">✓ formülle eşleşti</b>":""}`:""}</div>`;
+}
+$("#gr_r").oninput=$("#gr_c").oninput=()=>{GR.r=+$("#gr_r").value;GR.c=+$("#gr_c").value;$("#gr_rv").textContent=GR.r;$("#gr_cv").textContent=GR.c;GR.obs=new Set();grDraw()};
+$("#gr_x").onclick=()=>{GR.obs=new Set();grDraw()};
+$("#gr_rnd").onclick=()=>{GR.obs=new Set();const n=GR.r*GR.c;for(let t=0;t<Math.floor(n/6);t++){const k=1+Math.floor(Math.random()*(n-2));GR.obs.add(k)}grDraw()};
+grDraw();
+
+/* ---------- quizzes ---------- */
+mkQuiz("#quiz0",[
+ ["Üçgen: AB=1, BC=2, AC=3. Kruskal’ın bulduğu MST’nin toplam ağırlığı?",["3","4","6","5"],0,"Kruskal AB (1) ve BC (2)’yi kabul eder, AC döngü kapatacağı için reddeder: 1 + 2 = 3."],
+ ["Yönlü kenarlar A→B=2, A→C=5, B→C=1. A’dan C’ye en kısa uzaklık?",["5","3","2","7"],1,"Doğrudan 5; B üzerinden 2 + 1 = 3. Dijkstra C’nin tahminini 5’ten 3’e düşürür."],
+ ["Dijkstra’nın standart (bir kez kesinleştiren) hâli için kenar ağırlıkları hakkında hangisi gerekir?",["Hepsi tam sayı olmalı","Hiçbiri negatif olmamalı","Hepsi eşit olmalı","Çizge yönsüz olmalı"],1,"Negatif kenar, kesinleştirilmiş bir tepenin sonradan daha iyi bulunmasına yol açabilir. Negatifte Bellman–Ford kullanılır."],
+ ["4 tepeli bir çizgede Bellman–Ford en çok kaç tur gevşetme yapar (negatif döngü kontrolü hariç)?",["2","3","4","16"],1,"|V| − 1 = 3 tur: en kısa yol en çok |V| − 1 kenar içerir."],
+ ["Union-find’da boyuta göre birleştirme (union by size) ağaç yüksekliğini nasıl sınırlar?",["O(n)","en çok lg n","her zaman 1","n²"],1,"Her seviye atlayışında küme boyutu en az iki katına çıkar; boyut en çok n olduğundan yükseklik ≤ lg n."],
+ ["T(n) = 2T(n/2) + n yinelemesi için doğru Θ hangisi?",["Θ(n)","Θ(n log n)","Θ(n²)","Θ(2ⁿ)"],1,"Hafta 7 cetveli: iki yarım problem + doğrusal iş = n log n (birleştirmeli sıralama gibi)."],
+ ["T(n) = 2T(n−1) + 1 yinelemesi için doğru Θ hangisi?",["Θ(n)","Θ(n log n)","Θ(n²)","Θ(2ⁿ)"],3,"Her seviye iki çağrı yapar ve problem yalnızca 1 küçülür: derinlik n, genişlik 2ⁿ. Bu hafta tam bu patlamanın önüne geçeceğiz."],
+ ["Döngü değişmezi ispatının parçası <b>olmayan</b> hangisidir?",["Başlangıç (initialisation)","Adım (maintenance)","Bitiş (termination)","Her girdiyi tek tek denemek"],3,"Değişmez ispatı üç adımdır; “her girdiyi denemek” ispat değildir (testler ispat değildir)."]
+]);
+
+mkQuiz("#quiz1",[
+ ["Geri izleme özünde nedir?",["Genişlik öncelikli arama (BFS)","Kısmi çözümler üzerinde derinlik öncelikli arama (DFS)","Bir sıralama yöntemi","Bir karma (hash) yöntemi"],1,"Genişletebildiğin kadar genişlet, olmuyorsa geri dön."],
+ ["6 elemanlı bir kümenin kaç alt kümesi vardır?",["6","36","64","720"],2,"Her eleman ya içeride ya dışarıda: 2⁶ = 64."],
+ ["5 farklı nesnenin kaç permütasyonu vardır?",["25","32","120","5"],2,"5! = 5·4·3·2·1 = 120."],
+ ["Geri izleme şablonunda imkânsız adayları özyinelemeden önce eleyen (budama) yordam hangisidir?",["is_a_solution","construct_candidates","process_solution","ana program"],1,"Adaylar construct_candidates içinde kurulur; umutsuzlar hiç sunulmaz."],
+ ["F(12) kaçtır? (F(0)=0, F(1)=1)",["89","144","233","120"],1,"F(10)=55, F(11)=89, F(12)=144."],
+ ["Naif özyinelemeli Fibonacci’nin çalışma süresi nedir?",["Doğrusal","Karesel","Üstel","Logaritmik"],2,"Çağrı sayısı Θ(φⁿ), φ ≈ 1,618; aynı alt problemler tekrar hesaplanır."],
+ ["C(6, 2) = ?",["12","15","20","30"],1,"6·5/2 = 15 ya da Pascal: C(5,1) + C(5,2) = 5 + 10."],
+ ["Her seferinde 1 veya 2 basamak atlayarak 6 basamak kaç farklı yolla çıkılır?",["8","13","21","12"],1,"yol(n) = yol(n−1) + yol(n−2): 1, 2, 3, 5, 8, 13."],
+ ["DP durumu (state) neyi belirtmelidir?",["Yalnızca nihai cevabı","Yeniden kullanılabilir bir alt problemi tanımlamaya yetecek bilgiyi","Bütün çalışma geçmişini","Rastgele bir tahmini"],1,"Eşit durumların kalan alt problemi aynı olmalı; aksi hâlde cevabı önbelleğe yazmak geçersiz olur."],
+ ["Naif Fibonacci’nin T(n) = T(n−1) + T(n−2) + 1 maliyeti, memoization ile Θ(n) olur çünkü:",["Toplamalar daha hızlı yapılır","n + 1 durumun her biri bir kez hesaplanır, sonraki istekler O(1)’dir","Yineleme T(n) = 2T(n/2) + 1 olur","Taban durumlar kaldırılır"],1,"Maliyet = durum sayısı × durum başına iş. Çağrı ağacı bir zincire döner."],
+ ["Robot kolu eklem eklem aranıyor. Kısmi yapılandırmayı atmak ne zaman <b>sağlamdır</b>?",["Şu ana kadar yerleşen bağlantılar zaten çarpışıyorsa","Yapılandırma “tuhaf” görünüyorsa","Ağacın yarısı gezildiyse","1. eklem 0° ise"],0,"Gerçekleşmiş çarpışma sonraki eklemlerle onarılamaz; sağlam budama bunu gerektirir. “Tuhaf görünüyor” sezgiseldir."],
+ ["Naif Fibonacci ile F(5) hesaplanırken (taban durumlar dahil) toplam kaç çağrı yapılır?",["8","11","15","25"],2,"C(n) = 1 + C(n−1) + C(n−2), C(0)=C(1)=1: 1, 1, 3, 5, 9, 15. Ya da 2F(6) − 1 = 2·8 − 1 = 15."],
+ ["Memoization’lı F(10) hesabında kaç <b>farklı durum</b> (F(k) değeri) hesaplanır/okunur?",["10","11","21","55"],1,"F(0), F(1), …, F(10): n + 1 = 11 durum."],
+ ["Her eklemde 10 açı olan 3 eklemli kolda: 1. eklemde 3 açı çarpışıyor; kalan 7 açının her birinde 2. eklemde 2 açı çarpışıyor; 3. eklemde çarpışma yok. Toplam çarpışma denetimi?",["640","1000","700","570"],0,"10 + 7·10 + 7·8·10 = 10 + 70 + 560 = 640 (budamasız tam arama: 1000 yapılandırma)."],
+ ["4 × 4 tahtada 4 vezir problemi kaç farklı çözüme sahiptir?",["0","1","2","4"],2,"İki çözüm: sütunlar (2, 4, 1, 3) ve (3, 1, 4, 2), birbirinin ayna görüntüsü. (n = 2, 3 için çözüm yok.)"],
+ ["Alt küme toplamında “kısmi toplam &gt; hedef ise dalı kes” kuralı hangi koşulda sağlamdır?",["Eklenecek bütün sayılar negatif olmayan (toplam asla azalmaz) ise","Sayılar sıralıysa","Hedef çift ise","Her zaman"],0,"Negatif sayı gelirse toplam sonradan hedefe inebilir; o zaman kural geçerli bir çözümü kaçırabilir."],
+ ["5 elemanın sabit noktasız permütasyon (derangement) sayısı?",["24","44","120","76"],1,"D(n) = (n−1)(D(n−1) + D(n−2)): 0, 1, 2, 9, 44."],
+ ["Yalnızca sağa ve aşağıya gidilen ızgarada (3 adım aşağı, 3 adım sağ; yani 4 × 4 hücrelik ızgara) sol üstten sağ alta kaç farklı rota vardır?",["6","9","20","36"],2,"Her rota 6 adımdır; hangi 3 adımın aşağı olduğunu seçmek rotayı belirler: C(6, 3) = 20."]
+]);
+</script>
+<script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+<script>
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+      rows.forEach(function(r){
+        var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',s==='toplam'||s==='total'||s.startsWith('toplam '));
+      });
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var pos=0,cell=null;for(var k=0;k<r.cells.length;k++){var c=r.cells[k],sp=c.colSpan||1;if(ci>=pos&&ci<pos+sp){cell=c;break}pos+=sp}
+          if(cell&&(cell.colSpan||1)===1){cells.push(cell);if(cell.tagName==='TD'){var tx=(cell.textContent||'').trim();if(tx){seen++;if(cell.classList.contains('r'))right++}}}
+        });
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="aa-site-audit-tables">
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap'))return;
+    var w=document.createElement('div');w.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(w,t);w.appendChild(t);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      wrapTable(t);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6;
+      t.classList.toggle('aa-code-first',!!codeFirst);
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',!!s&&s.length<=36)});
+      rows.forEach(function(r){var c=r.cells&&r.cells[0],x=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';r.classList.toggle('aa-total-row',x==='toplam'||x==='total'||x.startsWith('toplam '))});
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var p=0,c=null;for(var k=0;k<r.cells.length;k++){var q=r.cells[k],sp=q.colSpan||1;if(ci>=p&&ci<p+sp){c=q;break}p+=sp}if(c&&(c.colSpan||1)===1){cells.push(c);if(c.tagName==='TD'){var tx=(c.textContent||'').trim();if(tx){seen++;if(c.classList.contains('r'))right++}}}});
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var queued=false;function later(){if(!queued){queued=true;requestAnimationFrame(function(){queued=false;audit()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+  new MutationObserver(later).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!--AA-SIDEBAR-->
+<style>
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb *{box-sizing:border-box}
+#aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
+#aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
+#aa-sb .pct{font:600 26px ui-monospace,Menlo,Consolas,monospace}
+#aa-sb .trk{height:6px;border-radius:99px;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);overflow:hidden;margin:0 4px 4px}
+#aa-sb .trk i{display:block;height:100%;width:0;background:var(--acc,#6cb6ff);transition:width .1s linear}
+#aa-sb .best{font-size:12px;color:var(--mute,#9aa6b8);margin:0 4px 12px}
+#aa-sb a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--mute,#9aa6b8);border-radius:8px;padding:6px 8px;border-left:3px solid transparent}
+#aa-sb a:hover{background:var(--panel2,#1d2431);color:var(--ink,#e8ecf3)}
+#aa-sb a .n{flex:none;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:700;display:grid;place-items:center;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);margin-top:1px}
+#aa-sb a.top.done .n{background:var(--ok,#5fd39a);border-color:var(--ok,#5fd39a);color:#0b1a12}
+#aa-sb a.top.active{color:var(--ink,#e8ecf3);background:var(--rule,#1b2a3d);border-left-color:var(--acc,#6cb6ff);font-weight:600}
+#aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
+#aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
+#aa-sb .sub.open{display:block}
+#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
+#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
+body.aa-open{overflow:hidden}
+body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
+body.aa-open #aa-back{display:block}
+@media (min-width:1200px){
+  #aa-sb{transform:none}
+  body.aa-has-sb{padding-left:272px}
+  #aa-fab,#aa-back{display:none!important}
+}
+@media (max-width:1199px){#aa-fab{display:flex}}
+@media print{#aa-sb,#aa-bar,#aa-fab,#aa-back{display:none!important}body.aa-has-sb{padding-left:0!important}}
+</style>
+<script>
+(function(){
+  try{
+    var secs=[].slice.call(document.querySelectorAll("section[id]"));
+    if(!secs.length)return;
+    var M=[],top=null,idx=0;
+    function clean(h){var c=h.cloneNode(true);[].slice.call(c.querySelectorAll(".time,.num")).forEach(function(x){x.remove()});return c.textContent.replace(/\s+/g," ").trim()}
+    secs.forEach(function(s){
+      var h2=s.querySelector("h2");
+      if(h2){
+        var num=h2.querySelector(".num");idx++;
+        top={el:h2,sec:s,type:"top",label:clean(h2),n:num?num.textContent.trim():String(idx),subs:[]};
+        M.push(top);
+      }
+      if(!top)return;
+      [].slice.call(s.querySelectorAll("h3")).forEach(function(h){
+        var t=clean(h);if(!t)return;
+        var m={el:h,sec:s,type:"sub",label:t,parent:top};top.subs.push(m);M.push(m);
+      });
+    });
+    var k=0;M.forEach(function(m){if(!m.el.id)m.el.id="aa-h"+(++k)});
+    var sb=document.createElement("nav");sb.id="aa-sb";sb.setAttribute("aria-label","İçindekiler");
+    var html='<div class="hd"><b>İçindekiler</b><span class="pct" id="aa-pct">0%</span></div><div class="trk"><i id="aa-trk"></i></div><div class="best" id="aa-best"></div>';
+    M.forEach(function(m){
+      if(m.type!=="top")return;
+      html+='<a class="top" href="#'+m.el.id+'" data-id="'+m.el.id+'"><span class="n">'+m.n+'</span><span>'+m.label.replace(/</g,"&lt;")+'</span></a>';
+      if(m.subs.length){html+='<div class="sub" data-for="'+m.el.id+'">'+m.subs.map(function(s){return '<a href="#'+s.el.id+'" data-id="'+s.el.id+'">'+s.label.replace(/</g,"&lt;")+'</a>'}).join("")+'</div>'}
+    });
+    sb.innerHTML=html;
+    var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var back=document.createElement("div");back.id="aa-back";
+    document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
+    document.body.classList.add("aa-has-sb");
+    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
+    back.onclick=function(){toggle(false)};
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
+    sb.addEventListener("click",function(e){if(e.target.closest("a")&&window.innerWidth<1200)toggle(false)});
+    var wk=(location.pathname.match(/\/w(\d+)\//)||[])[1]||"x",KEY="aa_read_w"+wk,best=0;
+    try{best=+localStorage.getItem(KEY)||0}catch(e){}
+    var links={},tops=[].slice.call(sb.querySelectorAll("a.top")),subWraps=[].slice.call(sb.querySelectorAll(".sub"));
+    [].slice.call(sb.querySelectorAll("a[data-id]")).forEach(function(a){links[a.getAttribute("data-id")]=a});
+    var pctEl=sb.querySelector("#aa-pct"),trk=sb.querySelector("#aa-trk"),bestEl=sb.querySelector("#aa-best"),fp=fab.querySelector("#aa-fpct");
+    var lastActive=null,ticking=false;
+    function update(){
+      ticking=false;
+      var de=document.documentElement,max=de.scrollHeight-window.innerHeight;
+      var pct=max>0?Math.min(100,Math.max(0,Math.round(100*window.pageYOffset/max))):100;
+      if(max>0&&window.pageYOffset>=max-4)pct=100;
+      bar.style.width=pct+"%";bar.setAttribute("aria-valuenow",pct);
+      pctEl.textContent=pct+"%";trk.style.width=pct+"%";fp.textContent=pct+"%";
+      if(pct>best){best=pct;try{localStorage.setItem(KEY,String(best))}catch(e){}}
+      bestEl.textContent=best>pct?"En ileri okunan: %"+best:"";
+      var act=M[0];
+      for(var i=0;i<M.length;i++){if(M[i].el.getBoundingClientRect().top<=150)act=M[i];else break}
+      var vh=window.innerHeight;
+      tops.forEach(function(a){
+        var m=M.filter(function(x){return x.el.id===a.getAttribute("data-id")})[0];
+        var r=m.sec.getBoundingClientRect();
+        var next=m.sec;
+        var passed=r.bottom<=vh*0.35;
+        a.classList.toggle("done",passed);
+        a.querySelector(".n").textContent=passed?"✓":m.n;
+      });
+      if(act!==lastActive){
+        lastActive=act;
+        var topM=act.type==="top"?act:act.parent;
+        [].slice.call(sb.querySelectorAll("a.active")).forEach(function(a){a.classList.remove("active")});
+        links[topM.el.id].classList.add("active");
+        if(act.type==="sub")links[act.el.id].classList.add("active");
+        subWraps.forEach(function(w){w.classList.toggle("open",w.getAttribute("data-for")===topM.el.id)});
+        var a=links[act.el.id],c=sb;
+        if(a&&c.scrollHeight>c.clientHeight){var ar=a.getBoundingClientRect(),cr=c.getBoundingClientRect();
+          if(ar.top<cr.top+90||ar.bottom>cr.bottom-40)c.scrollTop+=ar.top-cr.top-cr.height/3}
+      }
+    }
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",onScroll);
+    window.addEventListener("load",onScroll);setTimeout(update,300);update();
+  }catch(e){if(window.console)console.warn("aa sidebar",e)}
+})();
+</script>
+<!--/AA-SIDEBAR-->
+
+<script id="aa-sitewide-table-audit">
+(function(){
+  function isMathToken(s){
+    if(!s||s.length>34)return false;
+    return /^[\d\s.,:;()+\-×÷=<>≤≥≈ΘΩOonmVkEαφπ√²³⁴⁵ⁿ!⌊⌋⌈⌉→←↔∑Σ\/·%^_*]+$/u.test(s);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      if(!t.closest('.scroll')&&!t.closest('.table-wrap')){
+        var w=document.createElement('div');w.className='scroll';
+        t.parentNode.insertBefore(w,t);w.appendChild(t);
+      }
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td,th'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        if(c.classList.contains('m')||isMathToken(s))c.classList.add('aa-token');
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r')||/^[-+]?\d[\d\s.,%]*$/.test(tx))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')||c.querySelector('code')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+})();
+</script>
+</body>
+</html>

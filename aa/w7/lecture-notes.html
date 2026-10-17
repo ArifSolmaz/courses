@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hafta 7 (Sade, 3 saatlik) — Sıralama II ve yineleme bağıntıları</title>
+<meta name="description" content="Algorithm Analysis Hafta 7: merge sort, quicksort, yineleme bağıntıları, alt sınır ve doğrusal sıralamalar; Hafta 5-6 tekrarıyla, 3 saatlik ders için ayrıntılı ve sade anlatım.">
+<style>
+:root{--bg:#10141b;--panel:#171d27;--panel2:#1d2431;--ink:#e8ecf3;--mute:#9aa6b8;--line:#2a3344;--acc:#6cb6ff;--ok:#5fd39a;--warn:#ffcb6b;--bad:#ff7b8a;--rule:#1b2a3d;--rev:#2a2140}
+[data-theme="light"]{--bg:#f7f6f2;--panel:#fff;--panel2:#f0eee8;--ink:#1c2330;--mute:#5d6878;--line:#dcd8cd;--acc:#1a64b8;--ok:#13804f;--warn:#9a6a00;--bad:#b3283b;--rule:#e6eefa;--rev:#efe9fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 90px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+button{font:inherit;cursor:pointer}
+.tg{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 10px;font-size:13px}
+h1{font:500 clamp(30px,6vw,44px)/1.15 Georgia,"Times New Roman",serif;margin:.3em 0 .2em}
+h2{font:500 28px/1.25 Georgia,"Times New Roman",serif;margin:0 0 .4em}
+h3{font-size:18px;margin:1.5em 0 .3em}
+h4{font-size:16px;margin:1.2em 0 .2em;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{font-size:19px;color:var(--mute);margin:.2em 0 1em}
+.en{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.88em;color:var(--acc);white-space:nowrap}
+section{margin-top:64px;scroll-margin-top:16px}
+.num{display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 6px;border-radius:16px;background:var(--acc);color:var(--bg);font-weight:700;font-size:15px;margin-right:8px;vertical-align:3px}
+.time{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--mute);margin-left:6px;vertical-align:4px;font-weight:600}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+.rule{background:var(--rule);border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.rule b.t{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.skip{border-left-color:var(--warn);background:var(--panel2)}.skip b.t{color:var(--warn)}
+.rev{border-left-color:#a98bff;background:var(--rev)}.rev b.t{color:#a98bff}
+[data-theme="light"] .rev b.t{color:#6b3fd1}
+pre,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:14.5px;line-height:1.55;margin:12px 0}
+code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.try{border:1.5px dashed var(--acc);border-radius:14px;padding:16px 18px;margin:20px 0;background:var(--panel)}
+.try .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:9px;padding:7px 14px;font-weight:600;font-size:15px}
+.btn.g{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+input[type=text],input[type=number],select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;max-width:100%}
+input[type=text]{width:100%}
+.big{font:500 26px ui-monospace,Menlo,Consolas,monospace}
+.mut{color:var(--mute);font-size:15px}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.grid{display:grid;gap:3px;margin:10px 0}
+.grid i{aspect-ratio:1;background:var(--panel2);border-radius:3px;display:block}
+.grid i.on{background:var(--acc)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+td.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.cards{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.card{min-width:46px;text-align:center;padding:10px 8px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font:500 20px ui-monospace,Menlo,Consolas,monospace}
+.card.sorted{border-color:var(--ok);color:var(--ok)}.card.cur{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}.card.min{border-color:var(--acc);color:var(--acc)}
+.card small{display:block;font-size:11px;color:var(--mute)}
+.q{margin:14px 0}.q .opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--panel2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--panel2))}
+.fb{margin-top:6px;font-size:15px;color:var(--mute);display:none}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+nav.toc a{font-size:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--panel)}
+.foot{display:flex;justify-content:space-between;margin-top:60px;font-size:15px}
+.foot a{color:var(--acc);text-decoration:none}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+.bars{position:relative;margin:10px 0;border-left:1px solid var(--line)}
+.bar{position:absolute;height:18px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);font-size:12px;line-height:16px;padding-left:5px;overflow:hidden;white-space:nowrap}
+.bar.pick{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.cells{display:flex;flex-wrap:wrap;gap:2px;margin:10px 0}
+.cells span{width:22px;height:22px;font-size:9px;display:grid;place-items:center;border-radius:4px;background:var(--panel2);color:var(--mute)}
+.cells span.in{background:color-mix(in srgb,var(--acc) 35%,var(--panel2));color:var(--ink)}.cells span.mid{background:var(--warn);color:#000}.cells span.found{background:var(--ok);color:#000}
+svg text{fill:var(--mute);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.5;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:280px;overflow:auto;white-space:pre;margin:8px 0}
+.mt{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid var(--line);font-size:14px}
+.nd{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:1px 7px}
+.mt.cur>.nd{border-color:var(--warn);color:var(--warn)}
+.cards.sm .card{min-width:36px;padding:6px 6px;font-size:16px}
+.card.hi{border-color:var(--acc);color:var(--acc)}
+.card.lo{border-color:var(--ok);color:var(--ok)}
+.card.pv{border-color:var(--bad);color:var(--bad)}
+.lbl{font-size:12px;color:var(--mute);margin-top:6px}
+td.ok,td.bad{font-weight:700}
+.sel{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit}
+.seg{display:inline-flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:0 6px;color:var(--mute)}
+@media(max-width:480px){body{font-size:16px}h2{font-size:24px}.try,.box{padding:14px 14px}.card{min-width:40px;padding:8px 6px;font-size:17px}}
+
+/* AA-GLOBAL-AUDIT-FIXES: responsive tables, formulas, controls and focus */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:normal}
+.wrap{width:100%;min-width:0}
+.en{white-space:normal}
+pre{max-width:100%}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+textarea{width:100%;box-sizing:border-box}
+.big{max-width:100%;overflow-wrap:anywhere}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,span.m{overflow-wrap:normal;word-break:normal}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead{overflow-wrap:break-word}
+img,svg,canvas{max-width:100%;height:auto}
+.foot{flex-wrap:wrap;gap:12px}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px}
+  .foot{align-items:flex-start}
+}
+@media(max-width:480px){.foot{flex-direction:column}}
+</style>
+
+<style id="aa-sitewide-responsive-audit">
+/* Site-wide Week audit: table/component responsiveness */
+.wrap{width:100%;min-width:0}
+.scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m{overflow-wrap:normal;word-break:normal}
+.row>*{min-width:0}
+pre{max-width:100%;overflow:auto}
+code{overflow-wrap:anywhere}
+textarea,input,select,button,.card,details{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%;height:auto}
+.try,.box,.rule,.zero,.hata{max-width:100%;min-width:0}
+.aa-cols-4{min-width:620px}
+.aa-cols-5{min-width:700px}
+.aa-cols-6{min-width:760px}
+.aa-cols-7plus{min-width:860px}
+.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--acc,#6cb6ff);outline-offset:2px}
+@media(max-width:700px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .scroll{padding-bottom:4px}
+  .scroll th,.scroll td{padding:7px 7px}
+  h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+  .foot{flex-wrap:wrap;gap:10px}
+}
+</style>
+<style id="aa-inline-term-wrap">.en{white-space:normal}</style>
+<style id="aa-site-audit-fixes">
+html,body{max-width:100%}.en{white-space:normal!important}
+.wrap{width:100%;min-width:0}
+.scroll,.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+table{max-width:100%;table-layout:auto;font-variant-numeric:tabular-nums}
+th,td{overflow-wrap:break-word;word-break:normal;line-height:1.45}
+td.m,th.m,.aa-token{white-space:nowrap!important;overflow-wrap:normal!important;word-break:keep-all!important}
+.aa-cols-4{min-width:620px}.aa-cols-5{min-width:700px}.aa-cols-6{min-width:760px}.aa-cols-7plus{min-width:860px}
+.aa-numcol{text-align:right!important;font-variant-numeric:tabular-nums}
+.aa-total-row>td,.aa-total-row>th{font-weight:700;border-top:2px solid var(--line)}
+.aa-code-first th:first-child,.aa-code-first td:first-child{width:46%;min-width:240px}
+.aa-code-first td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{max-width:100%;overflow:auto} code{overflow-wrap:anywhere}
+img,svg,canvas{max-width:100%;height:auto}
+.row>*{min-width:0}
+input,select,textarea,button{max-width:100%}
+.try,.box,.rule,.zero,.hata,details{max-width:100%;min-width:0}
+summary,h1,h2,h3,h4,.lead,.lab{overflow-wrap:anywhere}
+.foot{gap:12px;flex-wrap:wrap}
+@media(max-width:700px){
+ .wrap{padding-left:12px!important;padding-right:12px!important}
+ .scroll,.table-wrap{padding-bottom:4px}
+ th,td{padding-left:7px!important;padding-right:7px!important}
+}
+@media(max-width:480px){.foot{flex-direction:column;align-items:flex-start}}
+</style>
+<style>
+.wrap{max-width:1160px}
+.topic-row{display:grid;grid-template-columns:minmax(0,768px) minmax(230px,1fr);gap:32px;align-items:start;margin-top:24px}
+.topic-main{min-width:0}.topic-main>h3:first-child{margin-top:0}
+.english-summary{min-width:0;border-left:3px solid var(--acc);background:var(--panel);border-radius:0 10px 10px 0;padding:14px 16px;font-size:15px;line-height:1.65;overflow-wrap:anywhere}
+.english-summary h4{margin:0 0 8px;font-size:11px;color:var(--acc)}.english-summary b{font-size:16px}.english-summary p{margin:8px 0 0;color:var(--mute)}
+@media(max-width:900px){.wrap{max-width:800px}.topic-row{grid-template-columns:minmax(0,1fr);gap:12px}.english-summary{margin-bottom:14px}}
+@media print{.wrap{max-width:none}.topic-row{display:block}.english-summary{break-inside:avoid;margin:12px 0 20px}}
+</style><style id="week7-companion-style">
+.topic-row{grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:28px;scroll-margin-top:24px}
+.english-summary h4{font-size:19px;line-height:1.35;text-transform:none;letter-spacing:0;color:var(--ink);margin:10px 0}
+.section-reference{font-size:12px;color:var(--acc)}
+.quiz-answer-label{display:block;font-size:13px;color:var(--ok);font-weight:700;margin-top:4px}.fb p{margin:12px 0}.fb a{color:var(--acc)}
+@media(max-width:900px){.topic-row{grid-template-columns:1fr}.english-summary{grid-row:1}.topic-main{grid-row:2}}
+</style><style id="activity-guide-style">
+.activity-guide{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:16px;line-height:1.75}
+.activity-guide h4{margin:0 0 12px;font-size:18px;line-height:1.4;letter-spacing:0;text-transform:none;color:var(--ink)}
+.activity-guide p{margin:10px 0}.activity-guide ol{padding-left:24px;margin:14px 0}.activity-guide li{padding-left:4px;margin:12px 0}
+.activity-takeaway{border-left:3px solid var(--acc);padding-left:12px}
+</style><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="../assets/python-runner.js"></script></head>
+<body>
+<div class="wrap">
+
+<header class="top"><a href="./" lang="en">Week 7 visual lesson →</a>
+  <a href="../">← AA ana sayfa</a>
+  <button class="tg" id="tg">Açık / koyu</button>
+</header>
+
+<div class="kicker">Hafta 7 · Sade ve ayrıntılı anlatım · 3 saatlik ders</div>
+<h1>Sıralama II ve yineleme bağıntıları</h1>
+<p class="lead">Tek fikir: <b>büyük işi iki küçük işe böl, küçükleri çöz, sonuçları birleştir</b> (böl ve yönet). Bu yöntemin maliyetini bir <b>yineleme bağıntısı</b> (recurrence) ile yazıp çözmeyi öğreneceğiz. Sonra aynı fikri iki ünlü sıralamaya (merge sort ve quicksort) uygulayacak, “karşılaştırarak sıralamanın alt sınırı n log n’dir” sonucunu görecek ve bu sınırı aşan yöntemlere (counting, bucket, radix) bakacağız.</p>
+
+<div class="rule">
+  <b class="t">Bu sayfayı nasıl kullanmalı</b>
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular önceki haftalardan (Hafta 5–6, ayrıca Hafta 2–3 araçları) <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>sınav için kural</b>dır. Sınavda ezberlenecek şeyler mavi kutulardır; gerisi onları anlamak içindir. Tüm sayılar sayfadaki araçlarda <b>gerçekten hesaplanır</b>: kendi girdilerinizi yazıp deneyin.
+</div>
+
+<p class="box">Sade İngilizce açıklamalar aynı ders başlığına bağlanır. Quiz cevapları ve gerekçeleri açık gösterilir. <b>Çözümlü denemeler</b> belirtilen örnekleri anlatır; girdileri değiştirince canlı sonuçlar değişir, rehber metni değişmez. Python kutularında <b>Run</b> ile çalıştırın, <b>Kodu düzenle</b> ile örnekleri değiştirin.</p><h3>Ders akışı (180 dakika)</h3>
+<div class="scroll"><table>
+<tr><th>Blok</th><th>Konu</th><th>Süre</th><th>Hangi haftayı bağlar?</th></tr>
+<tr><td>0</td><td><a href="#s0" style="color:var(--acc)">Isınma ve tekrar</a>: öbek (heap), heapsort, arama ağacı, karma (hash), O/Θ araçları</td><td>25 dk</td><td>Hafta 5 + 6 (ve 2–3)</td></tr>
+<tr><td>1</td><td><a href="#s1" style="color:var(--acc)">Özyineleme ve yineleme bağıntısı</a>: koddan bağıntıyı okumak, Python hatırlatması</td><td>20 dk</td><td>Hafta 3 (log, döngü sayma)</td></tr>
+<tr><td>2</td><td><a href="#s2" style="color:var(--acc)">Merge sort</a>: birleştirme, bölme-birleştirme ağacı, karşılaştırma sayacı</td><td>30 dk</td><td>Hafta 6 (heapsort ile kıyas)</td></tr>
+<tr><td>3</td><td><a href="#s3" style="color:var(--acc)">Yinelemeleri çözmek</a>: özyineleme ağacı, yerine koyma, master teoremi benzeri sezgi</td><td>30 dk</td><td>Hafta 3 (toplamlar), Hafta 6 (build-heap O(n))</td></tr>
+<tr><td>—</td><td>Ara</td><td>10 dk</td><td></td></tr>
+<tr><td>4</td><td><a href="#s4" style="color:var(--acc)">Quicksort</a>: partition, pivot seçimi, en kötü / ortalama durum</td><td>30 dk</td><td>Hafta 5 (ağaç yüksekliği), Hafta 3 (insertion)</td></tr>
+<tr><td>5</td><td><a href="#s5" style="color:var(--acc)">Alt sınır Ω(n log n) ve doğrusal sıralamalar</a></td><td>25 dk</td><td>Hafta 5 (karma: değeri adres yapmak)</td></tr>
+<tr><td>6</td><td><a href="#s6" style="color:var(--acc)">Mühendislik uygulaması</a>, <a href="#s8" style="color:var(--acc)">özet</a>, çıkış bileti; <a href="#s7" style="color:var(--acc)">alıştırmalar ve quiz</a> ev çalışması</td><td>10 dk + ev</td><td>Hepsi</td></tr>
+</table></div>
+
+<nav class="toc">
+  <a href="#s0">0 Tekrar</a><a href="#s1">1 Özyineleme</a><a href="#s2">2 Merge sort</a><a href="#s3">3 Yinelemeler</a><a href="#s4">4 Quicksort</a><a href="#s5">5 Alt sınır &amp; doğrusal</a><a href="#s6">6 Uygulama</a><a href="#s7">7 Alıştırma &amp; quiz</a><a href="#s8">8 Özet</a>
+</nav>
+
+<div class="box">
+  <b>Başlamadan önce tek cümle:</b> merge sort “ikiye böl, sırala, birleştir” der ve <span class="en">Θ(n log n)</span> sürer; quicksort “bir eleman seç, küçükleri sola büyükleri sağa ayır, iki yanı sırala” der ve ortalamada hızlıdır ama kötü seçimle <span class="en">Θ(n²)</span> olur. Genel anahtarları yalnızca karşılaştırmalarla sıralayan hiçbir algoritma <b>en kötü durumda</b> <span class="en">Ω(n log n)</span> sınırının altına inemez. Özel girdi aileleri veya karşılaştırma dışı ek varsayımlar bu alt sınırın kapsamı dışındadır. Neden böyle olduğunu bugün kendi elinizle göreceksiniz.
+</div>
+
+<!-- ================= BLOK 0 ================= -->
+<section id="s0">
+<div class="kicker">Blok 0 · Hafta 5 + 6 tekrarı</div>
+<h2><span class="num">0</span>Isınma ve tekrar <span class="time">25 dk</span></h2>
+<p>Bu haftanın üç ana fikri geçen haftaların üstüne kurulu: (1) <b>öbek ve heapsort</b> zaten bir n log n sıralamadır (Hafta 6); (2) <b>arama ağacının yüksekliği</b> maliyeti belirler, quicksort’un özyineleme ağacı da böyledir (Hafta 5); (3) <b>karma tablo</b> bir değeri doğrudan adres olarak kullanır, bu fikir bugün counting/bucket sort olarak geri dönecek (Hafta 5). Önce hızlıca tazeleyelim.</p>
+
+<div class="topic-row" id="topic-0-1"><div class="topic-main"><h3>0.1 Öbek (heap), ekleme ve silme (Hafta 6)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 6</b>
+<b>Min-öbek (min-heap):</b> her ebeveyn çocuklarından küçük ya da eşittir; kök en küçüktür. Dizide saklanır, <b>konum 1’den başlar</b>: k. elemanın ebeveyni ⌊k/2⌋, çocukları 2k ve 2k+1.<br>
+<b>Ekleme (insert):</b> sona koy, ebeveyni büyükse takas ederek yukarı çık (bubble up). <b>En küçüğü çıkar (extract-min):</b> son elemanı köke koy, küçük çocukla takas ederek aşağı in (bubble down). Her ikisi de ağaç yüksekliği kadar: <b>O(log n)</b>.<br>
+<b>Tüm öbeği kurmak</b> (aşağıdan yukarı, build-heap) <b>O(n)</b>’dir (çoğu düğüm en altta, çok az iş yapar); n tane ekleme ise O(n log n). <b>Heapsort</b> = kur + n kez en küçüğü çıkar = en kötü durumda O(n log n).</div>
+
+<div class="try"><div class="lab">Kendin dene — Hafta 6: öbeği çalıştır</div>
+<div class="row"><span>Başlangıç dizisi:</span><input type="text" id="hp_in" value="2, 4, 3" style="flex:1;min-width:160px"><button class="btn g" id="hp_set">Olduğu gibi yükle</button><button class="btn g" id="hp_build">Öbek kur (build-heap)</button></div>
+<div class="row"><span>Değer:</span><input type="number" id="hp_v" value="1" style="width:90px"><button class="btn" id="hp_ins">Ekle (insert)</button><button class="btn" id="hp_ext">En küçüğü çıkar</button></div>
+<div class="cards" id="hp_cards"></div>
+<div class="log" id="hp_log"></div>
+<div class="mut">Hafta 6 örnekleri: [2,4,3] içine 1 eklenirse [1,2,3,4] olur; [1,3,2,7,4]’ten en küçük çıkarılırsa [2,3,4,7] kalır. Önce “Olduğu gibi yükle”, sonra deneyin. Rastgele bir diziyi “Öbek kur” ile düzenleyip takas sayısına bakın.</div><div class="activity-guide"><h4>Öbekte yalnız bir yolu onarın</h4><p><b>Kontrolleri okuyun.</b> Başlangıç alanı diziyi, Değer alanı yeni anahtarı belirler. Olduğu gibi yükle sayıları değiştirmez; Öbek kur tüm diziyi onarır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>2,4,3 yükleyip 1 ekleyin: 1 önce 4, sonra 2 ile takas edilir; sonuç 1,2,3,4.</li><li>1,3,2,7,4 yükleyip minimumu çıkarın: 1 çıkar ve 2,3,4,7 kalır.</li><li>9,4,7,1,3,8,2 gibi sırasız girdi için önce Öbek kur’u kullanın. Ardından çıkarma sonuçlarını takip edin.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Tek ekleme/çıkarma onarımı başlangıçta geçerli öbek ister. Sırasız dizinin yalnız kökünü onarmak bütün ihlalleri düzeltmez.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-1"><a class="section-reference" href="#topic-0-1">Lecture §0.1</a><h4 id="simple-topic-0-1">Keep the best item at the root</h4><p>Insert 1 into [2,4,3]: append it, then swap with 4 and 2. The result is [1,2,3,4].</p><p>Heap repair follows one logarithmic path. Building all n items bottom-up is O(n); inserting them one at a time can take Θ(n log n).</p></aside></div><div class="topic-row" id="topic-0-2"><div class="topic-main"><h3>0.2 Arama ağacı ve karma tablo (Hafta 5)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 5</b>
+<b>İkili arama ağacı (BST):</b> arama maliyeti ağacın <b>yüksekliği</b> kadar. Anahtarlar <u>sıralı</u> gelirse ağaç bir zincire dönüşür: kenar yüksekliği n − 1, arama Θ(n). Rastgele ekleme sırası altında BST’nin beklenen yüksekliği Θ(log n)’dir; tek bir rastgele örnek için yükseklik elbette değişebilir.<br>
+<b>Karma (hash) tablosu:</b> <code>h(k) = k mod m</code> ile anahtar doğrudan bir yuvaya (slot) gider. <b>Beklenen</b> arama O(1) (varsayımla), <b>en kötü</b> durum O(n). Doğrusal yoklamada (linear probing) dolu yuvada bir sonrakine bakılır.</div>
+<p><b>Bu hafta neden önemli?</b> Quicksort’un özyineleme ağacı tam bir BST gibidir: pivot kök olur, sol ve sağ parçalar alt ağaçlardır. Pivotlar hep uçtaysa ağaç bir zincirdir (yükseklik Θ(n) → Θ(n²) iş); dengeliyse yükseklik ≈ lg n (→ Θ(n log n)). Aynı “yükseklik” fikri.</p>
+<div class="try"><div class="lab">Kendin dene — Hafta 5: doğrusal yoklamalı karma</div>
+<div class="row"><span>Yuva sayısı m:</span><select id="hs_m" class="sel"><option>5</option><option>7</option><option>8</option><option>11</option></select><span>Anahtarlar:</span><input type="text" id="hs_k" value="10, 15, 3, 20" style="flex:1;min-width:160px"></div>
+<div id="hs_out"></div>
+<div class="mut">Hafta 5 örneği: 10, 15, 3, 20 ve m = 5 → 10 yuva 0’a, 15 yuva 1’e (0 doluydu), 3 yuva 3’e, 20 yuva 2’ye (0, 1 dolu) girer. Bütün anahtarları aynı yuvaya düşürecek bir liste yazın (ör. 5, 10, 15, 20): hızlı tablo bir zincire dönüşür, yani “beklenen O(1)” bir <i>varsayım</i>dı, garanti değil.</div><div class="activity-guide"><h4>Başlangıç yuvası son yer olmayabilir</h4><p><b>Kontrolleri okuyun.</b> m yuva sayısı, anahtar listesi ekleme sırasıdır. Tablo her değişiklikte baştan kurulur.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>m=5, anahtarlar 10,15,3,20: son yuvalar sırasıyla 0,1,3,2.</li><li>20 başlangıçta 0’a gider, 0 ve 1 dolu olduğundan 2’ye yerleşir: üç yoklama.</li><li>5,10,15,20 yazın: hepsi aynı başlangıcı seçer. Daha çok yuva olması tek başına iyi dağılım sağlamaz.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Beklenen O(1) varsayımlı bir sınırdır. Tablo dolunca sınırlı yoklamayla başarısızlık bildirilmelidir; sonsuza kadar dönmek doğru davranış değildir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-2"><a class="section-reference" href="#topic-0-2">Lecture §0.2</a><h4 id="simple-topic-0-2">The shape of the work matters</h4><p>Sorted insertion makes an ordinary BST a chain. Extreme quicksort pivots create a similar chain of subproblems.</p><p>A short tree does not by itself tell you total work: quicksort also scans the active subarray at every node. Hash lookup is expected constant time only under suitable assumptions.</p></aside></div><div class="topic-row" id="topic-0-3"><div class="topic-main"><h3>0.3 Kalıcı araçlar: O/Θ, log, toplamlar (Hafta 2–3)</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 2–3</b>
+<b>Büyüme sırası:</b> 1 &lt; log n &lt; n &lt; n log n &lt; n² &lt; n³ &lt; 2ⁿ. <b>Θ</b> = hem O hem Ω; en hızlı büyüyen terimi tut, sabiti at.<br>
+<b>Logaritma = “kaç kez yarıya bölebilirim?”</b> 64 → 32 → 16 → 8 → 4 → 2 → 1: 6 adım, lg 64 = 6.<br>
+<b>Toplamlar:</b> 1+2+…+n = n(n+1)/2 = Θ(n²); 1+2+4+…+2ⁿ = 2ⁿ⁺¹−1; ve “yarılayan toplam” n + n/2 + n/4 + … &lt; 2n = Θ(n). <b>Bu son toplam bugün çok kullanılacak.</b><br>
+<b>Döngü değişmezi:</b> bir tur başında doğru kalan cümle (başlangıç, adım, bitiş). Partition’ı bu gözle okuyacağız.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-0-3"><a class="section-reference" href="#topic-0-3">Lecture §0.3</a><h4 id="simple-topic-0-3">A bound can be true without being tight</h4><p>5n²+3n is Θ(n²), but also O(n³). The cubic upper bound is valid and unnecessarily generous.</p><p>Halving the loop size gives n+n/2+n/4+…&lt;2n work. A logarithmic number of rounds does not automatically mean n log n total work.</p></aside></div><div class="topic-row" id="topic-warmup"><div class="topic-main"><h3>Isınma quizi (Hafta 5–6 + araçlar)</h3>
+<div id="quiz0"></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-warmup"><a class="section-reference" href="#topic-warmup">Warm-up</a><h4 id="simple-topic-warmup">Reconnect the earlier tools</h4><p>Trace heap swaps, hash probes, and shrinking loops before reading the worked answers.</p><p>The explanations distinguish exact counts, upper bounds, and assumptions. Section links take you back to the relevant review.</p></aside></div></section>
+
+<!-- ================= BLOK 1 ================= -->
+<section id="s1">
+<div class="kicker">Blok 1</div>
+<h2><span class="num">1</span>Özyineleme (recursion) ve yineleme bağıntısı <span class="time">20 dk</span></h2>
+
+<div class="topic-row" id="topic-1-1"><div class="topic-main"><h3>1.1 Özyineleme nedir?</h3>
+<p><b>Sezgi.</b> Bir kitapta “kelimeyi bul” diyorsunuz ve elinizde 1000 sayfa var. Ortadan açıp “aradığım bu sayfada değil, sol yarıda” diyorsanız aynı soruyu <b>daha küçük kitapla</b> tekrar sormuş olursunuz. Özyineleme tam budur: <b>bir problemi, kendisinin daha küçük bir örneğiyle çözmek</b>. İki şey şarttır: <b>(1) durma durumu</b> (base case, “tek sayfa kaldı, bakıp bitir”), <b>(2) küçülme</b> (her çağrıda girdi gerçekten küçülmeli).</p>
+
+<div class="rule skip"><b class="t">Python hatırlatma — özyinelemeli fonksiyon</b>
+Bir fonksiyon kendi içinde kendini çağırabilir. Önce <b>durma durumu</b>, sonra <b>küçülen çağrı</b> yazılır. Çağrıları önce bir <b>ağaç</b> olarak çizmek en kolay yoldur.
+<pre class="python-example" data-python="1">def fakt(n):
+    if not isinstance(n, int) or n &lt; 0:
+        raise ValueError(&quot;n negatif olmayan bir tam sayı olmalı.&quot;)
+    if n &lt;= 1:            # durma durumu
+        return 1
+    return n * fakt(n - 1)  # daha küçük girdi
+
+def toplam_yarim(a):
+    if not a:
+        return 0
+    if len(a) == 1:         # durma durumu
+        return a[0]
+    orta = len(a) // 2      # // tam bölme (taban), % kalan
+    return toplam_yarim(a[:orta]) + toplam_yarim(a[orta:])
+
+print(fakt(5))                     # 120
+print(toplam_yarim([3, 1, 4, 1]))  # 9</pre><p class="mut">toplam_yarim burada Python dilimleri oluşturur: kopyalama nedeniyle T(n)=2T(n/2)+Θ(n), toplam Θ(n log n) iş. İndeks aralıklarıyla kopyasız sürüm Θ(n) olabilir.</p>
+<code>//</code> tam bölümü, <code>%</code> kalanı verir: 17 // 5 = 3, 17 % 5 = 2; bir sayının son basamağı <code>x % 10</code>, onlar basamağı <code>(x // 10) % 10</code>. Python’da varsayılan özyineleme sınırı yaklaşık 1000 çağrıdır: derinliği n olan bir özyineleme (ör. sıralı girdide quicksort, n = 5000) <code>RecursionError</code> verebilir. Logaritmik derinlik çağrı yığınını çok daha yavaş büyütür; kullanılabilir bellek ve çalışma zamanı sınırları yine geçerlidir.</div>
+
+<div class="try"><div class="lab">Kendin dene — çağrı ağacını gör (gerçek özyineleme çalışır)</div>
+<div class="row"><select id="rt_f" class="sel"></select><span>n =</span><input type="number" id="rt_n" value="4" min="1" max="64" style="width:80px"><button class="btn" id="rt_go">Çalıştır</button></div>
+<div class="log" id="rt_log"></div>
+<div id="rt_sum"></div>
+<div class="mut">Gözlemler: <code>fakt(n)</code> ve <code>toplam(n)</code> n çağrı yapar, kök derinliği 0 alınırsa en büyük derinlik n−1 (bir zincir). <code>yarim(n)</code> yalnızca ≈ lg n çağrı yapar. <code>fib(n)</code> aynı alt problemi tekrar tekrar çözdüğü için çağrı sayısı patlar (n = 10 için 177). <code>ikiye(n)</code> merge sort’un çağrı şeklidir: <b>2n − 1</b> çağrı, derinlik ≈ lg n.</div><div class="activity-guide"><h4>Çağrı sayısı ile derinliği ayırın</h4><p><b>Kontrolleri okuyun.</b> Fonksiyon menüsünü ve n’yi seçip Çalıştır’a basın. Girintiler çağrı derinliğini, sayaç bütün çağrıları gösterir; uzun iz kısaltılabilir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>fakt, n=4: 4→3→2→1 çağrıları; sonuç 24, dört çağrı, kök derinliği sıfırsa en büyük derinlik 3.</li><li>ikiye, n=4: bir kök, iki boyut-2 çağrısı ve dört yaprak; toplam 7 çağrı, derinlik 2.</li><li>fib, n=10 için 177 çağrı vardır. Aynı alt problem birçok kez hesaplanır; kısa derinlik az toplam iş demek değildir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bu araç çağrı yapısını ölçer. JavaScript Number büyük faktöriyelleri tam temsil edemez; büyük sayısal sonuçlar yaklaşık olabilir. Python örneği ayrıca dilim kopyalama maliyeti taşır.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-1"><a class="section-reference" href="#topic-1-1">Lecture §1.1</a><h4 id="simple-topic-1-1">Solve a smaller version, then finish</h4><p>Factorial(5) waits for factorial(4), then multiplies its result by 5. The base case ends the chain.</p><p>Every recursive route must reach a base case. Two recursive calls can create a branching tree; count all calls, not only the deepest path. Python slices also perform copying work.</p></aside></div><div class="topic-row" id="topic-1-2"><div class="topic-main"><h3>1.2 Koddan yineleme bağıntısı (recurrence) okumak</h3>
+<p>Bir özyinelemeli algoritmanın süresi <b>kendisinin daha küçük girdilerdeki süresine</b> bağlıdır. Bunu bir denklem olarak yazarız: <span class="en">T(n)</span> = “n elemanlı girdide yapılan iş”.</p>
+<div class="rule"><b class="t">Kural 1 — bağıntıyı koddan oku</b>
+Her <b>özyinelemeli çağrı için bir T(·) terimi</b> yaz (argümanı küçülmüş boyut), sonra <b>çağrıların dışında yapılan işi</b> ekle (döngüler, birleştirme, karşılaştırma). Sonda <b>durma durumunu</b> yaz: örneğin T(1) = 1. Durma durumu olmayan bağıntı bir fonksiyon değil, sadece bir şekildir.</div>
+<div class="scroll"><table>
+<tr><th>Algoritma</th><th>Kod şekli</th><th>Bağıntı</th><th>Çözüm</th></tr>
+<tr><td>İkili arama</td><td>1 karşılaştırma, <b>bir</b> yarıya çağrı</td><td class="m">T(n) = T(n/2) + 1</td><td>Θ(log n)</td></tr>
+<tr><td>Merge sort</td><td><b>iki</b> yarıya çağrı, sonra n’lik birleştirme</td><td class="m">T(n) = 2T(n/2) + n</td><td>Θ(n log n)</td></tr>
+<tr><td>Özyinelemeli selection sort</td><td>en küçüğü bul (n), kalan <b>n−1</b>’i sırala</td><td class="m">T(n) = T(n−1) + n</td><td>Θ(n²)</td></tr>
+<tr><td>Quicksort, dengeli bölme</td><td>partition (n), iki yarı</td><td class="m">T(n) = 2T(n/2) + n</td><td>Θ(n log n)</td></tr>
+<tr><td>Quicksort, en kötü bölme</td><td>partition (n), bir taraf boş</td><td class="m">T(n) = T(n−1) + n</td><td>Θ(n²)</td></tr>
+<tr><td>Saf (naif) iki çağrılı n−1</td><td>iki çağrı, ikisi de n−1</td><td class="m">T(n) = 2T(n−1) + 1</td><td>Θ(2ⁿ)</td></tr>
+</table></div>
+<div class="rule skip"><b class="t">Dikkat: aynı görünen iki kod</b>
+<code>2T(n/2)</code> ile <code>2T(n−1)</code> kodda çok benzer görünür ama tamamen farklı davranır: ilkinde iki çağrı <b>yarı boyda</b> (çağrı dışı iş Θ(n) ise Θ(n log n), Θ(1) ise Θ(n)), ikincisinde iki çağrı <b>neredeyse aynı boyda</b> (üstel). “Çağrı sayısı” ile “boyut küçülmesi” ayrı şeylerdir.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-1-2"><a class="section-reference" href="#topic-1-2">Lecture §1.2</a><h4 id="simple-topic-1-2">Count calls and local work separately</h4><p>Two calls on n/2 items plus a scan of n items give T(n)=2T(n/2)+Θ(n). One call on n−1 items gives a different recurrence.</p><p>Always state the base case. Two half-sized calls with constant local work give Θ(n), whereas adding linear local work gives Θ(n log n).</p></aside></div><div class="topic-row" id="topic-recurrence"><div class="topic-main"><h3>Hızlı kontrol — bağıntıyı oku</h3>
+<div id="quizR"></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-recurrence"><a class="section-reference" href="#topic-recurrence">Recurrence check</a><h4 id="simple-topic-recurrence">Read the code before naming a formula</h4><p>How many recursive calls are made? How large is each input? What work happens outside those calls?</p><p>These three questions determine the recurrence. The visible answers show which part each incorrect option miscounts.</p></aside></div></section>
+
+<!-- ================= BLOK 2 ================= -->
+<section id="s2">
+<div class="kicker">Blok 2</div>
+<h2><span class="num">2</span>Merge sort (birleştirmeli sıralama) <span class="time">30 dk</span></h2>
+
+<div class="topic-row" id="topic-2-1"><div class="topic-main"><h3>2.1 Önce tek bir işlem: iki sıralı listeyi birleştirmek</h3>
+<p><b>Sezgi.</b> İki sıralı kart destesi var; ikisi de küçükten büyüğe dizili. Tüm kartlar içinde en küçük kart, <b>iki destenin en üstündeki iki karttan biridir</b>. İkisini karşılaştırın, küçüğünü alıp sonuç yığınına koyun. Bunu tekrarlayın. Bir deste biterse diğerinin kalanını olduğu gibi ekleyin: artık karşılaştırmaya gerek yok.</p>
+<pre class="python-example" data-python="2">def merge(a, b):
+    out = []
+    i = j = 0
+    while i &lt; len(a) and j &lt; len(b):
+        if a[i] &lt;= b[j]:          # 1 karşılaştırma (eşitse soldakini al: kararlı)
+            out.append(a[i]); i += 1
+        else:
+            out.append(b[j]); j += 1
+    return out + a[i:] + b[j:]    # kalanı karşılaştırmasız ekle
+
+print(merge([1, 4, 7], [2, 3, 8]))   # [1, 2, 3, 4, 7, 8]</pre>
+<div class="try"><div class="lab">Kendin dene — merge’ü adım adım izle</div>
+<div class="row"><span>A:</span><input type="text" id="mg_a" value="1, 4, 7" style="flex:1;min-width:120px"><span>B:</span><input type="text" id="mg_b" value="2, 3, 8" style="flex:1;min-width:120px"></div>
+<div class="row"><span class="mut">Hazır:</span><button class="btn g" data-mg="1,4,7|2,3,8">Örnek 1</button><button class="btn g" data-mg="5,7,12,19|4,6,13,15">Örnek 2 (Skiena)</button><button class="btn g" data-mg="1,2,3|4,5,6">A hep küçük</button><button class="btn g" data-mg="1,3,5|2,4,6">Dönüşümlü</button></div>
+<div class="lbl">A (i göstergesi)</div><div class="cards sm" id="mg_A"></div>
+<div class="lbl">B (j göstergesi)</div><div class="cards sm" id="mg_B"></div>
+<div class="lbl">Çıktı</div><div class="cards sm" id="mg_O"></div>
+<div id="mg_note" style="min-height:3em"></div>
+<div id="mg_ctl"></div>
+<div class="mut">Karşılaştırma: <b id="mg_c">0</b> · toplam eleman n = <b id="mg_n">0</b> · üst sınır n − 1 = <b id="mg_u">0</b></div><div class="activity-guide"><h4>İki listenin başını karşılaştırın</h4><p><b>Kontrolleri okuyun.</b> A/B alanlarını değiştirin. İleri bir karşılaştırma veya kalanları kopyalama adımıdır. Araç sırasız girdiyi önce sıralar ve başlangıç notunda bildirir; bu ön işlem sayaçta yoktur.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>A=1,4,7; B=2,3,8. Çıktı sırayla 1,2,3,4,7 olur: beş karşılaştırma.</li><li>A bitince B’deki 8 karşılaştırmasız yazılır. Sonuç 1,2,3,4,7,8; yazma sayısı altı, karşılaştırma beş.</li><li>A hep küçük hazırını deneyin: 1,2,3 önce çıkar; kalan 4,5,6 kopyalanır. Üç karşılaştırma yeterlidir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Merge’ün önkoşulu sıralı girdidir. Araçtaki otomatik ön sıralamayı algoritmanın bedava bir parçası sanmayın. Eşit anahtarda soldan seçmek kararlılığı korur.</p></div></div>
+
+<div class="rule"><b class="t">Kural 2 — merge</b>
+n elemanı (iki sıralı yarıdan) birleştirmek <b>en çok n − 1 karşılaştırma</b>, yani <b>Θ(n)</b> iştir. Her karşılaştırma çıktıya <b>tam bir eleman</b> yazar; bir liste boşalınca kalan elemanlar karşılaştırmasız kopyalanır, bu yüzden en az bir eleman için yeni anahtar karşılaştırması gerekmez; kopyalama işi yine vardır. En kötü durum: elemanlar dönüşümlü gelir (n − 1). Sabit liste uzunluklarında en az karşılaştırma, kısa listenin bütün anahtarları diğer listeninkilerden önce gelince kısa liste boyu kadardır. Bir liste baştan boşsa sıfır karşılaştırma yapılır.</div>
+<details><summary>Neden en çok n − 1? (kanıt, 3 satır)</summary><p>Her karşılaştırmadan sonra çıktıya bir eleman eklenir. Karşılaştırmalar, iki listeden biri boşalana kadar sürer; boşalan listenin son elemanı çıktıya yazıldığında diğer listede en az bir eleman kalmıştır ve o, karşılaştırmasız eklenir. O hâlde çıktıya karşılaştırmayla yazılan eleman sayısı en çok n − 1’dir.</p></details>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-1"><a class="section-reference" href="#topic-2-1">Lecture §2.1</a><h4 id="simple-topic-2-1">Compare the two front items</h4><p>Merge [1,4,7] and [2,3,8]: choose 1,2,3,4,7, then copy the remaining 8. Five key comparisons produce six output items.</p><p>Both inputs must already be sorted. Copying a remainder needs time even though it needs no more key comparisons. Choose the left record on equal keys to preserve stability.</p></aside></div><div class="topic-row" id="topic-2-2"><div class="topic-main"><h3>2.2 Merge sort: böl, çöz, birleştir</h3>
+<p><b>Sezgi.</b> 1000 kartı sıralamanız gerekiyor. Yığını ikiye bölün, iki arkadaşınıza verin; onlar da yarıya bölüp başkalarına verir… Sonunda herkesin elinde <b>tek kart</b> var: tek kart zaten sıralı. Sonra sonuçlar yukarı doğru <b>merge</b> ile birleşir.</p>
+<pre class="python-example" data-python="3">def merge(a, b):
+    out = []
+    i = j = 0
+    while i &lt; len(a) and j &lt; len(b):
+        if a[i] &lt;= b[j]:          # 1 karşılaştırma (eşitse soldakini al: kararlı)
+            out.append(a[i]); i += 1
+        else:
+            out.append(b[j]); j += 1
+    return out + a[i:] + b[j:]    # kalanı karşılaştırmasız ekle
+
+
+def mergesort(s):
+    if len(s) &lt;= 1:                 # durma durumu: tek eleman sıralıdır
+        return s
+    orta = len(s) // 2
+    sol = mergesort(s[:orta])       # sol yarıyı sırala
+    sag = mergesort(s[orta:])       # sağ yarıyı sırala
+    return merge(sol, sag)          # n&#x27;lik birleştirme
+
+print(mergesort([6, 3, 8, 2]))      # [2, 3, 6, 8]</pre>
+<p><b>Çözümlü örnek 1 — [6, 3, 8, 2] elle.</b> Böl: [6,3] ve [8,2]; yine böl: [6] [3] [8] [2]. Birleştir: [6]+[3] → karşılaştır 6 ve 3, küçüğü 3 → <b>[3,6]</b> (1 karşılaştırma). [8]+[2] → <b>[2,8]</b> (1 karşılaştırma). Son merge [3,6] + [2,8]: 3 ile 2 → 2; 3 ile 8 → 3; 6 ile 8 → 6; 8 kalanı karşılaştırmasız → <b>[2,3,6,8]</b> (3 karşılaştırma). Toplam 1 + 1 + 3 = <b>5</b> karşılaştırma.</p>
+<div class="try"><div class="lab">Kendin dene — bölme-birleştirme ağacı ve karşılaştırma sayacı</div>
+<div class="row"><input type="text" id="ms_in" value="6, 3, 8, 2" style="flex:1;min-width:180px"><button class="btn g" data-ms="rand">Rastgele 8</button><button class="btn g" data-ms="sorted">Sıralı 8</button><button class="btn g" data-ms="rev">Ters 8</button></div>
+<div class="log" id="ms_tree" style="white-space:normal;font-family:inherit;font-size:14px"></div>
+<div id="ms_note" style="min-height:2.4em"></div>
+<div id="ms_ctl"></div>
+<div class="mut">Toplam karşılaştırma şimdiye kadar: <b id="ms_c">0</b> · bu girdi için sonuç: <b id="ms_tot">0</b> · en kötü durum W(n) = <b id="ms_w">0</b> · n lg n = <b id="ms_nl">0</b></div>
+<div class="mut">Sıralı girdiyi deneyin: karşılaştırma sayısı <b>azalır</b> (her merge’de bir liste hep küçük), ama işin <i>şekli</i> aynıdır: yine ≈ n lg n / 2. Merge sort girdi sırasına neredeyse duyarsızdır.</div><div class="activity-guide"><h4>Bölme ağacı ve birleşen sonuçlar</h4><p><b>Kontrolleri okuyun.</b> Sayı alanı bütün girdidir; İleri ağacın bir sonraki bölme/birleşme adımını gösterir. Anlık sayaç ile bütün girdi için hesaplanan toplamı ayırın.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>6,3,8,2 girin: önce 6,3 ve 8,2 parçaları, sonra dört tek eleman.</li><li>6 ile 3 bir karşılaştırmayla 3,6; 8 ile 2 bir karşılaştırmayla 2,8 olur.</li><li>Son merge üç karşılaştırma yapar. Toplam 5; sonuç 2,3,6,8. Sıralı 8 hazırında 12 karşılaştırma, en kötü W(8)=17 olabilir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Karşılaştırmalar azalsa da standart kod bütün bölme ve birleştirmeleri yapar. W(n) olası en kötü sayıdır; her girdinin o sayıya ulaşması gerekmez.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-2"><a class="section-reference" href="#topic-2-2">Lecture §2.2</a><h4 id="simple-topic-2-2">Split until easy, then merge back</h4><p>[6,3,8,2] becomes [6,3] and [8,2], then singletons. Merge them into [3,6] and [2,8], then [2,3,6,8].</p><p>The example uses 1+1+3=5 key comparisons. Its recursion structure is unchanged if the original input is already sorted.</p></aside></div><div class="topic-row" id="topic-2-3"><div class="topic-main"><h3>2.3 Neden Θ(n log n)? Seviye seviye say</h3>
+<p>Ağacı seviyelere ayırın. En üstte 1 merge (n eleman), bir altta 2 merge (her biri n/2 eleman), sonra 4 merge (n/4)… Her seviyede <b>toplam n eleman</b> birleşir; yani her seviye ≈ n iştir. Seviye sayısı: n’yi 1’e kadar yarılamak = <b>lg n</b> (Hafta 3’teki logaritma!). Toplam ≈ <b>n · lg n</b>.</p>
+<div class="rule"><b class="t">Kural 3 — merge sort</b>
+T(n) = 2T(n/2) + Θ(n) ⟹ <span class="en">Θ(n log n)</span> (en iyi, ortalama ve en kötü durumda). Ek bellek Θ(n) gerekir (yer değiştirmeli, “in place” değil). <b>Kararlıdır</b> (stable): eşit anahtarlar girdideki sırasını korur (<code>&lt;=</code> ile). Veri belleğe sığmazsa (<b>dış sıralama</b>, external sorting) merge sort kazanır, çünkü diski uzun ardışık akışlarla okur/yazar.</div>
+
+<div class="rule rev"><b class="t">Tekrar · Hafta 6 ve Hafta 3 ile kıyas</b>
+<b>Heapsort</b> da en kötü durumda O(n log n)’dir ve ek bellek istemez (yerinde), ama kararlı değildir ve bellekte sıçrar. <b>Insertion sort</b> sıralıya yakın girdide Θ(n)’dir ama en kötü Θ(n²). Merge sort ikisinin arasında: garanti n log n, kararlı, ama Θ(n) ek bellek. Bu farkları Blok 4’teki ölçüm tablosunda sayılarla göreceğiz.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-3"><a class="section-reference" href="#topic-2-3">Lecture §2.3</a><h4 id="simple-topic-2-3">Add the work across each level</h4><p>There are log₂ n merge levels for power-of-two n. Each level processes n items in total, giving Θ(n log n).</p><p>This describes the standard implementation shown here, which uses linear auxiliary storage. Adaptive implementations may exploit already sorted runs differently.</p></aside></div><div class="topic-row" id="topic-2-4"><div class="topic-main"><h3>2.4 Isınma problemi: iki küme ayrık mı? (Ders 8)</h3>
+<p>Boyutları m ve n olan iki kümenin ortak elemanı var mı? Üç yol: (1) ikisini de sırala, merge gibi dolaş: <span class="en">n lg n + m lg m</span>; (2) <b>yalnız küçüğü</b> sırala (m ≤ n), büyüğün her elemanını ikili aramayla ara: <span class="en">m lg m + n lg m</span>; (3) küçüğü karma tablosuna koy, büyüğü tara: <span class="en">m + n</span> beklenen. Ders: <b>hangi kümenin küçük olduğunu fark et</b>, pahalı işi ona bağla.</p>
+<div class="try"><div class="lab">Kendin dene — üç yöntemin maliyeti</div>
+<div class="row"><span>m (küçük) =</span><input type="number" id="ds_m" value="10" min="2" style="width:90px"><span>n (büyük) =</span><input type="number" id="ds_n" value="100000" min="2" style="width:110px"></div>
+<div class="scroll"><table><tr><th>Yöntem</th><th>Yaklaşık adım</th><th>Birinciye göre</th></tr><tbody id="ds_t"></tbody></table></div>
+<div class="mut">m = 10, n = 100 000 için ikinci yöntem birincinin yaklaşık beşte biridir. m = n yapınca fark kaybolur. (Sayılar lg tabanında, sabitler yok; amaç oran görmek.)</div><div class="activity-guide"><h4>Küçük kümeyi önce işleyin</h4><p><b>Kontrolleri okuyun.</b> m küçük, n büyük kümenin boyutudur. Tablo yalnız formülleri hesaplar; gerçek küme elemanlarını veya erken bulunan eşleşmeleri kullanmaz.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>m=10,n=100000 için iki sıralama modeli yaklaşık 1,661 milyon adımdır.</li><li>Yalnız küçüğü sıralayıp aramak yaklaşık 332226 adımdır; yaklaşık beşte biri.</li><li>m=n seçin: ilk iki model aynı büyüklüğe gelir. Karma modeli yaklaşık m+n gösterir, fakat bu beklenen maliyettir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Sabitler, önceden sıralı olma ve dağılım varsayımları kararınızı değiştirir. Bu tablo saniye ölçümü değildir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-4"><a class="section-reference" href="#topic-2-4">Lecture §2.4</a><h4 id="simple-topic-2-4">Put the expensive preprocessing on the smaller set</h4><p>For ten keys versus 100000 keys, sort the ten, then binary-search those ten for each large-set key.</p><p>Hashing the smaller set gives expected O(m+n) under suitable assumptions. The interactive table compares formulas, not actual overlap or measured time.</p></aside></div><div class="topic-row" id="topic-2-5"><div class="topic-main"><h3>2.5 Sık yapılan hatalar (merge sort)</h3>
+<ol>
+<li>“Girdi zaten sıralıysa merge sort Θ(n)’dir.” → Hayır: bölme ve birleştirme yine yapılır, Θ(n log n) (karşılaştırma sayısı azalsa da).</li>
+<li>“Merge n karşılaştırma yapar.” → En çok <b>n − 1</b>; kalanı kopyalamak karşılaştırma değildir.</li>
+<li>“Merge sort yerinde çalışır.” → Hayır, Θ(n) yardımcı dizi gerekir (heapsort yerindedir).</li>
+</ol>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-2-5"><a class="section-reference" href="#topic-2-5">Lecture §2.5</a><h4 id="simple-topic-2-5">Comparisons are only one kind of work</h4><p>One list can finish early during a merge. The remaining items still have to be written to the output.</p><p>Standard merge sort still splits and merges sorted input. Its lower comparison count does not make this implementation linear-time or in-place.</p></aside></div></section>
+
+<!-- ================= BLOK 3 ================= -->
+<section id="s3">
+<div class="kicker">Blok 3</div>
+<h2><span class="num">3</span>Yineleme bağıntılarını çözmek <span class="time">30 dk</span></h2>
+<p>Elimizde bir bağıntı var: <code>T(n) = 2T(n/2) + n</code>. “Θ(n log n)” cevabını nasıl <b>buluruz</b>? Üç yol: <b>özyineleme ağacı</b> (en sezgisel), <b>yerine koyma ile ispat</b> (<span class="en">substitution method</span>) ve <b>Master teoremi benzeri kural</b> (hızlı kontrol).</p>
+
+<div class="topic-row" id="topic-3-1"><div class="topic-main"><h3>3.1 Özyineleme ağacı yöntemi</h3>
+<p><b>Sezgi.</b> Her çağrıyı bir düğüm yapıp ağacı çizin. Her seviyede <b>kaç çağrı</b> var, her biri <b>ne kadar iş</b> yapıyor? Seviye toplamlarını yazın, sonra <b>seviyeleri toplayın</b>. İşin çoğu <b>üstte</b> mi, <b>her seviyede eşit</b> mi, yoksa <b>altta (yapraklarda)</b> mı?</p>
+<p><b>Çözümlü örnek 2 — T(n) = 2T(n/2) + n, n = 8, T(1) = 1.</b></p>
+<div class="scroll"><table>
+<tr><th>Seviye</th><th>Boyut</th><th>Çağrı sayısı</th><th>Çağrı başına iş</th><th>Seviye toplamı</th></tr>
+<tr><td>0</td><td class="m">8</td><td class="m">1</td><td class="m">8</td><td class="m">8</td></tr>
+<tr><td>1</td><td class="m">4</td><td class="m">2</td><td class="m">4</td><td class="m">8</td></tr>
+<tr><td>2</td><td class="m">2</td><td class="m">4</td><td class="m">2</td><td class="m">8</td></tr>
+<tr><td>3</td><td class="m">1</td><td class="m">8</td><td class="m">1</td><td class="m">8</td></tr></table></div>
+<p>Her seviye n = 8; seviye sayısı lg 8 + 1 = 4; toplam 8 · 4 = <b>32</b> = n(lg n + 1) ⟹ <b>Θ(n log n)</b>. (Doğrudan T(8) = 2T(4)+8 = 2·(2T(2)+4)+8 …: T(2) = 4, T(4) = 12, T(8) = 32 ✓.)</p>
+<p><b>Çözümlü örnek 3 — T(n) = T(n/2) + 1 (ikili arama).</b> Her seviyede tek çağrı, iş 1; seviye sayısı lg n + 1 ⟹ T(n) = lg n + 1 = <b>Θ(log n)</b>.</p>
+<p><b>Çözümlü örnek 4 — T(n) = T(n/2) + n, n = 16.</b> Seviyeler: 16, 8, 4, 2, 1 (tek çağrı, iş azalıyor). Toplam 16 + 8 + 4 + 2 + 1 = <b>31</b> &lt; 2n ⟹ <b>Θ(n)</b>. Yarılayan toplam (Hafta 3) burada işe yarar; Hafta 6’daki build-heap’in O(n) olmasının sebebi de aynı tür küçülen toplamdır.</p>
+<p><b>Çözümlü örnek 5 — T(n) = 3T(n/2) + n, n = 8.</b> Seviye toplamları: 8; 3·4 = 12; 9·2 = 18; 27·1 = 27. Her seviye <b>büyüyor</b> (oran 3/2), yani yapraklar baskın. Toplam 8 + 12 + 18 + 27 = <b>65</b>; yaprak sayısı 3^lg n = n^{lg 3} ≈ n^1,585 ⟹ <b>Θ(n^1,585)</b>.</p>
+<div class="try"><div class="lab">Kendin dene — seviye toplamı hesaplayıcı (a çağrı, boyut n/b, çağrı dışı iş nᵈ)</div>
+<div class="row"><span>a</span><select id="lv_a" class="sel"><option>1</option><option selected>2</option><option>3</option><option>4</option></select><span>b</span><select id="lv_b" class="sel"><option selected>2</option><option>3</option><option>4</option></select><span>d</span><select id="lv_d" class="sel"><option>0</option><option selected>1</option><option>2</option></select><span>k (n = bᵏ)</span><input type="range" id="lv_k" min="1" max="8" value="4"><b id="lv_kv">4</b></div>
+<svg id="lv_svg" viewBox="0 0 640 200" width="100%" role="img" aria-label="Seviye başına iş"></svg>
+<div class="scroll"><table><thead><tr><th>Seviye</th><th>Boyut</th><th>Çağrı</th><th>Çağrı başına</th><th>Seviye toplamı</th></tr></thead><tbody id="lv_t"></tbody></table></div>
+<div id="lv_out"></div>
+<div class="mut">T(1) = 1 alınır. Tablodaki toplam, gerçek özyineleme çalıştırılarak bulunan T(n) ile karşılaştırılır; ikisi aynıdır. Çubuklar seviye toplamlarıdır: hepsi eşit uzunluktaysa “her seviye eşit” (log çarpanı), aşağı doğru büyüyorsa “yapraklar baskın”, küçülüyorsa “üst baskın”.</div><div class="activity-guide"><h4>Bir seviyenin toplamını bulun</h4><p><b>Kontrolleri okuyun.</b> a alt çağrı sayısı, b küçülme böleni, d yerel işin üssü, k derinliktir; n=bᵏ. T(1)=1 alınır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>a=2,b=2,d=1,k=3: n=8. Seviye toplamları 8,8,8,8; toplam 32.</li><li>a=1 ile aynı diğer değerler: 8,4,2,1; toplam 15. Üst seviyenin işi baskındır.</li><li>a=3 yapın: 8,12,18,27; toplam 65. Yapraklara doğru iş artar.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Çubuklar tek çağrının değil bütün seviyenin işidir. Eşit toplamlar logaritmik seviye sayısıyla çarpılır; büyüyen/küçülen toplamlar geometrik seri oluşturur.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-1"><a class="section-reference" href="#topic-3-1">Lecture §3.1</a><h4 id="simple-topic-3-1">Count calls × work per call</h4><p>For 2T(n/2)+n with n=8 and T(1)=1, the four level totals are 8,8,8,8. Total: 32.</p><p>The leaves contribute their base-case cost. For 3T(n/2)+n the totals are 8,12,18,27: deeper levels dominate instead.</p></aside></div><div class="topic-row" id="topic-3-2"><div class="topic-main"><h3>3.2 T(n) = T(n−1) + n: bölme yok, çıkarma var</h3>
+<p>Boyut yarıya inmiyor, <b>1 azalıyor</b>. Açın: T(n) = n + T(n−1) = n + (n−1) + T(n−2) = … = n + (n−1) + … + 2 + 1 = <b>n(n+1)/2 = Θ(n²)</b>. Özyinelemeli selection sort ve en kötü durum quicksort budur. n seviye var (log n değil!), bu yüzden toplam büyük.</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-2"><a class="section-reference" href="#topic-3-2">Lecture §3.2</a><h4 id="simple-topic-3-2">Subtracting one is not halving</h4><p>T(n)=T(n−1)+n expands to n+(n−1)+…+1. With T(1)=1, that is n(n+1)/2.</p><p>There are n call levels, not log n. This explains why repeatedly scanning almost the entire remaining input gives quadratic work.</p></aside></div><div class="topic-row" id="topic-3-3"><div class="topic-main"><h3>3.3 Yerine koyma (substitution) yöntemi</h3>
+<p><b>Sezgi.</b> Ağaç size bir <b>tahmin</b> verir; yerine koyma o tahminin <b>doğru olduğunu tümevarımla kanıtlar</b> (Hafta 1’deki üç adım).</p>
+<div class="rule rev"><b class="t">Tekrar · Hafta 1 — tümevarım</b> Taban, varsayım (küçükler için doğru), adım (n için doğru). Burada “varsayım” T(m) ≤ c·m lg m, m &lt; n için.</div>
+<p><b>Çözümlü örnek 6.</b> İddia: T(n) = 2T(n/2) + n için T(n) ≤ c·n lg n. <b>Varsayım:</b> T(n/2) ≤ c(n/2) lg(n/2). <b>Yerine koy:</b> T(n) ≤ 2·c(n/2)·lg(n/2) + n = c·n·(lg n − 1) + n = c·n·lg n − c·n + n. Bu, c ≥ 1 iken c·n·lg n’den küçüktür (−cn + n ≤ 0). <b>Taban:</b> T(2) = 2T(1) + 2 = 4 ≤ c·2·lg 2 = 2c, yani c ≥ 2 gerekir; c = 2 alın. Sonuç: <b>T(n) = O(n log n)</b>.</p>
+<p><b>Yanlış tahmin ne olur?</b> T(n) ≤ c·n deseydik: 2·c(n/2) + n = c·n + n, hiçbir c için c·n’den küçük değil. Tümevarım çöker: tahmin <b>çok küçüktü</b> (lg çarpanı eksik).</p>
+<div class="try"><div class="lab">Kendin dene — yineleme sayısal hesaplayıcı (gerçek özyineleme) ve tahmin kontrolü</div>
+<div class="row"><span>Bağıntı:</span><select id="tn_p" class="sel"></select><span>Tahmin g(n):</span><select id="tn_g" class="sel"></select></div>
+<div class="scroll"><table><thead><tr><th>n</th><th>T(n)</th><th>g(n)</th><th>T(n) / g(n)</th></tr></thead><tbody id="tn_t"></tbody></table></div>
+<div id="tn_out"></div>
+<div class="mut">Okuma (gözlem): oran sabite yaklaşıyorsa tahmin uygun görünür; büyüyorsa tahmin küçük, küçülüyorsa büyük görünür. Tablo yalnızca sonlu n değerleri içindir; kesin Θ sınıfı analitik olarak (özyineleme ağacı/Ana Teorem) belirlenir. Örn. T(n) = T(n/2) + n için kesin çözüm 2n − 1 = Θ(n)’dir (n 2’nin kuvveti, T(1) = 1); n lg n seçilirse oran küçülür, ama bu sınıfı değiştirmez. T(n) = 2T(n/2)+n için g = n seçince oran lg n + 1 gibi büyür: “c·n” tahmininin neden çöktüğü bu.</div><div class="activity-guide"><h4>Tahmini oranla sınayın, sonra ispatlayın</h4><p><b>Kontrolleri okuyun.</b> Bağıntı menüsü T’yi, tahmin menüsü g’yi seçer. Her satır T(n)/g(n) oranını gösterir; hesap tekrarları önbelleklenir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>2T(n/2)+n ve g=n seçin. n=8 için 32/8=4; n=16 için 80/16=5: oran artar.</li><li>g=n log₂n seçin: oran 1+1/log₂n olur ve 1’e yaklaşır.</li><li>T(n/2)+n ile g=n seçin: oran 2−1/n olur, 2’ye yaklaşır. Aynı bağıntıda g=n log n fazla büyük tahmindir.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Sonlu tabloda sabit görünmek ispat değildir. Araç analitik sınıfı ayrıca yazar. Hesaplayıcının önbellek maliyeti ile modellediği algoritmanın T(n) değeri farklı şeylerdir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-3"><a class="section-reference" href="#topic-3-3">Lecture §3.3</a><h4 id="simple-topic-3-3">A table suggests; induction proves</h4><p>For 2T(n/2)+n, substituting c(n/2)log₂(n/2) gives cn log₂ n−cn+n. Choose a constant large enough for the base case too.</p><p>The displayed proof works for powers of two starting at n=2. A bounded-looking ratio on a finite table is evidence, not an asymptotic proof.</p></aside></div><div class="topic-row" id="topic-3-4"><div class="topic-main"><h3>3.4 Master teoremi benzeri sezgi</h3>
+<p>Birçok böl-ve-yönet bağıntısı şu şekle uyar: <span class="en">T(n) = a·T(n/b) + nᵈ</span> (a ≥ 1 çağrı, her biri n/b boyutunda, çağrı dışı iş nᵈ). <b>Yarış:</b> tepedeki iş (nᵈ) mi, yoksa yaprak sayısı n^{log_b a} mı daha büyük? Yaprak sayısı: ağaçta a^{log_b n} = n^{log_b a} yaprak vardır.</p>
+<div class="rule"><b class="t">Kural 4 — üç durum (d ile log_b a’yı karşılaştır)</b>
+<b>d &gt; log_b a</b> → <b>üst baskın</b>: T(n) = Θ(nᵈ). Örnek T(n) = T(n/2) + n: log₂1 = 0 &lt; 1 → Θ(n).<br>
+<b>d = log_b a</b> → <b>her seviye eşit</b>: T(n) = Θ(nᵈ log n). Örnek merge sort: a=2, b=2, d=1, log₂2 = 1 → Θ(n log n). İkili arama: a=1, b=2, d=0 → Θ(log n).<br>
+<b>d &lt; log_b a</b> → <b>yapraklar baskın</b>: T(n) = Θ(n^{log_b a}). Örnek T(n) = 3T(n/2) + n: log₂3 ≈ 1,585 &gt; 1 → Θ(n^{log₂3}) (üs ≈ 1,585; Karatsuba çarpımı).<br>
+<b>Uymayan:</b> T(n) = T(n−1) + n (boyut bölünmüyor, çıkıyor) → açarak çöz: Θ(n²).</div>
+<div class="try"><div class="lab">Kendin dene — durum sınıflayıcı</div>
+<div class="row"><span>a =</span><input type="number" id="ms_a" value="2" min="1" step="1" style="width:80px"><span>b =</span><input type="number" id="ms_b" value="2" min="1.1" step="0.5" style="width:80px"><span>d =</span><input type="number" id="ms_d" value="1" min="0" step="0.5" style="width:80px"></div>
+<div id="ms2_out"></div>
+<div class="scroll"><table><thead><tr><th>Bağıntı</th><th>a, b, d</th><th>log_b a</th><th>Durum</th><th>Sonuç</th></tr></thead><tbody id="ms2_t"></tbody></table></div>
+<div class="mut">Kendi a, b, d değerlerinizi yazın (b &gt; 1). Tablodaki satırlar aynı fonksiyonla hesaplanır.</div><div class="activity-guide"><h4>Üslerin yarışını okuyun</h4><p><b>Kontrolleri okuyun.</b> a≥1 çağrı sayısı, b&gt;1 küçülme, d≥0 yerel iş üssüdür. Bu araç yalnız aT(n/b)+nᵈ biçimini sınıflandırır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>a=2,b=2,d=1: log₂2=1=d; eşit seviyeler, Θ(n log n).</li><li>a=1,b=2,d=1: 0&lt;1; üst baskın, Θ(n).</li><li>a=3,b=2,d=1: log₂3≈1,585&gt;1; yapraklar baskın, Θ(n^(log₂3)).</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> T(n−1)+n bu biçimde değildir. Teoremi kullanmadan önce alt problem gerçekten sabit bir b katsayısıyla küçülüyor mu diye sorun.</p></div></div>
+<div class="rule skip"><b class="t">Şimdilik atla (isteğe bağlı)</b> Strassen: T(n) = 7T(n/2) + n² → log₂7 ≈ 2,81 &gt; 2 → Θ(n^{log₂7}) (üs ≈ 2,81). Eşit olmayan bölme T(n) = T(n/3) + T(2n/3) + n de her seviyede n iş yapar, derinlik log_{3/2} n → yine Θ(n log n). Kesin teoremin ince koşulları (düzgünlük, log çarpanları) sınav kapsamı dışındadır; bu sayfadaki “d ile log_b a’yı karşılaştır” sezgisi yeterli.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-4"><a class="section-reference" href="#topic-3-4">Lecture §3.4</a><h4 id="simple-topic-3-4">Which levels dominate?</h4><p>For a calls of size n/b and local work nᵈ, compare d with log_b a. Larger d means the top dominates; smaller d means leaves dominate.</p><p>Equality makes all levels contribute the same order of work, adding a log n factor. This rule does not apply to n−1 recurrences.</p></aside></div><div class="topic-row" id="topic-3-5"><div class="topic-main"><h3>3.5 Sık yapılan hatalar (yinelemeler)</h3>
+<ol>
+<li><b>“+ n” terimini unutmak.</b> 2T(n/2) tek başına Θ(n); “+ n” ile Θ(n log n). Çağrı dışı iş çoğu zaman cevabı belirler.</li>
+<li><b>Durma durumunu yazmamak.</b> T(1) olmadan bağıntı bir fonksiyon değildir; yerine koymada taban c’yi belirler.</li>
+<li><b>Logaritma tabanları.</b> Θ içinde taban önemsiz (lg n = Θ(ln n)); ama üstte önemlidir: n^{log₂3} ≠ n^{log₃3}.</li>
+<li><b>Çağrı sayısı ≠ küçülme.</b> 2T(n−1) çağrıları ikiye katlar ama boyutu azar azar küçültür (üstel); 2T(n/2) boyutu yarılar; çağrı dışı iş Θ(n) ise toplam Θ(n log n), Θ(1) ise Θ(n) olur.</li>
+</ol>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-3-5"><a class="section-reference" href="#topic-3-5">Lecture §3.5</a><h4 id="simple-topic-3-5">Check the shape before applying a theorem</h4><p>2T(n/2) and 2T(n−1) have the same number of calls but very different shrink rates.</p><p>Do not forget leaves or local work. A valid upper bound can still be loose; proving O(g(n)) alone does not prove Θ(g(n)).</p></aside></div></section>
+
+<!-- ================= BLOK 4 ================= -->
+<section id="s4">
+<div class="kicker">Blok 4</div>
+<h2><span class="num">4</span>Quicksort (hızlı sıralama) <span class="time">30 dk</span></h2>
+
+<div class="topic-row" id="topic-4-1"><div class="topic-main"><h3>4.1 Fikir: pivot seç, böl (partition)</h3>
+<p><b>Sezgi.</b> Sınıftaki öğrencileri boya göre dizeceksiniz. Rastgele birini seçin (<b>pivot</b>), “senden kısa olanlar sola, uzun olanlar sağa” deyin. Pivot artık <b>kendi nihai yerinde</b>: kimse onun diğer tarafına geçmeyecek. Sol grubu ve sağ grubu birbirinden bağımsız sıralayın.</p>
+<p>Örnek, pivot 10: <code>17 12 6 19 23 8 5 10</code> → <code>6 8 5 10 23 19 12 17</code>. Küçükler solda, büyükler sağda; pivot 4. konumda ve orada kalacak.</p>
+<pre class="python-example" data-python="4">def partition(s, l, h):
+    pivot = s[h]                 # son eleman pivot
+    firsthigh = l                # &quot;≥ pivot&quot; bölgesinin başı
+    for i in range(l, h):        # l..h-1 hepsi pivotla karşılaştırılır (h-l karşılaştırma)
+        if s[i] &lt; pivot:
+            s[i], s[firsthigh] = s[firsthigh], s[i]
+            firsthigh += 1
+    s[h], s[firsthigh] = s[firsthigh], s[h]   # pivotu yerine koy
+    return firsthigh
+
+def quicksort(s, l, h):
+    if h - l &gt; 0:
+        p = partition(s, l, h)
+        quicksort(s, l, p - 1)
+        quicksort(s, p + 1, h)
+
+a = [8, 3, 6, 1, 9, 2, 5]
+p = partition(a, 0, len(a) - 1)
+print(&quot;Partition:&quot;, a, &quot;| pivot indeksi:&quot;, p)
+quicksort(a, 0, len(a) - 1)
+print(&quot;Sıralı:&quot;, a)</pre>
+<div class="rule rev"><b class="t">Tekrar · Hafta 3 — döngü değişmezi</b>
+partition’ın değişmezi: <i>i. turun başında</i> <b>s[l..firsthigh−1] hep pivottan küçük</b>, <b>s[firsthigh..i−1] hep pivottan büyük ya da eşit</b>, s[i..h−1] henüz bakılmamış. Başlangıç: ilk ikisi boş ✓. Adım: s[i] küçükse takasla küçük bölgeye katılır, değilse büyük bölgeye ✓. Bitiş: hepsi bakıldı, pivot firsthigh’a konur ✓.</div>
+
+<p><b>Çözümlü örnek 7 — [8, 3, 6, 1, 9, 2, 5], pivot = 5 (son).</b> firsthigh = 0. 8 &lt; 5? Hayır. 3 &lt; 5 evet → s[1] ile s[0] takas: [3, 8, 6, 1, 9, 2, 5], firsthigh = 1. 6? Hayır. 1 &lt; 5 evet → s[3] ile s[1]: [3, 1, 6, 8, 9, 2, 5], firsthigh = 2. 9? Hayır. 2 &lt; 5 evet → s[5] ile s[2]: [3, 1, 2, 8, 9, 6, 5], firsthigh = 3. Son: pivot s[6]=5 ile s[3]=8 takas: <b>[3, 1, 2, 5, 9, 6, 8]</b>, pivotun yeri <b>3</b>. Karşılaştırma sayısı 6 (= n − 1).</p>
+<div class="try"><div class="lab">Kendin dene — partition’ı izle ve tüm quicksort’u çalıştır</div>
+<div class="row"><input type="text" id="qp_in" value="8, 3, 6, 1, 9, 2, 5" style="flex:1;min-width:180px"><span>Pivot kuralı:</span><select id="qp_r" class="sel"><option value="last">son eleman</option><option value="first">ilk eleman</option><option value="mid">ortadaki</option><option value="med3">üçün medyanı</option><option value="rand">rastgele</option></select></div>
+<div class="cards" id="qp_cards"></div>
+<div id="qp_note" style="min-height:3em"></div>
+<div id="qp_ctl"></div>
+<div class="mut">Yeşil = pivottan küçük bölge, mavi = büyük/eşit bölge, sarı = şu an bakılan, kırmızı = pivot. “fh” = firsthigh işareti. Partition karşılaştırması: <b id="qp_c">0</b> (üçün medyanı seçiminin karşılaştırmaları bu sayaca dâhil değil; “Tüm quicksort” özetinde ayrıca gösterilir)</div>
+<div class="row"><button class="btn g" id="qp_full">Tüm quicksort’u çalıştır</button><span id="qp_fsum" class="mut"></span></div>
+<div class="log" id="qp_log" style="max-height:200px"></div><div class="activity-guide"><h4>Pivotu yerleştirmek sıralamayı bitirmez</h4><p><b>Kontrolleri okuyun.</b> Sayıları ve pivot kuralını seçin. İleri yalnız ilk partition’ı izler; Tüm quicksort ayrı düğmedir. Partition sayacı pivot-seçim karşılaştırmalarını içermez.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>8,3,6,1,9,2,5 ve son pivot: pivot 5, firsthigh=0.</li><li>3,1,2 küçük bölgeye taşınır; son takasta 5 indeks 3’e gelir. Sonuç 3,1,2,5,9,6,8; altı karşılaştırma.</li><li>Tüm quicksort’u çalıştırın: 1,2,3,5,6,8,9. Ardından 1,2,3,4 ile deneyin; son pivot toplam altı partition karşılaştırması yapar.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Ortadaki eleman, sıralı değerlerin medyanı olmak zorunda değildir. Pivot nihai yerindedir fakat iki taraftaki kayıtlar henüz kendi içlerinde sıralı değildir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-1"><a class="section-reference" href="#topic-4-1">Lecture §4.1</a><h4 id="simple-topic-4-1">Partition only fixes the pivot’s position</h4><p>With pivot 5, [8,3,6,1,9,2,5] becomes [3,1,2,5,9,6,8]. The pivot is at index 3; each side still needs sorting.</p><p>firsthigh separates the small region from the examined large/equal region. The unexamined suffix is a third region. The code uses zero-based indices.</p></aside></div><div class="topic-row" id="topic-4-2"><div class="topic-main"><h3>4.2 En iyi ve en kötü durum</h3>
+<p><b>En iyi:</b> pivot her seferinde diziyi tam ortadan böler. Merge sort gibi: <code>T(n) = 2T(n/2) + n</code> (partition n−1 karşılaştırma), lg n seviye ⟹ <b>Θ(n log n)</b>.</p>
+<p><b>En kötü:</b> pivot hep en küçük ya da en büyük; bir taraf boş, diğeri n−1: <code>T(n) = T(n−1) + n</code> ⟹ <b>n(n−1)/2 = Θ(n²)</b>. Son elemanı pivot yapan quicksort’ta <b>zaten sıralı</b> girdi tam bu felakettir. (Hafta 3’teki insertion sort’un aksine, burada “sıralı” en kötü olabilir.)</p>
+<p><b>Çözümlü örnek 8 — [1, 2, 3, 4], pivot son.</b> Pivot 4: 3 karşılaştırma, hepsi küçük → sol [1,2,3], sağ boş. Pivot 3: 2 karşılaştırma → [1,2]. Pivot 2: 1 karşılaştırma → [1]. Toplam 3 + 2 + 1 = <b>6</b> = 4·3/2. Özyineleme ağacı bir <b>zincir</b> (derinlik 4, Hafta 5’teki dejenere BST gibi).</p>
+<div class="rule"><b class="t">Kural 5 — quicksort durumları</b>
+En iyi durum: <span class="en">Θ(n log n)</span>. Rastgele permütasyon girdisi altında veya pivot rastgele seçildiğinde <b>beklenen</b> süre <span class="en">Θ(n log n)</span>. En kötü durum: <span class="en">Θ(n²)</span>. Dengeli bölme → log n seviye; dengesiz → n seviye. <b>Skiena’nın hayat dersi:</b> bir işi parçalara bölüyorsanız parçaları eşit yapın.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-2"><a class="section-reference" href="#topic-4-2">Lecture §4.2</a><h4 id="simple-topic-4-2">Balanced splits and chains cost differently</h4><p>Last-pivot quicksort on [1,2,3,4] makes 3+2+1=6 key comparisons. Each pivot removes only one item.</p><p>Balanced partitions give Θ(n log n); repeated extreme partitions give Θ(n²). Input that is easy for insertion sort can be bad for this quicksort.</p></aside></div><div class="topic-row" id="topic-4-3"><div class="topic-main"><h3>4.3 Ortalama durum neden iyi? (sezgi)</h3>
+<p>Pivot rastgeleyse, yarı yarıya “<b>makul</b>” bir pivot gelir: sıralı düzende n/4 ile 3n/4 arasına düşen. Makul pivot büyük tarafı en çok 3n/4’e indirir. n’yi 1’e indirmek için kaç makul bölme gerekir? (3/4)ˡ·n = 1 ⟹ l = log_{4/3} n ≈ 2,4 lg n (n = 1024 için ≈ 24 seviye). Pivotların yalnızca yarısı makul olduğundan bunun ~iki katı seviye beklenir; her seviye O(n) ⟹ <b>O(n log n)</b>. (Bu kaba bir sezgidir ve sabiti abartır; asıl sabit aşağıdaki kesin sonuçtadır. Önemli olan: seviye sayısı <b>log n mertebesinde</b> kalır.)</p>
+<p><b>Kesin sonuç</b> (son eleman pivot, rastgele permütasyon): beklenen karşılaştırma <span class="en">2(n+1)Hₙ − 4n ≈ 1,39 n lg n</span>; burada Hₙ = 1 + 1/2 + … + 1/n harmonik sayıdır ve Hₙ = Θ(log n) (logaritma buradan çıkar). Aşağıda deneyle doğrulayın.</p>
+<div class="try"><div class="lab">Kendin dene — beklenen karşılaştırma: deney ve formül</div>
+<div class="row"><span>n =</span><select id="ex_n" class="sel"><option>8</option><option>16</option><option>64</option><option selected>256</option><option>1024</option></select><button class="btn" id="ex_go">300 rastgele permütasyon çalıştır</button></div>
+<div class="scroll"><table><thead><tr><th>Ölçü</th><th>Değer</th></tr></thead><tbody id="ex_t"></tbody></table></div>
+<div class="mut">Deney ortalaması formüle çok yakın çıkar (rastgele değişir). Not: kıyas için 1,39 n lg n yalnızca baskın terimdir; küçük n’de fark vardır. En kötü n(n−1)/2’dir ve ortalamadan çok uzaktır.</div><div class="activity-guide"><h4>Beklenen değer birçok denemenin ortalamasıdır</h4><p><b>Kontrolleri okuyun.</b> n farklı anahtarın 300 rastgele permütasyonu çalıştırılır. Düğme yeni denemeler üretir; formül aynı kalır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=8 seçin: H₈≈2,717857; 2×9×H₈−32≈16,9214 karşılaştırma.</li><li>Deneyi yenileyin: ortalama tam 16,9214 olmak zorunda değildir. En kötü sayı 8×7/2=28’dir.</li><li>n’yi artırın; deney ortalamasını kesin formülle karşılaştırın. 1,39 n log n yalnız baskın terim olduğundan küçük n’de farkı büyüktür.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Rastgele permütasyonlar farklı anahtarlar içerir. Bu formül bütün anahtarları eşit iki yönlü quicksort’a uygulanmaz.</p></div></div>
+<div class="rule skip"><b class="t">Şimdilik atla (isteğe bağlı) — Hₙ = Θ(log n)</b> Terimleri 2’nin kuvvetleri arasında gruplayın: (1), (1/2), (1/3+1/4), (1/5+…+1/8), … Her grubun toplamı 1/2 ile 1 arasındadır; yaklaşık lg n grup vardır ⟹ Hₙ ≈ lg n ile (lg n)/2 arası, yani Θ(log n). Tam cebir (n ile çarp, n−1 için olanı çıkar, aₙ = T(n)/(n+1) yaz) sınav için gerekli değildir; <b>yineleme bağıntısının nereden geldiğini</b> ve <b>logaritmanın harmonik toplamdan çıktığını</b> bilmek yeterli.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-3"><a class="section-reference" href="#topic-4-3">Lecture §4.3</a><h4 id="simple-topic-4-3">Expected does not mean identical every run</h4><p>For random permutations of distinct keys, the exact expected count is 2(n+1)Hₙ−4n. A finite experiment fluctuates around it.</p><p>At n=8 the expectation is about 16.92, far below the worst-case 28. The leading term 1.39 n log₂ n is less accurate at small n.</p></aside></div><div class="topic-row" id="topic-4-4"><div class="topic-main"><h3>4.4 Rastgele quicksort ve pivot seçimi</h3>
+<p><b>Düşman senaryosu.</b> Programınız en büyük düşmanınızın verdiği veriyle çalışacak olsun. Sabit kuralla (“hep son”) düşman size sıralı girdi verir. Pivotu <b>rastgele</b> seçerseniz hangi girdiyi verirse versin her pivotun makul olma şansı aynıdır. Garanti şu şekilde değişir:</p>
+<ul>
+<li>Önce: “Bana <i>rastgele girdi</i> verirseniz beklenen Θ(n log n).”</li>
+<li>Sonra: “<b>Herhangi bir girdide</b> (farklı anahtarlar), rastgele pivot ile <b>beklenen</b> Θ(n log n).” Beklenti algoritmanın kendi zar atışlarının üzerindendir; girdinin rastgele olması gerekmez. En kötü durum <b>hâlâ vardır</b> (çok şanssız seçimlerle Θ(n²)), ama artık girdiye değil şansa bağlıdır.</li>
+</ul>
+<p><b>Daha iyi pivot kuralları:</b> ortadaki eleman; rastgele eleman; <b>üçün medyanı</b> (ilk, orta, son). “Medyan” alınır, “ortalama” değil, çünkü medyan gerçek bir elemandır ve tek bir uç değer onu sürükleyemez. Hepsinde en kötü durum hâlâ O(n²)’dir, sadece çok daha nadirdir.</p>
+<div class="try"><div class="lab">Kendin dene — pivot kuralı × girdi türü (ölçülen karşılaştırma sayıları; üçün medyanında pivot seçimi karşılaştırmaları dâhildir)</div>
+<div class="row"><span>n =</span><select id="pt_n" class="sel"><option>64</option><option selected>256</option><option>1024</option></select><button class="btn g" id="pt_go">Yeniden hesapla</button></div>
+<div class="scroll"><table><thead><tr><th>Girdi</th><th>son</th><th>ilk</th><th>ortadaki</th><th>üçün medyanı</th><th>rastgele (ort.)</th><th>3’lü bölme (son)</th></tr></thead><tbody id="pt_t"></tbody></table></div>
+<div class="mut" id="pt_ref"></div>
+<div class="mut">Okuma: <b>sıralı</b> ve <b>ters</b> girdide “son” ve “ilk” n(n−1)/2’ye çıkar; “ortadaki”, “medyan” ve “rastgele” ≈ n lg n kalır. <b>Hepsi eşit</b> girdide ise kural ne olursa olsun (3’lüsü hariç) iki yönlü partition n(n−1)/2 yapar: hiçbir eleman pivottan <i>kesinlikle küçük</i> değildir. Çare: <b>üç yönlü bölme</b> (&lt;, =, &gt; ayrı), eşitler ortada toplanır ve onlara özyineleme yapılmaz. (3’lü sütunda her eleman pivotla bir üç sonuçlu karşılaştırma sayılır.) Not: “üçün medyanı” sütunu, her alt problemde pivot seçmek için yapılan 3 karşılaştırmayı da sayar.</div><div class="activity-guide"><h4>Aynı girdi, farklı pivot kuralı</h4><p><b>Kontrolleri okuyun.</b> n menüsü boyutu seçer. Satırlar girdi türü, sütunlar pivot/partition yöntemidir; yeniden hesaplama rastgele denemeleri değiştirir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=64 için sıralı girdide ilk/son pivot 2016 partition karşılaştırmasına ulaşır.</li><li>Hepsi eşit satırında iki yönlü yöntemler yine kuadratik kalır; üç yönlü sütun eşit grubun tamamını tek turda ayırır.</li><li>Üçün medyanı sütununda seçimin karşılaştırmaları da dahil olduğundan sayının yalnız partition formülüyle eşit olmasını beklemeyin.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Üç yönlü sütun bir üç-sonuçlu kıyası tek işlem sayar. Python’daki üç ayrı liste üreten örnek aynı sabite sahip değildir. Ortanca/üçün medyanı bütün girdilere garanti vermez.</p></div></div>
+<pre class="python-example" data-python="5">def qsort3(s):                       # üç yönlü: eşitleri tek seferde ayırır
+    if len(s) &lt;= 1: return s
+    p = s[-1]
+    kucuk = [x for x in s if x &lt; p]
+    esit  = [x for x in s if x == p]
+    buyuk = [x for x in s if x &gt; p]
+    return qsort3(kucuk) + esit + qsort3(buyuk)
+
+print(qsort3([3, 1, 3, 1, 2]))
+print(qsort3([7, 7, 7, 7]))</pre>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-4"><a class="section-reference" href="#topic-4-4">Lecture §4.4</a><h4 id="simple-topic-4-4">Randomize the pivot; separate equal keys</h4><p>Random pivots give expected Θ(n log n) for each fixed distinct-key input, but unlucky runs can still be quadratic.</p><p>With all equal keys, the shown two-way partition still fails to shrink well. Three-way partition removes the whole equal group from recursion. Median-of-three is a heuristic, not a worst-case guarantee.</p></aside></div><div class="topic-row" id="topic-4-5"><div class="topic-main"><h3>4.5 Hangi sıralama ne zaman? Ölçülen tablo</h3>
+<div class="rule rev"><b class="t">Tekrar · Hafta 3 + Hafta 6</b> Selection: hep n(n−1)/2. Insertion: sıralıda n−1, ters n(n−1)/2. Heapsort: yerinde, en kötü O(n log n). Aşağıdaki tablo hepsini <b>aynı girdilerde gerçekten çalıştırıp</b> anahtar karşılaştırmalarını sayar.</div>
+<div class="try"><div class="lab">Kendin dene — sıralama algoritmaları ölçüm tablosu</div>
+<div class="row"><span>n =</span><select id="al_n" class="sel"><option>16</option><option selected>64</option><option>256</option><option>1024</option></select><button class="btn g" id="al_go">Yeniden hesapla</button></div>
+<div class="scroll"><table><thead><tr><th>Algoritma</th><th>Sıralı</th><th>Ters</th><th>Rastgele (ort.)</th><th>Hepsi eşit</th></tr></thead><tbody id="al_t"></tbody></table></div>
+<div class="mut" id="al_ref"></div>
+<div class="mut">Karşılaştırma sayısı, işin tek ölçüsü değildir. Gerçek hız dil, uygulama, veri dağılımı, bellek erişimi ve ayırma maliyetine bağlıdır; bu karşılaştırma sayacı sabit bir hız oranı kanıtlamaz. Büyük-O sabitleri saklar; <b>ölçmek</b> gerekir. Garanti isteyen (gerçek zamanlı) sistemde merge sort/heapsort, ortalama hız isteyen yerde rastgele/medyan pivotlu quicksort tercih edilir.</div><div class="activity-guide"><h4>Karşılaştırma sayacı kronometre değildir</h4><p><b>Kontrolleri okuyun.</b> Aynı girdi türleri farklı algoritmalarda çalıştırılır. n boyuttur; rastgele sütunu deney ortalamasıdır.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=16 için selection her girdide 120 karşılaştırma yapar.</li><li>Insertion sıralı girdide 15, ters girdide 120 karşılaştırma yapar. Quicksort’un son pivotla sıralı girdide neden kötü olduğunu karşılaştırın.</li><li>Yeni rastgele girdi üretin: bazı sayılar değişir; selection’ın sabit sayısı değişmez.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Bellek ayırma, veri taşıma, kararlılık ve çağrı yığını bu tek sayaçta yoktur. Daha az anahtar karşılaştırması her zaman daha kısa gerçek süre demek değildir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-5"><a class="section-reference" href="#topic-4-5">Lecture §4.5</a><h4 id="simple-topic-4-5">Compare under the same workload</h4><p>Selection sort always scans the remainder; insertion sort benefits from order; merge sort gives a predictable bound; quicksort depends on partition quality.</p><p>The table counts key comparisons, not elapsed time, movement, or allocation. Choose using stability, storage, key distribution, and required guarantees, then measure the implementation.</p></aside></div><div class="topic-row" id="topic-4-6"><div class="topic-main"><h3>4.6 Ders 9 ısınması: somunlar ve cıvatalar</h3>
+<p>n cıvata ve onlara uyan n somun var; somunu cıvatada deneyebilirsiniz (büyük/küçük/uyar) ama iki somunu ya da iki cıvatayı kendi aralarında karşılaştıramazsınız. Hepsini eşleştirin. <b>O(n²):</b> her cıvata için somunları dene. <b>Beklenen O(n log n):</b> rastgele bir cıvatayı pivot seç, somunları ona göre “küçük / eşleşen / büyük” diye ayır; eşleşen somun da cıvataları böler. İki yanda özyineleme: <b>kılık değiştirmiş rastgele quicksort</b>.</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-6"><a class="section-reference" href="#topic-4-6">Lecture §4.6</a><h4 id="simple-topic-4-6">Use a matching pair as two pivots</h4><p>Choose a random bolt and test the nuts against it. Its matching nut can then partition the bolts at the same boundary.</p><p>Recurse on the smaller and larger groups. The standard argument assumes distinct sizes and one matching nut per bolt; no nut–nut comparison is needed.</p></aside></div><div class="topic-row" id="topic-4-7"><div class="topic-main"><h3>4.7 Sık yapılan hatalar (quicksort)</h3>
+<ol>
+<li>“Quicksort her zaman n log n’dir.” → Ortalama; en kötü Θ(n²).</li>
+<li>“Rastgele pivot en kötü durumu yok eder.” → Beklenen süreyi girdiden bağımsız yapar; en kötü durum kalır.</li>
+<li>“Hepsi eşit girdi kolaydır.” → İki yönlü (&lt; ile) partition’da n²; üç yönlü bölme gerekir.</li>
+<li>“Pivot, ortalama değerdir.” → Pivot gerçek bir elemandır (medyan kuralı).</li>
+<li>Özyineleme derinliği: en kötü durumda n; Python’da <code>RecursionError</code> riski.</li>
+</ol>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-4-7"><a class="section-reference" href="#topic-4-7">Lecture §4.7</a><h4 id="simple-topic-4-7">Separate the three quicksort claims</h4><p>Balanced behavior is good; expected behavior under randomization is good; worst-case behavior remains quadratic.</p><p>Also distinguish two-way from three-way partition on repeated keys. Deep recursion and extra lists are implementation costs beyond the comparison count.</p></aside></div></section>
+
+<!-- ================= BLOK 5 ================= -->
+<section id="s5">
+<div class="kicker">Blok 5</div>
+<h2><span class="num">5</span>Alt sınır Ω(n log n) ve doğrusal sıralamalar <span class="time">25 dk</span></h2>
+
+<div class="topic-row" id="topic-5-1"><div class="topic-main"><h3>5.1 n log n’den hızlı karşılaştırmalı sıralama var mı? Hayır.</h3>
+<p><b>Sezgi: yirmi soru oyunu.</b> Sıralama, n! olası sıralamadan hangisinin doğru olduğunu bulmaktır. Karşılaştırma tek bir <b>evet/hayır</b> sorusudur ve olasılıkları iki gruba ayırır. Bu grupların büyüğü en az yarısını içerir; en kötü durumda o grupta kalırız. n! seçeneği ayırmak için en az lg(n!) soru gerekir.</p>
+<p>Şimdiye kadarki sıralamalar (heapsort, merge, quick, insertion) <b>karşılaştırmaya dayalıdır</b>: girdi hakkında tek bilgi kaynakları “x, y’den önce mi?” sorusudur. Böyle bir programı bir <b>karar ağacı</b> (decision tree) olarak çizebiliriz: her iç düğüm bir karşılaştırma (iki dal), her yaprak bir çıktı (bir sıralama). Programı bir girdide çalıştırmak, kökten bir yaprağa <b>bir yol</b> izlemektir. Ağacın <b>yüksekliği</b> en kötü durumdaki karşılaştırma sayısıdır.</p>
+<div class="try"><div class="lab">Kendin dene — 3 elemanlı karar ağacı</div>
+<div class="row"><span>a</span><input type="number" id="dt_a" value="5" style="width:70px"><span>b</span><input type="number" id="dt_b" value="2" style="width:70px"><span>c</span><input type="number" id="dt_c" value="9" style="width:70px"><button class="btn g" id="dt_r">Rastgele</button></div>
+<div class="scroll"><div style="min-width:540px"><svg id="dt_svg" viewBox="0 0 640 290" width="100%" role="img" aria-label="Üç elemanlı sıralama karar ağacı"></svg></div></div>
+<div id="dt_out"></div>
+<div class="mut">Mavi yol, bu girdinin izlediği yoldur. Altı yaprak = 3! = 6 sıralama. Ağacın yüksekliği 3: bu girdilerin bazıları 2, bazıları 3 karşılaştırma ister; en kötü 3. Sayıları değiştirerek 6 farklı yaprağa da gidebilirsiniz (farklı sayılar kullanın).</div><div class="activity-guide"><h4>Girdinin karar ağacındaki yolunu izleyin</h4><p><b>Kontrolleri okuyun.</b> a,b,c alanları üç farklı değeri temsil eder. Mavi yol yapılan ikili karşılaştırmaları, yaprak bulunan sırayı gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>a=5,b=2,c=9: b&lt;a&lt;c; sonuç 2,5,9. Yol üzerindeki soruları tek tek okuyun.</li><li>a=1,b=2,c=3 ile başka yolu izleyin; bazı yollar iki, bazıları üç karşılaştırma sürebilir.</li><li>Üç farklı sayının yerlerini değiştirerek altı sıralamaya ulaşın. Eşit sayı girerseniz katı &lt; yaprak etiketleri eşitliği anlatmaz.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> En kötü alt sınır, bazı girdinin en az üç karşılaştırma istediğini söyler; her girdinin üç karşılaştırma yapacağını söylemez.</p></div></div>
+<div class="rule"><b class="t">Kural 6 — sayma argümanı</b>
+n <b>farklı</b> anahtarın n! olası sıralaması vardır; karşılaştırmaya dayalı doğru bir genel sıralama bu permütasyonları ayırt etmek zorunda olduğundan karar ağacında <b>en az n! yaprak</b> olmalıdır. Yüksekliği h olan ikili ağaçta en çok <b>2ʰ</b> yaprak vardır. Bu yüzden <b>2ʰ ≥ n!</b>, yani <b>h ≥ lg(n!)</b>. Ve <span class="en">lg(n!) = Θ(n log n)</span>. Sonuç: karşılaştırmaya dayalı her genel sıralama en kötü durumda <b>Ω(n log n)</b> karşılaştırma yapar; merge sort ve heapsort bu modelde <b>asimptotik olarak optimaldir</b> (Θ(n log n)).</div>
+<details><summary>lg(n!) = Θ(n log n) neden? (iki satır)</summary>
+<p><b>Üst:</b> n! ≤ nⁿ ⟹ lg(n!) ≤ n lg n. <b>Alt:</b> n!’in <b>en büyük n/2 çarpanı</b> her biri en az n/2’dir ⟹ n! ≥ (n/2)^{n/2} ⟹ lg(n!) ≥ (n/2)·lg(n/2) = (n/2)(lg n − 1) = Ω(n log n).</p></details>
+<div class="try"><div class="lab">Kendin dene — en az kaç karşılaştırma gerekir? (karar ağacı yaprak tablosu)</div>
+<div class="row"><span>En çok n =</span><input type="range" id="lb_n" min="3" max="20" value="12"><b id="lb_nv">12</b></div>
+<div class="scroll"><table><thead><tr><th>n</th><th>n! (yaprak)</th><th>⌈lg n!⌉ (alt sınır)</th><th>Merge sort en kötü W(n)</th><th>n lg n</th></tr></thead><tbody id="lb_t"></tbody></table></div>
+<div class="mut">n = 3: 6 yaprak için yükseklik ≥ 3 (2 seviyede en çok 4 yaprak var) ve 3 karşılaştırma yeter. n = 4: 24 yaprak, alt sınır 5; merge sort 5 yapar (optimal!). n = 5: alt sınır 7, merge sort 8. Alt sınır ile en iyi algoritma birbirine çok yakındır ve büyük n’de ikisi de n lg n gibi büyür.</div><div class="activity-guide"><h4>Yaprak sayısından yükseklik sınırı çıkarın</h4><p><b>Kontrolleri okuyun.</b> Kaydırıcı tablodaki en büyük n’yi seçer. n! olası sıralama, yuvarlanmış log bunun için gereken ikili ağaç yüksekliğidir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=3: 6 yaprak; 2²=4 yetmez, 2³=8 yeter. Alt sınır 3.</li><li>n=4: 24 yaprak, alt sınır 5; merge sort en kötü 5 yapabilir.</li><li>n=5: alt sınır 7, bu merge sort’un en kötüsü 8. Alt sınır tek başına onu gerçekleştiren algoritma vermez.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Asimptotik optimal olmak her küçük n’de tam en az sayıyı kullanmak değildir. Buradaki n! sayımı farklı anahtarlar içindir.</p></div></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-1"><a class="section-reference" href="#topic-5-1">Lecture §5.1</a><h4 id="simple-topic-5-1">Enough leaves are needed to distinguish inputs</h4><p>Three distinct keys have 3!=6 possible orders. A binary decision tree of height 2 has at most 4 leaves, so some input needs at least 3 comparisons.</p><p>The bound concerns the worst case for general comparison sorting. It does not say every input takes that many comparisons or that the rounded lower bound is always attainable.</p></aside></div><div class="topic-row" id="topic-5-2"><div class="topic-main"><h3>5.2 Karşılaştırmasız sıralama: sınır nasıl aşılır?</h3>
+<p><b>Sezgi: iskambil.</b> Karışık bir desteyi çiftleri karşılaştırarak sıralamazsınız. 13 yığın açarsınız (as, 2, …, papaz), her kartı <b>değerine bakıp</b> kendi yığınına bırakır, yığınları üst üste toplarsınız. “7’ler yığınına bırakmak” kartın değerini <b>doğrudan adres</b> olarak kullanır: bir evet/hayır karşılaştırmasından çok daha fazla bilgi. (Tıpkı Hafta 5’teki karma tabloda anahtarın slotu belirlemesi gibi.)</p>
+<div class="rule rev"><b class="t">Tekrar · Hafta 5</b> Karma tablo: anahtardan <b>hesaplayarak</b> yuvaya gitmek, anahtarları tek tek karşılaştırmaktan hızlıdır, ama arkasında varsayım (iyi dağılım) vardır. Aynı ders bugün: <b>doğrusal sıralama = varsayım karşılığı hız</b>.</div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-2"><a class="section-reference" href="#topic-5-2">Lecture §5.2</a><h4 id="simple-topic-5-2">A key can provide more than a yes/no answer</h4><p>Counting sort uses the value directly as a counter index. That operation uses information beyond comparing two arbitrary keys.</p><p>It therefore works in a different model. The speed comes with assumptions about the key range and available storage.</p></aside></div><div class="topic-row" id="topic-5-3"><div class="topic-main"><h3>5.3 Counting sort (sayarak sıralama)</h3>
+<p>Anahtarlar 0..k−1 aralığında <b>tam sayılarsa</b>: k sayaç aç; her değeri say; sayaçları ön-toplamla (prefix sum) “başlangıç konumuna” çevir; her elemanı konumuna yaz. Adımlar: n + k + n. Hiç karşılaştırma yok.</p>
+<pre class="python-example" data-python="6">def counting_sort(a, k):                  # a&#x27;nın değerleri 0..k-1
+    if not isinstance(k, int) or k &lt;= 0:
+        raise ValueError(&quot;k pozitif bir tam sayı olmalı.&quot;)
+    if any(not isinstance(x, int) or not 0 &lt;= x &lt; k for x in a):
+        raise ValueError(&quot;Değerler 0 ile k-1 arasında tam sayı olmalı.&quot;)
+    sayac = [0] * k
+    for x in a: sayac[x] += 1             # say          (n adım)
+    out = []
+    for v in range(k):                    # k adım
+        out += [v] * sayac[v]             # yaz          (n eleman)
+    return out
+print(counting_sort([3, 1, 3, 0, 2, 1], 4))   # [0, 1, 1, 2, 3, 3]</pre>
+<p class="mut">Yukarıdaki sürüm sadece sayıları sıralar. Kayıtları (anahtar + veri) kararlı sıralamak için sayaçlar ön-toplamla başlangıç konumlarına çevrilir ve kayıtlar soldan sağa yazılır (radix sort bunu kullanır).</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-3"><a class="section-reference" href="#topic-5-3">Lecture §5.3</a><h4 id="simple-topic-5-3">Count occurrences, then write them out</h4><p>[3,1,3,0,2,1] gives counters [1,2,1,2]. Write one 0, two 1s, one 2 and two 3s.</p><p>This numeric implementation takes Θ(n+k) time and stores counters plus output. Sorting records stably needs placement that preserves their associated data.</p></aside></div><div class="topic-row" id="topic-5-4"><div class="topic-main"><h3>5.4 Bucket sort (kova sıralaması)</h3>
+<p>1..m aralığından n sayı, <b>yaklaşık eşit dağılmış</b> olsun. n kova aç; i. kova yarı açık <b>((i−1)m/n, i·m/n]</b> aralığını tutsun (tam sayılar için uç noktalar ⌊(i−1)m/n⌋+1 .. ⌊i·m/n⌋). Örn. m = 1000, n = 60: 1. kova (0; 16,67] → 1..16, 2. kova (16,67; 33,33] → 17..33; yani 17 ikinci kovaya girer. Bu aralıklar boşluksuz ve çakışmasız örter. Sayı x, <b>⌈x·n/m⌉</b>. kovaya gider (tek aritmetik işlem, O(1)). Sonra her kovayı sırala (insertion bile olur) ve kovaları sırayla art arda ekle. Bağımsız girdilerde her kovaya düşme olasılığı O(1/n) ise beklenen toplam kova-içi iş O(n)’dir; yalnızca ortalama kova boyutunun 1 olması yeterli bir kanıt değildir. Örneğin m ≥ n ve 1..m üzerinde bağımsız eşit olasılıklı seçimler bu koşulu sağlar. Alt sınıra ne oldu? Hiçbir şey: bucket sort karşılaştırmaya dayalı değil, ama <b>veri hakkında varsayım</b> yaptı.</p>
+<div class="try"><div class="lab">Kendin dene — varsayım bozulunca kovalar ne olur?</div>
+<div class="row"><span>n =</span><input type="range" id="bk_n" min="10" max="200" value="60"><b id="bk_nv">60</b><span>Dağılım:</span><select id="bk_d" class="sel"><option value="u">eşit (1..1000)</option><option value="c">kümelenmiş (hepsi 901..1000)</option><option value="s">çarpık (x²)</option><option value="e">hepsi aynı değer</option></select><button class="btn g" id="bk_go">Yeniden üret</button></div>
+<svg id="bk_svg" viewBox="0 0 640 160" width="100%" role="img" aria-label="Kova doluluk grafiği"></svg>
+<div id="bk_out"></div>
+<div class="mut">Çubuk yüksekliği = kovadaki eleman sayısı. İç sıralama maliyeti ≈ Σ b(b−1)/2 (kova içinde insertion sort’un en kötü karşılaştırması). Eşit dağılımda ≈ n’nin yarısı kadar; hepsi aynı kovaya düşünce n(n−1)/2: <b>dağıtmak için doğrusal zaman harcadık ve hiçbir şey öğrenmedik</b>, genel kova-içi sıralama için dağılım avantajı kaybolur. Ancak hepsi eşit girdide standart insertion sort gerçekte doğrusal karşılaştırma yapabilir; grafikteki değer bir üst sınır modelidir.</div><div class="activity-guide"><h4>Dağılımın kovalara etkisi</h4><p><b>Kontrolleri okuyun.</b> n hem kayıt hem kova sayısıdır. Dağılım menüsü değer üretimini değiştirir; Yeniden üret yeni rastgele örnek getirir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=60 ve eşit dağılım: birçok kova küçük kalır; gerçek sayılar rastgele değişir.</li><li>Hepsi aynı değer seçin: tek kovada 60 değer, iç-sıralama üst sınır modeli 60×59/2=1770.</li><li>Kümelenmiş dağılımla karşılaştırın: değerler yalnız son aralıkta toplanır, çoğu kova boştur.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> 1770 ölçülen insertion-sort karşılaştırması değildir. Hepsi eşit girdide gerçek insertion sort daha az iş yapabilir. Tek sonlu deneyden doğrusal/kuadratik sınıf ispatlanmaz; grafik dağılım varsayımını inceler.</p></div></div>
+<p><b>Telefon rehberi.</b> “Skiena” soyadı çok mu? Hayır. “Smith”? Evet. Charlottesville’de “Shifflett” rehberin sayfalarını doldurur, Manhattan’ın 1000 sayfalık rehberinde yedi tane vardır. Gerçek dağılımlar önceden kestirilemeyecek kadar topaktır. Ya veri dağılımını anlayın ya da en kötü durumu/rastgeleliği garanti eden algoritma kullanın (en kötü durum analizinde ısrarın sebebi).</p>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-4"><a class="section-reference" href="#topic-5-4">Lecture §5.4</a><h4 id="simple-topic-5-4">Distribution controls bucket sizes</h4><p>If n buckets receive independent roughly uniform values, buckets are small on average. A concentrated distribution can create a large bucket.</p><p>The chart uses a worst-case within-bucket comparison estimate. All equal values fill one bucket but do not necessarily force actual insertion sort to use that estimate.</p></aside></div><div class="topic-row" id="topic-5-5"><div class="topic-main"><h3>5.5 Radix sort (basamak sıralaması)</h3>
+<p><b>Sezgi.</b> Sayıları önce <b>birler</b> basamağına göre kovalayın, kovaları sırayla toplayın; sonra <b>onlar</b> basamağına göre, sonra <b>yüzler</b>… <b>Her geçiş kararlı olmalı</b> (eşit basamaklar önceki sırayı korur), çünkü eşitlikleri önceki geçişler çözer.</p>
+<p><b>Çözümlü örnek 9.</b> [21, 13, 12, 23]. <b>Birler geçişi:</b> birler basamakları 1, 3, 2, 3. Küçükten büyüğe, eşitlerde girdi sırası korunarak: 21 (1), 12 (2), 13 (3), 23 (3) → [21, 12, 13, 23]. <b>Onlar geçişi:</b> onlar basamakları 2, 1, 1, 2; eşitlerde önceki sıra korunur: 12 (1), 13 (1), 21 (2), 23 (2) → <b>[12, 13, 21, 23]</b> ✓. Kararlılık olmasaydı 12 ile 13’ün sırası bozulabilirdi.</p>
+<div class="try"><div class="lab">Kendin dene — radix sort’u adım adım izle</div>
+<div class="row"><input type="text" id="rx_in" value="329, 457, 657, 839, 436, 720, 355" style="flex:1;min-width:200px"><button class="btn g" data-rx="170,45,75,90,802,24">Örnek: 170, 45, 75, …</button></div>
+<div class="cards sm" id="rx_cards"></div>
+<div class="scroll"><table><thead><tr><th>Kova</th><th>İçerik (kovaya giriş sırasıyla)</th></tr></thead><tbody id="rx_b"></tbody></table></div>
+<div id="rx_note" style="min-height:2.6em"></div>
+<div id="rx_ctl"></div>
+<div class="mut">İlk örnek ders sorusudur: birler geçişinden sonra 720, 355, 436, 457, 657, 329, 839; onlardan sonra 720, 329, 436, 839, 355, 457, 657; yüzlerden sonra 329, 355, 436, 457, 657, 720, 839. İkinci örnek: 170, 45, 75, 90, 802, 24 için birler geçişi 170, 90, 802, 24, 45, 75 verir (170, 90’dan <b>önce</b>: kararlılık).</div><div class="activity-guide"><h4>Her basamakta eşitlerin sırasını koruyun</h4><p><b>Kontrolleri okuyun.</b> En fazla on negatif olmayan güvenli tam sayı girin. İleri bir basamak geçişidir; kova tablosu giriş sırasını gösterir.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>21,13,12,23 girin. Birlerde 1→21, 2→12, 3→13,23; toplanınca 21,12,13,23.</li><li>Onlar geçişinde 12,13 aynı kovaya bu sırayla girer; sonuç 12,13,21,23.</li><li>170,45,75,90,802,24 hazırında ilk geçiş 170,90,802,24,45,75 olur: 170, 90’ın önünde kalır.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Önceki basamak düzenini korumak için geçiş kararlı olmalıdır. Sayıların basamak sayısı arttıkça geçiş sayısı da artar; boş veya geçersiz girdi sessizce başka değerlere dönüştürülmez.</p></div></div>
+
+<div class="rule"><b class="t">Kural 7 — doğrusal sıralamalar ve varsayımları</b>
+<b>Counting sort:</b> anahtarlar 0..k−1 tam sayı ⟹ Θ(n + k). <b>Bucket sort:</b> değerler bilinen aralıkta, eşit dağılım ⟹ <b>beklenen</b> O(n); en kötü Θ(n²). <b>Radix sort:</b> d basamaklı, taban b, her geçiş kararlı counting sort ⟹ <span class="en">O(d·(n + b))</span>. “Radix sort O(n)’dir” demek, basamak sayısı ve aralık belirtilmeden <b>eksiktir</b>.</div>
+<p><b>Çözümlü örnek 10.</b> n tam sayıyı, hepsi 0 ile n² − 1 arasında, O(n)’de sıralayın. Her sayıyı <b>n tabanında</b> yazın: x = yüksek·n + düşük, ikisi de 0..n−1. Önce düşüğe göre, sonra yükseğe göre kararlı counting sort: her geçiş O(n + n) = O(n), iki geçiş O(n). (Sayıların sabit sayıda makine sözcüğüne sığdığı varsayılır.) Aralık 0..n³−1 olsaydı 3 geçiş gerekirdi, yine O(n).</p>
+<h4>Alt sınır yine de geçerli: neden?</h4>
+<p>n <b>farklı</b> anahtar, her biri m karakterli olsun. Alfabe Σ olsun; uzunluğu m olan en çok |Σ|<sup>m</sup> farklı dize vardır, dolayısıyla n farklı dize için |Σ|<sup>m</sup> ≥ n, yani <b>m ≥ ⌈log<sub>|Σ|</sub> n⌉</b> gerekir (eşit uzunluklu dizelerde; örn. 26 farklı tek harfli dize için m = 1 yeter, lg 26 karakter gerekmez). <b>|Σ| sabit</b> (n’den bağımsız) varsayılırsa log<sub>|Σ|</sub> n = Θ(log n) olur; dolayısıyla n farklı, eşit uzunluklu anahtarı temsil etmek için <b>m = Ω(log n)</b> gerekir. Radix sıralamanın maliyeti sabit alfabe için Θ(n·m)’dir: <b>m = Θ(log n)</b> olduğunda Θ(n log n), m daha büyükse buna göre daha büyüktür. Bu sonuç, karşılaştırma alt sınırından değil anahtarların toplam temsil uzunluğundan gelir; alfabe n ile büyürse bu çıkarım değişir. n tane <b>keyfî</b> farklı anahtarı <b>yalnızca ikili karşılaştırmalar kullanarak</b> en kötü durumda Ω(n log n)’den daha az karşılaştırmayla sıralamak mümkün değildir. Counting/radix/bucket gibi daha hızlı yöntemler bu modelin dışına çıkar ve anahtar alanı hakkında ek yapıdan (ör. sınırlı tam sayılar veya dağılım varsayımı) yararlanır.</p>
+<pre class="python-example" data-python="7">values = [21, 13, 12, 23]
+if any(not isinstance(x, int) or not 0 &lt;= x &lt; 100 for x in values):
+    raise ValueError(&quot;Bu iki geçişli örnek 0..99 tam sayıları içindir.&quot;)
+# Python&#x27;un sorted&#x27;ı kararlıdır: iki basamak geçişini taklit eder (doğrusal-zaman bir gerçekleştirim değil)
+values = sorted(values, key=lambda x: x % 10)    # [21, 12, 13, 23]
+print(&quot;Birler geçişi:&quot;, values)
+values = sorted(values, key=lambda x: (x // 10) % 10)   # [12, 13, 21, 23]
+print(&quot;Onlar geçişi:&quot;, values)</pre>
+<div class="rule skip"><b class="t">Şimdilik atla (isteğe bağlı)</b> Ortalama durumda da (rastgele permütasyonlar üzerinde) karşılaştırmalı sıralama Ω(n log n) gerektirir; kanıt daha ince bir yaprak-derinlik argümanıdır. Sınav için “en kötü durum alt sınırı” yeterli.</div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-5-5"><a class="section-reference" href="#topic-5-5">Lecture §5.5</a><h4 id="simple-topic-5-5">Keep the previous digit order</h4><p>For [21,13,12,23], the units pass gives [21,12,13,23]. A stable tens pass gives [12,13,21,23].</p><p>Each pass must preserve order within equal digits. With d passes and base b, counting-based radix costs O(d(n+b)); the Python sorted demonstration teaches stability, not a linear implementation.</p></aside></div></section>
+
+<!-- ================= BLOK 6 ================= -->
+<section id="s6">
+<div class="kicker">Blok 6</div>
+<h2><span class="num">6</span>Mühendislik uygulaması: veri kaydedici ve ADC histogramı <span class="time">10 dk</span></h2><div class="topic-row" id="topic-6"><div class="topic-main">
+<p><b>Durum 1: zaman damgasına göre rapor.</b> Üç sensörden gelen 10 000 kayıt, rapor için zaman sırasında olmalı. Merge sort ≈ n lg n ≈ 133 000 karşılaştırma (10 000 · 13,29) ile yapar ve <b>kararlıdır</b>: eşit zaman damgalı kayıtlar geliş sırasını korur. Her sensör kaydını kendi içinde zaten sıralı tutuyorsa, üç sıralı listeyi <b>merge</b> ile birleştirmek tüm veriyi yeniden sıralamaktan çok ucuzdur: Θ(n) (Blok 2’deki merge aracını iki sensör kaydıyla deneyin, ör. A = 10, 40, 70; B = 20, 30, 80).</p>
+<p><b>Durum 2: 12 bitlik ADC histogramı.</b> Değerler 0..4095 tam sayılar. Counting sort burada doğal: her değeri say ve çıktıyı üret: Θ(n + 4096) iş; sayaçları gezme ve n çıktıyı yazma da hesaba katılır. Ω(n log n) alt sınırı <b>anahtar karşılaştırmalarını</b> sayar; counting sort hiç karşılaştırma yapmaz, değeri dizi indeksi olarak kullanır. Sınır, yalnızca karşılaştıran sıralamaları bağlar.</p>
+<div class="try"><div class="lab">Kendin dene — ADC örnek sayısı, bit sayısı ve basamak genişliği</div>
+<div class="row"><span>n =</span><input type="number" id="ad_n" value="4096" min="2" style="width:100px"><span>Bit:</span><select id="ad_b" class="sel"><option>8</option><option selected>12</option><option>16</option><option>24</option><option>32</option></select><span>Basamak genişliği (bit):</span><select id="ad_w" class="sel"><option>4</option><option>8</option><option selected>12</option><option>16</option></select></div>
+<div class="scroll"><table><tbody id="ad_t"></tbody></table></div>
+<div class="mut">Model: bir geçiş = n (say) + 2ʷ (ön-toplam) + n (yaz) basit dizi işlemi. 4096 örnek, 12 bit, tek geçiş: 3 · 4096 = 12 288 ≈ 12 300 adım; karşılaştırmalı alt sınır ⌈lg(4096!)⌉ ≈ 43 000, yani üçte birinden az. 24 bitte 2²⁴ = 16,7 milyon sayaç küçük bir MCU’ya sığmaz: iki 12 bitlik radix geçişi kullanın.</div><div class="activity-guide"><h4>Sayaç sayısıyla geçiş sayısını birlikte seçin</h4><p><b>Kontrolleri okuyun.</b> n örnek sayısı, Bit anahtar genişliği, basamak genişliği her geçişin bit sayısıdır. Tablo gerçek dizileri sıralamadan bir maliyet modeli hesaplar.</p><p class="mut">Çözümlü deneme — aşağıdaki değerlerle:</p><ol><li>n=4096,12 bit,genişlik12: 4096 sayaç, tek geçiş, 2×4096+4096=12288 model işlemi.</li><li>24 bit ve genişlik12: iki geçiş, toplam 24576 işlem. Her geçiş 4096 sayaç kullanır; 2²⁴ sayaç gerektirmez.</li><li>Genişlik8 seçin: 24 bit için üç geçiş, her biri 8192+256=8448; toplam 25344. Daha az sayaç ile daha çok geçiş arasında seçim vardır.</li></ol><p class="activity-takeaway"><b>Sonuç ne anlatıyor?</b> Model sayaç başlatma gibi sabit ek işleri ve bayt boyutunu ayrı bırakır. 4096 adet 4 bayt sayaç 16 KiB’dır; çıktı alanı da gerekir. Genel farklı-anahtar karşılaştırma alt sınırı ADC tekrarlarına koşulsuz uygulanmaz.</p></div></div>
+<details open><summary>Mini problem: 4096 örneği counting sort ile sıralayın; adımları sayın ve karşılaştırmalı alt sınırla kıyaslayın.</summary>
+<p>4096 (say) + 4096 (ön-toplam) + 4096 (yaz) ≈ 12 300 adım. Karşılaştırmalı sıralama en az lg(4096!) ≈ 43 000 karşılaştırma gerektirir. Çelişki yok: sınır karşılaştırmalı algoritmalar içindir.</p></details>
+<p><b>Ders:</b> algoritmayı seçerken önce <b>verinin yapısına</b> bakın: sıralı alt listeler → merge; sınırlı tam sayı → counting/radix; genel anahtarlar, bellek kısıtı yok, hız önemli → rastgele/medyan quicksort; kesin süre garantisi → merge sort ya da heapsort.</p>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-6"><a class="section-reference" href="#topic-6">Lecture §6</a><h4 id="simple-topic-6">Use the structure of sensor data</h4><p>Already sorted timestamp streams can be merged. A 12-bit ADC has only 4096 possible codes, making a histogram natural.</p><p>The model counts abstract array operations, not microseconds. It compares against a general distinct-key comparison-sorting reference; duplicates and bounded domains need that qualification.</p></aside></div></section>
+
+<!-- ================= BLOK 7 ================= -->
+<section id="s7">
+<div class="kicker">Blok 7</div>
+<h2><span class="num">7</span>Alıştırmalar ve quiz <span class="time">ev çalışması</span></h2>
+
+<div class="topic-row" id="topic-7-1"><div class="topic-main"><h3>7.1 Ana quiz (Hafta 7)</h3>
+<div id="quiz1"></div>
+
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-7-1"><a class="section-reference" href="#topic-7-1">Lecture §7.1</a><h4 id="simple-topic-7-1">Trace before reading the answer</h4><p>Answers and explanations are visible. Check the exact merge comparisons, pivot placement, and digit-pass order against each worked solution.</p><p>Every question links to its matching lecture section. Pay attention to distinct-key assumptions and the difference between a lower bound and an algorithm’s actual cost.</p></aside></div><div class="topic-row" id="topic-7-2"><div class="topic-main"><h3>7.2 Yazılı alıştırmalar (cevaplar tıklayınca açılır)</h3>
+<details><summary>A1 (kolay). [1, 4, 9] ile [2, 3, 10] listelerini birleştirin. Çıktıyı ve karşılaştırma sayısını yazın.</summary>
+<p>Çıktı: <b>1, 2, 3, 4, 9, 10</b>. Karşılaştırmalar: 1–2, 4–2, 4–3, 4–10, 9–10 = <b>5</b>; sonra 10 karşılaştırmasız eklenir. n = 6 için n − 1 = 5: en kötü durum.</p></details>
+<details><summary>A2 (kolay). T(n) = 2T(n/2) + n, T(1) = 1 için n = 16’da seviye tablosunu yazın ve toplamı bulun.</summary>
+<p>Seviye 0: 1 çağrı × 16 = 16. Seviye 1: 2 × 8 = 16. Seviye 2: 4 × 4 = 16. Seviye 3: 8 × 2 = 16. Seviye 4: 16 × 1 = 16. Beş seviye × 16 = <b>80</b> = n(lg n + 1) = 16·5. Θ(n log n).</p></details>
+<details><summary>A3 (kolay). T(n) = T(n/2) + n çözümü nedir? T(n) = 2T(n/2) + n ile neden farklı?</summary>
+<p>Her seviyede tek çağrı: iş n, n/2, n/4, … toplam &lt; 2n ⟹ <b>Θ(n)</b>. Master: a = 1, b = 2, d = 1, log₂1 = 0 &lt; 1: üst baskın. 2T(n/2) + n’de iki çağrı iş miktarını her seviyede n’de tutar, lg n seviye toplanır ⟹ Θ(n log n). <b>Çağrı sayısı</b> cevabı değiştirir.</p></details>
+<details><summary>A4 (orta). [4, 9, 1, 7, 3] dizisini son eleman pivotla partition edin. Sonuç ve pivotun yeri?</summary>
+<p>Pivot 3, firsthigh = 0. 4 ≥ 3, 9 ≥ 3. 1 &lt; 3 → s[2] ile s[0] takas: [1, 9, 4, 7, 3], firsthigh = 1. 7 ≥ 3. Pivotu yerine koy: s[4] ile s[1] takas: <b>[1, 3, 4, 7, 9]</b>, pivotun yeri <b>1</b>.</p></details>
+<details><summary>A5 (orta). Bütün n anahtarı eşit olan bir dizide (&lt; ile) iki yönlü partition kullanan quicksort ne yapar? Nasıl düzeltilir?</summary>
+<p>Hiçbir eleman pivottan <b>kesinlikle küçük</b> değildir; hepsi “büyük/eşit” tarafta kalır, her partition yalnızca pivotu ayırır, alt problem n−1 olur. Karşılaştırma toplamı n(n−1)/2 ⟹ <b>Θ(n²)</b>, özyineleme derinliği n. Çare: <b>üç yönlü bölme</b> (&lt;, =, &gt;): eşitler ortada toplanır, yalnızca dış iki parçaya özyineleme yapılır; tamamen eşit girdi tek doğrusal taramada biter.</p></details>
+<details><summary>A6 (orta). 329, 457, 657, 839, 436, 720, 355 sayılarını radix sort ile (birler, onlar, yüzler) sıralayın; her geçişten sonraki sırayı yazın.</summary>
+<p>Birlerden sonra: <b>720, 355, 436, 457, 657, 329, 839</b>. Onlardan sonra: <b>720, 329, 436, 839, 355, 457, 657</b>. Yüzlerden sonra: <b>329, 355, 436, 457, 657, 720, 839</b>. Her geçiş kararlıdır; eşitlikleri önceki geçişler çözer.</p></details>
+<details><summary>A7 (orta). 3 öğeyi sıralamak için en kötü durumda kaç karşılaştırma gerekir? Bu sınır ulaşılabilir mi?</summary>
+<p>Karar ağacında en az 3! = 6 yaprak gerekir; yüksekliği 2 olan ağaçta en çok 4 yaprak vardır, dolayısıyla yükseklik ≥ <b>3</b>. Üç karşılaştırma yeter: a ile b’yi, büyüğü c ile karşılaştır, kalan elemanı yerleştirmek için bir karşılaştırma daha (Blok 5’teki ağaç).</p></details>
+<details><summary>A8 (orta). Aşağıdaki kodun bağıntısını yazın ve çözün. For döngüsü silinirse ne olur?<br><code>f(A, lo, hi): if hi−lo &lt; 1: return; mid=(lo+hi)//2; f(A,lo,mid); f(A,mid+1,hi); for i in lo..hi: print A[i]</code></summary>
+<p>n = hi − lo + 1. İki çağrı n/2 boyunda + n’lik döngü: <b>T(n) = 2T(n/2) + n</b> ⟹ Θ(n log n) (a = 2, b = 2, d = 1, log₂2 = 1: eşit). Döngü silinirse <b>T(n) = 2T(n/2) + 1</b>: seviye k’da 2ᵏ çağrı × 1 iş; yapraklar baskın (d = 0 &lt; log₂2 = 1) ⟹ <b>Θ(n)</b>. “+ n” terimi cevabı n log n’den n’ye çevirdi.</p></details>
+<details><summary>A9 (orta). 4096 tane 12 bitlik ADC örneğini counting sort ile sıralayın: adımları sayın, alt sınırla kıyaslayın, değerler 24 bit olsaydı ne değişirdi?</summary>
+<p>Sayaç dizisi 4096 hücre. Say: 4096 adım; ön-toplam: 4096; yaz: 4096 ⟹ ≈ <b>12 300</b> adım. Karşılaştırmalı alt sınır ⌈lg(4096!)⌉ ≈ <b>43 000</b>: üç kattan fazla. Çelişki yok: counting sort karşılaştırma yapmaz. 24 bitte 16,7 milyon sayaç gerekir; iki adet 12 bitlik kararlı counting sort geçişi (radix sort) kullanılır: her geçiş ≈ 3·4096.</p></details>
+<details><summary>A10 (orta). T(n) = 3T(n/2) + n için hangi durum geçerli ve ağaçta ne olur?</summary>
+<p>a = 3, b = 2, d = 1; log₂3 ≈ 1,585 &gt; 1 ⟹ <b>yapraklar baskın</b>: Θ(n^1,585). Seviye k’da 3ᵏ çağrı × n/2ᵏ = n(3/2)ᵏ iş: seviye toplamları büyür (oran 3/2). Son seviyede 3^{lg n} = n^{log₂3} yaprak var. (Karatsuba çarpımı.)</p></details>
+<details><summary>A11 (zor, isteğe bağlı). lg(n!) = Θ(n log n) olduğunu gösterin.</summary>
+<p><b>Üst:</b> n! ≤ nⁿ ⟹ lg(n!) ≤ n lg n. <b>Alt:</b> n!’in en büyük n/2 çarpanı her biri en az n/2 ⟹ n! ≥ (n/2)^{n/2} ⟹ lg(n!) ≥ (n/2)(lg n − 1) = Ω(n log n). İkisi birlikte Θ(n log n).</p></details>
+<details><summary>A12 (zor, isteğe bağlı). T(n) = 2T(n/2) + n, T(1) = 1 için T(n) ≤ c·n lg n olduğunu yerine koymayla kanıtlayın.</summary>
+<p><b>Varsayım:</b> m &lt; n için T(m) ≤ c·m lg m. <b>Adım:</b> T(n) ≤ 2·c(n/2)lg(n/2) + n = c·n·lg n − c·n + n ≤ c·n·lg n, c ≥ 1 iken. <b>Taban:</b> T(2) = 2T(1) + 2 = 4 ≤ c·2·lg 2 = 2c ⟹ c ≥ 2. c = 2 alınır ⟹ T(n) = O(n log n). Ağaç sayımı alt sınırı da verir ⟹ Θ(n log n). (n = 1’de lg 1 = 0 olduğundan taban n = 2’den başlar.)</p></details>
+<details><summary>A13 (zor, isteğe bağlı). Boyutları 2 ≤ m ≤ n olan iki sırasız küme ayrık mı? Karşılaştırmalı ve karma yöntemle çözün.</summary>
+<p>Karşılaştırmalı: küçüğü sırala O(m log m), büyüğün her elemanını ikili aramayla ara O(n log m) ⟹ O((m + n) log m). Karma: küçüğü tabloya koy, büyüğü tara ⟹ beklenen O(m + n) (iyi karma varsayımıyla). Pahalı işi küçük kümeye bağlamak anahtar fikir.</p></details>
+<div class="rule skip"><b class="t">Şimdilik atlayabilirsiniz</b> A11, A12 ve A13 isteğe bağlıdır; ayrıca “Hₙ = Θ(log n)” ve Strassen notları. Sınav kapsamı için resmî sayfadaki <a style="color:var(--acc)" href="../scope/#scope-w7">kapsam listesine</a> bakın.</div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-7-2"><a class="section-reference" href="#topic-7-2">Lecture §7.2</a><h4 id="simple-topic-7-2">State the model with your result</h4><p>For recurrences, give the base case and local cost. For sorting, state key range, duplicates, stability, and whether the count includes copying.</p><p>The optional proofs explain why the observed patterns hold for all supported inputs, not only the examples on screen.</p></aside></div></section>
+
+<!-- ================= ÖZET ================= -->
+<section id="s8">
+<div class="kicker">Özet</div>
+<h2><span class="num">8</span>Tek sayfalık özet</h2><div class="topic-row" id="topic-8"><div class="topic-main">
+
+<div class="box"><b>Hafta 7’nin 7 kuralı</b>
+<ol>
+<li><b>Bağıntıyı koddan oku:</b> her özyinelemeli çağrı bir T(·); çağrı dışı iş eklenir; taban durumu yazılır.</li>
+<li><b>Merge:</b> n elemanı en çok n − 1 karşılaştırmayla birleştirir, Θ(n). <b>Merge sort:</b> T(n) = 2T(n/2) + n = Θ(n log n); kararlı; Θ(n) ek bellek; dış sıralamada iyi.</li>
+<li><b>Özyineleme ağacı:</b> seviye başına iş × seviye sayısı. İş üstte → Θ(nᵈ); her seviye eşit → Θ(nᵈ log n); yapraklarda → Θ(n^{log_b a}).</li>
+<li><b>Yerine koyma:</b> tahmin et, tümevarımla kanıtla; çok küçük tahmin çöker. T(n−1) + n bölünmez: açarak Θ(n²).</li>
+<li><b>Quicksort:</b> partition ile pivot yerine oturur. En iyi/ortalama Θ(n log n), en kötü Θ(n²). Rastgele pivot: <i>her girdi için beklenen</i> n log n, en kötü durum kalır. Eşit anahtarlarda üç yönlü bölme.</li>
+<li><b>Alt sınır:</b> karar ağacında ≥ n! yaprak ⟹ yükseklik ≥ lg(n!) = Θ(n log n). Karşılaştırmalı her sıralama Ω(n log n).</li>
+<li><b>Karşılaştırmasız sıralamalar</b> ek yapı/varsayım kullanır: counting sort sınırlı tamsayı anahtar aralığına; bucket sort uygun dağılım varsayımına; radix sort ise basamak gösterimine ve kararlı basamak sıralamasına dayanır. Radix: O(d(n + b)).</li>
+</ol></div>
+
+<div class="box"><b>Hafta 5–6 ve önceki araçlardan hatırlanacaklar</b>
+<ul>
+<li>Öbek: ebeveyn ⌊k/2⌋; ekleme / çıkarma O(log n); build-heap O(n); heapsort O(n log n) yerinde.</li>
+<li>BST arama maliyeti = yükseklik (sıralı girişte n). Karma: beklenen O(1) bir varsayım, en kötü O(n).</li>
+<li>Θ = hem O hem Ω. n + n/2 + n/4 + … &lt; 2n. Logaritma = kaç kez yarılarız.</li>
+<li>Insertion sıralıda Θ(n); selection hep n(n−1)/2.</li>
+</ul></div>
+
+<div class="box"><b>Sık yapılan hatalar</b>
+<ol>
+<li>“+ n” terimini unutmak (2T(n/2) yalnız Θ(n) olurdu).</li>
+<li>T(n/2) ile T(n−1)’i karıştırmak (n log n ya da üstel / n²).</li>
+<li>“Merge sort sıralı girdide Θ(n).” → Hayır, Θ(n log n).</li>
+<li>“Quicksort her zaman n log n.” → Ortalama; sıralı girdide son-pivot Θ(n²).</li>
+<li>“Rastgele pivot en kötü durumu yok eder.” → Beklentiyi girdiden bağımsız yapar.</li>
+<li>“Her sıralama Ω(n log n)’dir.” → Yalnız karşılaştırmalı olanlar; counting/radix varsayım kullanır.</li>
+<li>“Radix sort O(n).” → d ve b belirtilmeden eksik.</li>
+<li>Radix’te kararsız (unstable) geçiş kullanmak.</li>
+</ol></div>
+
+<div class="box"><b>Çıkış bileti (ders sonunda 3 soru)</b>
+<ol>
+<li>T(n) = 2T(n/2) + n ile T(n) = T(n−1) + n arasında bir ağaç çiziminde seviye sayısı neden farklıdır?</li>
+<li>Quicksort’un en kötü durumu nedir ve rastgele pivot bunu nasıl değiştirir?</li>
+<li>Counting sort n log n alt sınırını neden bozmaz?</li>
+</ol></div>
+</div><aside class="english-summary" lang="en" aria-labelledby="simple-topic-8"><a class="section-reference" href="#topic-8">Week 7 recap</a><h4 id="simple-topic-8">Three questions to carry forward</h4><p>How does the problem shrink? How much work happens at each level? What extra structure do the keys provide?</p><p>Merge sort has steady level work; quicksort depends on splits; counting and radix exploit restricted keys. A complexity label is useful only with its assumptions.</p></aside></div></section>
+
+<div class="foot">
+  <a href="../w6/">← Önceki</a>
+  <a href="ek-notlar/">Ek notlar: orijinal Hafta 7 (tam sürüm)</a>
+  <a href="../w8/">Sonraki →</a>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toLocaleString("tr-TR");
+const lg=n=>Math.log2(n);
+const sameArr=(x,y)=>x.length===y.length&&x.every((v,i)=>v===y[i]);
+const parseNums=(s,max)=>s.split(/[ ,;]+/).filter(x=>x!=="").map(Number).filter(x=>Number.isFinite(x)).slice(0,max||12);
+try{if(matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.dataset.theme="light"}catch(e){}
+$("#tg").onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==="dark"?"light":"dark"};
+
+/* ---------- generic quiz ---------- */
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function mkQuiz(id,Q){
+  const el=$(id), prefix=id.slice(1);
+  el.innerHTML=Q.map((q,qi)=>`<div class="box q" data-q="${qi}"><b>${qi+1}. ${q[0]}</b><div class="opts">${q[1].map((o,oi)=>`<div class="opt${oi===q[2]?" right":""}">${o}${oi===q[2]?'<span class="quiz-answer-label">✓ Doğru cevap</span>':""}</div>`).join("")}</div><div class="fb" style="display:block" id="${prefix}-feedback-${qi}"><p class="quiz-result"><b>Doğru seçenek: ${q[1][q[2]]}</b></p><p><b>Neden?</b> ${esc(q[3])}</p><p><b>Diğer seçenekler neden uygun değil?</b> ${esc(q[4])}</p><a href="#topic-${q[5].replace(".","-")}">İlgili anlatım: §${q[5]}</a></div></div>`).join("");
+}
+
+/* ---------- generic stepper ---------- */
+function mkStep(p,build,render,ms){
+  const el=$("#"+p+"_ctl");
+  el.innerHTML=`<div class="row"><button class="btn g" data-a="b">◀ Geri</button><button class="btn" data-a="f">İleri ▶</button><button class="btn g" data-a="p">Oynat</button><button class="btn g" data-a="r">Başa dön</button><span class="mut">Adım <b data-k>0</b>/<b data-t>0</b></span></div>`;
+  let S=[],k=0,tm=null;const pb=el.querySelector('[data-a=p]');
+  const stop=()=>{if(tm){clearInterval(tm);tm=null}pb.textContent="Oynat"};
+  const draw=()=>{render(S[k],k,S.length-1);el.querySelector("[data-k]").textContent=k;el.querySelector("[data-t]").textContent=S.length-1};
+  const rebuild=()=>{stop();S=build();k=0;draw()};
+  el.querySelector('[data-a=f]').onclick=()=>{if(k<S.length-1){k++;draw()}};
+  el.querySelector('[data-a=b]').onclick=()=>{if(k>0){k--;draw()}};
+  el.querySelector('[data-a=r]').onclick=rebuild;
+  pb.onclick=()=>{if(tm){stop();return}pb.textContent="Duraklat";tm=setInterval(()=>{if(k>=S.length-1){stop();return}k++;draw()},ms||700)};
+  return {rebuild,get S(){return S}};
+}
+
+/* ======== 0.1 heap ======== */
+let HP=[2,4,3];
+function hpUp(H,i,L){while(i>0){const p=(i-1)>>1;if(H[p]>H[i]){L.push(`  ${H[i]} (konum ${i+1}) &lt; ebeveyn ${H[p]} (konum ${p+1}) → takas`);[H[p],H[i]]=[H[i],H[p]];i=p}else{L.push(`  ebeveyn ${H[p]} ≤ ${H[i]} → dur`);return}}if(i===0)L.push("  köke ulaştı → dur")}
+function hpDown(H,i,n,L){while(true){const l=2*i+1,r=l+1;let s=i;if(l<n&&H[l]<H[s])s=l;if(r<n&&H[r]<H[s])s=r;if(s===i){L.push(`  ${H[i]} (konum ${i+1}) çocuklarından küçük/eşit → dur`);return}L.push(`  ${H[i]} (konum ${i+1}) ↔ küçük çocuk ${H[s]} (konum ${s+1})`);[H[i],H[s]]=[H[s],H[i]];i=s}}
+function hpRender(msg){
+  $("#hp_cards").innerHTML=HP.length?HP.map((v,i)=>`<div class="card ${i===0?"min":""}">${v}<small>${i+1}</small></div>`).join(""):`<span class="mut">(boş öbek)</span>`;
+  if(msg!==undefined)$("#hp_log").innerHTML=msg;
+}
+$("#hp_set").onclick=()=>{HP=parseNums($("#hp_in").value,12);hpRender("Dizi olduğu gibi yüklendi (öbek olması gerekmez). Öbek kurmak için “Öbek kur”a basın.")};
+$("#hp_build").onclick=()=>{HP=parseNums($("#hp_in").value,12);const L=["Build-heap: son ebeveynden köke doğru her düğümü aşağı indir."];for(let i=(HP.length>>1)-1;i>=0;i--){L.push(`düğüm ${i+1} (${HP[i]}):`);hpDown(HP,i,HP.length,L)}L.push("Sonuç: ["+HP.join(", ")+"]");hpRender(L.join("\n"))};
+function hpValid(){return HP.every((v,i)=>i===0||HP[(i-1)>>1]<=v)}
+$("#hp_ins").onclick=()=>{if(!hpValid()){hpRender("Önce geçerli bir min-öbek kurun: Öbek kur düğmesini kullanın.");return}const v=+$("#hp_v").value;if(!Number.isFinite(v)||$("#hp_v").value.trim()===""){hpRender("Sonlu bir sayı girin.");return}const L=[`insert(${v}): sona (konum ${HP.length+1}) ekle`];HP.push(v);hpUp(HP,HP.length-1,L);L.push("Sonuç: ["+HP.join(", ")+"]");hpRender(L.join("\n"))};
+$("#hp_ext").onclick=()=>{if(!hpValid()){hpRender("Önce geçerli bir min-öbek kurun: Öbek kur düğmesini kullanın.");return}if(!HP.length){hpRender("Öbek boş.");return}const m=HP[0],L=[`extract-min: kök ${m} çıkar; son eleman ${HP[HP.length-1]} köke taşınır`];const last=HP.pop();if(HP.length){HP[0]=last;hpDown(HP,0,HP.length,L)}L.push(`Çıkan: ${m} · Kalan: [${HP.join(", ")}]`);hpRender(L.join("\n"))};
+hpRender("Dizi [2, 4, 3] bir min-öbektir. Ekle / çıkar deneyin.");
+
+/* ======== 0.2 hash ======== */
+function hsUpdate(){
+  const m=+$("#hs_m").value,keys=parseNums($("#hs_k").value,m);const T=Array(m).fill(null),rows=[];
+  keys.forEach(k=>{let h=((k%m)+m)%m,pr=1,s=h;while(T[s]!==null&&pr<=m){s=(s+1)%m;pr++}
+    if(T[s]===null){T[s]=k;rows.push(`<tr><td class="m">${k}</td><td class="m">${h}</td><td class="m">${s}</td><td class="m">${pr}</td></tr>`)}else rows.push(`<tr><td class="m">${k}</td><td class="m">${h}</td><td class="bad">tablo dolu</td><td></td></tr>`)});
+  $("#hs_out").innerHTML=`<div class="cards sm">${T.map((v,i)=>`<div class="card ${v===null?"":"sorted"}">${v===null?"·":v}<small>${i}</small></div>`).join("")}</div><div class="scroll"><table><thead><tr><th>Anahtar</th><th>h(k) = k mod ${m}</th><th>Yerleştiği yuva</th><th>Yoklama sayısı</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+}
+$("#hs_m").onchange=$("#hs_k").oninput=hsUpdate;hsUpdate();
+
+/* ======== 1.1 recursion tracer ======== */
+const RT={
+ fakt:{n:"fakt(n) = n · fakt(n−1)",max:64,f:(x,r)=>x<=1?1:x*r(x-1)},
+ toplam:{n:"toplam(n) = n + toplam(n−1)",max:64,f:(x,r)=>x<=1?1:x+r(x-1)},
+ fib:{n:"fib(n) = fib(n−1) + fib(n−2)",max:20,f:(x,r)=>x<=1?x:r(x-1)+r(x-2)},
+ yarim:{n:"yarim(n) = 1 + yarim(n//2)",max:1024,f:(x,r)=>x<=1?0:1+r(Math.floor(x/2))},
+ ikiye:{n:"ikiye(n) = ikiye(n//2) + ikiye(n−n//2)",max:64,f:(x,r)=>x<=1?1:r(Math.floor(x/2))+r(x-Math.floor(x/2))}
+};
+$("#rt_f").innerHTML=Object.keys(RT).map(k=>`<option value="${k}">${RT[k].n}</option>`).join("");
+function runRT(kind,n){
+  const def=RT[kind],lines=[];let calls=0,maxD=0,capped=false;const name=kind==="ikiye"?"ikiye":kind;
+  function r(x,d){calls++;maxD=Math.max(maxD,d);let idx=-1;
+    if(lines.length<70){idx=lines.length;lines.push("  ".repeat(Math.min(d,14))+name+"("+x+")")}else if(!capped){capped=true;lines.push("… (satırlar kısaltıldı, sayaç devam ediyor)")}
+    const v=def.f(x,y=>r(y,d+1));if(idx>=0)lines[idx]+=" → "+v;return v}
+  const res=r(n,0);return {lines,calls,maxD,res};
+}
+function rtGo(){const kind=$("#rt_f").value,def=RT[kind];let n=Math.max(1,Math.floor(+$("#rt_n").value||1));n=Math.min(n,def.max);$("#rt_n").value=n;
+  const o=runRT(kind,n);$("#rt_log").textContent=o.lines.join("\n");
+  $("#rt_sum").innerHTML=`Çağrı sayısı: <b>${fmt(o.calls)}</b> · en derin seviye: <b>${o.maxD}</b> · sonuç: <b>${typeof o.res==="number"&&o.res>1e15?o.res.toExponential(3):fmt(o.res)}</b>`}
+$("#rt_go").onclick=rtGo;$("#rt_f").onchange=rtGo;rtGo();
+
+/* ======== 2.1 merge stepper ======== */
+function mgBuild(){
+  let A=parseNums($("#mg_a").value,8),B=parseNums($("#mg_b").value,8);const note=[];
+  const sa=[...A].sort((x,y)=>x-y),sb=[...B].sort((x,y)=>x-y);
+  if(!sameArr(A,sa)){A=sa;note.push("A sıralı değildi, sıralandı.")}if(!sameArr(B,sb)){B=sb;note.push("B sıralı değildi, sıralandı.")}
+  const S=[{A,B,i:0,j:0,out:[],cmp:0,note:"Başlangıç: iki listenin ilk elemanlarına bakacağız. "+note.join(" ")}];
+  let i=0,j=0,out=[],c=0;
+  while(i<A.length&&j<B.length){c++;if(A[i]<=B[j]){out=[...out,A[i]];S.push({A,B,i:i+1,j,out,cmp:c,note:`Karşılaştır A[${i}]=${A[i]} ≤ B[${j}]=${B[j]} → ${A[i]} çıktıya (karşılaştırma ${c}).`});i++}else{out=[...out,B[j]];S.push({A,B,i,j:j+1,out,cmp:c,note:`Karşılaştır A[${i}]=${A[i]} &gt; B[${j}]=${B[j]} → ${B[j]} çıktıya (karşılaştırma ${c}).`});j++}}
+  if(i<A.length||j<B.length){const rest=[...A.slice(i),...B.slice(j)];out=[...out,...rest];S.push({A,B,i:A.length,j:B.length,out,cmp:c,note:`Bir liste bitti: kalan [${rest.join(", ")}] <b>karşılaştırmasız</b> eklenir. Toplam karşılaştırma: ${c}.`,done:true})}
+  else S[S.length-1].done=true;
+  return S;
+}
+const mg=mkStep("mg",mgBuild,s=>{
+  $("#mg_A").innerHTML=s.A.map((v,x)=>`<div class="card ${x<s.i?"sorted":x===s.i?"cur":""}">${v}<small>${x}</small></div>`).join("")||"<span class='mut'>boş</span>";
+  $("#mg_B").innerHTML=s.B.map((v,x)=>`<div class="card ${x<s.j?"sorted":x===s.j?"cur":""}">${v}<small>${x}</small></div>`).join("")||"<span class='mut'>boş</span>";
+  $("#mg_O").innerHTML=s.out.map(v=>`<div class="card lo">${v}</div>`).join("")||"<span class='mut'>(boş)</span>";
+  $("#mg_note").innerHTML=s.note;$("#mg_c").textContent=s.cmp;const n=s.A.length+s.B.length;$("#mg_n").textContent=n;$("#mg_u").textContent=Math.max(0,n-1)},750);
+$("#mg_a").oninput=$("#mg_b").oninput=mg.rebuild;
+document.querySelectorAll("[data-mg]").forEach(b=>b.onclick=()=>{const [a,c]=b.dataset.mg.split("|");$("#mg_a").value=a.split(",").join(", ");$("#mg_b").value=c.split(",").join(", ");mg.rebuild()});
+mg.rebuild();
+
+/* ======== 2.2 mergesort tree ======== */
+function mergeC(a,b){const out=[];let i=0,j=0,c=0;while(i<a.length&&j<b.length){c++;if(a[i]<=b[j])out.push(a[i++]);else out.push(b[j++])}return {out:out.concat(a.slice(i),b.slice(j)),c}}
+function msBuildTree(arr){const events=[];
+  function rec(lo,hi,parent){const n={lo,hi,orig:arr.slice(lo,hi+1),kids:[],parent,split:false,merged:false,res:null,cmp:0};if(parent)parent.kids.push(n);
+    if(lo<hi){events.push({t:"split",n});const mid=(lo+hi)>>1;const L=rec(lo,mid,n),R=rec(mid+1,hi,n);const m=mergeC(L.res,R.res);n.res=m.out;n.cmp=m.c;events.push({t:"merge",n})}else n.res=n.orig.slice();return n}
+  const root=rec(0,arr.length-1,null);return {root,events};}
+const Wms=n=>n<=1?0:Wms(Math.floor(n/2))+Wms(n-Math.floor(n/2))+n-1;
+let MS=null;
+function msBuild(){const arr=parseNums($("#ms_in").value,12);if(!arr.length)arr.push(1);MS=msBuildTree(arr);
+  // total
+  let tot=0;(function f(n){if(n.kids.length){tot+=n.cmp;n.kids.forEach(f)}})(MS.root);MS.total=tot;MS.n=arr.length;
+  return Array.from({length:MS.events.length+1},(_,i)=>i)}
+function msNodeHTML(n,cur,tot){const vis=n===MS.root||(n.parent&&n.parent.split);if(!vis)return"";
+  const st=n.merged?` → <span class="ok">[${n.res.join(", ")}]</span> <span class="mut">(${n.cmp} karş.)</span>`:(n.split?` <span class="mut">böldük</span>`:(n.kids.length?"":` <span class="mut">tek eleman: sıralı</span>`));
+  return `<div class="mt ${n===cur?"cur":""}"><span class="nd">[${n.orig.join(", ")}]</span>${st}${n.kids.map(k=>msNodeHTML(k,cur)).join("")}</div>`}
+const ms=mkStep("ms",msBuild,(s,k)=>{
+  (function reset(n){n.split=n.merged=false;n.kids.forEach(reset)})(MS.root);
+  let cmp=0,cur=MS.root,note="Başlangıç: tüm dizi tek bir parça.";
+  for(let e=0;e<k;e++){const ev=MS.events[e];cur=ev.n;if(ev.t==="split"){ev.n.split=true;note=`Böl: [${ev.n.orig.join(", ")}] → [${ev.n.kids[0].orig.join(", ")}] ve [${ev.n.kids[1].orig.join(", ")}]`}else{ev.n.merged=true;cmp+=ev.n.cmp;note=`Birleştir: [${ev.n.kids[0].res.join(", ")}] + [${ev.n.kids[1].res.join(", ")}] → [${ev.n.res.join(", ")}] (${ev.n.cmp} karşılaştırma)`}}
+  $("#ms_tree").innerHTML=msNodeHTML(MS.root,cur);$("#ms_note").innerHTML=note;$("#ms_c").textContent=cmp;$("#ms_tot").textContent=MS.total;$("#ms_w").textContent=Wms(MS.n);$("#ms_nl").textContent=MS.n>1?(MS.n*lg(MS.n)).toFixed(1):0},650);
+$("#ms_in").oninput=ms.rebuild;
+document.querySelectorAll("[data-ms]").forEach(b=>b.onclick=()=>{const t=b.dataset.ms;let a=Array.from({length:8},(_,i)=>i+1);
+  if(t==="rev")a.reverse();else if(t==="rand")a=Array.from({length:8},()=>1+Math.floor(Math.random()*99));
+  $("#ms_in").value=a.join(", ");ms.rebuild()});
+ms.rebuild();
+
+/* ======== 2.4 disjoint sets ======== */
+function dsUpdate(){const m=Math.max(2,+$("#ds_m").value||2);const n=Math.max(m,+$("#ds_n").value||m);
+  const a=n*lg(n)+m*lg(m),b=m*lg(m)+n*lg(m),c=m+n;
+  $("#ds_t").innerHTML=[["1) İkisini de sırala + dolaş: n lg n + m lg m",a],["2) Yalnız küçüğü sırala + ikili ara: m lg m + n lg m",b],["3) Küçüğü karmaya koy + büyüğü tara: m + n (beklenen)",c]].map(r=>`<tr><td>${r[0]}</td><td class="m">${fmt(Math.round(r[1]))}</td><td class="m">${(r[1]/a).toFixed(3)}×</td></tr>`).join("")}
+$("#ds_m").oninput=$("#ds_n").oninput=dsUpdate;dsUpdate();
+
+/* ======== 3.1 level calculator ======== */
+const f2=x=>Number.isInteger(x)?String(x):x.toFixed(3).replace(".",",");
+function pwr(e,logAlso){ // Theta string for n^e (log if logAlso)
+  const base=e===0?"1":e===1?"n":`n<sup>${f2(e)}</sup>`;
+  if(logAlso)return e===0?"log n":base+" log n";return base}
+function classify(a,b,d){
+  const L=Math.log(a)/Math.log(b);
+  if(Math.abs(d-L)<1e-9)return {c:2,L,txt:"d = log<sub>b</sub>a → her seviye eşit",res:pwr(d,true)};
+  if(d>L)return {c:1,L,txt:"d &gt; log<sub>b</sub>a → üst baskın",res:pwr(d,false)};
+  return {c:3,L,txt:"d &lt; log<sub>b</sub>a → yapraklar baskın",res:pwr(L,false)}}
+function Trec(a,b,d,n,memo){if(n<=1)return 1;if(memo[n]!==undefined)return memo[n];return memo[n]=a*Trec(a,b,d,Math.floor(n/b),memo)+Math.pow(n,d)}
+function lvUpdate(){
+  const a=+$("#lv_a").value,b=+$("#lv_b").value,d=+$("#lv_d").value,k=+$("#lv_k").value;$("#lv_kv").textContent=k;
+  const n=Math.pow(b,k);const rows=[];let tot=0;const W=[];
+  for(let i=0;i<=k;i++){const calls=Math.pow(a,i),size=Math.round(n/Math.pow(b,i)),per=Math.pow(size,d),lw=calls*per;tot+=lw;W.push(lw);rows.push(`<tr><td>${i}</td><td class="m">${fmt(size)}</td><td class="m">${fmt(calls)}</td><td class="m">${fmt(per)}</td><td class="m">${fmt(lw)}</td></tr>`)}
+  $("#lv_t").innerHTML=rows.join("")+`<tr><td colspan="4"><b>Toplam</b> (n = ${b}<sup>${k}</sup> = ${fmt(n)})</td><td class="m"><b>${fmt(tot)}</b></td></tr>`;
+  const real=Trec(a,b,d,n,{});
+  const cl=classify(a,b,d);
+  const mx=Math.max(...W),bw=600/(k+1);
+  $("#lv_svg").innerHTML=`<line x1="30" y1="170" x2="630" y2="170" stroke="var(--line)"/>`+W.map((w,i)=>{const h=Math.max(2,w/mx*140);return `<rect x="${34+i*bw}" y="${170-h}" width="${Math.max(4,bw-8)}" height="${h}" rx="3" fill="${cl.c===2?"var(--warn)":cl.c===1?"var(--acc)":"var(--bad)"}"/><text x="${34+i*bw}" y="188">${i}</text>`}).join("")+`<text x="34" y="14">çubuk = seviye toplamı (en uzun = ${fmt(mx)}); alt yazı = seviye</text>`;
+  $("#lv_out").innerHTML=`Seviyelerin toplamı: <b>${fmt(tot)}</b> · gerçek özyinelemeli T(n): <b>${fmt(real)}</b> → <span class="${tot===real?"ok":"bad"}">${tot===real?"aynı ✓":"farklı ✗"}</span><br>log<sub>${b}</sub>${a} = <b>${f2(cl.L)}</b>, d = ${d}: ${cl.txt} ⟹ <b>Θ(${cl.res})</b>`;
+}
+["#lv_a","#lv_b","#lv_d"].forEach(s=>$(s).onchange=lvUpdate);$("#lv_k").oninput=lvUpdate;lvUpdate();
+
+/* ======== 3.3 T(n) numeric ======== */
+const TP=[
+ {n:"T(n) = T(n/2) + 1",cls:1,f:(n,T)=>T(Math.floor(n/2))+1,ns:[2,4,8,16,32,64,128,256,512,1024,2048,4096]},
+ {n:"T(n) = 2T(n/2) + n",cls:3,f:(n,T)=>2*T(Math.floor(n/2))+n,ns:[2,4,8,16,32,64,128,256,512,1024,2048,4096]},
+ {n:"T(n) = T(n/2) + n",cls:2,f:(n,T)=>T(Math.floor(n/2))+n,ns:[2,4,8,16,32,64,128,256,512,1024,2048,4096]},
+ {n:"T(n) = 3T(n/2) + n",cls:4,f:(n,T)=>3*T(Math.floor(n/2))+n,ns:[2,4,8,16,32,64,128,256,512,1024,2048,4096]},
+ {n:"T(n) = T(n−1) + n",cls:5,f:(n,T)=>T(n-1)+n,ns:[5,10,20,40,80,160,320,640]},
+ {n:"T(n) = 2T(n−1) + 1",cls:6,f:(n,T)=>2*T(n-1)+1,ns:[2,4,8,12,16,20,24]}
+];
+const TG=[["1",n=>1],["lg n",n=>lg(n)],["n",n=>n],["n lg n",n=>n*lg(n)],["n^1,585",n=>Math.pow(n,Math.log2(3))],["n²",n=>n*n],["2ⁿ",n=>Math.pow(2,n)]];
+$("#tn_p").innerHTML=TP.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");$("#tn_p").value=1;
+$("#tn_g").innerHTML=TG.map((g,i)=>`<option value="${i}">${g[0]}</option>`).join("");$("#tn_g").value=3;
+function Tcalc(p,n){const memo={};const T=m=>{if(m<=1)return 1;if(memo[m]!==undefined)return memo[m];return memo[m]=p.f(m,T)};return T(n)}
+function tnUpdate(){const p=TP[+$("#tn_p").value],g=TG[+$("#tn_g").value];const rows=[],R=[];
+  p.ns.forEach(n=>{const t=Tcalc(p,n),gv=g[1](n),r=t/gv;R.push(r);rows.push(`<tr><td class="m">${fmt(n)}</td><td class="m">${t>1e15?t.toExponential(3):fmt(t)}</td><td class="m">${gv>1e15?gv.toExponential(3):fmt(Math.round(gv*100)/100)}</td><td class="m">${r.toFixed(4)}</td></tr>`)});
+  $("#tn_t").innerHTML=rows.join("");
+  const ch=R[R.length-1]/R[R.length-2];let v;const gi=+$("#tn_g").value,tc=TG[p.cls][0];
+  if(ch>1.03)v=`<span class="bad">Gözlem: oran büyüyor; ${g[0]} bu aralıkta T(n)’den yavaş büyüyor.</span>`;
+  else if(ch<0.97)v=`<span class="warn" style="color:var(--warn);font-weight:700">Gözlem: oran küçülüyor; ${g[0]} bu aralıkta T(n)’den hızlı büyüyor.</span>`;
+  else v=`<span class="ok">Gözlem: oran bu aralıkta yaklaşık sabit kalıyor.</span>`;
+  v+=` <span class="mut">(son iki oranın değişimi: ${ch.toFixed(3)}×; sonlu tablo bir kanıt değildir.)</span><br><b>Kesin sınıf (analitik):</b> ${p.n} için T(n) = <b>Θ(${tc})</b>`+(gi===p.cls?` — seçtiğiniz tahmin bu sınıftır.`:` — seçtiğiniz ${g[0]} bu sınıf değildir.`);
+  $("#tn_out").innerHTML=v}
+$("#tn_p").onchange=$("#tn_g").onchange=tnUpdate;tnUpdate();
+
+/* ======== 3.4 master classifier ======== */
+function ms2Update(){const a=+$("#ms_a").value,b=+$("#ms_b").value,d=+$("#ms_d").value;
+  if(!(Number.isInteger(a)&&a>=1&&Number.isFinite(b)&&b>1&&Number.isFinite(d)&&d>=0)){$("#ms2_out").innerHTML=`<span class="bad">a ≥ 1 tam sayı, b &gt; 1 ve d ≥ 0 sonlu sayılar olmalı.</span>`;return}
+  const c=classify(a,b,d);$("#ms2_out").innerHTML=`T(n) = ${a}·T(n/${b}) + n<sup>${d}</sup>: log<sub>${b}</sub>${a} = <b>${f2(c.L)}</b>; ${c.txt} ⟹ <b class="big" style="font-size:20px">Θ(${c.res})</b>`}
+["#ms_a","#ms_b","#ms_d"].forEach(s=>$(s).oninput=ms2Update);ms2Update();
+const MP=[["T(n/2) + 1 (ikili arama)",1,2,0],["2T(n/2) + n (merge sort)",2,2,1],["T(n/2) + n",1,2,1],["2T(n/2) + 1",2,2,0],["3T(n/2) + n (Karatsuba)",3,2,1],["4T(n/2) + n",4,2,1],["2T(n/2) + n²",2,2,2],["4T(n/2) + n²",4,2,2],["9T(n/3) + n",9,3,1],["7T(n/2) + n² (Strassen)",7,2,2]];
+$("#ms2_t").innerHTML=MP.map(r=>{const c=classify(r[1],r[2],r[3]);return `<tr><td>${r[0]}</td><td class="m">${r[1]}, ${r[2]}, ${r[3]}</td><td class="m">${f2(c.L)}</td><td>${c.c===1?"1 üst":c.c===2?"2 eşit":"3 yaprak"}</td><td class="m">Θ(${c.res})</td></tr>`}).join("");
+
+/* ======== quicksort engine ======== */
+function pickPivot(a,l,h,rule,pc){
+  if(rule==="last")return h;if(rule==="first")return l;if(rule==="mid")return (l+h)>>1;
+  if(rule==="med3"){const m=(l+h)>>1;if(m===l)return l;const x=[l,m,h],cc=()=>{if(pc)pc.n++};  /* 3 elemanlı sıralama ağı: 3 anahtar karşılaştırması */
+    cc();if(a[x[0]]>a[x[1]])[x[0],x[1]]=[x[1],x[0]];cc();if(a[x[1]]>a[x[2]])[x[1],x[2]]=[x[2],x[1]];cc();if(a[x[0]]>a[x[1]])[x[0],x[1]]=[x[1],x[0]];return x[1]}
+  return l+Math.floor(Math.random()*(h-l+1))}
+function qsRun(arr,rule,log){
+  const a=arr.slice();let cmp=0,maxD=0;const pc={n:0};
+  function part(l,h){const pi=pickPivot(a,l,h,rule,pc);[a[pi],a[h]]=[a[h],a[pi]];const pv=a[h];let fh=l;
+    for(let i=l;i<h;i++){cmp++;if(a[i]<pv){[a[i],a[fh]]=[a[fh],a[i]];fh++}}[a[h],a[fh]]=[a[fh],a[h]];return fh}
+  function rec(l,h,d){if(h-l>0){if(d>maxD)maxD=d;const p=part(l,h);if(log)log(l,h,p,a);rec(l,p-1,d+1);rec(p+1,h,d+1)}}
+  rec(0,a.length-1,1);return {cmp:cmp+pc.n,part:cmp,sel:pc.n,maxD,a}}
+function qs3(arr){let cmp=0;function rec(s){if(s.length<=1)return;const p=s[s.length-1];const lo=[],hi=[];for(let i=0;i<s.length-1;i++){cmp++;if(s[i]<p)lo.push(s[i]);else if(s[i]>p)hi.push(s[i])}rec(lo);rec(hi)}rec(arr);return cmp}
+const selC=a=>{a=a.slice();let c=0;for(let i=0;i<a.length;i++){let m=i;for(let j=i+1;j<a.length;j++){c++;if(a[j]<a[m])m=j}[a[i],a[m]]=[a[m],a[i]]}return c};
+const insC=a=>{a=a.slice();let c=0;for(let i=1;i<a.length;i++){let j=i;while(j>0){c++;if(a[j]<a[j-1]){[a[j],a[j-1]]=[a[j-1],a[j]];j--}else break}}return c};
+function heapC(a){a=a.slice();let c=0;const n=a.length;
+  function down(i,m){while(true){const l=2*i+1,r=l+1;let s=i;if(l<m){c++;if(a[l]>a[s])s=l}if(r<m){c++;if(a[r]>a[s])s=r}if(s===i)return;[a[i],a[s]]=[a[s],a[i]];i=s}}
+  for(let i=(n>>1)-1;i>=0;i--)down(i,n);for(let e=n-1;e>0;e--){[a[0],a[e]]=[a[e],a[0]];down(0,e)}return {c,a}}
+function msC(a){if(a.length<=1)return {out:a,c:0};const mid=a.length>>1,L=msC(a.slice(0,mid)),R=msC(a.slice(mid)),m=mergeC(L.out,R.out);return {out:m.out,c:L.c+R.c+m.c}}
+const rndPerm=n=>{const a=Array.from({length:n},(_,i)=>i);for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const mkInputs=n=>({sorted:Array.from({length:n},(_,i)=>i),rev:Array.from({length:n},(_,i)=>n-i),eq:Array(n).fill(7)});
+
+/* ======== 4.1 partition stepper ======== */
+function qpBuild(){
+  const arr=parseNums($("#qp_in").value,10);if(!arr.length)arr.push(1);const rule=$("#qp_r").value,n=arr.length,l=0,h=n-1;
+  const a=arr.slice(),S=[];const pc0={n:0},pi=pickPivot(a,l,h,rule,pc0);const names={last:"son eleman",first:"ilk eleman",mid:"ortadaki eleman",med3:"üçün medyanı",rand:"rastgele eleman"};
+  S.push({arr:a.slice(),i:-1,fh:l,p:h,cmp:0,note:`Pivot kuralı: ${names[rule]} → s[${pi}] = ${a[pi]}.${pi!==h?" Pivot son konuma taşındı (takas).":" Zaten son konumda."}${pc0.n?` Pivot seçimi ${pc0.n} anahtar karşılaştırması yaptı; aşağıdaki sayaç yalnız partition karşılaştırmalarını sayar.`:""}`,pre:true});
+  if(pi!==h){[a[pi],a[h]]=[a[h],a[pi]];S.push({arr:a.slice(),i:-1,fh:l,p:h,cmp:0,note:`Takas sonrası: pivot ${a[h]} son konumda; firsthigh = ${l}.`})}
+  const pv=a[h];let fh=l,c=0;
+  for(let i=l;i<h;i++){c++;const val=a[i],lt=val<pv;
+    if(lt){if(i!==fh)[a[i],a[fh]]=[a[fh],a[i]];fh++}
+    S.push({arr:a.slice(),i,fh,p:h,cmp:c,note:`i = ${i}: s[${i}] = ${val} &lt; pivot ${pv} ? ${lt?`<b class="ok">Evet</b> → küçük bölgeye katıl (gerekirse takas), firsthigh = ${fh}`:`<b>Hayır</b> → büyük/eşit bölgede kalır`}`})}
+  [a[h],a[fh]]=[a[fh],a[h]];
+  S.push({arr:a.slice(),i:-1,fh,p:fh,cmp:c,done:true,note:`Pivot ${pv}, firsthigh = ${fh} konumuna yerleşti. Solu (&lt; ${pv}) ve sağı (≥ ${pv}) ayrı ayrı sıralanacak. ${c} karşılaştırma = n − 1.`});
+  return S}
+const qp=mkStep("qp",qpBuild,s=>{
+  $("#qp_cards").innerHTML=s.arr.map((v,x)=>{let c="";if(s.done){if(x===s.p)c="pv";else if(x<s.p)c="lo";else c="hi"}else if(x===s.p)c="pv";else if(x===s.i)c="cur";else if(x<s.fh)c="lo";else if(!s.pre&&x<s.i)c="hi";
+    return `<div class="card ${c}">${v}<small>${x}${!s.done&&x===s.fh&&!s.pre?" fh":""}</small></div>`}).join("");
+  $("#qp_note").innerHTML=s.note;$("#qp_c").textContent=s.cmp},800);
+function qpFull(){const arr=parseNums($("#qp_in").value,10),rule=$("#qp_r").value;const L=[];
+  const o=qsRun(arr,rule,(l,h,p,a)=>{if(L.length<40)L.push(`partition [${l}..${h}] → pivot yeri ${p}, dizi: [${a.join(", ")}]`)});
+  $("#qp_log").textContent=L.join("\n")+(L.length>=40?"\n… (kısaltıldı)":"");
+  $("#qp_fsum").innerHTML=`Toplam karşılaştırma: <b>${o.cmp}</b> (partition ${o.part} + pivot seçimi ${o.sel}) · özyineleme derinliği: <b>${o.maxD}</b> · sonuç: [${o.a.join(", ")}]`}
+$("#qp_full").onclick=qpFull;$("#qp_in").oninput=$("#qp_r").onchange=()=>{qp.rebuild();$("#qp_log").textContent="";$("#qp_fsum").textContent=""};
+qp.rebuild();
+
+/* ======== 4.3 expected comparisons ======== */
+function exRun(){const n=+$("#ex_n").value,T=300;let tot=0;for(let t=0;t<T;t++)tot+=qsRun(rndPerm(n),"last").cmp;
+  let H=0;for(let i=1;i<=n;i++)H+=1/i;const exact=2*(n+1)*H-4*n;
+  $("#ex_t").innerHTML=[["Deneysel ortalama (300 rastgele permütasyon)",(tot/T).toFixed(1)],["Formül 2(n+1)Hₙ − 4n",exact.toFixed(1)],["Baskın terim 1,386 · n lg n (2 ln 2 · n lg n)",(2*Math.LN2*n*lg(n)).toFixed(1)],["Mükemmel bölme için ≈ n lg n",(n*lg(n)).toFixed(1)],["En kötü n(n−1)/2",fmt(n*(n-1)/2)]].map(r=>`<tr><td>${r[0]}</td><td class="m">${r[1]}</td></tr>`).join("")}
+$("#ex_go").onclick=exRun;$("#ex_n").onchange=exRun;exRun();
+
+/* ======== 4.4 pivot x input table ======== */
+function nearSorted(n){const a=Array.from({length:n},(_,i)=>i),st=Math.max(2,Math.floor(n/8));for(let i=0;i+1<n;i+=st){[a[i],a[i+1]]=[a[i+1],a[i]]}return a}
+function ptUpdate(){const n=+$("#pt_n").value,I=mkInputs(n);const rules=["last","first","mid","med3","rand"];
+  const rows=[["Sıralı",()=>I.sorted],["Ters sıralı",()=>I.rev],["Neredeyse sıralı",()=>nearSorted(n)],["Rastgele (ort.)",()=>rndPerm(n)],["Hepsi eşit",()=>I.eq]];
+  $("#pt_t").innerHTML=rows.map((r,ri)=>{const reps=ri===3?10:1;const cells=rules.map(rule=>{const rr=(rule==="rand"?10:reps);let t=0;for(let k=0;k<rr;k++)t+=qsRun(r[1](),rule).cmp;return Math.round(t/rr)});
+    let t3=0;for(let k=0;k<reps;k++)t3+=qs3(r[1]());return `<tr><td>${r[0]}</td>${cells.map(v=>`<td class="m ${v>n*n/4?"bad":""}">${fmt(v)}</td>`).join("")}<td class="m ok">${fmt(Math.round(t3/reps))}</td></tr>`}).join("");
+  $("#pt_ref").innerHTML=`Başvuru (n = ${n}): n(n−1)/2 = <b>${fmt(n*(n-1)/2)}</b> · n lg n = <b>${fmt(Math.round(n*lg(n)))}</b>. Kırmızı = n²/4’ten büyük (kuadratik bölge).`}
+$("#pt_go").onclick=ptUpdate;$("#pt_n").onchange=ptUpdate;ptUpdate();
+
+/* ======== 4.5 all sorts table ======== */
+function alUpdate(){const n=+$("#al_n").value,I=mkInputs(n),T=8;
+  const algs=[["Selection",a=>selC(a)],["Insertion",a=>insC(a)],["Heapsort",a=>heapC(a).c],["Merge sort",a=>msC(a).c],["Quicksort (son pivot)",a=>qsRun(a,"last").cmp],["Quicksort (üçün medyanı)",a=>qsRun(a,"med3").cmp]];
+  const inputs=[()=>I.sorted,()=>I.rev,null,()=>I.eq];
+  $("#al_t").innerHTML=algs.map(al=>`<tr><td>${al[0]}</td>${inputs.map(g=>{let v;if(g)v=al[1](g());else{let t=0;for(let k=0;k<T;k++)t+=al[1](rndPerm(n));v=Math.round(t/T)}return `<td class="m ${v>n*n/4?"bad":""}">${fmt(v)}</td>`}).join("")}</tr>`).join("");
+  $("#al_ref").innerHTML=`Başvuru (n = ${n}): n(n−1)/2 = <b>${fmt(n*(n-1)/2)}</b> · n lg n = <b>${fmt(Math.round(n*lg(n)))}</b> · merge sort en kötü W(n) = <b>${fmt(Wms(n))}</b> · ⌈lg n!⌉ = <b>${fmt(Math.ceil(lgFact(n)))}</b>. Kırmızı = n²/4’ten büyük.`}
+function lgFact(n){let s=0;for(let i=2;i<=n;i++)s+=Math.log2(i);return s}
+$("#al_go").onclick=alUpdate;$("#al_n").onchange=alUpdate;alUpdate();
+
+/* ======== 5.1 decision tree ======== */
+const DT={
+ nodes:{r:{x:320,y:30,l:"a&lt;b?",t:v=>v.a<v.b,Y:"L1",N:"R1"},L1:{x:170,y:95,l:"b&lt;c?",t:v=>v.b<v.c,Y:"abc",N:"L2"},L2:{x:250,y:165,l:"a&lt;c?",t:v=>v.a<v.c,Y:"acb",N:"cab"},
+  R1:{x:470,y:95,l:"a&lt;c?",t:v=>v.a<v.c,Y:"bac",N:"R2"},R2:{x:550,y:165,l:"b&lt;c?",t:v=>v.b<v.c,Y:"bca",N:"cba"}},
+ leaves:{abc:[80,170],acb:[205,245],cab:[295,245],bac:[390,170],bca:[505,245],cba:[595,245]}};
+function dtPos(id){return DT.nodes[id]?[DT.nodes[id].x,DT.nodes[id].y]:DT.leaves[id]}
+function dtUpdate(){
+  const vals=["#dt_a","#dt_b","#dt_c"].map(id=>+$(id).value);
+  if(vals.some(x=>!Number.isFinite(x))||new Set(vals).size<3){$("#dt_svg").innerHTML="";$("#dt_out").textContent="Bu altı yapraklı model için üç farklı sonlu sayı girin.";return}
+
+  const v={a:+$("#dt_a").value,b:+$("#dt_b").value,c:+$("#dt_c").value};let id="r";const path=[],edges=new Set();let cmps=0;
+  while(DT.nodes[id]){const nd=DT.nodes[id],yes=nd.t(v);cmps++;const nx=yes?nd.Y:nd.N;path.push(`${nd.l} ${yes?"evet":"hayır"}`);edges.add(id+">"+nx);id=nx}
+  let svg="";
+  const drawEdges=(from)=>{const nd=DT.nodes[from];[["Y","evet"],["N","hayır"]].forEach(([k,lab])=>{const to=nd[k],[x1,y1]=dtPos(from),[x2,y2]=dtPos(to),on=edges.has(from+">"+to);
+    svg+=`<line x1="${x1}" y1="${y1+12}" x2="${x2}" y2="${y2-12}" stroke="${on?"var(--acc)":"var(--line)"}" stroke-width="${on?3:1.5}"/><text x="${(x1+x2)/2+(k==="Y"?-26:6)}" y="${(y1+y2)/2+2}" style="fill:${on?"var(--acc)":"var(--mute)"}">${lab}</text>`;if(DT.nodes[to])drawEdges(to)})};
+  drawEdges("r");
+  Object.keys(DT.nodes).forEach(k=>{const n=DT.nodes[k],on=path.length&&[...edges].some(e=>e.startsWith(k+">"));svg+=`<rect x="${n.x-34}" y="${n.y-13}" width="68" height="26" rx="8" fill="var(--panel2)" stroke="${on?"var(--acc)":"var(--line)"}" stroke-width="${on?2.5:1}"/><text x="${n.x}" y="${n.y+4}" text-anchor="middle" style="fill:var(--ink);font-size:13px">${n.l}</text>`});
+  Object.keys(DT.leaves).forEach(k=>{const [x,y]=DT.leaves[k],on=k===id,lab=k.split("").join("&lt;");svg+=`<rect x="${x-34}" y="${y-13}" width="68" height="26" rx="13" fill="${on?"var(--ok)":"var(--panel)"}" stroke="${on?"var(--ok)":"var(--line)"}"/><text x="${x}" y="${y+4}" text-anchor="middle" style="fill:${on?"#000":"var(--ink)"};font-size:13px">${lab}</text>`});
+  $("#dt_svg").innerHTML=svg;
+  const order=id.split("").map(ch=>v[ch]);const ok=order.every((x,i)=>i===0||order[i-1]<=x);
+  $("#dt_out").innerHTML=`Yol: ${path.join(" → ")} ⟹ yaprak <b>${id.split("").join(" &lt; ")}</b> = ${order.join(" &lt; ")} · karşılaştırma: <b>${cmps}</b> · yaprak ${ok?'<span class="ok">doğru ✓</span>':'<span class="bad">(eşit değerler: farklı sayı kullanın)</span>'}`}
+["#dt_a","#dt_b","#dt_c"].forEach(s=>$(s).oninput=dtUpdate);
+$("#dt_r").onclick=()=>{const a=rndPerm(3).map(x=>(x+1)*10+Math.floor(Math.random()*9));$("#dt_a").value=a[0];$("#dt_b").value=a[1];$("#dt_c").value=a[2];dtUpdate()};dtUpdate();
+
+/* ======== 5.1 lg(n!) table ======== */
+function lbUpdate(){const N=+$("#lb_n").value;$("#lb_nv").textContent=N;let f=1n;const rows=[];
+  for(let n=1;n<=N;n++){f*=BigInt(n);const bound=f>1n?(f-1n).toString(2).length:0;if(n>=2)rows.push(`<tr><td class="m">${n}</td><td class="m">${f.toLocaleString("tr-TR")}</td><td class="m"><b>${bound}</b></td><td class="m">${Wms(n)}</td><td class="m">${(n*lg(n)).toFixed(1)}</td></tr>`)}
+  $("#lb_t").innerHTML=rows.join("")}
+$("#lb_n").oninput=lbUpdate;lbUpdate();
+
+/* ======== 5.4 bucket sort ======== */
+function bkUpdate(){const n=+$("#bk_n").value,dist=$("#bk_d").value;$("#bk_nv").textContent=n;const cnt=Array(n).fill(0);
+  for(let i=0;i<n;i++){let x;if(dist==="u")x=1+Math.floor(Math.random()*1000);else if(dist==="c")x=901+Math.floor(Math.random()*100);else if(dist==="s"){const r=Math.random();x=1+Math.floor(r*r*1000)}else x=500;
+    cnt[Math.ceil(x*n/1000)-1]++}
+  const mx=Math.max(...cnt),sum=cnt.reduce((s,b)=>s+b*(b-1)/2,0),empty=cnt.filter(b=>b===0).length,bw=620/n;
+  $("#bk_svg").innerHTML=`<line x1="10" y1="140" x2="630" y2="140" stroke="var(--line)"/>`+cnt.map((b,i)=>{const h=b/mx*120;return `<rect x="${10+i*bw}" y="${140-h}" width="${Math.max(1,bw-1)}" height="${h}" fill="${b>3?"var(--bad)":"var(--acc)"}"/>`}).join("")+`<text x="10" y="14">kova 1 … ${n} (soldan sağa); çubuk = kovadaki eleman sayısı (kırmızı: &gt; 3)</text>`;
+  $("#bk_out").innerHTML=`En dolu kova: <b>${mx}</b> eleman · boş kova: <b>${empty}</b> / ${n} · kova içi en kötü karşılaştırma modeli Σ b(b−1)/2 ≈ <b>${fmt(Math.round(sum))}</b> (n = ${n}, n(n−1)/2 = ${fmt(n*(n-1)/2)}) → <span class="${sum<=n?"ok":"bad"}">${sum<=n?"model ≤ n":"model > n"}</span>`}
+$("#bk_n").oninput=bkUpdate;$("#bk_d").onchange=bkUpdate;$("#bk_go").onclick=bkUpdate;bkUpdate();
+
+/* ======== 5.5 radix ======== */
+function rxBuild(){const tokens=$("#rx_in").value.split(/[ ,;]+/).filter(Boolean),nums=tokens.map(Number);
+  if(!nums.length||nums.length>10||nums.some(x=>!Number.isSafeInteger(x)||x<0))return [{list:[],buckets:null,note:"1–10 adet negatif olmayan güvenli tam sayı girin (0…9007199254740991)."}];
+  const D=Math.max(...nums.map(x=>String(x).length));const S=[{list:nums,buckets:null,note:`Başlangıç sırası. En çok ${D} basamak var, ${D} geçiş yapacağız (en az anlamlı basamaktan başlayarak).`}];
+  let cur=nums;const nm=["birler","onlar","yüzler","binler","on binler","yüz binler","milyonlar"];
+  for(let p=0;p<D;p++){const b=Array.from({length:10},()=>[]);cur.forEach(x=>b[Math.floor(x/Math.pow(10,p))%10].push(x));const nx=[].concat(...b);
+    S.push({list:nx,buckets:b,p,note:`Geçiş ${p+1}: ${nm[p]||("10^"+p)} basamağına göre kovala (kovalara giriş sırası = bir önceki sıra), sonra kovaları 0’dan 9’a topla. <b>Kararlı</b>: aynı kovadakiler önceki sırayı korur.`});cur=nx}
+  return S}
+const rx=mkStep("rx",rxBuild,s=>{$("#rx_cards").innerHTML=s.list.map(v=>`<div class="card ${s.buckets?"":"hi"}">${v}</div>`).join("");
+  $("#rx_b").innerHTML=s.buckets?s.buckets.map((b,i)=>`<tr><td class="m">${i}</td><td class="m">${b.map(x=>{const str=String(x).padStart(String(Math.max(...s.list)).length,"0");const pos=str.length-1-s.p;return str.slice(0,pos)+"<b style='color:var(--acc)'>"+str[pos]+"</b>"+str.slice(pos+1)}).join(" &nbsp; ")||"<span class='mut'>—</span>"}</td></tr>`).join(""):`<tr><td colspan="2" class="mut">Henüz geçiş yapılmadı.</td></tr>`;
+  $("#rx_note").innerHTML=s.note},1000);
+$("#rx_in").oninput=rx.rebuild;document.querySelectorAll("[data-rx]").forEach(b=>b.onclick=()=>{$("#rx_in").value=b.dataset.rx.split(",").join(", ");rx.rebuild()});rx.rebuild();
+
+/* ======== 6 ADC ======== */
+function adUpdate(){const n=Math.max(2,Math.min(300000,Math.floor(+$("#ad_n").value||2))),bits=+$("#ad_b").value,w=+$("#ad_w").value;
+  const passes=Math.ceil(bits/w),ctr=Math.pow(2,w),per=2*n+ctr,tot=passes*per,lb=Math.ceil(lgFact(n));
+  $("#ad_t").innerHTML=[["Geçiş sayısı = ⌈bit / genişlik⌉",passes],["Sayaç sayısı (2^genişlik)",fmt(ctr)],["Bir geçiş: n + 2ʷ + n adım",fmt(per)],["Toplam basit dizi işlemi",`<b>${fmt(tot)}</b>`],["Genel farklı-anahtar modeli: ⌈lg(n!)⌉",`<b>${fmt(lb)}</b>`],["Oran (toplam / alt sınır)",(tot/lb).toFixed(2)],["Referans: n lg n",fmt(Math.round(n*lg(n)))]].map(r=>`<tr><td>${r[0]}</td><td class="m">${r[1]}</td></tr>`).join("")}
+["#ad_n","#ad_b","#ad_w"].forEach(s=>{$(s).oninput=adUpdate;$(s).onchange=adUpdate});adUpdate();
+
+/* ======== quizzes ======== */
+mkQuiz("#quiz0",[
+ ["Öbek dizisinde (konum 1’den başlar) 9. konumun ebeveyni hangisidir?", ["3", "4", "5", "18"], 1, "Ebeveyn ⌊k/2⌋ = ⌊9/2⌋ = 4. Konum 4’ün çocukları 8 ve 9 olduğundan ters yönden de doğrulayabilirsiniz. Formül bir tabanlı konumlar içindir.", "18 sol çocuk konumudur. 3 ve 5, 9’un ebeveyni değildir; sıfır tabanlı formülü karıştırmayın.", "0.1"],
+ ["Min-öbek [2,4,3]’e 1, sona ekleyip ebeveynle takas edilerek eklenirse sonuç?", ["[2, 4, 3, 1]", "[1, 2, 3, 4]", "[1, 4, 3, 2]", "[1, 3, 2, 4]"], 1, "1 konum 4’e girer, ebeveyni 4 (konum 2) ile, sonra kök 2 ile takas: [1, 2, 3, 4]. Ara durum [2,1,3,4], ardından [1,2,3,4] olur: iki takas.", "İlk seçenek onarımsızdır. [1,4,3,2] geçersizdir. [1,3,2,4] başka bir geçerli öbek olsa da belirtilen ekleme yolunun sonucu değildir.", "0.1"],
+ ["Aşağıdan yukarı build-heap için listelenen en sıkı üst sınır?", ["O(n²)", "O(log n)", "O(n log n)", "O(n)"], 3, "Çoğu düğüm en altta ve çok az iş yapar: seviye toplamları küçülen bir seridir, O(n). 15 düğümlü tam ağaçta aşağı hareket üst sınırı 8×0+4×1+2×2+1×3=11’dir; bütün düğümlere log n yüklemek aşırı tahmindir.", "O(n log n) ve O(n²) daha gevşek üst sınırlardır. O(log n) bütün iç düğümlerin kontrolünü karşılamaz. Burada en sıkı seçeneği istiyoruz.", "0.1"],
+ ["n anahtar artan sırada boş bir BST’ye eklenirse en kötü arama maliyeti?", ["Θ(log n)", "Θ(1)", "Θ(n)", "Θ(n log n)"], 2, "Ağaç bir zincire dönüşür, kenar yüksekliği n−1. n düğüm arasında n−1 kenar vardır; en sondaki anahtar n düğüm ziyareti ister.", "Logaritmik yükseklik sıradan BST’de garanti değildir. Θ(1) yalnız kolay aramalar için olabilir; Θ(n log n) bu zincir aramasını fazla sayar.", "0.2"],
+ ["10, 15, 3, 20 anahtarları h(k) = k mod 5 ve doğrusal yoklamayla ekleniyor. 20 hangi yuvaya girer?", ["0", "1", "2", "4"], 2, "20 → h = 0 (dolu), 1 (dolu), 2 boş: yuva 2. Önce 10→0, 15→1 ve 3→3 yerleşir. 20 için 0,1,2 sırasıyla kontrol edilir: üç yoklama.", "0 başlangıç karmasıdır ama doludur. 1 de doludur. 4’e ulaşmadan önce 2 boştur.", "0.2"],
+ ["5n² + 3n için hangisi doğrudur?", ["O(n)", "Θ(n³)", "Ω(n³)", "O(n³)"], 3, "n³ geçerli ama gevşek bir üst sınırdır; sıkı sınır Θ(n²). n≥1 için 5n²+3n≤8n²≤8n³. Böylece O(n³) doğru; ancak en dar sınıf Θ(n²)’dir.", "O(n) fazla küçüktür. Θ(n³) kübik alt sınır da ister; Ω(n³) de sağlanmaz çünkü (5n²+3n)/n³ sıfıra gider.", "0.3"],
+ ["<code>i=n; while i≥1: (for j in range(i): iş); i//=2</code> Θ nedir?", ["Θ(n log n)", "Θ(n)", "Θ(n²)", "Θ(log n)"], 1, "n + n/2 + n/4 + … < 2n: geometrik toplam. İlk tur tek başına n iş yaparak Ω(n) verir; bütün turların toplamı 2n’den küçük olduğu için O(n) de vardır. Birlikte Θ(n).", "Θ(log n) yalnız dış tur sayısıdır. Θ(n log n) her turu n sayarak fazla tahmin eder. Θ(n²) geometrik küçülmeyi yok sayar.", "0.3"],
+ ["Heapsort’un en kötü süresi için listelenen en sıkı üst sınır?", ["O(n)", "O(n²)", "O(n log n)", "O(log n)"], 2, "Kur O(n) + n kez extract-min O(log n) = O(n log n). Doğrusal kurma ve küçülen öbeklerdeki logaritmik onarımlar birlikte en kötü Θ(n log n) eder.", "O(n) yalnız kurmaya aittir. O(log n) tek onarım içindir. O(n²) geçerli fakat gevşek üst sınırdır; en sıkı seçenek istenir.", "0.1"]
+]);
+mkQuiz("#quizR",[
+ ["<code>f(n): if n≤1: return; f(n//2); f(n//2); for i in range(n): iş</code> için bağıntı?", ["T(n) = T(n/2) + n", "T(n) = 2T(n/2) + n", "T(n) = 2T(n−1) + n", "T(n) = T(n−1) + 1"], 1, "İki çağrı, her biri n/2 boyunda; dışarıda n’lik döngü. Taban n≤1 için sabit iş alınır. Tek sayılı n’de taban/yuvarlama ayrıntısı yazılabilir; yarı-boyut modelinin asimptotik sonucu değişmez.", "İlk seçenek ikinci çağrıyı unutur. n−1 seçenekleri kodun yarılamasını yanlış okur.", "1.2"],
+ ["Bir fonksiyon n elemanlı dizide en küçüğü bulur (n adım), sonra kalan n−1 elemanla kendini bir kez çağırır. Bağıntı?", ["T(n) = 2T(n/2) + n", "T(n) = T(n/2) + n", "T(n) = T(n−1) + n", "T(n) = T(n−1) + 1"], 2, "Bir çağrı, boyut 1 azalıyor, çağrı dışı iş n. Her turda bir eleman ayrılır; yerel tarama n, sonra n−1 boyutlu tek çağrı vardır. T(1)=Θ(1) ile sonuç Θ(n²).", "İkiye bölme yoktur. +1, minimumu bulmak için gereken taramayı saymaz.", "1.2"],
+ ["Bir çağrı yarı boyda diziye, çağrı dışında yalnız 1 karşılaştırma. Bağıntı?", ["T(n) = 2T(n/2) + 1", "T(n) = T(n/2) + 1", "T(n) = T(n/2) + n", "T(n) = T(n−1) + 1"], 1, "İkili aramanın bağıntısı; çözüm Θ(log n). İndeks aralıklarıyla yarıya erişildiği, dizi diliminin kopyalanmadığı varsayılır. T(1)=Θ(1) ile her seviyede sabit iş ve logaritmik seviye vardır.", "İki çağrı yapılmaz; +n taraması belirtilmemiştir. n−1 modeli yarıya düşen boyuta uymaz.", "1.2"]
+]);
+mkQuiz("#quiz1",[
+ ["Merge sort’un çalışma süresini hangi bağıntı modeller?", ["T(n) = T(n/2) + 1", "T(n) = 2T(n/2) + n", "T(n) = T(n−1) + n", "T(n) = 2T(n−1) + 1"], 1, "İki yarıya özyineleme + doğrusal birleştirme. (a) ikili arama, (c) özyinelemeli selection sort. Taban boş veya tek elemanlı dizidir. İki yarının sıralanması ve tüm elemanların birleştirilmesi birlikte Θ(n log n) verir.", "Tek yarıya çağrı ikili aramaya benzer. n−1 modelleri yarılama yapmaz ve bu kodun çağrı ağacını anlatmaz.", "2.2"],
+ ["[1, 4, 9] ile [2, 3, 10] birleştirilirken kaç anahtar karşılaştırması yapılır?", ["3", "6", "5", "9"], 2, "1–2, 4–2, 4–3, 4–10, 9–10 = 5; sonra 10 karşılaştırmasız eklenir (n − 1 = 5). Her karşılaştırmada küçük olan yazılır; son 10 için yeni karşılaştırma yapılmaz. Kopyalamak yine bir yazma işidir.", "3 yalnız bir listenin boyudur; bu girdide listeler o kadar erken bitmez. 6 eleman sayısını karşılaştırma sayısıyla karıştırır. 9 gereksiz çiftler sayar.", "2.1"],
+ ["T(n) = T(n/2) + 1 çözümü?", ["Θ(1)", "Θ(n)", "Θ(log n)", "Θ(n log n)"], 2, "lg n + 1 seviye, her biri 1 iş. n=8 için çağrı boyutları 8,4,2,1: dört sabit maliyetli seviye. n=2ᵏ için T(n)=k+1.", "Θ(1) seviye artışını unutur. Θ(n) ve Θ(n log n) tek yollu sabit işleri fazla sayar.", "3.1"],
+ ["T(n) = 2T(n/2) + n, T(1) = 1 için T(8) kaçtır?", ["16", "32", "24", "64"], 1, "T(2)=4, T(4)=12, T(8)=2·12+8=32 = 8·(lg 8 + 1). Üç iç seviye 8’er iş, sekiz yaprak da birer iş yapar: 24+8=32.", "24 yaprak maliyetini unutur. 16 bazı seviyeleri eksik sayar; 64 bu ağacın toplamı değildir.", "3.1"],
+ ["T(n) = T(n−1) + n çözümü?", ["Θ(n)", "Θ(n log n)", "Θ(n²)", "Θ(2ⁿ)"], 2, "n + (n−1) + … + 1 = n(n+1)/2. T(1)=1 alındığında tam toplam n(n+1)/2 olur. Boyut her çağrıda yalnız bir azaldığı için doğrusal sayıda seviye vardır.", "Θ(n) yerel taramayı, Θ(n log n) gerçek derinliği yanlış sayar. Üstel büyüme için bu örnekte bulunmayan dallanma gerekir.", "3.2"],
+ ["T(n) = 3T(n/2) + n çözümü?", ["Θ(n)", "Θ(n log n)", "Θ(n^(log₂3)) ≈ Θ(n^1,585)", "Θ(n³)"], 2, "log₂3 ≈ 1,585 > d = 1: yapraklar baskın. a=3,b=2,d=1. Seviye toplamları n(3/2)ⁱ olduğundan aşağı doğru büyür. Kesin üs log₂3’tür; 1,585 yuvarlanmış gösterimdir.", "Θ(n) üst seviyeye, Θ(n log n) eşit seviyelere karşılık gelirdi. Θ(n³) çağrı sayısı 3’ü doğrudan üs sanır.", "3.4"],
+ ["T(n) = T(n/2) + n çözümü?", ["Θ(n)", "Θ(n log n)", "Θ(log n)", "Θ(n²)"], 0, "n + n/2 + n/4 + … < 2n: üst seviye baskın. T(1)=1 ve n ikinin kuvvetiyse tam toplam 2n−1’dir. İlk seviye n, sonraki toplam n’den küçüktür.", "Θ(log n) yalnız seviyeleri sayar. Θ(n log n) her seviyeyi n varsayar; Θ(n²) daha da büyüktür.", "3.1"],
+ ["[8,3,6,1,9,2,5] dizisi dersteki son-pivot Lomuto partition koduyla bölünürse sonuç?", ["[3, 1, 2, 5, 9, 6, 8]", "[3, 1, 2, 5, 8, 6, 9]", "[1, 2, 3, 5, 6, 8, 9]", "[3, 1, 2, 8, 9, 6, 5]"], 0, "Küçükler (3, 1, 2) sırayla öne taşınır; pivot 5 firsthigh = 3’e takas edilir: [3, 1, 2, 5, 9, 6, 8]. Pivot yerleşince sol taraf 3,1,2 hâlâ sıralı değildir. Altı anahtar-pivot karşılaştırması yapılmıştır; tam sıralama ayrı özyinelemeler ister.", "İkinci seçenek bu Lomuto takas izini takip etmez. Tam sıralı seçenek partition’dan fazlasını yapar. Son seçenek pivotu yerine koymaz.", "4.1"],
+ ["Son elemanı pivot alan iki yönlü quicksort, hangi girdide Θ(n²) yapar?", ["Rastgele karışık girdi", "Her girdi", "Yalnızca küçük diziler", "Zaten sıralı (farklı anahtarlı) girdi"], 3, "Pivot hep en büyük elemandır; bir taraf boş, derinlik n. Sıralı n farklı anahtarda toplam (n−1)+(n−2)+…+1=n(n−1)/2 karşılaştırma olur.", "Rastgele girdi tipik olarak dengeliye yakın davranır; her girdi kuadratik değildir. Sorun küçük boyuta özgü değildir.", "4.2"],
+ ["Rastgele pivotlu quicksort (farklı anahtarlar) için hangisi doğrudur?", ["Her girdide en kötü durum Θ(n log n)", "Yalnızca rastgele girdide hızlıdır", "Her sabit girdide beklenen Θ(n log n); en kötü durum Θ(n²) kalır", "Hiçbir zaman kuadratik olmaz"], 2, "Beklenti, algoritmanın kendi rastgele seçimleri üzerindendir; kötü şans hâlâ olasıdır. Beklenen değer aynı sabit girdi üzerinde pivot seçimleri tekrarlandığında tanımlanır; girdi dağılımının rastgele olmasına gerek yoktur.", "Beklenti, her tek koşu için garanti değildir. Rastgele seçim uç pivotları tamamen dışlamaz, yalnızca onların peş peşe gelme olasılığını azaltır.", "4.4"],
+ ["Dört farklı öğeyi karşılaştırarak sıralamak için en kötü durumda gerekli ve yeterli en az karşılaştırma sayısı?", ["4", "5", "6", "24"], 1, "4! = 24 yaprak, 2⁴ = 16 < 24 ≤ 2⁵ = 32: ⌈lg 24⌉ = 5. Bilgi alt sınırı 5’tir ve dört farklı öğe için merge sort en kötü 5 karşılaştırmayla bunu gerçekleştirir. Hem alt sınır hem ulaşılabilir yöntem gerekir.", "4 karşılaştırma en fazla 16 olasılığı ayırır. 6 gereğinden fazla olabilir. 24 olası sıralama sayısıdır, karşılaştırma sayısı değil.", "5.1"],
+ ["Counting sort Ω(n log n) alt sınırını neden bozmaz?", ["Daha az karşılaştırma yapar", "Girdi zaten sıralıdır", "Karşılaştırma yapmaz; değeri dizi indeksi olarak kullanır", "Sınır yalnızca n &gt; 4096 için geçerlidir"], 2, "Alt sınır yalnızca bilgiyi karşılaştırmayla edinen algoritmalar içindir. Değer aralığı 0..k−1 ve yeterli sayaç alanı varsayılır; maliyet Θ(n+k). Genel keyfi anahtarlara yalnız karşılaştırma yapan modelle aynı değildir.", "“Daha az karşılaştırma” hangi varsayımın değiştiğini açıklamaz. Girdi sıralı olmak zorunda değildir ve alt sınır belirli bir n eşiğine bağlı değildir.", "5.2"],
+ ["170, 45, 75, 90, 802, 24 için birler basamağına kararlı bir geçişten sonra sıra?", ["24, 45, 75, 90, 170, 802", "90, 170, 802, 24, 45, 75", "170, 90, 802, 24, 45, 75", "802, 24, 45, 75, 170, 90"], 2, "Birler basamakları 0, 5, 5, 0, 2, 4; kararlı olduğundan 170, 90’dan önce; 45, 75’ten önce. 0 kovasına önce 170 sonra 90, 5 kovasına önce 45 sonra 75 girer. Kovaları 0,2,4,5 sırasıyla toplarsınız.", "90’ı 170’in önüne almak kararlılığı bozar. Tam sayıya göre sıralı ilk seçenek tek basamak geçişi değildir. Son seçenek basamak kovalarını yanlış sırada toplar.", "5.5"],
+ ["4096 adet 12 bitlik örneği counting sort ile sıralamak (say + ön-toplam + yaz) yaklaşık kaç adım?", ["≈ 4 096", "≈ 43 000", "≈ 12 300", "≈ 16,7 milyon"], 2, "3 · 4096 = 12 288 ≈ 12 300; karşılaştırmalı alt sınır ≈ 43 000. Model üç tarama sayar: n giriş sayımı, k ön-toplam işlemi, n çıktı yazımı. n=k=4096 için 2n+k=12288. Sayaç başlatma gibi ek sabit işler model dışında belirtilir.", "4096 yalnız bir taramadır. Yaklaşık 43000 genel farklı-anahtar karşılaştırma modelinin referansıdır. 16,7 milyon n² mertebesindedir, bu counting modelinin işi değildir.", "6"],
+ ["İki sıralı listede toplam 10 eleman var. Merge en kötü durumda kaç karşılaştırma yapar?", ["5", "9", "10", "45"], 1, "En çok n − 1 = 9. Her karşılaştırmada bir kayıt çıkar ve en az bir kayıt karşılaştırmasız kalır. İki dolu liste uygun biçimde iç içe gelirse 9’a ulaşılır.", "5 bazı girdiler için olabilir ama en kötü üst sınır değildir. 10 bütün yazmaları sayar. 45 bütün eleman çiftlerini karşılaştırmak olur; merge bunu yapmaz.", "2.1"],
+ ["Tüm anahtarları eşit olan n elemanlı dizide &lt; ile iki yönlü partition kullanan quicksort?", ["Θ(n)", "Θ(n log n)", "Θ(2ⁿ)", "Θ(n²)"], 3, "Hiç eleman pivottan kesinlikle küçük değil; her partition yalnızca pivotu ayırır. Çare: üç yönlü bölme. Kesin küçüklük testi eşitleri sol tarafa taşımaz. Pivot tek başına ayrılır; kalan n−1 eşit kayıtla aynı işlem tekrarlanır.", "Doğrusal sonuç üç yönlü partition ile mümkündür, bu kodla değil. Θ(n log n) dengeli bölme ister. Üstel dallanma yoktur.", "4.4"],
+ ["Veri belleğe sığmıyor ve diskten ardışık akışla okunacak. Hangi O(n log n) sıralama uygundur?", ["Quicksort", "Heapsort", "Insertion sort", "Merge sort"], 3, "Merge sort uzun ardışık okuma/yazma ile çalışır. Belleğe sığan parçalar sıralanır, sonra sıralı akışlar birleştirilir. Ardışık erişim disk kullanımına uygundur; tampon boyutu ve kaç akışın aynı anda açık olduğu tasarım ayrıntısıdır.", "Quicksort ve heapsort aynı erişim düzenini sağlamaz. Insertion sort genel büyük veri için kuadratik olabilir ve sorudaki O(n log n) sınıfına uymaz.", "2.3"]
+]);
+</script>
+<script>try{var t=localStorage.getItem("aa_theme");if(t)document.documentElement.dataset.theme=t;var b=document.getElementById("tg");if(b)b.addEventListener("click",function(){try{localStorage.setItem("aa_theme",document.documentElement.dataset.theme)}catch(e){}})}catch(e){}</script>
+<!--aa-sitewide-table-audit-->
+<script>
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap,.anim-table-wrap'))return;
+    var d=document.createElement('div');d.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(d,t);d.appendChild(t);
+  }
+  function auditTables(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    Array.prototype.slice.call(scope.querySelectorAll('table')).forEach(wrapTable);
+    document.querySelectorAll('.scroll table,.table-wrap table,.anim-table-wrap table').forEach(function(t){
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus','aa-code-first'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      if(cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6)t.classList.add('aa-code-first');
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m,span.m'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',s.length>0&&s.length<=32);
+      });
+      rows.forEach(function(r){
+        var c=r.cells&&r.cells[0],s=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',s==='toplam'||s==='total'||s.startsWith('toplam '));
+      });
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var pos=0,cell=null;for(var k=0;k<r.cells.length;k++){var c=r.cells[k],sp=c.colSpan||1;if(ci>=pos&&ci<pos+sp){cell=c;break}pos+=sp}
+          if(cell&&(cell.colSpan||1)===1){cells.push(cell);if(cell.tagName==='TD'){var tx=(cell.textContent||'').trim();if(tx){seen++;if(cell.classList.contains('r'))right++}}}
+        });
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var scheduled=false;
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;auditTables(document)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){auditTables(document)});else auditTables(document);
+  window.addEventListener('load',function(){auditTables(document)});
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="aa-site-audit-tables">
+(function(){
+  function wrapTable(t){
+    if(t.closest('.scroll,.table-wrap'))return;
+    var w=document.createElement('div');w.className='scroll aa-auto-scroll';
+    t.parentNode.insertBefore(w,t);w.appendChild(t);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      wrapTable(t);
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');else if(cols===5)t.classList.add('aa-cols-5');else if(cols===6)t.classList.add('aa-cols-6');else if(cols>=7)t.classList.add('aa-cols-7plus');
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var first=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&first.length&&first.filter(function(c){return c.classList.contains('m')}).length/first.length>=.6;
+      t.classList.toggle('aa-code-first',!!codeFirst);
+      Array.prototype.forEach.call(t.querySelectorAll('td.m,th.m'),function(c){var s=(c.textContent||'').replace(/\s+/g,' ').trim();c.classList.toggle('aa-token',!!s&&s.length<=36)});
+      rows.forEach(function(r){var c=r.cells&&r.cells[0],x=c?(c.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';r.classList.toggle('aa-total-row',x==='toplam'||x==='total'||x.startsWith('toplam '))});
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){var p=0,c=null;for(var k=0;k<r.cells.length;k++){var q=r.cells[k],sp=q.colSpan||1;if(ci>=p&&ci<p+sp){c=q;break}p+=sp}if(c&&(c.colSpan||1)===1){cells.push(c);if(c.tagName==='TD'){var tx=(c.textContent||'').trim();if(tx){seen++;if(c.classList.contains('r'))right++}}}});
+        if(seen&&right/seen>=.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+    });
+  }
+  var queued=false;function later(){if(!queued){queued=true;requestAnimationFrame(function(){queued=false;audit()})}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+  new MutationObserver(later).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!--AA-SIDEBAR-->
+<style>
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#aa-bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--acc,#6cb6ff);z-index:90;transition:width .1s linear}
+#aa-sb{position:fixed;top:0;left:0;bottom:0;width:min(272px,86vw);overflow-y:auto;background:var(--panel,#171d27);color:var(--ink,#e8ecf3);border-right:1px solid var(--line,#2a3344);padding:14px 12px 28px;z-index:80;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transform:translateX(-102%);transition:transform .22s ease;overscroll-behavior:contain}
+#aa-sb *{box-sizing:border-box}
+#aa-sb .hd{display:flex;align-items:baseline;justify-content:space-between;margin:0 4px 6px}
+#aa-sb .hd b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc,#6cb6ff)}
+#aa-sb .pct{font:600 26px ui-monospace,Menlo,Consolas,monospace}
+#aa-sb .trk{height:6px;border-radius:99px;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);overflow:hidden;margin:0 4px 4px}
+#aa-sb .trk i{display:block;height:100%;width:0;background:var(--acc,#6cb6ff);transition:width .1s linear}
+#aa-sb .best{font-size:12px;color:var(--mute,#9aa6b8);margin:0 4px 12px}
+#aa-sb a{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--mute,#9aa6b8);border-radius:8px;padding:6px 8px;border-left:3px solid transparent}
+#aa-sb a:hover{background:var(--panel2,#1d2431);color:var(--ink,#e8ecf3)}
+#aa-sb a .n{flex:none;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:700;display:grid;place-items:center;background:var(--panel2,#1d2431);border:1px solid var(--line,#2a3344);margin-top:1px}
+#aa-sb a.top.done .n{background:var(--ok,#5fd39a);border-color:var(--ok,#5fd39a);color:#0b1a12}
+#aa-sb a.top.active{color:var(--ink,#e8ecf3);background:var(--rule,#1b2a3d);border-left-color:var(--acc,#6cb6ff);font-weight:600}
+#aa-sb a.top.active .n{background:var(--acc,#6cb6ff);border-color:var(--acc,#6cb6ff);color:var(--bg,#10141b)}
+#aa-sb .sub{display:none;margin:2px 0 6px 18px;border-left:1px solid var(--line,#2a3344)}
+#aa-sb .sub.open{display:block}
+#aa-sb .sub a{font-size:13px;padding:4px 8px;border-left:0;border-radius:6px}
+#aa-sb .sub a.active{color:var(--acc,#6cb6ff);font-weight:600}
+#aa-fab{position:fixed;left:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:calc(100vw - 24px);z-index:85;display:none;align-items:center;gap:8px;background:var(--acc,#6cb6ff);color:var(--bg,#10141b);border:0;border-radius:99px;padding:9px 14px;font:700 14px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
+#aa-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:75;display:none}
+body.aa-open{overflow:hidden}
+body.aa-open #aa-sb{transform:none;box-shadow:0 0 40px rgba(0,0,0,.5)}
+body.aa-open #aa-back{display:block}
+@media (min-width:1200px){
+  #aa-sb{transform:none}
+  body.aa-has-sb{padding-left:272px}
+  #aa-fab,#aa-back{display:none!important}
+}
+@media (max-width:1199px){#aa-fab{display:flex}}
+@media print{#aa-sb,#aa-bar,#aa-fab,#aa-back{display:none!important}body.aa-has-sb{padding-left:0!important}}
+</style>
+<script>
+(function(){
+  try{
+    var secs=[].slice.call(document.querySelectorAll("section[id]"));
+    if(!secs.length)return;
+    var M=[],top=null,idx=0;
+    function clean(h){var c=h.cloneNode(true);[].slice.call(c.querySelectorAll(".time,.num")).forEach(function(x){x.remove()});return c.textContent.replace(/\s+/g," ").trim()}
+    secs.forEach(function(s){
+      var h2=s.querySelector("h2");
+      if(h2){
+        var num=h2.querySelector(".num");idx++;
+        top={el:h2,sec:s,type:"top",label:clean(h2),n:num?num.textContent.trim():String(idx),subs:[]};
+        M.push(top);
+      }
+      if(!top)return;
+      [].slice.call(s.querySelectorAll("h3")).forEach(function(h){
+        var t=clean(h);if(!t)return;
+        var m={el:h,sec:s,type:"sub",label:t,parent:top};top.subs.push(m);M.push(m);
+      });
+    });
+    var k=0;M.forEach(function(m){if(!m.el.id)m.el.id="aa-h"+(++k)});
+    var sb=document.createElement("nav");sb.id="aa-sb";sb.setAttribute("aria-label","İçindekiler");
+    var html='<div class="hd"><b>İçindekiler</b><span class="pct" id="aa-pct">0%</span></div><div class="trk"><i id="aa-trk"></i></div><div class="best" id="aa-best"></div>';
+    M.forEach(function(m){
+      if(m.type!=="top")return;
+      html+='<a class="top" href="#'+m.el.id+'" data-id="'+m.el.id+'"><span class="n">'+m.n+'</span><span>'+m.label.replace(/</g,"&lt;")+'</span></a>';
+      if(m.subs.length){html+='<div class="sub" data-for="'+m.el.id+'">'+m.subs.map(function(s){return '<a href="#'+s.el.id+'" data-id="'+s.el.id+'">'+s.label.replace(/</g,"&lt;")+'</a>'}).join("")+'</div>'}
+    });
+    sb.innerHTML=html;
+    var bar=document.createElement("div");bar.id="aa-bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax","100");bar.setAttribute("aria-label","Okuma ilerlemesi");
+    var fab=document.createElement("button");fab.id="aa-fab";fab.type="button";fab.innerHTML='☰ İçindekiler · <span id="aa-fpct">0%</span>';
+    var back=document.createElement("div");back.id="aa-back";
+    document.body.appendChild(bar);document.body.appendChild(sb);document.body.appendChild(fab);document.body.appendChild(back);
+    document.body.classList.add("aa-has-sb");
+    function toggle(on){document.body.classList.toggle("aa-open",on)}
+    fab.onclick=function(){toggle(!document.body.classList.contains("aa-open"))};
+    back.onclick=function(){toggle(false)};
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")toggle(false)});
+    sb.addEventListener("click",function(e){if(e.target.closest("a")&&window.innerWidth<1200)toggle(false)});
+    var wk=(location.pathname.match(/\/w(\d+)\//)||[])[1]||"x",KEY="aa_read_w"+wk,best=0;
+    try{best=+localStorage.getItem(KEY)||0}catch(e){}
+    var links={},tops=[].slice.call(sb.querySelectorAll("a.top")),subWraps=[].slice.call(sb.querySelectorAll(".sub"));
+    [].slice.call(sb.querySelectorAll("a[data-id]")).forEach(function(a){links[a.getAttribute("data-id")]=a});
+    var pctEl=sb.querySelector("#aa-pct"),trk=sb.querySelector("#aa-trk"),bestEl=sb.querySelector("#aa-best"),fp=fab.querySelector("#aa-fpct");
+    var lastActive=null,ticking=false;
+    function update(){
+      ticking=false;
+      var de=document.documentElement,max=de.scrollHeight-window.innerHeight;
+      var pct=max>0?Math.min(100,Math.max(0,Math.round(100*window.pageYOffset/max))):100;
+      if(max>0&&window.pageYOffset>=max-4)pct=100;
+      bar.style.width=pct+"%";bar.setAttribute("aria-valuenow",pct);
+      pctEl.textContent=pct+"%";trk.style.width=pct+"%";fp.textContent=pct+"%";
+      if(pct>best){best=pct;try{localStorage.setItem(KEY,String(best))}catch(e){}}
+      bestEl.textContent=best>pct?"En ileri okunan: %"+best:"";
+      var act=M[0];
+      for(var i=0;i<M.length;i++){if(M[i].el.getBoundingClientRect().top<=150)act=M[i];else break}
+      var vh=window.innerHeight;
+      tops.forEach(function(a){
+        var m=M.filter(function(x){return x.el.id===a.getAttribute("data-id")})[0];
+        var r=m.sec.getBoundingClientRect();
+        var next=m.sec;
+        var passed=r.bottom<=vh*0.35;
+        a.classList.toggle("done",passed);
+        a.querySelector(".n").textContent=passed?"✓":m.n;
+      });
+      if(act!==lastActive){
+        lastActive=act;
+        var topM=act.type==="top"?act:act.parent;
+        [].slice.call(sb.querySelectorAll("a.active")).forEach(function(a){a.classList.remove("active")});
+        links[topM.el.id].classList.add("active");
+        if(act.type==="sub")links[act.el.id].classList.add("active");
+        subWraps.forEach(function(w){w.classList.toggle("open",w.getAttribute("data-for")===topM.el.id)});
+        var a=links[act.el.id],c=sb;
+        if(a&&c.scrollHeight>c.clientHeight){var ar=a.getBoundingClientRect(),cr=c.getBoundingClientRect();
+          if(ar.top<cr.top+90||ar.bottom>cr.bottom-40)c.scrollTop+=ar.top-cr.top-cr.height/3}
+      }
+    }
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("resize",onScroll);
+    window.addEventListener("load",onScroll);setTimeout(update,300);update();
+  }catch(e){if(window.console)console.warn("aa sidebar",e)}
+})();
+</script>
+<!--/AA-SIDEBAR-->
+
+<script id="aa-sitewide-table-audit">
+(function(){
+  function isMathToken(s){
+    if(!s||s.length>34)return false;
+    return /^[\d\s.,:;()+\-×÷=<>≤≥≈ΘΩOonmVkEαφπ√²³⁴⁵ⁿ!⌊⌋⌈⌉→←↔∑Σ\/·%^_*]+$/u.test(s);
+  }
+  function audit(){
+    document.querySelectorAll('table').forEach(function(t){
+      if(!t.closest('.scroll')&&!t.closest('.table-wrap')){
+        var w=document.createElement('div');w.className='scroll';
+        t.parentNode.insertBefore(w,t);w.appendChild(t);
+      }
+      var rows=Array.prototype.slice.call(t.rows),cols=0;
+      rows.forEach(function(r){var n=0;Array.prototype.forEach.call(r.cells,function(c){n+=c.colSpan||1});cols=Math.max(cols,n)});
+      ['aa-cols-4','aa-cols-5','aa-cols-6','aa-cols-7plus'].forEach(function(c){t.classList.remove(c)});
+      if(cols===4)t.classList.add('aa-cols-4');
+      else if(cols===5)t.classList.add('aa-cols-5');
+      else if(cols===6)t.classList.add('aa-cols-6');
+      else if(cols>=7)t.classList.add('aa-cols-7plus');
+
+      Array.prototype.forEach.call(t.querySelectorAll('td,th'),function(c){
+        var s=(c.textContent||'').replace(/\s+/g,' ').trim();
+        if(c.classList.contains('m')||isMathToken(s))c.classList.add('aa-token');
+      });
+
+      rows.forEach(function(r){
+        var first=r.cells&&r.cells[0],txt=first?(first.textContent||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('tr'):'';
+        r.classList.toggle('aa-total-row',txt==='toplam'||txt==='total'||txt.startsWith('toplam '));
+      });
+
+      for(var ci=0;ci<cols;ci++){
+        var seen=0,right=0,cells=[];
+        rows.forEach(function(r){
+          var pos=0,cell=null;
+          for(var k=0;k<r.cells.length;k++){
+            var c=r.cells[k],span=c.colSpan||1;
+            if(ci>=pos&&ci<pos+span){cell=c;break}
+            pos+=span;
+          }
+          if(cell&&(cell.colSpan||1)===1){
+            cells.push(cell);
+            if(cell.tagName==='TD'){
+              var tx=(cell.textContent||'').trim();
+              if(tx){seen++;if(cell.classList.contains('r')||/^[-+]?\d[\d\s.,%]*$/.test(tx))right++}
+            }
+          }
+        });
+        if(seen>0&&right/seen>=0.6)cells.forEach(function(c){c.classList.add('aa-numcol')});
+      }
+
+      var bodyRows=rows.filter(function(r){return r.querySelector('td')});
+      var firstCells=bodyRows.map(function(r){return r.cells&&r.cells[0]}).filter(Boolean);
+      var codeFirst=cols===4&&firstCells.length>0&&firstCells.filter(function(c){return c.classList.contains('m')||c.querySelector('code')}).length/firstCells.length>=0.6;
+      t.classList.toggle('aa-code-first',codeFirst);
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',audit);else audit();
+  window.addEventListener('load',audit);
+})();
+</script>
+</body>
+</html>
