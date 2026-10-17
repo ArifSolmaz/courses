@@ -3,7 +3,7 @@ import base64, gzip, json, os, subprocess, tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-RELEASE = datetime(2026, 10, 18, 21, tzinfo=timezone.utc)
+RELEASE = datetime(2026, 10, 19, 9, tzinfo=timezone.utc)
 FILES = {'index.html','template.html','questions.json','build.py','verify.py','verify.cjs','README.md','links.json'}
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -11,7 +11,7 @@ def main():
     mode = os.environ.get('RELEASE_MODE', 'release')
     now = datetime.now(timezone.utc)
     if mode != 'validate' and now < RELEASE:
-        print('Not due: publication is blocked until 19 October 00:00 Istanbul.')
+        print('Not due: publication is blocked until 19 October 12:00 Istanbul.')
         return
     bundle = json.loads(gzip.decompress(base64.b64decode(os.environ['CP1_REVIEW_BUNDLE'])))
     if set(bundle) != FILES:
