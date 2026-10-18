@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AA 5. Hafta · 28 örnek için Türkçe teknik notlar</title><link rel="stylesheet" href="notes.css"></head><body><header><a href="../">← Week 5 · Örneklere dön</a><a href="notlar.md" download>Markdown indir</a><button type="button" onclick="window.print()">Yazdır / PDF</button></header><div class="layout"><aside aria-label="İçindekiler"><h2>28 örnek · İçindekiler</h2><a href="#baslangic">Kavramlar ve sayım kuralları</a><ol><li><a href="#ornek-1"><span>1</span>Her kutuya bakmak mı, yarısını elemek mi?</a></li><li><a href="#ornek-2"><span>2</span>Kimlik anahtardır; ölçüm değerdir</a></li><li><a href="#ornek-3"><span>3</span>Hızlı aramanın ekleme bedeli olabilir</a></li><li><a href="#ornek-4"><span>4</span>Arama ağacı: küçük veya büyük kararları</a></li><li><a href="#ornek-5"><span>5</span>Her dalı değil, tek yolu izlemek</a></li><li><a href="#ornek-6"><span>6</span>En küçük için sola; en büyük için sağa</a></li><li><a href="#ornek-7"><span>7</span>Ekleme: boş yere kadar aramak</a></li><li><a href="#ornek-8"><span>8</span>Ağacı sıralı okumak</a></li><li><a href="#ornek-9"><span>9</span>Ardıl: bir sonraki saklanan anahtar</a></li><li><a href="#ornek-10"><span>10</span>Silme: yaprak ve tek çocuk</a></li><li><a href="#ornek-11"><span>11</span>Silme: iki çocuk olduğunda ardılı kullanmak</a></li><li><a href="#ornek-12"><span>12</span>Aynı anahtarlar, farklı yükseklikler</a></li><li><a href="#ornek-13"><span>13</span>Rastgele sıra yardımcı olur; dengeleme garanti verir</a></li><li><a href="#ornek-14"><span>14</span>İlk mola — ağaçları cevaplarla toparlayalım</a></li><li><a href="#ornek-15"><span>15</span>Anahtardan başlangıç yuvası hesaplamak</a></li><li><a href="#ornek-16"><span>16</span>Çakışma çözümü: ayrı zincirleme</a></li><li><a href="#ornek-17"><span>17</span>Çakışma çözümü: doğrusal yoklama</a></li><li><a href="#ornek-18"><span>18</span>“Silindi” ile “hiç kullanılmadı” farklıdır</a></li><li><a href="#ornek-19"><span>19</span>Doluluk oranı ve yeniden yerleştirme</a></li><li><a href="#ornek-20"><span>20</span>En kötü, beklenen ve amortize: üç ayrı iddia</a></li><li><a href="#ornek-21"><span>21</span>İkinci mola — hash tablosunu cevaplarla toparlayalım</a></li><li><a href="#ornek-22"><span>22</span>İyi hash kuralı gerçek anahtarları yaymalıdır</a></li><li><a href="#ornek-23"><span>23</span>Çakışmalar neden beklenenden erken gelir?</a></li><li><a href="#ornek-24"><span>24</span>İki ölçümün toplamını bulmak</a></li><li><a href="#ornek-25"><span>25</span>Metin arama: önce hash, sonra gerçek harfler</a></li><li><a href="#ornek-26"><span>26</span>Parmak izi ipucudur; kimliğin kendisi değildir</a></li><li><a href="#ornek-27"><span>27</span>Makinenin sorusuna göre veri yapısı seçmek</a></li><li><a href="#ornek-28"><span>28</span>Son kontrol: seçiminizi ve işlemlerinizi açıklayın</a></li></ol></aside><main><div class="intro" id="baslangic"><h1>AA · 5. Hafta — 28 örneğin Türkçe teknik açıklaması</h1>
+<p>Bu notlar, <strong>“Search trees and hash tables”</strong> dersindeki 28 kartı aynı sırayla açıklar. Amaç yalnızca işlemin sonucunu bulmak değil, her adımın neden doğru olduğunu ve hangi koşullarda hızlı çalıştığını anlamaktır. 14 ve 21 numaralı kartlar derste moladır; burada cevaplı tekrar için kullanılır. Ayrı araştırma vaka çalışması bu 28 örneğe dahil değildir.</p>
+<h2>Önce kullanacağımız dil</h2>
+<ul>
+<li><strong>Anahtar (key):</strong> Kaydı bulmak için kullandığımız kimlik; örneğin sensör numarası 30.</li>
+<li><strong>Değer (value):</strong> O kimliğe ait bilgi; örneğin 21 °C. Anahtarın büyüklüğü ile sıcaklığın büyüklüğü aynı şey değildir.</li>
+<li><strong>n:</strong> Saklanan kayıt sayısı. <strong>m:</strong> Hash tablosundaki yuva/kova sayısı. <strong>h:</strong> Ağacın yüksekliği; bu notlarda kökten en derin düğüme giden yolun kenar sayısıdır. Tek düğümlü ağacın yüksekliği 0'dır.</li>
+<li><strong>O(1):</strong> Kayıt sayısı büyürken, kullandığımız hesaplama modelinde işlem maliyetinin sabit bir üst sınırı vardır. “Tam bir işlem” veya “bir saniye” demek değildir.</li>
+<li><strong>O(log n):</strong> Adayları tekrar tekrar yaklaşık yarıya indirmeye benzer büyüme. Örneğin 8 → 4 → 2 → 1, üç yarılama gerektirir. Burada logaritmayı 2 tabanında düşünebiliriz; sabit taban değişimi büyüme sınıfını değiştirmez.</li>
+<li><strong>O(n):</strong> Maliyet için doğrusal bir üst sınır. Bütün kayıtları bir kez okumak buna örnektir. <strong>O(n²)</strong> ise bütün çiftleri karşılaştırmak gibi karesel büyümenin üst sınırıdır.</li>
+<li><strong>Θ(n):</strong> Maliyet hem alttan hem üstten doğrusal büyümeyle sınırlıdır. O yalnızca üst sınır verir; Θ büyüme mertebesini daha sıkı belirtir. Ayrıca her ifade için “en kötü”, “beklenen” veya “amortize” maliyetten hangisini söylediğimizi belirtmeliyiz.</li>
+</ul>
+<p><strong>Sayım anlaşması:</strong> Ağaç örneklerinde ziyaret edilen düğümleri sayıyoruz. Bir düğümde programın hem <code>==</code> hem <code>&lt;</code> kontrolü yapması, burada iki düğüm ziyareti sayılmaz. Bu yüzden sayıları doğrudan işlemci komutu veya milisaniye gibi okumayın.</p></div><section id="ornek-1" aria-labelledby="baslik-1"><p class="eyebrow">ÖRNEK 1 / 28 · Look at every box, or skip half?</p><h2 id="baslik-1">1. Her kutuya bakmak mı, yarısını elemek mi?</h2><p><a href="../#example-1">Ders sayfasındaki örnek 1</a> · <a href="../lecture-notes.html#topic-0-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Sıralı sensör kimlikleri <code>[10, 20, 30, 40, 50, 60, 70]</code>. Aranan kimlik 60. İki yöntemin de bulduğu kayıt aynıdır; farklı olan, bulana kadar yaptıkları iştir.</p>
+<p><strong>Adım adım karşılaştırma:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Yöntem</th>
+<th>Ziyaret edilen kimlikler</th>
+<th style="text-align: right;">Ziyaret sayısı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baştan sırayla arama</td>
+<td>10 → 20 → 30 → 40 → 50 → 60</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>İkili arama</td>
+<td>40 → 60</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>İkili arama önce ortadaki 40'a bakar. 60 daha büyük olduğu için 40 ve solundaki bütün kimlikler elenir. Kalan bölüm <code>[50, 60, 70]</code>; bunun ortası 60'tır. Buradaki kazanım “daha hızlı karşılaştırma yapmak” değil, <strong>gereksiz karşılaştırmaları yapmamaktır</strong>.</p>
+<p><strong>Neden doğru?</strong> Sıralılık, solda kalan her kaydın 40'tan küçük olduğunu garanti eder. Veri sıralı değilse bu çıkarım yapılamaz; aranan kaydı yanlışlıkla elemek mümkündür. Algoritma, aranan kayıt varsa hâlâ incelenen aralık içinde olduğu bilgisini her adımda korur.</p>
+<p><strong>Maliyet ve koşul.</strong> Sıralı bir dizide ortadaki elemana sabit zamanda erişebildiğimizde ikili aramanın en kötü maliyeti O(log n), doğrusal aramanınki O(n)'dir. Yedi kayıtta başarılı ikili arama en fazla üç ziyaret gerektirir. Bağlı listede ortaya gitmek için bağlantıları yürümek gerektiğinden aynı zaman sonucu otomatik olarak geçerli değildir. Veriyi önce sıralamak gerekiyorsa bunun maliyeti de ayrıca düşünülür.</p>
+<p><strong>Kontrol ve cevap.</strong> 10'u arayın: 40 → 20 → 10, toplam üç ziyaret. 60'ın iki adımda bulunması, her anahtarın iki adımda bulunacağı anlamına gelmez.</p></section><section id="ornek-2" aria-labelledby="baslik-2"><p class="eyebrow">ÖRNEK 2 / 28 · An ID is a key. A reading is a value.</p><h2 id="baslik-2">2. Kimlik anahtardır; ölçüm değerdir</h2><p><a href="../#example-2">Ders sayfasındaki örnek 2</a> · <a href="../lecture-notes.html#topic-1-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> <code>30 → 21 °C</code> kaydında 30 sensörün kimliğidir, 21 ise ölçümüdür. “30 numaralı sensörü bul” ile “en düşük sıcaklığı bul” farklı sorulardır.</p>
+<p>Bir sözlük (dictionary), anahtarı ilgili değerle eşleştirir. <code>search(30)</code> ilgili kaydı getirir; <code>insert(40, 18)</code> yeni bir kayıt ekler; <code>delete(30)</code> o anahtara ait kaydı kaldırır. Bir kimlik yeniden gelirse sistemin ne yapacağı önceden belirlenmelidir: eski ölçümü güncellemek, reddetmek veya bir ölçüm listesine eklemek farklı tasarımlardır. Sözlükte aynı anahtarın değerini güncellemek, zorunlu olarak yeni bir düğüm eklemek değildir.</p>
+<p><strong>Sıralı sözlükte diğer işlemler:</strong> minimum en küçük anahtarı, maksimum en büyük anahtarı verir. Ardıl (successor), daha büyük saklanan anahtarlar içindeki en küçüğüdür. Öncül (predecessor), daha küçükler içindeki en büyüğüdür.</p>
+<pre><code class="language-text">Saklanan anahtarlar: 20      30                50
+                            └── ardılı ──────→ 50
+</code></pre>
+<p><strong>Önemli ayrım.</strong> 30'un ardılı 31 değildir; 31 kayıtlı değil. Aynı şekilde en küçük kimlikli sensörün sıcaklığı mutlaka en düşük değildir. Ağaç kimliğe göre kurulmuşsa sıcaklığa göre minimum bulmak için başka bir düzenleme veya kayıtları tarama gerekebilir.</p>
+<p><strong>Ne alınmalı?</strong> Veri yapısını seçmeden önce hangi soruların sorulacağını tanımlayın. Sadece kimlikle arama ile kimlikler arasında sırayla ilerleme aynı gereksinim değildir. İşlemlerin adı tek başına ne kadar hızlı olduklarını söylemez; kullanılan yapı belirleyicidir.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 28 · Fast search can make insertion harder</p><h2 id="baslik-3">3. Hızlı aramanın ekleme bedeli olabilir</h2><p><a href="../#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-1-2">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Sıralı dizi <code>[10, 20, 30, 40]</code> içine 25 eklenecek. 25'i sona yazarsak dizi artık sıralı olmaz. İkili aramanın dayandığı özellik bozulur.</p>
+<pre><code class="language-text">Başlangıç: 10  20  30  40  [boş]
+40'ı taşı: 10  20  30  [ ]  40
+30'u taşı: 10  20  [ ]  30  40
+25'i yaz: 10  20  25   30  40
+</code></pre>
+<p><strong>Neden sağdan başlıyoruz?</strong> Önce 30'u 40'ın yerine yazarsak, 40'ı saklamadan üzerine yazmış oluruz. Sağdan sola taşıma henüz taşınmamış kayıtları korur. Bu örnekte iki mevcut kayıt yer değiştirir; ayrıca yeni kayıt yazılır. “İki kaydırma” toplam işlemlerin tamamı değildir.</p>
+<p><strong>Arama ve taşıma ayrı işlerdir.</strong> Ekleme konumu ikili aramayla O(log n) zamanda bulunabilir. Ancak başa yakın eklemede yaklaşık n kayıt taşınacağından toplam en kötü ekleme maliyeti O(n)'dir. Dizide boş kapasite olduğunu varsaydık; kapasite doluysa yeni bellek ayırma ve kopyalama da gerekebilir.</p>
+<p><strong>Bağlı liste karşılaştırması.</strong> Sırasız tek bağlı listenin başına yeni düğüm eklemek, düğüm hazırken iki bağlantı ayarıyla O(1) yapılabilir: yeni düğümün <code>next</code> alanı eski başı gösterir, baş işaretçisi yeni düğüme alınır. Fakat liste artık anahtara göre sıralı değildir; arama en kötü O(n) olur. “Listeye ekleme O(1)” ifadesi, önce arayarak uygun konumu bulma maliyetini kapsamaz.</p>
+<p><strong>Kontrol ve cevap.</strong> Aynı diziye 5 eklemek dört mevcut kaydın da sağa taşınmasını gerektirir. Hangi yapı daha iyi sorusunun cevabı, arama ve eklemeyi ne sıklıkta yaptığımıza bağlıdır.</p></section><section id="ornek-4" aria-labelledby="baslik-4"><p class="eyebrow">ÖRNEK 4 / 28 · A tree is a set of smaller-or-larger decisions</p><h2 id="baslik-4">4. Arama ağacı: küçük veya büyük kararları</h2><p><a href="../#example-4">Ders sayfasındaki örnek 4</a> · <a href="../lecture-notes.html#topic-1-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Anahtarları şu ikili arama ağacında (BST) saklayalım:</p>
+<pre><code class="language-text">          50
+        /    \
+      30      70
+     /  \    /  \
+   20   40  60   80
+</code></pre>
+<p><strong>Kural.</strong> Her düğümün sol alt ağacındaki bütün anahtarlar ondan küçük, sağ alt ağacındaki bütün anahtarlar ondan büyüktür. Burada anahtarların farklı olduğunu varsayıyoruz. Alt ağaç, doğrudan çocuğu ve onun altındaki bütün düğümleri kapsar.</p>
+<p>40 neden doğru yerde? 50'den küçük olduğu için 50'nin sol tarafında, 30'dan büyük olduğu için 30'un sağ tarafındadır. Yani aynı anda iki sınırı sağlar: <code>30 &lt; 40 &lt; 50</code>.</p>
+<p><strong>Sık hata.</strong> 30'un sağına 55 koymak, yalnızca 30 ile karşılaştırınca uygun görünür. Ama bu konum hâlâ 50'nin sol alt ağacındadır. 55, 50'den küçük olmadığı için bütün ağacın BST kuralı bozulur. Kural sadece ebeveyn ve çocuk arasında kontrol edilmez; üst düğümlerden gelen sınırlar da korunur.</p>
+<p><strong>Neden önemli?</strong> Arama sırasında bir dalı tamamen atlayabilmemizi sağlayan şey bu kuraldır. Kural bozuksa algoritma doğru anahtarı yanlış tarafta bırakıp “yok” diyebilir. Her ikili ağaç BST değildir: “ikili” en fazla iki çocuk olduğunu, “arama ağacı” ise ek bir sıralama kuralını söyler.</p>
+<p><strong>Kontrol ve cevap.</strong> 35, 30'un sağındaki alt ağaçta bulunabilir mi? Evet; 30 ile 50 arasındadır. Ancak 40'ın çocuğu olacaksa 40'tan küçük olduğu için onun soluna yerleştirilmelidir.</p></section><section id="ornek-5" aria-labelledby="baslik-5"><p class="eyebrow">ÖRNEK 5 / 28 · Follow one path, not every branch</p><h2 id="baslik-5">5. Her dalı değil, tek yolu izlemek</h2><p><a href="../#example-5">Ders sayfasındaki örnek 5</a> · <a href="../lecture-notes.html#topic-1-4">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Önceki ağaçta 60'ı arıyoruz. Her karşılaştırmada aramanın devam edeceği yalnızca bir yön vardır.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Ziyaret</th>
+<th style="text-align: right;">Bulunduğumuz düğüm</th>
+<th>Karar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">50</td>
+<td>60 daha büyük; sağa git</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">70</td>
+<td>60 daha küçük; sola git</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">60</td>
+<td>Eşit; bulundu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Bulunamazsa ne olur?</strong> 65 arandığında yine 50 → 70 → 60 ziyaret edilir. 65, 60'tan büyük olduğu için sağ bağlantıya bakılır. Bağlantı boştur; kayıt yoktur. Burada üç mevcut düğüm ziyaret edilmiştir. Son boş bağlantıyı kontrol etmek de programda iş yapar, fakat sayımımızda dördüncü düğüm ziyareti değildir.</p>
+<p><strong>Doğruluk düşüncesi.</strong> 50'nin solundakiler 50'den küçük; hiçbirisi 65 olamaz. 70'in sağındakiler 70'ten büyük; onlar da 65 olamaz. Böylece elenen kısımları tekrar taramaya gerek kalmaz. Aranan anahtar varsa, seçtiğimiz alt ağaçta olmalıdır.</p>
+<p><strong>Maliyet.</strong> Arama maliyeti ağaç yüksekliğiyle ilgilidir: en kötü O(h + 1). Dengeli ağaçta yükseklik logaritmik, zincire dönüşmüş ağaçta n − 1 olabilir. Bu yüzden sıradan BST için koşulsuz “arama O(log n)” denmez. Döngüyle yazılan arama O(1) ek alan kullanabilir; özyinelemeli sürüm yol boyunca çağrı yığını kullanır.</p>
+<p><strong>Kontrol ve cevap.</strong> 20'nin yolu 50 → 30 → 20'dir. Ağaçta yedi kayıt olsa da hepsini okumayız.</p></section><section id="ornek-6" aria-labelledby="baslik-6"><p class="eyebrow">ÖRNEK 6 / 28 · Smallest: keep going left</p><h2 id="baslik-6">6. En küçük için sola; en büyük için sağa</h2><p><a href="../#example-6">Ders sayfasındaki örnek 6</a> · <a href="../lecture-notes.html#topic-1-5">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> BST'de minimum anahtarı arıyoruz. Her sol adım daha küçük bir anahtarın bulunduğu alt ağaca götürür.</p>
+<pre><code class="language-text">Minimum: 50 → 30 → 20 → sol bağlantı boş → sonuç 20
+Maksimum: 50 → 70 → 80 → sağ bağlantı boş → sonuç 80
+</code></pre>
+<p><strong>Neden durabiliriz?</strong> 20'nin sol alt ağacı yoksa, o alt ağaç içinde 20'den küçük saklanan bir anahtar yoktur. Kökten sürekli sola giderek zaten her aşamada daha küçük anahtarları içerebilecek tarafa geçtik. Sağ alt ağaçları kontrol etmeye gerek yoktur; oradaki anahtarlar ilgili düğümden büyüktür.</p>
+<p><strong>Tüm ağaç mı, alt ağaç mı?</strong> İşlemi 70'ten başlatırsak minimum 60 olur. Bu, bütün ağacın minimumu değildir; yalnızca kökü 70 olan alt ağacın minimumudur. Bu ayrım, iki çocuklu düğüm silerken kullanılacaktır.</p>
+<p><strong>Maliyet ve sınır durumları.</strong> Kökten başlamak ve bağlantıları izlemek en kötü O(h + 1) sürer. “Minimum her zaman O(1)” demek doğru değildir; bunun için ayrıca minimuma doğrudan bir referans tutmak gibi bir tasarım gerekir. Boş ağaçta minimum yoktur; uygulama <code>None</code>, uygun bir sonuç türü veya tanımlanmış bir hata döndürmelidir. 0 gibi geçerli bir anahtarı “yok” anlamında kullanmak belirsizlik doğurabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Standart ağaçta 30 alt ağacının maksimumu 40'tır. İşleme başladığımız kök, hangi kayıt kümesi hakkında cevap verdiğimizi belirler.</p></section><section id="ornek-7" aria-labelledby="baslik-7"><p class="eyebrow">ÖRNEK 7 / 28 · Insert by searching for an empty place</p><h2 id="baslik-7">7. Ekleme: boş yere kadar aramak</h2><p><a href="../#example-7">Ders sayfasındaki örnek 7</a> · <a href="../lecture-notes.html#topic-1-6">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Anahtarları sırayla <code>50, 30, 70, 20, 40, 60, 80</code> ekleyelim. İlk anahtar kök olur. Sonraki her anahtar, aramada olduğu gibi küçükse sola, büyükse sağa ilerler; boş bağlantıya yeni düğüm yerleştirilir.</p>
+<p><strong>40'ın eklenmesi:</strong> 40 &lt; 50, sola; 40 &gt; 30, sağa; bağlantı boş, yeni düğümü buraya bağla. Eklemeden sonra 40 hem 30'dan büyük hem 50'den küçüktür. Yolda alınan kararlar, bütün üst düğümlerin sınırlarını aynı anda korur.</p>
+<p><strong>65'i sonradan ekleyelim:</strong></p>
+<pre><code class="language-text">65 &gt; 50 → sağ
+65 &lt; 70 → sol
+65 &gt; 60 → sağ bağlantı boş → 65'i bağla
+</code></pre>
+<p>Arama yolu üzerinde üç mevcut düğüm ziyaret edilir; yeni düğümün bağlanması ayrı son adımdır. Yerini bulma O(h + 1), uygun bağlantıyı değiştirme sabit iştir. Sıradan BST bu eklemeden sonra kendiliğinden dengelenmez.</p>
+<p><strong>Aynı anahtar yeniden gelirse?</strong> Sözlük olarak kullanıyorsak 60 anahtarı için yeni değer geldiğinde mevcut 60'ın değeri güncellenebilir. Aynı anahtarı rastgele bir dala eklemek, burada kullandığımız kesin küçük/büyük kuralıyla uyumlu değildir. Tekrarları saklamak gerekiyorsa sayaç, değer listesi veya açık bir başka politika gerekir.</p>
+<p><strong>Kontrol ve cevap.</strong> 25, 50 → 30 → 20 yolunu izler ve 20'nin sağına eklenir. Aynı anahtar kümesini farklı sırayla eklemek farklı ağaç şekilleri ve dolayısıyla farklı arama süreleri oluşturabilir.</p></section><section id="ornek-8" aria-labelledby="baslik-8"><p class="eyebrow">ÖRNEK 8 / 28 · Read the tree in sorted order</p><h2 id="baslik-8">8. Ağacı sıralı okumak</h2><p><a href="../#example-8">Ders sayfasındaki örnek 8</a> · <a href="../lecture-notes.html#topic-2-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Anahtarları küçükten büyüğe yazdırmak istiyoruz. Kökten başlayıp rastgele çocuklara gitmek yeterli değildir. Kullanılan yöntem <strong>inorder</strong>, yani “sol alt ağaç → düğüm → sağ alt ağaç” dolaşımıdır.</p>
+<pre><code class="language-text">50'nin solunu bitir: 20, 30, 40
+50'yi yaz:          50
+50'nin sağını bitir:60, 70, 80
+Sonuç:             20, 30, 40, 50, 60, 70, 80
+</code></pre>
+<p><strong>Özyinelemeyi açalım.</strong> 50'nin solunu okumak için 30'a gideriz. Önce 30'un solu olan 20 okunur. Sonra 30 yazılır. Ardından 40 okunur. Böylece 30 alt ağacı biter; 50'ye dönüp onu yazabiliriz. Sağ taraf için aynı işlem tekrarlanır. Bir düğüme ulaşmak ile o düğümü çıktıya yazmak aynı an olmak zorunda değildir.</p>
+<p><strong>Neden sıralı?</strong> BST kuralına göre sol alt ağaçtaki bütün anahtarlar düğümden küçük, sağdakiler büyüktür. Alt ağaçlar da kendi içlerinde aynı kuralla okunursa, üç parçanın birleşimi sıralı olur. Bu gerekçe her seviyede geçerlidir.</p>
+<p><strong>Maliyet.</strong> Her düğüm bir kez yazıldığından toplam süre Θ(n)'dir. Yalnızca tek kayıt aramaktan farklı olarak bütün çıktıyı üretmek zorundayız. Özyinelemeli yöntemin ek yığını O(h + 1), sonucu ayrıca listeye toplarsak sonuç listesi O(n) yer tutar. Zincir biçimindeki BST de doğru sıralı çıktı verir; fakat yığını derin olabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> İlk yazılan anahtar 50 değil 20'dir. Kökü önce yazdırmak farklı bir dolaşımdır; genel olarak sıralı çıktı sağlamaz.</p></section><section id="ornek-9" aria-labelledby="baslik-9"><p class="eyebrow">ÖRNEK 9 / 28 · Next means next stored key</p><h2 id="baslik-9">9. Ardıl: bir sonraki saklanan anahtar</h2><p><a href="../#example-9">Ders sayfasındaki örnek 9</a> · <a href="../lecture-notes.html#topic-2-2">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> 50'nin ve 40'ın ardılını bulacağız. Ardıl, anahtarın sayısal olarak bir fazlası değil, mevcut anahtarlar arasında bir sonrakidir.</p>
+<p><strong>Durum 1 — sağ alt ağaç var.</strong> 50'nin sağında 70 alt ağacı var. 50'den büyük anahtarlar burada bulunur. Bu grubun en küçüğü için 70'ten sola gideriz: 60. Dolayısıyla 50'nin ardılı 60'tır.</p>
+<p><strong>Durum 2 — sağ alt ağaç yok.</strong> 40'ın sağı boş. Yukarı çıkıp, sol tarafından geldiğimiz ilk üst düğümü ararız. 40'tan 30'a çıktığımızda sağ çocuktan gelmiş oluruz; 30 zaten 40'tan küçüktür. 30'dan 50'ye çıktığımızda sol taraftan geliyoruz; 50, 40'tan büyük en yakın uygun üst düğümdür. Sonuç 50'dir.</p>
+<pre><code class="language-text">50'nin ardılı: sağa git 70 → olabildiğince sola git 60
+40'ın ardılı:  yukarı 30 (küçük) → yukarı 50 (uygun)
+</code></pre>
+<p><strong>Öncül simetriktir.</strong> Sol alt ağaç varsa onun maksimumunu buluruz; yoksa sağ tarafından geldiğimiz ilk uygun üst düğüme çıkarız. 60'ın öncülü 50'dir. En büyük anahtar 80'in ardılı yoktur.</p>
+<p><strong>Uygulama ve maliyet.</strong> Yukarı çıkmak için ebeveyn bağlantıları, arama sırasında saklanmış bir yol veya kökten aday tutarak arama gerekir. Yalnızca aşağı yönlü bağlantılardan kendiliğinden ebeveyne geçemeyiz. Maliyet O(h + 1)'dir; yalnızca anahtar verildiyse düğümü bulma işi de bu değerlendirmeye dahil edilmelidir.</p></section><section id="ornek-10" aria-labelledby="baslik-10"><p class="eyebrow">ÖRNEK 10 / 28 · Remove a leaf, or reconnect one child</p><h2 id="baslik-10">10. Silme: yaprak ve tek çocuk</h2><p><a href="../#example-10">Ders sayfasındaki örnek 10</a> · <a href="../lecture-notes.html#topic-2-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Silinen düğümün altında kalan kayıtları kaybetmeden bağlantıları düzenlemeliyiz. İlk iki durum basittir.</p>
+<p><strong>Yaprak silme.</strong> Standart ağaçta 20'nin çocuğu yoktur. 20'yi bulur, ebeveyni 30'un sol bağlantısını boş yaparız. Başka bir alt ağaç taşımaya gerek yoktur.</p>
+<p><strong>Tek çocuk silme.</strong> Bu kez ayrı bir ağaç kullanıyoruz: ekleme sırası <code>[50, 30, 70, 40]</code>. Burada 30'un tek çocuğu 40'tır.</p>
+<pre><code class="language-text">Önce:          Sonra:
+    50             50
+   /  \           /  \
+ 30   70        40   70
+   \
+   40
+</code></pre>
+<p>30'u kaldırırken 50'nin sol bağlantısını 40'a bağlarız. Yalnızca bağlantıyı boş yapmak 40'ı erişilemez bırakır. Çocuğun bütün alt ağacı, varsa, birlikte korunur.</p>
+<p><strong>Neden sıralama bozulmaz?</strong> 30 alt ağacındaki bütün kayıtlar zaten 50'den küçüktü. 40'ı aynı bağlantı üzerinden yukarı almak bu üst sınırı bozmaz; 40'ın kendi alt ağacındaki sıralama da değişmez.</p>
+<p><strong>Özel durum.</strong> Silinen düğüm kökse ebeveyn bağlantısı yoktur. Tek çocuk yeni kök yapılır; kök tek başına yapraksa ağaç boş olur. Ebeveyn işaretçileri veya alt ağaç boyutları tutuluyorsa bunlar da güncellenir.</p>
+<p><strong>Maliyet.</strong> Düğümü ve gerekirse ebeveynini bulmak O(h + 1), bu iki durumda esas bağlantı değişikliği sabit iştir. Bu yüzden “silme sadece bir bağlantı değiştiriyor, O(1)” demek arama maliyetini gözden kaçırır.</p></section><section id="ornek-11" aria-labelledby="baslik-11"><p class="eyebrow">ÖRNEK 11 / 28 · Two children: use the next key</p><h2 id="baslik-11">11. Silme: iki çocuk olduğunda ardılı kullanmak</h2><p><a href="../#example-11">Ders sayfasındaki örnek 11</a> · <a href="../lecture-notes.html#topic-2-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Standart ağaçta 50'yi silelim. İki çocuğu olduğu için yalnızca 30'u veya 70'i yerine almak, bağlantıları ayrıca düzenlemeden diğer tarafı kaybettirebilir. Düzenli yöntem, yerine sıralamada komşu bir kaydı taşımaktır.</p>
+<p><strong>Adımlar:</strong></p>
+<ol>
+<li>50'nin sağ alt ağacına gir: 70.</li>
+<li>Bu alt ağacın minimumunu bul: 60. Bu, 50'nin ardılıdır.</li>
+<li>Silinecek konuma 60'ın <strong>anahtarını ve ona ait değerini</strong> aktar.</li>
+<li>Eski 60 düğümünü kendi konumundan kaldır. Bu örnekte 70'in sol bağlantısı boş olur.</li>
+</ol>
+<pre><code class="language-text">Son ağaç:
+          60
+        /    \
+      30      70
+     /  \       \
+   20   40       80
+</code></pre>
+<p><strong>Neden 60?</strong> Sol taraftaki bütün anahtarlar 50'den küçük olduğu için 60'tan da küçüktür. Sağ alt ağaçta 60 en küçük anahtardı; eski 60 kaldırıldıktan sonra kalanların hepsi 60'tan büyüktür. Böylece yeni konumun iki tarafı da kurala uyar.</p>
+<p><strong>Neden ikinci silme daha kolay?</strong> Bir alt ağacın minimum düğümünün sol çocuğu olamaz. Olsaydı minimum daha solda olurdu. Ardılın sağ çocuğu olabilir; bu durumda eski yerinde tek çocuk silme yöntemi uygulanır.</p>
+<p><strong>Hata riski.</strong> Anahtarı değiştirip sensörün ölçümünü değiştirmezsek yanlış kimlik–değer eşleştirmesi yaratırız. Ayrıca eski ardıl düğümünü silmezsek tekrar kalır. Kopyalamadan sonraki ara görüntü tamamlanmış ağaç değildir. Alternatif olarak sol alt ağacın maksimumu, yani 40 da uygun şekilde kullanılabilir. Toplam işlem O(h + 1)'dir.</p></section><section id="ornek-12" aria-labelledby="baslik-12"><p class="eyebrow">ÖRNEK 12 / 28 · The same keys can make a much slower tree</p><h2 id="baslik-12">12. Aynı anahtarlar, farklı yükseklikler</h2><p><a href="../#example-12">Ders sayfasındaki örnek 12</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Aynı yedi anahtar bir ağaçta dengeli, diğerinde zincir biçiminde olabilir. Sadece kayıt sayısına bakmak arama maliyetini belirlemeye yetmez.</p>
+<pre><code class="language-text">Dengeli ağaçta 80: 50 → 70 → 80                      (3 ziyaret)
+Artan ekleme:     20 → 30 → 40 → 50 → 60 → 70 → 80 (7 ziyaret)
+</code></pre>
+<p>İkinci ağaç, anahtarlar küçükten büyüğe sıradan BST'ye eklendiğinde oluşur: her yeni anahtar bütün öncekilerden büyük olduğu için sürekli sağa gider. Ağaç hâlâ geçerli bir BST'dir; sorun doğruluğunda değil, yolun uzunluğundadır.</p>
+<p><strong>Yükseklik nasıl sayılır?</strong> Kenar sayısını kullanıyoruz. Dengeli çizimde en uzun yol iki kenar, üç düğüm içerir: h = 2. Zincirde altı kenar, yedi düğüm vardır: h = 6. Bu nedenle bir aramada ziyaret edilebilecek düğüm sayısını h + 1 ile sınırlarız.</p>
+<p><strong>Logaritma burada nereden gelir?</strong> Bütün seviyeleri dolu bir ikili ağaçta düğüm sayısı <code>1 + 2 + 4 + … + 2^h = 2^(h+1) − 1</code> olur. Tersinden, <code>h + 1 = log₂(n + 1)</code>. Örneğin 15 düğüm dört dolu seviyeye, yani yüksekliği 3 olan ağaca sığar. Bu eşitlik tam dolu ağaç içindir; her BST için eşitlik değildir.</p>
+<p><strong>Ne alınmalı?</strong> BST sıralama kuralı aramanın doğru yönü seçmesini sağlar. Denge ise kaç adım atacağını sınırlar. Bunlar farklı özelliklerdir; doğru bir yapı yine de yavaş olabilir.</p></section><section id="ornek-13" aria-labelledby="baslik-13"><p class="eyebrow">ÖRNEK 13 / 28 · Random order helps. Balance gives a guarantee.</p><h2 id="baslik-13">13. Rastgele sıra yardımcı olur; dengeleme garanti verir</h2><p><a href="../#example-13">Ders sayfasındaki örnek 13</a> · <a href="../lecture-notes.html#topic-3-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Sıradan BST'nin kötü zincirini nasıl önleriz? İki yaklaşımı birbirine karıştırmamalıyız.</p>
+<p><strong>Rastgele ekleme sırası.</strong> Farklı anahtarların bütün permütasyonlarının eşit olasılıkla seçildiği modelde sıradan BST'nin beklenen yüksekliği O(log n)'dir. Yani çok sayıda rastgele oluşumu düşündüğümüzde ortalama davranış iyidir. Yine de artan sıra gibi kötü bir sıra mümkündür. “Rastgele” demek her çalıştırmada kısa yol garantisi değildir; gerçek sensör verisinin gelişi de bu modele uymayabilir.</p>
+<p><strong>Dengeli ağaç.</strong> AVL ve kırmızı-siyah ağaç gibi yapılar ekleme ve silmeden sonra denge koşullarını korur. Böylece yükseklik O(log n), temel arama/ekleme/silme işlemleri en kötü durumda O(log n) olur. Her seviyenin tamamen dolu olması gerekmez; matematiksel yükseklik sınırının korunması yeterlidir.</p>
+<p><strong>Ağaçla sıralama:</strong> n farklı anahtarı dengeli ağaca eklemek O(n log n), sonra inorder okumak Θ(n) sürer. Toplam O(n log n)'dir. Buna karşılık artan anahtarları sıradan BST'ye eklerken mevcut düğüm ziyaretleri şöyledir:</p>
+<pre><code class="language-text">1. anahtar: 0       2. anahtar: 1       3. anahtar: 2
+...
+n. anahtar: n − 1
+Toplam: 0 + 1 + … + (n − 1) = n(n − 1)/2 → Θ(n²)
+</code></pre>
+<p>Bu sayım yeni düğüm yaratma gibi sabit işleri dışarıda bırakır; onları eklemek büyüme sonucunu değiştirmez.</p>
+<p><strong>Dikkat.</strong> Sıralanacak veride tekrarlar varsa sözlükteki “aynı anahtarı güncelle” davranışı tekrarları kaybettirebilir. Doğru sıralama için her tekrar korunmalı; örneğin düğümde adet veya kayıt listesi tutulmalıdır.</p></section><section id="ornek-14" aria-labelledby="baslik-14"><p class="eyebrow">ÖRNEK 14 / 28 · Take a ten-minute break</p><h2 id="baslik-14">14. İlk mola — ağaçları cevaplarla toparlayalım</h2><p><a href="../#example-14">Ders sayfasındaki örnek 14</a> · <a href="../lecture-notes.html#topic-8">İlgili ders notu</a></p>
+<p>Bu kart yeni bir algoritma anlatmaz. Dersteki 78–88. dakikalar arasındaki on dakikalık moladır. Aşağıdaki kısa tekrar, mola öncesi veya sonrası kullanılabilir.</p>
+<p><strong>Soru: Bir ağacın BST olması dengeli olduğunu söyler mi?</strong> Hayır. BST, küçük ve büyük anahtarların hangi tarafta olduğunu söyler. Denge, yolların uzunluğunu kontrol eder. Artan sırayla eklenen anahtarlar doğru ama uzun bir zincir oluşturabilir.</p>
+<p><strong>Soru: Neden 55, 30'un sağ çocuğu olarak 50'nin sol alt ağacına konamaz?</strong> 55 &gt; 30 koşulu yeterli değildir. Konumu aynı zamanda 55 &lt; 50 gerektirir; bu sağlanmaz. Üst düğümlerden gelen bütün sınırlar geçerlidir.</p>
+<p><strong>Soru: Bir anahtarı aramakla bütün anahtarları sıralı yazdırmak neden farklı maliyettedir?</strong> Aramada tek yol yeterli olabilir. Bütün kayıtları yazdırmada n çıktının tamamını üretmek gerekir. Dengeli ağaçta tek arama O(log n), tam dolaşım Θ(n)'dir.</p>
+<p><strong>Soru: İki çocuklu düğümün yerine neden sağ alt ağacın minimumu gelir?</strong> Sol taraftan büyük kalır; sağ tarafta ondan küçük başka bir anahtar bırakmaz. Ardılın eski yerini silmek de en fazla tek çocuklu silmeye indirgenir.</p>
+<p><strong>Kendi cümlenizle özet:</strong> “Ağaç, sıralama bilgisini kullanarak her adımda bir alt ağacı eler. Ne kadar hızlı olduğu, ağacın yüksekliğine bağlıdır.” Bu cümlede hem doğruluğun hem hızın gerekçesi vardır.</p></section><section id="ornek-15" aria-labelledby="baslik-15"><p class="eyebrow">ÖRNEK 15 / 28 · Use a key to calculate a starting slot</p><h2 id="baslik-15">15. Anahtardan başlangıç yuvası hesaplamak</h2><p><a href="../#example-15">Ders sayfasındaki örnek 15</a> · <a href="../lecture-notes.html#topic-4-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Beş yuvalı bir hash tablosunda yuvalar 0, 1, 2, 3, 4 diye numaralanmıştır. Basit hash kuralımız <code>h(k) = k mod 5</code>; yani k'yi 5'e bölünce kalan.</p>
+<pre><code class="language-text">13 = 2 × 5 + 3  → h(13) = 3
+ 8 = 1 × 5 + 3  → h(8)  = 3
+10 = 2 × 5 + 0  → h(10) = 0
+15 = 3 × 5 + 0  → h(15) = 0
+</code></pre>
+<p>13 ile 8 farklı anahtarlardır ama aynı başlangıç yuvasını verir. Buna <strong>çakışma (collision)</strong> denir. Hesaplama hatası değildir. Çok sayıda olası anahtarı az sayıda yuvaya eşlediğimiz için bazı anahtarların aynı yere düşmesi kaçınılmazdır.</p>
+<p><strong>Hash sonucu kimliğin yerine geçmez.</strong> 3 numaralı yuvaya geldiğimizde “aradığım anahtar budur” diyemeyiz. Gerçek anahtarı da saklamalı ve eşitliğini kontrol etmeliyiz. Hash yalnızca nereden başlayacağımızı belirler; çakışmayı yönetmek için ayrıca yöntem gerekir.</p>
+<p><strong>Neden faydalı?</strong> Sıralı bir arama yolu takip etmek yerine doğrudan hesaplanmış küçük bir bölgeye gideriz. İyi dağılım ve uygun dolulukla az sayıda kayıt kontrol etmek yeterli olabilir. Ama bu örnekteki kalan alma kuralı, her veri kümesinde iyi dağılım garantisi vermez.</p>
+<p><strong>Koşullar.</strong> Burada negatif olmayan, makine sözcüğüne sığan tamsayılar kullanıyoruz. Uzun metin anahtarının hash'ini hesaplamak, metnin karakterlerini okumayı gerektirebilir; anahtar uzunluğu dikkate alındığında hesap otomatik olarak sabit zaman değildir.</p></section><section id="ornek-16" aria-labelledby="baslik-16"><p class="eyebrow">ÖRNEK 16 / 28 · Collision option 1: keep a small chain</p><h2 id="baslik-16">16. Çakışma çözümü: ayrı zincirleme</h2><p><a href="../#example-16">Ders sayfasındaki örnek 16</a> · <a href="../lecture-notes.html#topic-4-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Beş kovaya sırasıyla <code>10, 15, 3, 20, 8, 13</code> ekliyoruz. Her anahtar <code>k mod 5</code> kovasına gider. Aynı kovaya düşen kayıtlar bir listede tutulur. Bu örnekte listenin sonuna ekliyoruz.</p>
+<pre><code class="language-text">Kova 0: 10 → 15 → 20
+Kova 1: boş
+Kova 2: boş
+Kova 3:  3 →  8 → 13
+Kova 4: boş
+</code></pre>
+<p><strong>20'yi arama:</strong> <code>20 mod 5 = 0</code>. Yalnızca kova 0'ın listesine bakarız: 10 değil, 15 değil, 20 bulundu. Üç anahtar karşılaştırması. <strong>13'ü arama:</strong> kova 3 içinde 3 → 8 → 13, yine üç karşılaştırma. Diğer kovaları taramayız.</p>
+<p><strong>Bulunmayan kayıt.</strong> 25 için kova 0'a gider, 10, 15, 20'yi kontrol ederiz. Listenin sonuna ulaşınca 25'in bulunmadığını söyleriz. Kova boşsa bu sonuca hemen ulaşılır. Aynı kovada olmak eşit anahtar olmak değildir.</p>
+<p><strong>Maliyet.</strong> İyi, yaklaşık eşit dağılım altında ortalama kova uzunluğu α = n/m'dir. Standart varsayımlarla arama için beklenen maliyet O(1 + α) olur. α sabit bir sınırda tutulursa bu beklenen O(1)'e dönüşür. Bütün anahtarlar aynı kovaya düşerse tek listede n kayıt olabilir ve en kötü arama O(n) olur.</p>
+<p><strong>Dikkat.</strong> Kovanın başına ekleseydik liste sırası ve tek tek arama sayıları değişirdi. Zincirleme tekniğinin kendisi “her zaman sona ekle” demek değildir. Beş kova kullanmak da yalnızca beş kayıt saklayabileceğimiz anlamına gelmez; her kovada birden çok kayıt olabilir.</p></section><section id="ornek-17" aria-labelledby="baslik-17"><p class="eyebrow">ÖRNEK 17 / 28 · Collision option 2: try the next slot</p><h2 id="baslik-17">17. Çakışma çözümü: doğrusal yoklama</h2><p><a href="../#example-17">Ders sayfasındaki örnek 17</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Bu kez her yuva en fazla bir kayıt tutuyor. Başlangıç yuvası doluysa bir sonrakini deniyoruz. Kurala <strong>linear probing</strong>, yani doğrusal yoklama denir.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Eklenen</th>
+<th>Denenen yuvalar</th>
+<th style="text-align: right;">Son yer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">10</td>
+<td>0 boş</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td>0 dolu → 1 boş</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>3 boş</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td>0 dolu → 1 dolu → 2 boş</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">Yuva:     0   1   2   3    4
+Anahtar: 10  15  20   3  [boş]
+</code></pre>
+<p><strong>Arama aynı yolu izler.</strong> 20'yi bulmak için <code>20 mod 5 = 0</code> ile başlar, 0, 1 ve 2'yi inceleriz. Üç yuva kontrolü yapılır. Doğrudan <code>tablo[0]</code> değerine bakıp “20 yok” demek yanlış olur; kayıt çakışma nedeniyle ileride olabilir.</p>
+<p><strong>Sona gelince:</strong> Denenecek yuva <code>(h(k) + i) mod m</code> ile hesaplanır; i = 0, 1, 2, … . Böylece son yuvadan sonra 0'a dönülür. En fazla m yuva denenmeli; tablo doluysa sonsuz döngü yerine büyütme veya tanımlı başarısızlık gerekir.</p>
+<p><strong>Neden yavaşlayabilir?</strong> Yan yana dolu yuvalar birikerek kümeler oluşturur. Yeni kayıtlar bu kümelerin arkasına eklenir; aramalar daha çok yuva gezer. Sadece hash hesabının sabit maliyetli olması bütün aramanın sabit maliyetli olduğunu göstermez.</p>
+<p><strong>Silme uyarısı.</strong> Hiç kullanılmamış boş yuva aramayı durdurabilir. Fakat silinen bir kaydın yerini sıradan boş yapmak doğru değildir; sonraki örnek bunun nedenini gösterir.</p></section><section id="ornek-18" aria-labelledby="baslik-18"><p class="eyebrow">ÖRNEK 18 / 28 · Deleted is different from never used</p><h2 id="baslik-18">18. “Silindi” ile “hiç kullanılmadı” farklıdır</h2><p><a href="../#example-18">Ders sayfasındaki örnek 18</a> · <a href="../lecture-notes.html#topic-4-5">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Yedi yuvalı tabloda 7, 14, 21, 1 eklenmiş olsun. İlk üç anahtarın başlangıcı 0; 1'in başlangıcı 1'dir. Çakışmalardan sonra tablo şöyledir:</p>
+<pre><code class="language-text">Yuva:       0     1     2     3     4     5     6
+Başlangıç:  7    14    21     1    boş   boş   boş
+Yanlış sil: 7    boş   21     1    boş   boş   boş
+Doğru sil:  7   SİLİNDİ 21   1    boş   boş   boş
+</code></pre>
+<p><strong>Yanlış silme neden tehlikeli?</strong> 21'in araması 0'dan başlar. 7 eşit değildir; 1 numaralı yuvaya geçilir. Burayı “hiç kullanılmamış boş” sanarsak aramayı durdururuz. Oysa 21 hemen sonraki yuvadadır. İçerik kaybolmamıştır, ama algoritma ona ulaşamamaktadır.</p>
+<p><strong>Çözüm: tombstone, silindi işareti.</strong> İşaret “burada kayıt yok, fakat yoklama yolu burada bitmez” der. Arama 0 → 1 → 2 ilerler ve 21'i bulur. Üç yuva incelenir. Bu işaret normal bir anahtarla karışmayacak ayrı bir durum olmalıdır.</p>
+<p><strong>Eklemede ince ayrıntı.</strong> İlk silindi yuvası yeniden kullanılabilecek adaydır. Ancak aynı anahtarın daha ileride bulunmadığını kontrol etmeden hemen yeni kayıt yazmak, sözlükte tekrar oluşturabilir. Uygun arama sonuna kadar ilerleyip mevcut anahtarı güncellemek veya ilk silindi yerine eklemek gerekir. Dolaşım yine m denemeyle sınırlandırılmalıdır.</p>
+<p><strong>Performans.</strong> Çok sayıda silindi işareti varsa canlı kayıt sayısı az olsa bile aramalar uzun sürebilir. Tabloyu yeniden kurmak bu işaretleri temizler. Bu yüzden yalnızca canlı kayıtların doluluk oranına bakmak her zaman yeterli değildir.</p></section><section id="ornek-19" aria-labelledby="baslik-19"><p class="eyebrow">ÖRNEK 19 / 28 · A table needs breathing room</p><h2 id="baslik-19">19. Doluluk oranı ve yeniden yerleştirme</h2><p><a href="../#example-19">Ders sayfasındaki örnek 19</a> · <a href="../lecture-notes.html#topic-4-6">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Yük faktörü (load factor) <code>α = n/m</code> olarak tanımlanır. Dört kayıt beş yuvada α = 4/5 = 0,8; on yuvada α = 4/10 = 0,4 eder. Daha fazla boşluk genellikle çakışma çözümünü kolaylaştırır; daha fazla bellek kullanır.</p>
+<p><strong>Tablo büyüyünce kayıtlar neden taşınır?</strong> Hash kuralında m değişti. Örneğin <code>8 mod 5 = 3</code>, fakat <code>8 mod 10 = 8</code>. Yeni tabloda 8'i eski yerinde bırakırsak yeni arama kuralı onu orada aramayabilir.</p>
+<pre><code class="language-text">5 yuva:  [10, 15, 20, 8, boş]
+10 yuva: [10, 20, boş, boş, boş, 15, boş, boş, 8, boş]
+</code></pre>
+<p>Yeni tabloda 10, 0'a; 15, 5'e; 20, başlangıcı 0 dolu olduğu için 1'e; 8 ise 8'e yerleşir. Sadece dizinin sonuna boş alan eklemek yetmez: mevcut kayıtların yeni kuralla tekrar yerleştirilmesi gerekir.</p>
+<p><strong>Tek işlem pahalı olabilir.</strong> Büyütmeyi tetikleyen ekleme, bütün eski kayıtları işlediği için pahalıdır. Geometrik kapasite artışı, örneğin iki katına çıkarma, yeniden kurma masrafının uzun bir ekleme dizisine yayılmasını sağlar. İyi hash ve kontrollü doluluk varsayımlarıyla beklenen amortize ekleme maliyeti O(1) olabilir. Bu, her eklemenin O(1) sürdüğü anlamına gelmez.</p>
+<p><strong>İki yöntemi ayırın.</strong> Zincirlemede α = 2, kova başına ortalama iki kayıt demektir ve mümkündür. Her yuvaya tek kayıt koyan açık adreslemede n &gt; m olamaz. Ayrıca silindi işaretleri, canlı kayıt sayısı düşükken bile yoklama maliyetini artırabilir.</p></section><section id="ornek-20" aria-labelledby="baslik-20"><p class="eyebrow">ÖRNEK 20 / 28 · Three speed claims that mean different things</p><h2 id="baslik-20">20. En kötü, beklenen ve amortize: üç ayrı iddia</h2><p><a href="../#example-20">Ders sayfasındaki örnek 20</a> · <a href="../lecture-notes.html#topic-4-7">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> “Hızlı” kelimesi farklı matematiksel iddiaları gizleyebilir. Hangi anlamı kullandığımızı söylemezsek mühendislik açısından yanlış karar verebiliriz.</p>
+<table>
+<thead>
+<tr>
+<th>İfade</th>
+<th>Ne söyler?</th>
+<th>Ne söylemez?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>En kötü O(log n)</td>
+<td>Modeldeki her geçerli durum için maliyetin logaritmik üst sınırı var</td>
+<td>Her işlem aynı süreyi alır</td>
+</tr>
+<tr>
+<td>Beklenen O(1)</td>
+<td>Belirtilen olasılık modeli altında maliyetin beklenen değeri sabit sınırda</td>
+<td>Kötü çakışma hiç olmaz</td>
+</tr>
+<tr>
+<td>Amortize O(1)</td>
+<td>Uzun bir işlem dizisindeki toplam maliyet, işlem sayısına bölününce sabit sınırda</td>
+<td>Dizideki her işlem ucuzdur</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dengeli ağaç:</strong> Yüksekliği sınırlı tuttuğu için temel işlemlerde en kötü O(log n) garantisi verir. <strong>Hash tablosu:</strong> Uygun hash dağılımı ve doluluk kontrolü altında beklenen O(1) arama sağlayabilir; kötü çakışma durumunda O(n) olabilir.</p>
+<p><strong>Amortize düşünceyi somutlaştıralım.</strong> Kapasiteler 1, 2, 4, 8, … diye büyürse taşınan kayıt sayıları da yaklaşık 1 + 2 + 4 + … olur. n eklemeye kadar bu toplam n'nin sabit katıyla sınırlanabilir. Toplam taşıma işinin n ekleme arasında paylaştırılması sabit maliyet verir. Bu, rastgelelik kullanmadan yapılan bir toplam maliyet hesabıdır. Hash tablosunda buna çakışmaların beklenen maliyet hesabı da eklenebilir; bu nedenle “beklenen amortize” iki ayrı niteliği birlikte söyler.</p>
+<p><strong>Mühendislik sonucu.</strong> Kesin zaman sınırı olan bir kontrol görevinde nadir bir pahalı işlem de önemli olabilir. Bununla birlikte O gösterimi tek başına gerçek zaman garantisi değildir: anahtar uzunluğu, bellek tahsisi, önbellek ve donanım da hesaba katılır. Önce hangi işlemin, hangi varsayımlar altında ölçüldüğünü sorun.</p></section><section id="ornek-21" aria-labelledby="baslik-21"><p class="eyebrow">ÖRNEK 21 / 28 · Take a ten-minute break</p><h2 id="baslik-21">21. İkinci mola — hash tablosunu cevaplarla toparlayalım</h2><p><a href="../#example-21">Ders sayfasındaki örnek 21</a> · <a href="../lecture-notes.html#topic-8">İlgili ders notu</a></p>
+<p>Bu kart 124–134. dakikalar arasındaki on dakikalık moladır. Yeni bir veri yapısı değildir. Aşağıdaki sorular, birbirine benzeyen kavramları ayırmak içindir.</p>
+<p><strong>Soru: İki anahtarın hash sonucu aynıysa anahtarlar aynı mıdır?</strong> Hayır. 8 ve 13, mod 5 altında 3 verir. Hash başlangıcı belirler; gerçek anahtar eşitliği ayrıca kontrol edilir.</p>
+<p><strong>Soru: Zincirleme ile doğrusal yoklama arasındaki temel fark nedir?</strong> Zincirlemede aynı kovada birden çok kayıt bir listede tutulabilir. Doğrusal yoklamada kayıtlar tablonun farklı yuvalarına taşar; her yuva bir kayıt tutar. Doluluk ve silme davranışları bu yüzden farklıdır.</p>
+<p><strong>Soru: Silindi işareti neden gereklidir?</strong> O yuvadan geçmiş kayıtların daha ileride olabileceği bilgisini korur. Aramayı yanlışlıkla erken durdurmayı önler. İşaret, kayıt var demek değil, “aramaya devam et” demektir.</p>
+<p><strong>Soru: Kapasiteyi artırmak neden tek başına yeterli değildir?</strong> Hash hesabında kullanılan m değişebilir. Mevcut anahtarların başlangıç yuvaları yeniden hesaplanmalı ve kayıtlar yeni tabloya yerleştirilmelidir.</p>
+<p><strong>Soru: Beklenen O(1), en kötü O(1) midir?</strong> Hayır. Beklenen sonuç olasılık varsayımlarına bağlıdır; kötü dağılımda daha uzun aramalar olabilir. Amortize O(1) de farklıdır: maliyeti bir işlem dizisinin toplamı üzerinden değerlendirir.</p>
+<p><strong>Özet cümlesi:</strong> “Hash, aramaya nereden başlayacağımızı hesaplar; çakışma yöntemi, aramanın nasıl devam edeceğini belirler.”</p></section><section id="ornek-22" aria-labelledby="baslik-22"><p class="eyebrow">ÖRNEK 22 / 28 · A good hash spreads the actual keys</p><h2 id="baslik-22">22. İyi hash kuralı gerçek anahtarları yaymalıdır</h2><p><a href="../#example-22">Ders sayfasındaki örnek 22</a> · <a href="../lecture-notes.html#topic-5-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Sensör kimlikleri <code>[10, 20, 30, 40]</code>. Mod 10 kuralı hepsini 0'a gönderir. On kovamız olsa bile dokuzu işe yaramaz.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Anahtar</th>
+<th style="text-align: right;">mod 10</th>
+<th style="text-align: right;">mod 7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+<p>Mod 7 bu dört anahtarı farklı kovalara dağıtır. Ancak “asal sayı seç, bütün sorun çözülsün” sonucu çıkarılamaz. Yeni anahtarlar <code>[7, 14, 21]</code> olursa mod 7 hepsini yine 0'a gönderir. Buradaki başarı, seçilen anahtar örüntüsüyle ilişkilidir.</p>
+<p><strong>İyi davranış için ne gerekir?</strong> Hesap uygun maliyetli olmalı, kullanılan anahtarların özelliklerini makul biçimde dağıtmalı ve aramayla eklemede aynı yapılandırma kullanılmalıdır. Aynı anahtar, aynı tablo yapılandırmasında aynı başlangıcı vermelidir; aksi halde eklenen kayıt bulunamaz. Bazı gerçek sistemler saldırganın çakışmaları özellikle üretmesini zorlaştırmak için rastgeleleştirilmiş hash kullanır.</p>
+<p><strong>Gözlem ile garanti farklıdır.</strong> Dört örneğin ayrı yerlere düşmesi, bütün olası anahtarlar için çakışmasızlık kanıtı değildir. Veri dağılımını, yük faktörünü ve çakışma çözümünü birlikte değerlendirmek gerekir.</p>
+<p><strong>Kontrol ve cevap.</strong> Mod 7 için 28 nereye gider? 0'a. Dolayısıyla mevcut 7, 14 ve 21 grubuna çakışarak katılır. Hash tablosu için uygun dağılım sağlamak ile güvenlik amaçlı kriptografik hash tasarlamak da aynı problem değildir.</p></section><section id="ornek-23" aria-labelledby="baslik-23"><p class="eyebrow">ÖRNEK 23 / 28 · Collisions can arrive surprisingly early</p><h2 id="baslik-23">23. Çakışmalar neden beklenenden erken gelir?</h2><p><a href="../#example-23">Ders sayfasındaki örnek 23</a> · <a href="../lecture-notes.html#topic-5-2">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> 365 kovadan her birinin eşit olasılıkla seçildiğini ve seçimlerin bağımsız olduğunu varsayalım. Soru “belirli iki kaydın çakışması” değil, “grupta herhangi iki kaydın çakışması”dır. Bu iki soru çok farklıdır.</p>
+<p><strong>İki kayıt:</strong> İlk kayıt nereye giderse gitsin, ikincinin aynı kovaya düşme olasılığı 1/365 ≈ %0,274'tür. Küçük görünür. <strong>23 kayıt:</strong> Birbirine denk gelebilecek çift sayısı <code>23 × 22 / 2 = 253</code> olur. Artık çok sayıda çakışma fırsatı vardır.</p>
+<p><strong>Tam olasılığı tersinden hesaplayalım.</strong> Hiç çakışma olmaması için ikinci kayıt 364 boş seçenekten birini, üçüncü 363 boş seçenekten birini, …, yirmi üçüncü 343 boş seçenekten birini seçmelidir.</p>
+<pre><code class="language-text">P(hiç çakışma yok) = 1 × (364/365) × (363/365) × … × (343/365)
+                   ≈ 0,492703
+P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
+</code></pre>
+<p><strong>Neden 253/365 demiyoruz?</strong> Bu sayı yaklaşık 0,693'tür ve bu modelde çakışan çift sayısının beklenen değeridir. “En az bir çakışma” olasılığı değildir. Aynı sonuçta birden fazla çift çakışabilir; olaylar örtüşür. Çiftlerin olasılıklarını doğrudan toplamak bunları tekrar sayar.</p>
+<p><strong>Genel fikir.</strong> Çift sayısı n² mertebesinde büyüdüğü için, çakışma olasılığı tablo dolmadan çok önce anlamlı hale gelir; eşit ve bağımsız dağılım modelinde ölçek yaklaşık √m'dir. Bu, hash tablosunun yarı dolu olduğu anlamına gelmez: 23/365 yalnızca yaklaşık %6,3'tür.</p>
+<p><strong>Ne alınmalı?</strong> Çakışmayı olağan bir durum olarak tasarlayın. Gerçek doğum günleri veya gerçek hash dağılımları tam bu modele uymayabilir; %50,73 sonucu belirtilen varsayımların sonucudur.</p></section><section id="ornek-24" aria-labelledby="baslik-24"><p class="eyebrow">ÖRNEK 24 / 28 · Find two readings that make a target</p><h2 id="baslik-24">24. İki ölçümün toplamını bulmak</h2><p><a href="../#example-24">Ders sayfasındaki örnek 24</a> · <a href="../lecture-notes.html#topic-5-4">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Ölçümler <code>[4, 7, 1, 6]</code>, hedef 10. Farklı iki konumdaki değerin toplamı 10 olsun istiyoruz. Bütün çiftleri denemek yerine, daha önce gördüğümüz değerleri bir hash kümesinde tutacağız.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Şimdiki x</th>
+<th style="text-align: right;">Gerekli değer 10 − x</th>
+<th>Daha önce görüldü mü?</th>
+<th>Sonuç</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">6</td>
+<td>Hayır; küme boş</td>
+<td>4'ü ekle</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">3</td>
+<td>Hayır; küme {4}</td>
+<td>7'yi ekle</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+<td>Hayır; küme {4, 7}</td>
+<td>1'i ekle</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
+<td>Evet</td>
+<td>4 + 6 = 10; bulundu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Korunan bilgi.</strong> Her adımın başında küme yalnızca önceki konumlardaki değerleri içerir. Bu nedenle kümede bulunan tamamlayıcı, şimdiki elemandan farklı bir konuma aittir. Bir çözüm varsa, o çiftin daha sonra gelen elemanına ulaştığımızda önce geleni kümede buluruz.</p>
+<p><strong>Neden önce kontrol, sonra ekleme?</strong> Hedef 10 ve veri yalnızca <code>[5]</code> olsun. Önce 5'i eklersek sonra 5'in tamamlayıcısı 5'i bulup aynı konumu iki kez kullanabiliriz. Önce kontrol edersek küme boş olduğundan doğru şekilde çift bulunmaz. <code>[5, 5]</code> için ikinci 5 geldiğinde ilk 5 kümede bulunur; bu geçerli çifttir.</p>
+<p><strong>Maliyet.</strong> Her eleman için bir arama ve gerekirse bir ekleme yapılır. Uygun hash varsayımlarıyla toplam beklenen O(n) zaman ve O(n) ek alan kullanılır. Kötü çakışma davranışında toplam O(n²)'ye çıkabilir. Bu çözüm bir çift bulmayı amaçlar; bütün çiftleri listelemek farklı bir görevdir ve çıktı sayısı karesel olabilir.</p></section><section id="ornek-25" aria-labelledby="baslik-25"><p class="eyebrow">ÖRNEK 25 / 28 · Text search: hash first, then check the letters</p><h2 id="baslik-25">25. Metin arama: önce hash, sonra gerçek harfler</h2><p><a href="../#example-25">Ders sayfasındaki örnek 25</a> · <a href="../lecture-notes.html#topic-5-5">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> <code>ABRACADABRA</code> içinde <code>ABRA</code> arıyoruz. Metin uzunluğu N = 11, desen uzunluğu M = 4. Dört harflik pencereyi birer karakter kaydırırsak <code>N − M + 1 = 8</code> aday pencere oluşur. Konumlar 0'dan başlar.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Başlangıç</th>
+<th>Pencere</th>
+<th style="text-align: right;">Hash (taban 31, mod 101)</th>
+<th>Karar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td>ABRA</td>
+<td style="text-align: right;">22</td>
+<td>Desenle harf harf aynı; eşleşme</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td>BRAC</td>
+<td style="text-align: right;">22</td>
+<td>Hash aynı, harfler farklı; çakışmayı ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>RACA</td>
+<td style="text-align: right;">43</td>
+<td>Hash farklı; ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>ACAD</td>
+<td style="text-align: right;">55</td>
+<td>Hash farklı; ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>CADA</td>
+<td style="text-align: right;">33</td>
+<td>Hash farklı; ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>ADAB</td>
+<td style="text-align: right;">4</td>
+<td>Hash farklı; ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>DABR</td>
+<td style="text-align: right;">85</td>
+<td>Hash farklı; ele</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>ABRA</td>
+<td style="text-align: right;">22</td>
+<td>Desenle harf harf aynı; eşleşme</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hash nasıl hesaplanır?</strong> ASCII kodları A = 65, B = 66, R = 82, C = 67, D = 68. Dört harf için <code>H = (c₀·31³ + c₁·31² + c₂·31 + c₃) mod 101</code>. ABRA için sonuç 22'dir. Üsler harfin konumunu ayırt eder; yalnızca karakter kodlarını toplamak sıralama bilgisini kaybeder.</p>
+<p><strong>Her pencereyi baştan hesaplamıyoruz.</strong> Soldan çıkan harfin katkısını çıkarır, kalan ifadeyi 31 ile çarpar ve yeni harfi ekleriz. <code>31³ mod 101 = 97</code> önceden hesaplanır:</p>
+<pre><code class="language-text">H_yeni = ((H_eski − çıkan_harf × 97) × 31 + giren_harf) mod 101
+ABRA → BRAC: ((22 − 65 × 97) × 31 + 67) mod 101 = 22
+</code></pre>
+<p>Bu, <strong>rolling hash</strong>, yani kaydırılarak güncellenen hash fikridir. Python'da pozitif modül ile <code>%</code> sonucu 0…100 aralığına getirir; başka bir dilde negatif kalan davranışına dikkat etmek gerekebilir.</p>
+<p><strong>Neden harfleri yine kontrol ediyoruz?</strong> Farklı hash değerleri farklı metinleri garanti eder; aynı hash değeri eşit metin garantisi vermez. Bu nedenle 22 çıkan pencerelerde gerçek karakter eşitliği doğrulanır. Özellikle BRAC de 22 verir ama ABRA değildir; daha ilk harfte B ≠ A olduğu görülür ve aday elenir. Bu örnek çakışmanın yalnızca teorik bir ihtimal olmadığını doğrudan gösterir. Böylece hash çakışması yanlış eşleşme sonucuna dönüşmez.</p>
+<p><strong>Maliyet.</strong> Sabit boyutlu aritmetik varsayımıyla ilk hesap ve hazırlık O(M), her kaydırma O(1)'dir. Fakat hash eşleşmelerindeki harf kontrolü O(M) sürebilir. Bu yüzden doğrulamalı yöntemin en kötü toplam maliyeti O(NM)'ye çıkabilir; her durumda doğrusal çalışma garantisi vermez. Bu örnekte doğru eşleşmeler 0 ve 7'dir.</p></section><section id="ornek-26" aria-labelledby="baslik-26"><p class="eyebrow">ÖRNEK 26 / 28 · A fingerprint is a clue, not an identity</p><h2 id="baslik-26">26. Parmak izi ipucudur; kimliğin kendisi değildir</h2><p><a href="../#example-26">Ders sayfasındaki örnek 26</a> · <a href="../lecture-notes.html#topic-5-3">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Dosyaları kısa hash değerleriyle grupluyoruz. Aynı hash'e sahip iki dosya görünce bunların aynı dosya olduğunu söyleyebilir miyiz? Matematiksel olarak hayır.</p>
+<p><strong>Sayfadaki somut çakışma.</strong> Basit kural “karakter kodlarını topla, mod 101 al” olsun. <code>AB</code> için <code>(65 + 66) mod 101 = 30</code>, <code>BA</code> için <code>(66 + 65) mod 101 = 30</code> bulunur. Parmak izleri aynı, metinler farklıdır. İlk karakteri karşılaştırmak bile A ≠ B farkını ortaya çıkarır. Bu kural karakterlerin sırasını korumadığı için bu çakışma kolayca oluşur. Önceki örneğin konuma duyarlı hash'i de çakışabilir; yalnızca çakışmanın biçimi farklıdır.</p>
+<p><strong>Güvercin yuvası ilkesi.</strong> Örneğin yalnızca 100 farklı hash çıktımız varsa, 101 farklı dosyayı bu çıktılara yerleştirirken en az iki dosya aynı çıktıyı paylaşmak zorundadır. Gerçek sabit uzunluklu hash uzayı çok daha büyük olabilir, fakat olası dosya sayısı çıktı sayısından fazla olduğunda aynı mantık geçerlidir.</p>
+<pre><code class="language-text">Dosyalar → hash hesapla → aynı hash'e sahip adayları grupla
+                            ↓
+                  kesin eşitlik gerekiyorsa baytları karşılaştır
+</code></pre>
+<p><strong>İki yön aynı değildir.</strong> Aynı hash algoritmasıyla aynı tam içerik daima aynı hash'i verir. Bu nedenle farklı hash'ler içeriklerin farklı olduğunu gösterir. Tersi zorunlu değildir: aynı hash, aynı içerik anlamına gelmeyebilir. Kullanılan algoritma veya anahtarlı yapılandırma farklıysa sonuçları doğrudan bu şekilde karşılaştıramayız.</p>
+<p><strong>Mühendislik kullanımı.</strong> Hash, büyük aday kümesini küçültmek için yararlıdır. Kesin kopya dosya tespitinde uygun adaylar bulunduktan sonra gerçek baytlar karşılaştırılabilir. Dosyanın hash'ini ilk kez üretmek de dosyayı okumayı gerektirir; kısa çıktıyı karşılaştırmak hızlı diye bütün işlem maliyetsiz olmaz.</p>
+<p><strong>Güvenlik ayrımı.</strong> Kriptografik hash'ler çakışma üretmeyi hesaplama açısından zorlaştıracak ek özellikler amaçlar. Dersin mod 5 veya mod 101 örnekleri bu güvenlik özelliğini taşımaz. “Çakışma mümkün” ile “pratikte kolayca bulunabilir” de farklı iddialardır.</p></section><section id="ornek-27" aria-labelledby="baslik-27"><p class="eyebrow">ÖRNEK 27 / 28 · Choose for the question the machine must answer</p><h2 id="baslik-27">27. Makinenin sorusuna göre veri yapısı seçmek</h2><p><a href="../#example-27">Ders sayfasındaki örnek 27</a> · <a href="../lecture-notes.html#topic-6-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> İki mühendislik görevi düşünelim: “CAN kimliği 70 geldi; hangi işleyici çağrılacak?” ve “Zamanı 30 ile 60 arasında olan bütün ölçümleri getir.” İkisi de arama içerir ama ihtiyaçları aynı değildir.</p>
+<p><strong>Tam anahtarla arama.</strong> CAN kimliği için doğrudan bir kimlik–işleyici eşlemesi gerekir. Uygun hash tablosu beklenen O(1) erişim sağlayabilir. Anahtarların sırası gerekmiyorsa hash'in sıralama tutmaması sorun değildir. Küçük ve sabit kimlik uzayında doğrudan indekslenen bir tablo; az sayıda sabit kayıt için sıralı dizi de uygun olabilir. Hash tek doğru cevap değildir.</p>
+<p><strong>Aralık sorgusu.</strong> Dengeli BST'de önce 30'dan küçük olmayan ilk kaydı buluruz, sonra anahtar sırasıyla ilerler ve 60'ı aşınca dururuz. Uygun inorder yürüyüşü veya yineleyiciyle toplam O(log n + k) maliyet mümkündür; k döndürülen kayıt sayısıdır. Her sonraki kayıt için kökten bağımsız yeni arama yapmak aynı uygulama değildir.</p>
+<pre><code class="language-text">Anahtarlar: 10  20  [30  40  50  60]  70  80
+                     └─ istenen aralık ─┘
+</code></pre>
+<p><strong>Neden +k?</strong> Kayıtları gerçekten listeleyeceksek k tanesini üretmek en az k kadar çıktı işi gerektirir. “Aralık sorgusu yalnızca O(log n)” demek çıktı maliyetini saklar. Ek bir sıralı indeks yoksa standart hash tablosu bu aralık için bütün kayıtları taramak zorunda kalabilir.</p>
+<p><strong>Gerçek sistem ayrıntısı.</strong> Aynı zaman damgasına birden çok ölçüm düşebilir; değer listesi veya <code>(zaman, sıra_numarası)</code> gibi birleşik anahtar gerekir. Kesin gecikme sınırları varsa yeniden boyutlandırma, bellek tahsisi ve en kötü durum da değerlendirilir.</p></section><section id="ornek-28" aria-labelledby="baslik-28"><p class="eyebrow">ÖRNEK 28 / 28 · Explain your choice</p><h2 id="baslik-28">28. Son kontrol: seçiminizi ve işlemlerinizi açıklayın</h2><p><a href="../#example-28">Ders sayfasındaki örnek 28</a> · <a href="../lecture-notes.html#topic-7-1">İlgili ders notu</a></p>
+<p><strong>Ağaç görevi.</strong> Sırayla 30, 10, 50, 40 ekleyin. 30 kök; 10 solda; 50 sağda; 40, 50'nin solunda olur.</p>
+<pre><code class="language-text">Başlangıç:           30 silindikten sonra:
+     30                       40
+    /  \                     /  \
+  10    50                 10    50
+       /
+      40
+</code></pre>
+<p>40'ı aramak için 30 → 50 → 40: üç düğüm ziyareti. 30'u silmek için sağ alt ağacın minimumu 40 bulunur; kaydı kök konumuna aktarılır ve eski 40 düğümü kaldırılır. Sonuçta 10 &lt; 40 &lt; 50 koşulu korunur. “40'ı köke koyduk” demek tek başına yeterli açıklama değildir; neden sıralamanın bozulmadığını da söylemeliyiz.</p>
+<p><strong>Hash görevi.</strong> m = 5 ve doğrusal yoklama ile 10, 15, 20 ekleyin. Üçü de 0'dan başlar; sırasıyla 0, 1, 2 yuvalarına yerleşir. 15 silinince 1 numaralı yuva silindi işareti taşır. 20'yi ararken 0 → 1 → 2 izlenir; işarette durulmaz.</p>
+<pre><code class="language-text">Yuva:    0      1      2     3    4
+İçerik: 10   SİLİNDİ  20   boş  boş
+</code></pre>
+<p><strong>Ortak fikir.</strong> Ağaçta sıralama bilgisini; hash tablosunda kaydın ulaşılabilir olduğu yoklama yolunu koruyoruz. Veri yapısında güncelleme, yalnızca bir kaydı ekleyip çıkarmak değildir. Sonraki aramanın kullandığı kuralları da geçerli bırakmak gerekir.</p>
+<p><strong>Tam cevap nasıl görünür?</strong> “Şu yapıyı seçtim; çünkü sorgum şu. Bu adımları uyguladım. Şu özelliği korudum. Maliyetim şu varsayımlar altında şu.” Böyle bir açıklama hem doğruluğu hem performansı denetlenebilir kılar. BST için otomatik logaritmik, hash için otomatik sabit en kötü zaman iddiasından kaçının.</p></section></main></div><footer><a href="../">Hafta 5 dersine dön</a> · Açıklamalar, haftanın 28 örneğiyle aynı sıradadır.</footer></body></html>
