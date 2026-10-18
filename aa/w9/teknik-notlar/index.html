@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AA 9. Hafta · 22 örnek için Türkçe teknik notlar</title><link rel="stylesheet" href="notes.css"></head><body><header><a href="../">← Week 9 · Örneklere dön</a><a href="notlar.md" download>Markdown indir</a><button type="button" onclick="window.print()">Yazdır / PDF</button></header><div class="layout"><aside aria-label="İçindekiler"><h2>22 örnek · İçindekiler</h2><a href="#baslangic">Kavramlar ve sayım kuralları</a><ol><li><a href="#ornek-1"><span>1</span>Kuyruk yayılır; DFS derine gider</a></li><li><a href="#ornek-2"><span>2</span>Geri dönüş, yarım kalan işe dönmektir</a></li><li><a href="#ornek-3"><span>3</span>Görülmüş olmak ile aktif olmak aynı şey değildir</a></li><li><a href="#ornek-4"><span>4</span>Altı düğümlü örnekte çevrimi göstermek</a></li><li><a href="#ornek-5"><span>5</span>Giriş ve çıkış iki ayrı olaydır</a></li><li><a href="#ornek-6"><span>6</span>Açık yığınla çağrıları taklit etmek</a></li><li><a href="#ornek-7"><span>7</span>Düğümleri ve kenarları ayrı saymak</a></li><li><a href="#ornek-8"><span>8</span>Dört kenar sınıfını iz üzerinden ayırmak</a></li><li><a href="#ornek-9"><span>9</span>İlk mola: üç ayrımı tekrar etmek</a></li><li><a href="#ornek-10"><span>10</span>Tek koridoru iki ayrı kenar sanmamak</a></li><li><a href="#ornek-11"><span>11</span>Bir okun yönü sonucu değiştirir</a></li><li><a href="#ornek-12"><span>12</span>Ön koşullar iş sırasını belirler</a></li><li><a href="#ornek-13"><span>13</span>Önce bitir, sonra listeyi ters çevir</a></li><li><a href="#ornek-14"><span>14</span>Kahn: bekleyecek işi kalmayanı seçmek</a></li><li><a href="#ornek-15"><span>15</span>İki farklı doğru cevabı doğrulamak</a></li><li><a href="#ornek-16"><span>16</span>İkinci mola: kanıtı bir cümlede söylemek</a></li><li><a href="#ornek-17"><span>17</span>Kuyruğun erken boşalması ne anlatır?</a></li><li><a href="#ornek-18"><span>18</span>Kendi oklarınızla deney yapmak</a></li><li><a href="#ornek-19"><span>19</span>Python kodunu satır satır anlamak</a></li><li><a href="#ornek-20"><span>20</span>Bir düğümün kaybı ağı böler mi?</a></li><li><a href="#ornek-21"><span>21</span>Tek yönlü erişim güçlü bağlılık değildir</a></li><li><a href="#ornek-22"><span>22</span>Önce soruyu seç, sonra kanıtı göster</a></li></ol></aside><main><div class="intro" id="baslangic"><h1>AA · 9. Hafta — 22 örneğin Türkçe teknik açıklaması</h1>
+<p>Bu notlar <strong>DFS, çevrimler ve bağımlılık sırası</strong> dersindeki 22 kartı aynı sırayla açıklar. 9 ve 16 numaralı kartlar moladır; burada cevaplı tekrar içerir. Açıklamalar doğrudan görünür: açılır menü kullanmanız gerekmez. Her bölümdeki bağlantıyla aynı örneğin animasyonuna dönebilirsiniz.</p>
+<h2>Başlamadan: bu hafta hangi soruyu soruyoruz?</h2>
+<p>Bir robotun odaları araştırması ile bir robotun montaj işlerini sıraya koymak farklı problemlerdir. İlkinde kenar bir geçiş, ikincisinde bir ön koşul anlamına gelir. Önce <strong>okun anlamını</strong>, sonra algoritmayı seçeriz.</p>
+<ul>
+<li><strong>Graf:</strong> Düğümler ve kenarlardan oluşan model. n düğüm, m kenar sayısıdır.</li>
+<li><strong>DFS:</strong> Derinlik öncelikli arama. Henüz görülmemiş bir komşuya girer, onun işini bitirir, sonra bekleyen düğüme döner.</li>
+<li><strong>BFS:</strong> Genişlik öncelikli arama. Kuyrukla katman katman ilerler; ağırlıksız grafın en az kenarlı yolunu bulur.</li>
+<li><strong>Aktif:</strong> DFS çağrısı başladı ama bitmedi. <strong>Tamamlanmış:</strong> Bütün çıkış kenarları incelendi ve çağrı döndü. İkisi de keşfedilmiştir.</li>
+<li><strong>Stack / yığın:</strong> Son eklenen kayıt önce çıkar. Çağrı yığını, şu anda tamamlanmayı bekleyen çağrıları tutar.</li>
+<li><strong>Çevrim:</strong> Okları izleyerek başlangıca geri dönen kapalı yol. Yönlü grafın çevriminde her okun yönüne uyulur.</li>
+<li><strong>DAG:</strong> Yönlü ve çevrimsiz graf. Topolojik sıralama yalnızca böyle bir graf için mümkündür.</li>
+<li><strong>Topolojik sıra:</strong> Her u → v kenarında u'nun v'den önce bulunduğu, bütün düğümleri birer kez içeren sıra.</li>
+<li><strong>Giriş derecesi:</strong> Düğüme gelen kenar sayısı. Kahn algoritması sırasında kalan ön koşulları sayar.</li>
+<li><strong>Θ(n+m):</strong> İş miktarı düğüm ve kenar sayılarının toplamı mertebesindedir. Tam işlem sayısı veya saniye değildir. Komşuluk listeleri hazır kabul edilir.</li>
+</ul>
+<p>Aksi söylenmedikçe yönlü graflar kullanılır; komşular ve yeni DFS kökleri alfabetik sırada incelenir. Komşu sırası değişince keşif ve bitiş sıraları değişebilir. Bu, algoritmanın yanlış çalıştığı anlamına gelmez.</p></div><section id="ornek-1" aria-labelledby="baslik-1"><p class="eyebrow">ÖRNEK 1 / 22 · A queue spreads; DFS goes deeper</p><h2 id="baslik-1">1. Kuyruk yayılır; DFS derine gider</h2><p><a href="../#example-1">Ders sayfasındaki örnek 1</a> · <a href="../lecture-notes.html#topic-0-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> A'dan B ve C'ye, B'den D'ye gidilebilsin: AB, AC, BD. Robot bütün erişilebilir odaları araştıracak. Harfler oda kimliğidir; mesafe değildir.</p>
+<table>
+<thead>
+<tr>
+<th>Adım</th>
+<th>BFS keşif sırası</th>
+<th>DFS keşif sırası</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Başlangıç</td>
+<td>A</td>
+<td>A</td>
+</tr>
+<tr>
+<td>İlk tercih</td>
+<td>B ve C kuyruğa girer</td>
+<td>B'ye girilir</td>
+</tr>
+<tr>
+<td>Sonraki iş</td>
+<td>B işlenir; D kuyruğun sonuna girer</td>
+<td>B'den D'ye girilir</td>
+</tr>
+<tr>
+<td>Sonuç</td>
+<td>A, B, C, D</td>
+<td>A, B, D, C</td>
+</tr>
+</tbody>
+</table>
+<p>BFS, önceden bekleyen C'yi yeni bulunan D'den önce işler. DFS ise B'nin araştırmasını bitirmeden A'nın diğer komşusu C'ye geçmez. İkisinin de düğümleri bulabilmesi, aynı bilgiyi ürettikleri anlamına gelmez.</p>
+<p><strong>En kısa yol ayrımı.</strong> AB, BC, CD ve AD oklarını düşünün. DFS B'yi önce seçerse D'yi A→B→C→D üzerinden keşfedebilir: üç kenar. Oysa A→D tek kenardır. DFS'nin ilk bulduğu yol geçerli ama en kısa olmak zorunda değildir. BFS bu ağırlıksız örnekte bir kenarlık mesafeyi bulur.</p>
+<p><strong>Animasyonu okuma.</strong> Keşif sırasını bir kâğıda, aktif çağrıları başka bir satıra yazın. Bitmiş düğümler keşif kaydında kalır ama aktif yığından çıkar. “Geri döndü” demek “o odayı unuttu” demek değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> DFS en az kenarlı yolu garanti eder mi? Hayır; yukarıdaki üç kenarlı ve tek kenarlı iki yol bunun doğrudan karşı örneğidir.</p></section><section id="ornek-2" aria-labelledby="baslik-2"><p class="eyebrow">ÖRNEK 2 / 22 · Leave a thread behind you</p><h2 id="baslik-2">2. Geri dönüş, yarım kalan işe dönmektir</h2><p><a href="../#example-2">Ders sayfasındaki örnek 2</a> · <a href="../lecture-notes.html#topic-1-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Basit A→B→D zincirini izliyoruz. Yığının soldaki ucu taban, sağdaki ucu tepedir.</p>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Aktif çağrılar</th>
+<th>Ne bekliyor?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A'ya gir</td>
+<td>A</td>
+<td>A'nın komşuları</td>
+</tr>
+<tr>
+<td>B'ye gir</td>
+<td>A, B</td>
+<td>A, B'nin dönmesini bekler</td>
+</tr>
+<tr>
+<td>D'ye gir</td>
+<td>A, B, D</td>
+<td>B, D'nin dönmesini bekler</td>
+</tr>
+<tr>
+<td>D biter</td>
+<td>A, B</td>
+<td>B kaldığı yerden sürer</td>
+</tr>
+<tr>
+<td>B biter</td>
+<td>A</td>
+<td>A kaldığı yerden sürer</td>
+</tr>
+<tr>
+<td>A biter</td>
+<td>boş</td>
+<td>Araştırma tamamlanır</td>
+</tr>
+</tbody>
+</table>
+<p>D'nin çıkış kenarı yoksa D hemen tamamlanır. B'ye dönüldüğünde B'yi yeniden keşfetmeyiz; yalnızca B'nin komşu listesindeki sıradaki işi yaparız. B'nin başka komşusu yoksa o da biter.</p>
+<p><strong>Neden kayıt gerekli?</strong> Bir fonksiyon başka bir fonksiyonu çağırdığında yalnızca hangi düğümde olduğunu değil, dönüşten sonra hangi işlemi yapacağını da hatırlamalıdır. Robot benzetmesindeki ip, bu geri dönüş bilgisini temsil eder. Bilgisayarın çağrı yığını fiziksel robotun hareket süresini hesaplamaz.</p>
+<p><strong>Sık hata.</strong> Geri dönerken “ziyaret edildi” kaydını silmek, grafın aynı bölgesine tekrar tekrar girmeye yol açabilir. Standart DFS'de keşfedilmiş olma bilgisi kalıcıdır; aktif olma bilgisi geçicidir.</p>
+<p><strong>Kontrol ve cevap.</strong> D bitince neden A'ya değil B'ye dönülür? D'yi çağıran B'dir. Son başlayan çağrı önce tamamlanır.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 22 · Three states prevent a false alarm</p><h2 id="baslik-3">3. Görülmüş olmak ile aktif olmak aynı şey değildir</h2><p><a href="../#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-1-2">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Yönlü elmas graf: A→B, A→C, B→D, C→D. İki farklı yol D'de buluşur.</p>
+<pre><code class="language-text">A → B → D
+└→ C ──↗
+D'den geriye giden ok yok.
+</code></pre>
+<p>Önce A, B, D çağrıları açılır. D'nin çıkışı yoktur; tamamlanır. Ardından B tamamlanır. A şimdi C'yi çağırır. C→D incelendiğinde D daha önce görülmüştür, fakat <strong>aktif değildir</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Durum</th>
+<th>Anlam</th>
+<th>Kenar incelenirken yapılacak iş</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Görülmemiş</td>
+<td>Çağrı hiç açılmadı</td>
+<td>Yeni DFS çağrısı başlat</td>
+</tr>
+<tr>
+<td>Aktif</td>
+<td>Çağrı henüz dönmedi</td>
+<td>Yönlü DFS'de geri kenar: çevrim kanıtı</td>
+</tr>
+<tr>
+<td>Tamamlanmış</td>
+<td>Çağrı döndü</td>
+<td>Tek başına çevrim kanıtı değil</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neden çevrim yok?</strong> C'den D'ye gidebilmek yetmez; D'den C'ye dönen bir yol da gerekir. Bu grafın D düğümünden hiç çıkışı yoktur. “D'yi ikinci kez gördüm, çevrim var” kuralı yanlış alarm üretir.</p>
+<p>Üç durum bazen beyaz, gri ve siyah diye adlandırılır. Renkleri ezberlemek yerine “başlamadı, sürüyor, bitti” diye okuyun. Yönlü çevrim denetiminde genel bir visited kümesine ek olarak aktif çağrıları ayırt eden bilgi gerekir.</p>
+<p><strong>Kontrol ve cevap.</strong> C→D çevrim midir? Hayır. Aktif çağrılar A ve C iken D tamamlanmıştır; D'den geri dönüş bulunmaz.</p></section><section id="ornek-4" aria-labelledby="baslik-4"><p class="eyebrow">ÖRNEK 4 / 22 · Read the original six-place example</p><h2 id="baslik-4">4. Altı düğümlü örnekte çevrimi göstermek</h2><p><a href="../#example-4">Ders sayfasındaki örnek 4</a> · <a href="../lecture-notes.html#topic-1-3">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> Oklar AB, AC, BD, CD, CF, DE, EB; düğümler A–F. Alfabetik incelemede ilk derin rota A→B→D→E olur.</p>
+<pre><code class="language-text">Aktif yığın: A, B, D, E
+İncelenen ok: E → B
+Kapanan çevrim: B → D → E → B
+</code></pre>
+<p>E'den B'ye bakıldığında B hâlâ aktiftir. B, D'nin; D de E'nin işini beklemektedir. DFS ağacında zaten B'den E'ye bir yol vardır. E→B oku bu yolun başlangıcına geri döndürür. Bu nedenle soyut bir “çevrim var” sonucunun yanında somut kanıtı da yazabiliriz: <strong>BD, DE, EB</strong>.</p>
+<p>Animasyon çevrimi kaydettikten sonra araştırmayı sürdürür. E, D ve B tamamlanır. A'nın diğer komşusu C'ye geçilir. C→D oku bu kez bitmiş bir dala gider; C→F ise F'yi ilk kez keşfeder. Keşif sırası A,B,D,E,C,F; bitiş sırası E,D,B,F,C,A olur.</p>
+<p><strong>Önemli ayrım.</strong> A ve C çevrimin parçası değildir. Bir DFS ağacının bütün düğümlerini çevrime dahil etmek yanlıştır. Grafın bir bölümü çevrimli, başka bir bölümü çevrimsiz olabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Hangi ok çevrimi kapatır? Seçilen DFS sırasında E→B. Farklı başlangıç ve komşu sırası başka bir geri kenarı ilk kanıt olarak gösterebilir; çevrimin graf içinde var olması değişmez.</p></section><section id="ornek-5" aria-labelledby="baslik-5"><p class="eyebrow">ÖRNEK 5 / 22 · Entry and exit are two different moments</p><h2 id="baslik-5">5. Giriş ve çıkış iki ayrı olaydır</h2><p><a href="../#example-5">Ders sayfasındaki örnek 5</a> · <a href="../lecture-notes.html#topic-1-3">İlgili ders notu</a></p>
+<p>Örnek 4'teki grafı kullanıp her girişte ve her bitişte sayacı bir artırıyoruz. Kenar incelerken bu saat artmıyor.</p>
+<table>
+<thead>
+<tr>
+<th>Düğüm</th>
+<th style="text-align: right;">Giriş</th>
+<th style="text-align: right;">Çıkış</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td>B</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td>D</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>E</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>C</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>F</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nasıl okunur?</strong> B'nin [2,7] aralığı, D'nin [3,6] aralığını içerir. Çünkü B açıldı, D çağrıldı, D tamamlandı ve ancak sonra B tamamlandı. E'nin [4,5] aralığı da D'nin içinde kalır. Buna karşılık B'nin [2,7] ve C'nin [8,11] aralıkları ayrıdır: B bittiğinde C henüz başlamamıştır.</p>
+<p><strong>Ne sayıyoruz?</strong> Altı düğümün her birinde iki olay vardır: toplam 12. Bu, programın yalnızca 12 işlem yaptığı anlamına gelmez. Yedi kenarın denetlenmesi, durumların okunması ve diğer işlemler bu saatin dışında kalır. Sayaç olay sırasını anlatır; fiziksel zamanı ölçmez.</p>
+<p>Bir düğümün DFS ağacındaki torunları, giriş-çıkış aralığının içinde yer alır. Ayrı dalların aralıkları birbirinin içine girmez. Buradaki “torun” graf üzerindeki herhangi bir erişilebilir düğüm değil, seçilmiş DFS ağacındaki torundur.</p>
+<p><strong>Kontrol ve cevap.</strong> Çocuk aktifken ebeveyn bitebilir mi? Bu standart özyinelemeli DFS'de hayır. Ebeveyn önce çocuğun çağrısından dönmek zorundadır.</p></section><section id="ornek-6" aria-labelledby="baslik-6"><p class="eyebrow">ÖRNEK 6 / 22 · An explicit stack can remember calls</p><h2 id="baslik-6">6. Açık yığınla çağrıları taklit etmek</h2><p><a href="../#example-6">Ders sayfasındaki örnek 6</a> · <a href="../lecture-notes.html#topic-1-5">İlgili ders notu</a></p>
+<p>Python iç içe çağrıları kendi çağrı yığınında saklayabilir. Çok uzun bir zincir, çok sayıda eşzamanlı çağrı gerektirir. Yinelemeli DFS'de bu kayıtları kendimiz tutabiliriz.</p>
+<p>Bir kayıt <strong>(düğüm, sıradaki komşu indeksi)</strong> biçiminde olsun. A'nın listesi [B,C], B'nin listesi [D], D'nin listesi boş olsun.</p>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Yığının içeriği</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A açılır</td>
+<td>(A,0)</td>
+</tr>
+<tr>
+<td>A'nın B kenarı seçilir</td>
+<td>(A,1), (B,0)</td>
+</tr>
+<tr>
+<td>B'nin D kenarı seçilir</td>
+<td>(A,1), (B,1), (D,0)</td>
+</tr>
+<tr>
+<td>D biter</td>
+<td>(A,1), (B,1)</td>
+</tr>
+<tr>
+<td>B biter</td>
+<td>(A,1)</td>
+</tr>
+<tr>
+<td>A, C ile devam eder</td>
+<td>(A,2), (C,0)</td>
+</tr>
+</tbody>
+</table>
+<p>İndeks sıfırdan başlar. A için 1, B'nin incelendiğini ve sırada C'nin olduğunu söyler. Yeni komşuya girmeden önce ebeveynin indeksi ilerletilir; yoksa dönüşte aynı kenarı yeniden seçebiliriz.</p>
+<p><strong>Neden yalnızca harfler yetmeyebilir?</strong> Harf yığını kullanan bazı DFS uygulamaları erişilebilirliği doğru bulur. Fakat bütün komşuları bir anda yığına itmek, aynı keşif ve bitiş olaylarını otomatik olarak üretmez. Bu haftaki zaman damgalarını ve aktif ata ilişkilerini bire bir taklit etmek için yarım kalan komşu taramasını da saklamak gerekir.</p>
+<p><strong>Maliyet.</strong> n düğümlü zincirde en fazla n aktif kayıt olabilir: ek yığın alanı O(n). Açık yığın Python'un derin özyineleme sınırına bağlı kalmayı önler; bellek kullanımını sıfırlamaz.</p>
+<p><strong>Kontrol ve cevap.</strong> D bitince A'nın komşu listesine baştan mı dönülür? Hayır. B tamamlandıktan sonra A'nın saklanan indeksi C'yi gösterir.</p></section><section id="ornek-7" aria-labelledby="baslik-7"><p class="eyebrow">ÖRNEK 7 / 22 · Count places and connections separately</p><h2 id="baslik-7">7. Düğümleri ve kenarları ayrı saymak</h2><p><a href="../#example-7">Ders sayfasındaki örnek 7</a> · <a href="../lecture-notes.html#topic-1-6">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Altı düğümlü iki farklı yönlü grafı karşılaştıralım. Birincisi A→B→C→D→E→F zinciri: n=6,m=5. İkincisinde aynı altı düğüm arasında 12 farklı ok olsun: n=6,m=12.</p>
+<p>Her iki grafın tam DFS taramasında altı giriş ve altı çıkış vardır. Buna rağmen ikinci grafın komşu listelerinde daha fazla kayıt incelenir. Yalnızca düğüm sayısına bakmak bu farkı kaçırır.</p>
+<table>
+<thead>
+<tr>
+<th>Temsil</th>
+<th>Tam DFS'de incelenen bağlantı kayıtları</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yönlü komşuluk listesi</td>
+<td>m</td>
+</tr>
+<tr>
+<td>Yönsüz komşuluk listesi</td>
+<td>2m; kenar iki uçta saklanır</td>
+</tr>
+<tr>
+<td>n×n komşuluk matrisi</td>
+<td>n² hücre</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Θ(n+m) neden?</strong> Düğüm başına sınırlı bir iş ve liste kaydı başına sınırlı bir iş vardır. İkisini toplarız. Θ sembolü, bu temsil ve tam tarama için büyümenin hem alttan hem üstten aynı mertebede olduğunu söyler. İki yönlü kayıt gibi sabit çarpanlar mertebeyi değiştirmez.</p>
+<p><strong>Yalıtılmış düğümler.</strong> m=0 olsa bile n düğümlü tam tarama n ayrı kök açıp kapatır; Θ(n) iş vardır. Bir kaynaktan başlatıp erişilemeyenleri hiç dolaşmayan sürüm ise yalnızca o kaynağın erişilebilir bölgesini araştırır. “Tam DFS” ile “tek kaynak araması”nı karıştırmayın.</p>
+<p><strong>Varsayım.</strong> Komşu listeleri hazır ve sıralıdır. Komşuları alfabetik sıralamak ayrıca yapılırsa bunun maliyeti de eklenir. Girdi okuma, çizim üretme ve animasyon karelerini saklama, temel DFS maliyetiyle aynı hesap değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> n sabitken m artarsa ne olur? Daha fazla bağlantı denetlenir. Θ(n+m) ifadesindeki m bunu açıkça gösterir.</p></section><section id="ornek-8" aria-labelledby="baslik-8"><p class="eyebrow">ÖRNEK 8 / 22 · Four names describe four edge situations</p><h2 id="baslik-8">8. Dört kenar sınıfını iz üzerinden ayırmak</h2><p><a href="../#example-8">Ders sayfasındaki örnek 8</a> · <a href="../lecture-notes.html#topic-2-1">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> AB, AC, AD, BD, CD oklarını alfabetik sırada izleyelim. B→D, D'yi ilk kez keşfeder. D ve B bittikten sonra C açılır.</p>
+<table>
+<thead>
+<tr>
+<th>Kenar</th>
+<th>Hedefin o andaki durumu</th>
+<th>Sınıf</th>
+<th>Gerekçe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A→B</td>
+<td>Görülmemiş</td>
+<td>Ağaç</td>
+<td>B'yi ilk kez bulur</td>
+</tr>
+<tr>
+<td>B→D</td>
+<td>Görülmemiş</td>
+<td>Ağaç</td>
+<td>D'yi ilk kez bulur</td>
+</tr>
+<tr>
+<td>A→C</td>
+<td>Görülmemiş</td>
+<td>Ağaç</td>
+<td>C'yi ilk kez bulur</td>
+</tr>
+<tr>
+<td>C→D</td>
+<td>Tamamlanmış</td>
+<td>Çapraz</td>
+<td>D, C'nin torunu değildir</td>
+</tr>
+<tr>
+<td>A→D</td>
+<td>Tamamlanmış</td>
+<td>İleri</td>
+<td>D, A'nın torunudur; bu ok onu keşfetmedi</td>
+</tr>
+</tbody>
+</table>
+<p>Bu graf çevrimsizdir; <strong>geri kenar içermez</strong>. D→A eklenirse D aktifken A da aktif olduğundan D→A geri kenar olur ve A→B→D→A çevrimini gösterir. Dört sınıfın hepsinin her graf içinde bulunması gerekmez.</p>
+<p><strong>Temel ayrım.</strong> Ağaç kenarı yeni bir çağrı açar. İleri kenar zaten keşfedilmiş bir toruna gider. İkisinin de çizimde aşağı doğru görünmesi onları aynı yapmaz. Çapraz kenar ise daha önce bitmiş başka bir dala gider; çizginin geometrik olarak kesişmesiyle tanımlanmaz.</p>
+<p><strong>Zaman damgasıyla kontrol.</strong> Bir torunun giriş ve çıkışı atasının aralığının içindedir. Bu bilgi, bitmiş hedefin torun mu başka dal mı olduğunu ayırt etmeye yarar. Kenar sınıfları grafın çizimindeki konuma değil, seçilmiş DFS ağacına bağlıdır.</p>
+<p><strong>Kontrol ve cevap.</strong> Bitmiş düğüme giden her ok ileri kenar mıdır? Hayır: tabloda C→D çapraz, A→D ileridir. Bu dört sınıf yönlü DFS içindir; yönsüz kenarlar sonraki örnekte ayrı ele alınır.</p></section><section id="ornek-9" aria-labelledby="baslik-9"><p class="eyebrow">ÖRNEK 9 / 22 · Take a short break</p><h2 id="baslik-9">9. İlk mola: üç ayrımı tekrar etmek</h2><p><a href="../#example-9">Ders sayfasındaki örnek 9</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>64–74. dakikalar arasındaki mola, üç saatlik planın içindedir. Dönünce aşağıdaki soruları önce kendiniz cevaplayıp açıklamalarla karşılaştırın.</p>
+<p><strong>1. Keşfedilmiş düğüm mutlaka aktif midir?</strong> Hayır. D çağrısı tamamlandıktan sonra keşfedilmiş kalır ama aktif yığından çıkar. Bu ayrım, C→D gibi paylaşılan hedeflerin yanlışlıkla çevrim sayılmasını önler.</p>
+<p><strong>2. Altı düğüm neden 12 saat olayı üretir?</strong> Her düğüme bir kez girilir ve bir kez çıkılır. Saat bu iki olayı sayar. Kenar denetimlerini de sayan toplam çalışma maliyeti değildir.</p>
+<p><strong>3. DFS neden yarım kalan işi hatırlar?</strong> Bir çocuk çağrısı bittikten sonra ebeveynin sıradaki komşusundan devam etmek gerekir. Yığın yalnızca rota geçmişi değil, bekleyen iş kayıtlarıdır.</p>
+<p><strong>Küçük çalışma.</strong> A→B→D için “gir A, gir B, gir D, bitir D, bitir B, bitir A” olaylarını yazın. Her “bitir”de yalnızca en sağdaki aktif çağrıyı silin; keşfedilenler listesini silmeyin. Bu iki listenin farklı görevlerini gözle görünür hâle getirir.</p></section><section id="ornek-10" aria-labelledby="baslik-10"><p class="eyebrow">ÖRNEK 10 / 22 · A two-way corridor is not a two-edge cycle</p><h2 id="baslik-10">10. Tek koridoru iki ayrı kenar sanmamak</h2><p><a href="../#example-10">Ders sayfasındaki örnek 10</a> · <a href="../lecture-notes.html#topic-1-4">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Yönsüz A—B kenarı komşuluk listesinde hem A:[B] hem B:[A] olarak saklanır. Bunlar aynı fiziksel bağlantının iki kaydıdır.</p>
+<p>A'dan B'ye girince B'nin listesinde A görülür. A aktiftir; ancak bu, yönlü graf için kullandığımız kuralı aynen uygulayıp çevrim ilan etmemizi gerektirmez. B'yi keşfeden aynı yönsüz kenarın ters kaydını görüyoruz. Basit yönsüz graf için ebeveyn kenarı atlanır.</p>
+<pre><code class="language-text">Tek kenar: A—B        çevrim yok
+Üçgen:    A—B—C—A    üç farklı kenarla çevrim var
+</code></pre>
+<p>Üçgende A'dan B'ye, B'den C'ye gidilir. C'nin B kaydı ebeveyn kenarıdır; atlanır. C'nin A kaydı farklı bir kenardır. A aktif ata olduğundan A—B—C—A çevrimini kapatır.</p>
+<p><strong>Varsayım neden önemli?</strong> Basit graf, aynı iki düğüm arasında paralel kenar barındırmaz. Paralel kenarlar varsa yalnızca “hedef ebeveyn mi?” diye bütün kayıtları atlamak yeterli değildir; hangi kenardan geldiğimizi kenar kimliğiyle ayırmak gerekir. Buradaki örnek bu ayrıntıyı gerektirmeyen basit graftır.</p>
+<p><strong>Kontrol ve cevap.</strong> Tek AB koridorundan gidip geri gelmek çevrim midir? Basit grafın çevrim tanımında aynı kenarı tekrar kullanarak yapılan bu yürüyüş çevrim sayılmaz. AC ve BC eklenirse üç farklı kenarlı çevrim oluşur.</p></section><section id="ornek-11" aria-labelledby="baslik-11"><p class="eyebrow">ÖRNEK 11 / 22 · Change one arrow; change the answer</p><h2 id="baslik-11">11. Bir okun yönü sonucu değiştirir</h2><p><a href="../#example-11">Ders sayfasındaki örnek 11</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p>Başlangıç A→B→C olsun. C'den çıkış olmadığı için geri dönüş yoktur. Şimdi iki farklı değişikliği karşılaştırın.</p>
+<table>
+<thead>
+<tr>
+<th>Eklenen ok</th>
+<th>Oluşan durum</th>
+<th>Sonuç</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C→A</td>
+<td>A→B→C→A</td>
+<td>Yönlü çevrim</td>
+</tr>
+<tr>
+<td>A→C</td>
+<td>A'dan C'ye kısa alternatif</td>
+<td>Çevrim yok</td>
+</tr>
+</tbody>
+</table>
+<p>İlk durumda C işlenirken A hâlâ aktiftir. A'dan C'ye DFS ağacı yolu ve C→A kenarı birleşerek kapalı yol oluşturur. İkinci durumda bütün oklar aynı yönde ilerler; C'den A'ya dönmek mümkün değildir.</p>
+<p><strong>Mühendislik yorumu.</strong> Bir geri besleme sisteminde ölçümün denetleyiciyi, denetleyicinin motoru, motorun yeniden ölçümü etkilemesi amaçlanan bir çevrim olabilir. “Çevrim var” tek başına “sistem hatalı” demek değildir. Aynı oklar “önce bitmeli” anlamına gelirse A'nın B'yi, B'nin C'yi, C'nin A'yı beklemesi yürütülebilir bir ön koşul sırasını engeller.</p>
+<p>Graf modeli fiziksel sistemin kararlılığını tek başına kanıtlamaz. DFS çevrim bulur; kontrol kuramındaki kararlılık için zaman, kazanç ve dinamikler gibi başka bilgiler gerekir.</p>
+<p><strong>Kontrol ve cevap.</strong> A→C eklemek neden çevrim oluşturmaz? Yeni bir ileri rota ekler ama başlangıca döndüren hiçbir yol eklemez. Kanıt için yalnızca “ok sayısı arttı” demek yeterli değildir.</p></section><section id="ornek-12" aria-labelledby="baslik-12"><p class="eyebrow">ÖRNEK 12 / 22 · Which job can start first?</p><h2 id="baslik-12">12. Ön koşullar iş sırasını belirler</h2><p><a href="../#example-12">Ders sayfasındaki örnek 12</a> · <a href="../lecture-notes.html#topic-4-1">İlgili ders notu</a></p>
+<p><strong>İşler.</strong> A: tabanı monte et, B: sensörü tak, C: kalibrasyon yap, D: test et. Modelin okları A→C, B→C, C→D. Model yalnızca yazılan ön koşulları kabul eder.</p>
+<p>A ve B'nin giriş derecesi sıfırdır; ikisinden biri önce yapılabilir. C'nin iki ön koşulu vardır. A'nın bitmesi tek başına C'yi hazır yapmaz; B de tamamlanmalıdır. D ise C'yi bekler.</p>
+<pre><code class="language-text">Geçerli: A, B, C, D
+Geçerli: B, A, C, D
+Geçersiz: A, C, B, D  (B→C ihlal edilir)
+</code></pre>
+<p><strong>Gerçek hayat ile model.</strong> Sensörün fiziksel olarak taban takıldıktan sonra takılması gerekiyorsa A→B oku da eklenmelidir. Mevcut örnekte bu ok yoktur; gerçek süreçte bulunabilecek bir kuralı varsayarak sıralamayı değerlendirmiyoruz. Graf eksik modellenirse algoritma modele göre doğru, gerçek iş için uygunsuz bir sıra verebilir.</p>
+<p><strong>Sıra ile takvim ayrımı.</strong> Topolojik sıra süreleri, çalışan sayısını veya makine paylaşımını hesaplamaz. A ve B bağımsızsa uygun kaynaklarla paralel yapılabilir; sıraya yazılmış olmaları eşzamanlı çalışmayı yasaklayan bir fiziksel kural değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> C ilk iş olabilir mi? Hayır. Hem A→C hem B→C kenarını ihlal eder. Geçerliliği sınamak için her okun kaynağının hedefinden önce yer aldığını kontrol ederiz.</p></section><section id="ornek-13" aria-labelledby="baslik-13"><p class="eyebrow">ÖRNEK 13 / 22 · Finish first, then reverse</p><h2 id="baslik-13">13. Önce bitir, sonra listeyi ters çevir</h2><p><a href="../#example-13">Ders sayfasındaki örnek 13</a> · <a href="../lecture-notes.html#topic-4-2">İlgili ders notu</a></p>
+<p><strong>Ortak DAG.</strong> AB, AC, BD, CD, CE, DE okları; A–E düğümleri. Alfabetik DFS A→B→D→E dalını açar.</p>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Bitiş listesi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E tamamlanır</td>
+<td>E</td>
+</tr>
+<tr>
+<td>D tamamlanır</td>
+<td>E,D</td>
+</tr>
+<tr>
+<td>B tamamlanır</td>
+<td>E,D,B</td>
+</tr>
+<tr>
+<td>C açılır; D ve E zaten bitmiştir; C biter</td>
+<td>E,D,B,C</td>
+</tr>
+<tr>
+<td>A tamamlanır</td>
+<td>E,D,B,C,A</td>
+</tr>
+</tbody>
+</table>
+<p>Tersi <strong>A,C,B,D,E</strong> olur. A, B ve C'den önce; B ve C, D'den önce; C ve D, E'den öncedir. Altı kenarın tümü doğru yöndedir.</p>
+<p><strong>Neden çalışır?</strong> Çevrimsiz yönlü grafta u→v incelendiğinde v görülmemişse önce v'nin çağrısı tamamlanır; dolayısıyla v, u'dan önce biter. v zaten tamamlanmışsa yine u'dan önce bitmiştir. v aktif olamaz; aktif ataya ok çevrim oluştururdu. Bu yüzden her kenarda v'nin bitişi u'nunkinden öncedir. Bitiş listesini ters çevirince u önce gelir.</p>
+<p><strong>Keşif sırası neden olmaz?</strong> Keşif sırası A,B,D,E,C'dir. C→D ve C→E okları olmasına rağmen C en sona konmuştur. Bir düğüme erken ulaşmak, bütün ön koşullarının tamamlandığını göstermez.</p>
+<p><strong>Koşullar.</strong> Bütün düğümler için DFS yapılmalı, henüz görülmemiş her düğümden yeni kök açılmalıdır. Herhangi bir geri kenar varsa ters bitiş listesi topolojik sıra diye sunulmamalıdır. Listeyi ters çevirmek çevrimi ortadan kaldırmaz.</p></section><section id="ornek-14" aria-labelledby="baslik-14"><p class="eyebrow">ÖRNEK 14 / 22 · Kahn: start a job with nothing left to wait for</p><h2 id="baslik-14">14. Kahn: bekleyecek işi kalmayanı seçmek</h2><p><a href="../#example-14">Ders sayfasındaki örnek 14</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Aynı beş düğümlü graf için başlangıç giriş dereceleri A:0,B:1,C:1,D:2,E:2. Hazır kuyruğu yalnızca A içerir.</p>
+<table>
+<thead>
+<tr>
+<th>Çıkarılan</th>
+<th>Azalan sayaçlar</th>
+<th>İşlem sonrası hazır kuyruğu</th>
+<th>Üretilen sıra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>B:1→0, C:1→0</td>
+<td>B,C</td>
+<td>A</td>
+</tr>
+<tr>
+<td>B</td>
+<td>D:2→1</td>
+<td>C</td>
+<td>A,B</td>
+</tr>
+<tr>
+<td>C</td>
+<td>D:1→0, E:2→1</td>
+<td>D</td>
+<td>A,B,C</td>
+</tr>
+<tr>
+<td>D</td>
+<td>E:1→0</td>
+<td>E</td>
+<td>A,B,C,D</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Çıkış oku yok</td>
+<td>boş</td>
+<td>A,B,C,D,E</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sayaç ne demek?</strong> D'nin sayacı 1 olduğunda kalan bir ön koşulu vardır. “Yarısı tamamlandı, başlayabilir” denmez. Ön koşulların hepsi gerekli olduğundan ancak sıfırda kuyruğa girer.</p>
+<p><strong>Neden doğru?</strong> Kuyruktan seçilen düğüme, henüz sıraya alınmamış düğümlerden gelen ok kalmamıştır. Dolayısıyla onu sıradaki yere koymak geride bir ön koşul bırakmaz. Çıkış kenarlarını kaldırmak da bu işin artık diğerlerini bekletmediğini kaydeder.</p>
+<p>Buradaki kaldırma mantıksaldır; özgün grafın çizimini silmek zorunlu değildir. Sayaçları azaltmak yeterlidir. Animasyon FIFO kuyruğu kullanır. Başlangıçta hazır düğümler ve komşu listeleri alfabetiktir; her adımda kuyruğun tamamı yeniden alfabetik sıralanmaz.</p>
+<p><strong>Kontrol ve cevap.</strong> B çıkarılınca D neden eklenmez? D hâlâ C'yi bekler. C çıkarıldığında D'nin sayacı sıfıra ulaşır.</p></section><section id="ornek-15" aria-labelledby="baslik-15"><p class="eyebrow">ÖRNEK 15 / 22 · Two different answers can both be correct</p><h2 id="baslik-15">15. İki farklı doğru cevabı doğrulamak</h2><p><a href="../#example-15">Ders sayfasındaki örnek 15</a> · <a href="../lecture-notes.html#topic-4-6">İlgili ders notu</a></p>
+<p>Önceki graf için DFS <strong>A,C,B,D,E</strong>, Kahn <strong>A,B,C,D,E</strong> verdi. Birini diğerine benzemediği için yanlış sayamayız.</p>
+<table>
+<thead>
+<tr>
+<th>Zorunluluk</th>
+<th>İki sırada da sağlanıyor mu?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A, B ve C'den önce</td>
+<td>Evet</td>
+</tr>
+<tr>
+<td>B ve C, D'den önce</td>
+<td>Evet</td>
+</tr>
+<tr>
+<td>C ve D, E'den önce</td>
+<td>Evet</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neden tam iki sıra?</strong> A herkesin önündedir: B ve C'ye doğrudan, D ve E'ye yollar üzerinden ön koşuldur. D hem B hem C'yi bekler. E de D'yi bekler. Yalnızca B ile C'nin kendi aralarındaki sıra serbesttir. İki seçenek, iki geçerli sıra üretir.</p>
+<p><strong>Genelleme.</strong> Tek zincirin sırası zorunludur. n yalıtılmış düğümde bütün permütasyonlar geçerlidir: n! farklı sıra. Örneğin üç bağımsız iş için 3×2×1=6 sıra vardır. Geçerli bir sıra bulmak ile bütün sıraları üretmek farklı işlerdir; çıktı sayısı bile çok büyük olabilir.</p>
+<p><strong>Doğrulama yöntemi.</strong> Önce her düğümün tam bir kez geçtiğini kontrol edin. Sonra her düğümün listedeki konumunu yazın. Her u→v için konum(u)&lt;konum(v) olmalı. Yalnızca kenarları kontrol etmek, listeden bağımsız bir düğümün yanlışlıkla çıkarılmasını yakalamayabilir; ilk kontrol de gereklidir.</p>
+<p><strong>Kontrol ve cevap.</strong> A,B,D,C,E geçerli mi? Hayır. C→D kenarı C'nin D'den önce olmasını ister. B ile C'nin değişebilmesi, herhangi iki düğümün değişebileceği anlamına gelmez.</p></section><section id="ornek-16" aria-labelledby="baslik-16"><p class="eyebrow">ÖRNEK 16 / 22 · Take a short break</p><h2 id="baslik-16">16. İkinci mola: kanıtı bir cümlede söylemek</h2><p><a href="../#example-16">Ders sayfasındaki örnek 16</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>122–132. dakikalar arasındaki moladan sonra üç küçük graf çizin: zincir, yönlü elmas ve yönlü üçgen.</p>
+<table>
+<thead>
+<tr>
+<th>Graf</th>
+<th>Çevrim</th>
+<th>Topolojik sıra örneği</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A→B→C</td>
+<td>Yok</td>
+<td>A,B,C</td>
+</tr>
+<tr>
+<td>AB,AC,BD,CD</td>
+<td>Yok</td>
+<td>A,B,C,D veya A,C,B,D</td>
+</tr>
+<tr>
+<td>A→B→C→A</td>
+<td>Var</td>
+<td>Mümkün değil</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Zincir için açıklama.</strong> Her düğüm kendisinden öncekini bekler; bekleme geriye kapanmaz. Sıra zorunludur.</p>
+<p><strong>Elmas için açıklama.</strong> B ve C, A'dan sonra yapılabilir. D ikisini de bekler. D'ye iki yoldan ulaşılması çevrim değildir; geri dönüş yolu yoktur.</p>
+<p><strong>Üçgen için açıklama.</strong> Her düğüm bir diğerini bekler. Başlangıçta giriş derecesi sıfır olan düğüm yoktur. Kahn kuyruğu boştur fakat üç düğümün hiçbiri çıkarılmamıştır; bu başarısızlıktır.</p>
+<p><strong>Kendinizi sınayın.</strong> “DFS bitiş listesini ters çevirdim” tek başına yeterli gerekçe mi? Hayır. Önce grafın yönlü ve çevrimsiz olduğunu, ayrıca bütün düğümlerin tarandığını belirtmek gerekir.</p></section><section id="ornek-17" aria-labelledby="baslik-17"><p class="eyebrow">ÖRNEK 17 / 22 · A stopped queue is useful evidence</p><h2 id="baslik-17">17. Kuyruğun erken boşalması ne anlatır?</h2><p><a href="../#example-17">Ders sayfasındaki örnek 17</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Ortak DAG'a <strong>E→B</strong> ekleyelim. Yeni çevrim B→D→E→B. Başlangıç sayaçları A:0,B:2,C:1,D:2,E:2 olur.</p>
+<table>
+<thead>
+<tr>
+<th>Adım</th>
+<th>Değişim</th>
+<th>Hazır kuyruğu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Başlangıç</td>
+<td>Yalnızca A hazır</td>
+<td>A</td>
+</tr>
+<tr>
+<td>A çıkar</td>
+<td>B:2→1, C:1→0</td>
+<td>C</td>
+</tr>
+<tr>
+<td>C çıkar</td>
+<td>D:2→1, E:2→1</td>
+<td>boş</td>
+</tr>
+</tbody>
+</table>
+<p>Sıra [A,C] olarak kalır. B E'yi, D B'yi, E D'yi bekler. Üç kalan düğümün her birinin giriş derecesi 1'dir. İki düğüm çıkarılmış olması beş düğümlü graf için tam sonuç değildir.</p>
+<p><strong>Neden çevrim kanıtı?</strong> Sonlu bir yönlü grafta kalan her düğümün kalan bir ön koşulu varsa, geriye doğru ön koşulları takip edin. Düğüm sayısı sonlu olduğu için sonunda bir düğüm tekrarlanır; yönlü çevrim vardır. Kahn'ın bütün düğümleri çıkarabilmesi ile grafın çevrimsiz olması bu yüzden eşdeğerdir.</p>
+<p><strong>Her engellenen düğüm çevrimde mi?</strong> Hayır. Bu grafa E→F ekleyin. F'nin geri dönen oku olmasa da E tamamlanamadığı için F bekler. F çevrimden etkilenir fakat çevrimin üzerinde değildir. Kuyrukta kalmış olmak ile çevrim üyesi olmak ayrı sonuçlardır.</p>
+<p><strong>Kontrol ve cevap.</strong> Boş kuyruk başarı mı? Ancak üretilen sıra bütün düğümleri içeriyorsa. Burada 2&lt;5 olduğu için çevrim raporlanır; [A,C] yalnızca kısmi sıradır.</p></section><section id="ornek-18" aria-labelledby="baslik-18"><p class="eyebrow">ÖRNEK 18 / 22 · Try your own dependency graph</p><h2 id="baslik-18">18. Kendi oklarınızla deney yapmak</h2><p><a href="../#example-18">Ders sayfasındaki örnek 18</a> · <a href="../lecture-notes.html#topic-editor">İlgili ders notu</a></p>
+<p>Editörde <strong>AB</strong>, A→B demektir. BA ters yöndeki başka bir oktur. Düğüm kümesi her zaman A,B,C,D,E,F olarak kalır; kenar yazılmayan düğümler kaybolmaz.</p>
+<p><strong>Deney 1: <code>AB AC BD CD</code>.</strong> A,E,F başlangıçta hazırdır. FIFO kuyruğu aşağıdaki gibi ilerler:</p>
+<pre><code class="language-text">[A,E,F] → A çıkar → [E,F,B,C]
+E çıkar → [F,B,C]
+F çıkar → [B,C]
+B çıkar → [C]       D hâlâ C'yi bekler
+C çıkar → [D]
+D çıkar → []
+Sonuç: A,E,F,B,C,D
+</code></pre>
+<p>E ve F'nin erken çıkması hata değildir; hiçbir ön koşulları yoktur. Kuyruğun her adımda yeniden alfabetik sıralandığını varsaysaydınız farklı sonuç beklerdiniz.</p>
+<p><strong>Deney 2: <code>AB BC CA</code>.</strong> A,B,C çevrimdedir. D,E,F yalıtılmıştır ve çıkarılabilir. Sonuç [D,E,F] kısmi sırasıdır; üç düğüm kalır. Grafın bir kısmının işlenmesi bütün grafın çevrimsiz olduğunu göstermez.</p>
+<p><strong>Deney 3: boş kenar listesi.</strong> Altı düğümün hepsi hazırdır. Demo A,B,C,D,E,F verir; aslında 6!=720 permütasyonun tamamı geçerlidir.</p>
+<p><strong>Editör sınırları.</strong> Aynı ok tekrar yazılırsa birleştirilir. Bu editör kendine okları dışlar ve A–F dışındaki düğümleri desteklemez. Bu, matematiksel graflarda kendine ok olamayacağı anlamına gelmez; A→A yönlü bir çevrimdir.</p>
+<p><strong>Kontrol ve cevap.</strong> Bir çevrimden bir ok silmek bütün grafı düzeltir mi? Yalnızca başka çevrim kalmadıysa. Silme sonrası algoritmayı yeniden çalıştırıp bütün düğümlerin çıkarıldığını kontrol edin.</p></section><section id="ornek-19" aria-labelledby="baslik-19"><p class="eyebrow">ÖRNEK 19 / 22 · Run the dependency check in Python</p><h2 id="baslik-19">19. Python kodunu satır satır anlamak</h2><p><a href="../#example-19">Ders sayfasındaki örnek 19</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Ders sayfasındaki kod, beş iş için Kahn algoritmasını çalıştırır. <code>input()</code> çağrısı yoktur; veri doğrudan <code>graph</code> sözlüğündedir.</p>
+<pre><code class="language-python"><span class="code-line"><span class="line-number" aria-hidden="true">1</span>from collections import deque</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">2</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">3</span>graph = {&quot;A&quot;: [&quot;B&quot;, &quot;C&quot;], &quot;B&quot;: [&quot;D&quot;],</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">4</span>         &quot;C&quot;: [&quot;D&quot;, &quot;E&quot;], &quot;D&quot;: [&quot;E&quot;], &quot;E&quot;: []}</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">5</span>indegree = {u: 0 for u in graph}</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">6</span>for u in graph:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">7</span>    for v in graph[u]:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">8</span>        indegree[v] += 1</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">9</span>ready = deque(u for u in graph if indegree[u] == 0)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">10</span>order = []</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">11</span>while ready:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">12</span>    u = ready.popleft()</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">13</span>    order.append(u)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">14</span>    for v in graph[u]:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">15</span>        indegree[v] -= 1</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">16</span>        if indegree[v] == 0:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">17</span>            ready.append(v)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">18</span>if len(order) == len(graph):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">19</span>    print(&quot;Valid order:&quot;, order)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">20</span>else:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">21</span>    print(&quot;Cycle detected. Partial order:&quot;, order)</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Satır</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>deque</code> sınıfını alır; kuyruk başından verimli çıkarma sağlar.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Boş satır yalnızca okunabilirlik içindir.</td>
+</tr>
+<tr>
+<td>3–4</td>
+<td>Çıkış komşularını tanımlar. E'nin boş listesi, E yok demek değil, E'den çıkan ok yok demektir.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Her düğümün gelen ok sayacını başlangıçta sıfırlar.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Her kaynak düğüm u üzerinde dolaşır.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>u'dan çıkan her okun hedefi v'yi seçer.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>u→v bulunduğundan v'nin sayacını bir artırır.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Sayacı sıfır olanları başlangıç kuyruğuna alır. Bu sözlükte ilk hazır düğüm A'dır.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Üretilecek sırayı boş liste olarak başlatır.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Kuyruk boş olmadığı sürece işlem yapar.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>En önce beklemeye başlamış hazır düğümü çıkarır.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Bu düğümü sonuç sırasının sonuna ekler.</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Çıkarılan düğümün etkilediği hedefleri dolaşır.</td>
+</tr>
+<tr>
+<td>15</td>
+<td>u artık sıraya alındığı için v'nin kalan ön koşul sayısını azaltır.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Bütün kalan ön koşullar bitmiş mi diye sınar.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Yalnızca sıfıra ulaşan hedefi kuyruğun sonuna ekler.</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Çıkarılan düğüm sayısıyla toplam düğüm sayısını karşılaştırır.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Hepsi çıkarıldıysa tam ve geçerli sırayı yazdırır.</td>
+</tr>
+<tr>
+<td>20–21</td>
+<td>Aksi durumda çevrim bulunduğunu ve yalnızca kısmi sıra üretildiğini açıkça yazar.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Beklenen çıktı.</strong></p>
+<pre><code class="language-text">Valid order: ['A', 'B', 'C', 'D', 'E']
+</code></pre>
+<p>E'nin listesini <code>["B"]</code> yaparsanız E→B eklenir ve çıktı değişir:</p>
+<pre><code class="language-text">Cycle detected. Partial order: ['A', 'C']
+</code></pre>
+<p><strong>Veriyi değiştirirken.</strong> Her komşu sözlükte anahtar olarak da bulunmalıdır. Örneğin E'nin listesine F ekliyorsanız <code>"F": []</code> kaydını da ekleyin; aksi durumda sayaç güncellemesi <code>KeyError</code> verir. Python sözlük ekleme sırasını izler; kod komşuları kendiliğinden alfabetik sıralamaz. Bu örnekte verilen sıralar zaten alfabetiktir.</p>
+<p><strong>Maliyet.</strong> İlk tarama gelen okları sayar, ikinci tarama çıkarılan düğümlerin çıkışlarını işler. Her kenara sabit sayıda iş yapılır; komşuluk listeleri ve olağan sözlük işlemleri varsayımıyla O(n+m) zaman, graf dışında O(n) yardımcı alan gerekir. Kodun oluşturduğu sıra, graf editörünün verisini otomatik okumaz; kod örneğini değiştirmek ayrı bir işlemdir.</p></section><section id="ornek-20" aria-labelledby="baslik-20"><p class="eyebrow">ÖRNEK 20 / 22 · One failed junction can split a network</p><h2 id="baslik-20">20. Bir düğümün kaybı ağı böler mi?</h2><p><a href="../#example-20">Ders sayfasındaki örnek 20</a> · <a href="../lecture-notes.html#topic-6-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Yönsüz A—B—C zinciri ile A—B—C—A üçgenini karşılaştırıyoruz. Başlangıçta her biri tek bağlı bileşendir. B'yi ve B'ye bağlı bütün kenarları kaldırın.</p>
+<table>
+<thead>
+<tr>
+<th>Graf</th>
+<th style="text-align: right;">B silinmeden</th>
+<th style="text-align: right;">B silindikten sonra</th>
+<th>Sonuç</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zincir</td>
+<td style="text-align: right;">1 bileşen</td>
+<td style="text-align: right;">2: {A}, {C}</td>
+<td>B kesme düğümüdür</td>
+</tr>
+<tr>
+<td>Üçgen</td>
+<td style="text-align: right;">1 bileşen</td>
+<td style="text-align: right;">1: {A,C}</td>
+<td>B kesme düğümü değildir</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tanım.</strong> Bir düğüm kaldırıldığında bağlı bileşen sayısı artıyorsa o düğüm kesme düğümüdür. Silinen düğümü ayrı bir bileşen olarak saymayız; kalan grafın bileşenlerini sayarız. Zincirin uç düğümü A silinirse B—C bağlı kalır; sayı 1'den 1'e gider ve A kesme düğümü değildir.</p>
+<p><strong>Mühendislik anlamı.</strong> B bir iletişim anahtarıysa zincirde B'nin arızası A ile C arasındaki bağlantıyı keser. Üçgende alternatif A—C yolu kalır. Bu topolojik dayanıklılık kontrolüdür; bant genişliği, gecikme veya aynı güç kaynağına bağlı ortak arıza gibi bilgileri kendiliğinden içermez.</p>
+<p><strong>DFS bağlantısı.</strong> Görsel doğrudan silip bileşen sayar. Daha verimli genel algoritmalar giriş zamanları ve <code>low</code> kayıtları kullanır. Kök olmayan u için bir çocuk alt ağacı u'nun üstündeki bir ataya kaçamıyorsa u kesme düğümüdür; teknik koşul <code>low[çocuk] &gt;= giriş[u]</code> olur. DFS kökü için ayrı kural vardır: en az iki DFS ağacı çocuğu. Kökün toplam graf derecesiyle çocuk sayısı aynı şey değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> Üçgendeki B neden kritik değildir? A ile C arasındaki alternatif kenar, B silindikten sonra da bağlantıyı korur.</p></section><section id="ornek-21" aria-labelledby="baslik-21"><p class="eyebrow">ÖRNEK 21 / 22 · Reachable one way is not enough</p><h2 id="baslik-21">21. Tek yönlü erişim güçlü bağlılık değildir</h2><p><a href="../#example-21">Ders sayfasındaki örnek 21</a> · <a href="../lecture-notes.html#topic-6-2">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> A→B→C→A çevrimi ve C→D oku. A,B,C birbirine ok yönlerini izleyerek ulaşabilir. D'ye de ulaşırlar fakat D'den geri dönemezler.</p>
+<table>
+<thead>
+<tr>
+<th>Grup</th>
+<th>Karşılıklı erişim</th>
+<th>Güçlü bağlı bileşen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A,B,C</td>
+<td>Her düğüm diğerlerine ulaşır</td>
+<td>{A,B,C}</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Kendisine sıfır kenarlı yol</td>
+<td>{D}</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tanımdaki “maksimal”.</strong> Bir güçlü bağlı bileşene, karşılıklı erişimi bozmadan başka düğüm eklenememelidir. A ve B karşılıklı erişilebilir olsa da {A,B} burada tam bileşen değildir; C de gruba eklenebilir. D ise geri dönemediği için eklenemez.</p>
+<p><strong>Neden DFS ağacı yetmez?</strong> A'dan başlatılan DFS D'ye kadar ulaşarak dört düğümü aynı ağaçta gösterebilir. Ağaç bir kaynaktan erişimi kaydeder; herkesin herkese geri dönebildiğini kanıtlamaz. Bu yüzden DFS ağacının düğümlerini doğrudan tek güçlü bağlı bileşen sayamayız.</p>
+<p><strong>D→A eklenirse.</strong> D artık A'ya; A üzerinden B ve C'ye ulaşır. Önceden diğerleri de D'ye ulaşıyordu. Böylece dört düğüm tek güçlü bağlı bileşen olur.</p>
+<p><strong>Grupları küçültmek.</strong> Her güçlü bağlı bileşeni tek kutuya dönüştürürsek burada {A,B,C}→{D} kalır. Bu bileşen grafı her zaman DAG'dır: kutular arasında çevrim olsaydı bu kutular karşılıklı erişilebilir olur ve zaten tek bileşen sayılmaları gerekirdi.</p>
+<p><strong>Kontrol ve cevap.</strong> D tek başına neden bileşendir? Bir düğüm kendisine hiç kenar kullanmadan ulaşabilir. D'nin öz çevrim oku taşıması gerekmez.</p></section><section id="ornek-22" aria-labelledby="baslik-22"><p class="eyebrow">ÖRNEK 22 / 22 · Choose the tool, then explain the evidence</p><h2 id="baslik-22">22. Önce soruyu seç, sonra kanıtı göster</h2><p><a href="../#example-22">Ders sayfasındaki örnek 22</a> · <a href="../lecture-notes.html#topic-8-1">İlgili ders notu</a></p>
+<p>Aynı graf yapısı farklı sorular için farklı algoritmalar gerektirir. Bir algoritmayı tanımak, onu her soruya uygulamak demek değildir.</p>
+<table>
+<thead>
+<tr>
+<th>Sorulan şey</th>
+<th>Uygun araç</th>
+<th>Gösterilecek kanıt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eşit maliyetli en az hareket</td>
+<td>BFS</td>
+<td>Mesafe katmanları ve ebeveynlerden yol</td>
+</tr>
+<tr>
+<td>Bir dalı araştırıp geri dönme</td>
+<td>DFS</td>
+<td>Aktif yığın, giriş ve bitiş olayları</td>
+</tr>
+<tr>
+<td>Yönlü çevrim</td>
+<td>Üç durumlu DFS</td>
+<td>Aktif ataya geri kenar ve kapalı yol</td>
+</tr>
+<tr>
+<td>Ön koşullara uygun sıra</td>
+<td>Kahn veya çevrim kontrollü ters DFS bitişi</td>
+<td>Bütün düğümler ve her okun doğru sırada olması</td>
+</tr>
+<tr>
+<td>Kritik bağlantı düğümü</td>
+<td>Yönsüz kesme düğümü analizi</td>
+<td>Silme sonrası bileşen sayısının artması</td>
+</tr>
+<tr>
+<td>Karşılıklı erişim grupları</td>
+<td>Güçlü bağlı bileşen analizi</td>
+<td>Her çift için iki yönde erişim</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Son elmas kontrolü.</strong> AB,AC,BD,CD grafında D'ye iki yol gider. Bu çevrim değildir; D'den geri dönüş yoktur. A,B,C,D ve A,C,B,D geçerli sıralardır. DFS keşif sırası A,B,D,C ise C→D koşulunu ihlal ettiğinden topolojik sıra değildir. Böylece erişmek, çevrim bulmak ve sıralamak arasındaki fark aynı küçük graf üzerinde görülebilir.</p>
+<p><strong>Kilitlenme benzetmesinin sınırı.</strong> Bekleme grafında u→v, u'nun v'nin tuttuğu kaynağı beklediği anlamına gelsin. Her kaynak türünün tek örneği olduğu standart bekleme modelinde bir bekleme çevrimi kilitlenme gösterir. Birden fazla kaynak örneği veya farklı bekleme kuralları varsa aynı kısa çıkarım her durumda geçerli değildir. Genel bir geri besleme çevrimini de işletim sistemi kilitlenmesiyle eşitlemeyin.</p>
+<p><strong>Kendi cevabınızı kurma şablonu.</strong> Önce düğüm ve okların anlamını yazın. Başlangıç ve komşu sırasını belirtin. Yığın veya kuyruğun iki-üç kritik adımını gösterin. Sonra somut sonucu yazın: rota, çevrimdeki oklar, geçerli iş sırası veya kalan düğümler. Son cümlede hangi varsayımla geçerli olduğunu söyleyin. Böyle bir cevap, yalnızca “DFS kullandım” demekten çok daha açıklayıcı ve denetlenebilirdir.</p></section></main></div><footer><a href="../">Hafta 9 dersine dön</a> · Açıklamalar, haftanın 22 örneğiyle aynı sıradadır.</footer></body></html>
