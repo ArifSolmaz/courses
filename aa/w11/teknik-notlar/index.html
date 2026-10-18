@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AA 11. Hafta · 22 örnek için Türkçe teknik notlar</title><link rel="stylesheet" href="notes.css"></head><body><header><a href="../">← Week 11 · Örneklere dön</a><a href="notlar.md" download>Markdown indir</a><button type="button" onclick="window.print()">Yazdır / PDF</button></header><div class="layout"><aside aria-label="İçindekiler"><h2>22 örnek · İçindekiler</h2><a href="#baslangic">Kavramlar ve sayım kuralları</a><ol><li><a href="#ornek-1"><span>1</span>En ucuz ağ ile en ucuz yolculuk farklıdır</a></li><li><a href="#ornek-2"><span>2</span>Daha az yol parçası daha az süre demek değildir</a></li><li><a href="#ornek-3"><span>3</span>Her kenara aynı sayıyı eklemek sonucu bozabilir</a></li><li><a href="#ornek-4"><span>4</span>Gevşetme, daha ucuz teklif sınamasıdır</a></li><li><a href="#ornek-5"><span>5</span>Maliyet kaydından gerçek rotayı çıkarmak</a></li><li><a href="#ornek-6"><span>6</span>Dijkstra en küçük geçerli teklifi kesinleştirir</a></li><li><a href="#ornek-7"><span>7</span>Beş düğümlü W grafını takip etmek</a></li><li><a href="#ornek-8"><span>8</span>Eski kuyruk kaydı yeniden işlenecek yeni bir rota değildir</a></li><li><a href="#ornek-9"><span>9</span>İlk mola: üç farklı toplamı ayırmak</a></li><li><a href="#ornek-10"><span>10</span>Tek negatif kenar kesinleştirme kuralını bozabilir</a></li><li><a href="#ornek-11"><span>11</span>Bellman–Ford teklifleri yeniden değerlendirir</a></li><li><a href="#ornek-12"><span>12</span>Kenar listesi sırası ara tabloları değiştirir</a></li><li><a href="#ornek-13"><span>13</span>n−1 tur sınırının gerekçesi</a></li><li><a href="#ornek-14"><span>14</span>Negatif çevrim maliyeti sınırsız azaltır</a></li><li><a href="#ornek-15"><span>15</span>DAG&#x27;da sıra, öncelik kuyruğunun yerini alır</a></li><li><a href="#ornek-16"><span>16</span>İkinci mola: üç negatif durumu ayırmak</a></li><li><a href="#ornek-17"><span>17</span>Floyd–Warshall bütün çiftleri bir tabloda tutar</a></li><li><a href="#ornek-18"><span>18</span>Kendi ağırlıklı oklarınızla deney yapmak</a></li><li><a href="#ornek-19"><span>19</span>Python Dijkstra kodunu satır satır okumak</a></li><li><a href="#ornek-20"><span>20</span>Robot daha fazla hareketle daha az maliyet ödeyebilir</a></li><li><a href="#ornek-21"><span>21</span>A*: ödenen maliyete kalan iş tahminini eklemek</a></li><li><a href="#ornek-22"><span>22</span>Algoritmayı isminden değil koşullarından seçmek</a></li></ol></aside><main><div class="intro" id="baslangic"><h1>AA · 11. Hafta — 22 örneğin Türkçe teknik açıklaması</h1>
+<p>Bu notlar <strong>en kısa yollar</strong> dersindeki 22 kartı aynı sırayla açıklar. 9 ve 16 numaralı mola kartları cevaplı tekrar içerir. Her bölümün başındaki bağlantılar aynı örneğe ve ilgili ders notuna gider. Hesaplar, karşı örnekler ve cevaplar açılır menü arkasında değildir.</p>
+<h2>Başlamadan: neyi en aza indiriyoruz?</h2>
+<p>Geçen hafta bütün kabloların kurulum toplamını azaltıyorduk. Bu hafta bir başlangıçtan hedefe giderken <strong>rotada kullanılan kenarların ağırlıklarını</strong> topluyoruz. Ağırlık metre, süre veya modellenmiş enerji maliyeti olabilir; hangi birim olduğu belirtilmelidir.</p>
+<ul>
+<li><strong>Kaynak:</strong> Başlangıç düğümü. <strong>Hedef:</strong> Ulaşılmak istenen düğüm.</li>
+<li><strong>Yönlü kenar:</strong> A→B yalnızca o yönde geçiş sağlar. B→A ayrıca verilmedikçe varsayılmaz.</li>
+<li><strong>Rota maliyeti:</strong> Kenar ağırlıklarının toplamı. Düğüm veya kenar sayısı olmak zorunda değildir.</li>
+<li><strong>dist / distance:</strong> Şimdiye kadar bulunan en iyi maliyet kaydı. Algoritmanın ortasında her kayıt kesin cevap değildir.</li>
+<li><strong>∞:</strong> Henüz rota bulunmadı; başarılı algoritmanın sonunda kalırsa erişilemez demektir. Gerçek bir çok uzun yolculuk süresi değildir.</li>
+<li><strong>−∞:</strong> Maliyet aşağı doğru sınırsız azaltılabilir; en küçük sonlu maliyet yoktur. “Sonsuz hızda gidiliyor” anlamına gelmez.</li>
+<li><strong>Relaxation / gevşetme:</strong> Bir kenar üzerinden daha ucuz teklif bulunup bulunmadığını sınama. Daha ucuzsa mesafeyi ve ebeveyni birlikte güncelleme.</li>
+<li><strong>Parent / ebeveyn:</strong> Seçilen rotada hedefin hemen öncesindeki düğüm. Geriye doğru takip edilerek rota çıkarılır.</li>
+<li><strong>Kesinleştirme:</strong> İlgili algoritmanın koşulları altında bir mesafenin artık değişmeyeceğini belirleme. İlk keşif ile aynı şey değildir.</li>
+<li><strong>n ve m:</strong> Düğüm ve kenar sayıları. O ifadesi büyüme üst sınırı, Θ aynı mertebede alt ve üst sınırdır; saniye belirtmez.</li>
+</ul>
+<p>Negatif çevrimleri konuşurken kenar veya düğümlerin tekrar kullanılabildiği yürüyüşler dikkate alınır. Yalnızca düğüm tekrarsız basit yollar arasında optimizasyon yapmak farklı bir problemdir. Bu ayrım, “maliyet neden sonsuza kadar azalıyor?” sorusunun temelidir.</p></div><section id="ornek-1" aria-labelledby="baslik-1"><p class="eyebrow">ÖRNEK 1 / 22 · The cheapest network is not the cheapest trip</p><h2 id="baslik-1">1. En ucuz ağ ile en ucuz yolculuk farklıdır</h2><p><a href="../#example-1">Ders sayfasındaki örnek 1</a> · <a href="../lecture-notes.html#topic-0-1">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> Yönsüz üçgende AB=2, BC=2, AC=3. Bütün düğümleri bağlayan en ucuz ağaç AB ve BC'dir; toplam kurulum maliyeti 4 olur.</p>
+<table>
+<thead>
+<tr>
+<th>Soru</th>
+<th>Seçim</th>
+<th style="text-align: right;">Toplanan miktar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bütün ağı en ucuza kur</td>
+<td>AB ve BC</td>
+<td style="text-align: right;">2+2=4</td>
+</tr>
+<tr>
+<td>Özgün grafta A'dan C'ye en ucuza git</td>
+<td>AC</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>Sadece kurulmuş ağaç üzerinde A'dan C'ye git</td>
+<td>A—B—C</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neden farklı sonuç?</strong> İlk soruda bütün cihazların bağlı olması zorunludur. İkinci soruda belirli bir başlangıç ve hedef vardır; diğer bütün düğümleri ziyaret etmemiz gerekmez. Aynı grafı kullansak da amaç fonksiyonu değişmiştir.</p>
+<p><strong>Hangi bağlantılar kullanılabilir?</strong> Eğer yalnızca MST kabloları fiziksel olarak kurulduysa AC artık seçenek değildir. “AC daha kısa” karşılaştırması özgün grafın olası bağlantılarına göredir. Problemi yazarken rota hangi graf üzerinde aranıyor, bunu açıkça söyleyin.</p>
+<p>DFS erişilebilirliği bulur ama genel ağırlıklı en kısa yol garantisi vermez. Topolojik sıra, yönlü ön koşulları sıralar; tek başına rota maliyetlerini hesaplamaz. Bu hafta uygun sıralamayla birlikte maliyet güncellemeleri yapacağız.</p>
+<p><strong>Kontrol ve cevap.</strong> MST mutlaka A–C en kısa rotasını içerir mi? Hayır. Bu küçük üçgen, 3 maliyetli doğrudan bağlantının MST dışında kalabildiğini gösterir.</p></section><section id="ornek-2" aria-labelledby="baslik-2"><p class="eyebrow">ÖRNEK 2 / 22 · Fewer roads can still take longer</p><h2 id="baslik-2">2. Daha az yol parçası daha az süre demek değildir</h2><p><a href="../#example-2">Ders sayfasındaki örnek 2</a> · <a href="../lecture-notes.html#topic-1-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> A→D doğrudan kenarı 10; A→B, B→C, C→D kenarlarının her biri 1 olsun. Okların ters yönü verilmemiştir.</p>
+<pre><code class="language-text">Doğrudan: A ──10──→ D           1 kenar, toplam 10
+Dolaylı:  A ─1→ B ─1→ C ─1→ D  3 kenar, toplam 3
+</code></pre>
+<p>BFS, kaynaktan kenar sayısına göre katmanlar oluşturur. D bir kenarla bulunur ve BFS en az hareket sayısını 1 olarak doğru hesaplar. Ancak süreyi soruyorsak 10 yerine 1+1+1=3 daha iyidir. BFS yanlış problemi çözmüş olmaz; bizim istediğimiz ölçütle onun garanti ettiği ölçüt farklıdır.</p>
+<p><strong>Eşit maliyet özel durumu.</strong> Her kenar aynı pozitif c maliyetini taşıyorsa k kenarlı rota kc tutar. k küçülünce kc de küçülür; bu nedenle BFS yeterlidir. Bu örnekte bütün kenarları 1 yaparsak doğrudan rota 1, dolaylı rota 3 olur.</p>
+<p><strong>Mühendislik yorumu.</strong> Tek koridor çamurlu, dolambaçlı veya yavaş olabilir. Üç kısa hareket, tek uzun hareketten daha çabuk bitebilir. Çizgideki kenar sayısı veya çizginin ekrandaki uzunluğu ağırlığın yerine geçmez.</p>
+<p><strong>Kontrol ve cevap.</strong> “Hedefi ilk buldum, en ucuz rota budur” diyebilir miyiz? Farklı ağırlıklarda hayır. Önce arama yönteminin neye göre ilerlediğini bilmeliyiz.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 22 · Adding the same number can change the winner</p><h2 id="baslik-3">3. Her kenara aynı sayıyı eklemek sonucu bozabilir</h2><p><a href="../#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-1-2">İlgili ders notu</a></p>
+<p>Başlangıçta üç kenarlı rota 1+1+1=3, doğrudan rota 4 tutuyor. Her kenara 10 ekleyelim.</p>
+<table>
+<thead>
+<tr>
+<th>Rota</th>
+<th style="text-align: right;">Eski toplam</th>
+<th style="text-align: right;">Eklenen toplam</th>
+<th style="text-align: right;">Yeni toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Üç kenarlı</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3×10=30</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr>
+<td>Tek kenarlı</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1×10=10</td>
+<td style="text-align: right;">14</td>
+</tr>
+</tbody>
+</table>
+<p>Önce üç kenarlı rota kazanıyordu; şimdi doğrudan rota kazanır. Aynı sayı her <strong>kenara</strong> eklendi, her <strong>rotaya</strong> değil. Kenar sayıları farklıysa toplam ek ücretler de farklıdır.</p>
+<p><strong>Genel hesap.</strong> k kenarlı bir rotanın eski maliyeti L ise, kenar başına c eklenince yeni maliyet L+kc olur. İki rota aynı k değerine sahipse ikisi de aynı miktarda artar ve kendi aralarındaki sıralama korunur. Bütün rota adaylarının aynı sayıda kenar taşıdığı varsayımı genel graflarda doğru değildir.</p>
+<p><strong>Negatif ağırlıkla bağlantı.</strong> “En küçük ağırlık −10; hepsine 10 ekler, Dijkstra çalıştırırım” yöntemi genel olarak geçersizdir. Negatif sayıları kaldırırken sorunun en iyi cevabını da değiştirebilir. Farklı, ispatlı yeniden ağırlıklandırma yöntemleri vardır; bunlar her kenara gelişigüzel sabit eklemek değildir.</p>
+<p><strong>Çarpma farkı.</strong> Bütün ağırlıkları aynı pozitif sayıyla çarpmak her rotanın toplamını da aynı pozitif sayıyla çarpar; rota karşılaştırmalarını korur. Toplama ve çarpmanın etkisi bu yüzden aynı değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> İki rota da iki kenarlıysa +10 değişikliği ne yapar? İkisine de +20 ekler; birbirlerine göre hangisinin ucuz olduğu değişmez.</p></section><section id="ornek-4" aria-labelledby="baslik-4"><p class="eyebrow">ÖRNEK 4 / 22 · Relax means: test a cheaper offer</p><h2 id="baslik-4">4. Gevşetme, daha ucuz teklif sınamasıdır</h2><p><a href="../#example-4">Ders sayfasındaki örnek 4</a> · <a href="../lecture-notes.html#topic-1-4">İlgili ders notu</a></p>
+<p><strong>Durum.</strong> A'dan B'ye bulunan maliyet 2. B→C kenarı 1. C'nin mevcut kaydı 5 olsun.</p>
+<pre><code class="language-text">aday = dist[B] + ağırlık(B,C) = 2 + 1 = 3
+3 &lt; 5 olduğu için:
+    dist[C] = 3
+    parent[C] = B
+</code></pre>
+<p>Aday rota, B'ye kadar bildiğimiz rotaya B→C kenarını ekleyerek oluşur. Bu, soyut bir tahmin değil, bulunan bir rota maliyetidir. Fakat daha ucuz başka bir rota sonradan bulunabilir; “şimdiye kadar en iyi” ile “kesin en iyi” ayrılır.</p>
+<table>
+<thead>
+<tr>
+<th>C'nin mevcut kaydı</th>
+<th style="text-align: right;">Teklif</th>
+<th>Karar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>∞</td>
+<td style="text-align: right;">3</td>
+<td>İlk sonlu rota bulunur; güncelle</td>
+</tr>
+<tr>
+<td>5</td>
+<td style="text-align: right;">3</td>
+<td>Daha ucuz; güncelle</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align: right;">3</td>
+<td>Eşit; bu uygulamada değiştirme</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">3</td>
+<td>Daha pahalı; değiştirme</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ebeveyn neden birlikte güncellenir?</strong> Maliyeti 3 yazıp parent'ı A bırakmak, kayıtların farklı rotaları anlatmasına neden olur. Sayı ve onu üreten son kenar birlikte tutulmalıdır.</p>
+<p><strong>∞ kaynağı.</strong> B'ye hiç ulaşılamadıysa B'den başlayan sonlu bir teklif çıkaramayız. Bellman–Ford'da kaynağı erişilemeyen kenar atlanır. Özellikle ∞ yerine büyük bir tamsayı kullanılan kodlarda negatif ağırlık ekleyip sahte iyileşme üretmemeye dikkat edilir.</p>
+<p><strong>Kontrol ve cevap.</strong> C zaten 3 ise parent değişir mi? Bu derste katı küçüklük karşılaştırması kullanıldığı için hayır. Eşit maliyetli başka rota bulunması mevcut ebeveyni değiştirmez.</p></section><section id="ornek-5" aria-labelledby="baslik-5"><p class="eyebrow">ÖRNEK 5 / 22 · Store a parent to recover the route</p><h2 id="baslik-5">5. Maliyet kaydından gerçek rotayı çıkarmak</h2><p><a href="../#example-5">Ders sayfasındaki örnek 5</a> · <a href="../lecture-notes.html#topic-1-3">İlgili ders notu</a></p>
+<p><strong>Son kayıtlar.</strong> dist[A]=0, dist[B]=2, dist[C]=3; parent[B]=A, parent[C]=B. Kaynak A'nın ebeveyni yoktur.</p>
+<table>
+<thead>
+<tr>
+<th>İşlem</th>
+<th>Oluşan liste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hedef C ile başla</td>
+<td>C</td>
+</tr>
+<tr>
+<td>C'nin ebeveyni B</td>
+<td>C,B</td>
+</tr>
+<tr>
+<td>B'nin ebeveyni A</td>
+<td>C,B,A</td>
+</tr>
+<tr>
+<td>Kaynakta dur ve ters çevir</td>
+<td>A,B,C</td>
+</tr>
+</tbody>
+</table>
+<p>Ebeveyn okları geriye doğru kayıt okumadır; grafın C→B veya B→A yönünde geçişe izin verdiğini söylemez. Seyahat yönü ters çevrilmiş listede A→B→C'dir. Kenarları kontrol edip 2+1=3 toplamak sonucu doğrular.</p>
+<p><strong>Alt yollar neden en kısa olmalı?</strong> Sonlu en kısa rota içindeki bir alt bölüm daha ucuz bir bölümle değiştirilebilse toplam rota da ucuzlardı. Bu, ilk rotanın en kısa olmasıyla çelişir. En kısa yol algoritmalarındaki yapı bu değiştirme fikrine dayanır; negatif çevrim etkisi varsa sonlu minimumun varlığı ayrıca sorgulanır.</p>
+<p><strong>Özel durumlar.</strong> Hedef kaynakla aynıysa boş hareketli rota [A], maliyet 0'dır; negatif çevrim kaynağa geri dönebiliyorsa bu sonuç da etkilenebilir. Hedefin kaydı ∞ ise kaynak hedefe ulaşamaz; tek elemanlı hedef listesi uydurulmaz.</p>
+<p><strong>Kontrol ve cevap.</strong> Ebeveynleri ne zaman okumalıyız? Algoritma ilgili hedef için geçerli sonlu sonuç ürettikten sonra. Negatif çevrim etrafında oluşmuş parent zincirini normal en kısa rota gibi takip etmek bitmeyen döngüye veya yanlış sonuca yol açabilir.</p></section><section id="ornek-6" aria-labelledby="baslik-6"><p class="eyebrow">ÖRNEK 6 / 22 · Dijkstra finishes the smallest current offer</p><h2 id="baslik-6">6. Dijkstra en küçük geçerli teklifi kesinleştirir</h2><p><a href="../#example-6">Ders sayfasındaki örnek 6</a> · <a href="../lecture-notes.html#topic-2-1">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> A→B=2, A→C=5, B→C=1. Bütün ağırlıklar negatif değildir.</p>
+<table>
+<thead>
+<tr>
+<th>Adım</th>
+<th style="text-align: right;">A</th>
+<th style="text-align: right;">B</th>
+<th style="text-align: right;">C</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Başlangıç</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+<td>Yalnızca kaynak biliniyor</td>
+</tr>
+<tr>
+<td>A işlenir</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td>A'nın iki çıkışı teklif verir</td>
+</tr>
+<tr>
+<td>B işlenir</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td>B→C, 2+1 ile iyileştirir</td>
+</tr>
+<tr>
+<td>C işlenir</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td>Çıkış yok; sonuç tamam</td>
+</tr>
+</tbody>
+</table>
+<p>C'nin 5 ile ilk görülmesi kesinleşme değildir. B'nin 2 teklifi daha küçük olduğundan B önce işlenir ve C'yi iyileştirir. Dijkstra'nın güvenli adımı, <strong>kesinleşmemişler arasındaki en küçük geçerli mesafeyi</strong> seçmektir.</p>
+<p><strong>Negatif olmama neden gerekli?</strong> Daha büyük maliyetli bir noktadan devam etmek, negatif olmayan kenarlarda birikmiş maliyeti azaltamaz. Standart ispatta, daha ucuz olduğu varsayılan alternatif rotanın kesinleşmiş bölgeden ilk çıkışı incelenir; o sınırdaki teklif zaten seçilen en küçük tekliften daha ucuz olmak zorunda olurdu. Bu da seçimle çelişir.</p>
+<p><strong>Sıfır ağırlık olabilir mi?</strong> Evet. Sıfır kenarı maliyeti artırmaz ama azaltmaz da. Bu nedenle Dijkstra için “pozitif” yerine “negatif olmayan” koşulu kullanılır.</p>
+<p><strong>Kontrol ve cevap.</strong> Kesinleşme, bütün olası rotaların denenmesi mi? Hayır. Uygun sırayla verilen karar ve ağırlık koşulu, geri kalan rotaları tek tek saymadan sonucun doğruluğunu garanti eder.</p></section><section id="ornek-7" aria-labelledby="baslik-7"><p class="eyebrow">ÖRNEK 7 / 22 · Follow the lecture’s five-vertex graph</p><h2 id="baslik-7">7. Beş düğümlü W grafını takip etmek</h2><p><a href="../#example-7">Ders sayfasındaki örnek 7</a> · <a href="../lecture-notes.html#topic-2-5">İlgili ders notu</a></p>
+<p>Bu örnek yönsüzdür. Kenarlar AB=4, AC=1, BC=2, BD=5, CD=8, DE=3, CE=10. Kaynak A. Aynı W grafı geçen hafta MST için kullanılmıştı; bu kez sorumuz kaynak uzaklıklarıdır.</p>
+<table>
+<thead>
+<tr>
+<th>İşlenen düğüm</th>
+<th style="text-align: right;">B kaydı</th>
+<th style="text-align: right;">C kaydı</th>
+<th style="text-align: right;">D kaydı</th>
+<th style="text-align: right;">E kaydı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A, maliyet 0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>C, maliyet 1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>B, maliyet 3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>D, maliyet 8</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>E, maliyet 11</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+<p><strong>C işlenince.</strong> B için 1+2=3, eski 4'ten küçüktür. D için 1+8=9 ve E için 1+10=11 ilk tekliflerdir. B işlenince D için 3+5=8 bulunur; 9 yerini 8'e bırakır.</p>
+<p><strong>E'deki eşitlik.</strong> D işlenince 8+3=11 önerilir. E zaten C üzerinden 11'e sahiptir. <code>&lt;</code> karşılaştırması eşitlikte güncelleme yapmadığından parent[E]=C kalır. İki doğru rota vardır:</p>
+<pre><code class="language-text">A—C—E:       1+10 = 11
+A—C—B—D—E:   1+2+5+3 = 11
+</code></pre>
+<p>Son ebeveynler B←C, C←A, D←B, E←C'dir. Bu en kısa yol ağacının kenar ağırlıkları toplamı 1+2+5+10=18 olabilir; geçen haftaki MST toplamı 11'di. Bu bir hata değildir: en kısa yol ağacı kaynak uzaklıklarını, MST bütün seçilen kenarların toplamını optimize eder.</p>
+<p><strong>Kontrol ve cevap.</strong> A,B,C,D,E mesafeleri 0,3,1,8,11'dir. E'nin farklı bir ebeveynle yazılması tek başına hata değildir; aynı son maliyeti veren geçerli rotaya bakılır.</p></section><section id="ornek-8" aria-labelledby="baslik-8"><p class="eyebrow">ÖRNEK 8 / 22 · Old queue entries are not new routes to process</p><h2 id="baslik-8">8. Eski kuyruk kaydı yeniden işlenecek yeni bir rota değildir</h2><p><a href="../#example-8">Ders sayfasındaki örnek 8</a> · <a href="../lecture-notes.html#topic-2-2">İlgili ders notu</a></p>
+<p>Basit örnekte C önce 5, sonra 3 maliyetiyle keşfedilir. Heap kullanan kısa uygulama eski kaydı silmek yerine yeni kaydı da ekler.</p>
+<table>
+<thead>
+<tr>
+<th>Olay</th>
+<th>Mantıksal bekleyen teklifler</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A'nın çıkışları işlendi</td>
+<td>(2,B), (5,C)</td>
+</tr>
+<tr>
+<td>B çıkarıldı, C iyileşti</td>
+<td>(3,C), (5,C)</td>
+</tr>
+<tr>
+<td>C=3 çıkarılıp işlendi</td>
+<td>(5,C)</td>
+</tr>
+<tr>
+<td>C=5 çıkarıldı</td>
+<td>Eski kayıt; atlanır</td>
+</tr>
+</tbody>
+</table>
+<p>Heap'in iç dizisi tamamen sıralı görünmek zorunda değildir; garantisi en küçük öğenin verimli çıkarılmasıdır. Tablodaki sıralı yazım bekleme önceliğini anlatır.</p>
+<p><strong>Eski kayıt nasıl anlaşılır?</strong> Çıkarılan cost ile güncel distance[u] karşılaştırılır. 5≠3 olduğundan kayıt artık güncel en iyi maliyeti temsil etmez. <code>continue</code> ile bu kaydın komşuları tekrar işlenmez.</p>
+<p><strong>Prim karşılaştırması.</strong> Prim, dış düğümü ağa bağlayan tek kenarın ağırlığını öncelik yapar. Dijkstra, kaynaktan o düğüme kadar <strong>bütün rotanın</strong> maliyetini kullanır. Benzer bir öncelik kuyruğu kullanmaları aynı problemi çözdükleri anlamına gelmez.</p>
+<p><strong>Maliyet.</strong> Diziyle en küçük düğümü seçen sürüm O(n²+m), basit graf üzerinde standart heap sürümü O((n+m)log n) zamanla ifade edilir. Eski kayıtları da tutan sürümde kuyruk O(m) kayıt taşıyabilir. Ders animasyonu küçük bir listeyi sıralayarak iz üretir; bu görsel kodu doğrudan verimli heap uygulamasının çalışma süresi diye yorumlanmamalıdır.</p>
+<p><strong>Kontrol ve cevap.</strong> B→C için karşılaştırılan sayı nedir? dist[B]+weight(B,C). Yalnızca kenarın ağırlığı değil.</p></section><section id="ornek-9" aria-labelledby="baslik-9"><p class="eyebrow">ÖRNEK 9 / 22 · Take a short break</p><h2 id="baslik-9">9. İlk mola: üç farklı toplamı ayırmak</h2><p><a href="../#example-9">Ders sayfasındaki örnek 9</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>64–74. dakikalar arasındaki moladan sonra şu soruları birer hesapla cevaplayın.</p>
+<p><strong>1. A→D=10 ile üç tane 1'lik kenarı karşılaştırın.</strong> En az kenarlı rota doğrudan olandır; en az toplam maliyetli rota üç kenarlı 3 maliyetli olandır. BFS ile ağırlıklı yol arasındaki ayrım budur.</p>
+<p><strong>2. dist[B]=2, B→C=1, dist[C]=5 ise ne değişir?</strong> C'nin mesafesi 3 ve ebeveyni B olur. Yalnızca sayıyı değiştirmek rota kaydını tutarsız bırakır.</p>
+<p><strong>3. C=5 kaydı kuyruktayken C=3 bulunursa eski kayıt ne olur?</strong> Kuyrukta kalabilir. Çıkarılınca güncel mesafeyle eşleşmediği için atlanır.</p>
+<p><strong>Kısa doğrulama.</strong> W grafında D'nin maliyetini kenarları yazarak bulun: A—C—B—D, toplam 1+2+5=8. Prim'de D'nin bağlantı anahtarı ise yalnızca BD=5 idi. Aynı düğüm için 8 ve 5'in ikisi de doğru olabilir; farklı bilgileri gösterirler.</p>
+<p><strong>Hatırlatma.</strong> Dijkstra negatif olmayan ağırlıklarda en küçük güncel teklifi kesinleştirir. İlk bulunan teklif, kesin cevap değildir.</p></section><section id="ornek-10" aria-labelledby="baslik-10"><p class="eyebrow">ÖRNEK 10 / 22 · One negative edge can break finalization</p><h2 id="baslik-10">10. Tek negatif kenar kesinleştirme kuralını bozabilir</h2><p><a href="../#example-10">Ders sayfasındaki örnek 10</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> A→B=2, A→C=5, C→B=−4. B'nin çıkış kenarı yoktur.</p>
+<table>
+<thead>
+<tr>
+<th>Rota</th>
+<th style="text-align: right;">Toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A→B</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>A→C→B</td>
+<td style="text-align: right;">5−4=1</td>
+</tr>
+</tbody>
+</table>
+<p>Bir kez kesinleştirip düğümü tekrar açmayan Dijkstra, A'dan sonra B'yi 2 ile kesinleştirir. C'nin 5 maliyeti daha büyük görünür. Fakat C'den çıkan −4 kenarı, B için 1 toplamını mümkün kılar. Negatif olmayan kenarlara dayanan ispat artık kullanılamaz.</p>
+<p><strong>Her negatif girişte sonuç yanlış mı?</strong> Hayır. Bazı örneklerde tesadüfen doğru sonuç çıkabilir. Bir karşı örnek, “bütün negatif ağırlıklı graflarda doğru” iddiasını çürütmeye yeter. Düğümleri yeniden açan bazı farklı uygulamalar bu örneği düzeltebilir; bu, standart Dijkstra'nın koşulunu ve maliyet garantisini ortadan kaldırmaz.</p>
+<p><strong>Çevrim var mı?</strong> Yok. B'den geriye giden ok olmadığı için başlangıca dönülemez. Negatif kenar ile negatif toplamlı çevrim ayrı kavramlardır. Bu örnekte sonlu en kısa mesafe vardır: B için 1.</p>
+<p><strong>Görselde ne çalışıyor?</strong> Negatif örneğin animasyonu Bellman–Ford kullanır; Python Dijkstra örneği negatif ağırlığı hata mesajıyla reddeder. Ekranda doğru sonuç görmek, negatif girişin Dijkstra ile çözüldüğü anlamına gelmez.</p>
+<p><strong>Mühendislik anlamı.</strong> −4 bir kredi veya modellenmiş enerji kazanımı olabilir; negatif yolculuk süresi değildir. Batarya kapasitesi gibi kısıtlar varsa yalnızca toplam enerji ağırlığı yeterli bir fiziksel model olmayabilir.</p></section><section id="ornek-11" aria-labelledby="baslik-11"><p class="eyebrow">ÖRNEK 11 / 22 · Bellman–Ford keeps offering improvements</p><h2 id="baslik-11">11. Bellman–Ford teklifleri yeniden değerlendirir</h2><p><a href="../#example-11">Ders sayfasındaki örnek 11</a> · <a href="../lecture-notes.html#topic-3-3">İlgili ders notu</a></p>
+<p><strong>Kenar sırası.</strong> S→A=4, S→B=2, B→A=−3, A→C=1, B→C=5. Başlangıçta S=0, diğerleri ∞. Güncellemeler hemen uygulanır.</p>
+<table>
+<thead>
+<tr>
+<th>İlk turdaki kenar</th>
+<th>Hesap</th>
+<th style="text-align: right;">A</th>
+<th style="text-align: right;">B</th>
+<th style="text-align: right;">C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S→A</td>
+<td>0+4=4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>S→B</td>
+<td>0+2=2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>B→A</td>
+<td>2−3=−1</td>
+<td style="text-align: right;">−1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>A→C</td>
+<td>−1+1=0</td>
+<td style="text-align: right;">−1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>B→C</td>
+<td>2+5=7; 0'dan iyi değil</td>
+<td style="text-align: right;">−1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>Bir turda S→B→A→C boyunca üç kenarlık bilgi yayılmıştır. “Her turda tam bir kenar ilerlenir” bu yerinde güncelleme uygulaması için doğru değildir. Kenarların yararlı sırada gelmesi, yeni değerlerin aynı turda kullanılmasını sağlar.</p>
+<p><strong>İkinci tur.</strong> Bütün kenarlar yeniden incelenir. Hiçbir teklif iyileşmez. Tam bir tur değişikliksiz bittiği için erken durulabilir. Sonuç S=0,A=−1,B=2,C=0. C'nin rotası S→B→A→C; toplam 2−3+1=0.</p>
+<p><strong>Dijkstra'dan farkı.</strong> Bellman–Ford bir düğümü küçük maliyeti nedeniyle kalıcı olarak kapatmaz. Kenarları tekrar tekrar tarayıp teklifleri yeniler. Bu nedenle negatif kenarlarla çalışabilir; negatif çevrim varsa bunun etkisini ayrıca belirler.</p>
+<p><strong>Kontrol ve cevap.</strong> İlk turda sonuca ulaştığımızı sadece tabloya bakıp bilebilir miyiz? Genelde durma gerekçesi gerekir: değişikliksiz tam tur veya gerekli tur sınırı ve negatif çevrim kontrolü. Bu örnekte ikinci tur değişiklik olmadığını doğrular.</p></section><section id="ornek-12" aria-labelledby="baslik-12"><p class="eyebrow">ÖRNEK 12 / 22 · The edge order changes progress, not the answer</p><h2 id="baslik-12">12. Kenar listesi sırası ara tabloları değiştirir</h2><p><a href="../#example-12">Ders sayfasındaki örnek 12</a> · <a href="../lecture-notes.html#topic-3-4">İlgili ders notu</a></p>
+<p>Önceki örneğin <strong>listesini</strong> ters çeviriyoruz; okların yönlerini değil. Yeni sıra B→C, A→C, B→A, S→B, S→A olur.</p>
+<table>
+<thead>
+<tr>
+<th>Tur sonu</th>
+<th style="text-align: right;">S</th>
+<th style="text-align: right;">A</th>
+<th style="text-align: right;">B</th>
+<th style="text-align: right;">C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Başlangıç</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">−1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">−1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>İlk turda C'ye giden kenarlar incelenirken kaynakları henüz erişilebilir değildir. İkinci turda B→C önce 7, A→C sonra 5 verir; B→A ancak bundan sonra A'yı −1'e indirir. C'nin 0'a inmesi üçüncü turdaki A→C kenarını bekler. Son sonuç değişmez, ilerleme hızı değişir.</p>
+<p><strong>Görselin ikinci senaryosu.</strong> Ayrıca şu farklı graf gösterilir: S→A=6, S→B=7, A→C=5, B→C=−2, C→A=−3. Verilen sırayla ilk turda A önce 6, C önce 11 sonra 5 olur; C→A da A'yı 2'ye indirir. Son mesafeler A=2,B=7,C=5'tir.</p>
+<p><strong>Çevrim toplamı.</strong> İkinci grafta A→C→A çevrimi vardır ama maliyeti 5−3=2'dir. Tekrar etmek maliyeti azaltmaz, artırır. Grafın çevrimli olması, negatif çevrimli olması demek değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> İki öğrencinin ilk tur tabloları neden farklı olabilir? Kenar sırası veya güncelleme yöntemi farklı olabilir. Her tur önceki tablonun kopyasını kullanan sürümle yerinde güncelleme sürümü de farklı ara tablolar üretir. Çözümde bu tercihleri belirtin.</p></section><section id="ornek-13" aria-labelledby="baslik-13"><p class="eyebrow">ÖRNEK 13 / 22 · Why n − 1 passes can be enough</p><h2 id="baslik-13">13. n−1 tur sınırının gerekçesi</h2><p><a href="../#example-13">Ders sayfasındaki örnek 13</a> · <a href="../lecture-notes.html#topic-3-6">İlgili ders notu</a></p>
+<p>n düğümlü bir basit yol, düğüm tekrarlamadan en fazla n−1 kenar kullanır. Beş farklı düğümün zinciri dört bağlantı içerir.</p>
+<p><strong>Neden basit bir en kısa yol arayabiliriz?</strong> Kaynaktan erişilebilir negatif çevrim yoksa, bir yürüyüşte tekrar edilen çevrimlerin toplamı negatif değildir. Bu çevrimleri çıkarmak maliyeti artırmaz. Sonlu minimuma ulaşan, düğüm tekrarsız bir yol seçilebilir. Pozitif çevrimi kaldırmak ucuzlatır; sıfır çevrimi kaldırmak aynı maliyeti korur.</p>
+<p><strong>Tur garantisi.</strong> İlk tam tarama kaynaktan tek kenarla ulaşılabilen bütün tekliflere fırsat verir. İkinci tarama, önceki turda bulunan teklifleri bir kenar daha ileri taşımaya fırsat verir. k turdan sonra en fazla k kenarlı yolların bilgisi yayılabilecek kadar işlem yapılmıştır.</p>
+<p>Yerinde güncellemede daha uzun yolların bilgisi de aynı turda yayılabilir. Garanti “en fazla k kenar kullanılabilir” sınırlaması değil, “en az bu kadar ilerleme fırsatı sağlandı” alt güvencesidir. Bu yüzden bazı örnekler n−1 turdan önce biter.</p>
+<p><strong>Beş düğümde.</strong> En fazla dört gevşetme turu, ardından daha fazla iyileşme mümkün mü kontrolü yapılır. Hiçbir tam turda değişiklik yoksa erken çıkılabilir. n−1 sınırı, kenar listesini sadece n−1 kenara kadar taramak demek değildir; her tur bütün m kenarı tarar.</p>
+<p><strong>Maliyet.</strong> Standart en kötü durum O(nm), düğüm başlangıç kayıtlarıyla birlikte O(n+nm) olarak yazılabilir. m=0 olduğunda bile n kayıt hazırlanır. Bu hesap animasyon çizimi veya bütün ara tabloları saklama maliyetini kapsamaz.</p></section><section id="ornek-14" aria-labelledby="baslik-14"><p class="eyebrow">ÖRNEK 14 / 22 · A loop can make the cost fall forever</p><h2 id="baslik-14">14. Negatif çevrim maliyeti sınırsız azaltır</h2><p><a href="../#example-14">Ders sayfasındaki örnek 14</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> S→A=1, A→B=2, B→C=−4, C→A=1. Çevrimin toplamı 2−4+1=−1'dir.</p>
+<table>
+<thead>
+<tr>
+<th>A'ya varış biçimi</th>
+<th style="text-align: right;">Toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S→A, çevrim yok</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Bir çevrim daha</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>İki çevrim daha</td>
+<td style="text-align: right;">−1</td>
+</tr>
+<tr>
+<td>k çevrim daha</td>
+<td style="text-align: right;">1−k</td>
+</tr>
+</tbody>
+</table>
+<p>Ne kadar küçük bir değer yazarsanız yazın, bir tur daha atıp onu 1 azaltabilirsiniz. Bu nedenle “en küçük sonlu maliyet” yoktur. −∞ bu durumu ifade eder; gerçekleştirilmiş tek bir sonsuz uzun rotanın maliyeti diye yorumlanmaz.</p>
+<p><strong>Hangi düğümler etkilenir?</strong> Kaynak çevrime ulaşabilmeli, çevrim de hedefe ulaşabilmelidir. Bu örnekte A,B,C etkilenir. Çevrimden S'ye geri ok yoktur; S'nin mesafesi 0 kalır. C→D eklenirse D çevrimin üzerinde olmasa da etkilenir: önce çevrimde istenildiği kadar maliyet azaltılır, sonra D'ye gidilir.</p>
+<p><strong>Erişilemeyen çevrim.</strong> Başka bir bölgede negatif çevrim olup S'den oraya geçiş yoksa S kaynaklı mesafeler etkilenmez. Bu nedenle Bellman–Ford kontrolü yalnızca sonlu dist[u] kaydı olan kaynaklardan gelen iyileşmeleri dikkate alır.</p>
+<p><strong>Tespit.</strong> n−1 turdan sonra hâlâ bir kenarda iyileşme varsa kaynaktan erişilebilir negatif çevrim vardır. Etkilenen düğümleri işaretlemek için bu iyileşmelerden ileri yönde erişimi de yaymak gerekir. Sadece ilk iyileşen düğüme −∞ yazmak eksik kalabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Her düğüm −∞ olur mu? Hayır. Erişim yönleri belirleyicidir. Sonlu, erişilemez ve aşağı sınırsız sonuçlar ayrı tutulmalıdır.</p></section><section id="ornek-15" aria-labelledby="baslik-15"><p class="eyebrow">ÖRNEK 15 / 22 · A DAG lets us process each vertex once</p><h2 id="baslik-15">15. DAG&#x27;da sıra, öncelik kuyruğunun yerini alır</h2><p><a href="../#example-15">Ders sayfasındaki örnek 15</a> · <a href="../lecture-notes.html#topic-4-1">İlgili ders notu</a></p>
+<p>A→B=2, A→C=5, C→B=−4 grafı çevrimsizdir. Geçerli topolojik sıra <strong>A,C,B</strong>'dir; çünkü C→B oku C'nin B'den önce gelmesini ister.</p>
+<table>
+<thead>
+<tr>
+<th>İşlenen</th>
+<th>Yapılan güncellemeler</th>
+<th>Son kayıtlar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>B'ye 2, C'ye 5 teklif et</td>
+<td>A=0,C=5,B=2</td>
+</tr>
+<tr>
+<td>C</td>
+<td>B'ye 5−4=1 teklif et</td>
+<td>A=0,C=5,B=1</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Çıkış yok</td>
+<td>Aynı</td>
+</tr>
+</tbody>
+</table>
+<p>B işlendiğinde ona gelebilecek bütün öncüller zaten işlenmiştir. Daha sonra gelecek bir düğümden B'ye ok olamaz; olsaydı topolojik sıra geçersiz olurdu. Güvenliği bu kez negatif olmayan ağırlıklar değil, okların sırada hep ileri gitmesi sağlar.</p>
+<p><strong>Week 9 ile bağlantı.</strong> Topolojik sıralamayı DFS veya Kahn ile bulmuştuk. Burada o sırayı rota maliyetlerini güncellemek için kullanıyoruz. Topolojik sıra tek başına mesafe değildir; her düğümün çıkışları üzerinde gevşetme yapılır.</p>
+<p><strong>Koşullar.</strong> Önce grafın gerçekten DAG olduğunu doğrulamak gerekir. Erişilemeyen düğümün mesafesi ∞ kalır ve oradan sonlu teklif üretilmez. Bütün topolojik sıralar aynı son mesafeleri verir; eşit rotaların ebeveynleri farklı olabilir.</p>
+<p><strong>Maliyet.</strong> Topolojik sıra ve bütün kenar güncellemeleri komşuluk listeleriyle O(n+m) zamanda yapılabilir. Negatif kenar var diye her zaman daha pahalı Bellman–Ford'a ihtiyaç duyulmaz.</p>
+<p><strong>Kontrol ve cevap.</strong> A,B,C sırası neden yanlış? C→B kuralını ihlal eder; B, C'nin daha ucuz teklifini almadan işlenmiş olur.</p></section><section id="ornek-16" aria-labelledby="baslik-16"><p class="eyebrow">ÖRNEK 16 / 22 · Take a short break</p><h2 id="baslik-16">16. İkinci mola: üç negatif durumu ayırmak</h2><p><a href="../#example-16">Ders sayfasındaki örnek 16</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>122–132. dakikalar arasındaki moladan sonra aşağıdaki ayrımı kendi grafınızla doğrulayın.</p>
+<table>
+<thead>
+<tr>
+<th>Durum</th>
+<th>Örnek</th>
+<th>Ne sonuç çıkar?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Negatif kenar, çevrim yok</td>
+<td>A→C=5, C→B=−4</td>
+<td>Sonlu en kısa yol olabilir</td>
+</tr>
+<tr>
+<td>Çevrim var, toplam pozitif</td>
+<td>A→C=5, C→A=−3</td>
+<td>Çevrim maliyeti 2; tekrar ucuzlatmaz</td>
+</tr>
+<tr>
+<td>Erişilebilir negatif çevrim</td>
+<td>A→B=2, B→C=−4, C→A=1</td>
+<td>Etkilediği hedeflerde sonlu minimum yok</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Soru.</strong> Negatif kenarı kaldırmak için hepsine +10 eklesek? Genel olarak olmaz; farklı sayıda kenar içeren rotalar farklı miktarda pahalılaşır.</p>
+<p><strong>Soru.</strong> DAG'da negatif ağırlık varsa? Topolojik sırayla gevşetme geçerlidir. DAG çevrim içeremediği için negatif çevrim de içeremez.</p>
+<p><strong>Soru.</strong> Bellman–Ford ilk turda birkaç kenar ilerleyebilir mi? Yerinde güncellemede evet. Kenar sırası uygun olduğunda yeni bilgi aynı turda sonraki kenara aktarılır.</p>
+<p><strong>Kısa hesap.</strong> S→B=2, B→A=−3, A→C=1 için toplam 0. Sonucun 0 olması yol bulunmadığı anlamına gelmez; gerçek, sonlu ve üç kenarlı bir rota vardır. Erişilemezlik ∞ ile gösterilir.</p></section><section id="ornek-17" aria-labelledby="baslik-17"><p class="eyebrow">ÖRNEK 17 / 22 · Floyd–Warshall answers every pair</p><h2 id="baslik-17">17. Floyd–Warshall bütün çiftleri bir tabloda tutar</h2><p><a href="../#example-17">Ders sayfasındaki örnek 17</a> · <a href="../lecture-notes.html#topic-4-2">İlgili ders notu</a></p>
+<p><strong>Veri.</strong> A→B=2, B→C=1, A→C=5. Satır başlangıç, sütun hedef olsun. Başlangıçta doğrudan kenarlar yazılır, köşegene 0, bulunmayan bağlantılara ∞ konur.</p>
+<table>
+<thead>
+<tr>
+<th>Başlangıç / hedef</th>
+<th style="text-align: right;">A</th>
+<th style="text-align: right;">B</th>
+<th style="text-align: right;">C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>B</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>C</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>B ara düğümüne izin verildiğinde A→C için 2+1=3 denenir ve 5 yerine 3 yazılır. Diğer girişler bu graf için değişmez. C→A hâlâ ∞'dir; A→C bulunması ters yönü oluşturmaz.</p>
+<p><strong>Güncelleme.</strong> Her ara düğüm k için bütün i,j çiftlerinde <code>dist[i,k]+dist[k,j]</code> ile <code>dist[i,j]</code> karşılaştırılır. k dış döngü olmalıdır: her aşamanın anlamı, şimdiye kadar izin verilen ara düğümler üzerinden en iyi rota bilgisidir. İç ve dış döngüleri rastgele yer değiştirmek aynı tek geçiş garantisini vermez.</p>
+<p><strong>Maliyet.</strong> n ara düğüm × n başlangıç × n hedef = n³ karşılaştırma ölçeği. n iki katına çıkınca 2³=8 kat olur. n=200 için 8.000.000 çift denetimi vardır; bu sayı süre değildir. Tablo n² alan tutar. Standart sürüm Θ(n³) zaman ve Θ(n²) alan kullanır.</p>
+<p><strong>Negatif çevrim.</strong> Çalışma sonunda negatif köşegen, bir düğümün kendisine negatif maliyetle dönebildiğini gösterir. Bu durumda çıkan sonlu sayılar etkilenen çiftlerde en kısa mesafe diye sunulamaz. i çevrime ulaşabiliyor ve çevrim j'ye ulaşabiliyorsa o çift için −∞ işaretlemesi ayrıca gerekir.</p>
+<p><strong>Kontrol ve cevap.</strong> Bu yöntem yalnızca A'dan mı hesaplar? Hayır; bütün kaynak–hedef çiftlerini aynı tabloda hesaplar. Bu yüzden tek kaynak sorusuna göre daha fazla iş yapabilir.</p></section><section id="ornek-18" aria-labelledby="baslik-18"><p class="eyebrow">ÖRNEK 18 / 22 · Try your own weighted arrows</p><h2 id="baslik-18">18. Kendi ağırlıklı oklarınızla deney yapmak</h2><p><a href="../#example-18">Ders sayfasındaki örnek 18</a> · <a href="../lecture-notes.html#topic-1-4">İlgili ders notu</a></p>
+<p>Editörde düğümler A–E, kaynak A olarak sabittir. <code>A B 4</code>, A→B maliyeti 4 demektir; çift yönlü koridor değildir. Editör Bellman–Ford hesaplar; bu nedenle negatif girişleri de inceleyebilir.</p>
+<p><strong>Deney 1: kısayol.</strong></p>
+<pre><code class="language-text">A B 4
+A C 1
+C B 1
+</code></pre>
+<p>A=0,C=1,B=2 olur. B'nin ebeveyni C'dir; doğrudan 4 yerine 1+1=2 kazanır. D ve E ∞ kalır. Satırları farklı sırada yazmak ara turları değiştirebilir ama bu son mesafeleri değiştirmez.</p>
+<p><strong>Deney 2: negatif çevrim ve devamındaki hedef.</strong></p>
+<pre><code class="language-text">A B 1
+B C -2
+C B 1
+C D 3
+</code></pre>
+<p>B→C→B çevrimi −1'dir. A çevrime ulaşır. B,C ve çevrimden çıkışla ulaşılabilen D aşağı sınırsızdır: −∞. A'ya geri ok olmadığı için A=0 kalır. E erişilemez: ∞. Aynı graf üzerinde üç farklı sonuç türü birlikte görülür.</p>
+<p><strong>Deney 3: boş liste.</strong> A=0, B,C,D,E=∞. Kaynak kendi konumuna sıfır hareketle ulaşır; boş kenar listesi diğer düğümleri silmez.</p>
+<p><strong>Editör sınırları.</strong> Kendine oklar ve aynı yönlü uç çiftinin tekrarı kabul edilen modelin dışında; ters oklar ise ayrı geçişlerdir. Matematikte negatif kendine ok bir negatif çevrimdir, ancak bu editör onu girmenize izin veren genel amaçlı bir graf sistemi değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> Negatif ok yazınca mutlaka −∞ mi çıkar? Hayır. Erişilebilir negatif toplamlı çevrim ve hedefine doğru erişim gerekir. Tek bir negatif kenar sonlu bir rotanın parçası olabilir.</p></section><section id="ornek-19" aria-labelledby="baslik-19"><p class="eyebrow">ÖRNEK 19 / 22 · Run Dijkstra in Python</p><h2 id="baslik-19">19. Python Dijkstra kodunu satır satır okumak</h2><p><a href="../#example-19">Ders sayfasındaki örnek 19</a> · <a href="../lecture-notes.html#topic-2-2">İlgili ders notu</a></p>
+<p>Ana örnekteki Run düğmesi aşağıdaki kodu çalıştırır. <code>input()</code> yoktur; graf doğrudan sözlükte tanımlıdır. Her çalıştırma başlangıç kayıtlarını yeniden oluşturur.</p>
+<pre><code class="language-python"><span class="code-line"><span class="line-number" aria-hidden="true">1</span>import heapq</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">2</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">3</span>graph = {&quot;A&quot;: [(&quot;B&quot;, 2), (&quot;C&quot;, 5)],</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">4</span>         &quot;B&quot;: [(&quot;C&quot;, 1)], &quot;C&quot;: []}</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">5</span>if any(weight &lt; 0 for edges in graph.values() for _, weight in edges):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">6</span>    raise ValueError(&quot;Dijkstra requires nonnegative weights&quot;)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">7</span>distance = {v: float(&quot;inf&quot;) for v in graph}</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">8</span>parent = {v: None for v in graph}</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">9</span>distance[&quot;A&quot;] = 0</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">10</span>queue = [(0, &quot;A&quot;)]</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">11</span>while queue:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">12</span>    cost, u = heapq.heappop(queue)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">13</span>    if cost != distance[u]:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">14</span>        continue</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">15</span>    for v, weight in graph[u]:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">16</span>        candidate = cost + weight</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">17</span>        if candidate &lt; distance[v]:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">18</span>            distance[v] = candidate</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">19</span>            parent[v] = u</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">20</span>            heapq.heappush(queue, (candidate, v))</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">21</span>print(&quot;Distances:&quot;, distance)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">22</span>print(&quot;Parents:&quot;, parent)</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Satır</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>En küçük öğeyi çıkaran heap işlemlerini kullanmak için <code>heapq</code> yükler.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Okunabilirlik için boş satırdır.</td>
+</tr>
+<tr>
+<td>3–4</td>
+<td>Her düğümün çıkışlarını (hedef, ağırlık) çiftleri olarak yazar. C'nin çıkış listesi boştur.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Bütün kenar ağırlıklarını tarar; herhangi biri negatif mi diye kontrol eder. <code>_</code>, bu kontrolde kullanılmayan hedef etiketidir.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Negatif varsa algoritmayı çalıştırmadan anlaşılır hata verir.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Bütün mesafe kayıtlarını ∞ yapar; henüz hiçbir rota bulunmadı.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Ebeveynleri <code>None</code> yapar; henüz önceki düğüm bilinmiyor.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Kaynağın kendisine maliyetini 0 olarak ayarlar.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Başlangıç kuyruğuna yalnızca (0,A) teklifini koyar.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Bekleyen kayıt kaldığı sürece döngüyü sürdürür.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>En küçük maliyetli kaydı çıkarır; <code>cost</code> maliyet, <code>u</code> düğümdür.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Bu kayıt sonradan iyileşmiş eski bir teklif mi diye karşılaştırır.</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Eskiyse komşulara bakmadan sonraki kayda geçer.</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Güncel u düğümünden çıkan bütün kenarları dolaşır.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>u'ya kadar ödenen maliyete yeni kenarın ağırlığını ekler.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Adayın mevcut v kaydından kesin olarak küçük olup olmadığını sınar.</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Daha ucuz toplamı v'nin mesafesine yazar.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Bu iyileşmenin son kenarı u→v olduğu için ebeveyni u yapar.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Yeni teklifi heap'e ekler; eski v kaydını arayıp silmez.</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Son mesafe sözlüğünü yazdırır.</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Rotayı geri kurmaya yarayan ebeveyn sözlüğünü yazdırır.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Beklenen çıktı.</strong></p>
+<pre><code class="language-text">Distances: {'A': 0, 'B': 2, 'C': 3}
+Parents: {'A': None, 'B': 'A', 'C': 'B'}
+</code></pre>
+<p><strong>Değişiklik deneyi.</strong> B→C ağırlığını 1 yerine 10 yaparsanız B üzerinden C'ye teklif 2+10=12 olur. Doğrudan 5 daha ucuzdur: C'nin mesafesi 5, ebeveyni A kalır. B yine 2'dir. Negatif değer yazarsanız kod bilerek <code>ValueError</code> verir; bu durumda bir rota sonucu üretmesi beklenmez.</p>
+<p><strong>Veri sözleşmesi.</strong> Her hedef, sözlükte anahtar olarak da bulunmalıdır. D'ye ok ekliyorsanız <code>"D": []</code> gibi D kaydını da ekleyin. Bu kısa öğretim kodu her olası hatalı veri türünü doğrulayan genel bir kütüphane değildir. Sonlu sayısal ağırlıklar ve tanımlı düğümler kullanın.</p>
+<p><strong>Eşitlik.</strong> Maliyetler eşitse Python'un bu <code>(maliyet, harf)</code> kayıtlarında harf sırası bağlayıcı olur. Mesafe eşitliğinde güncelleme yapılmaz; mevcut ebeveyn korunur. Ebeveyn ağacı eşitlik kuralına bağlı olabilir ama en kısa maliyet değişmez. Graf editörü ile kod örneği ayrı girdilerdir; birindeki değişiklik diğerine otomatik aktarılmaz.</p></section><section id="ornek-20" aria-labelledby="baslik-20"><p class="eyebrow">ÖRNEK 20 / 22 · A robot can take more moves and arrive sooner</p><h2 id="baslik-20">20. Robot daha fazla hareketle daha az maliyet ödeyebilir</h2><p><a href="../#example-20">Ders sayfasındaki örnek 20</a> · <a href="../lecture-notes.html#topic-5-2">İlgili ders notu</a></p>
+<p><strong>Izgara.</strong> İki satır, üç sütun. Üst satır S, çamur, hedef; alt satır A,B,C. Bu harfler yalnızca bu ızgaranın hücre etiketleridir. Hareketler yukarı, aşağı, sağ, sol; çapraz hareket yok.</p>
+<pre><code class="language-text">S (başlangıç)   Çamur (8)   Hedef (1)
+A (3)          B (3)       C (1)
+</code></pre>
+<p>Ücret, <strong>girilen hücrenin</strong> maliyetidir. Başlangıçta S üzerinde bulunmak için ücret ödenmez. Görsel S'nin giriş maliyetini 1 gösterir; S'ye sonradan geri girilirse bu maliyet uygulanır.</p>
+<table>
+<thead>
+<tr>
+<th>Rota</th>
+<th style="text-align: right;">Hareket sayısı</th>
+<th style="text-align: right;">Toplam giriş maliyeti</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S→Çamur→Hedef</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8+1=9</td>
+</tr>
+<tr>
+<td>S→A→B→C→Hedef</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3+3+1+1=8</td>
+</tr>
+</tbody>
+</table>
+<p>BFS en az hareketli iki adımlı rotayı bulur. Dijkstra biriken maliyete bakarak dört adımlı 8 maliyetli rotayı seçer. Başka bir rota ara hücrelerden çamura çıkabilir; fakat negatif maliyet olmadığı için tekrarlar ucuzlatmaz ve verilen değerlerde bu dolambaçlı seçenekler 8'i iyileştirmez.</p>
+<p><strong>Hedefi unutmayın.</strong> Alt sıradaki üç hücre toplamı 7'dir ama robot henüz hedefte değildir. Hedefe girmek için +1 daha gerekir. Bu yüzden cevap 7 değil 8.</p>
+<p><strong>Çamur 1 olursa.</strong> Doğrudan rota 1+1=2 olur ve kazanır. Değişen ağırlıkla eski cevap kullanılmamalıdır.</p>
+<p><strong>Model ayrıntısı.</strong> Komşuluk iki yönde açık olsa bile giriş maliyeti farklı hücrelerde farklıdır. u'dan v'ye geçiş bedeli v'nin, ters geçiş bedeli u'nun giriş maliyetidir. Fiziksel hareket simetrik olabilir; maliyetler aynı olmak zorunda değildir.</p></section><section id="ornek-21" aria-labelledby="baslik-21"><p class="eyebrow">ÖRNEK 21 / 22 · A* adds a safe estimate of what remains</p><h2 id="baslik-21">21. A*: ödenen maliyete kalan iş tahminini eklemek</h2><p><a href="../#example-21">Ders sayfasındaki örnek 21</a> · <a href="../lecture-notes.html#topic-5-1">İlgili ders notu</a></p>
+<p>A* önceliği <code>f=g+h</code> olarak kurar. g, şimdiye kadar bulunan rotanın gerçek maliyetidir. h, hedefe kalan maliyet için iyimser tahmindir. h, ödenmiş gerçek ücret değildir.</p>
+<p>Aynı dört yönlü ızgarada her giriş maliyeti en az 1. Manhattan uzaklığı yatay ve düşey farkların toplamıdır. Hedef üst sağ hücre (0,2) ise:</p>
+<table>
+<thead>
+<tr>
+<th>Hücre</th>
+<th>Konum</th>
+<th style="text-align: right;">Manhattan h</th>
+<th style="text-align: right;">Bilinen rota g</th>
+<th style="text-align: right;">f=g+h</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S</td>
+<td>(0,0)</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Çamur</td>
+<td>(0,1)</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td>Alt sol A</td>
+<td>(1,0)</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Alt orta B</td>
+<td>(1,1)</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>Alt sağ C</td>
+<td>(1,2)</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>Hedef</td>
+<td>(0,2)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+</tr>
+</tbody>
+</table>
+<p>Tablodaki g değerleri ilgili rotalar bulunduğundaki değerlerdir; hepsi aramanın başında biliniyor değildir. S işlenince A için f=6, çamur için f=9 olur. Alt yol ilerletilir ve hedef 8 maliyetiyle çıkarılır. Bu örnekte A* çamuru işlemekten kaçınabilir; her haritada mutlaka daha az düğüm işleyeceği söylenemez.</p>
+<p><strong>Tahmin neden güvenli?</strong> Dört yönlü hareketle hedefe ulaşmak için en az Manhattan kadar hareket gerekir; her hareket en az 1 tutar. Bu nedenle h gerçek kalan maliyeti aşmaz. Ayrıca tek hareket h'yi en fazla 1 azaltabilir ve maliyeti en az 1'dir. Böylece her kenarda <code>h(u) ≤ cost(u,v)+h(v)</code> sağlanır: tahmin tutarlıdır.</p>
+<p><strong>Kapatılmış düğümler.</strong> Bu tutarlı tahminle, standart kapalı-kümeli A* kesinleşmiş hücreleri tekrar açmadan doğru sonuç verebilir. Yalnızca iyimser ama tutarsız bir tahminde daha iyi g bulununca düğümü yeniden açmak gerekebilir. Bu iki koşul aynı değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> h=0 olursa ne olur? Öncelik g olur; aynı eşitlik kuralıyla Dijkstra gibi davranır. Çapraz hareket veya sıfır maliyetli geçiş eklenirse bu Manhattan×1 gerekçesi yeniden değerlendirilmelidir.</p></section><section id="ornek-22" aria-labelledby="baslik-22"><p class="eyebrow">ÖRNEK 22 / 22 · Choose from the assumptions, not the name</p><h2 id="baslik-22">22. Algoritmayı isminden değil koşullarından seçmek</h2><p><a href="../#example-22">Ders sayfasındaki örnek 22</a> · <a href="../lecture-notes.html#topic-5-1">İlgili ders notu</a></p>
+<p>Önce okun anlamını, sonra ağırlığı, sonra hangi mesafelerin istendiğini yazın. Tek hedef, tek kaynaktan bütün hedefler ve bütün çiftler farklı çıktı kapsamlarıdır.</p>
+<table>
+<thead>
+<tr>
+<th>Koşul / ihtiyaç</th>
+<th>Uygun araç</th>
+<th>Gerekçe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bütün kenarlar eşit pozitif maliyetli</td>
+<td>BFS</td>
+<td>En az kenar, en az toplam demektir</td>
+</tr>
+<tr>
+<td>Ağırlıklar negatif değil</td>
+<td>Dijkstra</td>
+<td>En küçük teklif güvenle kesinleşir</td>
+</tr>
+<tr>
+<td>Negatif ağırlık olabilir</td>
+<td>Bellman–Ford</td>
+<td>Tekrarlanan gevşetme ve negatif çevrim kontrolü</td>
+</tr>
+<tr>
+<td>Yönlü çevrimsiz graf</td>
+<td>Topolojik gevşetme</td>
+<td>Bütün öncüller önce işlenir; negatif ağırlık da olabilir</td>
+</tr>
+<tr>
+<td>Küçük/orta boyutta bütün çiftler</td>
+<td>Floyd–Warshall düşünülebilir</td>
+<td>n×n mesafe tablosunu birlikte hesaplar</td>
+</tr>
+<tr>
+<td>Tek hedef, güvenli tahmin mevcut</td>
+<td>A*</td>
+<td>g+h ile hedefe yönelik öncelik</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Çıktıdan önce üç soru.</strong> Hedef erişilemez mi? Mesafe sonlu mu? Kaynaktan erişilebilir negatif çevrim hedefe ulaşabiliyor mu? Bu soruların cevapları sırasıyla ∞, sonlu sayı veya −∞ yorumunu belirler. Her duruma sıradan bir rota listesi yazılmaz.</p>
+<p><strong>Cevabı denetlenebilir yapmak.</strong> “Dijkstra kullandım” yerine “bütün ağırlıklar negatif değil; kaynak A; rota A→B→C; maliyet 2+1=3” yazın. Bir alternatifin neden kaybettiğini de gösterin: doğrudan rota 5. Yalnızca algoritma adı değil, model ve hesap görünür olur.</p>
+<p><strong>Özel yapıdan yararlanma.</strong> Negatif ağırlıklı bir DAG için Bellman–Ford zorunlu değildir; O(n+m) topolojik yöntem yeterlidir. Buna karşılık işler arasındaki en uzun zorunlu zinciri bulmak bir en uzun yol/çizelgeleme sorusudur; en kısa rota güncellemesini amaç değişmeden uygulamayız.</p>
+<p><strong>Robot modelini kontrol etme.</strong> Enerji kazanımı, batarya üst sınırı, yönelme ve dönüş süresi gibi etkiler varsa düğümü yalnızca konum olarak tanımlamak yetersiz olabilir. Durumun konumla birlikte yön veya enerji içermesi gerekebilir. Algoritmanın doğruluğu, verdiğimiz graf modelini doğru çözmesiyle ilgilidir; modelin bütün fiziksel gereksinimleri içerdiğini ayrıca değerlendirmeliyiz.</p></section></main></div><footer><a href="../">Hafta 11 dersine dön</a> · Açıklamalar, haftanın 22 örneğiyle aynı sıradadır.</footer></body></html>
