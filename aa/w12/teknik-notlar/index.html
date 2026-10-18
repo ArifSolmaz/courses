@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AA 12. Hafta · 22 örnek için Türkçe teknik notlar</title><link rel="stylesheet" href="notes.css"></head><body><header><a href="../">← Week 12 · Örneklere dön</a><a href="notlar.md" download>Markdown indir</a><button type="button" onclick="window.print()">Yazdır / PDF</button></header><div class="layout"><aside aria-label="İçindekiler"><h2>22 örnek · İçindekiler</h2><a href="#baslangic">Kavramlar ve sayım kuralları</a><ol><li><a href="#ornek-1"><span>1</span>En büyük parayı almak her zaman güvenli değildir</a></li><li><a href="#ornek-2"><span>2</span>Al veya atla: alt kümeleri üretmek</a></li><li><a href="#ornek-3"><span>3</span>Görev seçmek ile görev sıralamak farklıdır</a></li><li><a href="#ornek-4"><span>4</span>Eşit etiketler aynı cevabı tekrar üretebilir</a></li><li><a href="#ornek-5"><span>5</span>Dört veziri satır satır yerleştirmek</a></li><li><a href="#ornek-6"><span>6</span>Sudoku&#x27;da az seçeneği olan hücreden başlamak</a></li><li><a href="#ornek-7"><span>7</span>Dokuz milisaniyeyi tam dolduran görevleri seçmek</a></li><li><a href="#ornek-8"><span>8</span>Negatif değer, “hedefi aştıysan dur” kuralını bozar</a></li><li><a href="#ornek-9"><span>9</span>İlk mola: seçim ve budama ayrımı</a></li><li><a href="#ornek-10"><span>10</span>Fibonacci aynı soruyu tekrar tekrar sorar</a></li><li><a href="#ornek-11"><span>11</span>Memoization tamamlanan cevabı hatırlar</a></li><li><a href="#ornek-12"><span>12</span>Tabloyu bağımlılık sırasıyla doldurmak</a></li><li><a href="#ornek-13"><span>13</span>Dört basamağa çıkış yollarını saymak</a></li><li><a href="#ornek-14"><span>14</span>Durum geleceği belirleyecek kadar bilgi tutmalı</a></li><li><a href="#ornek-15"><span>15</span>Ekip seçmek: son kişiyi al veya alma</a></li><li><a href="#ornek-16"><span>16</span>İkinci mola: bağıntı aynı, anlam farklı olabilir</a></li><li><a href="#ornek-17"><span>17</span>Hiçbir etiket kendi yerinde kalmasın</a></li><li><a href="#ornek-18"><span>18</span>Tam iki kenar kullanmak ayrı bir kısıttır</a></li><li><a href="#ornek-19"><span>19</span>Merdiven tablosunu Python&#x27;da çalıştırmak</a></li><li><a href="#ornek-20"><span>20</span>Robot engelin çevresindeki rotaları sayar</a></li><li><a href="#ornek-21"><span>21</span>Robot kolunda düzeltilemeyecek çarpışmayı erken elemek</a></li><li><a href="#ornek-22"><span>22</span>Listele, say veya karar ver: doğru çıktıyı seçmek</a></li></ol></aside><main><div class="intro" id="baslangic"><h1>AA · 12. Hafta — 22 örneğin Türkçe teknik açıklaması</h1>
+<p>Bu notlar <strong>geri izleme (backtracking) ve dinamik programlama (DP)</strong> dersindeki 22 kartı aynı sırayla açıklar. 9 ve 16 numaralı mola kartlarında cevaplı tekrar bulunur. Her bölümden aynı örneğe ve ilgili ders notuna geçebilirsiniz. Açıklamalar ve cevaplar doğrudan görünür.</p>
+<h2>Başlamadan: üç farklı çıktı</h2>
+<p>“Bir çözüm var mı?”, “Kaç çözüm var?” ve “Bütün çözümleri listele” aynı soru değildir. Bir sayıyı hesaplamak, o sayıda ayrı sonucu ekrana yazmaktan çok daha az iş gerektirebilir.</p>
+<ul>
+<li><strong>Geri izleme:</strong> Bir seçim yap, devamını araştır, geri dönünce seçimi geri al ve başka seçeneği dene.</li>
+<li><strong>Kısmi çözüm:</strong> Kararların yalnızca bir bölümü verilmiştir. Örneğin üç görevden ilk ikisi için al/atla kararı verilmiş olabilir.</li>
+<li><strong>Arama ağacı:</strong> Her düğüm bir kısmi durumu, her dal bir sonraki seçimi gösterir. Tam cevaplar yapraklarda olabilir.</li>
+<li><strong>Budama:</strong> Hiçbir geçerli tamamlaması olamayacağı kanıtlanan dalı araştırmayı bırakma. “Pek iyi görünmüyor” yeterli gerekçe değildir.</li>
+<li><strong>Durum (state):</strong> Kalan sorunun cevabını belirlemek için gereken bilgi. Yetersiz durum, farklı soruları yanlışlıkla birleştirir.</li>
+<li><strong>Taban durum:</strong> Daha küçük soruya gitmeden cevabı bilinen durum. Örneğin sıfır basamağı çıkmanın bir boş hareket dizisi vardır.</li>
+<li><strong>Geçiş:</strong> Bir durumun cevabını daha küçük durumların cevaplarından kuran kural.</li>
+<li><strong>Memoization:</strong> İstenen alt soruyu çözüp cevabını saklama; tekrar sorulduğunda yeniden hesaplamama.</li>
+<li><strong>Tabulation:</strong> Taban durumlardan başlayıp bağımlılıkların gerektirdiği sırayla tablo doldurma.</li>
+<li><strong>Alt küme:</strong> Seçilen nesneler; sıra önemli değildir. <strong>Permütasyon:</strong> Nesnelerin sıralanışı; sıra önemlidir.</li>
+</ul>
+<p>Sayılar küçük olsa da aynı kavram farklı örneklerde farklı şeyi sayar: çağrı sayısı, çözüm sayısı, tablo durumu sayısı veya fiziksel kontrol sayısı. Karşılaştırmadan önce birimi yazacağız.</p></div><section id="ornek-1" aria-labelledby="baslik-1"><p class="eyebrow">ÖRNEK 1 / 22 · A tempting choice is not always safe</p><h2 id="baslik-1">1. En büyük parayı almak her zaman güvenli değildir</h2><p><a href="../#example-1">Ders sayfasındaki örnek 1</a> · <a href="../lecture-notes.html#topic-0-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> Değerleri 1,3,4 olan paralardan sınırsız kopya var. Toplam 6 oluştururken para sayısını en aza indirmek istiyoruz.</p>
+<table>
+<thead>
+<tr>
+<th>Yöntem</th>
+<th>Seçim</th>
+<th style="text-align: right;">Para sayısı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Her adımda sığan en büyüğü al</td>
+<td>4+1+1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>Başka ilk seçimi dene</td>
+<td>3+3</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>4 seçimi ilk anda daha fazla tutarı kapatır ama kalan 2, iki tane 1 gerektirir. 3 seçimi daha küçük görünse de toplam çözüm daha iyidir. Tek para ile 6 yapılamadığı ve iki para ile yapılabildiği için optimumun 2 olduğunu da kanıtlamış oluruz.</p>
+<p><strong>Hangi iddia çürüdü?</strong> “Her para değerleri kümesinde en büyükten başlamak en az para verir” iddiası. Bütün açgözlü algoritmaların yanlış olduğu çıkmaz. Prim'in kesit özelliği ve Dijkstra'nın negatif olmayan ağırlık koşulu gibi doğruluk gerekçeleri vardı; yeni bir açgözlü kuralın da gerekçesi olmalıdır.</p>
+<p><strong>DP ile bağlantı.</strong> Bu problem için M(t), t tutarını yapan en az para sayısı olsun. M(0)=0. Son para c ise aday 1+M(t−c) olur; uygun bütün c değerlerinden en küçüğü seçilir. M(6) için 3'ü son para almak 1+M(3)=2 verir. Bu fikir, yalnızca ilk görünen tercihe bağlı kalmadan alt cevapları kullanır.</p>
+<p><strong>Kontrol ve cevap.</strong> Sonraki görev örneklerinde aynı görevi iki kez alabilir miyiz? Hayır. Bu para örneği sınırsız kopya, görev örnekleri her görevi en fazla bir kez kullanma modelidir. Bu varsayım değişirse geçiş de değişir.</p></section><section id="ornek-2" aria-labelledby="baslik-2"><p class="eyebrow">ÖRNEK 2 / 22 · Take it or leave it</p><h2 id="baslik-2">2. Al veya atla: alt kümeleri üretmek</h2><p><a href="../#example-2">Ders sayfasındaki örnek 2</a> · <a href="../lecture-notes.html#topic-1-1">İlgili ders notu</a></p>
+<p>Üç farklı görev A,B,C için her birine iki karar verilir: al veya atla. Karar sırası A,B,C olarak sabittir.</p>
+<pre><code class="language-text">A alınırsa:   ABC, AB, AC, A
+A atlanırsa:  BC, B, C, boş küme
+</code></pre>
+<p>Toplam 2×2×2=8 alt küme vardır. Boş küme de geçerli seçimdir: bütün görevleri atladık. Dördüncü görev eklenince her eski seçimin onu içeren ve içermeyen iki sürümü oluşur; sayı 16 olur.</p>
+<p><strong>Bir dalı takip edelim.</strong> Boş listeden A'yı ekle, B'yi ekle, C'yi ekle: ABC tamamlanır. Geri dönerken C kaldırılır ve C'nin atlandığı AB cevabı elde edilir. Ardından B kaldırılarak AC ve A dallarına geçilir. Aşağıda yapılan değişiklik geri alınmazsa kardeş dallar birbirinin seçimini taşır ve sonuç bozulur.</p>
+<p><strong>Kopya kullanma farkı.</strong> Her çağrıya yeni liste verilirse eski liste değişmez; açık bir <code>pop</code> gerekmeyebilir. Aynı liste üzerinde çalışılıyorsa ekleme ve çıkarma dengeli yapılmalıdır. İki uygulama aynı “seç, araştır, geri al” mantığını farklı bellek kullanımıyla gerçekleştirebilir.</p>
+<p><strong>Ne sayılıyor?</strong> Üç görevde 8 tam seçim vardır; tam ikili ağacın çağrı sayısı 1+2+4+8=15'tir. Kök ve kısmi kararlar da çağrıdır. Bütün seçilmiş listeleri yazmak, liste uzunluklarına bağlı ek çıktı maliyeti getirir.</p>
+<p><strong>Kontrol ve cevap.</strong> Dört görevde 16 çözüm sayılması, 16 çağrı demek mi? Hayır. Budamasız tam ağaç 1+2+4+8+16=31 düğüm/çağrı içerir.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 22 · Ordering differs from choosing</p><h2 id="baslik-3">3. Görev seçmek ile görev sıralamak farklıdır</h2><p><a href="../#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-1-5">İlgili ders notu</a></p>
+<p>A,B,C görevlerinin hepsi bir kez yapılacak; hangi sırada yapılacağını araştırıyoruz. İlk konuma üç, ikinciye kalan iki, sonuncuya kalan bir seçenek vardır.</p>
+<pre><code class="language-text">ABC  ACB  BAC  BCA  CAB  CBA
+3! = 3×2×1 = 6
+</code></pre>
+<p>Alt kümede AB ile BA aynı seçilmiş kümedir. Permütasyonda ABC ile BAC farklı çalışma sıralarıdır. Soruda sıra önemli değilken permütasyon üretmek aynı cevabı gereksiz yere tekrar sayar.</p>
+<p><strong>Arama durumu.</strong> Şu anki sıralama ve hangi görevlerin kullanıldığı tutulur. Örneğin önek BA ise yalnızca C kullanılabilir. A tekrar seçilirse AAB gibi geçersiz sonuç oluşabilir. Geri dönerken görev “kullanıldı” işareti kaldırılır; başka dalda farklı konumda kullanılabilir.</p>
+<p><strong>Neden n!?</strong> Her yeni konumda kullanılabilir görev sayısı bir azalır. Dört farklı görev için 4×3×2×1=24 sıra vardır. Tüm sıraları listelemek zaten n! ayrı çıktı gerektirir; iyi kod bu çıktı zorunluluğunu ortadan kaldırmaz.</p>
+<p><strong>Sıfır görev.</strong> Bir boş sıralama vardır; bu nedenle 0!=1. “Hiç nesne yok, dolayısıyla hiç çözüm yok” demek taban durumu yanlış kurar. Burada istenen, verilen bütün nesneleri bir kez kullanmaktır; boş liste bunu sağlar.</p>
+<p><strong>Kontrol ve cevap.</strong> AAB, A,B,C'nin permütasyonu mu? Hayır. A iki kez kullanılmış, C kullanılmamıştır.</p></section><section id="ornek-4" aria-labelledby="baslik-4"><p class="eyebrow">ÖRNEK 4 / 22 · Repeated labels create duplicate answers</p><h2 id="baslik-4">4. Eşit etiketler aynı cevabı tekrar üretebilir</h2><p><a href="../#example-4">Ders sayfasındaki örnek 4</a> · <a href="../lecture-notes.html#topic-1-7">İlgili ders notu</a></p>
+<p>A,A,B harflerini düzenleyelim. İki A'yı geçici olarak A₁,A₂ diye ayırırsak altı indeks sıralaması vardır. Fakat A₁ ile A₂ görünürde aynı harftir.</p>
+<table>
+<thead>
+<tr>
+<th>Görünen dizi</th>
+<th>Onu üreten ayırt edilmiş sıralar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AAB</td>
+<td>A₁A₂B, A₂A₁B</td>
+</tr>
+<tr>
+<td>ABA</td>
+<td>A₁BA₂, A₂BA₁</td>
+</tr>
+<tr>
+<td>BAA</td>
+<td>BA₁A₂, BA₂A₁</td>
+</tr>
+</tbody>
+</table>
+<p>Görünür cevap sayısı 3!/2!=3'tür. İki A'nın yer değiştirmesi yeni görünür cevap üretmez.</p>
+<p><strong>Frekansla arama.</strong> Başlangıçta A:2,B:1 olsun. A seçildiğinde A sayacı 1'e iner. Sonraki konum için kalan değerler denenir. Dal bitince sayaç eski değerine artırılır. Aynı karar seviyesinde “ilk A'yı seç” ve “ikinci A'yı seç” diye görünürde aynı iki dal açılmaz.</p>
+<p><strong>Neden geri yüklemek gerekli?</strong> A ile başlayan bütün dalları bitirdikten sonra B ile başlayan dalları araştıracağız. A sayacı geri yüklenmediyse BAA gibi geçerli bir cevap için gereken iki A kaybolmuş görünür.</p>
+<p><strong>Model ayrımı.</strong> Aynı süreli iki fiziksel iş yine farklı işler olabilir. “Aynı değer” mutlaka “aynı nesne” demek değildir. Harf dizisi sorusunda eşit A'lar özdeş sayılıyor; görev kimliklerini ayırt etmemiz isteniyorsa onları birleştiremeyiz.</p>
+<p><strong>Kontrol ve cevap.</strong> AAB için neden altı değil üç cevap? Çünkü görünür diziyi değiştirmeyen iki A değiş tokuşu aynı cevabın ikinci yazılışıdır.</p></section><section id="ornek-5" aria-labelledby="baslik-5"><p class="eyebrow">ÖRNEK 5 / 22 · Place queens one row at a time</p><h2 id="baslik-5">5. Dört veziri satır satır yerleştirmek</h2><p><a href="../#example-5">Ders sayfasındaki örnek 5</a> · <a href="../lecture-notes.html#topic-2-1">İlgili ders notu</a></p>
+<p>4×4 tahtada birbirini tehdit etmeyen dört vezir yerleştiriyoruz. Her satıra bir vezir koyduğumuz için satır çatışmasını temsil zaten önler. Karar, sıradaki satırın sütunudur.</p>
+<p><strong>İki çatışma sınaması.</strong> Önceki vezir (r,c), yeni aday (R,C) olsun. Aynı sütun için C=c; aynı köşegen için |R−r|=|C−c| kontrol edilir. Mutlak değer, farkın işaretsiz büyüklüğüdür. Satır ve sütun farkları eşitse hareket çaprazdır.</p>
+<p>Örneğin (1,1) ve (2,2), farklar 1 ve 1 olduğu için çatışır. (1,2) ile (2,4) farkları 1 ve 2 olduğu için çatışmaz. Burada satır ve sütunlar 1'den numaralanmıştır.</p>
+<table>
+<thead>
+<tr>
+<th>Çözüm</th>
+<th style="text-align: right;">Satır 1 sütunu</th>
+<th style="text-align: right;">Satır 2 sütunu</th>
+<th style="text-align: right;">Satır 3 sütunu</th>
+<th style="text-align: right;">Satır 4 sütunu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>İlk çözümde bütün sütunlar farklıdır. Örneğin ilk ve üçüncü vezir arasında satır farkı 2, sütun farkı 1; ikinci ve dördüncü arasında 2 ve 1 vardır. Bütün çiftlerde bu kontrol yapılır; hiçbir köşegen eşitliği oluşmaz.</p>
+<p><strong>Budama neden güvenli?</strong> İki mevcut vezir çatışıyorsa daha sonra yeni vezir eklemek bu ikisini yerinden oynatmaz. Bu önekin hiçbir uzantısı çözüm olamaz. Geri dönüp önceki yerleşimi değiştirmek gerekir.</p>
+<p><strong>Animasyonu okuma.</strong> Çarpıyla gösterilen aday reddedilmeden önce görünür. Bu, algoritmanın yanlış veziri kalıcı yerleştirdiği anlamına gelmez; çatışma sınamasını gösterir. Dört satır başarıyla tamamlanınca çözüm kaydedilir ve diğer çözümler için arama sürer.</p>
+<p><strong>Kontrol ve cevap.</strong> Sonraki vezir mevcut köşegen saldırısını düzeltebilir mi? Hayır; bu nedenle dal erken kesilebilir.</p></section><section id="ornek-6" aria-labelledby="baslik-6"><p class="eyebrow">ÖRNEK 6 / 22 · Sudoku: start where few choices remain</p><h2 id="baslik-6">6. Sudoku&#x27;da az seçeneği olan hücreden başlamak</h2><p><a href="../#example-6">Ders sayfasındaki örnek 6</a> · <a href="../lecture-notes.html#topic-2-4">İlgili ders notu</a></p>
+<p>Görsel 1–4 rakamlarını kullanan 4×4 Sudoku'dur. Her satır, sütun ve 2×2 kutu her rakamı bir kez içermelidir. Verilmiş ipuçları sabit tutulur.</p>
+<pre><code class="language-text">1 . . 4
+. 4 1 .
+2 1 . 3
+4 . 2 1
+</code></pre>
+<p><strong>İlk hücreyi hesaplayalım.</strong> Birinci satır ikinci sütun için satırda eksik rakamlar {2,3}. İkinci sütunda 4 ve 1 var; yine {2,3} mümkün. Sol üst kutuda da 1 ve 4 var. Adaylar {2,3}; henüz tek seçenek yok.</p>
+<p>Birinci satır üçüncü sütun için satır {2,3} ister; üçüncü sütunda 1 ve 2 bulunduğundan {3,4} kalır. Kesişim {3} olur; sağ üst kutu da 3'e izin verir. Bu hücre 3'tür. Sonra ilk satırın diğer boş hücresi 2 olur.</p>
+<p><strong>Tamamlanan tablo.</strong></p>
+<pre><code class="language-text">1 2 3 4
+3 4 1 2
+2 1 4 3
+4 3 2 1
+</code></pre>
+<p><strong>En az aday kuralı.</strong> Boş hücreler arasında aday sayısı en küçük olan seçilir. Bu, imkânsızlıkları daha erken ortaya çıkarabilir. Geçerli çözüm tanımını değiştirmez; yalnızca araştırma sırasını değiştirir.</p>
+<p>Hiç adayı olmayan hücreye gelinirse önceki denemelerden biri geri alınır. Tek aday bulunması o hücreyi mevcut dal altında zorunlu yapar; önceki varsayımların tümünün doğru olduğunu tek başına kanıtlamaz. Genel Sudoku'da daha sonra çelişki çıkabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Bu yöntem geri dönüşü tamamen kaldırır mı? Hayır. Görsel çözücü ilk çözümde durur; sadece bir çözüm göstermesi, çözümün tekliğinin araştırıldığı anlamına gelmez.</p></section><section id="ornek-7" aria-labelledby="baslik-7"><p class="eyebrow">ÖRNEK 7 / 22 · Fit tasks into exactly nine milliseconds</p><h2 id="baslik-7">7. Dokuz milisaniyeyi tam dolduran görevleri seçmek</h2><p><a href="../#example-7">Ders sayfasındaki örnek 7</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p>Görev süreleri sırasıyla 3,34,4,12,5,2 ms. Her görev en fazla bir kez seçilebilir. Hedef en fazla 9 değil, <strong>tam 9</strong>'dur.</p>
+<table>
+<thead>
+<tr>
+<th>Görev numaraları</th>
+<th>Süreler</th>
+<th style="text-align: right;">Toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3,5</td>
+<td>4+5</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td>1,3,6</td>
+<td>3+4+2</td>
+<td style="text-align: right;">9</td>
+</tr>
+</tbody>
+</table>
+<p>Bu örnekte iki çözüm vardır. Büyük süreli 34 ve 12, pozitif süreler arasında toplamı 9'a tamamlayamaz. Kalan 3,4,5,2 üzerinde al/atla kararlarını kontrol ederek iki cevabı doğrulayabiliriz.</p>
+<p><strong>Tam arama maliyeti.</strong> Altı görev için 2⁶=64 yaprak vardır. Kısmi çağrıları da sayınca 1+2+4+8+16+32+64=127 çağrı olur. Yaprak sayısıyla bütün ağacın düğüm sayısı aynı değildir.</p>
+<p><strong>Budama.</strong> Kısmi toplam 9'u aşarsa bu dal kesilir. Çünkü kalan süreler pozitiftir; başka görev eklemek toplamı düşüremez. 34 seçildiği anda o dalın bütün devamlarını üretmek gereksiz olur.</p>
+<p><strong>Neyi koruyoruz?</strong> Budamalı ve budamasız sürüm aynı iki çözümü üretmelidir. Daha az çağrı yaparken cevaplardan birini kaybetmek hızlandırma değil, başka ve yanlış bir algoritmadır. Görsel her girilen çağrıyı sayar; hemen budanan çağrı da bu sayıya dahildir.</p>
+<p><strong>Görev kimliği.</strong> İki ayrı görev aynı süreyi taşıyabilir. O durumda yalnızca süre listesi yazmak hangi görevlerin seçildiğini ayırt etmeyebilir; görev numaraları da tutulur.</p>
+<p><strong>Kontrol ve cevap.</strong> 34 ms görev çözümde olabilir mi? Hayır; tek başına hedefi aşar ve kalan pozitif sürelerle aşağı inilemez.</p></section><section id="ornek-8" aria-labelledby="baslik-8"><p class="eyebrow">ÖRNEK 8 / 22 · A negative value breaks the overshoot rule</p><h2 id="baslik-8">8. Negatif değer, “hedefi aştıysan dur” kuralını bozar</h2><p><a href="../#example-8">Ders sayfasındaki örnek 8</a> · <a href="../lecture-notes.html#topic-3-2">İlgili ders notu</a></p>
+<p>Bu kez matematiksel sayılar 5,4,−3,2; hedef 6. Fiziksel görev süresinin negatif olduğunu iddia etmiyoruz; budama varsayımını sınayan karşı örnektir.</p>
+<pre><code class="language-text">5 seç → toplam 5
+4 seç → toplam 9   (burada durmak yanlış)
+−3 seç → toplam 6 (geçerli çözüm)
+2 atla
+</code></pre>
+<p>Pozitif örnekte toplam yalnızca artabiliyordu. Şimdi kalan −3 toplamı azaltabilir. Dolayısıyla aynı budama kuralı geçerli cevabı kaybeder.</p>
+<p><strong>Güvenli genel aralık.</strong> Mevcut toplam s olsun. Kalan bütün negatifleri eklemek ulaşılabilir tamamlamalar için bir alt sınır, bütün pozitifleri eklemek bir üst sınır verir. Hedef bu aralığın dışındaysa dal kesilebilir.</p>
+<p>s=9 ve kalanlar {−3,2} için alt sınır 9−3=6, üst sınır 9+2=11'dir. Hedef 6 içeridedir; dal korunur. Ancak aralık içinde olmak bir çözüm bulunduğu anlamına gelmez. Örneğin kalanlar {2,4}, s=0 iken 3, [0,6] aralığındadır fakat hiçbir alt küme 3 yapmaz.</p>
+<p><strong>Neden aralık güvenli?</strong> Negatifleri atlamak toplamı alt sınırın üstüne çıkarır; pozitifleri atlamak toplamı üst sınırın altına indirir. Her gerçek tamamlamanın toplamı iki sınırın arasında kalır. Aralık gerekli koşuldur, yeterli koşul değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> “Hedefin yarısını geçtiysen dur” pozitif sayılarda güvenli mi? Hayır. Hedef 9 için 4+5 çözümünde 5'lik ara toplam yarıyı aşabilir. Budama, yalnızca gözle iyi görünmeye değil bütün devamları dışlayan gerekçeye dayanmalıdır.</p></section><section id="ornek-9" aria-labelledby="baslik-9"><p class="eyebrow">ÖRNEK 9 / 22 · Take a short break</p><h2 id="baslik-9">9. İlk mola: seçim ve budama ayrımı</h2><p><a href="../#example-9">Ders sayfasındaki örnek 9</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>64–74. dakikalar arasındaki moladan sonra aşağıdaki cevapları birer örnekle açıklayın.</p>
+<p><strong>Alt küme ile permütasyon farkı.</strong> AB ile BA aynı görev kümesi olabilir; ABC ile BAC farklı görev sıralarıdır. Önce sıranın çıktı için önemli olup olmadığını belirleyin.</p>
+<p><strong>Geri alma neden gerekli?</strong> Bir dalda kullanılan görevin işareti kalırsa kardeş dal onu kullanamaz. Kısmi çözüm, bir sonraki deneme başlamadan önce eski hâline dönmelidir. Kopyalanan durum kullanılıyorsa bu koruma kopyalar aracılığıyla sağlanır.</p>
+<p><strong>Vezir budaması neden güvenli?</strong> İki mevcut vezirin çatışmasını sonraki vezirler çözemez. Sabit önekin hiçbir devamı geçerli değildir.</p>
+<p><strong>Toplam budaması neye bağlı?</strong> Hedefi aşınca durma, kalan değerler negatif değilse güvenlidir. Negatif değerler toplamı düşürebilir; 5+4−3=6 karşı örneği bunu gösterir.</p>
+<p><strong>Sayım kontrolü.</strong> Altı görevde 64 tam alt küme, budamasız tam ağaçta 127 çağrı vardır. Bu iki sayıyı aynı ölçü gibi karşılaştırmayın.</p></section><section id="ornek-10" aria-labelledby="baslik-10"><p class="eyebrow">ÖRNEK 10 / 22 · Fibonacci repeats the same questions</p><h2 id="baslik-10">10. Fibonacci aynı soruyu tekrar tekrar sorar</h2><p><a href="../#example-10">Ders sayfasındaki örnek 10</a> · <a href="../lecture-notes.html#topic-4-1">İlgili ders notu</a></p>
+<p>Tanım F(0)=0, F(1)=1; n≥2 için F(n)=F(n−1)+F(n−2). İlk değerler 0,1,1,2,3,5'tir.</p>
+<p>F(5), F(4) ile F(3)'ü ister. F(4) de F(3) ile F(2)'yi ister. Böylece F(3) iki ayrı dalda yeniden hesaplanır. Daha küçük sorular daha çok tekrar eder.</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th style="text-align: right;">F(n): cevap</th>
+<th style="text-align: right;">C(n): saf özyinelemenin çağrı sayısı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td>5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Çağrı hesabı.</strong> C(0)=C(1)=1, çünkü taban durum da bir çağrıdır. Diğerlerinde C(n)=1+C(n−1)+C(n−2); baştaki 1, mevcut çağrıyı sayar. F(5)'in sayısal cevabı 5 ama hesaplaması 15 çağrı gerektirir. Cevabın büyüklüğüyle yapılan işlem sayısı karıştırılmamalıdır.</p>
+<p><strong>F(3) izi.</strong> F(3), F(2), F(1), F(0), F(1): beş çağrı. Son iki F(1) aynı değeri döndürse de ayrı çağrı girişleridir.</p>
+<p>Bu sayım için C(n)=2F(n+1)−1 bağıntısı da geçerlidir. Örneğin C(5)=2×8−1=15. Amaç formülü ezberlemekten çok aynı sorunun neden tekrar hesaplandığını görmektir.</p>
+<p><strong>Kontrol ve cevap.</strong> Tekrar edilen soru farklı dallarda farklı cevap mı verir? Hayır; sabit Fibonacci tanımı altında F(3) her zaman 2'dir. Saklama fikrinin dayanağı budur.</p></section><section id="ornek-11" aria-labelledby="baslik-11"><p class="eyebrow">ÖRNEK 11 / 22 · Memoization remembers a completed answer</p><h2 id="baslik-11">11. Memoization tamamlanan cevabı hatırlar</h2><p><a href="../#example-11">Ders sayfasındaki örnek 11</a> · <a href="../lecture-notes.html#topic-4-3">İlgili ders notu</a></p>
+<p>Önbellek başlangıçta boş olsun. F(5) için ilk kez F(3) gerektiğinde alt çağrılar hesaplanır ve sonuç 2, anahtar 3 altında saklanır. Sonraki F(3) isteğinde aynı alt ağaç tekrar açılmaz.</p>
+<p><strong>İşlem sırası.</strong> Önce “bu durumun cevabı saklı mı?” diye bakılır. Varsa döndürülür. Yoksa alt durumlar çözülür, tamamlanmış sonuç saklanır, sonra döndürülür. Henüz hesaplanmamış ara değeri bitmiş cevap gibi saklamak doğru değildir.</p>
+<table>
+<thead>
+<tr>
+<th>Ölçü</th>
+<th style="text-align: right;">F(5) saf özyineleme</th>
+<th style="text-align: right;">Görseldeki önbellekli sürüm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bütün çağrı girişleri</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td>Farklı durumlar</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Saklanan cevaplar</td>
+<td style="text-align: right;">Yok</td>
+<td style="text-align: right;">F(0)–F(5), altı cevap</td>
+</tr>
+</tbody>
+</table>
+<p>Önbelleğe isabet de bir çağrı ve sorgu olarak sayılır. Bu nedenle “altı farklı durum var, toplam altı çağrı olmalı” çıkarımı yanlıştır. Görsel taban durumları da saklar; başka uygulamalarda başlangıçta hazır taban değerleri veya farklı sayım kuralları olabilir.</p>
+<p><strong>Anahtar neyi içermeli?</strong> Fibonacci'de n yeterlidir. Görev seçmede kalan görevler ve kalan hedef de gerekebilir. Problem kuralları değişirse eski önbellek geçersiz olabilir; ilgili kuralları anahtara katmak veya önbelleği temizlemek gerekir.</p>
+<p><strong>Maliyet.</strong> Toplamayı birim iş saydığımız modelde n+1 durum O(n) iş ve O(n) önbellek/çağrı yığını alanı verir. Büyük Fibonacci tamsayıları çok basamaklı olduğundan gerçek bit işlemlerinin ek maliyeti vardır. O(n) ifadesi bu basitleştirilmiş aritmetik modelle okunmalıdır.</p>
+<p><strong>Kontrol ve cevap.</strong> Önbellek tekrar sorulmayı mı, tekrar genişletilmeyi mi önler? İkincisini. Aynı değer tekrar istenebilir; çocukları yeniden hesaplanmaz.</p></section><section id="ornek-12" aria-labelledby="baslik-12"><p class="eyebrow">ÖRNEK 12 / 22 · Fill a table in dependency order</p><h2 id="baslik-12">12. Tabloyu bağımlılık sırasıyla doldurmak</h2><p><a href="../#example-12">Ders sayfasındaki örnek 12</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Fibonacci'yi aşağıdan yukarı hesaplayalım. F(0)=0 ve F(1)=1 hazırdır. Sonraki hücre, önceki iki hücrenin toplamıdır.</p>
+<table>
+<thead>
+<tr>
+<th>Hücre</th>
+<th>Hesap</th>
+<th style="text-align: right;">Değer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F(2)</td>
+<td>0+1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>F(3)</td>
+<td>1+1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>F(4)</td>
+<td>1+2</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>F(5)</td>
+<td>2+3</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>F(6)</td>
+<td>3+5</td>
+<td style="text-align: right;">8</td>
+</tr>
+</tbody>
+</table>
+<p>Tablo 0,1,1,2,3,5,8 olur. Her hücre hesaplanırken gerekli iki önceki cevap hazırdır. Değişen matematiksel bağıntı değil, hesaplama sırası ve kayıt biçimidir.</p>
+<p><strong>İki değişken yeterli olabilir.</strong> Yalnızca F(6) isteniyorsa bütün eski değerleri saklamak gerekmez. Son iki değer bir çift olarak tutulur: (0,1)→(1,1)→(1,2)→(2,3)→(3,5)→(5,8). Güncellerken eski iki değeri kullanmak gerekir; birini erken değiştirip diğer hesapta yeni değeri yanlışlıkla kullanmayın.</p>
+<p><strong>Alan ve zaman ayrımı.</strong> İki değişkenle saklanan sayı adedi sabittir; toplama sayısı yine n ile büyür. Bütün tabloyu göstermek veya eski bir hücreye sonradan erişmek isteniyorsa alanı azaltmanın bu çıktıya etkisi düşünülmelidir. Büyük sayıların bit uzunluğu açısından “iki değişken” sabit sayıda bit anlamına gelmez.</p>
+<p><strong>Ne zaman önbellek faydasız olabilir?</strong> Alt sorular hiç tekrarlanmıyorsa saklayıp sorgulamak aynı hesapları ortadan kaldırmaz. Her özyinelemeli program otomatik olarak büyük DP kazancı sağlamaz.</p>
+<p><strong>Kontrol ve cevap.</strong> F(6)=8. Bu, merdiven örneğinde altı basamağın rota sayısıyla aynı başlangıç koşullarını kullandığımız anlamına gelmez.</p></section><section id="ornek-13" aria-labelledby="baslik-13"><p class="eyebrow">ÖRNEK 13 / 22 · Count ways to climb four steps</p><h2 id="baslik-13">13. Dört basamağa çıkış yollarını saymak</h2><p><a href="../#example-13">Ders sayfasındaki örnek 13</a> · <a href="../lecture-notes.html#topic-5-3">İlgili ders notu</a></p>
+<p>Her hareket 1 veya 2 basamak; sıralama önemli. Dört basamak için beş hareket dizisi vardır:</p>
+<pre><code class="language-text">1+1+1+1
+1+1+2
+1+2+1
+2+1+1
+2+2
+</code></pre>
+<p><strong>Son harekete göre ayırma.</strong> Son hareket 1 ise önce n−1 basamağa ulaşılmıştır. Son hareket 2 ise önce n−2'ye ulaşılmıştır. Bir dizinin son hareketi aynı anda hem 1 hem 2 olamaz; gruplar ayrıdır. Her geçerli dizinin bir son hareketi olduğundan bütün cevaplar kapsanır.</p>
+<p>Bu nedenle ways[n]=ways[n−1]+ways[n−2]. ways[0]=1 ve ways[1]=1. Tablo n=0…4 için 1,1,2,3,5'tir.</p>
+<p><strong>Sıfır neden bir?</strong> Sıfır basamak için bir boş hareket dizisi vardır. Onun sonuna 2 eklemek, iki basamağı tek hareketle çıkmanın yolunu üretir. ways[0]=0 deseydik ways[2]=1 olurdu ve [2] rotasını kaybederdik; doğru cevap [1,1] ve [2] olmak üzere ikidir.</p>
+<p><strong>Fibonacci farkı.</strong> Aynı toplama kuralı farklı taban değerleriyle farklı dizi üretir. Fibonacci F(0)=0 iken bu sayımda ways[0]=1; burada ways[n]=F(n+1) olur. İsme bakıp başlangıçları kopyalamak yerine durumun neyi saydığını yazın.</p>
+<p><strong>Kontrol ve cevap.</strong> 112 ile 211 aynı çözüm mü? Hayır. Hareket sırası farklıdır. Sırasız “kaç tane 1, kaç tane 2 kullanıldı?” sorusu başka bir sayım verir.</p></section><section id="ornek-14" aria-labelledby="baslik-14"><p class="eyebrow">ÖRNEK 14 / 22 · A state must remember what matters</p><h2 id="baslik-14">14. Durum geleceği belirleyecek kadar bilgi tutmalı</h2><p><a href="../#example-14">Ders sayfasındaki örnek 14</a> · <a href="../lecture-notes.html#topic-5-2">İlgili ders notu</a></p>
+<p>“Şimdi toplam 4” bilgisi tek başına yeterli olmayabilir. Örneğin görev süreleri 4,2,2,5 ve hedef 6 olsun. İlk 4'ü aldıktan sonra hâlâ 2,2,5 görevleri vardır ve hedef tamamlanabilir. İlk üç görevi işleyip iki tane 2'yi seçtiysek toplam yine 4'tür; geriye yalnızca 5 kaldığından 6 yapılamaz.</p>
+<p><strong>Yeterli durum.</strong> Görevler sabit sırada işleniyorsa (i,t), “i numaralı görevden itibaren kalan görevlerle t toplamı yapılabilir mi?” demektir. i kalan görev kümesini, t kalan ihtiyacı temsil eder.</p>
+<pre><code class="language-text">Yapılabilir(i,t) =
+    Yapılabilir(i+1,t)                 [görevi atla]
+    VEYA Yapılabilir(i+1,t−süre[i])    [görevi al]
+</code></pre>
+<p>Pozitif süreli karar probleminde t=0 ise boş kalan seçim yeterlidir. Görevler bitti ve t≠0 ise cevap hayırdır. Negatif kalan hedefi budamak yalnızca kalan süreler negatif değilse güvenlidir.</p>
+<p><strong>Beş soru.</strong> Durum ne demek? Taban cevaplar hangileri? Geçiş neden bütün seçenekleri kapsıyor? Hangi sırayla hesaplanacak? İstenen cevap hangi hücrede? Bu sorular cevaplanmadan tabloya sayı yazmak mekanik ve hataya açık olur.</p>
+<p><strong>Tek satır mümkün mü?</strong> Evet; görevleri dış döngüde sırayla işlersek “hangi görevler kullanılabilir?” bilgisi algoritmanın aşamasında saklanır. Tek boyutlu dizi, problemden bu bilginin silindiği anlamına gelmez.</p>
+<p><strong>Maliyet.</strong> Negatif olmayan tamsayı süreler ve hedef T için O(nT) karar tablosu kullanılabilir. Bu, T'nin sayısal değerine bağlıdır; ikili yazım uzunluğuna göre polinom değildir. T iki katına çıkınca gereken hücreler yaklaşık iki kat artarken T'yi yazmak için yalnızca bir bit daha gerekebilir. Buna sözde polinom zaman denir.</p></section><section id="ornek-15" aria-labelledby="baslik-15"><p class="eyebrow">ÖRNEK 15 / 22 · Choose a team: take or skip the last person</p><h2 id="baslik-15">15. Ekip seçmek: son kişiyi al veya alma</h2><p><a href="../#example-15">Ders sayfasındaki örnek 15</a> · <a href="../lecture-notes.html#topic-5-5">İlgili ders notu</a></p>
+<p>Beş farklı kişiden üç kişilik ekip seçiyoruz. Sıra önemli değil. Son kişi E olsun.</p>
+<table>
+<thead>
+<tr>
+<th>Durum</th>
+<th>Geriye kalan seçim</th>
+<th style="text-align: right;">Sayı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E ekipte</td>
+<td>İlk dört kişiden iki kişi</td>
+<td style="text-align: right;">C(4,2)=6</td>
+</tr>
+<tr>
+<td>E ekipte değil</td>
+<td>İlk dört kişiden üç kişi</td>
+<td style="text-align: right;">C(4,3)=4</td>
+</tr>
+</tbody>
+</table>
+<p>İki durum aynı ekibi içeremez; bir ekip E'yi ya içerir ya içermez. Toplam 6+4=10'dur. Genel bağıntı C(n,k)=C(n−1,k−1)+C(n−1,k).</p>
+<p><strong>Pascal satırları.</strong></p>
+<pre><code class="language-text">n=0: 1
+n=1: 1 1
+n=2: 1 2 1
+n=3: 1 3 3 1
+n=4: 1 4 6 4 1
+n=5: 1 5 10 10 5 1
+</code></pre>
+<p>Satırdaki konum k=0'dan başlar. C(5,3), son satırın dördüncü girişidir: 10. Kenarlarda 1 vardır; kimseyi seçmenin bir yolu, herkesi seçmenin bir yolu vardır. k&lt;0 veya k&gt;n ise 0; mümkün olmayan ekip boyutu.</p>
+<p><strong>Neden faktöriyel kadar saymıyoruz?</strong> ABC, ACB ve CBA aynı ekip olabilir. Her üç kişilik ekibin 3!=6 sıralaması vardır. Sıraları ayrı saymak istenmeyen çoğaltma yapar. Bu tablo yalnızca ekip sayısını üretir; on ekibin ad listesini üretmiş olmaz.</p>
+<p><strong>Kontrol ve cevap.</strong> C(5,3)=10 sonucu hangi iki ayrık grubun toplamı? E'li altı ekip ve E'siz dört ekip.</p></section><section id="ornek-16" aria-labelledby="baslik-16"><p class="eyebrow">ÖRNEK 16 / 22 · Take a short break</p><h2 id="baslik-16">16. İkinci mola: bağıntı aynı, anlam farklı olabilir</h2><p><a href="../#example-16">Ders sayfasındaki örnek 16</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>122–132. dakikalar arasındaki moladan sonra üç taban durumu karşılaştırın.</p>
+<table>
+<thead>
+<tr>
+<th>Soru</th>
+<th style="text-align: right;">Sıfır durumunun cevabı</th>
+<th>Gerekçe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fibonacci F(0)</td>
+<td style="text-align: right;">0</td>
+<td>Dizinin tanımı</td>
+</tr>
+<tr>
+<td>Sıfır basamağa çıkış sayısı</td>
+<td style="text-align: right;">1</td>
+<td>Bir boş hareket dizisi</td>
+</tr>
+<tr>
+<td>Sıfır kişilik ekip sayısı</td>
+<td style="text-align: right;">1</td>
+<td>Bir boş ekip</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Soru.</strong> F(5)=5, saf programın çağrı sayısı da 5 mi? Hayır. 15 çağrı vardır; sonuç değeriyle işlem sayısı ayrıdır.</p>
+<p><strong>Soru.</strong> Önbellekte altı durum varsa altı çağrı mı yapılır? Hayır. Tekrar sorguları da çağrı sayılır; görselin F(5) örneğinde toplam 9 çağrı vardır.</p>
+<p><strong>Soru.</strong> Görev seçiminde yalnızca mevcut toplamı saklamak güvenli mi? Gelecekte hangi görevlerin kaldığı da belli olmalı. Bu bilgi durumdaki indeksle veya tabloyu dolduran dış döngünün aşamasıyla taşınabilir.</p>
+<p><strong>Küçük alıştırma.</strong> Dört basamağın beş dizisini iki gruba ayırın. Sonu 1 olanlar 1111,121,211; sonu 2 olanlar 112,22. Sayılar 3+2=5. Böylece toplama kuralının bütün cevapları kapsayıp hiçbirini iki kez saymadığını görürsünüz.</p></section><section id="ornek-17" aria-labelledby="baslik-17"><p class="eyebrow">ÖRNEK 17 / 22 · Nobody gets their own label</p><h2 id="baslik-17">17. Hiçbir etiket kendi yerinde kalmasın</h2><p><a href="../#example-17">Ders sayfasındaki örnek 17</a> · <a href="../lecture-notes.html#topic-1-6">İlgili ders notu</a></p>
+<p>1,2,3 etiketlerini 1,2,3 konumlarına birer kez yerleştiriyoruz. i konumuna i etiketi gelemez. Böyle permütasyonlara sabit noktasız permütasyon, İngilizcede derangement denir.</p>
+<table>
+<thead>
+<tr>
+<th>Dizi</th>
+<th>Kontrol</th>
+<th>Geçerli mi?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2,3,1</td>
+<td>1. yerde 2; 2. yerde 3; 3. yerde 1</td>
+<td>Evet</td>
+</tr>
+<tr>
+<td>3,1,2</td>
+<td>Hiçbiri kendi yerinde değil</td>
+<td>Evet</td>
+</tr>
+<tr>
+<td>2,1,3</td>
+<td>3. yerde 3 kaldı</td>
+<td>Hayır</td>
+</tr>
+</tbody>
+</table>
+<p>Normal permütasyon aramasına ek olarak aday etiketin konumdan farklı olması sınanır. Kendi konumuna gelen etiket, daha sonra başka yerlere ekleme yapılarak düzeltilemez; o dal erken kesilir.</p>
+<p><strong>İsteğe bağlı sayım bağıntısı.</strong> D(0)=1, D(1)=0 ve n≥2 için D(n)=(n−1)(D(n−1)+D(n−2)). D(2)=1, D(3)=2, D(4)=9 olur.</p>
+<p><strong>İki durumun gerekçesi.</strong> Etiket 1'in gideceği başka konumu j seçin: n−1 seçenek. Etiket j de 1. konuma gidiyorsa bu ikili yer değiştirir; kalan n−2 eleman için D(n−2) seçenek vardır. Etiket j, 1. konuma gitmiyorsa 1 daha uzun bir döngü içindedir. O döngüden 1 çıkarılarak n−1 eleman üzerinde bir sabit noktasız permütasyonla bire bir eşleme kurulabilir; sayı D(n−1)'dir. Seçilen j için iki durum ayrıdır, sonra n−1 ile çarpılır.</p>
+<p><strong>Kontrol ve cevap.</strong> İki etiket için yalnızca 2,1 geçerlidir. Bağıntı cevap sayısını verir; dokuz farklı dört-etiketli diziyi tek tek yazmış olmaz.</p></section><section id="ornek-18" aria-labelledby="baslik-18"><p class="eyebrow">ÖRNEK 18 / 22 · Exactly two edges is a different question</p><h2 id="baslik-18">18. Tam iki kenar kullanmak ayrı bir kısıttır</h2><p><a href="../#example-18">Ders sayfasındaki örnek 18</a> · <a href="../lecture-notes.html#topic-5-8">İlgili ders notu</a></p>
+<p>A→B=2, B→C=3, A→C=1 olsun. Kaynak A.</p>
+<table>
+<thead>
+<tr>
+<th>Kullanılan kenar sayısı</th>
+<th style="text-align: right;">A maliyeti</th>
+<th style="text-align: right;">B maliyeti</th>
+<th style="text-align: right;">C maliyeti</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tam 0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+</tr>
+<tr>
+<td>Tam 1</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Tam 2</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">∞</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+<p>Serbest kenar sayısında A→C maliyeti 1 en iyidir. <strong>Tam iki kenar</strong> koşulunda A→B→C, maliyet 2+3=5 gerekir. Bir kenarlı cevabı iki kenarlı satıra aynen kopyalamak koşulu bozar.</p>
+<p><strong>Durum.</strong> dp[k][v], A'dan v'ye tam k kenarlı en ucuz yürüyüştür. dp[0][A]=0; diğer sıfır-kenar hedefleri ∞. Son kenar u→v ise önce tam k−1 kenarla u'ya gelinmiştir. Aday dp[k−1][u]+w(u,v); bütün gelen kenarlar arasından minimum alınır.</p>
+<p><strong>Neden yeni satır?</strong> Bir satırı hesaplarken yalnızca önceki satırı okumak, tam bir kenar eklemeyi garanti eder. Yeni güncellenen hücreyi aynı satırda yeniden kullanırsak tek aşamada birkaç kenar ilerleyebiliriz. Week 11 Bellman–Ford'daki yerinde güncellemeyle bu tablo aynı ara-anlamı taşımaz.</p>
+<p><strong>Tam ve en fazla ayrımı.</strong> “En fazla iki” sorusunda bir kenarlı 1 maliyetli rota geçerli olur. “Tam iki” sorusunda değildir. Durum tanımındaki tek sözcük geçişi değiştirebilir.</p>
+<p><strong>Negatif çevrim.</strong> Burada tekrar eden düğümler serbesttir ama k sabittir. Sonlu graf ve sonlu ağırlıklarda en fazla bu kadar kenar kullanabileceğimiz için çevrimi sınırsız tekrar edemeyiz. Problem sonlu kalır. Genel hesap için O(k(n+m)) ile satır hazırlayıp kenar taraması yapılabilir; iki satırla yalnızca maliyetler saklanabilir.</p></section><section id="ornek-19" aria-labelledby="baslik-19"><p class="eyebrow">ÖRNEK 19 / 22 · Run the stair-counting table in Python</p><h2 id="baslik-19">19. Merdiven tablosunu Python&#x27;da çalıştırmak</h2><p><a href="../#example-19">Ders sayfasındaki örnek 19</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Ana örnekteki Run düğmesi aşağıdaki kodu çalıştırır. n değişkeni basamak sayısıdır; sonuç, 1 veya 2 basamaklık hareketlerin sıralı dizilerini sayar.</p>
+<pre><code class="language-python"><span class="code-line"><span class="line-number" aria-hidden="true">1</span>n = 4</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">2</span>if not isinstance(n, int) or not 0 &lt;= n &lt;= 30:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">3</span>    raise ValueError(&quot;Choose a whole number from 0 to 30&quot;)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">4</span>ways = [0] * (n + 1)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">5</span>ways[0] = 1</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">6</span>if n &gt;= 1:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">7</span>    ways[1] = 1</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">8</span>for step in range(2, n + 1):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">9</span>    ways[step] = ways[step - 1] + ways[step - 2]</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">10</span>print(&quot;Table:&quot;, ways)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">11</span>print(&quot;Number of routes:&quot;, ways[n])</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Satır</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Çıkılacak basamak sayısını 4 seçer. Başka örnek için bu değeri değiştirin.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>n'nin tamsayı türünde ve 0–30 aralığında olup olmadığını sınar. <code>or</code>, iki geçersizlikten biri varsa hata yoluna girer.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Geçersiz girişte hesaplamayı durdurup hata mesajı verir.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0'dan n'ye kadar n+1 hücre oluşturur; başlangıçta hepsi 0'dır.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Sıfır basamak için bir boş hareket dizisini kaydeder.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1 numaralı hücre gerçekten var mı diye sınar. n=0 iken yoktur.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Bir basamak için tek rota [1] olduğundan 1 yazar.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2,3,…,n durumlarını sırayla işler. <code>range</code> üst sınırı dahil etmez; bu yüzden n+1 kullanılır.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Son hareketi 1 ve son hareketi 2 olan ayrık grupların sayılarını toplar.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Bütün ara cevapları gösterir; tabloyu elle hesapla karşılaştırabiliriz.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>İstenen n durumunun cevabını yazdırır.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>n=4 çıktısı.</strong></p>
+<pre><code class="language-text">Table: [1, 1, 2, 3, 5]
+Number of routes: 5
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Değiştirilen n</th>
+<th>Tablo / sonuç</th>
+<th>Neyi sınar?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>[1], sonuç 1</td>
+<td>Boş hareket dizisi; ways[1] yazılmaz</td>
+</tr>
+<tr>
+<td>1</td>
+<td>[1,1], sonuç 1</td>
+<td>Döngü hiç çalışmadan taban cevap</td>
+</tr>
+<tr>
+<td>5</td>
+<td>[1,1,2,3,5,8], sonuç 8</td>
+<td>5+3 toplamı</td>
+</tr>
+<tr>
+<td>−1 veya 31</td>
+<td>ValueError</td>
+<td>İzin verilen aralık</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kodun sınırı.</strong> 30 sınırı matematiksel zorunluluk değil, gösterimi okunabilir tutan ders tercihidir. Python tamsayıları bu sonuçları tam temsil eder. <code>isinstance(True,int)</code> Python'da doğru olduğundan bu kısa tür kontrolü boolean değerini ayrıca dışlamaz; ders deneylerinde n için 0,1,4 gibi tamsayılar kullanın. <code>input()</code> çağrısı yoktur.</p>
+<p><strong>Kontrol ve cevap.</strong> ways[0]=0 yapılsaydı? n=2 için [2] yolu sayılmaz, sonraki bütün cevaplar yanlış kayar. Hata yalnızca sıfır basamak çıktısını etkilemez.</p></section><section id="ornek-20" aria-labelledby="baslik-20"><p class="eyebrow">ÖRNEK 20 / 22 · A robot counts routes around an obstacle</p><h2 id="baslik-20">20. Robot engelin çevresindeki rotaları sayar</h2><p><a href="../#example-20">Ders sayfasındaki örnek 20</a> · <a href="../lecture-notes.html#topic-6-2">İlgili ders notu</a></p>
+<p>Izgara 3 satır, 4 sütun. Başlangıç sol üst, hedef sağ alt. Yalnızca <strong>sağa veya aşağıya</strong> gidilebilir. Görselin başlangıç engeli ikinci satır ikinci sütundadır; aşağıda satır ve sütunları 1'den sayıyoruz.</p>
+<table>
+<thead>
+<tr>
+<th>Hücre sayımları</th>
+<th style="text-align: right;">Sütun 1</th>
+<th style="text-align: right;">Sütun 2</th>
+<th style="text-align: right;">Sütun 3</th>
+<th style="text-align: right;">Sütun 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Satır 1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Satır 2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">Engel: 0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Satır 3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Başlangıç.</strong> Açık başlangıç hücresine bir boş rota vardır. Engelli hücreye sıfır rota girer. Diğer açık hücrelerin cevabı üst komşu + sol komşudur. Izgara dışı komşu 0 katkı yapar.</p>
+<p><strong>Örnek hücre.</strong> İkinci satır dördüncü sütuna yukarıdan 1, soldan 1 rota gelir; toplam 2. Hedefe yukarıdan 2, soldan 2 gelir; cevap 4. İki grubun son hareketleri farklı olduğundan aynı rota iki kez sayılmaz.</p>
+<p><strong>Engel kalkarsa.</strong> Tablo sırasıyla [1,1,1,1], [1,2,3,4], [1,3,6,10] olur; cevap 10. Bağımsız kontrol: hedefe iki aşağı, üç sağ hareket gerekir. Beş hareketin ikisinin aşağı yerlerini seçmek C(5,2)=10 verir.</p>
+<p>Engelin üzerinden geçecek rotalar da sayılabilir: başlangıçtan (2,2)'ye 2 yol, oradan hedefe 3 yol; 2×3=6 rota engellenir. 10−6=4, tabloyla aynıdır. Bu çıkarma burada tek engel için kolaydır; çoklu engellerde engellenen rotalar örtüşebilir.</p>
+<p><strong>Görselde deneme.</strong> Hücreye tıklayınca engel durumu değişir ve hesap baştan kurulur. Başlangıç veya hedef engellenirse cevap 0 olur. Bu bir rota sayımıdır; rotaları tek tek listelemez, maliyet minimize etmez.</p>
+<p><strong>Kontrol ve cevap.</strong> Dört yönde aynı kural çalışır mı? Hayır. Geri dönüşler çevrim yaratır; yürüyüş sayısı sınırsız olabilir. Sağ/aşağı kısıtı bağımlılıkları çevrimsiz yapar.</p></section><section id="ornek-21" aria-labelledby="baslik-21"><p class="eyebrow">ÖRNEK 21 / 22 · Stop a robot-arm branch only when it cannot recover</p><h2 id="baslik-21">21. Robot kolunda düzeltilemeyecek çarpışmayı erken elemek</h2><p><a href="../#example-21">Ders sayfasındaki örnek 21</a> · <a href="../lecture-notes.html#topic-6-1">İlgili ders notu</a></p>
+<p>Üç eklemin her birinde 12 izinli açı var. Bütün tam konfigürasyonlar 12³=1.728 adettir. Sabit tabanlı seri kol modelinde önceki eklem açıları sabitse sonraki eklemler, önceki kol parçasının konumunu değiştirmez.</p>
+<table>
+<thead>
+<tr>
+<th>Aşama</th>
+<th style="text-align: right;">Yapılan aday kontrolü</th>
+<th style="text-align: right;">Sonraki aşamaya kalan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Birinci eklem</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">4 ret, 8 önek</td>
+</tr>
+<tr>
+<td>İkinci eklem</td>
+<td style="text-align: right;">8×12=96</td>
+<td style="text-align: right;">Her önekte 3 ret; 8×9=72 önek</td>
+</tr>
+<tr>
+<td>Üçüncü eklem</td>
+<td style="text-align: right;">72×12=864</td>
+<td style="text-align: right;">Tam adaylar burada sınanır</td>
+</tr>
+</tbody>
+</table>
+<p>Toplam önek düzeyinde kontrol 12+96+864=972'dir. Üçüncü aşamadaki bütün adayların geçerli olduğu söylenmiyor; bu sayı değerlendirilen adayları gösterir.</p>
+<p><strong>Atlanan tam konfigürasyonlar.</strong> İlk eklemde reddedilen dört açı, 4×12×12=576 tam devamı ortadan kaldırır. Sağ kalan ilk açılar altında ikinci eklemde reddedilenler 8×3×12=288 devamı kaldırır. Gruplar ayrıdır; toplam atlanan 864. Böylece 1.728−864=864 tam adaya kadar ulaşılır.</p>
+<p><strong>972 ile 1.728 aynı birim mi?</strong> Hayır. 972 önek düzeyinde, 1.728 tam-konfigürasyon düzeyinde kontroldür. İşlem süreleri hakkında doğrudan yüzde kazanç çıkarmak için her kontrolün ne kadar iş yaptığı belirtilmelidir. Güvenilir doğrudan sonuç, belirtilen modelde 864 tam konfigürasyonun erken elendiğidir.</p>
+<p><strong>Budama koşulu.</strong> Sabit önceki kol parçası duvara giriyorsa sonraki açı seçimleri o parçayı kurtaramaz. Ama yalnızca uç nokta şu anda hedefe uzak diye dal kesmek, ulaşamayacağını gösteren ek bir sınır olmadan güvenli değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> Bu gerçek çarpışma simülasyonu mu? Hayır; her aşamadaki ret sayılarının verildiği sayım modelidir. Gerçek robotta geometri, eklem sınırları ve çarpışma testleri ayrıca tanımlanmalıdır.</p></section><section id="ornek-22" aria-labelledby="baslik-22"><p class="eyebrow">ÖRNEK 22 / 22 · List, count, or decide?</p><h2 id="baslik-22">22. Listele, say veya karar ver: doğru çıktıyı seçmek</h2><p><a href="../#example-22">Ders sayfasındaki örnek 22</a> · <a href="../lecture-notes.html#topic-5-9">İlgili ders notu</a></p>
+<p>Aynı görev kümesi için farklı istekler farklı iş gerektirir.</p>
+<table>
+<thead>
+<tr>
+<th>İstek</th>
+<th>Örnek çıktı</th>
+<th>Uygun yaklaşım fikri</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tam 9 yapan bir seçim var mı?</td>
+<td>Evet/hayır</td>
+<td>Erişilebilirlik DP veya arama</td>
+</tr>
+<tr>
+<td>Kaç seçim var?</td>
+<td>2</td>
+<td>Doğru durumlu sayım DP veya arama</td>
+</tr>
+<tr>
+<td>Bütün seçimleri yaz</td>
+<td>{3,5}, {1,3,6} görev numaraları</td>
+<td>Geri izleme veya DP destekli üretim</td>
+</tr>
+</tbody>
+</table>
+<p>Sayım tablosu hızlı olsa bile bütün çözümleri yazmak çok büyük çıktı gerektirebilir. DP, üretilmesi istenen ayrı sonuçların zorunlu çıktı maliyetini ortadan kaldırmaz. Geri izleme de yalnızca listeleme için değildir; ilk çözümde durarak karar problemi çözebilir.</p>
+<p><strong>Tek satırla bir-kez görev seçimi.</strong> reachable[s], işlenen görevlerden s toplamının yapılabildiğini söylesin. Başlangıçta yalnızca reachable[0]=True. Her görev süresi d için s değerleri T'den d'ye <strong>azalarak</strong> güncellenir: reachable[s], önceki değeri veya reachable[s−d] doğruysa doğru olur.</p>
+<p><strong>Neden azalan sıra?</strong> Tek görev 3, hedef 6 olsun. Başlangıçta 3 ve 6 yanlış. Azalan sırada önce 6 kontrol edilir; 3 henüz yanlış olduğu için 6 yanlış kalır. Sonra 3, reachable[0] üzerinden doğru olur. Görev yalnızca bir kez kullanıldı.</p>
+<p>Artan sırada önce 3 doğru yapılır; sonra 6 hesaplanırken aynı turda yeni yapılmış 3 okunur ve 6 da doğru olur. Bu, tek 3'lük görevi iki kez kullanmış olmaktır. İki ayrı 3'lük görev gerçekten varsa ikinci dış turda 6'nın doğru olması ise geçerlidir.</p>
+<p><strong>İki satırlı alternatif.</strong> Yeni satır yalnızca eski satırı okuyorsa bu karışıklık oluşmaz. Alan azaltarak tek satıra geçmek, güncelleme sırasını ispatın bir parçası hâline getirir.</p>
+<p><strong>Son kontrol.</strong> Bir durumun anlamını, taban cevabı, geçişi ve hangi bilginin eski/yeni olduğunu söyleyin. Bir budamanın neden hiçbir doğru cevabı kaybetmediğini karşı örnek arayarak sınayın. Bu hafta temel kazanım belirli kodu ezberlemek değil, seçimleri doğru temsil etmek ve tekrar edilen soruları güvenle birleştirmektir.</p></section></main></div><footer><a href="../">Hafta 12 dersine dön</a> · Açıklamalar, haftanın 22 örneğiyle aynı sıradadır.</footer></body></html>
