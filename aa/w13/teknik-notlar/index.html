@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AA 13. Hafta · 22 örnek için Türkçe teknik notlar</title><link rel="stylesheet" href="notes.css"></head><body><header><a href="../">← Week 13 · Örneklere dön</a><a href="notlar.md" download>Markdown indir</a><button type="button" onclick="window.print()">Yazdır / PDF</button></header><div class="layout"><aside aria-label="İçindekiler"><h2>22 örnek · İçindekiler</h2><a href="#baslangic">Kavramlar ve sayım kuralları</a><ol><li><a href="#ornek-1"><span>1</span>Her tablo hücresine açık bir anlam verin</a></li><li><a href="#ornek-2"><span>2</span>Altı tutarını en az sayıda parayla oluşturmak</a></li><li><a href="#ornek-3"><span>3</span>cat sözcüğünü cut yapmak</a></li><li><a href="#ornek-4"><span>4</span>Boş satır ve sütun gerçek problemleri temsil eder</a></li><li><a href="#ornek-5"><span>5</span>Yalnızca işlem sayısını değil işlemleri de bulmak</a></li><li><a href="#ornek-6"><span>6</span>Kendi sözcüklerinizi deneyin</a></li><li><a href="#ornek-7"><span>7</span>Python kodunda tabloyu satır satır kurmak</a></li><li><a href="#ornek-8"><span>8</span>Ortak sırayı koruyun, aralarda boşluk olabilir</a></li><li><a href="#ornek-9"><span>9</span>İlk mola: aynı tablo biçimi, farklı anlamlar</a></li><li><a href="#ornek-10"><span>10</span>Artan alt dizi için sırayı değiştirmeyin</a></li><li><a href="#ornek-11"><span>11</span>İki akışı kendi iç sıralarını bozmadan karıştırmak</a></li><li><a href="#ornek-12"><span>12</span>Uzun mesajın içinde yaklaşık eşleşme aramak</a></li><li><a href="#ornek-13"><span>13</span>En değerli tek nesne yerine en iyi birleşimi seçmek</a></li><li><a href="#ornek-14"><span>14</span>Daha çok iş yapmak ile daha çok ücret kazanmak farklıdır</a></li><li><a href="#ornek-15"><span>15</span>Burada biten en iyi parça, genel en iyi parça değildir</a></li><li><a href="#ornek-16"><span>16</span>İkinci mola: çıktı türünü ve kısıtı söyleyin</a></li><li><a href="#ornek-17"><span>17</span>İki kırılabilir numuneyle en kötü durumu planlamak</a></li><li><a href="#ornek-18"><span>18</span>İlk kesim sonraki maliyetleri değiştirir</a></li><li><a href="#ornek-19"><span>19</span>Yol parçası sayısı ile yakıt molası sayısını ayırmak</a></li><li><a href="#ornek-20"><span>20</span>Sıralı işleri en ağır grubu küçülterek paylaşmak</a></li><li><a href="#ornek-21"><span>21</span>Yavaş ve hızlı sensör akışlarını hizalamak</a></li><li><a href="#ornek-22"><span>22</span>DP kullanmak küçük tablo garantisi vermez</a></li></ol></aside><main><div class="intro" id="baslangic"><h1>AA · 13. Hafta — 22 örneğin Türkçe teknik açıklaması</h1>
+<p>Bu notlar <strong>dinamik programlama uygulamaları</strong> dersindeki 22 kartı aynı sırayla açıklar. Her bölüm ilgili örneğe ve ders notuna bağlanır. 9 ve 16 numaralı mola kartlarında cevaplı tekrar bulunur. Açıklamalar ve cevaplar menü açmadan okunabilir.</p>
+<p>Bu haftanın sorusu “hangi formülü ezberlemeliyim?” değil, <strong>“bu hücre hangi küçük sorunun cevabı?”</strong> sorusudur. Aynı biçimde görünen iki tablo farklı şeyler hesaplayabilir.</p>
+<ul>
+<li><strong>Durum:</strong> Kalan hesabı belirleyen bilgiler. İki metnin önek uzunlukları veya kullanılan nesne sayısıyla kapasite gibi.</li>
+<li><strong>Önek:</strong> Baştan alınan bölüm. <code>cat</code> metninin uzunluğu 2 olan öneki <code>ca</code>dır.</li>
+<li><strong>Taban durum:</strong> Cevabı doğrudan bilinen küçük soru. Boş metni üç harfe dönüştürmek üç ekleme gerektirir.</li>
+<li><strong>Geçiş:</strong> Küçük cevaplardan yeni cevabın nasıl kurulacağı.</li>
+<li><strong>Minimum / maksimum:</strong> Sırasıyla adayların en küçüğü / en büyüğü. Önce hangi ölçüyü iyileştirdiğimizi belirtmeliyiz.</li>
+<li><strong>∞:</strong> Ulaşılamayan durumun işareti. Çok büyük ama geçerli bir çözüm değildir.</li>
+<li><strong>Geriye izleme:</strong> Sonuç hücresinden önceki seçimleri takip ederek bir çözümün nasıl oluştuğunu bulma.</li>
+<li><strong>Alt dizi:</strong> Sıra korunur, aradan eleman atlanabilir. <strong>Bitişik parça:</strong> Aradan eleman atlanamaz.</li>
+</ul>
+<p>Hesap maliyetlerinde, aksi söylenmedikçe küçük tamsayıların karşılaştırılması ve toplanması birim işlem kabul edilir. Bir tabloya sahip olmak doğruluk veya küçük çalışma süresi garantisi değildir.</p></div><section id="ornek-1" aria-labelledby="baslik-1"><p class="eyebrow">ÖRNEK 1 / 22 · Give every table entry a meaning</p><h2 id="baslik-1">1. Her tablo hücresine açık bir anlam verin</h2><p><a href="../#example-1">Ders sayfasındaki örnek 1</a> · <a href="../lecture-notes.html#topic-0-1">İlgili ders notu</a></p>
+<p><strong>Problem.</strong> “6 numaralı hücrede 2 var” tek başına bir açıklama değildir. Bu 2, iki çözüm mü, iki para mı, iki saniye mi? Önce birimi ve amacı söylemeliyiz: “6 tutarını oluşturmak için gereken en az para sayısı 2.”</p>
+<table>
+<thead>
+<tr>
+<th>Tasarım sorusu</th>
+<th>Para örneğindeki cevap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Durum neyi tutuyor?</td>
+<td><code>dp[t]</code>: t tutarı için en az para sayısı</td>
+</tr>
+<tr>
+<td>Başlangıç nedir?</td>
+<td><code>dp[0]=0</code></td>
+</tr>
+<tr>
+<td>Seçenekler nelerdir?</td>
+<td>Son paranın değeri 1, 3 veya 4 olabilir</td>
+</tr>
+<tr>
+<td>Nasıl birleştiriliyor?</td>
+<td>Geçerli adayların minimumu</td>
+</tr>
+<tr>
+<td>Sonuç nerede?</td>
+<td>Hedef 6 ise <code>dp[6]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neden önce anlam?</strong> Aynı paralardan 6 yapmanın kaç yolu olduğunu sorsaydık minimum almak yanlış olurdu. Ayrıca sıralı dizileri mi yoksa sırasız para çokluklarını mı saydığımızı belirtmemiz gerekirdi. Görünüşte doğru çalışan bir döngü yanlış soruyu çözebilir.</p>
+<p><strong>Hesaplama sırası.</strong> Pozitif para değerlerinde <code>t−c</code>, t'den küçüktür. Küçük tutarlardan büyüklere gidersek gereken cevaplar hazırdır. Önbellekli özyineleme de aynı bağıntıyı ihtiyaç oldukça hesaplayabilir.</p>
+<p><strong>Maliyet.</strong> T+1 durum ve her durumda k para seçeneği varsa bu uygulama O(kT) zaman kullanır. “DP kullandık, hızlıdır” yerine durum ve seçenek sayılarını sayıyoruz.</p>
+<p><strong>Kontrol ve cevap.</strong> <code>dp[6]=2</code> bize hangi iki paranın seçildiğini de verir mi? Hayır. Yalnızca minimum sayıyı verir. Gerçek para listesini üretmek için bir en iyi seçimi kaydetmek veya tablodan geri çıkarmak gerekir.</p></section><section id="ornek-2" aria-labelledby="baslik-2"><p class="eyebrow">ÖRNEK 2 / 22 · Make six with as few coins as possible</p><h2 id="baslik-2">2. Altı tutarını en az sayıda parayla oluşturmak</h2><p><a href="../#example-2">Ders sayfasındaki örnek 2</a> · <a href="../lecture-notes.html#topic-1-3">İlgili ders notu</a></p>
+<p>1,3,4 değerli paralardan sınırsız kopya var. Büyükten başlamak 4+1+1 ile üç para kullanır. 3+3 ise iki para kullanır. 6 değerli tek para olmadığı için iki paranın optimum olduğu da anlaşılır.</p>
+<p><code>dp[t]</code>, tam t tutarını oluşturmak için gereken en az para sayısı olsun. <code>dp[0]=0</code>; ulaşılamayan tutar ∞ olarak kalır. Pozitif c parası sığıyorsa aday <code>1+dp[t−c]</code> olur. Baştaki 1, son eklenen parayı sayar.</p>
+<table>
+<thead>
+<tr>
+<th>Tutar t</th>
+<th>Son paraya göre adaylar</th>
+<th>Minimum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Hiç para kullanma</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1+dp[0]</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1+dp[1]</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1+dp[2], 1+dp[0]</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1+dp[3], 1+dp[1], 1+dp[0]</td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1+dp[4], 1+dp[2], 1+dp[1]</td>
+<td>2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1+dp[5]=3, 1+dp[3]=2, 1+dp[2]=3</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neden doğru?</strong> Her boş olmayan çözümün bir son parası vardır. O parayı çıkarınca kalan tutar için bir çözüm kalır. Bu kalanı daha az parayla yapabilseydik bütün çözümü de iyileştirebilirdik. Bütün olası son paraları deneyip minimum almak seçenekleri kapsar.</p>
+<p><strong>Görseli okuma.</strong> Her adım bir tutarı tamamlar. Sağdaki ∞ değerleri henüz doldurulmamış da olabilir; ilgili tutarın adımı tamamlanmadan “kesinlikle yapılamaz” demeyin.</p>
+<p><strong>Kontrol ve cevap.</strong> Yalnızca 3 ve 4 varsa 2 yapılamaz; <code>dp[2]=∞</code>. Bunu 0 yapmak “2 tutarı hiç para kullanmadan yapılabilir” gibi yanlış bir anlam verir. Bu problem her nesnenin bir kez alındığı sırt çantası problemi değildir.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 22 · Fix cat into cut</p><h2 id="baslik-3">3. cat sözcüğünü cut yapmak</h2><p><a href="../#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-2-1">İlgili ders notu</a></p>
+<p>İzin verilen işlemler bir harf ekleme, bir harf silme ve bir harfi değiştirmedir; her biri 1 maliyetlidir. Aynı harfi eşleştirmek 0 maliyetlidir. <code>cat → cut</code> için a yerine u yazmak yeterlidir; cevap 1'dir.</p>
+<p><strong>Durum.</strong> <code>D[i][j]</code>, kaynak metnin ilk i harfini hedefin ilk j harfine dönüştürmenin minimum maliyetidir. Örneğin <code>D[2][2]</code>, <code>ca → cu</code> sorusudur; bütün sözcükleri değil önekleri karşılaştırır.</p>
+<table>
+<thead>
+<tr>
+<th>Son işlem</th>
+<th>Önce çözülmüş soru</th>
+<th>Aday maliyet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kaynağın son harfini sil</td>
+<td>İlk i−1 kaynak → ilk j hedef</td>
+<td>D[i−1][j]+1</td>
+</tr>
+<tr>
+<td>Hedefin son harfini ekle</td>
+<td>İlk i kaynak → ilk j−1 hedef</td>
+<td>D[i][j−1]+1</td>
+</tr>
+<tr>
+<td>Son harfleri eşleştir/değiştir</td>
+<td>İlk i−1 kaynak → ilk j−1 hedef</td>
+<td>D[i−1][j−1]+0 veya 1</td>
+</tr>
+</tbody>
+</table>
+<p><code>ca → cu</code> hücresinde silme 2, ekleme 2, değiştirme 1 verir. En küçük 1 seçilir. Son t harfleri aynı olduğundan <code>cat → cut</code> hücresinin köşegen adayı bu 1'e sıfır ekler.</p>
+<p><strong>Neden bütün seçenekler?</strong> Bir hizalamadaki son adım ya kaynak harfini boşlukla, ya hedef harfini boşlukla, ya da iki harfi birbirleriyle eşleştirir. Bu üç seçenek uygun küçük önek sorularına iner.</p>
+<p><strong>Kontrol ve cevap.</strong> <code>cat → cat</code> maliyeti 0'dır. <code>ab → ba</code> ise bu modelde 1 değildir: harflerin yerini değiştirmek tek işlem olarak tanımlanmadı. İşlem kümesi değiştirilirse başka bir uzaklık hesaplanır.</p></section><section id="ornek-4" aria-labelledby="baslik-4"><p class="eyebrow">ÖRNEK 4 / 22 · Why the empty row and column matter</p><h2 id="baslik-4">4. Boş satır ve sütun gerçek problemleri temsil eder</h2><p><a href="../#example-4">Ders sayfasındaki örnek 4</a> · <a href="../lecture-notes.html#topic-2-7">İlgili ders notu</a></p>
+<p>Kaynak satırlarda, hedef sütunlarda olsun. ∅ işareti boş önektir; metnin içine eklenmiş bir karakter değildir.</p>
+<table>
+<thead>
+<tr>
+<th>Kaynak / hedef</th>
+<th>∅</th>
+<th>c</th>
+<th>cu</th>
+<th>cut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>∅</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>c</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>ca</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>cat</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Üst satır.</strong> Boştan <code>cut</code> yapmak üç ekleme gerektirir. Bu yüzden <code>D[0][j]=j</code>. <strong>Sol sütun.</strong> <code>cat</code> metnini boşaltmak üç silme gerektirir; <code>D[i][0]=i</code>.</p>
+<p><strong>Bir hücrenin hesabı.</strong> Son hücre <code>D[3][3]</code> için yukarıdan silme 2+1=3, soldan ekleme 2+1=3, köşegenden t eşleşmesi 1+0=1. Cevap 1. Sınırları yanlışlıkla sıfır doldurmak bu adayları da yanlış ucuzlatır.</p>
+<p><strong>Sıra.</strong> Satırları yukarıdan aşağı, her satırı soldan sağa doldurmak yeterlidir. Yukarı, sol ve sol üst hücreler hesap anında hazırdır. Her tabloda bu sıranın çalışacağını varsaymayın; bağımlılıklara bakın.</p>
+<p><strong>Maliyet.</strong> m ve n metin uzunluklarıdır. Sınırlar dahil (m+1)(n+1) hücre vardır; hücre başına üç aday karşılaştırılır. Genel ifade O((m+1)(n+1)); iki uzunluk da pozitifken O(mn) denir. Biri boşken sınırı hazırlamak yine doğrusal iş gerektirir.</p>
+<p><strong>Kontrol ve cevap.</strong> Yalnızca uzaklık isteniyorsa iki satır saklanabilir. Ama bütün tabloyu çizmek veya standart geri izlemeyi yapmak istiyorsak geçmiş bilgilerin nasıl korunacağını ayrıca planlamalıyız.</p></section><section id="ornek-5" aria-labelledby="baslik-5"><p class="eyebrow">ÖRNEK 5 / 22 · Recover the edits, not just their number</p><h2 id="baslik-5">5. Yalnızca işlem sayısını değil işlemleri de bulmak</h2><p><a href="../#example-5">Ders sayfasındaki örnek 5</a> · <a href="../lecture-notes.html#topic-2-5">İlgili ders notu</a></p>
+<p><code>sun → snow</code> için bir optimum dönüşüm şöyledir:</p>
+<pre><code class="language-text">sun → sn     u silindi: 1
+sn  → sno    o eklendi: 1
+sno → snow   w eklendi: 1
+Toplam: 3
+</code></pre>
+<p><strong>Üç işlem yeterli, ama gerekli mi?</strong> Uzunluk farkı 1 olduğu için iki işlemle dönüşüm olsaydı bunlar bir ekleme ve bir değiştirme olmak zorundaydı. <code>snow</code>dan eklenen tek harfi çıkardığımızda <code>now</code>, <code>sow</code>, <code>snw</code> veya <code>sno</code> kalır. Bunların hiçbiri <code>sun</code>dan tek harf değişikliğiyle elde edilemez. Dolayısıyla iki işlem yetmez; üç işlemlik örnek optimumdur.</p>
+<p><strong>Tablodan çözüm çıkarma.</strong> Sağ alt hücreden başlayın. Mevcut değeri açıklayan bir önceki hücre bulun. Köşegen eşleşme/değiştirme, yukarı silme, sol ekleme anlamına gelir. Adımlar sondan başa toplandığı için sonunda ters çevrilir.</p>
+<p><strong>Birden fazla doğru cevap.</strong> Eşit maliyetli öncüller olabilir. Görsel önce köşegen, sonra silme, sonra ekleme seçer. Bu nedenle yazılı örnekten farklı ama yine üç maliyetli bir hizalama gösterebilir. Aynı minimum maliyet, aynı işlem dizisini zorunlu kılmaz.</p>
+<p><strong>Kontrol ve cevap.</strong> İşlem dizisinin gerçekten optimum olduğunu yalnızca üç işlem yazmak kanıtlar mı? Hayır; bu yalnızca en fazla üç işlem gerektiğini gösterir. DP minimum hesabı veya yukarıdaki alt sınır gerekçesi, daha ucuz çözüm olmadığını tamamlar.</p></section><section id="ornek-6" aria-labelledby="baslik-6"><p class="eyebrow">ÖRNEK 6 / 22 · Try two words of your own</p><h2 id="baslik-6">6. Kendi sözcüklerinizi deneyin</h2><p><a href="../#example-6">Ders sayfasındaki örnek 6</a> · <a href="../lecture-notes.html#topic-2-4">İlgili ders notu</a></p>
+<p>Kaynak ve hedef alanlarını değiştirip <strong>Build table</strong> düğmesine basın. <strong>Step →</strong> hesaplanan hücreleri sırayla gösterir. Turuncu hücre şu anda hesaplanandır; son adım minimum uzaklıkla birlikte bir optimum hizalama verir. Yeni girişler hem sayıları hem açıklamaları yeniden oluşturur.</p>
+<table>
+<thead>
+<tr>
+<th>Kaynak</th>
+<th>Hedef</th>
+<th>Beklenen uzaklık</th>
+<th>Gerekçe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cat</td>
+<td>cat</td>
+<td>0</td>
+<td>Bütün harfler eşleşir</td>
+</tr>
+<tr>
+<td>cat</td>
+<td>cut</td>
+<td>1</td>
+<td>a yerine u</td>
+</tr>
+<tr>
+<td>Boş</td>
+<td>cut</td>
+<td>3</td>
+<td>Üç ekleme</td>
+</tr>
+<tr>
+<td>ab</td>
+<td>ba</td>
+<td>2</td>
+<td>İki değiştirme; tek-adım takas yok</td>
+</tr>
+<tr>
+<td>A</td>
+<td>a</td>
+<td>1</td>
+<td>Büyük/küçük harf ayrımı var</td>
+</tr>
+</tbody>
+</table>
+<p><strong>İki ayrı boşluk işareti.</strong> Tablo sınırındaki ∅ boş öneki gösterir. Son hizalamadaki uzun çizgi ise o tarafta harf bulunmadığını, bir ekleme veya silme yapıldığını gösterir. İkisi de öğrencinin sözcüğüne ait bir harf değildir.</p>
+<p><strong>Giriş sınırları.</strong> Etkileşimli düzenleyici her alanda en fazla sekiz ASCII harfi kabul eder; boş sözcük kullanılabilir. Türkçe ş, ı gibi harfler ve boşluklar bu arayüzün izin verdiği kümede değildir. Bu, algoritmanın Türkçe metne uygulanamayacağı anlamına gelmez; ders arayüzünün sınırlamasıdır.</p>
+<p><strong>Kontrol ve cevap.</strong> Değiştirme maliyetini 2 yapmak için yalnızca sözcükleri değiştirmek yeterli mi? Hayır. Arayüzdeki model hâlâ değiştirmeyi 1 sayar. Maliyet kuralının da kodda değiştirilmesi gerekir. Sonucu yorumlarken girişle birlikte işlem modelini de belirtin.</p></section><section id="ornek-7" aria-labelledby="baslik-7"><p class="eyebrow">ÖRNEK 7 / 22 · Run edit distance in Python</p><h2 id="baslik-7">7. Python kodunda tabloyu satır satır kurmak</h2><p><a href="../#example-7">Ders sayfasındaki örnek 7</a> · <a href="../lecture-notes.html#topic-2-6">İlgili ders notu</a></p>
+<p>Ana ders sayfasındaki <strong>Run</strong> düğmesi aşağıdaki kodu çalıştırır. Kod kaynakla bire bir aynıdır; giriş kutusu gerektiren <code>input()</code> çağrısı yoktur.</p>
+<pre><code class="language-python"><span class="code-line"><span class="line-number" aria-hidden="true">1</span>source = &quot;cat&quot;</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">2</span>target = &quot;cut&quot;</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">3</span>m, n = len(source), len(target)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">4</span>dp = [[0] * (n + 1) for _ in range(m + 1)]</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">5</span>for i in range(m + 1):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">6</span>    dp[i][0] = i</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">7</span>for j in range(n + 1):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">8</span>    dp[0][j] = j</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">9</span>for i in range(1, m + 1):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">10</span>    for j in range(1, n + 1):</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">11</span>        replace_cost = 0 if source[i - 1] == target[j - 1] else 1</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">12</span>        dp[i][j] = min(dp[i - 1][j] + 1,</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">13</span>                       dp[i][j - 1] + 1,</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">14</span>                       dp[i - 1][j - 1] + replace_cost)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">15</span>for row in dp:</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">16</span>    print(row)</span>
+<span class="code-line"><span class="line-number" aria-hidden="true">17</span>print(&quot;Distance:&quot;, dp[m][n])</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Satır</th>
+<th>Ne yapıyor, neden gerekli?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Kaynak metni belirler. Değiştirilen metin budur.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Ulaşılacak hedef metni belirler.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>İki uzunluğu m ve n değişkenlerine koyar.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>m+1 ayrı satır, her satırda n+1 hücre oluşturur. Ek satır/sütun boş önek içindir.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0'dan m'ye bütün kaynak önek uzunluklarını gezer.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Sol sınırı i silmenin maliyetiyle doldurur.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>0'dan n'ye bütün hedef önek uzunluklarını gezer.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Üst sınırı j eklemenin maliyetiyle doldurur.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Boş olmayan kaynak öneklerini sırayla işler.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Her kaynak öneki için boş olmayan hedef öneklerini işler.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Son harfler aynıysa 0, farklıysa 1 seçer. Önek uzunluğu i, son karakter indeksi i−1'dir.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Minimum hesabını başlatır; ilk aday yukarıdaki cevaba bir silme ekler.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>İkinci aday soldaki cevaba bir ekleme ekler.</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Üçüncü aday köşegene eşleşme/değiştirme maliyetini ekler; minimum hücreye yazılır.</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Bitmiş matrisin satırlarını sırayla alır.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>O satırdaki değerleri ekrana yazar.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>İki tam metnin cevabını, sağ alt hücreyi yazdırır.</td>
+</tr>
+</tbody>
+</table>
+<p>Beklenen çıktı:</p>
+<pre><code class="language-text">[0, 1, 2, 3]
+[1, 0, 1, 2]
+[2, 1, 1, 2]
+[3, 2, 2, 1]
+Distance: 1
+</code></pre>
+<p><strong>Önemli Python ayrıntısı.</strong> 4. satırdaki liste üretimi her satırı ayrı oluşturur. <code>[[0]*(n+1)]*(m+1)</code> biçimi aynı satıra birden çok referans üretir; bir hücreyi değiştirince başka satırlar da değişebilir.</p>
+<p><strong>Deney ve cevap.</strong> Kaynağı <code>""</code>, hedefi <code>"cut"</code> yapın: tek satır <code>[0,1,2,3]</code>, uzaklık 3. İkisi de boşsa <code>[[0]]</code>, uzaklık 0. Kodun iç döngüleri çalışmasa bile sınırlar doğru cevabı sağlar. Kod görsel giriş kutusundaki sekiz ASCII harf sınırını uygulamaz; okunabilir çıktı için kısa metinler kullanın.</p></section><section id="ornek-8" aria-labelledby="baslik-8"><p class="eyebrow">ÖRNEK 8 / 22 · Keep a common sequence, with gaps allowed</p><h2 id="baslik-8">8. Ortak sırayı koruyun, aralarda boşluk olabilir</h2><p><a href="../#example-8">Ders sayfasındaki örnek 8</a> · <a href="../lecture-notes.html#topic-3-1">İlgili ders notu</a></p>
+<p><code>ABCD</code> ile <code>ACBD</code> karşılaştırılıyor. <code>ABD</code> her ikisinde de aynı sırada bulunur; bazı harfleri atlıyoruz. <code>ACD</code> de ortak ve uzunluğu 3'tür. Dört harfli ortak alt dizi olsaydı iki metnin tamamı aynı sırada olmalıydı; değiller. Bu nedenle en uzun ortak alt dizi uzunluğu 3'tür.</p>
+<p><strong>Durum.</strong> <code>L[i][j]</code>, iki öneğin en uzun ortak alt dizi uzunluğudur. Boş önekle ortak alt dizi yalnızca boş dizidir; sınır değerleri 0.</p>
+<ul>
+<li>Son harfler aynıysa <code>L[i−1][j−1]+1</code> kullanılır. Ortak son harfi eklemek bir önceki optimumu uzatır.</li>
+<li>Farklıysa iki son harfi birlikte eşleştiremeyiz. Kaynağın veya hedefin son harfini dışarıda bırakan iki sorudan büyük olan alınır: <code>max(L[i−1][j], L[i][j−1])</code>.</li>
+</ul>
+<p><strong>Bitişik parça farkı.</strong> <code>ABD</code>, <code>ABCD</code> içinde bitişik değildir; C atlanmıştır. En uzun ortak bitişik parçayı aramak başka bir problemdir, aynı geçişi kullanmaz.</p>
+<p><strong>Düzenleme uzaklığı bağlantısı.</strong> Yalnızca ekleme ve silme serbestse m+n−2L işlem yeterlidir ve gereklidir. Ortak L harfi tutar, kaynaktaki diğer m−L harfi siler, hedefteki diğer n−L harfi ekleriz. Burada 4+4−2×3=2.</p>
+<p><strong>Kontrol ve cevap.</strong> Bu formül, değiştirme maliyeti 1 olan her Levenshtein uzaklığını verir mi? Hayır. <code>a → b</code> için ortak alt dizi 0, yalnızca ekle/sil maliyeti 2, bir değiştirmeyle maliyet 1'dir.</p></section><section id="ornek-9" aria-labelledby="baslik-9"><p class="eyebrow">ÖRNEK 9 / 22 · Take a short break</p><h2 id="baslik-9">9. İlk mola: aynı tablo biçimi, farklı anlamlar</h2><p><a href="../#example-9">Ders sayfasındaki örnek 9</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>64–74. dakikalardaki moladan sonra aşağıdaki ayrımları kontrol edin.</p>
+<table>
+<thead>
+<tr>
+<th>Soru</th>
+<th>Taban değer</th>
+<th>Birleştirme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>En az para</td>
+<td>Sıfır tutara 0 para</td>
+<td>Minimum</td>
+</tr>
+<tr>
+<td>Düzenleme uzaklığı</td>
+<td>Boş öneğe ekleme/silme sayısı</td>
+<td>Minimum</td>
+</tr>
+<tr>
+<td>Ortak alt dizi uzunluğu</td>
+<td>Boş önekle uzunluk 0</td>
+<td>Uygun durumda maksimum</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Soru:</strong> <code>D[2][3]</code> ne demektir? <strong>Cevap:</strong> İlk iki kaynak harfini ilk üç hedef harfine dönüştürmenin minimum maliyeti. “İkinci harfi üçüncü harfe dönüştürmek” değildir; tek karakterleri değil önekleri karşılaştırır.</p>
+<p><strong>Soru:</strong> Görselde bir boş hücre ile sayısal 0 aynı mı? <strong>Cevap:</strong> Hayır. Hesaplanmamış hücre henüz cevap değildir; 0 ise bazı durumlarda gerçekten maliyet sıfır demektir.</p>
+<p><strong>Soru:</strong> Minimum değeri yazdırmak çözümün nasıl oluştuğunu gösterir mi? <strong>Cevap:</strong> Hayır. Geriye izleme, değeri gerçekleştiren seçimleri ortaya çıkarır. Eşitliklerde farklı optimumlar mümkündür.</p>
+<p><strong>Kısa uygulama.</strong> <code>a → b</code> için üç aday 2,2,1'dir: silme yoluyla 2, ekleme yoluyla 2, değiştirme yoluyla 1. Ortak alt dizi uzunluğu ise 0'dır. Aynı iki metin üzerinde iki farklı soru farklı sayılar üretir.</p></section><section id="ornek-10" aria-labelledby="baslik-10"><p class="eyebrow">ÖRNEK 10 / 22 · Increasing means the numbers must rise</p><h2 id="baslik-10">10. Artan alt dizi için sırayı değiştirmeyin</h2><p><a href="../#example-10">Ders sayfasındaki örnek 10</a> · <a href="../lecture-notes.html#topic-3-2">İlgili ders notu</a></p>
+<p>Girdi <code>3,1,4,1,5,9,2,6</code>. Amaç bazı konumları seçerek değerleri kesin artan bir alt dizi bulmaktır. <code>3,4,5,6</code> geçerli ve uzunluğu 4'tür; değerler orijinal sıradadır.</p>
+<p><strong>Durum.</strong> <code>d[i]</code>, mutlaka i konumunda biten en uzun artan alt dizinin uzunluğudur. Her eleman tek başına uzunluk 1 verir. Daha önceki j konumu için <code>a[j]&lt;a[i]</code> ise aday <code>d[j]+1</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Konum (1'den)</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Değer</td>
+<td>3</td>
+<td>1</td>
+<td>4</td>
+<td>1</td>
+<td>5</td>
+<td>9</td>
+<td>2</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Burada biten en iyi uzunluk</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+<td>2</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Örnek hesap.</strong> Son 6 için daha önceki 5'in uzunluğu 3 olduğundan 3+1=4 elde edilir. 9 daha önce olsa da 9&lt;6 yanlış olduğundan uzatma adayı değildir. Sonuç bütün <code>d[i]</code> değerlerinin maksimumudur; en iyi alt dizinin son girdi elemanında bitmesi şart değildir.</p>
+<p><strong>Neden sıralamıyoruz?</strong> Sıralama, verilen zaman/konum düzenini değiştirir. Sensör ölçümleri zaman sırasındaysa bunları sıraya dizmek farklı bir deney olur.</p>
+<p><strong>LCS bağlantısı.</strong> Orijinal diziyi sıralanmış ve tekrarları kaldırılmış kopyasıyla LCS karşılaştırmasına sokmak kesin artan alt dizi uzunluğunu verir. Tekrarları bırakmak artmayan eşit değerleri kabul ederek başka bir soruya kayabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> 1,1 kesin artan değildir; eşitlik kabul edilmez. Basit uygulama O(n²) karşılaştırma yapar. Daha hızlı yöntemler bulunsa da bu tablo hangi önceki cevabın uzatıldığını açıkça gösterir.</p></section><section id="ornek-11" aria-labelledby="baslik-11"><p class="eyebrow">ÖRNEK 11 / 22 · Mix two streams without reversing either</p><h2 id="baslik-11">11. İki akışı kendi iç sıralarını bozmadan karıştırmak</h2><p><a href="../#example-11">Ders sayfasındaki örnek 11</a> · <a href="../lecture-notes.html#topic-3-3">İlgili ders notu</a></p>
+<p>Girdiler <code>AB</code> ve <code>CD</code>. Çıktı <code>ACBD</code> olabilir: A birinci akıştan, C ikinciden, B birinciden, D ikinciden alınır. <code>ADBC</code> olamaz; D, C'den önce kullanılmıştır.</p>
+<p><strong>Durum.</strong> <code>S[i][j]</code>, ilk akıştan i ve ikinciden j harf kullanarak çıktının ilk i+j harfinin oluşturulup oluşturulamadığıdır. Hücre sayı değil doğru/yanlış tutar. Önce çıktı uzunluğunun iki girdi uzunluğunun toplamı olduğunu kontrol ederiz.</p>
+<p><code>ACBD</code> için bir başarılı yol:</p>
+<pre><code class="language-text">(0,0) → A → (1,0) → C → (1,1) → B → (2,1) → D → (2,2)
+</code></pre>
+<p><strong>Geçiş.</strong> Son çıktı harfi birinci akıştan geldiyse <code>S[i−1][j]</code> doğru olmalı ve o akışın i. harfi çıktıdaki son harfle eşleşmeli. İkinci akıştan geldiyse benzer biçimde <code>S[i][j−1]</code> kullanılır. İki koşuldan en az biri yeterlidir; mantıksal VEYA alınır.</p>
+<p><strong>Neden iki seçenek?</strong> Tekrarlanan harflerde aynı çıktı harfi iki akışın da sıradaki harfi olabilir. İlk eşleşeni keyfî seçmek daha sonra başarısız olabilir; tablo olası iki geçmişi de korur. Bir hücrenin doğru olması kaynak atamasının tek olduğunu söylemez.</p>
+<p><strong>Kontrol ve cevap.</strong> <code>CABD</code> geçerlidir: C, A, B, D alınır. Girdi sıraları C&lt;D ve A&lt;B korunur. Buna karşılık yalnızca harf sayılarını kontrol etmek yeterli değildir; <code>ADBC</code> aynı harfleri içerdiği hâlde geçersizdir.</p></section><section id="ornek-12" aria-labelledby="baslik-12"><p class="eyebrow">ÖRNEK 12 / 22 · Find a near-match inside a longer message</p><h2 id="baslik-12">12. Uzun mesajın içinde yaklaşık eşleşme aramak</h2><p><a href="../#example-12">Ders sayfasındaki örnek 12</a> · <a href="../lecture-notes.html#topic-3-4">İlgili ders notu</a></p>
+<p>Desen <code>cat</code>, metin <code>xxcutyy</code>. Bütün metinleri dönüştürmek, ilgisiz xx ve yy harflerine de işlem maliyeti yükler. Burada desenin metin içindeki en iyi parçayla eşleşmesini istiyoruz.</p>
+<p><strong>Değişen iki şey.</strong> Desen önekleri satır, metin önekleri sütundur. Üst satırın tamamı 0 yapılır: eşleşmenin başlangıcından önceki metin ücretsiz atlanabilir. Sonuç yalnızca sağ alt hücre değil, son desen satırındaki en küçük değerdir: bitiş noktası da serbesttir.</p>
+<table>
+<thead>
+<tr>
+<th>Metin öneki</th>
+<th>∅</th>
+<th>x</th>
+<th>xx</th>
+<th>xxc</th>
+<th>xxcu</th>
+<th>xxcut</th>
+<th>xxcuty</th>
+<th>xxcutyy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boş desen sınırı</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tam cat deseninin maliyeti</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>En iyi bitiş beşinci metin harfindedir: <code>xxcut</code> önekinin sonunda. Geriye izleme başlangıçtaki xx'i dışarıda bırakır; eşleşen parça <code>cut</code>, maliyet 1'dir. Sonraki yy'yi işlemek zorunda değiliz.</p>
+<p><strong>Ne değişmedi?</strong> İç hücreler yine silme, ekleme ve eşleştirme/değiştirme seçeneklerinin minimumunu kullanır. Aynı geçiş farklı sınırlar ve sonuç seçimiyle başka bir soruyu çözebilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Üst satırın sıfır olması bütün eşleşmeleri ücretsiz mi yapar? Hayır; yalnızca başlangıç konumunu serbest bırakır. Desenin seçilen parçaya dönüşmesi hâlâ ücretlidir. Bu kurulum tüm deseni silerek boş parçayla eşleşmeye de izin verir; boş parçayı yasaklayan farklı bir şart varsa ayrıca modellenmelidir.</p></section><section id="ornek-13" aria-labelledby="baslik-13"><p class="eyebrow">ÖRNEK 13 / 22 · Pack value, not just the biggest item</p><h2 id="baslik-13">13. En değerli tek nesne yerine en iyi birleşimi seçmek</h2><p><a href="../#example-13">Ders sayfasındaki örnek 13</a> · <a href="../lecture-notes.html#topic-4-1">İlgili ders notu</a></p>
+<p>Nesneler ağırlık/değer olarak (2,3), (3,4), (4,5). Kapasite 5. En değerli tek nesne 5 değer verir. İlk iki nesne birlikte ağırlık 5, değer 7 verir ve daha iyidir.</p>
+<p><code>V[i][w]</code>, ilk i nesneyle <strong>en fazla w</strong> ağırlıkta elde edilen en büyük değerdir. Kapasitenin tamamen doldurulması şart değildir. Hiç nesne kullanmadan değer 0 elde edilir.</p>
+<table>
+<thead>
+<tr>
+<th>Kullanılabilen nesneler / kapasite</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiçbiri</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>İlk nesne</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>İlk iki</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Üçü de</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Al veya alma.</strong> Nesneyi almazsak önceki satırdaki aynı kapasiteyi kullanırız. Alırsak değerini, önceki satırın kalan kapasitedeki cevabına ekleriz. Sığmayan nesne alınamaz. İki seçenek de önceki satırı okuduğu için aynı nesne tekrar kullanılmaz: 0/1'in anlamı budur.</p>
+<p>Son hücrede üçüncü nesneyi alma adayı <code>5+V[2][1]=5</code>; almama adayı <code>V[2][5]=7</code>. Üçüncü nesne dışarıda kalır.</p>
+<p><strong>Maliyet ve temsil.</strong> Tamsayı kapasite W için O(nW) hücre hesabı yapılır. W'nin değeri ile onu ikili yazmak için gereken bit sayısı farklıdır; bu yüzden sözde polinom denir. b bitlik bir sayının değeri yaklaşık 2ᵇ ölçeğine çıkabilir.</p>
+<p><strong>Kontrol ve cevap.</strong> Kapasiteyi tam doldurmak şart olsaydı aynı başlangıç tablosu kullanılabilir mi? Hayır. Tam ağırlığa ulaşma gerektiren modelde ulaşılamayan ağırlıkları geçerli sıfır değerli çözümlerden ayırmak gerekir.</p></section><section id="ornek-14" aria-labelledby="baslik-14"><p class="eyebrow">ÖRNEK 14 / 22 · A higher-paying job can beat two short jobs</p><h2 id="baslik-14">14. Daha çok iş yapmak ile daha çok ücret kazanmak farklıdır</h2><p><a href="../#example-14">Ders sayfasındaki örnek 14</a> · <a href="../lecture-notes.html#topic-4-3">İlgili ders notu</a></p>
+<p>A işi [1,10) aralığında ve ücreti 10. B [2,3), ücreti 3; C [4,5), ücreti 4. B ve C birlikte yapılabilir; gelir 7. A tek başına 10 getirir ama diğerleriyle çakışır.</p>
+<p><strong>Açgözlü kuralın sınırı.</strong> En erken biteni seçmek, eşit önemde işlerden en çok sayıda yapma probleminde doğrudur. Ücretler farklı olunca amaç değişir; iki işin geliri tek işten düşük olabilir.</p>
+<p>Bitiş zamanına göre sıra B,C,A olur. <code>OPT[i]</code>, bu sıradaki ilk i işten elde edilen en iyi toplam ücrettir. <code>p(i)</code>, i başlamadan önce biten son uygun işin indeksidir; yoksa boş öneği kullanırız.</p>
+<table>
+<thead>
+<tr>
+<th>İş</th>
+<th>Almazsak</th>
+<th>Alırsak</th>
+<th>En iyi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B</td>
+<td>0</td>
+<td>3+0</td>
+<td>3</td>
+</tr>
+<tr>
+<td>C</td>
+<td>3</td>
+<td>4+3</td>
+<td>7</td>
+</tr>
+<tr>
+<td>A</td>
+<td>7</td>
+<td>10+0</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Geçiş.</strong> <code>OPT[i]=max(OPT[i−1], ücret[i]+OPT[p(i)])</code>. İşi alırsak onunla uyumlu bütün önceki işleri tek tek yeniden çözmek yerine uygun öneğin optimumunu kullanırız.</p>
+<p><strong>Sınır anlaşması.</strong> [başlangıç,bitiş) gösteriminde bitiş anı aralığa dahil değildir. Bir iş 3'te bitip diğeri 3'te başlayabilir; uyum koşulu <code>bitiş≤başlangıç</code>tır.</p>
+<p><strong>Kontrol ve cevap.</strong> Genel O(n log n) süre nasıl sağlanır? Sıralama ve her öncülü ikili aramayla bulma, ardından doğrusal DP. Ders görselindeki basit geriye tarama daha büyük girdilerde O(n²) öncül araması yapabilir; hızlı sınır bütün uygulamalara otomatik geçmez.</p></section><section id="ornek-15" aria-labelledby="baslik-15"><p class="eyebrow">ÖRNEK 15 / 22 · Best ending here differs from best anywhere</p><h2 id="baslik-15">15. Burada biten en iyi parça, genel en iyi parça değildir</h2><p><a href="../#example-15">Ders sayfasındaki örnek 15</a> · <a href="../lecture-notes.html#topic-4-4">İlgili ders notu</a></p>
+<p>Dizi −2,3,−1,4,−5. Bitişik, boş olmayan bir parçanın toplamını en büyük yapmak istiyoruz. <code>3,−1,4</code> toplamı 6. −1'i atlayıp 3+4=7 diyemeyiz; bitişiklik bozulur.</p>
+<p><code>ending[i]</code>, tam i konumunda biten en iyi parçanın toplamıdır. İki seçenek vardır: önceki parçayı uzat veya yalnızca mevcut elemanla yeniden başla.</p>
+<table>
+<thead>
+<tr>
+<th>Değer</th>
+<th>Baştan başla</th>
+<th>Öncekini uzat</th>
+<th>Burada biten</th>
+<th>Şimdiye kadarki en iyi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>−2</td>
+<td>−2</td>
+<td>İlk eleman</td>
+<td>−2</td>
+<td>−2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>−2+3=1</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>−1</td>
+<td>−1</td>
+<td>3−1=2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>2+4=6</td>
+<td>6</td>
+<td>6</td>
+</tr>
+<tr>
+<td>−5</td>
+<td>−5</td>
+<td>6−5=1</td>
+<td>1</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>Son elemanda biten en iyi toplam 1 iken genel cevap 6'dır. Bu nedenle yalnızca son <code>ending</code> değerini döndürmek yanlıştır; görülen en iyi değer ayrıca tutulur.</p>
+<p><strong>Neden yeterli?</strong> i konumunda biten bir parça ya tek elemandır ya da i−1'de biten bir parçanın uzantısıdır. Önceki konumda daha kötü bir toplamı uzatmak daha iyi sonuç vermez; en iyi önceki toplam yeterlidir.</p>
+<p><strong>Kontrol ve cevap.</strong> −5,−2,−7 için sonuç −2. Başlangıcı 0 yapmak boş parçaya örtük izin verip yanlış cevap verebilir. İlk elemandan başlatırız. Boş girdi içinse boş olmayan parça yoktur; ayrıca davranış tanımlanmalıdır. Kadane yöntemi O(n) zaman, toplam ve uç indeksler için sabit ek alan kullanır.</p></section><section id="ornek-16" aria-labelledby="baslik-16"><p class="eyebrow">ÖRNEK 16 / 22 · Take a short break</p><h2 id="baslik-16">16. İkinci mola: çıktı türünü ve kısıtı söyleyin</h2><p><a href="../#example-16">Ders sayfasındaki örnek 16</a> · <a href="../lecture-notes.html">İlgili ders notu</a></p>
+<p>122–132. dakikalar arasındaki moladan sonra her problem için tek cümlelik durum tanımı yapın.</p>
+<table>
+<thead>
+<tr>
+<th>Örnek</th>
+<th>Hücrenin anlamı</th>
+<th>Kritik kısıt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Artan alt dizi</td>
+<td>Burada biten en iyi uzunluk</td>
+<td>Sıra korunur, değer kesin artar</td>
+</tr>
+<tr>
+<td>İki akışı karıştırma</td>
+<td>Bu çıktı öneki yapılabilir mi?</td>
+<td>Her akışın iç sırası korunur</td>
+</tr>
+<tr>
+<td>Sırt çantası</td>
+<td>İlk i nesneyle kapasiteye sığan en iyi değer</td>
+<td>Her nesne en fazla bir kez</td>
+</tr>
+<tr>
+<td>İş planlama</td>
+<td>Bitişe göre ilk i işin en iyi ücreti</td>
+<td>Zaman çakışması yok</td>
+</tr>
+<tr>
+<td>En büyük parça toplamı</td>
+<td>Burada biten en iyi toplam</td>
+<td>Bitişik ve boş olmayan parça</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Soru:</strong> Artan alt dizide aradaki −1'i atlamak mümkünken en büyük bitişik parçada neden değil? <strong>Cevap:</strong> İki sorunun izin verdiği seçimler farklıdır; birinin çözümü diğerine doğrudan taşınamaz.</p>
+<p><strong>Soru:</strong> Doğru/yanlış tablosunda maksimum değer aramak gerekir mi? <strong>Cevap:</strong> İki akış probleminde en az bir geçerli geçiş yeterlidir; mantıksal VEYA kullanılır. Ücret probleminde ise gerçekten sayısal maksimum gerekir.</p>
+<p><strong>Soru:</strong> En iyi sonucu kaydetmek her durumda geçmişi unutmak mıdır? <strong>Cevap:</strong> Hayır. Yalnızca gelecekteki kararları etkilemeyen ayrıntılar atılabilir. Sırt çantasında kullanılan nesneler, tablo satırıyla; karıştırmada tüketilen harf sayıları, iki indeksle temsil edilir.</p></section><section id="ornek-17" aria-labelledby="baslik-17"><p class="eyebrow">ÖRNEK 17 / 22 · Two fragile test pieces change the strategy</p><h2 id="baslik-17">17. İki kırılabilir numuneyle en kötü durumu planlamak</h2><p><a href="../#example-17">Ders sayfasındaki örnek 17</a> · <a href="../lecture-notes.html#topic-4-5">İlgili ders notu</a></p>
+<p>10 kat ve iki özdeş yumurta var. Bilinmeyen en yüksek güvenli kat 0 ile 10 arasında olabilir: toplam 11 eşik. Eşik katı ve altındaki atışlar güvenli, üstündekiler kırılma yaratır. Gürültüsüz, sabit ve monoton bir eşik varsayıyoruz.</p>
+<p><strong>İki sonuç.</strong> x. katta atınca kırılırsa x−1 alt kat bir yumurtayla araştırılır. Kırılmazsa üstteki n−x kat aynı yumurta sayısıyla araştırılır. Deneyi yapmadan sonucu seçemeyiz; kötü olan dalın süresini göze almalıyız.</p>
+<p><code>E(e,n)=1+min_x max(E(e−1,x−1), E(e,n−x))</code>.</p>
+<p>Burada min ilk katı seçmemizi, max doğanın iki olası cevabını temsil eder. Sıfır kat için 0 test, bir yumurtayla n kat için n test gerekir.</p>
+<p><strong>Dört atışlık strateji.</strong> İlk yumurtayla 4,7,9,10 katlarını deneyin.</p>
+<table>
+<thead>
+<tr>
+<th>Kırıldığı kat</th>
+<th>Önceden kullanılan atış</th>
+<th>İkinci yumurtayla araştırılacak katlar</th>
+<th>Toplam en fazla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>1,2,3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>7</td>
+<td>2</td>
+<td>5,6</td>
+<td>4</td>
+</tr>
+<tr>
+<td>9</td>
+<td>3</td>
+<td>8</td>
+<td>4</td>
+</tr>
+<tr>
+<td>10</td>
+<td>4</td>
+<td>Kalan belirsiz kat yok</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>Hepsi güvenliyse eşik 10'dur. Aralıklar 4,3,2,1 diye küçülür; önceki başarılı atışlar bütçeden harcanmıştır.</p>
+<p><strong>Neden üç yetmez?</strong> İki yumurta ve d atış en fazla d+(d−1)+…+1 katı kapsar. Üç atış 6, dört atış 10 kat. Bu, kat sayısıdır; olası eşik sayısı bir fazladır.</p>
+<p><strong>Kontrol ve cevap.</strong> İkili arama neden doğrudan uygulanmaz? Kırılınca yumurta azalır. Tek yumurtayla geniş aralıkta ortadan denemek, kırılma durumunda alt katları ayırt etmeye araç bırakmaz.</p></section><section id="ornek-18" aria-labelledby="baslik-18"><p class="eyebrow">ÖRNEK 18 / 22 · The first cut affects every later cost</p><h2 id="baslik-18">18. İlk kesim sonraki maliyetleri değiştirir</h2><p><a href="../#example-18">Ders sayfasındaki örnek 18</a> · <a href="../lecture-notes.html#topic-4-6">İlgili ders notu</a></p>
+<p>10 uzunluğunda parça 2 ve 5 konumlarından kesilecek. Bir kesim o anda kesilen parçanın uzunluğu kadar maliyetli olsun.</p>
+<table>
+<thead>
+<tr>
+<th>İlk kesim</th>
+<th>İlk maliyet</th>
+<th>İkinci kesilen parça</th>
+<th>İkinci maliyet</th>
+<th>Toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>10</td>
+<td>[2,10], içinde 5 var</td>
+<td>8</td>
+<td>18</td>
+</tr>
+<tr>
+<td>5</td>
+<td>10</td>
+<td>[0,5], içinde 2 var</td>
+<td>5</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+<p>Son parçalar aynı uzunlukta olsa da işlem sırası maliyeti değiştirir. Bu, fiziksel kesme süresinin her durumda böyle olduğu iddiası değil, verilen uzunluk-maliyet modelidir.</p>
+<p><strong>Durum.</strong> Sıralı kesim koordinatlarına başlangıç 0 ve bitiş L eklenir. <code>C[i][j]</code>, bu iki sınır arasındaki bütün zorunlu kesimleri tamamlamanın en düşük maliyetidir. İçeride kesim yoksa 0.</p>
+<p>İlk kesim k olursa maliyet <code>konum[j]−konum[i]+C[i][k]+C[k][j]</code>. İçerideki bütün k seçenekleri denenir, minimum seçilir. Daha kısa aralıkların cevapları önce hesaplanır. q iç kesim için standart tablo O(q²) alan ve O(q³) zaman ölçeğindedir.</p>
+<p><strong>İkinci örnek.</strong> L=20, kesimler 3,8,10:</p>
+<table>
+<thead>
+<tr>
+<th>İlk kesim</th>
+<th>Sol optimum</th>
+<th>Sağ optimum</th>
+<th>Toplam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>0</td>
+<td>24</td>
+<td>44</td>
+</tr>
+<tr>
+<td>8</td>
+<td>8</td>
+<td>12</td>
+<td>40</td>
+</tr>
+<tr>
+<td>10</td>
+<td>17</td>
+<td>0</td>
+<td>37</td>
+</tr>
+</tbody>
+</table>
+<p>10'dan sonra soldaki uzunluk 10 parçasını 3'ten kesmek 10, kalan [3,10] parçasını 8'den kesmek 7 maliyetlidir. Toplam 20+10+7=37.</p>
+<p><strong>Kontrol ve cevap.</strong> Her zaman ortadaki noktayı seçmek kanıtlanmış bir kural mı? Hayır. DP bütün izinli ilk kesimleri karşılaştırır; yalnızca bu iki örnekte görülen iyi seçimi genel kurala çevirmeyin.</p></section><section id="ornek-19" aria-labelledby="baslik-19"><p class="eyebrow">ÖRNEK 19 / 22 · Count fuel stops, not road legs</p><h2 id="baslik-19">19. Yol parçası sayısı ile yakıt molası sayısını ayırmak</h2><p><a href="../#example-19">Ders sayfasındaki örnek 19</a> · <a href="../lecture-notes.html#topic-4-7">İlgili ders notu</a></p>
+<p>Tam depoyla menzil 60. İstasyonlar 40,70,120,150; hedef 190. Başlangıç 0'da depo dolu, hareket ileri yönde, her duruş depoyu tamamen dolduruyor; fiyat farkı yok.</p>
+<pre><code class="language-text">0 → 40 → 70 → 120 → 150 → 190
+   40    30     50      30     40   (yol uzunlukları)
+</code></pre>
+<p>Her yol parçası 60'ı geçmiyor. Beş yol parçası, dört ara yakıt molası var. Başlangıçtaki dolumu veya hedefe vardıktan sonraki olası dolumu mola olarak saymıyoruz.</p>
+<p><strong>Durum.</strong> <code>L[i]</code>, i noktasına ulaşmak için gereken en az yol parçası sayısı. <code>L[0]=0</code>. Önceki j noktasından i'ye mesafe en fazla 60 ise aday <code>L[j]+1</code>; geçerli adayların minimumu alınır. Ulaşılamayan durum ∞ kalır.</p>
+<table>
+<thead>
+<tr>
+<th>Nokta</th>
+<th>0</th>
+<th>40</th>
+<th>70</th>
+<th>120</th>
+<th>150</th>
+<th>190</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>En az yol parçası</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hepsi neden gerekli?</strong> 0'dan 70'e gidilemez. 40'tan 120'ye 80, 70'ten 150'ye 80, 120'den 190'a 70 gerekir. Her istasyonu atlama denemesi menzili aşar; dört mola zorunludur.</p>
+<p><strong>Kontrol ve cevap.</strong> Ardışık kullanılabilir noktalar arasında 60'tan büyük boşluk varsa yolculuk mümkün değildir. ∞'den bir çıkarıp geçerli mola sayısı üretmeyin. Pozitif mesafeli, ulaşılabilir hedef için mola=parça−1; hedef başlangıçsa cevap doğrudan 0'dır.</p>
+<p>Bu basit modelde en uzaktaki ulaşılabilir istasyona gitmek de doğru bir açgözlü yöntemdir. Yakıt fiyatları, sınırlı dolum veya farklı yol ağı eklenirse aynı kuralın geçerliliği yeniden incelenir.</p></section><section id="ornek-20" aria-labelledby="baslik-20"><p class="eyebrow">ÖRNEK 20 / 22 · Split ordered work fairly</p><h2 id="baslik-20">20. Sıralı işleri en ağır grubu küçülterek paylaşmak</h2><p><a href="../#example-20">Ders sayfasındaki örnek 20</a> · <a href="../lecture-notes.html#topic-5-1">İlgili ders notu</a></p>
+<p>1,2,3,4,5 süreli işler iki boş olmayan bitişik gruba ayrılacak. Sıra değiştirilemez. Amaç grup toplamlarının en büyüğünü en aza indirmektir; iki eş hızlı işçi eşzamanlı çalışırsa bu en büyük toplam bitiş süresini belirler.</p>
+<table>
+<thead>
+<tr>
+<th>Kesim yeri</th>
+<th>Sol toplam</th>
+<th>Sağ toplam</th>
+<th>Büyük olan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1'den sonra</td>
+<td>1</td>
+<td>14</td>
+<td>14</td>
+</tr>
+<tr>
+<td>2'den sonra</td>
+<td>3</td>
+<td>12</td>
+<td>12</td>
+</tr>
+<tr>
+<td>3'ten sonra</td>
+<td>6</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr>
+<td>4'ten sonra</td>
+<td>10</td>
+<td>5</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>Dört olasılığın tamamı kontrol edildi: optimum 9. Toplam 15 olduğundan teorik dengeli hedef 7,5 olsa da sıra ve bölünemeyen işler bu hedefe ulaşmayı engeller.</p>
+<p><strong>Durum.</strong> <code>P[i][k]</code>, ilk i işi k boş olmayan gruba bölmenin en küçük maksimum grup toplamıdır. Son kesim x'ten sonra olsun. Önceki k−1 grubun en iyi değeri <code>P[x][k−1]</code>, son grubun toplamı <code>prefix[i]−prefix[x]</code>.</p>
+<p>Önce bu iki yükün <strong>maksimumu</strong>, sonra bütün x seçeneklerinin <strong>minimumu</strong> alınır. x, k−1 ile i−1 arasındadır; böylece her gruba en az bir iş kalır. Tek grupta cevap ilk i işin toplamı; i&lt;k durumları imkânsızdır.</p>
+<p><strong>Önek toplamı.</strong> <code>[0,1,3,6,10,15]</code> dizisi sayesinde son iki işin toplamı 15−6=9 olarak sabit zamanda hesaplanır. Negatif olmayan iş yükleri varsayımı altında boş başlangıç için 0 taban değeri uygundur.</p>
+<p><strong>Kontrol ve cevap.</strong> İşleri serbestçe dağıtabilir miyiz? Hayır. Örneğin 1,2,4 ile 3,5 grupları 7 ve 8 verir ama ilk grup bitişik değildir. O sonuç başka bir problemin cevabıdır. Genel standart DP, k grup için O(kn²) zaman kullanır.</p></section><section id="ornek-21" aria-labelledby="baslik-21"><p class="eyebrow">ÖRNEK 21 / 22 · Align a slow gesture with a faster one</p><h2 id="baslik-21">21. Yavaş ve hızlı sensör akışlarını hizalamak</h2><p><a href="../#example-21">Ders sayfasındaki örnek 21</a> · <a href="../lecture-notes.html#topic-dtw">İlgili ders notu</a></p>
+<p>A=[1,3,3,1], B=[1,3,1]. A'daki 3 değeri iki örnek boyunca, B'de bir örnek boyunca sürüyor. İndeksleri doğrudan eşlemek ilk üç çiftte 0+0+2 maliyet verir ve A'nın son elemanı açıkta kalır; bu tam bir hizalama değildir.</p>
+<p><strong>DTW fikri.</strong> Zaman ekseninde ilerlerken bir örneği diğer dizinin birden fazla örneğiyle eşleştirebiliriz. Yerel maliyet mutlak farktır: <code>|A[i]−B[j]|</code>. Hücre, yerel maliyetle yukarı, sol ve köşegen birikmiş maliyetlerin minimumunu toplar.</p>
+<table>
+<thead>
+<tr>
+<th>A / B</th>
+<th>1</th>
+<th>3</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Sınırdaki <code>D[0][0]=0</code>; diğer boş önek sınırları ∞'dir. Böylece hizalama ilk örneklerden başlar ve sağ alt hücrede iki son örneğe de ulaşır.</p>
+<p><strong>Sıfır maliyetli yol.</strong> 1'den numaralanmış indekslerle (1,1)→(2,2)→(3,2)→(4,3). Ortadaki dikey adım B'nin ikinci örneğini yeniden eşleştirir:</p>
+<pre><code class="language-text">A değerleri:   1  3  3  1
+B değerleri:   1  3  3  1
+B indeksleri:  1  2  2  3
+Farklar:      0  0  0  0
+</code></pre>
+<p>B'ye yeni fiziksel ölçüm eklenmedi; aynı ölçüm hizalamada iki kez kullanıldı. Bu nedenle yatay/dikey adımlar düzenleme uzaklığındaki literal karakter ekleme/silme işlemleri değildir.</p>
+<p><strong>Kontrol ve cevap.</strong> Sıfır maliyet iki gerçek hareketin aynı olduğunu kanıtlar mı? Hayır. Seçilen temsil ve maliyet altında uyumlu olduklarını söyler. Ölçek, gürültü ve izin verilen zaman bükülmesi ayrıca belirlenmelidir. Çok dar bir hizalama bandı iyi yolu dışlayabilir. Tam tablo O(mn) hücre içerir.</p></section><section id="ornek-22" aria-labelledby="baslik-22"><p class="eyebrow">ÖRNEK 22 / 22 · DP is not a promise of a small table</p><h2 id="baslik-22">22. DP kullanmak küçük tablo garantisi vermez</h2><p><a href="../#example-22">Ders sayfasındaki örnek 22</a> · <a href="../lecture-notes.html#topic-6-1">İlgili ders notu</a></p>
+<p>Düzenleme uzaklığında iki önek uzunluğu gelecekteki seçenekleri belirlemek için yeterliydi. Ama silme maliyeti bir önceki işlemin silme olup olmamasına bağlıysa aynı (i,j) durumuna farklı geçmişlerden gelmek farklı gelecek maliyetleri doğurabilir. Bu durumda işlem türü gibi ek bilgi tutulmalıdır.</p>
+<p><strong>Gezgin satıcı örneği.</strong> Her şehri bir kez ziyaret edip başlangıca dönmek istiyoruz. “Şu anda C'deyim” yetmez: daha önce A,B mi, A,D mi ziyaret edildi? Kalan izinli şehirler farklıdır. Durum, ziyaret edilen küme S ve son şehir v olabilir.</p>
+<p>Sabit başlangıç s ile <code>H[S,v]</code>, s'den başlayıp S kümesindeki şehirleri ziyaret ederek v'de bitmenin en düşük maliyetidir. Son adım u→v ise aday <code>H[S−{v},u]+mesafe(u,v)</code>. En sonda başlangıca dönüş kenarı da eklenir; yalnızca en ucuz açık yolu bulmak tur problemini tamamlamaz.</p>
+<table>
+<thead>
+<tr>
+<th>Şehir sayısı n</th>
+<th>n×2ⁿ durum ölçeği</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>10.240</td>
+</tr>
+<tr>
+<td>20</td>
+<td>20.971.520</td>
+</tr>
+</tbody>
+</table>
+<p>Bunlar tam erişilebilir durum sayıları değil, büyüme ölçeğidir. Her durumda O(n) önceki şehir denemek standart Held–Karp yönteminde O(n²2ⁿ) zaman, O(n2ⁿ) alan verir. Permütasyonları tek tek denemeye göre büyük iyileşme olsa da hâlâ üsteldir.</p>
+<p><strong>Son kontrol ve cevap.</strong> Optimal alt yapı açgözlü seçimi otomatik doğru yapar mı? Hayır. DP farklı seçenekleri karşılaştırır; açgözlü yöntem birine hemen bağlanır. 1,3,4 paralarıyla 6 yapma örneği, en büyük ilk seçimin yanlış olabileceğini zaten gösterdi.</p>
+<p>Bu haftanın ortak yöntemi: durumu açıkça tanımla, tabanı gerekçelendir, geçişin bütün seçenekleri kapsadığını göster, bağımlılık sırasını kur, istenen cevap hücresini seç. Son olarak küçük örneği elle doğrula ve durum sayısıyla durum başına işi ayrı say.</p></section></main></div><footer><a href="../">Hafta 13 dersine dön</a> · Açıklamalar, haftanın 22 örneğiyle aynı sıradadır.</footer></body></html>
