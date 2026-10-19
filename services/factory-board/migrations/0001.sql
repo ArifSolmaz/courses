@@ -1,0 +1,4 @@
+CREATE TABLE classes(id TEXT PRIMARY KEY,name TEXT NOT NULL,code_hash TEXT NOT NULL UNIQUE,active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE players(id TEXT PRIMARY KEY,class_id TEXT NOT NULL REFERENCES classes(id),nickname TEXT NOT NULL,name_key TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,UNIQUE(class_id,name_key));
+CREATE TABLE scores(player_id TEXT NOT NULL REFERENCES players(id),shift TEXT NOT NULL CHECK(shift IN ('steady','burst')),on_time INTEGER NOT NULL,max_wait INTEGER NOT NULL,record TEXT NOT NULL,PRIMARY KEY(player_id,shift));
+CREATE TABLE limits(bucket TEXT PRIMARY KEY,n INTEGER NOT NULL,expires INTEGER NOT NULL);

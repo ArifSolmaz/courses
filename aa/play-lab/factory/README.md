@@ -15,7 +15,7 @@ Static standalone game linked from Play Lab. Three missions: FIFO/LIFO dispatch;
 Tests fixed policies, all 320 possible free-choice shifts across the two arrival schedules, invalid actions, wait/deadline accounting and repair snapshots.
 Browser checks cover incorrect FIFO choice, full FIFO and LIFO runs, a five-on-time free burst run, full repair including an incorrect undo, and laptop/narrow-screen layouts.
 
-## Local leaderboard preview
+## Previous local leaderboard preview (replaced by shared service)
 
 - Nicknames: 2–20 Unicode letters/numbers, spaces, underscores or hyphens; normalized and matched case-insensitively. This is a local alias, not an authenticated identity.
 - Separate boards per arrival schedule. Rank by on-time shipments descending, then maximum wait ascending. Exact ties share competition ranks (1, 1, 3). Clicking speed and retries are not scored. All policies compete within the same scenario.
@@ -23,3 +23,9 @@ Browser checks cover incorrect FIFO choice, full FIFO and LIFO runs, a five-on-t
 - One best result per alias/scenario; weaker and equal attempts do not replace it. LocalStorage key `aa-factory-leaderboard-v1`. Failure to save is reported; in-memory play remains available.
 - Sample board uses explicitly fictional names, replay-validated sequences, a separate view and no persistence. It is never mixed with local entries.
 - Test `node aa/play-lab/factory/leaderboard.test.cjs`. Browser QA includes incomplete/repair disabled submission, blank nickname feedback, a saved Preview Tester result, reload persistence, weaker retry preservation, sample ranks and laptop/mobile layout.
+
+## Shared class board
+
+The active page uses shared-config.js and shared-board.js, backed by Cloudflare Workers + D1. The previous leaderboard.js is retained as an inactive local prototype; it is not loaded. See services/factory-board/README.md for deployment, identity, retention and testing. Students join with a teacher-provided class code and nickname. The public bundle holds no Cloudflare credentials. Dispatch sequences are replayed on the server; only improved scores replace previous bests. No local prototype scores are uploaded. The server uses a different browser identity key from the old local leaderboard.
+
+Live QA passed against isolated demo classes with two independent tokens and a browser submission. Demo classes were deactivated after testing. The student class starts without test scores.

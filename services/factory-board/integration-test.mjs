@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import {randomBytes} from 'node:crypto';
+const base=process.env.TEST_API||'http://127.0.0.1:8787',suffix=randomBytes(4).toString('hex'),token=()=>randomBytes(32).toString('hex');
+async function call(path,{body,auth,origin='http://127.0.0.1:8877'}={}){const r=await fetch(base+path,{method:body?'POST':'GET',headers:{Origin:origin,...(body?{'Content-Type':'application/json'}:{}),...(auth?{Authorization:'Bearer '+auth}:{})},body:body?JSON.stringify(body):undefined});return {status:r.status,data:await r.json()};}
+const a=token(),b=token(),c=token(),name='Test-'+suffix;
+assert.equal((await call('/board?shift=steady')).status,401);
+assert.equal((await call('/join',{body:{nickname:name,classCode:'BAD-CODE',token:a}})).status,403);
+assert.equal((await call('/join',{body:{nickname:name,classCode:'AA-DEMO',token:a}})).status,200);
+assert.equal((await call('/join',{body:{nickname:name,classCode:'AA-DEMO',token:a}})).status,200);
+assert.equal((await call('/join',{body:{nickname:name,classCode:'AA-DEMO',token:b}})).status,409);
+assert.equal((await call('/join',{body:{nickname:'Peer-'+suffix,classCode:'AA-DEMO',token:b}})).status,200);
+assert.equal((await call('/join',{body:{nickname:name,classCode:'AA-OTHER',token:c}})).status,200);
+assert.equal((await call('/score',{auth:a,body:{shift:'steady',policy:'queue',order:['A','B','C','D','E','F'],onTime:999}})).status,200);
+let board=await call('/board?shift=steady',{auth:b});const row=board.data.rows.find(r=>r.nickname===name);assert.equal(row.onTime,6);assert.equal(row.maxWait,1);
+assert.equal((await call('/board?shift=steady',{auth:c})).data.rows.some(r=>r.nickname===name),false);
+assert.equal((await call('/score',{auth:b,body:{shift:'burst',policy:'free',order:['F','A','B','C','D','E']}})).status,400);
+assert.equal((await call('/score',{auth:a,body:{shift:'steady',policy:'stack',order:['B','C','D','E','F','A']}})).data.saved,false);
+assert.equal((await call('/board?shift=steady',{auth:a,origin:'https://untrusted.example'})).status,403);
+console.log('PASS: two independent identities see shared data; class isolation, reserved aliases, auth, CORS, replay, forged-score rejection and best-only updates.');
