@@ -37,4 +37,10 @@ All 12 changed command/depot/sorting levels rerun locally with both outcome type
 Raw baseline evidence: `/tmp/aa-adventure-live-audit/` (64 results + playback screenshots and JSON).
 Local follow-up evidence: `/tmp/aa-adventure-audit/`.
 
-Changes remain local; this audit did not publish a new version.
+## Publication follow-up
+
+Published with teacher-note updates in `39577fd` on 19 October 2026. GitHub Pages run `39301395474` completed successfully. Browser confirmed `adventure.js?v=20261019playback3` on the live page.
+
+Post-deploy UI checks: Command level 1 collision (laptop), Command level 2 success (mobile), Depot level 2 failed search (mobile), Depot level 3 successful balanced tree (laptop), Sorting level 3 success and lane phase (mobile), Robot level 4 success (laptop), Sorting level 4 over-budget failure (laptop). All seven outcomes matched, no horizontal overflow, no captured browser errors. Reviewed the published screenshots. Play Lab's Adventure link reached the live page. Repeat completion returned “Already counted. Keep exploring!”.
+
+These seven post-deploy spot checks supplement the 64-run baseline and local retests above; they are not another full 64-run audit.
