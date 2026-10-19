@@ -28,3 +28,12 @@ assert.equal(mine.games.robot,1);assert.equal(mine.games.factory,1);assert.equal
 assert.equal((await call('/play-board',{auth:c})).data.rows.find(r=>r.nickname===name).points,0);
 assert.equal(progress.data.nickname,'Peer-'+suffix);
 console.log('PASS: all-game board authenticated/class-scoped; replay and fixed-order validation; duplicates award zero; forged points ignored; prior Factory result contributes.');
+
+const quest={game:'robot',kind:'quest',mode:'repair',plan:{order:['B','A','C']},answer:0,points:999};
+assert.equal((await call('/progress',{auth:a,body:quest})).data.points,10);
+assert.equal((await call('/progress',{auth:a,body:quest})).data.points,0);
+assert.equal((await call('/progress',{auth:a,body:{...quest,answer:1}})).status,400);
+const updated=(await call('/play-board',{auth:b})).data;
+assert.equal(updated.rows.find(r=>r.nickname===name).points,30);
+assert.equal(Object.values(updated.totals).reduce((a,b)=>a+b,0),48);
+console.log('PASS: new quest shared across identities, duplicate earns zero, wrong explanation rejected, 480-point cap.');

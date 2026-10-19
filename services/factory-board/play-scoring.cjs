@@ -3,12 +3,12 @@ const C=require('../../aa/play-lab/core.js');
 const S=require('../../aa/play-lab/sorting/model.js');
 const F=require('../../aa/play-lab/factory/campaign-model.js');
 const Classic=require('../../aa/play-lab/factory/leaderboard-model.js');
-const totals={robot:6,commands:6,depot:6,sorting:6,factory:9};
+const totals={robot:9,commands:9,depot:9,sorting:9,factory:12};
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function replay(b){try{
  if(!b||!Object.hasOwn(totals,b.game))return null;
  const {game,kind,level}=b;let pass=false,task;
- if(kind==='adventure'){
+ if(kind==='quest'){pass=require('./quest-scoring.cjs')(b);task='quest-'+b.mode;}else if(kind==='adventure'){
   if(!Number.isInteger(level)||level<0||level>=(game==='factory'?6:4)||!Number.isInteger(b.seed)||b.seed<1||b.seed>1000000)return null;
   if(game==='factory'){const s=F.getLevel(level,b.seed),r=F.simulate(s.jobs,b.plan);pass=r[s.objective]>=s.target;}
   else if(game==='robot'){const s=A.routeSpec(level,b.seed),r=A.route(s,b.plan);pass=r.valid&&r.cost<=A.routeBest(s);}
