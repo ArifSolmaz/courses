@@ -32,3 +32,11 @@ Live QA passed against isolated demo classes with two independent tokens and a b
 
 ## Optional surprise missions
 “Deal me a mission” starts a fresh free-choice run with one of three goals: six on time with maximum wait one; five on time in the burst shift; or A last while the other five ship on time. Completion is checked against the actual finished run. Bonus text explains the result, including why making A wait is a failure case to avoid. Bonus missions never change class leaderboard scoring. Normal mission navigation clears the bonus.
+
+## Play-first local redesign
+
+The main screen is a conveyor, box characters, robot and delivery truck. Click a box to ship it; a short loading animation blocks extra actions until the delivery finishes. There is no wall-clock deadline. The default is free choice, with queue and stack modes available before a run. Deadline labels count delivery steps including the current shipment; late boxes remain deliverable.
+
+Three selectable levels retain the existing deterministic model and server-compatible score rules. Short contextual feedback is visible; definitions and step arithmetic are in the optional Why panel. Run comparison and class-board details are also optional disclosures. Surprise goals use the same six-order model and do not add leaderboard points.
+
+Validation: model and leaderboard suites pass. Browser playthroughs cover 6/6 steady, 5/6 burst, invalid queue choice, four repair actions, invalid undo and successful two-action undo. Checked 390px mobile layout and laptop preview. No class score was submitted during testing.

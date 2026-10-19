@@ -14,3 +14,11 @@ Three games each have guided practice, a mission and a sandbox. All explanation 
 ## Checks
 
 Run `node aa/play-lab/core.test.cjs` for exhaustive rail maps and hash/BST/move checks. UI review includes successful missions, failed empty deletion, queue/stack, custom inputs, and laptop/narrow-screen layout. Browser mission marks used in QA should be cleared before handing over the preview.
+
+## Play-first interface
+
+Robot routes, job cards and depot shelves now occupy the main stage. The robot shows a route trail and direct distance feedback. Command Centre asks players to select the actual next job; a wrong end does not run anything. Depot lets players tap search shelves in probe order. Detailed move explanations and concepts remain in the optional Why disclosure. Progress still uses the existing three mission marks.
+
+Sorting Arena now accepts clicks on the compared pieces and on the held insertion key, with the existing explicit buttons and keyboard shortcuts retained. Both input paths use the same sorting model. Rule, comparison and experiment text are optional disclosures.
+
+Browser verification: robot counterexample 14 vs 16; invalid job choice then Scan/Grip/Lift; stack undo; deletion-to-empty failed search and tombstone successful search; full direct-piece selection and insertion runs. Core and sorting model tests pass. Local preview only.
