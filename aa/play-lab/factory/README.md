@@ -14,3 +14,12 @@ Static standalone game linked from Play Lab. Three missions: FIFO/LIFO dispatch;
 `node aa/play-lab/factory/model.test.cjs`
 Tests fixed policies, all 320 possible free-choice shifts across the two arrival schedules, invalid actions, wait/deadline accounting and repair snapshots.
 Browser checks cover incorrect FIFO choice, full FIFO and LIFO runs, a five-on-time free burst run, full repair including an incorrect undo, and laptop/narrow-screen layouts.
+
+## Local leaderboard preview
+
+- Nicknames: 2–20 Unicode letters/numbers, spaces, underscores or hyphens; normalized and matched case-insensitively. This is a local alias, not an authenticated identity.
+- Separate boards per arrival schedule. Rank by on-time shipments descending, then maximum wait ascending. Exact ties share competition ranks (1, 1, 3). Clicking speed and retries are not scored. All policies compete within the same scenario.
+- Save is available only after a full dispatch shift. Repair is not ranked. Replays validate all six dispatches and recalculate metrics; stored scores are not trusted. This is still browser-only code and is not secure class-wide verification.
+- One best result per alias/scenario; weaker and equal attempts do not replace it. LocalStorage key `aa-factory-leaderboard-v1`. Failure to save is reported; in-memory play remains available.
+- Sample board uses explicitly fictional names, replay-validated sequences, a separate view and no persistence. It is never mixed with local entries.
+- Test `node aa/play-lab/factory/leaderboard.test.cjs`. Browser QA includes incomplete/repair disabled submission, blank nickname feedback, a saved Preview Tester result, reload persistence, weaker retry preservation, sample ranks and laptop/mobile layout.
