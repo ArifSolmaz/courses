@@ -88,7 +88,7 @@ Hash tablolarında her arama kesin O(1) değildir. Bu oyundaki doğrusal sondala
 
 ## Puan ve öğrenme aynı şey değildir
 
-Yeni ortak ilerleme tasarımında beş oyun, 33 sabit hedef üzerinden görünür: her ilk başarı 10 puan, toplam 330. Robot/Commands/Depot: iki temel hedef + dört Adventure; Sorting: Mixed up dizisinde iki araç + dört Adventure; Factory: üç Classic hedef + altı Adventure. Serbest denemeler ve yeni rastgele günler pratik içindir; aynı hedef tekrar puan üretmez. Bu, öğrenme kanıtı değil tamamlanma göstergesidir.
+Ortak sınıf tablosunda beş oyun, **48 sabit hedef** üzerinden görünür: her hedefin ilk başarısı 10 puan, toplam **480 puan**. Bunun 33 hedefi temel oyunlar ve Adventure (330 puan), 15 hedefi Strategy Quests (150 puan) içindir. Robot/Commands/Depot: iki temel hedef + dört Adventure; Sorting: Mixed up dizisinde iki araç + dört Adventure; Factory: üç Classic hedef + altı Adventure. Her oyunda ayrıca Rescue, Rule flip ve Plan duel olmak üzere üç Strategy Quest vardır. Robot, Commands, Depot ve Sorting 9’ar hedef/90’ar puan; Factory 12 hedef/120 puandır. Serbest denemeler ve yeni rastgele günler pratik içindir; aynı hedef tekrar puan üretmez. Bu, öğrenme kanıtı değil tamamlanma göstergesidir.
 
 Factory’nin ayrı performans tablosunda önce zamanında teslim sayısı, eşitlikte en uzun bekleme karşılaştırılır. Tıklama hızı puan kazandırmaz. Genel tabloda aynı tamamlanma sayısı aynı sırayı paylaşır. Bir oyunun daha fazla hedefi olması daha fazla toplam puan imkânı verir; oyun sütunlarında paydalar bu yüzden görünür.
 
@@ -133,4 +133,34 @@ Her öğrenciden bu beş çalışmanın her biri için bir karşılaştırma bek
 
 19 Ekim 2026 kontrolünde beş oyunun temel görevleri, Sorting'in iki yöntemi ve 22 Adventure bölümü arayüzden oynandı. Sorting'in sabit karışık dizisinde selection: 15 karşılaştırma / 6 yazma; insertion: 12 karşılaştırma / 14 yazma verdi. Bu, “daha az karşılaştırma” ile “daha az yazma”nın aynı şey olmadığını göstermek için uygun bir karşılaştırmadır.
 
-Bu oynama kontrolü bütün görsel durumların hatasız olduğunu kanıtlamadı: kullanıcı ekran görüntülerinde küçük kutunun yüzünün kesildiği ve komut ızgarasında boş satırın daraldığı görüldü. Bunlar ayrıca düzeltilip kontrol edilmelidir. Oynanış testi, görsel test ve öğrencinin gerçekten öğrenmesini değerlendirme ayrı kontrollerdir.
+Bu oynama kontrolü bütün görsel durumların hatasız olduğunu kanıtlamadı: kullanıcı ekran görüntülerinde küçük kutunun yüzünün kesildiği ve komut ızgarasında boş satırın daraldığı görüldü. Bu iki sorun daha sonra düzeltilip tekrar kontrol edildi; aşağıdaki güncel kontrol kapsamına bakın. Oynanış testi, görsel test ve öğrencinin gerçekten öğrenmesini değerlendirme ayrı kontrollerdir.
+
+
+## Güncel Adventure gösterimlerini derste kullanma
+
+Öğrenciler [Play Lab](https://arifsolmaz.github.io/courses/aa/play-lab/) üzerinden oyunları açabilir. [Adventure Worlds](https://arifsolmaz.github.io/courses/aa/play-lab/adventures/) dört oyunun seviyelerini, [Factory Rush](https://arifsolmaz.github.io/courses/aa/play-lab/factory/) kendi Adventure modunu içerir. Ortak puan için üstteki sınıf koduyla [sınıf tablosuna](https://arifsolmaz.github.io/courses/aa/play-lab/board/) takma adla katılmaları gerekir. Yıldızlar tarayıcıda saklanır; ortak tablo ayrı sunucu kaydıdır. Eski yerel yıldızları olan öğrenci, ortak tabloya kaydetmek için hedefi yeniden tamamlayabilir. Aynı hedef ikinci kez puan eklemez.
+
+| Ekranda ne gösteriliyor? | Öğrenciden ne isteyin? | Kaçınılacak yanlış çıkarım |
+|---|---|---|
+| **Robot:** seçilen duraklar ve başlangıca dönüş yolu. | İki tam rotanın toplamını karşılaştırsın; A’dan alma/D’ye teslim koşulunu ayrıca denetlesin. | Daha kısa fakat geçersiz rota başarı değildir. Bu haritada mesafe yatay+dikey sokak uzunluğudur. |
+| **Commands:** yürütülen komut vurgulanır; çarpışmada sorunlu komut ve robotun kaldığı hücre kırmızı görünür. | Önce ilk çalışacak komutu göstersin. Çarpışmadan sonra bütün planı silmeden tek hatalı komutu düzeltsin. Yığında vurgunun neden ters yönde ilerlediğini anlatsın. | Robotun kırmızı hücresi duvarın kendisi değildir; robotun çarpmadan önce kaldığı yerdir. |
+| **Depot:** aranan anahtar, izlenen yol ve bulundu/durdu sonucu görünür; ilgili raflar veya düğümler vurgulanır. | Başarısız aramada hangi boş rafın aramayı durdurduğunu göstersin. Dengeli ağaç ile zincirin en uzun aramasını karşılaştırsın. | Bir karede vurgulanan bütün düğümler eşzamanlı kontrol edilmez. Gösterim her aramanın yol özetidir; her tekil sondalamanın animasyonu değildir. |
+| **Sorting:** başlangıç sırası, sıralanmış iki hat ve birleşmiş sonuç ayrı aşamalardır. | İki hattın kendi içinde sıralı olmasına rağmen bütün dizinin neden hazır olmadığını anlatsın; birleştirme maliyetini sonuçtan okusun. | Bunlar aşama özetleridir; her karşılaştırma ve yazma ayrı hareketle gösterilmez. Animasyon süresi algoritmanın çalışma süresi değildir. |
+
+“Test my plan” sırasında sırayı izlesinler; sonra **aynı girdide** bir karar değiştirip yeniden denesinler. Animasyonu izleyerek puan almak yerine “hangi karar sonucu değiştirdi?” sorusuna bir ekran örneğiyle yanıt vermelerini bekleyin. Ayrıntılı ipucu gerektiğinde açılabilir; başlangıçta bütün açıklamaları okutmanız gerekmez.
+
+## Strategy Quests ile öğrenmeyi derinleştirme
+
+Her oyundaki [Strategy Quests](https://arifsolmaz.github.io/courses/aa/play-lab/quests/) bağlantısı üç farklı düşünme görevi açar:
+
+- **Rescue:** Verilen sorunlu planı düzelt. Öğrenci önce sorunu, sonra yaptığı değişikliğin etkisini söylesin.
+- **Rule flip:** Önce ilk durumu çöz; kural veya veri değişince eski planı yeni durumda dene, sonra uyarla. Eski planın yeni durumda neden yetersiz kaldığını açıklasın.
+- **Plan duel:** Rakip planla aynı koşullarda karşılaş. Ekrandaki hedefe göre seçimini gerekçelendirsin; sadece sonucun yeşil olmasına bakmasın.
+
+İlerleyiş önerisi: bir temel oyun → aynı oyunun Adventure seviyeleri → Rescue → Rule flip → Plan duel. Bu zorunlu bir hız çizelgesi değildir. Zorlanan öğrenci iki anlamlı denemeyi açıklasın; ilerleyen öğrenci fikri yeni duruma taşısın. Her görev ilk başarıda 10 puandır; tekrarlar öğrenme için serbesttir ve puanı büyütmez.
+
+## Güncel test kapsamı — 19 Ekim 2026
+
+Factory dışındaki dört oyunun **16 Adventure seviyesi**, canlı sürümde tek tek laptop (1366×768) ve mobil boyutunda (390×844), her seviyede başarılı ve başarısız planla oynandı: toplam **64 deneme**. Sonrasında komut vurgusu, depo arama yolu, ağaç okunaklılığı ve sıralama aşamaları yerelde iyileştirildi; değişen 12 seviye her iki boyutta yeniden denendi. Ek olarak 320 pikselde 1+7 parçalı dar sıralama hattı kontrol edildi.
+
+Mobil kontrol tarayıcı boyutu benzetimidir; fiziksel telefon testi değildir. Yeni durum üreten seviyelerde bu turda Case 1 kullanıldı. Bütün rastgele durumlar ve bütün cihazlar için hatasızlık iddiası yoktur. 15 Strategy Quest’in daha önceki canlı testinde `test_user` 480 puana ulaştı; tekrarlar 480’i artırmadı. Bu sonuçlar işleyişi doğrular, öğrencinin öğrenmesini tek başına ölçmez.
