@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),P=require('./play-scoring.cjs'),A=require('../../aa/play-lab/adventures/model.js'),F=require('../../aa/play-lab/factory/campaign-model.js'),S=require('../../aa/play-lab/sorting/model.js');
-for(const game of ['robot','commands','depot','sorting','factory'])for(let level=0;level<(game==='factory'?6:4);level++)for(const seed of [1,2,13]){let b={game,kind:'adventure',level,seed};
+for(const game of ['robot','commands','depot','sorting','factory'])for(let level=0;level<(game==='factory'?6:4);level++)for(const seed of [1,2,13]){let b={game,kind:'adventure',caseVersion:2,level,seed};
  if(game==='robot'){const s=A.routeSpec(level,seed);b.plan=A.perm(Object.keys(s.points).filter(k=>k!=='S')).find(p=>{const r=A.route(s,p);return r.valid&&r.cost===A.routeBest(s);});}
  if(game==='commands'){const s=A.commandSpec(level,seed);b.plan=A.commandBest(s);if(s.mode==='stack')b.plan.reverse();}
  if(game==='depot'){const s=A.depotSpec(level,seed);b.erase='mark';outer:for(const mode of s.modes)for(const p of s.fixed?[s.keys]:A.perm(s.keys)){if(A.depot(s,p,mode).cost===A.depotBest(s)){b.plan=p;b.structure=mode;break outer;}}}
@@ -12,3 +12,15 @@ for(const b of [{game:'robot',level:0,plan:['A','B','C']},{game:'robot',level:1,
 for(const b of [{game:'robot',kind:'classic',level:1,plan:['A','B','C']},{game:'depot',kind:'adventure',level:1,seed:1,plan:[7,21,28,14],structure:'hash',erase:'mark'},{game:'depot',kind:'classic',level:1,path:[0,1,2],erase:'empty'},{game:'sorting',kind:'classic',mode:'selection',input:[1,2,3],trace:[]},{game:'factory',kind:'classic',shift:'repair',trace:[]},{game:'commands',kind:'adventure',level:0,seed:1,plan:['R']},{game:'unknown',kind:'classic',points:999}])assert.equal(P.replay(b),null);
 assert.equal(Object.values(P.totals).reduce((a,b)=>a+b,0),48);
 console.log('PASS: 66 Adventure replays, all classic milestones, forged/invalid/partial submissions, fixed insertion order, bounded seeds and 48-goal cap.');
+
+// Old tabs and queued unversioned submissions must remain replayable.
+const Legacy=require('./legacy-adventure-cases.cjs');
+for(const seed of [1,2,6,13])for(const game of ['commands','depot']){
+ const b={game,kind:'adventure',level:3,seed};
+ if(game==='commands'){const s=Legacy.commandSpec(3,seed);b.plan=A.commandBest(s);if(s.mode==='stack')b.plan.reverse();}
+ else{const s=Legacy.depotSpec(3,seed);b.erase='mark';outer:for(const mode of s.modes)for(const plan of A.perm(s.keys)){if(A.depot(s,plan,mode).cost===A.depotBest(s)){b.plan=plan;b.structure=mode;break outer;}}}
+ assert(P.replay(b));assert.equal(P.replay({...b,caseVersion:99}),null);
+ // Versions share the goal ID, so the database cannot award it twice.
+ assert.equal(P.replay(b).task,'adventure-3');
+}
+console.log('PASS: old unversioned cases accepted, unknown versions rejected, unchanged deduplication goal IDs.');

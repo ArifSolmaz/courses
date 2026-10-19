@@ -37,3 +37,20 @@ const updated=(await call('/play-board',{auth:b})).data;
 assert.equal(updated.rows.find(r=>r.nickname===name).points,30);
 assert.equal(Object.values(updated.totals).reduce((a,b)=>a+b,0),48);
 console.log('PASS: new quest shared across identities, duplicate earns zero, wrong explanation rejected, 480-point cap.');
+
+// Old and new generators share one classroom milestone.
+const {createRequire}=await import('node:module'),require=createRequire(import.meta.url);
+const A=require('../../aa/play-lab/adventures/model.js'),Legacy=require('./legacy-adventure-cases.cjs');
+for(const game of ['commands','depot']){
+ function submission(model,version){const seed=4,s=model[game==='commands'?'commandSpec':'depotSpec'](3,seed),b={game,kind:'adventure',level:3,seed,...(version?{caseVersion:version}:{})};
+  if(game==='commands'){b.plan=A.commandBest(s);if(s.mode==='stack')b.plan.reverse();}
+  else{b.erase='mark';outer:for(const mode of s.modes)for(const p of A.perm(s.keys)){if(A.depot(s,p,mode).cost===A.depotBest(s)){b.structure=mode;b.plan=p;break outer;}}}return b;
+ }
+ const old=submission(Legacy),fresh=submission(A,2);
+ assert.equal((await call('/progress',{auth:a,body:old})).data.points,10);
+ assert.equal((await call('/progress',{auth:a,body:fresh})).data.points,0);
+ assert.equal((await call('/progress',{auth:b,body:fresh})).data.points,10);
+ assert.equal((await call('/progress',{auth:b,body:old})).data.points,0);
+ assert.equal((await call('/progress',{auth:b,body:{...fresh,caseVersion:99}})).status,400);
+}
+console.log('PASS: legacy/new cases accepted in either order; each shared milestone awards 10 only once.');

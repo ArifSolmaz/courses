@@ -33,3 +33,6 @@ Production publication must not point at localhost or the placeholder D1 UUID. N
 Apply migration 0002 before deploying the worker. Tests: `node services/factory-board/play-scoring.test.cjs` plus the extended integration test against local D1, never a student class. As with the old board, replay validation establishes that a submitted solution works, not that the player personally discovered it.
 
 Strategy Quests add 15 milestones (three per world), raising the cap to 480 points. Server checks plans, one-edit rescue constraints, correct evidence, both Rule flip situations and a duel prediction. Old browser-only badges need replay because their plans were not stored. Existing database uniqueness prevents repeat points; no schema migration is needed. Tests: `node services/factory-board/quest-scoring.test.cjs`.
+
+### Expanded Adventure cases (caseVersion 2)
+Deploy the Worker before publishing the expanded Depot/Command Centre frontend. New Adventure submissions include `caseVersion: 2`; unversioned submissions use the retained legacy case generators, including pending results from old tabs. Both versions keep the same game/task goal IDs, so new cases or replays do not add points for an already completed level. No database migration is needed. Unknown versions are rejected.
