@@ -11,13 +11,13 @@ function replay(b){try{
  const {game,kind,level}=b;let pass=false,task;
  if(kind==='quest'){pass=require('./quest-scoring.cjs')(b);task='quest-'+b.mode;}else if(kind==='adventure'){
   if(!Number.isInteger(level)||level<0||level>=(game==='factory'?6:4)||!Number.isInteger(b.seed)||b.seed<1||b.seed>1000000)return null;
-  if(b.caseVersion!==undefined&&b.caseVersion!==2)return null;
-  const Cases=b.caseVersion===2?A:Legacy;
+  if(b.caseVersion!==undefined&&![2,3].includes(b.caseVersion))return null;
+  const Cases=b.caseVersion>=2?A:Legacy;
   if(game==='factory'){const s=F.getLevel(level,b.seed),r=F.simulate(s.jobs,b.plan);pass=r[s.objective]>=s.target;}
-  else if(game==='robot'){const s=A.routeSpec(level,b.seed),r=A.route(s,b.plan);pass=r.valid&&r.cost<=A.routeBest(s);}
+  else if(game==='robot'){const s=(b.caseVersion===3?A:Legacy).routeSpec(level,b.seed),r=A.route(s,b.plan);pass=r.valid&&r.cost<=A.routeBest(s);}
   else if(game==='commands'){if(!Array.isArray(b.plan)||b.plan.length>40)return null;const s=Cases.commandSpec(level,b.seed),r=A.command(s,b.plan);pass=r.won&&b.plan.length<=A.commandBest(s).length;}
   else if(game==='depot'){const s=Cases.depotSpec(level,b.seed);if(s.fixed&&!equal(b.plan,s.keys))return null;if(!['mark','empty'].includes(b.erase))return null;const r=A.depot(s,b.plan,b.structure,b.erase);pass=r.valid&&r.cost<=A.depotBest(s);}
-  else{if(!['selection','insertion'].includes(b.left)||!['selection','insertion'].includes(b.right))return null;const s=A.sortSpec(level,b.seed);pass=A.sorting(s,b.cut,b.left,b.right).cost<=A.sortBest(s).cost;}
+  else{if(!['selection','insertion'].includes(b.left)||!['selection','insertion'].includes(b.right))return null;const s=(b.caseVersion===3?A:Legacy).sortSpec(level,b.seed);pass=A.sorting(s,b.cut,b.left,b.right).cost<=A.sortBest(s).cost;}
   task='adventure-'+level;
  }else if(kind==='classic'){
   if(game==='robot'){

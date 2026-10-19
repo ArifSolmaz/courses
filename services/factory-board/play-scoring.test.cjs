@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),P=require('./play-scoring.cjs'),A=require('../../aa/play-lab/adventures/model.js'),F=require('../../aa/play-lab/factory/campaign-model.js'),S=require('../../aa/play-lab/sorting/model.js');
-for(const game of ['robot','commands','depot','sorting','factory'])for(let level=0;level<(game==='factory'?6:4);level++)for(const seed of [1,2,13]){let b={game,kind:'adventure',caseVersion:2,level,seed};
+for(const game of ['robot','commands','depot','sorting','factory'])for(let level=0;level<(game==='factory'?6:4);level++)for(const seed of [1,2,13]){let b={game,kind:'adventure',caseVersion:3,level,seed};
  if(game==='robot'){const s=A.routeSpec(level,seed);b.plan=A.perm(Object.keys(s.points).filter(k=>k!=='S')).find(p=>{const r=A.route(s,p);return r.valid&&r.cost===A.routeBest(s);});}
  if(game==='commands'){const s=A.commandSpec(level,seed);b.plan=A.commandBest(s);if(s.mode==='stack')b.plan.reverse();}
  if(game==='depot'){const s=A.depotSpec(level,seed);b.erase='mark';outer:for(const mode of s.modes)for(const p of s.fixed?[s.keys]:A.perm(s.keys)){if(A.depot(s,p,mode).cost===A.depotBest(s)){b.plan=p;b.structure=mode;break outer;}}}
@@ -24,3 +24,11 @@ for(const seed of [1,2,6,13])for(const game of ['commands','depot']){
  assert.equal(P.replay(b).task,'adventure-3');
 }
 console.log('PASS: old unversioned cases accepted, unknown versions rejected, unchanged deduplication goal IDs.');
+// Robot and sorting versions 1/2 retain published cases; v3 uses expanded cases.
+for(const seed of [1,10])for(const game of ['robot','sorting']){
+ const b={game,kind:'adventure',level:3,seed};
+ if(game==='robot'){const s=Legacy.routeSpec(3,seed);b.plan=A.perm(Object.keys(s.points).filter(k=>k!=='S')).find(p=>{const r=A.route(s,p);return r.valid&&r.cost===A.routeBest(s);});}
+ else Object.assign(b,A.sortBest(Legacy.sortSpec(3,seed)).plan);
+ for(const caseVersion of [undefined,2])assert(P.replay({...b,caseVersion}));
+}
+console.log('PASS: published Robot/Sorting submissions still replay under both earlier versions.');

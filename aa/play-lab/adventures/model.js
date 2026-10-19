@@ -2,7 +2,13 @@
 const perm=a=>a.length?a.flatMap((x,i)=>perm(a.filter((_,j)=>j!==i)).map(p=>[x,...p])):[[]];
 const distance=(a,b)=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);
 function random(seed){let x=seed>>>0;return n=>{x=(Math.imul(x,1664525)+1013904223)>>>0;return x%n;};}
-function routeSpec(level,seed=1){const sets=[{S:[5,2],A:[4,2],B:[7,2],C:[0,2]},{S:[3,3],A:[0,0],B:[0,5],C:[6,0],D:[6,5]},{S:[3,3],A:[6,1],B:[0,0],C:[1,5],D:[5,5]}];let points=sets[level];if(level===3){const r=random(seed),used=new Set();points={S:[3,3]};used.add('3,3');for(const id of ['A','B','C','D','E']){let p;do p=[r(8),r(6)];while(used.has(p.join(',')));used.add(p.join(','));points[id]=p;}}return {points,precedence:level>=2?['A','D']:null};}
+function routeSpec(level,seed=1){
+ const sets=[{S:[5,2],A:[4,2],B:[7,2],C:[0,2]},{S:[3,3],A:[0,0],B:[0,5],C:[6,0],D:[6,5]},{S:[3,3],A:[6,1],B:[0,0],C:[1,5],D:[5,5]}];
+ if(level<3)return {points:sets[level],precedence:level===2?['A','D']:null};
+ const tier=Math.min(4,1+Math.floor((seed-1)/3)),r=caseRandom(seed*6151+47),cells=shuffled(Array.from({length:48},(_,i)=>[i%8,Math.floor(i/8)]),r),points={S:cells.pop()};
+ for(const id of ['A','B','C','D','E','F'].slice(0,tier+2))points[id]=cells.pop();
+ return {points,precedence:tier>=3?['A','D']:null,tier};
+}
 function route(spec,order){const ids=Object.keys(spec.points).filter(x=>x!=='S');if(order.length!==ids.length||new Set(order).size!==ids.length||order.some(x=>!ids.includes(x)))return {valid:false};let current='S',cost=0;const legs=[];for(const id of [...order,'S']){const d=distance(spec.points[current],spec.points[id]);legs.push({from:current,to:id,cost:d});cost+=d;current=id;}return {valid:!spec.precedence||order.indexOf(spec.precedence[0])<order.indexOf(spec.precedence[1]),cost,legs};}
 function routeBest(spec){return Math.min(...perm(Object.keys(spec.points).filter(x=>x!=='S')).map(p=>route(spec,p)).filter(r=>r.valid).map(r=>r.cost));}
 function nearest(spec){let here='S',todo=Object.keys(spec.points).filter(x=>x!=='S'),order=[];while(todo.length){todo.sort((a,b)=>distance(spec.points[here],spec.points[a])-distance(spec.points[here],spec.points[b])||a.localeCompare(b));here=todo.shift();order.push(here);}return route(spec,order);}
@@ -43,7 +49,15 @@ function depot(spec,order,mode,erase='mark'){if(order.length!==spec.keys.length|
 const depotTargets=new Map();
 function depotBest(spec){const cacheKey=JSON.stringify(spec);if(depotTargets.has(cacheKey))return depotTargets.get(cacheKey);let best=Infinity;for(const mode of spec.modes){if(mode==='hash'){const orders=spec.fixed?[spec.keys]:perm(spec.keys);for(const order of orders){const r=depot(spec,order,mode);if(r.valid)best=Math.min(best,r.cost);}}else best=Math.min(best,Math.ceil(Math.log2(spec.keys.length+1)));}if(depotTargets.size>256)depotTargets.clear();depotTargets.set(cacheKey,best);return best;}
 function sortLane(a,mode){if(a.length<2)return {a:[...a],comparisons:0,writes:0};const s=S.create(a,mode);while(!s.done){const choice=s.phase==='place'?'place':(mode==='selection'?s.a[s.min]<=s.a[s.j]:s.a[s.j]<=s.key)?'left':'right';S.step(s,choice);}return {a:s.a,comparisons:s.comparisons,writes:s.writes};}
-function sortSpec(level,seed=1){const r=random(seed);return {a:level===0?[1,2,3,4,5,6]:level===1?[6,5,4,3,2,1]:level===2?[4,5,6,1,2,3]:Array.from({length:8},()=>1+r(9)),writeWeight:level===1?4:level===3?1+seed%4:1};}
+function sortSpec(level,seed=1){
+ if(level<3)return {a:level===0?[1,2,3,4,5,6]:level===1?[6,5,4,3,2,1]:[4,5,6,1,2,3],writeWeight:level===1?4:1};
+ const tier=Math.min(4,1+Math.floor((seed-1)/3)),r=caseRandom(seed*4877+101),n=[0,4,5,7,8][tier];
+ let a=Array.from({length:n},()=>1+r(9));const pattern=(seed-1)%4;
+ if(tier===1||pattern===0){a.sort((a,b)=>a-b);const i=r(n-1);[a[i],a[i+1]]=[a[i+1],a[i]];}
+ else if(pattern===1)a.sort((a,b)=>b-a);
+ else if(pattern===2){const k=2+r(n-3);a=[...a.slice(0,k).sort((a,b)=>a-b),...a.slice(k).sort((a,b)=>a-b)];}
+ return {a,writeWeight:tier===1?1:1+r(tier+1),tier};
+}
 function sorting(spec,cut,left,right){if(!Number.isInteger(cut)||cut<0||cut>=spec.a.length)throw Error('Bad split');const l=sortLane(cut?spec.a.slice(0,cut):spec.a,left),r=cut?sortLane(spec.a.slice(cut),right):{a:[],comparisons:0,writes:0};let a=[],i=0,j=0,c=0;if(cut){while(i<l.a.length&&j<r.a.length){c++;a.push(l.a[i]<=r.a[j]?l.a[i++]:r.a[j++]);}a.push(...l.a.slice(i),...r.a.slice(j));}else a=l.a;const comparisons=l.comparisons+r.comparisons+c,writes=l.writes+r.writes+(cut?spec.a.length:0);return {a,left:l.a,right:r.a,comparisons,writes,mergeComparisons:c,cost:comparisons+spec.writeWeight*writes};}
 function sortBest(spec){let cost=Infinity,plan;for(let cut=0;cut<spec.a.length;cut++)for(const left of ['selection','insertion'])for(const right of ['selection','insertion']){const r=sorting(spec,cut,left,right);if(r.cost<cost){cost=r.cost;plan={cut,left,right};}}return {cost,plan};}
 const api={perm,routeSpec,route,routeBest,nearest,commandSpec,command,commandBest,depotSpec,depot,depotBest,sortSpec,sorting,sortBest};if(typeof module!=='undefined')module.exports=api;else root.AdventureModel=api;

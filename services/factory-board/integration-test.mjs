@@ -54,3 +54,16 @@ for(const game of ['commands','depot']){
  assert.equal((await call('/progress',{auth:b,body:{...fresh,caseVersion:99}})).status,400);
 }
 console.log('PASS: legacy/new cases accepted in either order; each shared milestone awards 10 only once.');
+
+for(const game of ['robot','sorting']){
+ function submission(model,caseVersion){const seed=10,b={game,kind:'adventure',level:3,seed,caseVersion};
+  if(game==='robot'){const s=model.routeSpec(3,seed);b.plan=A.perm(Object.keys(s.points).filter(x=>x!=='S')).find(p=>{const r=A.route(s,p);return r.valid&&r.cost===A.routeBest(s);});}
+  else Object.assign(b,A.sortBest(model.sortSpec(3,seed)).plan);return b;
+ }
+ const old=submission(Legacy,2),fresh=submission(A,3);
+ assert.equal((await call('/progress',{auth:a,body:old})).data.points,10);
+ assert.equal((await call('/progress',{auth:a,body:fresh})).data.points,0);
+ assert.equal((await call('/progress',{auth:b,body:fresh})).data.points,10);
+ assert.equal((await call('/progress',{auth:b,body:old})).data.points,0);
+}
+console.log('PASS: Robot/Sorting v2 and v3 share milestone IDs; either completion order awards points only once.');

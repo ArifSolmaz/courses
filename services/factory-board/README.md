@@ -36,3 +36,6 @@ Strategy Quests add 15 milestones (three per world), raising the cap to 480 poin
 
 ### Expanded Adventure cases (caseVersion 2)
 Deploy the Worker before publishing the expanded Depot/Command Centre frontend. New Adventure submissions include `caseVersion: 2`; unversioned submissions use the retained legacy case generators, including pending results from old tabs. Both versions keep the same game/task goal IDs, so new cases or replays do not add points for an already completed level. No database migration is needed. Unknown versions are rejected.
+
+### Robot / Sorting expansion (caseVersion 3)
+Version 3 uses progressive Robot and Sorting generators. Unversioned and v2 submissions retain their published Robot/Sorting generators. Commands/Depot use their expanded generators for v2 and v3. Deploy the updated Worker before publishing this frontend. Existing milestone IDs and points remain unchanged.
