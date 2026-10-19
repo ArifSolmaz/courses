@@ -16,3 +16,15 @@ assert.equal((await call('/score',{auth:b,body:{shift:'burst',policy:'free',orde
 assert.equal((await call('/score',{auth:a,body:{shift:'steady',policy:'stack',order:['B','C','D','E','F','A']}})).data.saved,false);
 assert.equal((await call('/board?shift=steady',{auth:a,origin:'https://untrusted.example'})).status,403);
 console.log('PASS: two independent identities see shared data; class isolation, reserved aliases, auth, CORS, replay, forged-score rejection and best-only updates.');
+
+assert.equal((await call('/play-board')).status,401);
+const goal={game:'robot',kind:'classic',level:1,plan:['B','A','C'],points:9999};
+assert.equal((await call('/progress',{auth:a,body:goal})).data.points,10);
+assert.equal((await call('/progress',{auth:a,body:goal})).data.points,0);
+assert.equal((await call('/progress',{auth:a,body:{...goal,plan:['A','B','C']}})).status,400);
+assert.equal((await call('/progress',{auth:a,body:{game:'depot',kind:'adventure',level:1,seed:1,plan:[7,21,28,14],structure:'hash',erase:'mark'}})).status,400);
+const progress=await call('/play-board',{auth:b}),mine=progress.data.rows.find(r=>r.nickname===name);
+assert.equal(mine.games.robot,1);assert.equal(mine.games.factory,1);assert.equal(mine.points,20);
+assert.equal((await call('/play-board',{auth:c})).data.rows.find(r=>r.nickname===name).points,0);
+assert.equal(progress.data.nickname,'Peer-'+suffix);
+console.log('PASS: all-game board authenticated/class-scoped; replay and fixed-order validation; duplicates award zero; forged points ignored; prior Factory result contributes.');

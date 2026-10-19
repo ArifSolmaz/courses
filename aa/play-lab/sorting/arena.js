@@ -1,10 +1,10 @@
 'use strict';
 const $=s=>document.querySelector(s),M=SortModel;
-let input=[5,2,6,1,4,3],mode='selection',caseName='mixed',state,results={},message='',tone='',lastMoved=-1;
+let input=[5,2,6,1,4,3],mode='selection',caseName='mixed',state,results={},message='',tone='',lastMoved=-1,trace=[];
 const names={selection:'Find the smallest',insertion:'Slide into place'};
-function start(){state=M.create(input,mode);message='Tap the smaller glowing part.';tone='';lastMoved=-1;render();}
+function start(){trace=[];state=M.create(input,mode);message='Tap the smaller glowing part.';tone='';lastMoved=-1;render();}
 function chooseLine(a,name){input=a;caseName=name;results={};$('#custom').value=a.join(', ');$('#setup-message').textContent='New line ready. Both tools will start with these same parts.';start();}
-function act(choice){const before=state.j;const result=M.step(state,choice);message=result.text;tone=result.ok?'good':'retry';lastMoved=result.ok&&mode==='insertion'&&choice==='right'?before+1:-1;if(state.done){results[mode]={comparisons:state.comparisons,writes:state.writes,mistakes:state.mistakes};}render();}
+function act(choice){const before=state.j;const result=M.step(state,choice);if(result.ok)trace.push(choice);message=result.text;tone=result.ok?'good':'retry';lastMoved=result.ok&&mode==='insertion'&&choice==='right'?before+1:-1;if(state.done){if(input.join()==='5,2,6,1,4,3')window.PlayLabScores?.complete({game:'sorting',kind:'classic',mode,input:[...input],trace:[...trace]});results[mode]={comparisons:state.comparisons,writes:state.writes,mistakes:state.mistakes};}render();}
 function render(){
  const focused=document.activeElement?.id,s=state,n=s.a.length,hole=mode==='insertion'&&!s.done?s.j+1:-1;
  $('#method-name').textContent=mode==='selection'?'SELECTION SORT':'INSERTION SORT';$('#round-title').textContent=names[mode];

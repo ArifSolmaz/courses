@@ -26,3 +26,8 @@ Bounded JSON bodies (4KB), prepared statements, origin checks, token hashing, 60
 Apply migrations with `--local`; start `npx wrangler dev --config services/factory-board/wrangler.jsonc --port 8787`. Create test classes with invite-code hashes for AA-DEMO and AA-OTHER. Run `node services/factory-board/integration-test.mjs`. Tests use unique pseudonyms in those test classes only; never run against student classes. The server tests cover two independent tokens reading the same board, class isolation, nickname conflicts, bad origins, invalid order, forged score, and best-only storage.
 
 Production publication must not point at localhost or the placeholder D1 UUID. No local demonstration records are copied to production.
+
+## All-game progress (October 2026)
+`POST /progress` replays a bounded milestone proof using the shared models. `GET /play-board` returns only the authenticated class, including the authenticated nickname (for teacher-renamed accounts). Each of 33 named milestones earns ten points once; a unique player/game/task key makes repeated saves idempotent. Free-form sandbox attempts are practice, not farmable points. Existing qualifying Factory scores are backfilled by migration 0002; subsequent legacy `/score` requests also award their matching milestone. No existing records are deleted.
+
+Apply migration 0002 before deploying the worker. Tests: `node services/factory-board/play-scoring.test.cjs` plus the extended integration test against local D1, never a student class. As with the old board, replay validation establishes that a submitted solution works, not that the player personally discovered it.
