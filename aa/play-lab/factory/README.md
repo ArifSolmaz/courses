@@ -29,3 +29,6 @@ Browser checks cover incorrect FIFO choice, full FIFO and LIFO runs, a five-on-t
 The active page uses shared-config.js and shared-board.js, backed by Cloudflare Workers + D1. The previous leaderboard.js is retained as an inactive local prototype; it is not loaded. See services/factory-board/README.md for deployment, identity, retention and testing. Students join with a teacher-provided class code and nickname. The public bundle holds no Cloudflare credentials. Dispatch sequences are replayed on the server; only improved scores replace previous bests. No local prototype scores are uploaded. The server uses a different browser identity key from the old local leaderboard.
 
 Live QA passed against isolated demo classes with two independent tokens and a browser submission. Demo classes were deactivated after testing. The student class starts without test scores.
+
+## Optional surprise missions
+“Deal me a mission” starts a fresh free-choice run with one of three goals: six on time with maximum wait one; five on time in the burst shift; or A last while the other five ship on time. Completion is checked against the actual finished run. Bonus text explains the result, including why making A wait is a failure case to avoid. Bonus missions never change class leaderboard scoring. Normal mission navigation clears the bonus.
