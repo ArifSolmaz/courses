@@ -118,7 +118,7 @@ def render_lesson(lesson, notebook):
     body = f'''<main id="main">
 <div class="lesson-layout"><div class="lesson-content">
 <header class="hero"><p class="eyebrow">Week {n:02d} / {esc(lesson['strand'])}</p><h1>{esc(lesson['title'])}</h1><p class="subtitle">{esc(lesson['subtitle'])}</p></header>
-{('<p class="notice">Weeks 1–5 learning check · 25 questions · 30 minutes. Available 19 October 2026 at 12:00 (noon), Istanbul time.</p>' if n == 6 else '')}
+{('<p class="notice"><a href="../review/">Before Week 6: take the 25-question, 30-minute learning check →</a></p>' if n == 6 else '')}
 <section id="brief" class="section weekly-opening"><span id="understand" class="legacy-anchor"></span><p class="connection">{esc(lesson['intro']['connection'])}</p><p class="lead">{esc(lesson['brief'])}</p><div class="first-task"><p class="eyebrow">Start with the problem</p><h2>Try this first.</h2><p>{esc(lesson['intro']['first_task'])}</p></div><h3>Why this week's tool?</h3><p>{esc(lesson['intro']['why_tool'])}</p><p class="opening-outcome"><strong>By the end:</strong> {esc(lesson['intro']['success'])}</p></section>
 <section id="model" class="section"><h2>The idea behind the program</h2><div class="concepts">{concepts}</div><details class="code-model"><summary>A short Python example</summary><p>Read the example alongside the explanation. Run it in a new notebook cell and change one input to see how it behaves.</p><pre><code>{esc(lesson['model'])}</code></pre><h3>Example output</h3><pre><samp>{esc(lesson['output'])}</samp></pre>{caveat}</details></section>
 {reasoning_html(n)}
