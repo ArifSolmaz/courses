@@ -230,7 +230,7 @@ T(5) = T(4) + 5
      = 1 + 2 + 3 + 4 + 5 = 15
 ```
 
-**Neden karesel?** Toplam `1+2+…+n = n(n+1)/2`. Terimleri baştan ve sondan eşleştirirsek her çift n+1 verir; toplam formülü buradan anlaşılabilir. En büyük terim n²/2 olduğundan büyüme Θ(n²)'dir. Sadece “her çağrıda bir döngü var” demek bu toplamı açıklamaz; döngü uzunlukları n, n−1, … şeklindedir.
+**Neden karesel?** Toplam `1+2+…+n = n(n+1)/2`. Terimleri baştan ve sondan eşleştirirsek her çift n+1 verir; toplam formülü buradan anlaşılabilir. Açılmış formülün baskın terimi n²/2 olduğundan büyüme Θ(n²)'dir. Sadece “her çağrıda bir döngü var” demek bu toplamı açıklamaz; döngü uzunlukları n, n−1, … şeklindedir.
 
 **Derinlik.** Her seferinde bir eksilttiğimiz için n = 5'te taban dahil beş çağrı vardır. Genelde derinlik Θ(n)'dir; yarı yarıya bölmedeki logaritmik derinlik yoktur. Bekleyen çağrılar da basit özyinelemeli uygulamada O(n) alan kullanabilir.
 

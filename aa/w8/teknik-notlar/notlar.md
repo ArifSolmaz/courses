@@ -137,7 +137,7 @@ Aynı bilgiyi satır ve sütun sırası A, B, C, D olan komşuluk matrisiyle sak
 | İşlem / alan | Düz komşu listeleri | Tam matris |
 |---|---|---|
 | Saklama | Θ(n+m) | Θ(n²) |
-| u'nun komşularını sayma | Derecesi kadar girdi | n hücrelik satır |
+| u'nun komşularını listeleme | Derecesi kadar girdi | n hücrelik satır |
 | Belirli uv kenarı var mı? | u listesini taramak gerekebilir | İndeksler biliniyorsa O(1) |
 
 **Seyrek graf.** Kenar sayısı olası maksimuma göre küçükse, olmayan kenarlar için n² hücre tutmak israf olabilir. Komşu listeleri yalnızca gerçek bağlantıları taramayı sağlar. Çok yoğun grafta ise matrisin doğrudan erişimi ve düzenli yerleşimi uygun olabilir. Seçim yalnızca bellek değil sorgu türüne de bağlıdır.
