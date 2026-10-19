@@ -112,3 +112,25 @@ Bu kaydı bütün bölümlerde istemeyin. Her oyundan seçilen bir anlamlı dene
 19 Ekim 2026: `test_user`, First shift’te Stack ile B→C→D→E→F→A oynadı: 5/6 zamanında, en uzun bekleme 5 adım. Aynı girdide Queue ile A→B→C→D→E→F: 6/6, en uzun bekleme 1 adım. Sunucu daha iyi sonucu sakladı. Busy shift’te A→B→C→D→F→E: 5/6, en uzun bekleme 4 adım. Altı iş altı teslim adımı gerektirirken bütün son teslim tarihleri en geç 5. adım olduğundan 6/6 mümkün değildir.
 
 Bu testin benim için gösterdiği: arayüzden oynama, sınıfa katılma, sonucu sunucuya kaydetme ve en iyi sonucu güncelleme çalışıyor. Ben kuralları ve kaynak kodu önceden biliyorum; yüksek puanım oyunun yeni başlayan bir öğrenciye tek başına yeterince öğrettiğini kanıtlamaz. Bunun için öğrencinin kendi açıklamasına ve yeni durumdaki kararına bakmalıyız.
+
+## Derse başlarken öğrenciye söyleyebileceğiniz yönerge
+
+“Bir oyun seçin. Önce kendi planınızı deneyin. Sonra aynı durumda tek bir kararınızı değiştirin. Sonuçları karşılaştırın. Arkadaşınıza hangi hamlenin sonucu değiştirdiğini gösterin. Bir yıldız kazandığınızda yeni bir örnekte de aynı fikrin işe yarayıp yaramadığını deneyin. Hata yapmak serbest; nedenini bulmak oyunun bir parçası.”
+
+## Her oyun için somut küçük çalışma
+
+| Oyun | İki deneme | Öğrenciden isteyeceğiniz açıklama | Sonraki deneme |
+|---|---|---|---|
+| Robot | Aynı haritada önce en yakın durağı seç; sonra farklı bir tam rota kur. | “Bu kısa adım, daha sonra hangi uzun dönüşe neden oldu?” İki toplam mesafeyi göstersin. | Yeni haritada aynı sıranın hâlâ iyi olup olmadığını sınasın. |
+| Commands | Aynı ok listesini önce kuyrukla, sonra yığınla çalıştır. | İlk çalışacak oku önceden söylesin; sonuç değişince sırayı açıklasın. | Anahtarlı bölümde yalnızca çıkışa varmanın neden yetmediğini göstersin. |
+| Depot | 7, 14, 21'i yerleştir; 14'ü boş bırakarak ve silinmiş işaretiyle ayrı ayrı sil. | 21'i ararken kontrol edilen rafları tek tek göstersin. | Aynı anahtarları ağaca farklı sırayla ekleyip en uzun arama yolunu karşılaştırsın. |
+| Sorting | Aynı karışık diziyi selection ve insertion ile sırala. | Doğru sonuç, karşılaştırma ve yazma sayılarını ayrı ayrı karşılaştırsın. | Yazma maliyetini artıran Adventure bölümünde tercihinin neden değiştiğini söylesin. |
+| Factory | Aynı siparişlerde iki farklı tam iş sırası dene. | Hangi işin hangi iş yüzünden geç kaldığını çizelgede göstersin. | Değerli yük bölümünde kutu sayısı ile toplam değeri ayrı ayrı değerlendirsin. |
+
+Her öğrenciden bu beş çalışmanın her biri için bir karşılaştırma bekleyebilirsiniz; bütün bölümleri tek derste bitirmeyi zorunlu tutmayın. Hızlı ilerleyenlere yeni durum ve karşı örnek görevi verin. Zorlananlara bir oyunda iki gerekçeli deneme yaptırın.
+
+## Canlı oynama kapsamı ve sınırları
+
+19 Ekim 2026 kontrolünde beş oyunun temel görevleri, Sorting'in iki yöntemi ve 22 Adventure bölümü arayüzden oynandı. Sorting'in sabit karışık dizisinde selection: 15 karşılaştırma / 6 yazma; insertion: 12 karşılaştırma / 14 yazma verdi. Bu, “daha az karşılaştırma” ile “daha az yazma”nın aynı şey olmadığını göstermek için uygun bir karşılaştırmadır.
+
+Bu oynama kontrolü bütün görsel durumların hatasız olduğunu kanıtlamadı: kullanıcı ekran görüntülerinde küçük kutunun yüzünün kesildiği ve komut ızgarasında boş satırın daraldığı görüldü. Bunlar ayrıca düzeltilip kontrol edilmelidir. Oynanış testi, görsel test ve öğrencinin gerçekten öğrenmesini değerlendirme ayrı kontrollerdir.
