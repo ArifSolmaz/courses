@@ -1,0 +1,13 @@
+(function(root){'use strict';
+const shifts={steady:[0,0,1,2,3,4],burst:[0,0,0,1,1,2]};
+function create(shift='steady',policy='queue'){const arrivals=shifts[shift];return {shift,policy,time:0,jobs:arrivals.map((at,i)=>({id:String.fromCharCode(65+i),at,due:at+3,done:false})),finished:[],message:'Choose a waiting order. One job takes one clock step.',mistakes:0};}
+function waiting(s){return s.jobs.filter(j=>!j.done&&j.at<=s.time);}
+function run(s,id){const q=waiting(s),job=q.find(j=>j.id===id);if(!job)return false;const allowed=s.policy==='queue'?q[0]:s.policy==='stack'?q.at(-1):job;if(job!==allowed){s.mistakes++;s.message=`${s.policy==='queue'?'Queue takes the oldest':'Stack takes the newest'} waiting order: ${allowed.id}. Nothing moved. No time passed.`;return false;}const start=s.time;job.done=true;s.time++;const result={...job,start,finish:s.time,wait:start-job.at,onTime:s.time<=job.due};s.finished.push(result);const incoming=s.jobs.filter(j=>j.at===s.time&&!j.done).map(j=>j.id);s.message=`${id} shipped at step ${s.time}. It waited ${result.wait} step${result.wait===1?'':'s'} before work. ${result.onTime?'On time!':`Late: it was due by step ${job.due}.`} ${incoming.length?'New orders arrived: '+incoming.join(', ')+'.':''}`;return true;}
+function metrics(s){return {onTime:s.finished.filter(j=>j.onTime).length,maxWait:Math.max(0,...s.finished.map(j=>j.wait)),totalWait:s.finished.reduce((a,j)=>a+j.wait,0)};}
+function box(){return {color:'plain',star:false,closed:false};}
+function createUndo(){return {box:box(),history:[],undone:0,message:'Build a box: paint blue, add a star, then try the two extra actions.'};}
+const actions=['Paint blue','Add star','Paint orange','Close box'];
+function apply(s){const index=s.history.length;if(index>=4)return false;const before={...s.box};if(index===0)s.box.color='blue';if(index===1)s.box.star=true;if(index===2)s.box.color='orange';if(index===3)s.box.closed=true;s.history.push({label:actions[index],before});s.message=`${actions[index]} is recorded. The history stores what the box looked like before that action.`;return true;}
+function undo(s,index){if(!s.history.length||index!==s.history.length-1){s.message='That is an older action. Undo the newest action first, so earlier work stays safe. Nothing changed.';return false;}const h=s.history.pop();s.box={...h.before};s.undone++;s.message=`Undid “${h.label}”. The saved previous box is back.`;return true;}
+const api={create,waiting,run,metrics,createUndo,apply,undo,actions};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FactoryModel=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
