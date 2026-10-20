@@ -12,7 +12,7 @@ import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 14)}}
+PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 15)}}
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
 
@@ -21,6 +21,7 @@ class Document(HTMLParser):
     def __init__(self, source):
         super().__init__()
         self.ids, self.urls, self.labels, self.answers = [], [], [], []
+        self.links, self.dependencies = [], []
         self.strongs, self.pre_blocks, self.headings, self.label_texts = [], [], [], []
         self.strong, self.pre, self.heading, self.current_label = None, None, None, None
         self.heading_tag = None
@@ -31,6 +32,9 @@ class Document(HTMLParser):
         if 'id' in attrs:
             self.ids.append(attrs['id'])
         self.urls.extend(attrs[key] for key in ('href', 'src') if key in attrs)
+        if tag == 'a' and 'href' in attrs:
+            self.links.append(attrs['href'])
+        self.dependencies.extend(attrs[key] for key in ('href', 'src') if key in attrs and not (tag == 'a' and key == 'href'))
         if tag == 'label':
             self.current_label = []
             if 'for' in attrs:
@@ -202,6 +206,26 @@ def cartesian_walks(graph, source, steps):
     return records
 
 
+def independent_vertex_masks(vertices, edges):
+    """Induced-subgraph oracle: enumerate independent vertex masks directly.
+
+    The complement of a proposed cover must induce an edgeless graph. Edge
+    weights are deliberately absent from this adjacency representation.
+    """
+    index = {vertex: i for i, vertex in enumerate(vertices)}
+    adjacency = [0] * len(vertices)
+    for u, v, _ in edges:
+        adjacency[index[u]] |= 1 << index[v]
+        adjacency[index[v]] |= 1 << index[u]
+    return frozenset(mask for mask in range(1 << len(vertices))
+                     if all(not (adjacency[i] & mask) for i in range(len(vertices)) if mask & (1 << i)))
+
+
+def minimum_cover_size(vertices, edges):
+    independent = independent_vertex_masks(vertices, edges)
+    return len(vertices) - max(mask.bit_count() for mask in independent)
+
+
 def guided_answers():
     """Count the worked inputs independently; never use author helper results."""
     return {
@@ -218,6 +242,7 @@ def guided_answers():
         11: simple_path_distances({'A': [('B', 2), ('C', 3)], 'B': [('A', 2), ('C', 2)], 'C': [('A', 3), ('B', 2)]}, 'A')['C'],
         12: len([record for record in cartesian_walks(sensor_triangle(), 'A', 3) if record[0][-1] == 'C']),
         13: min(cost for path, cost in cartesian_walks(sensor_triangle(), 'A', 3) if path[-1] == 'C'),
+        14: minimum_cover_size(list('ABC'), [('A', 'B', 2), ('B', 'C', 2), ('A', 'C', 3)]),
     }
 
 
@@ -256,9 +281,16 @@ def check_sources(sources, *, published=False):
                 assert panel.label_texts == ['Tahminim (toplam maliyet)'], f'{relative}: guided label must name cost, not operation count'
             if week == 12:
                 assert panel.label_texts == ['Tahminim (yürüyüş sayısı)'], f'{relative}: guided label must name the number of walks'
+            if week == 14:
+                assert panel.label_texts == ['Tahminim (sensör sayısı)'], f'{relative}: guided label must name the number of sensors'
         for url in panel.urls + assets.urls:
             parsed = urlsplit(url)
-            assert not parsed.scheme and not parsed.netloc, f'{relative}: new external dependency {url}'
+            if parsed.scheme or parsed.netloc:
+                official_citation = (week == 14 and url == 'https://www.claymath.org/millennium/p-vs-np/'
+                                     and url in panel.links and url not in panel.dependencies + assets.dependencies)
+                assert official_citation, f'{relative}: unexpected external link/dependency {url}'
+                link_count += 1
+                continue  # An official source citation; all runtime assets stay local.
             target = (path.parent / unquote(parsed.path)).resolve() if parsed.path else path
             if target.is_dir():
                 target /= 'index.html'
@@ -670,10 +702,86 @@ def check_displayed_walks(enumeration_page, dp_page):
     return cases + 3
 
 
+def check_displayed_covers(page):
+    namespace = displayed_namespace(page, 14)
+    verify_cover, find_cover = namespace['verify_cover'], namespace['find_cover']
+    cases = 0
+    for n in range(6):
+        vertices = list('ABCDE'[:n])
+        pairs = list(combinations(vertices, 2))
+        universe = (1 << n) - 1
+        for edge_mask in range(1 << len(pairs)):
+            edges = [(u, v, (-2, 0, 3)[bit % 3]) for bit, (u, v) in enumerate(pairs)
+                     if edge_mask & (1 << bit)]
+            independent = independent_vertex_masks(vertices, edges)
+            alpha = max(mask.bit_count() for mask in independent)
+            minimum = n - alpha
+            verdicts = {}
+            for mask in range(1 << n):
+                candidate = [vertex for bit, vertex in enumerate(vertices) if mask & (1 << bit)]
+                # This checks the complementary induced subgraph, rather than
+                # repeating the visible verifier's per-edge endpoint rule.
+                covers = (universe ^ mask) in independent
+                for budget in range(n + 3):
+                    actual = verify_cover(vertices, edges, candidate, budget)
+                    expected = covers and mask.bit_count() <= budget
+                    assert actual is expected, f'Cover certificate: V={vertices}, E={edges}, candidate={candidate}, k={budget}'
+                    verdicts[mask, budget] = actual
+                    cases += 1
+
+            # Independent-set certificates and their complementary covers
+            # preserve both the same graph and the n-q budget conversion.
+            for mask in range(1 << n):
+                for q in range(n + 1):
+                    assert verdicts[universe ^ mask, n-q] is (mask in independent and mask.bit_count() >= q), 'Independent Set to Vertex Cover certificate/budget equivalence'
+            found = {}
+            for budget in range(n + 3):
+                result = find_cover(vertices, edges, budget)
+                found[budget] = result
+                assert (result is not None) == (budget >= minimum), 'Cover search YES/NO matches exhaustive independent-set optimum'
+                if result is not None:
+                    assert isinstance(result, list) and len(result) == len(set(result)), 'A cover witness is a list without repeated vertices'
+                    assert set(result) <= set(vertices) and len(result) <= budget, 'Returned witness uses declared vertices within budget'
+                    result_mask = sum(1 << vertices.index(vertex) for vertex in result)
+                    assert (universe ^ result_mask) in independent, 'Returned witness has an edgeless complementary induced subgraph'
+                if not edges:
+                    assert result == [], 'The empty witness is valid for an edgeless graph and must differ from None'
+                cases += 1
+            for q in range(n + 1):
+                assert (found[n-q] is not None) == (alpha >= q), 'Independent-set size at least q iff cover size at most V-q'
+            for candidate in [['unknown'], ['unknown', 'unknown'], [1]] + ([['A', 'A'], ['A', 'unknown'], ['A', 1]] if n else []):
+                assert verify_cover(vertices, edges, candidate, n+2) is False, 'Duplicate, unknown or non-string certificate members must be rejected'
+                cases += 1
+            for budget in (-1, True, 1.0):
+                assert verify_cover(vertices, edges, [], budget) is False, 'Verifier rejects negative, boolean and float budgets'
+                try:
+                    find_cover(vertices, edges, budget)
+                except ValueError:
+                    pass
+                else:
+                    raise AssertionError('Search must raise ValueError for invalid budget')
+                cases += 2
+
+    triangle = [('A', 'B', 2), ('B', 'C', 2), ('A', 'C', 3)]
+    vertices = list('ABC')
+    assert verify_cover(vertices, triangle, vertices, 3) is True, 'A valid certificate need not be optimal'
+    assert minimum_cover_size(vertices, triangle) == 2, 'Triangle minimum sensor count is two'
+    assert verify_cover(vertices, triangle, ['A'], 2) is False and find_cover(vertices, triangle, 2) is not None, 'One failed certificate does not make the instance NO'
+    assert all(verify_cover(vertices, triangle, candidate, 1) is False
+               for candidate in ([], ['A'], ['B'], ['C'])), 'Triangle k=1 is NO only after all permitted candidates fail'
+    for weights in [(0, 0, 0), (-10, 5, 100), (2, 2, 3)]:
+        edges = [(u, v, weight) for (u, v, _), weight in zip(triangle, weights)]
+        for budget in range(4):
+            result = find_cover(vertices, edges, budget)
+            assert (result is not None) == (budget >= 2), 'Vertex cover ignores retained network weights'
+            cases += 1
+    return cases + 4
+
+
 def check_original_content(current, head):
     for week in PAGES:
         original, revised = bridges.strip(head[week]), bridges.strip(current[week])
-        if week in range(4, 14):
+        if week in range(4, 15):
             # The existing deck script gains only a cache key for hash routing.
             deck_script = 'recap/recap.js' if week == 4 else 'examples/lesson.js'
             old = f'<script defer src="{deck_script}"></script>'
@@ -712,7 +820,7 @@ def main():
     head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
             for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–13 (only the deck-script cache keys for Weeks 4–13 are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–14 (only the deck-script cache keys for Weeks 4–14 are normalized).')
     for name, sources in [('current', current), ('HEAD', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])
@@ -720,10 +828,11 @@ def main():
         graph_cases = check_displayed_graphs(rendered[(ROOT / PAGES[8]).resolve()], rendered[(ROOT / PAGES[9]).resolve()])
         network_cases = check_displayed_networks(rendered[(ROOT / PAGES[10]).resolve()], rendered[(ROOT / PAGES[11]).resolve()])
         walk_cases = check_displayed_walks(rendered[(ROOT / PAGES[12]).resolve()], rendered[(ROOT / PAGES[13]).resolve()])
-        print(f'PASS {name}: fourteen pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS/MST/Dijkstra/exact-walk programs verified (231 insertion boundaries, {graph_cases:,} graph cases, {network_cases:,} weighted-network cases, {walk_cases:,} exact-walk/DP cases).')
+        cover_cases = check_displayed_covers(rendered[(ROOT / PAGES[14]).resolve()])
+        print(f'PASS {name}: fifteen pages; idempotent additions; unique IDs; exact four learning problems; {links} new URL references checked (local targets/anchors and the permitted official citation); guided answers and visible Python search/insertion/BFS/DFS/MST/Dijkstra/exact-walk/cover programs verified (231 insertion boundaries, {graph_cases:,} graph cases, {network_cases:,} weighted-network cases, {walk_cases:,} exact-walk/DP cases, {cover_cases:,} cover/certificate cases).')
 
     check_math()
-    for week in (-1, 14, 15):
+    for week in (-1, 15, 16):
         assert bridges.apply(current[1], week) == current[1], f'Unsupported week {week} changed'
     print('PASS math: loop counts for n=0..1000; triangular and polynomial Theta witnesses; unsupported weeks unchanged.')
 

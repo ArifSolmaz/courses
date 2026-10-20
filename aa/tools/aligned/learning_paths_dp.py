@@ -94,7 +94,7 @@ def _week_thirteen(guided):
 <h2 id="lb-w13-title">Üç aktarımın en ucuzunu tüm yürüyüşleri saklamadan bul</h2>
 <nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
 <a href="../w12/#bridge-path"><strong>← Önce: Hafta 12 — yürüyüşleri listele</strong><span>Aynı adım sayısında aynı sensörde biten önekleri karşılaştır.</span></a>
-<a href="../w14/"><strong>Sonra: Hafta 14 — hesaplama sınırlarını sorgula →</strong><span>Yeni kısıtlar durum uzayını büyüttüğünde verimli çözüm iddiasını yeniden denetle.</span></a>
+<a href="../w14/#bridge-path"><strong>Sonra: Hafta 14 — hesaplama sınırlarını sorgula →</strong><span>Yeni kısıtlar durum uzayını büyüttüğünde verimli çözüm iddiasını yeniden denetle.</span></a>
 </nav>
 <p>Ağ ve ağırlıklar aynı: <strong>AB = 2, BC = 2, AC = 3</strong>. Üç aktarım turunda C’de bitme ve yeniden uğrama izni sürüyor. Hafta 12’deki üç yürüyüşün maliyetleri 7,9,7 idi; şimdi bütün liste yerine minimumu istiyoruz.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-1">Bu haftanın laboratuvarı: DP durumunu tanımla →</a><a href="../bridge/#matematik">Önkoşul: matematikteki ifadenin anlamını açıkla</a></p>
@@ -133,7 +133,7 @@ answer, table = exact_walk_cost(graph, "A", "C", 3)</code></pre>
 <div class="learning-bridge-transfer" id="lb-w13-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
 <p>Hiç yürüyüş yoksa veya k=0 ise ne olur? Ağırlık negatifleşirse sonlu k neden Dijkstra’dan farklıdır? “Her sensör en fazla bir kez” şartında (t,v) yeterli mi?</p>
 <details><summary>Kendi açıklamanı denetle</summary><p>Çözüm yoksa ∞; k=0 ve başlangıç=hedef ise 0, farklıysa ∞. Sonlu k’de sınırlı sayıda yürüyüş vardır; negatif ağırlıklar da bu tabloda geçerlidir. Dijkstra’nın negatif olmama koşulu buraya taşınmaz. Sensör tekrarı yasaklanırsa geçmişte ziyaret edilen küme de gerekir; (t,v) tek başına gelecekteki seçenekleri belirlemez. Küme içeren durum sayısı üstel büyüyebilir.</p></details></div>
-<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> durumu, tabanı ve önceki satır şartını açıklayabiliyorsan <a href="../w14/">hesaplama sınırlarına geç</a>. Takıldıysan <a href="#example-22">durum sayısının neden büyüdüğünü incele</a>; bu görsel gezgin satıcı küme durumlarını karşılaştırır.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> durumu, tabanı ve önceki satır şartını açıklayabiliyorsan <a href="../w14/#bridge-path">hesaplama sınırlarına geç</a>. Takıldıysan <a href="#example-22">durum sayısının neden büyüdüğünü incele</a>; bu görsel gezgin satıcı küme durumlarını karşılaştırır.</p>
 </section>'''
 
 
