@@ -99,3 +99,25 @@ The storyline continues from queues and stacks into sensor networks and dependen
 Panels live in `tools/aligned/learning_paths_graphs.py`. The preserved card shells are `tools/card-pages/w8.html` and `w9.html`; their existing card banks, visual helpers, Python labs, detailed notes and technical notes stay in place. The adapter now covers the dashboard and Weeks 1–9. Week 7 and the dashboard link into the graph bridges. Card navigation uses the same reviewed hash/keyboard behavior as Weeks 4–7.
 
 Run `python3 aa/tools/verify_learning_bridges.py` and `node aa/tools/verify_learning_bridge_graphs.cjs` for content preservation, links, visible Python and production BFS/DFS/Kahn model checks. Graph tests distinguish helper-only self-loop cases from the editors, which reject self-loops. `python3 aa/tools/verify_alignment.py` still checks the full course inventory.
+
+## Integrated sensor-network practice (October 2026)
+
+`bridge/capstone/` adds a suggested 25-minute session after the learning bridges:
+a four-dimension pre-check, guided work on the same A–B–C sensor network, a
+transfer check with AC changed from 3 to 5, and a separate 0–2 self-assessment
+rubric for each dimension. The dimensions are tracing code, explaining the
+mathematics, choosing a method for a purpose, and connecting topics. Exact
+answers are checked separately from written explanations; free text is never
+automatically judged for correctness. The report labels self-assessment scores
+and missing ratings explicitly. It is practice, with no change to exam weights.
+
+The page, model and enhancement scripts are authored in `bridge/capstone/`.
+The course generator preserves these files. Entry links are additive: the home
+and Week 14 learning panels are generated from their existing modules; the
+Bridge laboratory retains its original content and adds a marked access link.
+Without JavaScript, the page remains a paper worksheet with native solution
+sections. Responses stay in the open tab; a text report can be downloaded.
+
+Run `node aa/tools/verify_capstone_models.cjs` for independent graph and
+assessment checks, alongside the existing learning-bridge, alignment and
+rebuild verifiers.

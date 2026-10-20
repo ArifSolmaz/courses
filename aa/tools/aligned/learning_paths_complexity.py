@@ -78,6 +78,7 @@ witness = find_cover(vertices, edges, 2)</code></pre>
 <details><summary>Kendi açıklamanı denetle</summary><p>Bağlantısız D izleme gerektirmez; minimum 2 kalır. Kenarsız ağda <code>[]</code> geçerli tanık, <code>None</code> tanık bulunamadığı anlamındadır. Üçgende k=0 için tanık yoktur. Üç sensör geçerli fakat minimum değildir. Tek tanık uygulanabilirliği gösterir; optimum için alt sınır veya daha küçük adayları dışlama gerekçesi gerekir.</p></details></div>
 <p><a href="#example-21">Mevcut Python laboratuvarı</a> toplamı 15 yapan görev altkümelerini denetler; sensör kapsamasından farklı problemdir.</p>
 <p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> tanığı denetleyip arama maliyetini, minimum gerekçesini ve indirgeme yönünü ayrı açıklayabiliyorsan <a href="../review/">dersin toplu tekrarına geç</a>. Takıldıysan <a href="#example-12">kamera seçimlerini yeniden dene</a>.</p>
+<p class="learning-bridge-actions"><a href="../bridge/capstone/" id="learning-capstone-w14" style="display:inline-block;min-height:44px;padding:.55rem 0"><strong>25 dakikalık bütünleşik uygulama: aynı ağda öğrendiklerini birleştir →</strong></a></p>
 </section>'''
 
 

@@ -42,6 +42,7 @@ def _home():
 <h2 id="learning-bridge-home-title">Koddan gerekçeli algoritma seçimine</h2>
 <p>Bir sensör kaydını ararken önce adımları gör, sonra işi say, matematikle genelleştir ve yeni durumda kararını açıkla. Python'u önceden bilmen gerekmiyor; kâğıt üzerinde de ilerleyebilirsin.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="bridge/#basla">Köprü Laboratuvarı'nı aç →</a><a href="w1/#bridge-path">Hafta 1'den başla</a></p>
+<p class="learning-bridge-actions"><a href="bridge/capstone/" id="learning-capstone-home" style="display:inline-block;min-height:44px;padding:.55rem 0">25 dakikalık bütünleşik sensör ağı uygulaması →</a><span>Önce yanıtla, aynı ağda çalış, değişen durumda yeniden açıkla; dört öğrenme ölçütünü karşılaştır.</span></p>
 <ul class="learning-bridge-choices">
 <li><a href="w1/#bridge-path"><strong>Kodları ve döngüleri takip etmek</strong><span>Hafta 1: bir aramayı elle yürüt, değişen durumu açıkla.</span></a></li>
 <li><a href="w2/#bridge-path"><strong>Matematiksel ifadeleri anlamak</strong><span>Hafta 2: küçük sayımdan C(n)'ye ve büyüme sınırına geç.</span></a></li>
