@@ -2,7 +2,8 @@
   'use strict';
   const model = window.AAPilot;
   const csvFile = window.AAPilotCSV;
-  if (!model || !csvFile) return;
+  const teacherReports = window.AAPilotReport;
+  if (!model || !csvFile || !teacherReports) return;
 
   const byId = id => document.getElementById(id);
   const phases = ['pre', 'post'];
@@ -18,6 +19,7 @@
 
   let records, selected = 'P01', conclusion = '';
   let revision = 0, importToken = 0, pendingImport = null, readingFile = false;
+  let preparedReport = null;
   const invalidNumber = 'Geçersiz sayı (alanı yeniden gir)';
   const number = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 });
   const format = value => value === null || value === undefined ? '—' : number.format(value);
@@ -169,6 +171,7 @@
   }
   function render() {
     const summary = model.summarize(records);
+    byId('make-teacher-report').disabled = summary.activeCount === 0;
     const invalidIds = summary.invalid.map(record => record.id);
     byId('comparison-summary').textContent = `Veri girilen öğrenci: ${summary.activeCount}/8. Sekiz öğretmen puanı tamamlanan: ${summary.completeTeacherCount}.` +
       (invalidIds.length ? ` Hesap dışı hatalı kayıtlar: ${invalidIds.join(', ')}. CSV’de ham değerler ve hata açıklamaları korunur.` : '') +
@@ -195,6 +198,41 @@
     window.setTimeout(() => URL.revokeObjectURL(url), 2000);
     byId('record-status').textContent = blank ? 'Sekiz boş satırlı CSV şablonu hazırlandı. Mevcut kayıtların değiştirilmedi.' : 'Güncel kayıtlar CSV olarak hazırlandı. İndirilenler klasörünü kontrol et; bu sekme kalıcı kayıt tutmaz.';
   }
+  function invalidateTeacherReport(message = '') {
+    const existed = preparedReport !== null;
+    preparedReport = null;
+    byId('teacher-report-text').textContent = '';
+    byId('teacher-report-preview').hidden = true;
+    byId('download-teacher-report').disabled = true;
+    byId('teacher-report-status').textContent = existed ? message : '';
+  }
+  function prepareTeacherReport() {
+    collect(); render();
+    if (model.summarize(records).activeCount === 0) {
+      invalidateTeacherReport();
+      byId('teacher-report-status').textContent = 'Rapor için önce bir CSV yükle veya değerlendirme alanlarına veri gir.';
+      return null;
+    }
+    preparedReport = teacherReports.build(records, { conclusion, generatedAt: new Date().toLocaleString('tr-TR', { timeZoneName: 'short' }) });
+    byId('teacher-report-text').textContent = preparedReport.text;
+    byId('teacher-report-preview').hidden = false;
+    byId('download-teacher-report').disabled = false;
+    byId('teacher-report-status').textContent = 'Açık değerlendirmeden rapor hazırlandı. İndirilen HTML dosyasını internet olmadan açabilir ve yazdırabilirsin.';
+    return preparedReport;
+  }
+  function downloadTeacherReport() {
+    if (!preparedReport) return;
+    // Build from the current form once more so an export cannot contain an
+    // older snapshot, including after a native control normalizes its value.
+    const report = prepareTeacherReport();
+    if (!report) return;
+    const blob = new Blob(['\uFEFF', report.html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob), link = element('a');
+    link.href = url; link.download = 'aa-pilot-ogretmen-raporu.html';
+    document.body.append(link); link.click(); link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+    byId('teacher-report-status').textContent = 'Öğretmen raporu HTML olarak hazırlandı. İndirilenler klasörünü kontrol et. Değerlendirmeye sonra devam etmek için CSV’yi de sakla.';
+  }
   function discardImport(message = '', clearFile = false) {
     importToken++;
     pendingImport = null; readingFile = false;
@@ -205,8 +243,9 @@
     byId('import-status').textContent = message;
     if (clearFile) byId('import-file').value = '';
   }
-  function changed() {
+  function changed(dataEdited = true) {
     revision++;
+    if (dataEdited) invalidateTeacherReport('Değerlendirme değişti. Güncel öğretmen raporu için Raporu hazırla düğmesini kullan.');
     if (pendingImport || readingFile) discardImport('Açık kayıtlar değişti. Yüklemek için dosyayı yeniden seç.', true);
   }
   async function previewFile() {
@@ -248,6 +287,7 @@
       pending.summary.rows.find(row => row.active && row.teacherDelta === null) || pending.summary.rows.find(row => row.active);
     selected = first ? first.id : 'P01';
     revision++;
+    invalidateTeacherReport('Yeni CSV yüklendi. Güncel değerlendirmeden raporu yeniden hazırla.');
     byId('pilot-conclusion').value = conclusion;
     load(); render();
     discardImport(`${pending.filename} yüklendi. ${selected} formu açıldı; değişikliklerini saklamak için güncel CSV’yi yeniden indir.`, true);
@@ -255,6 +295,7 @@
   }
   function reset(focus) {
     revision++;
+    invalidateTeacherReport();
     discardImport('', true);
     records = model.IDS.map(id => model.createRecord(id));
     selected = 'P01'; conclusion = '';
@@ -293,12 +334,14 @@
   byId('pilot-conclusion').addEventListener('input', () => { changed(); collect(); mirrors(); });
   byId('participant').addEventListener('change', () => {
     // Each input event has already saved the preceding slot. Never collect the new slot over it.
-    changed();
+    changed(false);
     selected = byId('participant').value;
     load(); render();
   });
   byId('download-template').addEventListener('click', () => download(true));
   byId('download-results').addEventListener('click', () => download(false));
+  byId('make-teacher-report').addEventListener('click', prepareTeacherReport);
+  byId('download-teacher-report').addEventListener('click', downloadTeacherReport);
   byId('import-file').addEventListener('change', previewFile);
   byId('import-apply').addEventListener('click', applyImport);
   byId('import-cancel').addEventListener('click', () => { discardImport('Yüklemeden vazgeçildi. Açık kayıtların korundu.', true); byId('import-file').focus(); });

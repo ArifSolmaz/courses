@@ -23,6 +23,11 @@ END = b'<!-- AA:PILOT-CSV:END -->'
 CSV_SCRIPT = b'<script src="csv.js" defer></script>\n'
 CACHE_ATTRIBUTES = ((b'href="style.css?v=csv-resume-1"', b'href="style.css"'),
                     (b'src="app.js?v=csv-resume-1"', b'src="app.js"'))
+REPORT_START = b'<!-- AA:TEACHER-REPORT:START -->'
+REPORT_END = b'<!-- AA:TEACHER-REPORT:END -->'
+REPORT_SCRIPT = b'<script src="report.js" defer></script>\n'
+REPORT_CACHE_ATTRIBUTES = ((b'href="style.css?v=teacher-report-1"', b'href="style.css?v=csv-resume-1"'),
+                           (b'src="app.js?v=teacher-report-1"', b'src="app.js?v=csv-resume-1"'))
 
 
 def committed(relative, baseline):
@@ -30,7 +35,24 @@ def committed(relative, baseline):
                           capture_output=True, check=True).stdout
 
 
+def remove_teacher_report_addition(source, check):
+    """Undo only the marked report panel, its script, and approved cache keys."""
+    check.equal(source.count(REPORT_START), 1, 'One teacher-report start marker')
+    check.equal(source.count(REPORT_END), 1, 'One teacher-report end marker')
+    check.equal(source.count(REPORT_SCRIPT), 1, 'One standalone deferred teacher-report script line')
+    start, end = source.index(REPORT_START), source.index(REPORT_END)
+    check.ensure(start < end, 'Teacher-report markers have the correct order')
+    end += len(REPORT_END)
+    check.ensure(source[end:end + 1] == b'\n', 'The teacher-report block ends on its own line')
+    restored = (source[:start] + source[end + 1:]).replace(REPORT_SCRIPT, b'', 1)
+    for current, original in REPORT_CACHE_ATTRIBUTES:
+        check.equal(restored.count(current), 1, 'One explicit teacher-report cache update')
+        restored = restored.replace(current, original, 1)
+    return restored
+
+
 def remove_addition(source, check):
+    source = remove_teacher_report_addition(source, check)
     check.equal(source.count(START), 1, 'One CSV entry start marker')
     check.equal(source.count(END), 1, 'One CSV entry end marker')
     check.equal(source.count(CSV_SCRIPT), 1, 'One standalone deferred CSV script line')
@@ -83,7 +105,7 @@ def static_contract(root, check):
     for phrase in ('sunucuya gönderilmez', 'kayıtları değiştirmez', 'sekiz kayıt ve oturum notu', 'önce indir'):
         check.ensure(phrase in content, 'The preview states its local and explicit replacement behavior: ' + phrase)
     scripts = [node.attrs.get('src') for node in document.walk() if node.tag == 'script']
-    check.equal(scripts, ['../model.js', 'model.js', 'csv.js', 'app.js?v=csv-resume-1'], 'CSV loads after both models and before the updated app')
+    check.equal(scripts, ['../model.js', 'model.js', 'csv.js', 'report.js', 'app.js?v=teacher-report-1'], 'CSV and reporting load after both models and before the updated app')
     for node in document.walk():
         if node.tag == 'script':
             check.ensure('defer' in node.attrs, 'All enhancement scripts are deferred')
@@ -161,6 +183,7 @@ def verify(root=ROOT, baseline=BASELINE):
         report.update(csv_contract(root, check))
         report.update({'status': 'passed', 'baseline': baseline, 'old_pilot_html_outside_addition_unchanged': True,
                        'cache_url_whitelist': ['style.css?v=csv-resume-1', 'app.js?v=csv-resume-1'],
+                       'teacher_report_cache_url_whitelist': ['style.css?v=teacher-report-1', 'app.js?v=teacher-report-1'],
                        'old_capstone_and_pilot_models_unchanged': True, 'readme_append_only': True})
     except (AssertionError, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         report.update({'status': 'failed', 'error': str(error)})

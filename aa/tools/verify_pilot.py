@@ -172,7 +172,7 @@ def html_basics(root, check):
             if node.tag == 'script':
                 check.ensure('defer' in node.attrs, 'Enhancement scripts defer until the paper markup exists')
     scripts = [node.attrs.get('src') for node in elements if node.tag == 'script']
-    check.equal(scripts, ['../model.js', 'model.js', 'csv.js', 'app.js?v=csv-resume-1'], 'Parent rubric and pilot models load before CSV support and app')
+    check.equal(scripts, ['../model.js', 'model.js', 'csv.js', 'report.js', 'app.js?v=teacher-report-1'], 'Parent rubric and pilot models load before CSV, reporting, and app')
     check.ensure(any(item['target'] == 'bridge/capstone/pilot/style.css' for item in dependencies),
                  'The pilot stylesheet is local and linked')
     return document, by_id, {'unique_ids': len(ids), 'valid_labels': label_count,

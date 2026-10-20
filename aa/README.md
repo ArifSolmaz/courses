@@ -174,3 +174,31 @@ review. UTF-8 CSV, quoted commas/newlines, BOM and CRLF/LF are supported.
 Run `node aa/tools/verify_pilot_csv.cjs` and
 `python3 aa/tools/verify_pilot_resume.py`, alongside the existing pilot model,
 content and rebuild verifiers.
+
+
+## Downloadable pilot teacher report (October 2026)
+
+The pilot page can prepare a teacher report from the currently confirmed CSV
+or form records, then download a standalone HTML file. It opens offline and
+supports the browser's print function. The on-page text preview and downloaded
+HTML share the same content. Keep the CSV as well to resume assessment later.
+
+The report gives each dimension's matched pre/post teacher means, difference,
+pair count and counts of increased/unchanged/decreased scores. Teacher totals,
+choice counts and student self-ratings remain separate. Timing summaries use
+valid records with an entered duration and state the denominator, range and
+25/30-minute counts. Missing values are never silently zeroed. Invalid records
+are identified and excluded from numerical summaries while their observation
+and teacher-note text stays visible. All entered notes and the teacher's
+session decision are preserved; the report is a descriptive small-pilot
+summary, not evidence of a causal learning effect.
+
+Editing records, scores, durations or the session decision invalidates a
+prepared report. Applying another CSV or resetting also clears it; viewing a
+different participant or cancelling a file preview keeps it. Downloads are
+rebuilt from the current form. The student guide, existing teacher criteria,
+CSV import/export and native paper views remain in place.
+
+Run `node aa/tools/verify_pilot_report.cjs` and
+`python3 aa/tools/verify_teacher_report.py`, alongside the existing pilot,
+CSV-resume and rebuild verifiers.
