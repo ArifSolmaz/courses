@@ -147,3 +147,30 @@ access panel; no weekly lesson is replaced.
 
 Run `node aa/tools/verify_pilot_models.cjs` and
 `python3 aa/tools/verify_pilot.py` alongside the capstone and course checks.
+
+
+## Resume pilot assessment from CSV (October 2026)
+
+The pilot page can reopen a previously downloaded comparison CSV. Selecting a
+file only prepares a preview; confirmation replaces the eight in-tab records
+and the session conclusion together. Cancelling, a malformed file, a newer
+file selection, or editing the open records during preview keeps existing
+work. Files are read locally, with no server upload or browser persistence.
+Download the updated CSV again before leaving.
+
+The importer accepts the original 36-column pilot exports and new versioned
+exports. It matches headers and P01–P08 identities, restores raw scores,
+evidence, timings and notes, and recomputes all totals and matched-pair
+comparisons. Invalid scores or missing evidence remain editable and excluded
+from aggregates. Structural errors, conflicting session notes and over-limit
+text are rejected rather than silently dropping data.
+
+New exports add a format column and reversible text escaping so leading
+apostrophes and formula-like text survive repeated save/reopen cycles. The
+original format did not distinguish a literal leading apostrophe from its
+spreadsheet-protection prefix; the preview flags affected legacy text for
+review. UTF-8 CSV, quoted commas/newlines, BOM and CRLF/LF are supported.
+
+Run `node aa/tools/verify_pilot_csv.cjs` and
+`python3 aa/tools/verify_pilot_resume.py`, alongside the existing pilot model,
+content and rebuild verifiers.

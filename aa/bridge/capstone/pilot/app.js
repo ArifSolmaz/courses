@@ -1,7 +1,8 @@
 (function () {
   'use strict';
   const model = window.AAPilot;
-  if (!model) return;
+  const csvFile = window.AAPilotCSV;
+  if (!model || !csvFile) return;
 
   const byId = id => document.getElementById(id);
   const phases = ['pre', 'post'];
@@ -16,6 +17,7 @@
   }));
 
   let records, selected = 'P01', conclusion = '';
+  let revision = 0, importToken = 0, pendingImport = null, readingFile = false;
   const invalidNumber = 'Geçersiz sayı (alanı yeniden gir)';
   const number = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 });
   const format = value => value === null || value === undefined ? '—' : number.format(value);
@@ -49,8 +51,23 @@
     byId('participant').value = selected;
     Object.entries(fields).forEach(([path, id]) => {
       const input = byId(id), value = get(record, path);
+      if (input.dataset.numberFallback === 'true') {
+        input.type = 'number'; delete input.dataset.numberFallback; input.removeAttribute('inputmode');
+      }
+      if (input.tagName === 'SELECT') input.querySelectorAll('option[data-imported-raw]').forEach(option => option.remove());
       const bad = input.type === 'number' && value === invalidNumber;
       input.value = bad ? '' : value ?? '';
+      // Keep imported invalid values visible and editable instead of silently
+      // replacing values a native number/select control cannot represent.
+      if (!bad && value !== null && value !== undefined && input.value !== String(value)) {
+        if (input.type === 'number') {
+          input.type = 'text'; input.dataset.numberFallback = 'true';
+          input.inputMode = id === 'minutes' ? 'decimal' : 'numeric'; input.value = String(value);
+        } else if (input.tagName === 'SELECT') {
+          const option = element('option', 'Düzeltilecek değer: ' + String(value).slice(0, 100));
+          option.value = String(value); option.dataset.importedRaw = 'true'; input.append(option); input.value = String(value);
+        }
+      }
       if (bad) { input.dataset.invalidNumber = 'true'; input.placeholder = 'Geçersiz sayı; yeniden gir'; }
       else { delete input.dataset.invalidNumber; input.removeAttribute('placeholder'); }
     });
@@ -167,7 +184,7 @@
   function download(blank) {
     collect();
     render();
-    const csv = model.toCSV(blank ? model.IDS.map(model.createRecord) : records, { conclusion: blank ? '' : conclusion });
+    const csv = csvFile.toCSV(blank ? model.IDS.map(model.createRecord) : records, { conclusion: blank ? '' : conclusion });
     const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob), link = element('a');
     link.href = url;
@@ -178,7 +195,67 @@
     window.setTimeout(() => URL.revokeObjectURL(url), 2000);
     byId('record-status').textContent = blank ? 'Sekiz boş satırlı CSV şablonu hazırlandı. Mevcut kayıtların değiştirilmedi.' : 'Güncel kayıtlar CSV olarak hazırlandı. İndirilenler klasörünü kontrol et; bu sekme kalıcı kayıt tutmaz.';
   }
+  function discardImport(message = '', clearFile = false) {
+    importToken++;
+    pendingImport = null; readingFile = false;
+    byId('import-preview').hidden = true;
+    byId('import-summary').textContent = '';
+    byId('import-warnings').replaceChildren();
+    byId('import-error').textContent = '';
+    byId('import-status').textContent = message;
+    if (clearFile) byId('import-file').value = '';
+  }
+  function changed() {
+    revision++;
+    if (pendingImport || readingFile) discardImport('Açık kayıtlar değişti. Yüklemek için dosyayı yeniden seç.', true);
+  }
+  async function previewFile() {
+    const file = byId('import-file').files[0];
+    discardImport();
+    if (!file) return;
+    const token = importToken, sourceRevision = revision;
+    readingFile = true;
+    byId('import-status').textContent = 'Dosya bu cihazda okunuyor; açık kayıtların değiştirilmedi.';
+    try {
+      if (file.size > csvFile.MAX_BYTES) throw new Error('Dosya çok büyük. En fazla 1 MB boyutunda pilot CSV’si seç.');
+      const bytes = await file.arrayBuffer();
+      if (token !== importToken || sourceRevision !== revision) return;
+      let text;
+      try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+      catch (_) { throw new Error('Dosya UTF-8 CSV olarak okunamadı. Bu sayfadan indirilen CSV’yi seç.'); }
+      const parsed = csvFile.parse(text);
+      if (token !== importToken || sourceRevision !== revision) return;
+      readingFile = false;
+      pendingImport = { ...parsed, sourceRevision, token, filename: file.name };
+      byId('import-summary').textContent = `${file.name}: Veri girilen ${parsed.summary.activeCount}/8 öğrenci; sekiz öğretmen puanı tamamlanan ${parsed.summary.completeTeacherCount}. Onaylayınca puanlar, kanıtlar, süreler ve oturum notu açılacak.`;
+      parsed.warnings.forEach(warning => byId('import-warnings').append(element('li', warning)));
+      byId('import-preview').hidden = false;
+      byId('import-status').textContent = 'Dosya hazır. Henüz hiçbir kayıt değiştirilmedi.';
+    } catch (error) {
+      if (token !== importToken || sourceRevision !== revision) return;
+      readingFile = false;
+      byId('import-error').textContent = 'Dosya yüklenmedi. ' + error.message;
+      byId('import-status').textContent = 'Açık kayıtların korundu. Dosyayı kontrol edip yeniden seçebilirsin.';
+      byId('import-file').value = '';
+    }
+  }
+  function applyImport() {
+    const pending = pendingImport;
+    if (!pending || pending.token !== importToken || pending.sourceRevision !== revision) return;
+    records = structuredClone(pending.records);
+    conclusion = pending.conclusion;
+    const first = pending.summary.rows.find(row => row.active && !row.valid) ||
+      pending.summary.rows.find(row => row.active && row.teacherDelta === null) || pending.summary.rows.find(row => row.active);
+    selected = first ? first.id : 'P01';
+    revision++;
+    byId('pilot-conclusion').value = conclusion;
+    load(); render();
+    discardImport(`${pending.filename} yüklendi. ${selected} formu açıldı; değişikliklerini saklamak için güncel CSV’yi yeniden indir.`, true);
+    byId('participant').focus();
+  }
   function reset(focus) {
+    revision++;
+    discardImport('', true);
     records = model.IDS.map(id => model.createRecord(id));
     selected = 'P01'; conclusion = '';
     byId('record-form').reset();
@@ -194,10 +271,18 @@
   byId('record-form').addEventListener('submit', event => event.preventDefault());
   Object.values(fields).forEach(id => {
     const input = byId(id);
-    const update = () => {
-      delete input.dataset.invalidNumber;
-      input.removeAttribute('placeholder');
-      collect(); render();
+    const update = event => {
+      const previous = JSON.stringify(current()), previousConclusion = conclusion;
+      if (!event || event.type !== 'change' || input.dataset.invalidNumber !== 'true' || input.value !== '') {
+        delete input.dataset.invalidNumber;
+        input.removeAttribute('placeholder');
+      }
+      collect();
+      // A blur can repeat an already-collected input event. Only an actual
+      // edit should invalidate a preview, including when file dialogs return.
+      if (JSON.stringify(current()) !== previous || conclusion !== previousConclusion) changed();
+      render();
+      if (input.tagName === 'SELECT') input.querySelectorAll('option[data-imported-raw]').forEach(option => { if (!option.selected) option.remove(); });
     };
     input.addEventListener('input', update);
     input.addEventListener('change', update);
@@ -205,14 +290,18 @@
       if (input.dataset.invalidNumber === 'true' && input.value === '' && ['Backspace', 'Delete'].includes(event.key)) update();
     });
   });
-  byId('pilot-conclusion').addEventListener('input', () => { collect(); mirrors(); });
+  byId('pilot-conclusion').addEventListener('input', () => { changed(); collect(); mirrors(); });
   byId('participant').addEventListener('change', () => {
     // Each input event has already saved the preceding slot. Never collect the new slot over it.
+    changed();
     selected = byId('participant').value;
     load(); render();
   });
   byId('download-template').addEventListener('click', () => download(true));
   byId('download-results').addEventListener('click', () => download(false));
+  byId('import-file').addEventListener('change', previewFile);
+  byId('import-apply').addEventListener('click', applyImport);
+  byId('import-cancel').addEventListener('click', () => { discardImport('Yüklemeden vazgeçildi. Açık kayıtların korundu.', true); byId('import-file').focus(); });
   byId('clear-request').addEventListener('click', () => { byId('clear-confirm').hidden = false; byId('clear-cancel').focus(); });
   byId('clear-cancel').addEventListener('click', () => { byId('clear-confirm').hidden = true; byId('clear-request').focus(); });
   byId('clear-all').addEventListener('click', () => reset(true));
