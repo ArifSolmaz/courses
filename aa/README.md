@@ -75,3 +75,11 @@ Weeks 3–14 have a second, plain-language version written in Turkish (key terms
 - The previous `build.py` is saved in `archive/pre-simple-2026-10-05/build.py.orig`.
 
 - The plain pages carry a left table of contents with automatic highlighting while scrolling, a reading-progress percentage (also a top bar; on narrow screens a "☰ İçindekiler" button opens it) and remember the furthest point read per week in the browser. The block is `tools/simple/_sidebar.html`; after editing it or adding a week, run `python3 tools/simple/inject_sidebar.py tools/simple` (idempotent) and then the build.
+
+## Learning bridges for Weeks 1–3 (October 2026)
+
+The dashboard offers four routes matching the student difficulties: tracing code and loops, understanding mathematical expressions, seeing practical uses, and connecting topics. Each of Weeks 1–3 adds a sensor-based worked example, a guided count with optional feedback, an independent transfer problem, and explicit previous/next concept links. The existing lessons and questions remain in place. `bridge/` supplies the interactive laboratory and links back to the course.
+
+`tools/aligned/learning_paths.py` adds these panels with reversible, idempotent markers; the build uses it for the dashboard, generated Weeks 1–2 and the authored simple Week 3. Edit the module for the new panels and `tools/simple/w3.html` for the underlying Week 3 lesson. Styling and optional feedback are scoped in `assets/learning-bridges.css` and `.js`; native hints and solutions also work without JavaScript.
+
+Checks from the repository root: `python3 aa/tools/verify_learning_bridges.py` and `python3 aa/tools/verify_alignment.py`. Alignment checks validate both the simple main routes and the full generated lessons under `ek-notlar/` without dropping original question or animation checks.

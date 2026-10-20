@@ -116,6 +116,10 @@ img,svg,canvas{max-width:100%;height:auto}
 .symbol-table th:first-child,.symbol-table td:first-child{width:92px;min-width:92px;white-space:nowrap;overflow-wrap:normal;word-break:keep-all}
 .symbol-table th:last-child,.symbol-table td:last-child{width:170px;min-width:170px}
 </style>
+<!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=1">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
 </head>
 <body>
 <div class="wrap">
@@ -129,9 +133,44 @@ img,svg,canvas{max-width:100%;height:auto}
 <h1>Program analizi ve logaritma</h1>
 <p class="lead">Tek fikir: <b>bir programın ne kadar iş yaptığını, döngülere bakıp sayarak bulabiliriz.</b> Bu sayfa önce Hafta 1 ve Hafta 2’yi <b>sıfırdan, adım adım yeniden öğreterek</b> başlar (55 dakikalık Blok 0); sonra o araçları gerçek programlara (döngüler, sıralama, ikili arama) uygular.</p>
 
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w3-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w3">Hafta 3 · Kodu toplamla, sonucu kararla bağla</p>
+<h2 id="lb-w3-title">Aramadan sensör çiftlerine: hangi iş kaç kez?</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w2/#learning-bridge-w2"><strong>← Önce: Hafta 2 — sayım birimi ve büyüme</strong><span>Şimdi her döngü turunun katkısını toplayarak C(n)'yi çıkarıyoruz.</span></a>
+<a href="../w4/"><strong>Sonra: Hafta 4 — diziler ve bağlı listeler →</strong><span>İkili aramadaki hızlı orta elemana erişimin, veri yapısına bağlı olduğunu incele.</span></a>
+</nav>
+<p>Aynı sensörlerin bu kez her farklı çiftini bir kez karşılaştıralım. Önce tek karşılaştırmayı tanımla, sonra tekrarları yaz; yalnızca “iki döngü var” diyerek sonucu seçme.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="../bridge/#dongu">Köprü Laboratuvarı: kare ve üçgen sayımı karşılaştır →</a><a href="../bridge/#secim">Arama yöntemini seç</a></p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — n = 3 için çiftleri önce yaz</summary>
+<pre><code>for i in range(n):
+    for j in range(i):
+        compare(sensor[i], sensor[j])</code></pre>
+<p>n = 3 iken i = 0 hiç çift üretmez; i = 1 için (1,0), i = 2 için (2,0) ve (2,1) vardır. Toplam <strong>0 + 1 + 2 = 3</strong>. Genel sayım <strong>C(n) = n(n−1)/2</strong>. n ≥ 2 için n²/4 ≤ C(n) ≤ n²/2; dolayısıyla Θ(n²). n = 0 ve n = 1 için sayı 0'dır.</p>
+<p>İç döngü <code>range(n)</code> olsaydı n² çağrı olurdu. Aynı Θ(n²) sınıfı, aynı kesin sayım veya aynı işi yapmak demek değildir.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>Aynı sensör çiftlerini denetleme işinde <strong>n = 5</strong> olsun. <code>for i in range(n): for j in range(i):</code> gövdesi toplam kaç kez çalışır?</p>
+<div class="learning-bridge-check" data-learning-check data-answer="10">
+<label for="lb-w3-count">Tahminim (işlem sayısı)</label>
+<div class="learning-bridge-input-row"><input id="lb-w3-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w3-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w3-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>Her i için j = 0, …, i−1. Dış döngünün beş turuna karşılık 0 + 1 + 2 + 3 + 4 yaz; sonra topla.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>10 kez.</strong> C(5) = 5·4/2 = 10. n = 4 olsaydı 0 + 1 + 2 + 3 = 6 olurdu. Her çift bir kez sayılır; n² sayımı kendisiyle eşleşmeleri ve ters yöndeki tekrarları da içerir.</p></details>
+</div>
+<div class="learning-bridge-transfer" id="lb-w3-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>1.024 sensör kimliğinde tekrar tekrar arama yapacaksın. Veri sıralı bir dizideyse hangi yöntemi seçersin? Veri sırasızsa veya ortaya ulaşmak için bağlantıları yürümen gerekiyorsa kararının hangi gerekçesi değişir? Önce yöntem, önkoşul ve maliyetini kendi cümlelerinle açıkla.</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>Sıralı ve indisle sabit zamanda erişilen dizide ikili arama uygundur. Bir <strong>yoklama</strong>yı orta anahtarla hedefin tek üç yönlü karşılaştırması olarak sayarsak, n ≥ 1 için en kötü durumda en fazla ⌊log₂ n⌋ + 1 yoklama gerekir; 1.024 kayıtta <strong>11</strong>. Gerçek kodda <code>==</code> ve <code>&lt;</code> ayrı ayrı sayılırsa ilkel karşılaştırma sayısı farklı olabilir.</p>
+<p>Sırasız <code>[4, 7, 2, 9, 5]</code> üzerinde ortayı seçip yarıyı atmak güvenli değildir: örneğin 7, orta değer 2'den büyük olsa da soldadır. Önce sıralama gerekiyorsa bunun ve güncellemelerin maliyetini ekle. Bağlı listede ortayı bulmak için yürümek gerektiğinden logaritmik yoklama sayısı otomatik olarak logaritmik zaman vermez. Bu bağ, Hafta 4'teki veri yapısı seçiminin nedenidir.</p></details></div>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> küçük bir girdide çiftleri yazıp toplamı genelleyebiliyor ve arama tercihini önkoşullarıyla açıklayabiliyorsan <a href="../w4/">Hafta 4'e geç</a>. Sayımda takıldıysan <a href="../bridge/#dongu">n = 3 ile döngüyü yeniden izle</a>; ardından aşağıdaki dersle devam et.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
 <div class="rule">
   <b class="t">Bu sayfayı nasıl kullanmalı</b>
-  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular Hafta 1–2’den <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>sınav için kural</b>dır. Sınavda ezberlenecek şeyler mavi kutulardır; gerisi onları anlamak içindir.
+  Her bölüm şu sırayı izler: <b>Sezgi → Küçük örnek → Kural → Kendin dene</b>. Mor kutular Hafta 1–2’den <b>tekrar</b>, sarı kutular <b>“şimdilik atla”</b>, mavi kutular <b>gerekçelendireceğimiz kurallar</b>dır. Her kuralı küçük bir örnekte türetin, hangi varsayımla geçerli olduğunu söyleyin ve değişen bir girdide yeniden sınayın.
 </div>
 
 <h3>Ders akışı (180 dakika)</h3>
@@ -1456,7 +1495,7 @@ lg(a + b) = lg a + lg b yazmak. Doğru olan lg(a · b) = lg a + lg b’dir. Ayr�
 <div class="try"><div class="lab">Kendin dene — kâğıt kalem</div>
 <p>(a) lg(16·32) = ? (b) lg(2¹⁰) = ? (c) lg(n⁵) kaç lg n eder? (d) log₁₀ 1000 = ? lg 1000 ≈ ?</p>
 <details><summary>Cevaplar</summary><p>(a) 4 + 5 = <b>9</b> (= lg 512). (b) <b>10</b>. (c) <b>5 lg n</b> (sınıf yine Θ(log n)). (d) log₁₀ 1000 = <b>3</b>; lg 1000 = 3 / log₁₀ 2 ≈ 3 × 3,32 ≈ <b>9,97</b>.</p></details></div>
-<p class="mut">Ezber için: “2 üzeri bir şey” ile “logaritma” birbirinin tersidir. 2¹⁰ = 1024 olduğundan lg 1024 = 10. Yaklaşık değerler: lg 1000 ≈ 10, lg 10⁶ ≈ 20, lg 10⁹ ≈ 30.</p>
+<p class="mut">Bağlantıyı kurmak için: “2 üzeri bir şey” ile “logaritma” birbirinin tersidir. 2¹⁰ = 1024 olduğundan lg 1024 = 10. Yaklaşık değerler: lg 1000 ≈ 10, lg 10⁶ ≈ 20, lg 10⁹ ≈ 30.</p>
 
 <h3>4.3 İkili arama (binary search): logaritmanın ilk gerçek kullanımı</h3>
 <div class="zero"><b class="t">Önce sıfırdan</b>
@@ -1792,7 +1831,7 @@ Rastgele bir döngü gelir; dört sınıftan birini seçersiniz. Bitince tarayı
 
 <div class="box"><b>Hafta 3’ün 5 kuralı</b>
 <ol>
-<li><b>Arka arkaya → topla, iç içe → çarp.</b> Sabitler atılır; toplamda büyük olan kazanır.</li>
+<li><b>Arka arkaya → topla.</b> İç içe döngüde iç iş her dış turda aynıysa çarp; sınır değişiyorsa her turun katkısını topla. Büyüme sınıfında sabit çarpanlar ve küçük terimler ayrılır.</li>
 <li><b>1+2+…+n = n(n+1)/2 → Θ(n²).</b> 1+2+4+…+2ⁿ = 2ⁿ⁺¹−1.</li>
 <li><b>Selection hep Θ(n²).</b> Insertion: sıralıda Θ(n), ters sıralıda Θ(n²); ortalama ≈ n²/4.</li>
 <li><b>Yarılama / ikiye (üçe) katlama → Θ(log n).</b> n kez tekrarlanırsa Θ(n log n). İkili arama ⌊lg n⌋+1.</li>
@@ -1814,9 +1853,9 @@ Rastgele bir döngü gelir; dört sınıftan birini seçersiniz. Bitince tarayı
 <div class="box"><b>Döngüye bakınca karar akışı</b>
 <ol>
 <li>Döngü değişkeni <b>+1, +2, … ile mi</b> ilerliyor (n/sabit tur → Θ(n)) yoksa <b>×2 / ÷2 ile mi</b> (lg n tur → Θ(log n))?</li>
-<li>İçinde başka döngü var mı? <b>İç içe → çarp</b>, <b>yan yana → topla</b> (büyük olan kazanır).</li>
+<li>İçinde başka döngü var mı? <b>Yan yana → topla</b>; iç iş her dış turda aynıysa <b>çarp</b>, sınır değişiyorsa her turun işini <b>topla</b>. Sonra büyüme sınıfını gerekçelendir.</li>
 <li>İç döngünün sınırı dış değişkene mi bağlı? <b>Doğrusal dış + range(i) iç → Θ(n²)</b>; <b>geometrik dış + range(i) iç → Θ(n)</b>.</li>
-<li>Emin olamadıysanız n = 100 ve 200 için elle sayın ya da 4.4’teki tanıyıcıyı kullanın: oran 2 → n, 4 → n², 2’den biraz fazla → n log n.</li>
+<li>Emin olamadıysanız n = 100 ve 200 için elle sayın ya da 4.4’teki tanıyıcıyı kullanın: oran 2 → n, 4 → n², 2’den biraz fazla → n log n adaylarını düşündürür. Bu oranlar bir ipucudur; sınıfı döngü sınırlarından ve toplamdan gerekçelendirin.</li>
 </ol></div>
 
 <div class="box"><b>Hafta 1–2’den hatırlanacaklar</b>
@@ -1850,7 +1889,7 @@ Rastgele bir döngü gelir; dört sınıftan birini seçersiniz. Bitince tarayı
 <li>n = 10⁶ için ikili aramada en çok kaç yoklama (üç yönlü karşılaştırma) gerekir ve neden?</li>
 </ol>
 <details><summary>Çıkış bileti cevapları</summary>
-<p><b>(1)</b> Döngüler yan yana ise iş sayılarını <b>toplarım</b>, iç içe ise <b>çarparım</b>; sabitleri atar, büyük olanı tutarım. <b>(2)</b> Insertion, sıralı girdide her elemanı sadece bir kez karşılaştırıp durur (n−1 karşılaştırma); selection ise her turda kalan tüm elemanlara bakmak zorundadır, girdiyi bilmeden en küçüğün yerini bilemez: n(n−1)/2. <b>(3)</b> ⌊lg 10⁶⌋ + 1 = 19 + 1 = <b>20</b>; çünkü her karşılaştırma adayları yarıya indirir ve 2²⁰ ≈ 10⁶.</p></details></div>
+<p><b>(1)</b> Döngüler yan yana ise iş sayılarını <b>toplarım</b>. İç içe ise iç iş her dış turda aynı kaldığında <b>çarparım</b>; iç sınır değişiyorsa her turun işini ayrı sayıp <b>toplarım</b>. Sonra sabit çarpanları ve küçük terimleri büyüme sınıfında ayırırım. <b>(2)</b> Insertion, sıralı girdide her elemanı sadece bir kez karşılaştırıp durur (n−1 karşılaştırma); selection ise her turda kalan tüm elemanlara bakmak zorundadır, girdiyi bilmeden en küçüğün yerini bilemez: n(n−1)/2. <b>(3)</b> ⌊lg 10⁶⌋ + 1 = 19 + 1 = <b>20</b>; çünkü her karşılaştırma adayları yarıya indirir ve 2²⁰ ≈ 10⁶.</p></details></div>
 </section>
 
 <div class="foot">

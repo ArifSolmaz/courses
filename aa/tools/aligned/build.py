@@ -4,7 +4,7 @@ from .course import WEEKS
 from .visuals import figure, CODES
 from .sample_questions import MIDTERM,FINAL
 from .compact import animation_content, consolidate_routes, redirect
-from . import theory, transfer
+from . import theory, transfer, learning_paths
 E=html.escape
 ROOT=Path(__file__).resolve().parents[2]
 DATA=Path(__file__).parent
@@ -71,16 +71,19 @@ def display_numbers(Q,S,tests,written):
 
 def crossref(text,homes,display):
  """Turn source cross-references into links that use the visible weekly numbering."""
+ def route(n):
+  # Source question anchors remain on the full lesson when a simple main exists.
+  return f'../w{n}/'+('ek-notlar/' if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else '')
  def ex(m):
   i=int(m[1])
   if i not in homes:return m[0]
   n,k=display[('ex',i)]
-  return f'<a href="../w{n}/#skiena-ex-{i:03}">Week {n}, Question {k}</a>'
+  return f'<a href="{route(n)}#skiena-ex-{i:03}">Week {n}, Question {k}</a>'
  text=re.sub(r'(?i)(?:written |source )?exercise (\d+)',ex,text)
  # Test 116 refers to source test 119 by its original number.
  if ('mcq',119) in display:
   n,k=display[('mcq',119)]
-  text=text.replace('question 119',f'<a href="../w{n}/#skiena-mcq-119">Week {n}, Question {k}</a>')
+  text=text.replace('question 119',f'<a href="{route(n)}#skiena-mcq-119">Week {n}, Question {k}</a>')
  return text
 
 def wrap_tables(html_text):
@@ -283,7 +286,7 @@ def build(B):
 <section id="practice" class="week-panel">{transfer.TRANSFER.get(n,'')}<p>Questions and answers are together. Hard questions are optional; some tests revisit earlier ideas. Practice is ungraded.</p>{bank}</section>
 <section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(week_code(n))}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
 <nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a><a href="../review/#review-w{n}">Review</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
-  page=shell(B,title,body,'../',assets)
+  page=learning_paths.apply(shell(B,title,body,'../',assets),n)
   simple=ROOT/'tools'/'simple'/f'w{n}.html'
   if simple.exists():
    # The plain-language 3-hour lesson (tools/simple/wN.html) is the main week page;
@@ -293,7 +296,7 @@ def build(B):
    body_ek=body.replace('href="../','href="../../').replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
    assets_ek=assets.replace('href="../','href="../../').replace('src="../','src="../../')
    (ek/'index.html').write_text(shell(B,title,body_ek,'../../',assets_ek),encoding='utf-8')
-   (ROOT/f'w{n}/index.html').write_text(simple.read_text(encoding='utf-8'),encoding='utf-8')
+   (ROOT/f'w{n}/index.html').write_text(learning_paths.apply(simple.read_text(encoding='utf-8'),n),encoding='utf-8')
   else:
    (ROOT/f'w{n}/index.html').write_text(page)
   redirect(ROOT/f'guide/w{n:02}/index.html',f'../../w{n}/',
@@ -323,6 +326,7 @@ def build(B):
 <a class="doc-link" href="resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned"><span class="doc-icon" aria-hidden="true">&darr;</span><span><b>Course document</b><small>Bilingual English &middot; Turkish, .docx — lectures 1&ndash;22</small></span></a>
 </aside>
 </section>
+<section class="play-entry" aria-label="Play Lab"><div><p class="eyebrow">Weeks 1–5 · Learn by doing</p><h2>Try the Play Lab</h2><p>Beat a robot. Run a command centre. Find a missing part.</p></div><a class="btn btn-primary" href="play-lab/">Play →</a></section>
 <section class="schedule" id="schedule" aria-labelledby="schedule-title">
 <div class="section-head"><h2 id="schedule-title">The schedule</h2>
 <div class="progress" data-progress hidden><div class="progress-track"><div class="progress-fill"></div></div><p class="progress-label"><span data-progress-label></span> <button class="progress-reset" type="button" data-progress-reset>Clear</button></p></div></div>
@@ -339,7 +343,7 @@ def build(B):
 </ul>
 </section>
 </main>'''
- (ROOT/'index.html').write_text(shell(B,'Algorithm Analysis',home,'',sheets=('home.css?v=1',),scripts=('home.js?v=1',)))
+ (ROOT/'index.html').write_text(learning_paths.apply(shell(B,'Algorithm Analysis',home,'',sheets=('home.css?v=1',),scripts=('home.js?v=1',)),0))
  consolidate_routes()
  (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x["title"]} — document lectures {", ".join(map(str,x["lectures"]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Exam scope: scope/. Cumulative review: review/. Additional textbook problems: textbook-problems/. Older library addresses redirect to that route.\n')
  print('Built 14 aligned lessons, dashboard, scope, review, textbook-problems and reference routes.')
