@@ -3,6 +3,7 @@ from html.parser import HTMLParser
 from urllib.parse import urlsplit,unquote
 import re,sys,io,contextlib
 from aligned.build import WEEKS,TESTS,WRITTEN,LECTURES,placements,configure,week_code,textbook_articles,TEXTBOOK_GROUPS
+from aligned.page_links import fragment_exists
 root=Path(__file__).resolve().parents[1]
 configure()
 tests,written=placements()
@@ -63,7 +64,7 @@ def check_links(p,s):
   if target.is_dir():target=target/'index.html'
   assert target.exists(),(p,url)
   if u.fragment and target.suffix=='.html':
-   assert re.search(r'id=[\"\']'+re.escape(u.fragment)+r'[\"\']',target.read_text()),(p,url,'missing anchor')
+   assert fragment_exists(target,u.fragment),(p,url,'missing anchor')
  return parsed
 
 # A colon-ended English paragraph followed by its Turkish twin must be followed by the content it introduces.

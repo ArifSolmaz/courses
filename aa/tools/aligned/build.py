@@ -296,7 +296,11 @@ def build(B):
    body_ek=body.replace('href="../','href="../../').replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
    assets_ek=assets.replace('href="../','href="../../').replace('src="../','src="../../')
    (ek/'index.html').write_text(shell(B,title,body_ek,'../../',assets_ek),encoding='utf-8')
-   (ROOT/f'w{n}/index.html').write_text(learning_paths.apply(simple.read_text(encoding='utf-8'),n),encoding='utf-8')
+   # The authored card pages retain their scenes and separately authored notes.
+   # Do not overwrite them with the older plain-language lesson source.
+   cards=ROOT/'tools'/'card-pages'/f'w{n}.html'
+   source=cards if cards.exists() else simple
+   (ROOT/f'w{n}/index.html').write_text(learning_paths.apply(source.read_text(encoding='utf-8'),n),encoding='utf-8')
   else:
    (ROOT/f'w{n}/index.html').write_text(page)
   redirect(ROOT/f'guide/w{n:02}/index.html',f'../../w{n}/',

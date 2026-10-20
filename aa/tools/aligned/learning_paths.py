@@ -1,10 +1,11 @@
-"""Add the first three weeks' learning bridges without rewriting lesson content.
+"""Add the first seven weeks' learning bridges without rewriting lesson content.
 
 ``apply(page, week)`` accepts a complete HTML page (0 = dashboard). Stable
 markers make repeated application safe; ``strip(page)`` recovers its input.
-The same adapter is used for generated weeks and the authored simple Week 3.
+The same adapter serves generated lessons, simple Week 3 and authored card pages.
 """
 import re
+from . import learning_paths_structures, learning_paths_priority
 
 
 PANEL_START = '<!-- AA:LEARNING-BRIDGE:START -->'
@@ -37,7 +38,7 @@ def _guided(week, prompt, expected, hint, solution):
 
 def _home():
     return '''<section class="learning-bridge learning-bridge-home" id="learning-bridge-start" lang="tr" aria-labelledby="learning-bridge-home-title">
-<p class="learning-bridge-kicker">İlk üç hafta için öğrenme köprüsü</p>
+<p class="learning-bridge-kicker">İlk yedi hafta için öğrenme köprüsü</p>
 <h2 id="learning-bridge-home-title">Koddan gerekçeli algoritma seçimine</h2>
 <p>Bir sensör kaydını ararken önce adımları gör, sonra işi say, matematikle genelleştir ve yeni durumda kararını açıkla. Python'u önceden bilmen gerekmiyor; kâğıt üzerinde de ilerleyebilirsin.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="bridge/#basla">Köprü Laboratuvarı'nı aç →</a><a href="w1/#bridge-path">Hafta 1'den başla</a></p>
@@ -45,8 +46,10 @@ def _home():
 <li><a href="w1/#bridge-path"><strong>Kodları ve döngüleri takip etmek</strong><span>Hafta 1: bir aramayı elle yürüt, değişen durumu açıkla.</span></a></li>
 <li><a href="w2/#bridge-path"><strong>Matematiksel ifadeleri anlamak</strong><span>Hafta 2: küçük sayımdan C(n)'ye ve büyüme sınırına geç.</span></a></li>
 <li><a href="w3/#lb-w3-transfer"><strong>Konuların ne işe yaradığını görmek</strong><span>Hafta 3: sensör kimlikleri için arama yöntemi seç; koşullarını gerekçelendir.</span></a></li>
-<li><a href="w1/#bridge-path"><strong>Konular arasındaki bağlantıları kurmak</strong><span>Hafta 1 doğruluk → Hafta 2 sayım → Hafta 3 toplam → Hafta 4 veri yapısı.</span></a></li>
+<li><a href="w1/#bridge-path"><strong>Konular arasındaki bağlantıları kurmak</strong><span>Doğruluk → sayım → veri yapısı → arama → öncelik → sıralama bağını izle.</span></a></li>
 </ul>
+<p>İlk üç haftadan sonra aynı sensör kayıtlarını sakla, kimlikle bul, önceliklendir ve sırala:</p>
+<nav class="learning-bridge-actions" aria-label="Hafta 4–7 öğrenme köprüleri"><a href="w4/#bridge-path">Hafta 4 · Sakla</a><a href="w5/#bridge-path">Hafta 5 · Bul</a><a href="w6/#bridge-path">Hafta 6 · Önceliklendir</a><a href="w7/#bridge-path">Hafta 7 · Sırala</a></nav>
 <p class="learning-bridge-note">İlerleme ölçütü: cevabı görmekten önce tahmin etmek, sonra nedenini açıklamak ve bir sınır durumu denemek. Bu çalışmalar alıştırmadır; dersin mevcut sınav ve not düzeni sürer.</p>
 </section>'''
 
@@ -132,7 +135,7 @@ def _week_three():
 <h2 id="lb-w3-title">Aramadan sensör çiftlerine: hangi iş kaç kez?</h2>
 <nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
 <a href="../w2/#learning-bridge-w2"><strong>← Önce: Hafta 2 — sayım birimi ve büyüme</strong><span>Şimdi her döngü turunun katkısını toplayarak C(n)'yi çıkarıyoruz.</span></a>
-<a href="../w4/"><strong>Sonra: Hafta 4 — diziler ve bağlı listeler →</strong><span>İkili aramadaki hızlı orta elemana erişimin, veri yapısına bağlı olduğunu incele.</span></a>
+<a href="../w4/#bridge-path"><strong>Sonra: Hafta 4 — diziler ve bağlı listeler →</strong><span>İkili aramadaki hızlı orta elemana erişimin, veri yapısına bağlı olduğunu incele.</span></a>
 </nav>
 <p>Aynı sensörlerin bu kez her farklı çiftini bir kez karşılaştıralım. Önce tek karşılaştırmayı tanımla, sonra tekrarları yaz; yalnızca “iki döngü var” diyerek sonucu seçme.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="../bridge/#dongu">Köprü Laboratuvarı: kare ve üçgen sayımı karşılaştır →</a><a href="../bridge/#secim">Arama yöntemini seç</a></p>
@@ -148,29 +151,36 @@ def _week_three():
 <p>1.024 sensör kimliğinde tekrar tekrar arama yapacaksın. Veri sıralı bir dizideyse hangi yöntemi seçersin? Veri sırasızsa veya ortaya ulaşmak için bağlantıları yürümen gerekiyorsa kararının hangi gerekçesi değişir? Önce yöntem, önkoşul ve maliyetini kendi cümlelerinle açıkla.</p>
 <details><summary>Kendi açıklamanı denetle</summary><p>Sıralı ve indisle sabit zamanda erişilen dizide ikili arama uygundur. Bir <strong>yoklama</strong>yı orta anahtarla hedefin tek üç yönlü karşılaştırması olarak sayarsak, n ≥ 1 için en kötü durumda en fazla ⌊log₂ n⌋ + 1 yoklama gerekir; 1.024 kayıtta <strong>11</strong>. Gerçek kodda <code>==</code> ve <code>&lt;</code> ayrı ayrı sayılırsa ilkel karşılaştırma sayısı farklı olabilir.</p>
 <p>Sırasız <code>[4, 7, 2, 9, 5]</code> üzerinde ortayı seçip yarıyı atmak güvenli değildir: örneğin 7, orta değer 2'den büyük olsa da soldadır. Önce sıralama gerekiyorsa bunun ve güncellemelerin maliyetini ekle. Bağlı listede ortayı bulmak için yürümek gerektiğinden logaritmik yoklama sayısı otomatik olarak logaritmik zaman vermez. Bu bağ, Hafta 4'teki veri yapısı seçiminin nedenidir.</p></details></div>
-<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> küçük bir girdide çiftleri yazıp toplamı genelleyebiliyor ve arama tercihini önkoşullarıyla açıklayabiliyorsan <a href="../w4/">Hafta 4'e geç</a>. Sayımda takıldıysan <a href="../bridge/#dongu">n = 3 ile döngüyü yeniden izle</a>; ardından aşağıdaki dersle devam et.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> küçük bir girdide çiftleri yazıp toplamı genelleyebiliyor ve arama tercihini önkoşullarıyla açıklayabiliyorsan <a href="../w4/#bridge-path">Hafta 4'e geç</a>. Sayımda takıldıysan <a href="../bridge/#dongu">n = 3 ile döngüyü yeniden izle</a>; ardından aşağıdaki dersle devam et.</p>
 </section>'''
 
 
 def apply(page, week):
-    """Idempotently enrich dashboard / Weeks 1–3; other pages are unchanged."""
-    if week not in (0, 1, 2, 3):
+    """Idempotently enrich dashboard / Weeks 1–7; other pages are unchanged."""
+    if week not in range(8):
         return page
     page = strip(page)
     base = '' if week == 0 else '../'
     assets = (ASSETS_START + '\n'
-              + f'<link rel="stylesheet" href="{base}assets/learning-bridges.css?v=1">\n'
+              + f'<link rel="stylesheet" href="{base}assets/learning-bridges.css?v=2">\n'
               + f'<script defer src="{base}assets/learning-bridges.js?v=1"></script>\n'
               + ASSETS_END + '\n')
     if '</head>' not in page:
         raise ValueError(f'Week {week}: missing head boundary')
     page = page.replace('</head>', assets + '</head>', 1)
-    panel = {0: _home, 1: _week_one, 2: _week_two, 3: _week_three}[week]()
+    if week in (4, 5):
+        panel = learning_paths_structures.render(week, _guided)
+    elif week in (6, 7):
+        panel = learning_paths_priority.render(week, _guided)
+    else:
+        panel = {0: _home, 1: _week_one, 2: _week_two, 3: _week_three}[week]()
     block = PANEL_START + '\n' + panel + '\n' + PANEL_END + '\n'
     if week == 0:
         anchor = '<section class="schedule"'
     elif '<nav class="week-tabs"' in page:
         anchor = '<nav class="week-tabs"'
+    elif '<article id="scene"' in page:
+        anchor = '<article id="scene"'
     else:
         # The plain-language Week 3 is intentionally a self-contained page.
         anchor = '<div class="rule">'
