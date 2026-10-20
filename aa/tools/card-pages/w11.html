@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 11 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script></head><body>
+<header><a href="../">← AA course</a><span>Week 11 · Shortest paths</span><button id="print" type="button">Print</button></header>
+<main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Find the route that costs less.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
+<details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: Route costs, relaxation and Dijkstra</li><li>64–74: Break</li><li>74–122: Negative edges, Bellman–Ford and DAGs</li><li>122–132: Break</li><li>132–180: All-pairs routes, Python and robot planning</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">import heapq
+
+graph = {&quot;A&quot;: [(&quot;B&quot;, 2), (&quot;C&quot;, 5)],
+         &quot;B&quot;: [(&quot;C&quot;, 1)], &quot;C&quot;: []}
+if any(weight &lt; 0 for edges in graph.values() for _, weight in edges):
+    raise ValueError(&quot;Dijkstra requires nonnegative weights&quot;)
+distance = {v: float(&quot;inf&quot;) for v in graph}
+parent = {v: None for v in graph}
+distance[&quot;A&quot;] = 0
+queue = [(0, &quot;A&quot;)]
+while queue:
+    cost, u = heapq.heappop(queue)
+    if cost != distance[u]:
+        continue
+    for v, weight in graph[u]:
+        candidate = cost + weight
+        if candidate &lt; distance[v]:
+            distance[v] = candidate
+            parent[v] = u
+            heapq.heappush(queue, (candidate, v))
+print(&quot;Distances:&quot;, distance)
+print(&quot;Parents:&quot;, parent)</pre></section><section id="walkthrough" class="walkthrough" aria-labelledby="explanationHeading"><h3 id="explanationHeading">What is happening? Step by step</h3><p id="guideNote" class="guide-note">These steps explain the written example. The visual above can show other sizes or cases.</p><ol id="guideSteps" class="full-explanation"></ol></section><p id="lesson" class="lesson"></p><div class="check"><p><strong>Try this:</strong> <span id="check"></span></p><p class="answer"><strong>Answer:</strong> <span id="answer"></span></p></div><section id="details" class="assumptions"><h3>Important details</h3><p id="extra"></p><a id="ref">Related lecture notes →</a></section></article>
+<nav class="steps" aria-label="Move between examples"><button id="prev" type="button">← Previous</button><div class="navigation-help"><span id="status" role="status" aria-live="polite"></span><small>Use ← / → arrow keys</small></div><button id="next" type="button">Next →</button></nav>
+</main><noscript>This lesson needs JavaScript. <a href="lecture-notes.html">Open the detailed lecture notes.</a></noscript>
+<script>if(/^#(?:topic-|s\d|python-example-)/.test(location.hash))location.replace('lecture-notes.html'+location.hash);</script></body></html>

@@ -7,11 +7,12 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import ast
+from itertools import combinations, permutations, product
 import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 10)}}
+PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 12)}}
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
 
@@ -20,8 +21,8 @@ class Document(HTMLParser):
     def __init__(self, source):
         super().__init__()
         self.ids, self.urls, self.labels, self.answers = [], [], [], []
-        self.strongs, self.pre_blocks, self.headings = [], [], []
-        self.strong, self.pre, self.heading = None, None, None
+        self.strongs, self.pre_blocks, self.headings, self.label_texts = [], [], [], []
+        self.strong, self.pre, self.heading, self.current_label = None, None, None, None
         self.heading_tag = None
         self.feed(source)
 
@@ -30,8 +31,10 @@ class Document(HTMLParser):
         if 'id' in attrs:
             self.ids.append(attrs['id'])
         self.urls.extend(attrs[key] for key in ('href', 'src') if key in attrs)
-        if tag == 'label' and 'for' in attrs:
-            self.labels.append(attrs['for'])
+        if tag == 'label':
+            self.current_label = []
+            if 'for' in attrs:
+                self.labels.append(attrs['for'])
         if 'data-answer' in attrs:
             self.answers.append(int(attrs['data-answer']))
         if tag == 'strong':
@@ -42,6 +45,8 @@ class Document(HTMLParser):
             self.heading, self.heading_tag = [], tag
 
     def handle_data(self, text):
+        if self.current_label is not None:
+            self.current_label.append(text)
         if self.strong is not None:
             self.strong.append(text)
         if self.pre is not None:
@@ -50,6 +55,9 @@ class Document(HTMLParser):
             self.heading.append(text)
 
     def handle_endtag(self, tag):
+        if tag == 'label' and self.current_label is not None:
+            self.label_texts.append(' '.join(''.join(self.current_label).split()))
+            self.current_label = None
         if tag == 'strong' and self.strong is not None:
             self.strongs.append(' '.join(''.join(self.strong).split()))
             self.strong = None
@@ -128,6 +136,49 @@ def reachable_neighbor_entries(graph, source):
     return sum(len(graph[vertex]) for vertex in graph if distances[source, vertex] != float('inf'))
 
 
+def forest_relation(vertices, edges):
+    # Connectivity is obtained by transitive closure, without union-find.
+    graph = {vertex: [] for vertex in vertices}
+    for u, v, _ in edges:
+        graph[u].append(v)
+        graph[v].append(u)
+    distances = graph_distances(graph)
+    return frozenset((u, v) for u in vertices for v in vertices if distances[u, v] != float('inf'))
+
+
+def minimum_forest_cost(vertices, edges):
+    """Brute-force edge subsets; the oracle does not run Prim or Kruskal."""
+    relation = forest_relation(vertices, edges)
+    components = {frozenset(v for v in vertices if (u, v) in relation) for u in vertices}
+    edge_count = len(vertices) - len(components)
+    costs = [sum(edge[2] for edge in chosen) for chosen in combinations(edges, edge_count)
+             if forest_relation(vertices, chosen) == relation]
+    assert costs, 'Every finite undirected graph has a spanning forest'
+    return min(costs), edge_count, relation
+
+
+def simple_path_distances(graph, source):
+    """Enumerate simple vertex paths: no heap and no edge relaxation loop."""
+    weights = {}
+    for u, neighbors in graph.items():
+        for v, weight in neighbors:
+            weights[u, v] = min(weights.get((u, v), float('inf')), weight)
+    result = {source: 0}
+    for target in graph:
+        if target == source:
+            continue
+        middle = [vertex for vertex in graph if vertex not in (source, target)]
+        best = float('inf')
+        for size in range(len(middle) + 1):
+            for intermediate in permutations(middle, size):
+                path = (source, *intermediate, target)
+                arcs = list(zip(path, path[1:]))
+                if all(arc in weights for arc in arcs):
+                    best = min(best, sum(weights[arc] for arc in arcs))
+        result[target] = best
+    return result
+
+
 def guided_answers():
     """Count the worked inputs independently; never use author helper results."""
     return {
@@ -140,6 +191,8 @@ def guided_answers():
         7: merge_rank_comparisons([1, 3, 5], [2, 4, 6]),
         8: reachable_neighbor_entries({'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A', 'D'], 'D': ['B', 'C'], 'E': []}, 'A'),
         9: sum(map(len, {'A': ['B', 'C'], 'B': ['D'], 'C': ['D'], 'D': []}.values())),
+        10: minimum_forest_cost(list('ABC'), [('A', 'B', 2), ('B', 'C', 2), ('A', 'C', 3)])[0],
+        11: simple_path_distances({'A': [('B', 2), ('C', 3)], 'B': [('A', 2), ('C', 2)], 'C': [('A', 3), ('B', 2)]}, 'A')['C'],
     }
 
 
@@ -174,6 +227,8 @@ def check_sources(sources, *, published=False):
             assert not panel.answers
         else:
             assert panel.answers == [expected_answers[week]], f'{relative}: incorrect guided answer'
+            if week in (10, 11):
+                assert panel.label_texts == ['Tahminim (toplam maliyet)'], f'{relative}: guided label must name cost, not operation count'
         for url in panel.urls + assets.urls:
             parsed = urlsplit(url)
             assert not parsed.scheme and not parsed.netloc, f'{relative}: new external dependency {url}'
@@ -358,10 +413,107 @@ def check_displayed_graphs(bfs_page, dfs_page):
     return cases + 5
 
 
+def check_displayed_networks(mst_page, shortest_page):
+    mst = displayed_namespace(mst_page, 10)['mst']
+    dijkstra = displayed_namespace(shortest_page, 11)['dijkstra']
+    cases = 0
+
+    for n in range(5):
+        vertices = list('ABCD'[:n])
+        pairs = list(combinations(vertices, 2))
+        for weights in product((None, -1, 0, 2), repeat=len(pairs)):
+            edges = [(u, v, weight) for (u, v), weight in zip(pairs, weights) if weight is not None]
+            expected_cost, edge_count, relation = minimum_forest_cost(vertices, edges)
+            chosen, total = mst(vertices, edges)
+            remaining = list(edges)
+            for edge in chosen:
+                edge = tuple(edge)
+                assert edge in remaining, 'MST selects only available input-edge occurrences'
+                remaining.remove(edge)
+            assert len(chosen) == edge_count, 'Spanning forest has V minus component-count edges'
+            assert forest_relation(vertices, chosen) == relation, 'Spanning forest preserves every original connected component'
+            assert total == sum(weight for _, _, weight in chosen) == expected_cost, 'MST/forest total equals independent subset optimum'
+            cases += 1
+
+    def verify_routes(graph, source):
+        distance, parent = dijkstra(graph, source)
+        expected = simple_path_distances(graph, source)
+        assert distance == expected, f'Dijkstra versus all simple paths: {graph}, source {source}'
+        assert set(parent) == set(graph) and parent[source] is None, 'Dijkstra parent coverage/source'
+        for target in graph:
+            if distance[target] == float('inf'):
+                assert parent[target] is None, 'Unreachable distance is infinity with no parent'
+                continue
+            # Parent links must reconstruct a real shortest path, even with
+            # zero-weight cycles and several equally good route choices.
+            visited, vertex, cost = set(), target, 0
+            while vertex != source:
+                assert vertex not in visited, 'Dijkstra parent records must not contain a cycle'
+                visited.add(vertex)
+                previous = parent[vertex]
+                assert previous in graph, 'Reachable nonsource vertex needs a parent'
+                weights = [weight for neighbor, weight in graph[previous] if neighbor == vertex]
+                assert weights, 'Parent relation must be an actual directed edge'
+                admissible = [weight for weight in weights if distance[previous] + weight == distance[vertex]]
+                assert admissible, 'Parent edge must realize the final shortest distance'
+                cost += min(admissible)
+                vertex = previous
+            assert cost == distance[target], 'Parent route has the independently optimal total cost'
+
+    for n in range(1, 4):
+        vertices = list('ABC'[:n])
+        arcs = [(u, v) for u in vertices for v in vertices if u != v]
+        for weights in product((None, 0, 1, 3), repeat=len(arcs)):
+            graph = {vertex: [] for vertex in vertices}
+            for (u, v), weight in zip(arcs, weights):
+                if weight is not None:
+                    graph[u].append((v, weight))
+            for source in graph:
+                verify_routes(graph, source)
+                cases += 1
+    for graph in [
+        {'A': [], 'B': [], 'C': [], 'D': []},
+        {'A': [('B', 5), ('C', 1)], 'B': [('D', 1)], 'C': [('B', 1), ('D', 10)], 'D': []},
+        {'A': [('B', 0), ('C', 0)], 'B': [('D', 0)], 'C': [('D', 0)], 'D': []},
+        {'A': [('B', 0)], 'B': [('A', 0), ('C', 2)], 'C': [('D', 0)], 'D': [('C', 0)]},
+        {'A': [('A', 0), ('B', 3), ('B', 1)], 'B': [], 'C': []},
+    ]:
+        for source in graph:
+            verify_routes(graph, source)
+            cases += 1
+    for graph in [
+        {'A': [('B', -1)], 'B': []},
+        {'A': [], 'B': [('C', -1)], 'C': []},
+    ]:
+        try:
+            dijkstra(graph, 'A')
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('Dijkstra must reject every negative edge, including unreachable edges')
+        cases += 1
+    for graph, source in [({}, 'A'), ({'A': []}, 'missing')]:
+        try:
+            dijkstra(graph, source)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('Unknown Dijkstra source must be rejected')
+        cases += 1
+
+    vertices, edges = list('ABC'), [('A', 'B', 2), ('B', 'C', 2), ('A', 'C', 3)]
+    chosen, total = mst(vertices, edges)
+    assert total == 4 and chosen == [('A', 'B', 2), ('B', 'C', 2)], 'Worked MST network total'
+    triangle = {'A': [('B', 2), ('C', 3)], 'B': [('A', 2), ('C', 2)], 'C': [('A', 3), ('B', 2)]}
+    distance, parent = dijkstra(triangle, 'A')
+    assert distance == {'A': 0, 'B': 2, 'C': 3} and parent == {'A': None, 'B': 'A', 'C': 'A'}, 'Worked shortest route differs from the MST route'
+    return cases + 2
+
+
 def check_original_content(current, head):
     for week in PAGES:
         original, revised = bridges.strip(head[week]), bridges.strip(current[week])
-        if week in (4, 5, 6, 7, 8, 9):
+        if week in (4, 5, 6, 7, 8, 9, 10, 11):
             # The existing deck script gains only a cache key for hash routing.
             deck_script = 'recap/recap.js' if week == 4 else 'examples/lesson.js'
             old = f'<script defer src="{deck_script}"></script>'
@@ -373,6 +525,13 @@ def check_original_content(current, head):
         before, after = Document(original), Document(revised)
         assert before.ids == after.ids, f'Week {week}: original ID inventory changed'
         assert before.headings == after.headings, f'Week {week}: original headings changed'
+        for url in before.urls:
+            parsed = urlsplit(url)
+            if not parsed.scheme and not parsed.netloc and Path(parsed.path).name == 'cards.js':
+                card_path = ((ROOT / PAGES[week]).parent / unquote(parsed.path)).resolve()
+                relative = card_path.relative_to(ROOT).as_posix()
+                original_cards = subprocess.check_output(['git', 'show', f'HEAD:{relative}'], cwd=ROOT)
+                assert card_path.read_bytes() == original_cards, f'Week {week}: original card questions/data changed'
     # Exact source-byte preservation also covers original questions, answers,
     # embedded card data, animations, and existing lesson interactions.
 
@@ -393,16 +552,17 @@ def main():
     head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
             for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–9 (only the deck-script cache keys for Weeks 4–9 are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–11 (only the deck-script cache keys for Weeks 4–11 are normalized).')
     for name, sources in [('current', current), ('HEAD', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])
         check_displayed_insertion(rendered[(ROOT / PAGES[4]).resolve()])
         graph_cases = check_displayed_graphs(rendered[(ROOT / PAGES[8]).resolve()], rendered[(ROOT / PAGES[9]).resolve()])
-        print(f'PASS {name}: ten pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS programs verified (231 insertion boundaries and {graph_cases:,} graph cases).')
+        network_cases = check_displayed_networks(rendered[(ROOT / PAGES[10]).resolve()], rendered[(ROOT / PAGES[11]).resolve()])
+        print(f'PASS {name}: twelve pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS/MST/Dijkstra programs verified (231 insertion boundaries, {graph_cases:,} graph cases, {network_cases:,} weighted-network cases).')
 
     check_math()
-    for week in (-1, 10, 14):
+    for week in (-1, 12, 14):
         assert bridges.apply(current[1], week) == current[1], f'Unsupported week {week} changed'
     print('PASS math: loop counts for n=0..1000; triangular and polynomial Theta witnesses; unsupported weeks unchanged.')
 
