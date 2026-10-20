@@ -121,3 +121,29 @@ sections. Responses stay in the open tab; a text report can be downloaded.
 Run `node aa/tools/verify_capstone_models.cjs` for independent graph and
 assessment checks, alongside the existing learning-bridge, alignment and
 rebuild verifiers.
+
+
+## Small-group pilot kit (October 2026)
+
+`bridge/capstone/pilot/` supplies a student handout for a suggested 25-minute
+session with 6–8 students, a four-dimension teacher assessment form, and an
+eight-slot comparison template (P01–P08). The teacher applies the existing
+0–2 reasoning criteria separately to the initial and transfer explanations,
+with an evidence note for each assigned score. Missing work remains unscored;
+an explicit zero is an observed rating and is never inferred from a blank.
+
+Teacher scores, automatic choice counts and student self-ratings remain
+separate. Dimension comparisons use matched pre/post pairs with their own
+sample counts; total-score comparisons require all four dimensions in each
+phase. Invalid records are shown and excluded from aggregates. These are
+small-pilot descriptive results, not an estimate of a causal learning effect.
+
+Records stay in the open tab only. Download the filled CSV before refreshing
+or leaving; the blank CSV is a reusable comparison template. Student,
+teacher-form and results print views are separate. Without JavaScript, the
+student instructions, teacher criteria and blank paper comparison remain
+available. The existing integrated activity is unchanged outside one marked
+access panel; no weekly lesson is replaced.
+
+Run `node aa/tools/verify_pilot_models.cjs` and
+`python3 aa/tools/verify_pilot.py` alongside the capstone and course checks.
