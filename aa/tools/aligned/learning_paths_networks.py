@@ -90,7 +90,7 @@ def _week_eleven(guided):
 <h2 id="lb-w11-title">Aynı sensör ağında bir mesaj hangi yolu izlemeli?</h2>
 <nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
 <a href="../w10/#bridge-path"><strong>← Önce: Hafta 10 — kurulum toplamı</strong><span>Aynı üçgende şimdi tek kaynaktan yol toplamını küçült.</span></a>
-<a href="../w12/"><strong>Sonra: Hafta 12 — alt sonuçları yeniden kullan →</strong><span>En iyi bilinen değeri saklama fikrini tekrar eden alt problemlere taşı.</span></a>
+<a href="../w12/#bridge-path"><strong>Sonra: Hafta 12 — alt sonuçları yeniden kullan →</strong><span>En iyi bilinen değeri saklama fikrini tekrar eden alt problemlere taşı.</span></a>
 </nav>
 <p>Yönsüz ağ yine <strong>AB = 2, BC = 2, AC = 3</strong>; bu kez ağırlık mesajın bağlantıyı geçme maliyetidir. MST’deki A–B–C yolu 4, özgün ağdaki doğrudan A–C yolu 3’tür. Hangi toplamı en aza indirdiğini önce söyle.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-1">Bu haftanın laboratuvarı: aynı üçgende ağ ve yolu ayır →</a><a href="../bridge/#secim">Önkoşul: yöntemin koşullarını sorgula</a></p>
@@ -131,7 +131,7 @@ distance, parent = dijkstra(graph, "A")</code></pre>
 <p>C’nin bütün bağlantıları koparsa ne döndürmelisin? Sıfır maliyetli kenar Dijkstra’yı bozar mı? Negatif ölçüm girilince kodun neden sonuç vermemesi gerekir?</p>
 <details><summary>Kendi açıklamanı denetle</summary><p>C tanımlı fakat erişilemezse uzaklığı ∞, ebeveyni <code>None</code> kalır; 0 veya bir yol uydurulmaz. Sıfır ağırlık geçerlidir. Kod, erişilmeyen bölümdekiler dahil her negatif kenarı baştan reddeder. Bu yönsüz ağda negatif kenarda gidip gelmek toplamı sınırsız azaltabilir; en kısa yürüyüşün sonlu minimumu kalmaz.</p></details></div>
 <p><a href="#example-19">Mevcut Dijkstra Python laboratuvarı</a> yönlü A→B=2, A→C=5, B→C=1 girdisini kullanır; buradaki yönsüz üçgenle aynı girdi değildir.</p>
-<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> yol toplamını, gevşetmeyi ve önkoşulu açıklayabiliyorsan <a href="../w12/">alt problemlere geç</a>. Takıldıysan <a href="#example-6">Dijkstra’nın seçim sırasını izle</a>; bu görsel de yönlü 2,5,1 örneğidir.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> yol toplamını, gevşetmeyi ve önkoşulu açıklayabiliyorsan <a href="../w12/#bridge-path">alt problemlere geç</a>. Takıldıysan <a href="#example-6">Dijkstra’nın seçim sırasını izle</a>; bu görsel de yönlü 2,5,1 örneğidir.</p>
 </section>'''
 
 

@@ -1,7 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 12 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js"></script><script defer src="examples/lesson.js"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 12 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script><!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=2">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
+</head><body>
 <header><a href="../">← AA course</a><span>Week 12 · Backtracking and dynamic programming</span><button id="print" type="button">Print</button></header>
 <main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Try choices. Reuse answers.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
 <details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: Choices, backtracking and safe pruning</li><li>64–74: Break</li><li>74–122: Repeated questions and dynamic programming</li><li>122–132: Break</li><li>132–180: Counting, Python and engineering examples</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w12-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w12">Hafta 12 · Dalları dene, seçimi geri al</p>
+<h2 id="lb-w12-title">Üç aktarım turunda C’de biten testleri listele</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w11/#bridge-path"><strong>← Önce: Hafta 11 — en ucuz yol</strong><span>A–C maliyeti 3’tü; şimdi tam üç aktarım koşulunu ekliyoruz.</span></a>
+<a href="../w13/#bridge-path"><strong>Sonra: Hafta 13 — aynı durumları birleştir →</strong><span>Tek tek listelemek yerine bu yürüyüşlerin en ucuzunu hesapla.</span></a>
+</nav>
+<p>Aynı yönsüz sensör ağı: <strong>AB = 2, BC = 2, AC = 3</strong>; ağırlıkları koruyoruz. Bu test protokolü üç aktarım turu sonunda C’de bitmeyi ister. Bekleme yok; aynı sensöre yeniden uğranabilir. Bu nedenle <strong>yürüyüş</strong> arıyoruz; tepe tekrarı yasak bir basit yol aramıyoruz. Bu koşul her haberleşme protokolü için zorunlu değildir.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-18">Bu haftanın laboratuvarı: tam adım koşulunu izle →</a><a href="../bridge/#dongu">Önkoşul: tekrarları adım adım say</a></p>
+<p>Yerel laboratuvar yönlü A→B=2, B→C=3, A→C=1 ile <strong>tam iki</strong> bağlantıyı gösterir; aşağıdaki yönsüz üç aktarım testinden farklı girdidir.</p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — erken C’ye varınca devam et</summary>
+<p>Tepe adları farklı stringler, bütün komşular sözlük anahtarı; ağırlıklar sonlu tamsayılardır. <code>steps</code> negatif olmayan bir tamsayıdır. <code>append</code> bir seçimi ekler; dönüşte <code>pop</code> onu geri alır.</p>
+<pre><code>def enumerate_walks(graph, start, target, steps):
+    if type(steps) is not int or steps &lt; 0:
+        raise ValueError("invalid steps")
+    if start not in graph or target not in graph:
+        raise ValueError("unknown endpoint")
+    answers, trail = [], [start]
+    def search(u, remaining, cost):
+        if remaining == 0:
+            if u == target:
+                answers.append((trail.copy(), cost))
+            return
+        for v, weight in graph[u]:
+            trail.append(v)
+            search(v, remaining - 1, cost + weight)
+            trail.pop()
+    search(start, steps, 0)
+    return answers
+
+graph = {"A": [("B", 2), ("C", 3)],
+         "B": [("A", 2), ("C", 2)],
+         "C": [("A", 3), ("B", 2)]}
+walks = enumerate_walks(graph, "A", "C", 3)
+best = min((cost for _, cost in walks), default=None)</code></pre>
+<p>A–B–A–C toplamı <strong>2+2+3=7</strong>. A–C dalı C’de hemen durmaz: A–C–A–C maliyeti 9, A–C–B–C maliyeti 7’dir. Bir dalın dönüşünde izi kopyalamak, sonraki <code>pop</code> işlemlerinin kaydedilmiş cevabı bozmasını önler.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>Yönsüz <strong>AB = 2, BC = 2, AC = 3</strong> ağında A’dan başlayıp <strong>tam 3 bağlantı geçtikten sonra C’de biten kaç yürüyüş</strong> vardır? Sensöre yeniden uğramak serbest; erken C’ye varınca durulmaz. Bekleme ve öz-ilmek yoktur. Toplam maliyeti değil sayıyı yaz.</p>
+<div class="learning-bridge-check" data-learning-check data-answer="3">
+<label for="lb-w12-count">Tahminim (yürüyüş sayısı)</label>
+<div class="learning-bridge-input-row"><input id="lb-w12-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w12-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w12-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>İlk adım B veya C’dir. Her dalı tam üç bağlantıya tamamla; yalnız son tepesi C olanları tut. A–C–A–C de geçerlidir.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>3 yürüyüş.</strong> A–B–A–C (7), A–C–A–C (9), A–C–B–C (7). Parantezler maliyettir; yürüyüş sayısı değildir.</p></details>
+</div>
+<details><summary>Matematik köprüsü — sayma, en iyiyi bulma ve çıktı boyutu</summary><p>Her düğümde iki seçenek olduğundan bu üçgende k aktarım için 2ᵏ tam dal vardır; her biri C’de bitmez. Listeleme üstel büyüyebilir; her bulunan yürüyüşü kopyalamanın da maliyeti vardır. Burada çözüm sayısı <strong>3</strong>, maliyetler <strong>7,9,7</strong>, minimum <strong>7</strong>: üç farklı sorudur.</p></details>
+<div class="learning-bridge-transfer" id="lb-w12-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>C’nin bağlantıları kaldırılırsa ne listelenir? Sıfır aktarımda A’dan A’ya ve A’dan C’ye sonuçları ayrı düşün. Bir sensöre tekrar gitmeyi yasaklarsan bu kod aynı problemi çözer mi?</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>Ulaşılamayan C için liste boştur; çağıran kodun minimumu <code>None</code> olur. Sıfır aktarımda A–A için <code>(["A"], 0)</code> tek boş yürüyüştür; A–C için çözüm yoktur. Tekrar yasağı gelirse ziyaret geçmişini izlemek gerekir; mevcut kod yürüyüş listeler. Her dalın sonlanmasını maliyet değil, azalan kalan adım sağlar.</p></details></div>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> ekle/geri al adımlarını ve tam üç aktarım koşulunu açıklayabiliyorsan <a href="../w13/#bridge-path">minimumu tabloyla bul</a>. Takıldıysan <a href="#example-22">listeleme ile saymanın farkını incele</a>; bu görsel görev altkümelerini kullanır.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
 <article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">n = 4
 if not isinstance(n, int) or not 0 &lt;= n &lt;= 30:
     raise ValueError(&quot;Choose a whole number from 0 to 30&quot;)

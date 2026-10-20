@@ -12,7 +12,7 @@ import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 12)}}
+PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 14)}}
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
 
@@ -179,6 +179,29 @@ def simple_path_distances(graph, source):
     return result
 
 
+def sensor_triangle():
+    return {'A': [('B', 2), ('C', 3)], 'B': [('A', 2), ('C', 2)], 'C': [('A', 3), ('B', 2)]}
+
+
+def cartesian_walks(graph, source, steps):
+    """Filter all vertex sequences, without recursion, pruning or DP states.
+
+    Parallel arc occurrences, if present, produce separate edge-choice walks.
+    Repeated vertices and edges stay legal; length is exactly ``steps``.
+    """
+    weights = {}
+    for u, neighbors in graph.items():
+        for v, weight in neighbors:
+            weights.setdefault((u, v), []).append(weight)
+    records = []
+    for suffix in product(graph, repeat=steps):
+        path = (source, *suffix)
+        edge_options = [weights.get(arc, []) for arc in zip(path, path[1:])]
+        for chosen_weights in product(*edge_options):
+            records.append((path, sum(chosen_weights)))
+    return records
+
+
 def guided_answers():
     """Count the worked inputs independently; never use author helper results."""
     return {
@@ -193,6 +216,8 @@ def guided_answers():
         9: sum(map(len, {'A': ['B', 'C'], 'B': ['D'], 'C': ['D'], 'D': []}.values())),
         10: minimum_forest_cost(list('ABC'), [('A', 'B', 2), ('B', 'C', 2), ('A', 'C', 3)])[0],
         11: simple_path_distances({'A': [('B', 2), ('C', 3)], 'B': [('A', 2), ('C', 2)], 'C': [('A', 3), ('B', 2)]}, 'A')['C'],
+        12: len([record for record in cartesian_walks(sensor_triangle(), 'A', 3) if record[0][-1] == 'C']),
+        13: min(cost for path, cost in cartesian_walks(sensor_triangle(), 'A', 3) if path[-1] == 'C'),
     }
 
 
@@ -227,8 +252,10 @@ def check_sources(sources, *, published=False):
             assert not panel.answers
         else:
             assert panel.answers == [expected_answers[week]], f'{relative}: incorrect guided answer'
-            if week in (10, 11):
+            if week in (10, 11, 13):
                 assert panel.label_texts == ['Tahminim (toplam maliyet)'], f'{relative}: guided label must name cost, not operation count'
+            if week == 12:
+                assert panel.label_texts == ['Tahminim (yürüyüş sayısı)'], f'{relative}: guided label must name the number of walks'
         for url in panel.urls + assets.urls:
             parsed = urlsplit(url)
             assert not parsed.scheme and not parsed.netloc, f'{relative}: new external dependency {url}'
@@ -510,10 +537,143 @@ def check_displayed_networks(mst_page, shortest_page):
     return cases + 2
 
 
+def small_walk_graphs():
+    """Exhaustive small structures and weights; retain loops and revisits."""
+    seen = set()
+
+    def unique(graph):
+        key = tuple((vertex, tuple(neighbors)) for vertex, neighbors in graph.items())
+        if key in seen:
+            return False
+        seen.add(key)
+        return True
+
+    for n in range(1, 4):
+        vertices = list('ABC'[:n])
+        arcs = [(u, v) for u in vertices for v in vertices if u != v]
+        for mask in range(1 << len(arcs)):
+            for shift in range(3):
+                graph = {vertex: [] for vertex in vertices}
+                for bit, (u, v) in enumerate(arcs):
+                    if mask & (1 << bit):
+                        graph[u].append((v, (-2, 0, 3)[(bit + shift) % 3]))
+                if unique(graph):
+                    yield graph
+    # Every weighted directed graph on two vertices, including self-loops.
+    arcs = list(product('AB', repeat=2))
+    for weights in product((None, -2, 0, 3), repeat=len(arcs)):
+        graph = {'A': [], 'B': []}
+        for (u, v), weight in zip(arcs, weights):
+            if weight is not None:
+                graph[u].append((v, weight))
+        if unique(graph):
+            yield graph
+    for graph in [
+        sensor_triangle(),
+        {'A': [('B', 0), ('C', 0)], 'B': [('A', 0), ('C', 0)], 'C': [('A', 0), ('B', 0)]},
+        {'A': [('B', -2)], 'B': [('A', 1)], 'C': []},
+        {'A': [('A', 3)], 'B': []},
+        {'A': [('B', 1), ('B', 1), ('B', -1)], 'B': [('A', 0)], 'C': []},
+    ]:
+        if unique(graph):
+            yield graph
+
+
+def check_displayed_walks(enumeration_page, dp_page):
+    enumerate_walks = displayed_namespace(enumeration_page, 12)['enumerate_walks']
+    exact_walk_cost = displayed_namespace(dp_page, 13)['exact_walk_cost']
+    cases = 0
+    for graph in small_walk_graphs():
+        for source in graph:
+            expected_table = []
+            for steps in range(5):
+                records = cartesian_walks(graph, source, steps)
+                row = {target: min((cost for path, cost in records if path[-1] == target), default=float('inf'))
+                       for target in graph}
+                expected_table.append(row)
+                for target in graph:
+                    expected_walks = sorted((path, cost) for path, cost in records if path[-1] == target)
+                    actual = enumerate_walks(graph, source, target, steps)
+                    actual_walks = sorted((tuple(path), cost) for path, cost in actual)
+                    assert actual_walks == expected_walks, f'Exact-length walk enumeration: {graph}, {source}->{target}, k={steps}'
+                    assert all(len(path) == steps + 1 and path[0] == source and path[-1] == target for path, _ in actual), 'Every returned walk has exactly k edges and correct endpoints'
+                    answer, table = exact_walk_cost(graph, source, target, steps)
+                    assert len(table) == steps + 1 and all(isinstance(state, dict) for state in table), 'DP table contains a dictionary snapshot for each exact step count 0..k'
+                    assert table == expected_table, f'Every exact-length DP row matches independent vertex-sequence minima: {graph}, source {source}, k={steps}'
+                    assert answer == row[target], 'DP answer selects the requested target at exactly k edges'
+                    cases += 1
+
+    invalid = [
+        ({'A': []}, 'A', 'A', -1),
+        ({'A': []}, 'A', 'A', True),
+        ({'A': []}, 'A', 'A', 1.0),
+        ({'A': []}, 'missing', 'A', 0),
+        ({'A': []}, 'A', 'missing', 0),
+        ({}, 'A', 'A', 0),
+    ]
+    for graph, source, target, steps in invalid:
+        for function in (enumerate_walks, exact_walk_cost):
+            try:
+                function(graph, source, target, steps)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError('Exact-walk code must reject non-integer/negative k or unknown endpoints')
+            cases += 1
+
+    expected = [(('A', 'B', 'A', 'C'), 7), (('A', 'C', 'A', 'C'), 9), (('A', 'C', 'B', 'C'), 7)]
+    actual = enumerate_walks(sensor_triangle(), 'A', 'C', 3)
+    assert sorted((tuple(path), cost) for path, cost in actual) == expected, 'Worked k=3 walks may revisit vertices and edges'
+    answer, table = exact_walk_cost(sensor_triangle(), 'A', 'C', 3)
+    assert answer == 7 and table == [
+        {'A': 0, 'B': float('inf'), 'C': float('inf')},
+        {'A': float('inf'), 'B': 2, 'C': 3},
+        {'A': 4, 'B': 5, 'C': 4},
+        {'A': 7, 'B': 6, 'C': 7},
+    ], 'Worked DP states count exact edge length, rather than at-most length or ordinary shortest paths'
+    class VisibleTable(HTMLParser):
+        def __init__(self, source):
+            super().__init__()
+            self.tables, self.rows, self.row, self.cell = [], None, None, None
+            self.feed(source)
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'table' and 'bfs-table' in dict(attrs).get('class', '').split():
+                self.rows = []
+            elif self.rows is not None and tag == 'tr':
+                self.row = []
+            elif self.row is not None and tag in ('td', 'th'):
+                self.cell = []
+
+        def handle_data(self, data):
+            if self.cell is not None:
+                self.cell.append(data)
+
+        def handle_endtag(self, tag):
+            if tag in ('td', 'th') and self.cell is not None:
+                self.row.append(' '.join(''.join(self.cell).split()))
+                self.cell = None
+            elif tag == 'tr' and self.row is not None:
+                self.rows.append(self.row)
+                self.row = None
+            elif tag == 'table' and self.rows is not None:
+                self.tables.append(self.rows)
+                self.rows = None
+
+    visible = VisibleTable(marked(dp_page, bridges.PANEL_START, bridges.PANEL_END))
+    expected_rows = [['t', 'A', 'B', 'C']]
+    for steps in range(4):
+        records = cartesian_walks(sensor_triangle(), 'A', steps)
+        values = [min((cost for path, cost in records if path[-1] == target), default=float('inf')) for target in 'ABC']
+        expected_rows.append([str(steps)] + ['∞' if value == float('inf') else str(value) for value in values])
+    assert visible.tables == [expected_rows], 'The displayed HTML DP table must match independently enumerated exact-length minima'
+    return cases + 3
+
+
 def check_original_content(current, head):
     for week in PAGES:
         original, revised = bridges.strip(head[week]), bridges.strip(current[week])
-        if week in (4, 5, 6, 7, 8, 9, 10, 11):
+        if week in range(4, 14):
             # The existing deck script gains only a cache key for hash routing.
             deck_script = 'recap/recap.js' if week == 4 else 'examples/lesson.js'
             old = f'<script defer src="{deck_script}"></script>'
@@ -552,17 +712,18 @@ def main():
     head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
             for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–11 (only the deck-script cache keys for Weeks 4–11 are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–13 (only the deck-script cache keys for Weeks 4–13 are normalized).')
     for name, sources in [('current', current), ('HEAD', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])
         check_displayed_insertion(rendered[(ROOT / PAGES[4]).resolve()])
         graph_cases = check_displayed_graphs(rendered[(ROOT / PAGES[8]).resolve()], rendered[(ROOT / PAGES[9]).resolve()])
         network_cases = check_displayed_networks(rendered[(ROOT / PAGES[10]).resolve()], rendered[(ROOT / PAGES[11]).resolve()])
-        print(f'PASS {name}: twelve pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS/MST/Dijkstra programs verified (231 insertion boundaries, {graph_cases:,} graph cases, {network_cases:,} weighted-network cases).')
+        walk_cases = check_displayed_walks(rendered[(ROOT / PAGES[12]).resolve()], rendered[(ROOT / PAGES[13]).resolve()])
+        print(f'PASS {name}: fourteen pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS/MST/Dijkstra/exact-walk programs verified (231 insertion boundaries, {graph_cases:,} graph cases, {network_cases:,} weighted-network cases, {walk_cases:,} exact-walk/DP cases).')
 
     check_math()
-    for week in (-1, 12, 14):
+    for week in (-1, 14, 15):
         assert bridges.apply(current[1], week) == current[1], f'Unsupported week {week} changed'
     print('PASS math: loop counts for n=0..1000; triangular and polynomial Theta witnesses; unsupported weeks unchanged.')
 

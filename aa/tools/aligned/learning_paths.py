@@ -1,11 +1,11 @@
-"""Add the first eleven weeks' learning bridges without rewriting lesson content.
+"""Add the first thirteen weeks' learning bridges without rewriting lesson content.
 
 ``apply(page, week)`` accepts a complete HTML page (0 = dashboard). Stable
 markers make repeated application safe; ``strip(page)`` recovers its input.
 The same adapter serves generated lessons, simple Week 3 and authored card pages.
 """
 import re
-from . import learning_paths_structures, learning_paths_priority, learning_paths_graphs, learning_paths_networks
+from . import learning_paths_structures, learning_paths_priority, learning_paths_graphs, learning_paths_networks, learning_paths_dp
 
 
 PANEL_START = '<!-- AA:LEARNING-BRIDGE:START -->'
@@ -38,7 +38,7 @@ def _guided(week, prompt, expected, hint, solution, *, label='Tahminim (işlem s
 
 def _home():
     return '''<section class="learning-bridge learning-bridge-home" id="learning-bridge-start" lang="tr" aria-labelledby="learning-bridge-home-title">
-<p class="learning-bridge-kicker">İlk on bir hafta için öğrenme köprüsü</p>
+<p class="learning-bridge-kicker">İlk on üç hafta için öğrenme köprüsü</p>
 <h2 id="learning-bridge-home-title">Koddan gerekçeli algoritma seçimine</h2>
 <p>Bir sensör kaydını ararken önce adımları gör, sonra işi say, matematikle genelleştir ve yeni durumda kararını açıkla. Python'u önceden bilmen gerekmiyor; kâğıt üzerinde de ilerleyebilirsin.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="bridge/#basla">Köprü Laboratuvarı'nı aç →</a><a href="w1/#bridge-path">Hafta 1'den başla</a></p>
@@ -54,6 +54,8 @@ def _home():
 <nav class="learning-bridge-actions" aria-label="Hafta 8–9 öğrenme köprüleri"><a href="w8/#bridge-path">Hafta 8 · BFS ile katmanları bul</a><a href="w9/#bridge-path">Hafta 9 · DFS ile bağımlılığı incele</a></nav>
 <p>Aynı sensör ağında maliyeti de hesaba kat: bütün ağı kurmak ile bir kaynaktan veri göndermek farklı hedeflerdir.</p>
 <nav class="learning-bridge-actions" aria-label="Hafta 10–11 öğrenme köprüleri"><a href="w10/#bridge-path">Hafta 10 · Ağı en az maliyetle bağla</a><a href="w11/#bridge-path">Hafta 11 · En ucuz yolları bul</a></nav>
+<p>Aynı sensör ağında aktarım sayısını sınırladığında önce seçenekleri üret, sonra aynı alt sonuçları yeniden hesaplamadan kullan:</p>
+<nav class="learning-bridge-actions" aria-label="Hafta 12–13 öğrenme köprüleri"><a href="w12/#bridge-path">Hafta 12 · Yürüyüşleri geri izlemeyle üret</a><a href="w13/#bridge-path">Hafta 13 · En iyi alt sonuçları sakla</a></nav>
 <p class="learning-bridge-note">İlerleme ölçütü: cevabı görmekten önce tahmin etmek, sonra nedenini açıklamak ve bir sınır durumu denemek. Bu çalışmalar alıştırmadır; dersin mevcut sınav ve not düzeni sürer.</p>
 </section>'''
 
@@ -160,8 +162,8 @@ def _week_three():
 
 
 def apply(page, week):
-    """Idempotently enrich dashboard / Weeks 1–11; other pages are unchanged."""
-    if week not in range(12):
+    """Idempotently enrich dashboard / Weeks 1–13; other pages are unchanged."""
+    if week not in range(14):
         return page
     page = strip(page)
     base = '' if week == 0 else '../'
@@ -180,6 +182,8 @@ def apply(page, week):
         panel = learning_paths_graphs.render(week, _guided)
     elif week in (10, 11):
         panel = learning_paths_networks.render(week, _guided)
+    elif week in (12, 13):
+        panel = learning_paths_dp.render(week, _guided)
     else:
         panel = {0: _home, 1: _week_one, 2: _week_two, 3: _week_three}[week]()
     block = PANEL_START + '\n' + panel + '\n' + PANEL_END + '\n'
