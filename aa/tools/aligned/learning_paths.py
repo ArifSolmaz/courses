@@ -170,7 +170,7 @@ def apply(page, week):
     page = strip(page)
     base = '' if week == 0 else '../'
     assets = (ASSETS_START + '\n'
-              + f'<link rel="stylesheet" href="{base}assets/learning-bridges.css?v=2">\n'
+              + f'<link rel="stylesheet" href="{base}assets/learning-bridges.css?v=3">\n'
               + f'<script defer src="{base}assets/learning-bridges.js?v=1"></script>\n'
               + ASSETS_END + '\n')
     if '</head>' not in page:

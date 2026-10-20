@@ -4,7 +4,7 @@ from .course import WEEKS
 from .visuals import figure, CODES
 from .sample_questions import MIDTERM,FINAL
 from .compact import animation_content, consolidate_routes, redirect
-from . import theory, transfer, learning_paths
+from . import theory, transfer, learning_paths, legacy_layout
 E=html.escape
 ROOT=Path(__file__).resolve().parents[2]
 DATA=Path(__file__).parent
@@ -69,7 +69,7 @@ def display_numbers(Q,S,tests,written):
   for k,i in enumerate(ws,len(ts)+1):out[('ex',i)]=(n,k)
  return out
 
-def crossref(text,homes,display):
+def crossref(text,homes,display,caller_week=None):
  """Turn source cross-references into links that use the visible weekly numbering."""
  def route(n):
   # Source question anchors remain on the full lesson when a simple main exists.
@@ -78,7 +78,8 @@ def crossref(text,homes,display):
   i=int(m[1])
   if i not in homes:return m[0]
   n,k=display[('ex',i)]
-  return f'<a href="{route(n)}#skiena-ex-{i:03}">Week {n}, Question {k}</a>'
+  destination=f'#skiena-ex-{i:03}' if n==caller_week else f'{route(n)}#skiena-ex-{i:03}'
+  return f'<a href="{destination}">Week {n}, Question {k}</a>'
  text=re.sub(r'(?i)(?:written |source )?exercise (\d+)',ex,text)
  # Test 116 refers to source test 119 by its original number.
  if ('mcq',119) in display:
@@ -262,7 +263,7 @@ def build(B):
    for s in sections:
     if s['title'] in ['Growth rates, from slowest to fastest','Sources']:break
     if s['title']=='Test yourself':continue
-    depth.append(f'<details><summary>Lecture {l} · {E(s["title"])}</summary>{s["html"]}</details>')
+    depth.append(f'<details><summary>Lecture {l} · {E(s.get("display_title",s["title"]))}</summary>{s["html"]}</details>')
    selected=[s['title'] for s in sections if s['title']!='Test yourself']
    # Later combined weeks assign selected reading, not entire advanced chapters.
    if n>=12:
@@ -272,7 +273,7 @@ def build(B):
   bank=Q.bank(tests[n],written[n],title='Practice with answers')
   if n in (10,11): bank='<p>'+E(Q.GRAPH_W)+'</p>'+bank
   # Preserve original cross-references even though visible question numbering is weekly.
-  bank=crossref(bank,homes,display)
+  bank=crossref(bank,homes,display,caller_week=n if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else None)
   animations,assets=animation_content(n)
   examples=''.join(render_example(n,item,i,len(w['examples'])) for i,item in enumerate(w['examples'],1))
   more=''
@@ -286,7 +287,7 @@ def build(B):
 <section id="practice" class="week-panel">{transfer.TRANSFER.get(n,'')}<p>Questions and answers are together. Hard questions are optional; some tests revisit earlier ideas. Practice is ungraded.</p>{bank}</section>
 <section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(week_code(n))}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
 <nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a><a href="../review/#review-w{n}">Review</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
-  page=learning_paths.apply(shell(B,title,body,'../',assets),n)
+  page=learning_paths.apply(legacy_layout.apply(shell(B,title,body,'../',assets),n),n)
   simple=ROOT/'tools'/'simple'/f'w{n}.html'
   if simple.exists():
    # The plain-language 3-hour lesson (tools/simple/wN.html) is the main week page;
@@ -295,7 +296,7 @@ def build(B):
    banner=f'<p class="ek-banner" style="margin:0 0 1rem;padding:.6rem 1rem;border:1px solid var(--line,#888);border-radius:10px">Ek notlar: Hafta {n} tam sürüm (orijinal sayfa). <a href="../">← Sade ders sayfasına dön</a></p>'
    body_ek=body.replace('href="../','href="../../').replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
    assets_ek=assets.replace('href="../','href="../../').replace('src="../','src="../../')
-   (ek/'index.html').write_text(shell(B,title,body_ek,'../../',assets_ek),encoding='utf-8')
+   (ek/'index.html').write_text(legacy_layout.apply(shell(B,title,body_ek,'../../',assets_ek),n,supplemental=True),encoding='utf-8')
    # The authored card pages retain their scenes and separately authored notes.
    # Do not overwrite them with the older plain-language lesson source.
    cards=ROOT/'tools'/'card-pages'/f'w{n}.html'

@@ -65,15 +65,27 @@ def redirect(path,destination,message='This material is now inside its weekly le
  path.parent.mkdir(parents=True,exist_ok=True)
  path.write_text(STUB.format(destination=destination,message=message,link=link,title=title))
 
-def consolidate_routes():
+def notes_target(week):
+ """The full Notes panel stays in the generated lesson behind authored mains."""
+ separate=any((ROOT/'tools'/folder/f'w{week}.html').exists() for folder in ('simple','card-pages'))
+ return ROOT/f'w{week}'/('ek-notlar/index.html' if separate else 'index.html')
+
+def relative_url(target,parent):
+ """Native filesystem paths must become forward-slash URLs on every host."""
  import os
+ return Path(os.path.relpath(target,parent)).as_posix()
+
+def consolidate_routes():
  for parent in ('python','guide'):
   for path in (ROOT/parent).rglob('index.html'):
    m=re.search(r'/w(\d+)/',path.as_posix())
    if m:
     old=int(m[1]);week=OLD_TO_NEW[old] if parent=='python' else old
-    target=ROOT/f'w{week}/index.html'
+    target=notes_target(week)
    else:target=ROOT/'index.html'
-   redirect(path,os.path.relpath(target,path.parent)+('#notes' if m else ''))
+   redirect(path,relative_url(target,path.parent)+('#notes' if m else ''))
  for route,week in [('extensions',8),('skiena',2),('engineering',14)]:
-  redirect(ROOT/route/'index.html',f'../w{week}/#notes')
+  # The extensions alias already leads to the separately authored graph notes.
+  target=ROOT/'w8/lecture-notes.html' if route=='extensions' else notes_target(week)
+  destination=relative_url(target,ROOT/route)+('' if route=='extensions' else '#notes')
+  redirect(ROOT/route/'index.html',destination)

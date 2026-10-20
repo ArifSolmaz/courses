@@ -789,6 +789,16 @@ def check_original_content(current, head):
             assert original.count(old) + original.count(new) == 1, f'Week {week}: expected original deck script'
             assert revised.count(new) == 1, f'Week {week}: expected cache-versioned deck script'
             original = original.replace(old, new, 1)
+        if week in range(6, 15):
+            # Footer-aware viewport handling changes only the visual script;
+            # permit its explicit cache refresh while preserving all lesson bytes.
+            visual_scripts = [f'<script defer src="examples/visuals.js{suffix}"></script>'
+                              for suffix in ('', '?v=20261017', '?v=3')]
+            new = visual_scripts[-1]
+            assert sum(original.count(tag) for tag in visual_scripts) == 1, f'Week {week}: expected original visual script'
+            assert revised.count(new) == 1, f'Week {week}: expected refreshed visual script'
+            for old in visual_scripts:
+                original = original.replace(old, new, 1)
         assert revised.encode('utf-8') == original.encode('utf-8'), f'Week {week}: original lesson bytes changed versus HEAD'
         before, after = Document(original), Document(revised)
         assert before.ids == after.ids, f'Week {week}: original ID inventory changed'
@@ -820,7 +830,7 @@ def main():
     head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
             for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–14 (only the deck-script cache keys for Weeks 4–14 are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–14 (only the deck/visual script cache keys are normalized).')
     for name, sources in [('current', current), ('HEAD', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])

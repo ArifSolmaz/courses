@@ -34,13 +34,15 @@ GRAPH_W = 'Graph W is undirected: A–B (4), A–C (1), B–C (2), B–D (5), C�
 
 def test_question(number, display_number):
     x = MCQ[number]; start, worked = scaffold('mcq', number)
+    # Reviewed author-source HTML preserves occasional inline terminology notes.
+    answer = x.get('answer_html', html.escape(x['answer']))
     origin = ' · course question' if x.get('origin') == 'course' else ''
     context = f'<p class="source-context">{GRAPH_W}</p>' if number in (73,74,75) else ''
     options = '<ol class="mcq-options" type="a">' + ''.join(f'<li>{html.escape(o)}</li>' for o in x['options']) + '</ol>'
     # Deliberately no correct-option class, colour, checked state or answer in the prompt.
     return f'''<article class="source-exercise test-question" id="skiena-mcq-{number:03d}">
 <p class="source-label">Question {display_number} · {x['level'].lower()}{origin}</p><p class="question-prompt">{html.escape(x['question'])}</p>{context}{options}{start}
-<div class="question-answer"><p><strong>Answer: option {x['correct'].upper()}.</strong> {html.escape(x['answer'])}</p>{worked}</div></article>'''
+<div class="question-answer"><p><strong>Answer: option {x['correct'].upper()}.</strong> {answer}</p>{worked}</div></article>'''
 
 def bank(mcq_ids, written_ids, ident='skiena-practice', title='Practice questions'):
     from skiena_material import exercise

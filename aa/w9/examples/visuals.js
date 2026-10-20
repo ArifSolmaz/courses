@@ -1,5 +1,13 @@
 /* Deterministic DFS and FIFO Kahn traces. */
 const lessonVisuals=(()=>{
+ // Reserve viewport space only for an actually visible, pinned card footer.
+ function footerInset(){
+  const nav=document.querySelector('.steps');
+  if(!nav)return 0;
+  const style=getComputedStyle(nav),box=nav.getBoundingClientRect();
+  if(!['sticky','fixed'].includes(style.position)||style.visibility!=='visible'||box.right<=0||box.left>=innerWidth)return 0;
+  return Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top));
+ }
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const row=(label,a,active=[])=>`<div class="v-lane"><strong>${esc(label)}</strong><div class="v-tiles">${a.length?a.map((x,i)=>`<span class="v-tile${active.includes(i)?' v-active':''}">${esc(x)}</span>`).join(''):'<span>empty</span>'}</div></div>`;
  const frame=(title,html,caption)=>({title,html,caption});
@@ -31,7 +39,7 @@ const lessonVisuals=(()=>{
  scc:()=>['AB BC CA CD','AB BC CA CD DA'].map(edges=>{const g=make('ABCD',edges),parts=scc(g);return frame('Groups with two-way reachability',graph(g)+row('Strongly connected components',parts.map(p=>p.join(', '))),parts.length===1?'Adding D → A gives a return route. All four vertices now belong to one SCC.':'A, B and C can reach each other. D cannot return to that group. These are two SCCs.')})
  };
  function mount(c){const host=document.getElementById('widget');let index=0,frames=scenarios[c.visual]();const editor=c.visual==='editor';host.innerHTML=`<div class="demo v-demo"><div class="controls"><strong>See it happen</strong>${editor?'<label for="demoEdges">Directed edges <input id="demoEdges" value="AB AC BD CD" type="text"></label><button id="applyGraph" type="button">Trace this graph</button>':''}<button id="vBack" type="button">← Step</button><button id="vNext" type="button">Step →</button><button id="vReset" type="button">Reset</button><span id="vCount"></span></div>${editor?'<p>Vertices A–F always exist. AB means A → B. Blank means no edges. No self-loops.</p>':''}<p id="vError" role="alert"></p><h3 id="vTitle"></h3><div id="vStage"></div><p id="vCaption" aria-live="polite"></p></div>`;
- const el=id=>document.getElementById(id);function draw(){const f=frames[index];el('vTitle').textContent=f.title;el('vStage').innerHTML=f.html;el('vCaption').textContent=f.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}function show(){draw();const b=host.getBoundingClientRect(),foot=document.querySelector('.steps').getBoundingClientRect().height;if(b.top<8||b.bottom>innerHeight-foot-12)host.scrollIntoView({block:'start',behavior:'instant'})}el('vBack').onclick=()=>{if(index){index--;show()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;show()}};el('vReset').onclick=()=>{index=0;show()};
+ const el=id=>document.getElementById(id);function draw(){const f=frames[index];el('vTitle').textContent=f.title;el('vStage').innerHTML=f.html;el('vCaption').textContent=f.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}function show(){draw();const b=host.getBoundingClientRect(),foot=footerInset();if(b.top<0||b.bottom>innerHeight-foot)host.scrollIntoView({block:'start',behavior:'instant'})}el('vBack').onclick=()=>{if(index){index--;show()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;show()}};el('vReset').onclick=()=>{index=0;show()};
  if(editor)el('applyGraph').onclick=()=>{const raw=el('demoEdges').value.trim().toUpperCase(),tokens=raw?raw.split(/[\s,]+/):[];if(tokens.some(s=>!/^([A-F])([A-F])$/.test(s)||s[0]===s[1])){el('vError').textContent='Use two different letters A–F per arrow, for example AB or CD.';return}const e=[...new Set(tokens)].map(s=>s.split(''));el('vError').textContent='';frames=kahn({v:['A','B','C','D','E','F'],e,directed:true});index=0;show()};draw();
  }
  return {has:id=>Boolean(cards.find(c=>c.id===id)?.visual),mount};

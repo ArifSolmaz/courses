@@ -1,5 +1,13 @@
 /* Algorithm-generated snapshots. All heap arrays use zero-based indices. */
 const lessonVisuals=(()=>{
+ // Reserve viewport space only for an actually visible, pinned card footer.
+ function footerInset(){
+  const nav=document.querySelector('.steps');
+  if(!nav)return 0;
+  const style=getComputedStyle(nav),box=nav.getBoundingClientRect();
+  if(!['sticky','fixed'].includes(style.position)||style.visibility!=='visible'||box.right<=0||box.left>=innerWidth)return 0;
+  return Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top));
+ }
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const tile=(v,on=false)=>`<span class="v-tile${on?' v-active':''}">${esc(v)}</span>`;
  const row=(label,values,active=[])=>`<div class="v-lane"><strong>${esc(label)}</strong><div class="v-tiles">${values.map((v,i)=>tile(v,active.includes(i))).join('')}</div></div>`;
@@ -54,7 +62,7 @@ const lessonVisuals=(()=>{
  const defaults={validate:'1, 5, 2, 3, 4',counterexample:'1, 4, 2, 3',heapify:'9, 4, 7, 1, 3, 8, 2',extract:'1, 3, 2, 7, 4'};
  host.innerHTML=`<div class="demo v-demo"><div class="controls"><strong>See it happen</strong>${listInput?`<label for="demoValues">${c.visual==='extract'?'Valid min-heap':'Values'} <input id="demoValues" type="text" value="${defaults[c.visual]}" aria-describedby="inputHelp"></label><button id="applyValues" type="button">Try these values</button>`:numInput?'<label for="demoValues">Insert <input id="demoValues" type="number" min="-99" max="999" step="1" value="1"></label><button id="applyValues" type="button">Try this value</button>':select?`<label for="demoChoice">${c.visual==='kth'?'k':'Arrival order'} <select id="demoChoice">${c.visual==='kth'?[1,2,3,4,5,6,7].map(k=>`<option${k===3?' selected':''}>${k}</option>`).join(''):'<option value="descending">7 down to 1</option><option value="ascending">1 up to 7</option>'}</select></label>`:''}<button id="vBack" type="button">← Step</button><button id="vNext" type="button">Step →</button><button id="vReset" type="button">Reset</button><span id="vCount"></span></div>${listInput?'<p id="inputHelp">Use up to seven whole numbers, separated by commas (−99 to 999). An empty field represents an empty heap.</p>':''}<p id="vError" role="alert"></p><h3 id="vTitle"></h3><div id="vStage"></div><p id="vCaption" aria-live="polite"></p></div>`;
  const el=id=>document.getElementById(id);function draw(){const f=frames[index];el('vTitle').textContent=f.title;el('vStage').innerHTML=f.html;el('vCaption').textContent=f.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}
- function showStep(){draw();const box=host.getBoundingClientRect(),footer=document.querySelector('.steps').getBoundingClientRect().height;if(box.top<8||box.bottom>innerHeight-footer-12)host.scrollIntoView({block:'start',behavior:'instant'});}el('vBack').onclick=()=>{if(index){index--;showStep()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;showStep()}};el('vReset').onclick=()=>{index=0;showStep()};
+ function showStep(){draw();const box=host.getBoundingClientRect(),footer=footerInset();if(box.top<0||box.bottom>innerHeight-footer)host.scrollIntoView({block:'start',behavior:'instant'});}el('vBack').onclick=()=>{if(index){index--;showStep()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;showStep()}};el('vReset').onclick=()=>{index=0;showStep()};
  if(listInput||numInput)el('applyValues').onclick=()=>{const raw=el('demoValues').value.trim(),tokens=raw?raw.split(',').map(s=>s.trim()):[],a=tokens.map(Number);if((numInput&&a.length!==1)||a.length>7||tokens.some(s=>!/^[-+]?\d+$/.test(s))||a.some(x=>!Number.isSafeInteger(x)||x< -99||x>999)){el('vError').textContent='Use whole numbers from −99 to 999, separated by commas; at most seven values.';return}if(c.visual==='extract'&&!valid(a)){el('vError').textContent='Extraction starts from a valid min-heap. Use the heap builder to repair this array first.';return}el('vError').textContent='';frames=scenarios[c.visual](numInput?a[0]:a);index=0;showStep()};
  if(select)el('demoChoice').onchange=()=>{frames=scenarios[c.visual](c.visual==='kth'?Number(el('demoChoice').value):el('demoChoice').value);index=0;showStep()};draw();
  }

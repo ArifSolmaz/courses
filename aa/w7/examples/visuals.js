@@ -1,5 +1,13 @@
 /* Concrete traces; numerical counters are derived from the operations shown. */
 const lessonVisuals=(()=>{
+ // Reserve viewport space only for an actually visible, pinned card footer.
+ function footerInset(){
+  const nav=document.querySelector('.steps');
+  if(!nav)return 0;
+  const style=getComputedStyle(nav),box=nav.getBoundingClientRect();
+  if(!['sticky','fixed'].includes(style.position)||style.visibility!=='visible'||box.right<=0||box.left>=innerWidth)return 0;
+  return Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top));
+ }
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const row=(label,a,active=[])=>`<div class="v-lane"><strong>${esc(label)}</strong><div class="v-tiles">${a.length?a.map((x,i)=>`<span class="v-tile${active.includes(i)?' v-active':''}">${esc(x)}</span>`).join(''):'<span class="empty-row">empty</span>'}</div></div>`;
  const f=(title,html,caption)=>({title,html,caption});
@@ -40,7 +48,7 @@ const lessonVisuals=(()=>{
  function mount(c){const host=document.getElementById('widget');let index=0,frames=scenarios[c.visual]();const editable=['python','partition','counting'].includes(c.visual),defaults={python:'7, 2, 5, 1',partition:'4, 1, 5, 2, 3',counting:'3, 1, 2, 3, 0, 1'};
  host.innerHTML=`<div class="demo v-demo"><div class="controls"><strong>See it happen</strong>${editable?`<label for="demoValues">Values <input id="demoValues" type="text" value="${defaults[c.visual]}"></label><button id="applyValues" type="button">Try these values</button>`:''}<button id="vBack" type="button">← Step</button><button id="vNext" type="button">Step →</button><button id="vReset" type="button">Reset</button><span id="vCount"></span></div>${editable?`<p id="inputHelp">Up to eight comma-separated integers (${c.visual==='counting'?'0 to 15':'−99 to 999'}). Empty input is allowed. ${c.visual==='python'?'This changes the visual; edit the Python code separately to run the same case.':''}</p>`:''}<p id="vError" role="alert"></p><h3 id="vTitle"></h3><div id="vStage"></div><p id="vCaption" aria-live="polite"></p></div>`;
  const el=id=>document.getElementById(id);function draw(){const x=frames[index];el('vTitle').textContent=x.title;el('vStage').innerHTML=x.html;el('vCaption').textContent=x.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}
- function show(){draw();const b=host.getBoundingClientRect(),foot=document.querySelector('.steps').getBoundingClientRect().height;if(b.top<8||b.bottom>innerHeight-foot-12)host.scrollIntoView({block:'start',behavior:'instant'})}
+ function show(){draw();const b=host.getBoundingClientRect(),foot=footerInset();if(b.top<0||b.bottom>innerHeight-foot)host.scrollIntoView({block:'start',behavior:'instant'})}
  el('vBack').onclick=()=>{if(index){index--;show()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;show()}};el('vReset').onclick=()=>{index=0;show()};
  if(editable)el('applyValues').onclick=()=>{const raw=el('demoValues').value.trim(),tokens=raw?raw.split(',').map(s=>s.trim()):[],a=tokens.map(Number),lo=c.visual==='counting'?0:-99,hi=c.visual==='counting'?15:999;if(a.length>8||tokens.some(s=>!/^[-+]?\d+$/.test(s))||a.some(x=>!Number.isSafeInteger(x)||x<lo||x>hi)){el('vError').textContent=`Enter at most eight whole numbers from ${lo} to ${hi}, separated by commas.`;return}el('vError').textContent='';frames=scenarios[c.visual](a);index=0;show()};draw();
  }

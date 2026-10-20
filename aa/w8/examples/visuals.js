@@ -1,5 +1,13 @@
 /* BFS traces mark on enqueue; counters count adjacency entries, not drawings. */
 const lessonVisuals=(()=>{
+ // Reserve viewport space only for an actually visible, pinned card footer.
+ function footerInset(){
+  const nav=document.querySelector('.steps');
+  if(!nav)return 0;
+  const style=getComputedStyle(nav),box=nav.getBoundingClientRect();
+  if(!['sticky','fixed'].includes(style.position)||style.visibility!=='visible'||box.right<=0||box.left>=innerWidth)return 0;
+  return Math.max(0,Math.min(innerHeight,box.bottom)-Math.max(0,box.top));
+ }
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const row=(label,a,active=[])=>`<div class="v-lane"><strong>${esc(label)}</strong><div class="v-tiles">${a.length?a.map((x,i)=>`<span class="v-tile${active.includes(i)?' v-active':''}">${esc(x)}</span>`).join(''):'<span>empty</span>'}</div></div>`;
  const frame=(title,html,caption)=>({title,html,caption});
@@ -35,7 +43,7 @@ const lessonVisuals=(()=>{
  final:()=>bfs({v:['A','B','C','D','E'],e:[...diamond.e,['D','E']]})
  };
  function mount(c){const host=document.getElementById('widget');let index=0,frames=scenarios[c.visual]();const editor=c.visual==='editor',colour=c.visual==='bipartite';host.innerHTML=`<div class="demo v-demo"><div class="controls"><strong>See it happen</strong>${editor?'<label for="demoEdges">Undirected edges <input id="demoEdges" value="AB AC BD CD DE" type="text"></label><label for="demoSource">Start <select id="demoSource">'+['A','B','C','D','E','F'].map(x=>`<option>${x}</option>`).join('')+'</select></label><button id="applyGraph" type="button">Trace this graph</button>':colour?'<label for="demoShape">Graph <select id="demoShape"><option value="square">Square</option><option value="triangle">Triangle</option></select></label>':''}<button id="vBack" type="button">← Step</button><button id="vNext" type="button">Step →</button><button id="vReset" type="button">Reset</button><span id="vCount"></span></div>${editor?'<p id="inputHelp">Vertices A–F always exist. Use pairs such as AB AC; blank means no edges. Repeated pairs are stored once. No self-loops.</p>':''}<p id="vError" role="alert"></p><h3 id="vTitle"></h3><div id="vStage"></div><p id="vCaption" aria-live="polite"></p></div>`;
- const el=id=>document.getElementById(id);function draw(){const f=frames[index];el('vTitle').textContent=f.title;el('vStage').innerHTML=f.html;el('vCaption').textContent=f.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}function show(){draw();const b=host.getBoundingClientRect(),foot=document.querySelector('.steps').getBoundingClientRect().height;if(b.top<8||b.bottom>innerHeight-foot-12)host.scrollIntoView({block:'start',behavior:'instant'})}el('vBack').onclick=()=>{if(index){index--;show()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;show()}};el('vReset').onclick=()=>{index=0;show()};
+ const el=id=>document.getElementById(id);function draw(){const f=frames[index];el('vTitle').textContent=f.title;el('vStage').innerHTML=f.html;el('vCaption').textContent=f.caption;el('vCount').textContent=`Step ${index+1} / ${frames.length}`;el('vBack').disabled=index===0;el('vNext').disabled=index===frames.length-1}function show(){draw();const b=host.getBoundingClientRect(),foot=footerInset();if(b.top<0||b.bottom>innerHeight-foot)host.scrollIntoView({block:'start',behavior:'instant'})}el('vBack').onclick=()=>{if(index){index--;show()}};el('vNext').onclick=()=>{if(index<frames.length-1){index++;show()}};el('vReset').onclick=()=>{index=0;show()};
  if(editor)el('applyGraph').onclick=()=>{const raw=el('demoEdges').value.trim().toUpperCase(),tokens=raw?raw.split(/[\s,]+/):[];if(tokens.some(s=>!/^([A-F])([A-F])$/.test(s)||s[0]===s[1])){el('vError').textContent='Use two different letters A–F per edge, for example AB or CD.';return}const e=[...new Set(tokens.map(s=>s.split('').sort().join('')))].map(s=>s.split(''));el('vError').textContent='';frames=bfs({v:['A','B','C','D','E','F'],e},el('demoSource').value);index=0;show()};if(colour)el('demoShape').onchange=()=>{frames=scenarios.bipartite(el('demoShape').value);index=0;show()};draw();
  }
  return {has:id=>Boolean(cards.find(c=>c.id===id)?.visual),mount};
