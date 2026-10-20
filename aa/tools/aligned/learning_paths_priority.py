@@ -49,7 +49,7 @@ def _week_seven(guided):
 <h2 id="lb-w7-title">İki sensör günlüğünü zaman sırasına koy</h2>
 <nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
 <a href="../w6/#learning-bridge-w6"><strong>← Önce: Hafta 6 — sıradaki minimum</strong><span>Öbek her seferinde bir iş seçer; şimdi bütün günlüğü sıralı üretiyoruz.</span></a>
-<a href="../w8/"><strong>Sonra: Hafta 8 — BFS ve kuyruk →</strong><span>Grafı katman katman gezerken seçim kuralının neden geliş sırası olduğunu araştır.</span></a>
+<a href="../w8/#bridge-path"><strong>Sonra: Hafta 8 — BFS ve kuyruk →</strong><span>Grafı katman katman gezerken seçim kuralının neden geliş sırası olduğunu araştır.</span></a>
 </nav>
 <p>İki cihazın zaman sıralı kayıtlarını birleştir: kalan satırların ilk anahtarlarını karşılaştır; küçüğü yaz ve yalnız onun indisini ilerlet.</p>
 <p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-5">Yerel laboratuvar: birleştirmeyi adım adım izle →</a><a href="../bridge/#dongu">Önkoşul: döngüde hangi işi sayıyorum?</a></p>
@@ -63,7 +63,7 @@ def _week_seven(guided):
 <div class="learning-bridge-transfer" id="lb-w7-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
 <p>Günlükler zaten sıralıysa yeniden tümünü sıralar mısın? Eşit zamanlı iki kaydın kaynak sırası korunmalıysa bağ kuralın ne olur? Bir günlük boşken ve girdiler sırasızken kararını yeniden değerlendir.</p>
 <details><summary>Kendi açıklamanı denetle</summary><p>Sıralı günlükleri toplam n kayıtta Θ(n) zamanda birleştir. Boşsa diğerini kopyala: sıfır anahtar karşılaştırması. Eşitlikte soldan almak, her girdinin iç sırasını ve soldan-sağa birleştirilmiş başlangıç sırasına göre kararlılığı korur; cihazlar arası gerçek geliş sırası için geliş numarasını sakla. Sırasız girdiyi önce sırala. Merge sort en kötü Θ(n log n); standart quicksort en kötü Θ(n²), farklı anahtarlarda bağımsız, eş olasılıklı rastgele pivotla beklenen Θ(n log n): beklenti her çalıştırmaya garanti değildir.</p></details></div>
-<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> karşılaştırma ile yazımı ayırıp bağıntıyı düzeylerle açıklayabiliyorsan <a href="../w8/">Hafta 8’de seçim kuralını BFS’ye taşı</a>. Takıldıysan <a href="#example-7">n = 8 için üç birleştirme düzeyini yeniden izle</a>.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> karşılaştırma ile yazımı ayırıp bağıntıyı düzeylerle açıklayabiliyorsan <a href="../w8/#bridge-path">Hafta 8’de seçim kuralını BFS’ye taşı</a>. Takıldıysan <a href="#example-7">n = 8 için üç birleştirme düzeyini yeniden izle</a>.</p>
 </section>'''
 
 

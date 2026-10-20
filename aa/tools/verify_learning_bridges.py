@@ -11,7 +11,7 @@ import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 8)}}
+PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 10)}}
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
 
@@ -108,6 +108,26 @@ def merge_rank_comparisons(left, right):
     return min(last) + 1
 
 
+def graph_distances(graph):
+    """All-pairs edge relaxation supplies an oracle independent of BFS/DFS."""
+    vertices = list(graph)
+    distance = {(u, v): (0 if u == v else float('inf')) for u in vertices for v in vertices}
+    for u, neighbors in graph.items():
+        for v in neighbors:
+            distance[u, v] = min(distance[u, v], 1)
+    for middle in vertices:
+        for source in vertices:
+            for target in vertices:
+                distance[source, target] = min(distance[source, target],
+                                               distance[source, middle] + distance[middle, target])
+    return distance
+
+
+def reachable_neighbor_entries(graph, source):
+    distances = graph_distances(graph)
+    return sum(len(graph[vertex]) for vertex in graph if distances[source, vertex] != float('inf'))
+
+
 def guided_answers():
     """Count the worked inputs independently; never use author helper results."""
     return {
@@ -118,6 +138,8 @@ def guided_answers():
         5: probe_count([7, 14, 21, None, None, None, None], 28),
         6: heap_parent_comparisons([1, 3, 2, 7, 5, 4, 6], 0),
         7: merge_rank_comparisons([1, 3, 5], [2, 4, 6]),
+        8: reachable_neighbor_entries({'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A', 'D'], 'D': ['B', 'C'], 'E': []}, 'A'),
+        9: sum(map(len, {'A': ['B', 'C'], 'B': ['D'], 'C': ['D'], 'D': []}.values())),
     }
 
 
@@ -240,10 +262,106 @@ def check_displayed_insertion(page):
             assert slots.writes == n-index+1, f'Week 4 slot writes: n={n}, i={index}'
 
 
+class ObservedGraph(dict):
+    """Record the actual visible code's adjacency scans without changing it."""
+    def __init__(self, graph):
+        self.inspections, self.expansions = 0, []
+        owner = self
+
+        class Neighbors(list):
+            def __iter__(self):
+                for neighbor in super().__iter__():
+                    owner.inspections += 1
+                    yield neighbor
+
+        super().__init__((vertex, Neighbors(neighbors)) for vertex, neighbors in graph.items())
+
+    def __getitem__(self, vertex):
+        self.expansions.append(vertex)
+        return super().__getitem__(vertex)
+
+
+def small_graphs():
+    # Exhaustive simple directed graphs up to four vertices, plus explicit
+    # self-loop/duplicate-edge cases below. Neighbor order is fixed by input.
+    yield {}
+    for n in range(1, 5):
+        vertices = list('ABCD'[:n])
+        arcs = [(u, v) for u in vertices for v in vertices if u != v]
+        for mask in range(1 << len(arcs)):
+            graph = {vertex: [] for vertex in vertices}
+            for bit, (u, v) in enumerate(arcs):
+                if mask & (1 << bit):
+                    graph[u].append(v)
+            yield graph
+    yield {'A': ['A']}
+    yield {'A': ['B', 'B'], 'B': ['A'], 'C': []}
+    yield {'A': ['B'], 'B': ['C'], 'C': ['C'], 'D': []}
+
+
+def check_displayed_graphs(bfs_page, dfs_page):
+    bfs = displayed_namespace(bfs_page, 8)['bfs']
+    dfs = displayed_namespace(dfs_page, 9)['dfs_dependencies']
+    cases = 0
+    for graph in small_graphs():
+        distances = graph_distances(graph)
+        for source in graph:
+            observed = ObservedGraph(graph)
+            distance, parent, scans = bfs(observed, source)
+            expected = {vertex: int(distances[source, vertex]) for vertex in graph
+                        if distances[source, vertex] != float('inf')}
+            assert distance == expected, f'BFS distances: {graph}, source {source}'
+            assert set(parent) == set(expected) and parent[source] is None, 'BFS parent coverage/source'
+            for vertex in expected:
+                if vertex != source:
+                    assert parent[vertex] in graph and vertex in graph[parent[vertex]], 'BFS parent must be an edge'
+                    assert distance[parent[vertex]] + 1 == distance[vertex], 'BFS parent gives a shortest path'
+            assert scans == sum(len(graph[vertex]) for vertex in expected), 'BFS reachable adjacency count'
+            assert scans == observed.inspections, 'BFS displayed counter equals actual neighbor inspections'
+            assert len(observed.expansions) == len(expected) and set(observed.expansions) == set(expected), 'BFS expands each reached vertex exactly once'
+            layers = [distance[vertex] for vertex in observed.expansions]
+            assert layers == sorted(layers), 'FIFO expansion respects nondecreasing distance'
+            cases += 1
+
+        # A directed cycle exists iff an arc returns to its source by a path.
+        # This oracle does not use recursion, colors or a second DFS traversal.
+        cyclic = any(distances[v, u] != float('inf') for u in graph for v in graph[u])
+        observed = ObservedGraph(graph)
+        try:
+            discovery, finish, scans = dfs(observed)
+        except ValueError as error:
+            assert cyclic, f'DFS falsely rejects an acyclic graph: {graph}'
+            assert 'cycle' in str(error).lower(), 'Cycle failure must identify its cause'
+        else:
+            assert not cyclic, f'DFS missed a directed cycle: {graph}'
+            assert len(discovery) == len(set(discovery)) == len(graph), 'DFS discovers every vertex once'
+            assert len(finish) == len(set(finish)) == len(graph), 'DFS finishes every vertex once'
+            assert set(discovery) == set(finish) == set(graph), 'DFS full forest covers isolated vertices'
+            assert discovery == observed.expansions, 'DFS follows its actual adjacency-entry order'
+            assert scans == observed.inspections == sum(map(len, graph.values())), 'DFS counts directed adjacency entries, not entry/exit events'
+            rank = {vertex: index for index, vertex in enumerate(reversed(finish))}
+            assert all(rank[u] < rank[v] for u in graph for v in graph[u]), 'Reverse finishes must obey every dependency'
+        cases += 1
+
+    undirected = {'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A', 'D'], 'D': ['B', 'C'], 'E': []}
+    distance, parent, scans = bfs(undirected, 'A')
+    assert distance == {'A': 0, 'B': 1, 'C': 1, 'D': 2}
+    assert parent == {'A': None, 'B': 'A', 'C': 'A', 'D': 'B'} and scans == 8
+    reverse_neighbors = {vertex: list(reversed(neighbors)) for vertex, neighbors in undirected.items()}
+    distance2, parent2, scans2 = bfs(reverse_neighbors, 'A')
+    assert distance2 == distance and parent2['D'] == 'C' and scans2 == scans, 'BFS tie changes parent, not shortest distance'
+    assert bfs(undirected, 'E') == ({'E': 0}, {'E': None}, 0), 'Isolated source is still discovered'
+    diamond = {'A': ['B', 'C'], 'B': ['D'], 'C': ['D'], 'D': []}
+    discovery, finish, scans = dfs(diamond)
+    assert discovery == ['A', 'B', 'D', 'C'] and finish == ['D', 'B', 'C', 'A'] and scans == 4, 'Listed-order DFS worked example'
+    assert dfs({}) == ([], [], 0), 'Empty dependency graph has an empty full DFS forest'
+    return cases + 5
+
+
 def check_original_content(current, head):
     for week in PAGES:
         original, revised = bridges.strip(head[week]), bridges.strip(current[week])
-        if week in (4, 5, 6, 7):
+        if week in (4, 5, 6, 7, 8, 9):
             # The existing deck script gains only a cache key for hash routing.
             deck_script = 'recap/recap.js' if week == 4 else 'examples/lesson.js'
             old = f'<script defer src="{deck_script}"></script>'
@@ -275,15 +393,16 @@ def main():
     head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
             for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–7 (only the four deck-script cache keys are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–9 (only the deck-script cache keys for Weeks 4–9 are normalized).')
     for name, sources in [('current', current), ('HEAD', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])
         check_displayed_insertion(rendered[(ROOT / PAGES[4]).resolve()])
-        print(f'PASS {name}: eight pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion programs verified (including 231 insertion boundaries).')
+        graph_cases = check_displayed_graphs(rendered[(ROOT / PAGES[8]).resolve()], rendered[(ROOT / PAGES[9]).resolve()])
+        print(f'PASS {name}: ten pages; idempotent additions; unique IDs; exact four learning problems; {links} new links/assets and anchors resolve; guided answers and visible Python search/insertion/BFS/DFS programs verified (231 insertion boundaries and {graph_cases:,} graph cases).')
 
     check_math()
-    for week in (-1, 8, 14):
+    for week in (-1, 10, 14):
         assert bridges.apply(current[1], week) == current[1], f'Unsupported week {week} changed'
     print('PASS math: loop counts for n=0..1000; triangular and polynomial Theta witnesses; unsupported weeks unchanged.')
 
