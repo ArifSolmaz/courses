@@ -58,7 +58,6 @@ def expected_destination(week, root=ROOT):
     if week == 'graph-notes':
         return 'w8/lecture-notes.html', ''
     # A freshly authored main keeps the earlier Notes view in its archive.
-    # Week 2 still owns Notes on its unchanged main page.
     fresh_lesson = (root / 'tools' / 'lessons' / f'w{week}.html').is_file()
     suffix = 'index.html' if week <= 2 and not fresh_lesson else 'ek-notlar/index.html'
     return f'w{week}/{suffix}', 'notes'

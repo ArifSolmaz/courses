@@ -160,9 +160,20 @@ def verify(root, baseline):
     check('notes' in archived_page.ids and 'practice' in archived_page.ids,
           'old Notes and practice destinations remain available')
 
+    # A later, independently reviewed lesson must prove its own exact scope
+    # against the publication immediately before it. Keep the original W1
+    # archive and all unmodified earlier files under their original checks.
+    # The successor verifier never calls this function, so there is no
+    # verification recursion or silently unverified allowlist.
+    successor = None
+    allowed_changes = set(ALLOWED_EXISTING_CHANGES)
+    if (root / 'tools/lessons/w2.html').is_file():
+        from verify_fresh_week2 import SUCCESSOR_EXISTING_CHANGES
+        allowed_changes.update(SUCCESSOR_EXISTING_CHANGES)
+
     tracked = baseline_files(repo, baseline)
     protected = {path: digest for path, digest in tracked.items()
-                 if path not in ALLOWED_EXISTING_CHANGES}
+                 if path not in allowed_changes}
     drift = []
     for path, digest in protected.items():
         target = repo / path
@@ -215,6 +226,12 @@ def verify(root, baseline):
           and 'href="../w1/ek-notlar/#practice"' in review,
           'historical review exercise links reach the archived lesson')
 
+    if (root / 'tools/lessons/w2.html').is_file():
+        from verify_fresh_week2 import verify as verify_fresh_week2
+        successor = verify_fresh_week2(root)
+        check(successor['status'] == 'passed',
+              'authorized Week 2 successor passes its own exact-scope preservation audit')
+
     return {
         'status': 'passed', 'baseline': baseline, 'checks': len(checks),
         'canonical_bytes': len(source.read_bytes()),
@@ -225,7 +242,8 @@ def verify(root, baseline):
         'protected_drift': drift,
         'other_weeks_files': sum(bool(re.match(r'aa/w(?:[2-9]|1[0-4])/', path))
                                 for path in protected) + 1,
-        'other_week_main_pages_unchanged': 13,
+        'other_week_main_pages_unchanged': 12 if successor else 13,
+        'authorized_successor_audit': successor,
         'legacy_redirects_checked': redirects['aliases'],
         'new_lesson_references_checked': checked_references,
         'all_existing_week1_entry_fragments_checked': existing_entry_links,

@@ -234,3 +234,34 @@ learning-bridge and reproducible-build verifiers. The legacy bridge verifier
 continues to check the original Week 1 panel in its archive; the new main lesson
 is checked by the fresh-lesson verifier. No deployment is performed by these
 commands.
+
+## Fresh Week 2 teaching draft
+
+`tools/lessons/w2.html` is an independently authored lesson that continues the
+new Week 1 trace. It is copied exactly to `w2/index.html`, with no legacy lesson
+or bridge panels injected. It reuses the new Week 1 visual style and has its own
+small stylesheet, counting model and enhancement script under `w2/`.
+
+The chosen unit is one value-equality check, including a false result. The
+first-search count C(n)=n is explicitly conditional on an absent target; the
+full-report tasks have no early stopping. Two complete passes cost 2n checks;
+the complete ordered-pair table, including its diagonal and reverse pairs,
+costs n². The independent combined report costs n+n². Counts are not seconds,
+and the different reports are not interchangeable solutions to one problem.
+The four exit dimensions cover tracing, mathematical meaning, report purpose
+and the connection between output requirements and stopping conditions.
+Numerical feedback never grades written reasoning or formulas automatically.
+
+The old Week 2 remains complete under `w2/ek-notlar/`. Historical note aliases,
+question links and three Week 4 card references go there. The new Week 1 gains
+one onward link to the new Week 2; its teaching content and assets are retained.
+Legacy verifiers continue to audit their old panels in the archives. The fresh
+Week 2 verifier checks the complete reviewed change scope against the published
+Week 1 baseline, including exact link-only substitutions in other content.
+
+Checks: `node aa/tools/verify_fresh_week2_model.cjs`,
+`python3 aa/tools/verify_fresh_week2.py`, the fresh Week 1 verifier, and the
+existing alignment, redirect, learning-bridge and reproducible-build checks.
+The shared builder performs no deployment. This draft is for review before
+publication; its narrowed teaching scope still needs mapping to official exam
+coverage as part of the new course plan.
