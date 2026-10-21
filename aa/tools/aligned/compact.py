@@ -67,7 +67,7 @@ def redirect(path,destination,message='This material is now inside its weekly le
 
 def notes_target(week):
  """The full Notes panel stays in the generated lesson behind authored mains."""
- separate=any((ROOT/'tools'/folder/f'w{week}.html').exists() for folder in ('simple','card-pages'))
+ separate=any((ROOT/'tools'/folder/f'w{week}.html').exists() for folder in ('lessons','simple','card-pages'))
  return ROOT/f'w{week}'/('ek-notlar/index.html' if separate else 'index.html')
 
 def relative_url(target,parent):

@@ -202,3 +202,35 @@ CSV import/export and native paper views remain in place.
 Run `node aa/tools/verify_pilot_report.cjs` and
 `python3 aa/tools/verify_teacher_report.py`, alongside the existing pilot,
 CSV-resume and rebuild verifiers.
+
+## Fresh Week 1 teaching draft (October 2026)
+
+The new Week 1 is authored from scratch in `tools/lessons/w1.html` and copied
+byte for byte to `w1/index.html` by the course builder. Its three local assets
+are `w1/lesson.css`, `w1/model.js` and `w1/lesson.js`. It has no dependency on
+the old lesson, learning-bridge panels, external fonts or external scripts.
+The lesson follows one first-occurrence record-search contract, with explicit
+1-based pedagogical positions: define the expected result, trace decisions,
+interpret numbers, complete a faded example, test boundaries, then explain a
+new case and a change from first to last occurrence. No Python prerequisite,
+asymptotic notation or formal induction is required in this first lesson.
+
+The four exit dimensions ask for a trace, mathematical meanings, the practical
+purpose of the output, and an explanation of why a changed contract changes
+the stopping decision. Automatic feedback checks numbers only; written
+reasoning uses a separate visible rubric. Opening the model answer is tracked
+for the current page session. Inputs are not uploaded; the lesson has no application-level answer storage.
+The printed/offline lesson retains a solved table and paper exercises.
+
+The former full Week 1 is retained under `w1/ek-notlar/`, with old note and
+question links routed to that archive. It is not inserted into the new lesson.
+Other weekly main pages and all earlier labs and assessment tools are retained.
+This change narrows Week 1's instructional scope; mapping to the official exam
+scope is a separate review decision before publication.
+
+Checks: `node aa/tools/verify_fresh_week1_model.cjs`,
+`python3 aa/tools/verify_fresh_week1.py`, and the existing alignment, redirect,
+learning-bridge and reproducible-build verifiers. The legacy bridge verifier
+continues to check the original Week 1 panel in its archive; the new main lesson
+is checked by the fresh-lesson verifier. No deployment is performed by these
+commands.

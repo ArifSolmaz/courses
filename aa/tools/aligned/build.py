@@ -73,7 +73,8 @@ def crossref(text,homes,display,caller_week=None):
  """Turn source cross-references into links that use the visible weekly numbering."""
  def route(n):
   # Source question anchors remain on the full lesson when a simple main exists.
-  return f'../w{n}/'+('ek-notlar/' if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else '')
+  separate=any((ROOT/'tools'/folder/f'w{n}.html').exists() for folder in ('lessons','simple','card-pages'))
+  return f'../w{n}/'+('ek-notlar/' if separate else '')
  def ex(m):
   i=int(m[1])
   if i not in homes:return m[0]
@@ -273,7 +274,8 @@ def build(B):
   bank=Q.bank(tests[n],written[n],title='Practice with answers')
   if n in (10,11): bank='<p>'+E(Q.GRAPH_W)+'</p>'+bank
   # Preserve original cross-references even though visible question numbering is weekly.
-  bank=crossref(bank,homes,display,caller_week=n if (ROOT/'tools'/'simple'/f'w{n}.html').exists() else None)
+  separate=any((ROOT/'tools'/folder/f'w{n}.html').exists() for folder in ('lessons','simple','card-pages'))
+  bank=crossref(bank,homes,display,caller_week=n if separate else None)
   animations,assets=animation_content(n)
   examples=''.join(render_example(n,item,i,len(w['examples'])) for i,item in enumerate(w['examples'],1))
   more=''
@@ -288,8 +290,19 @@ def build(B):
 <section id="notes" class="week-panel"><details class="reading-card"><summary>Document reading · {reading}</summary><ul>{''.join(core)}</ul><p><a href="../resources/algorithm-analysis-english-turkish-skiena-cse373.docx?v=aligned">Download the complete bilingual document</a></p></details><details><summary>Python explained for this lesson</summary><p>{E(python)}</p><pre><code>{E(week_code(n))}</code></pre><p>Predict the result, then run the demonstration. No prior Python fluency is required for the paper trace.</p></details><details class="reading-reference"><summary>English–Turkish explanations</summary>{''.join(depth)}</details>{more}</section>
 <nav class="week-nav">{f'<a href="../w{n-1}/">← Week {n-1}</a>' if n>1 else ''}<a href="../">All weeks</a><a href="../review/#review-w{n}">Review</a>{f'<a href="../w{n+1}/">Week {n+1} →</a>' if n<14 else ''}</nav></main>'''
   page=learning_paths.apply(legacy_layout.apply(shell(B,title,body,'../',assets),n),n)
+  lesson=ROOT/'tools'/'lessons'/f'w{n}.html'
   simple=ROOT/'tools'/'simple'/f'w{n}.html'
-  if simple.exists():
+  if lesson.exists():
+   # The new lesson is independently authored and must remain byte-for-byte:
+   # no legacy shell, question bank or learning-bridge layer is added to it.
+   # Keep the previous complete generated page behind its historical anchors.
+   ek=ROOT/f'w{n}'/'ek-notlar';ek.mkdir(parents=True,exist_ok=True)
+   banner=f'<p class="ek-banner" style="margin:0 0 1rem;padding:.6rem 1rem;border:1px solid var(--line,#888);border-radius:10px">Arşiv: Hafta {n} önceki ders sayfası. <a href="../">← Yeni ders sayfasına dön</a></p>'
+   archived=page.replace('href="../','href="../../').replace('src="../','src="../../')
+   archived=archived.replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
+   (ek/'index.html').write_text(archived,encoding='utf-8')
+   (ROOT/f'w{n}/index.html').write_bytes(lesson.read_bytes())
+  elif simple.exists():
    # The plain-language 3-hour lesson (tools/simple/wN.html) is the main week page;
    # the full original page stays available as additional notes under wN/ek-notlar/.
    ek=ROOT/f'w{n}'/'ek-notlar';ek.mkdir(parents=True,exist_ok=True)
@@ -311,7 +324,7 @@ def build(B):
   # review links with anchors (#example-.., #practice, ...) point at the original pages,
   # which now live under wN/ek-notlar/ for weeks that have a plain-language main page.
   for k in range(1,15):
-   if (ROOT/'tools'/'simple'/f'w{k}.html').exists():
+   if any((ROOT/'tools'/folder/f'w{k}.html').exists() for folder in ('lessons','simple','card-pages')):
     page=page.replace(f'href="../w{k}/#',f'href="../w{k}/ek-notlar/#')
   return page
  for folder,page in (('scope',scope_page(B)),('review',to_notes(review_page(B,Q,tests,homes,display))),('textbook-problems',textbook_page(B))):

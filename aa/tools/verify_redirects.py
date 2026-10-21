@@ -52,14 +52,15 @@ class Page(HTMLParser):
             self.links.append(attrs.get('href', ''))
 
 
-def expected_destination(week):
+def expected_destination(week, root=ROOT):
     if week is None:
         return 'index.html', ''
     if week == 'graph-notes':
         return 'w8/lecture-notes.html', ''
-    # Weeks 1–2 own Notes on their main page. The later main pages have a
-    # different structure; preserve access to the complete original Notes view.
-    suffix = 'index.html' if week <= 2 else 'ek-notlar/index.html'
+    # A freshly authored main keeps the earlier Notes view in its archive.
+    # Week 2 still owns Notes on its unchanged main page.
+    fresh_lesson = (root / 'tools' / 'lessons' / f'w{week}.html').is_file()
+    suffix = 'index.html' if week <= 2 and not fresh_lesson else 'ek-notlar/index.html'
     return f'w{week}/{suffix}', 'notes'
 
 
@@ -90,7 +91,7 @@ def verify(root):
         if target.is_dir():
             target /= 'index.html'
         assert target.is_file(), (relative, 'missing target', str(target))
-        wanted_path, wanted_fragment = expected_destination(week)
+        wanted_path, wanted_fragment = expected_destination(week, root)
         assert target == root / wanted_path, (relative, 'incorrect teaching destination', destination)
         assert unquote(url.fragment) == wanted_fragment, (relative, 'incorrect Notes fragment')
         if wanted_fragment:

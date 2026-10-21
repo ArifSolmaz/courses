@@ -7,12 +7,19 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import ast
+import re
 from itertools import combinations, permutations, product
 import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 15)}}
+# The independently authored main deliberately has no legacy bridge panel.
+# Keep exercising that complete, unmodified panel on its archived route.
+FRESH_WEEK1 = (ROOT / 'aa/tools/lessons/w1.html').is_file()
+LEGACY_WEEK1_BASELINE = 'acb217da0836cf447c10df2c2c6797a89b56266b'
+if FRESH_WEEK1:
+    PAGES[1] = 'aa/w1/ek-notlar/index.html'
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
 
@@ -246,15 +253,27 @@ def guided_answers():
     }
 
 
+def apply_at_route(source, week):
+    """Use the same old panel with its two-ancestor archive asset base."""
+    page = bridges.apply(source, week)
+    if week == 1 and FRESH_WEEK1:
+        for start, end in ((bridges.PANEL_START, bridges.PANEL_END),
+                           (bridges.ASSETS_START, bridges.ASSETS_END)):
+            content = marked(page, start, end)
+            relocated = content.replace('href="../', 'href="../../').replace('src="../', 'src="../../')
+            page = page.replace(start + content + end, start + relocated + end, 1)
+    return page
+
+
 def check_sources(sources, *, published=False):
     rendered = {}
     for week, source in sources.items():
-        page = bridges.apply(source, week)
+        page = apply_at_route(source, week)
         if published:
             assert bridges.PANEL_START in source, f'Week {week}: published learning bridge is missing'
             assert page == source, f'Week {week}: published learning bridge differs from its source'
         assert bridges.strip(page) == bridges.strip(source), f'Week {week}: existing bytes changed'
-        assert bridges.apply(page, week) == page, f'Week {week}: repeated application changed page'
+        assert apply_at_route(page, week) == page, f'Week {week}: repeated application changed page'
         rendered[(ROOT / PAGES[week]).resolve()] = page
 
     expected_answers = guided_answers()
@@ -781,6 +800,10 @@ def check_displayed_covers(page):
 def check_original_content(current, head):
     for week in PAGES:
         original, revised = bridges.strip(head[week]), bridges.strip(current[week])
+        if week == 1 and FRESH_WEEK1:
+            # Only the archive label is additive; relative paths were relocated
+            # in the reference reader below before this exact-byte comparison.
+            revised = re.sub(r'<p class="ek-banner"[^>]*>.*?</p>', '', revised, count=1, flags=re.S)
         if week in range(4, 15):
             # The existing deck script gains only a cache key for hash routing.
             deck_script = 'recap/recap.js' if week == 4 else 'examples/lesson.js'
@@ -825,13 +848,24 @@ def check_math():
             assert 3 * n * n <= polynomial <= 15 * n * n, f'Polynomial Theta witnesses at n={n}'
 
 
+def reference_source(week, path):
+    if week == 1 and FRESH_WEEK1:
+        # Pin the last reviewed complete W1, so the preservation check remains
+        # meaningful after the fresh lesson itself is eventually committed.
+        source = subprocess.check_output(
+            ['git', 'show', f'{LEGACY_WEEK1_BASELINE}:aa/w1/index.html'], cwd=ROOT,
+        ).decode('utf-8')
+        source = source.replace('href="../', 'href="../../').replace('src="../', 'src="../../')
+        return re.sub(r'href="\.\./\.\./w1/#(skiena-[^"]+)"', r'href="#\1"', source)
+    return subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
+
+
 def main():
     current = {week: (ROOT / path).read_bytes().decode('utf-8') for week, path in PAGES.items()}
-    head = {week: subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=ROOT).decode('utf-8')
-            for week, path in PAGES.items()}
+    head = {week: reference_source(week, path) for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data are unchanged versus HEAD for dashboard / Weeks 1–14 (only the deck/visual script cache keys are normalized).')
-    for name, sources in [('current', current), ('HEAD', head)]:
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data match their reviewed reference (archived Week 1 uses its pinned baseline; other pages use HEAD; only the deck/visual script cache keys are normalized).')
+    for name, sources in [('current', current), ('reference', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])
         check_displayed_insertion(rendered[(ROOT / PAGES[4]).resolve()])

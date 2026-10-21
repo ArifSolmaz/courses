@@ -74,11 +74,12 @@ def dangling_colons(s):
  return out
 
 def full_lesson(n):
- # Plain-language main pages retain the full generated lesson under ek-notlar.
+ # Independently authored main pages retain the full generated lesson under ek-notlar.
  # Check both routes, and keep all original question/animation invariants below.
  main=root/f'w{n}/index.html'
  check_links(main,main.read_text())
- return root/f'w{n}/ek-notlar/index.html' if (root/f'tools/simple/w{n}.html').exists() else main
+ separate=any((root/'tools'/folder/f'w{n}.html').exists() for folder in ('lessons','simple','card-pages'))
+ return root/f'w{n}/ek-notlar/index.html' if separate else main
 
 for n in range(1,15):
  p=full_lesson(n);s=p.read_text();parsed=check_links(p,s)
