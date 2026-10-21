@@ -142,9 +142,14 @@ def verify(root=ROOT, baseline=BASELINE):
     old_cards = git(repo, 'show', f'{baseline}:aa/w4/recap/cards.js')
     check(old_cards.count(b'"ref": "../w2/#') == 3,
           'the historical W4 card-bank W2 reference inventory contains exactly three links')
-    check(cards.read_bytes() == old_cards.replace(b'"ref": "../w2/#',
-                                                 b'"ref": "../w2/ek-notlar/#'),
-          'W4 card-bank questions, answers and data differ only in three W2 reference URLs')
+    expected_cards = old_cards.replace(b'"ref": "../w2/#', b'"ref": "../w2/ek-notlar/#')
+    if (root / 'tools/lessons/w3.html').is_file():
+        for anchor in ('r0_A', 'r0_a0'):
+            expected_cards = expected_cards.replace(
+                f'"ref": "../w3/#{anchor}"'.encode(),
+                f'"ref": "../w3/onceki-ders.html#{anchor}"'.encode())
+    check(cards.read_bytes() == expected_cards,
+          'W4 card-bank questions, answers and data differ only in archived W2/W3 reference URLs')
     for value in re.findall(r'"ref": "(\.\./w2/ek-notlar/#[^"]+)"', cards.read_text()):
         parsed = urlsplit(value)
         check(unquote(parsed.fragment) in archived_page.ids,
@@ -167,11 +172,25 @@ def verify(root=ROOT, baseline=BASELINE):
     check((root / 'README.md').read_bytes().startswith(old_readme),
           'all existing course README text is preserved before the new documentation')
     tracked = baseline_files(repo, baseline)
+    allowed_changes = set(SUCCESSOR_EXISTING_CHANGES)
+    successor = None
+    if (root / 'tools/lessons/w3.html').is_file():
+        from verify_fresh_week3 import SUCCESSOR_EXISTING_CHANGES as W3_CHANGES
+        allowed_changes.update(W3_CHANGES)
     protected = {path: digest for path, digest in tracked.items()
-                 if path not in SUCCESSOR_EXISTING_CHANGES}
+                 if path not in allowed_changes}
     drift = [path for path, digest in protected.items()
              if not (repo / path).is_file() or blob_hash((repo / path).read_bytes()) != digest]
     check(not drift, f'all {len(protected)} other existing AA files are byte-preserved: {drift}')
+
+    # The W3 successor verifies its complete scope against the immediately
+    # preceding publication and never calls this verifier. No unchecked
+    # successor exceptions or circular verification are introduced.
+    if (root / 'tools/lessons/w3.html').is_file():
+        from verify_fresh_week3 import verify as verify_fresh_week3
+        successor = verify_fresh_week3(root)
+        check(successor['status'] == 'passed',
+              'authorized Week 3 successor passes its exact-scope preservation audit')
 
     entry_links = []
     for path in sorted(root.rglob('*.html')):
@@ -201,7 +220,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'old_lesson_bytes_text_and_anchors_preserved': True,
         'old_lesson_anchors': len(old_page.ids),
         'protected_existing_files': len(protected), 'protected_drift': drift,
-        'other_week_main_pages_unchanged': 12,
+        'other_week_main_pages_unchanged': 11 if successor else 12,
+        'authorized_successor_audit': successor,
         'week1_change_is_only_one_onward_link': True,
         'historical_week2_redirects': len(w2_routes),
         'historical_week4_reference_urls_relocated': 3,

@@ -11,6 +11,7 @@ from pathlib import Path
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -36,6 +37,7 @@ def generated(path):
     p = Path(path)
     return (
         path in MAIN_PAGES
+        or bool(re.fullmatch(r'w\d+/onceki-ders\.html', path))
         or path in ('COURSE_GUIDE.md', 'scope/index.html', 'review/index.html',
                     'textbook-problems/index.html', 'extensions/index.html',
                     'engineering/index.html', 'skiena/index.html')

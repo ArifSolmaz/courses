@@ -295,12 +295,28 @@ def build(B):
   if lesson.exists():
    # The new lesson is independently authored and must remain byte-for-byte:
    # no legacy shell, question bank or learning-bridge layer is added to it.
-   # Keep the previous complete generated page behind its historical anchors.
    ek=ROOT/f'w{n}'/'ek-notlar';ek.mkdir(parents=True,exist_ok=True)
-   banner=f'<p class="ek-banner" style="margin:0 0 1rem;padding:.6rem 1rem;border:1px solid var(--line,#888);border-radius:10px">Arşiv: Hafta {n} önceki ders sayfası. <a href="../">← Yeni ders sayfasına dön</a></p>'
-   archived=page.replace('href="../','href="../../').replace('src="../','src="../../')
-   archived=archived.replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
-   (ek/'index.html').write_text(archived,encoding='utf-8')
+   if simple.exists():
+    # W3 already had both an authored main and generated supplemental notes.
+    # Keep each complete layer at its own address. The authored archive stays
+    # at the same URL depth, preserving all relative assets and local anchors.
+    banner=f'<p class="ek-banner" style="margin:0 0 1rem;padding:.6rem 1rem;border:1px solid var(--line,#888);border-radius:10px">Ek notlar: Hafta {n} tam sürüm (orijinal sayfa). <a href="../">← Sade ders sayfasına dön</a></p>'
+    body_ek=body.replace('href="../','href="../../').replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
+    assets_ek=assets.replace('href="../','href="../../').replace('src="../','src="../../')
+    (ek/'index.html').write_text(legacy_layout.apply(shell(B,title,body_ek,'../../',assets_ek),n,supplemental=True),encoding='utf-8')
+    cards=ROOT/'tools'/'card-pages'/f'w{n}.html'
+    source=cards if cards.exists() else simple
+    archived=learning_paths.apply(source.read_text(encoding='utf-8'),n)
+    archive_banner=f'<p class="previous-lesson-banner" style="margin:1rem;padding:.75rem 1rem;border:1px solid #888;border-radius:10px">Arşiv: Hafta {n} önceki ders sayfası. <a href="./">← Yeni ders sayfasına dön</a></p>'
+    assert archived.count('<body>')==1, f'Expected one plain body in archived Week {n}'
+    archived=archived.replace('<body>','<body>'+archive_banner,1)
+    (ROOT/f'w{n}/onceki-ders.html').write_text(archived,encoding='utf-8')
+   else:
+    # W1/2 had one complete generated main, retained behind its old anchors.
+    banner=f'<p class="ek-banner" style="margin:0 0 1rem;padding:.6rem 1rem;border:1px solid var(--line,#888);border-radius:10px">Arşiv: Hafta {n} önceki ders sayfası. <a href="../">← Yeni ders sayfasına dön</a></p>'
+    archived=page.replace('href="../','href="../../').replace('src="../','src="../../')
+    archived=archived.replace('<header class="week-heading">',banner+'<header class="week-heading">',1)
+    (ek/'index.html').write_text(archived,encoding='utf-8')
    (ROOT/f'w{n}/index.html').write_bytes(lesson.read_bytes())
   elif simple.exists():
    # The plain-language 3-hour lesson (tools/simple/wN.html) is the main week page;

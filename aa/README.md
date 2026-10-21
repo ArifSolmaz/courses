@@ -265,3 +265,44 @@ existing alignment, redirect, learning-bridge and reproducible-build checks.
 The shared builder performs no deployment. This draft is for review before
 publication; its narrowed teaching scope still needs mapping to official exam
 coverage as part of the new course plan.
+
+## Fresh Week 3 teaching draft
+
+`tools/lessons/w3.html` is authored from scratch from the new course plan and
+copied exactly to `w3/index.html`. It reuses only the fresh Week 1 visual style;
+its local growth/search model, enhancement script and small stylesheet are in
+`w3/`. The old notes were not used as teaching content for this lesson.
+
+The lesson moves from doubling n in 2n and n² to choosing methods for the same
+search output. The former counts describe different reports, not competing
+solutions to one problem. Both search methods use a supplied, strictly sorted,
+unique, directly indexable directory and return its 1-based position or null.
+One probe is one abstract three-way comparison; it is neither a source-language
+operator count nor elapsed time. Linear search stops at equality or the end;
+binary search uses the lower midpoint and excludes it after a mismatch.
+Empty input, absent targets, worst-case paths and concrete unsorted
+counterexamples make the assumptions visible. Preparation, query workload and
+preserving an original arrival position are part of the method-choice task.
+
+The four independent dimensions ask for an interval trace, mathematical
+meanings, a reasoned method choice and a counterexample linked to Week 1.
+Automatic feedback checks numbers only; written work has a separate rubric.
+Model-answer exposure is recorded only within the current page session.
+There is no application-level answer storage or upload. The paper lesson and
+native answer disclosures remain available without JavaScript.
+
+The former authored Week 3 main is retained at `w3/onceki-ders.html`, at the
+same depth so its relative links keep their meaning. Its separate generated
+`w3/ek-notlar/` material is preserved unchanged. Two historical Week 4 card
+references point to the archived main. The fresh Week 2 gains one onward link;
+all Week 1 files are unchanged.
+
+Checks: `node aa/tools/verify_fresh_week3_model.cjs`,
+`python3 aa/tools/verify_fresh_week3.py`, fresh Week 1/2 checks and the existing
+alignment, redirects, learning-bridge and reproducible-build verifiers. The
+fresh scope verifier pins the published Week 2 baseline and checks archive
+bytes, historical links and unrelated course files. Browser checks cover
+stepwise interactions, form feedback, keyboard access, mobile layouts, doubled
+text, no-JavaScript use and printing. These checks do not measure learning
+effect or validate the proposed class duration. No deployment is performed by
+the builder or verifiers; the lesson awaits review before publication.
