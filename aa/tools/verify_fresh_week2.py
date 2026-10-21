@@ -148,8 +148,11 @@ def verify(root=ROOT, baseline=BASELINE):
             expected_cards = expected_cards.replace(
                 f'"ref": "../w3/#{anchor}"'.encode(),
                 f'"ref": "../w3/onceki-ders.html#{anchor}"'.encode())
+    if (root / 'tools/lessons/w4.html').is_file():
+        expected_cards = expected_cards.replace(b'"ref": "../w1/#',
+                                                b'"ref": "../w1/ek-notlar/#')
     check(cards.read_bytes() == expected_cards,
-          'W4 card-bank questions, answers and data differ only in archived W2/W3 reference URLs')
+          'W4 card-bank questions, answers and data differ only in archived W1/W2/W3 reference URLs')
     for value in re.findall(r'"ref": "(\.\./w2/ek-notlar/#[^"]+)"', cards.read_text()):
         parsed = urlsplit(value)
         check(unquote(parsed.fragment) in archived_page.ids,
@@ -177,6 +180,9 @@ def verify(root=ROOT, baseline=BASELINE):
     if (root / 'tools/lessons/w3.html').is_file():
         from verify_fresh_week3 import SUCCESSOR_EXISTING_CHANGES as W3_CHANGES
         allowed_changes.update(W3_CHANGES)
+    if (root / 'tools/lessons/w4.html').is_file():
+        from verify_fresh_week4 import SUCCESSOR_EXISTING_CHANGES as W4_CHANGES
+        allowed_changes.update(W4_CHANGES)
     protected = {path: digest for path, digest in tracked.items()
                  if path not in allowed_changes}
     drift = [path for path, digest in protected.items()
@@ -220,7 +226,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'old_lesson_bytes_text_and_anchors_preserved': True,
         'old_lesson_anchors': len(old_page.ids),
         'protected_existing_files': len(protected), 'protected_drift': drift,
-        'other_week_main_pages_unchanged': 11 if successor else 12,
+        'other_week_main_pages_unchanged': (10 if (root / 'tools/lessons/w4.html').is_file()
+                                          else 11 if successor else 12),
         'authorized_successor_audit': successor,
         'week1_change_is_only_one_onward_link': True,
         'historical_week2_redirects': len(w2_routes),

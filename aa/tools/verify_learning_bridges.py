@@ -20,11 +20,12 @@ LEGACY_BASELINES = {
     1: 'acb217da0836cf447c10df2c2c6797a89b56266b',
     2: 'b5248a58653bd1107c06470fec261edac5d7e652',
     3: 'a178a3eda5bcad2df3449c2da31538f3a1aaa5cc',
+    4: '819ffd90dcc85890e26d8da9daefe0b6de5c7111',
 }
 FRESH_WEEKS = {week for week in LEGACY_BASELINES
                if (ROOT / f'aa/tools/lessons/w{week}.html').is_file()}
 for week in FRESH_WEEKS:
-    PAGES[week] = (f'aa/w{week}/onceki-ders.html' if week == 3
+    PAGES[week] = (f'aa/w{week}/onceki-ders.html' if week in (3, 4)
                    else f'aa/w{week}/ek-notlar/index.html')
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
@@ -260,9 +261,9 @@ def guided_answers():
 
 
 def apply_at_route(source, week):
-    """Use each archived panel at its actual path depth (W3 stays one deep)."""
+    """Use each archived panel at its actual path depth (W3/4 stay one deep)."""
     page = bridges.apply(source, week)
-    if week in FRESH_WEEKS and week != 3:
+    if week in FRESH_WEEKS and week not in (3, 4):
         for start, end in ((bridges.PANEL_START, bridges.PANEL_END),
                            (bridges.ASSETS_START, bridges.ASSETS_END)):
             content = marked(page, start, end)
@@ -809,7 +810,7 @@ def check_original_content(current, head):
         if week in FRESH_WEEKS:
             # Only the archive label is additive; relative paths were relocated
             # in the reference reader below before this exact-byte comparison.
-            banner_class = 'previous-lesson-banner' if week == 3 else 'ek-banner'
+            banner_class = 'previous-lesson-banner' if week in (3, 4) else 'ek-banner'
             revised = re.sub(r'<p class="' + banner_class + r'"[^>]*>.*?</p>', '', revised, count=1, flags=re.S)
         if week in range(4, 15):
             # The existing deck script gains only a cache key for hash routing.
@@ -851,6 +852,11 @@ def check_original_content(current, head):
                         original_cards = original_cards.replace(
                             f'"ref": "../w3/#{anchor}"'.encode(),
                             f'"ref": "../w3/onceki-ders.html#{anchor}"'.encode())
+                if week == 4 and 4 in FRESH_WEEKS:
+                    # The fresh W4 successor separately verifies exactly
+                    # three old W1 deep links and no other card-bank change.
+                    original_cards = original_cards.replace(
+                        b'"ref": "../w1/#', b'"ref": "../w1/ek-notlar/#')
                 assert card_path.read_bytes() == original_cards, f'Week {week}: original card questions/data changed'
     # Exact source-byte preservation also covers original questions, answers,
     # embedded card data, animations, and existing lesson interactions.
@@ -874,8 +880,8 @@ def reference_source(week, path):
         source = subprocess.check_output(
             ['git', 'show', f'{LEGACY_BASELINES[week]}:aa/w{week}/index.html'], cwd=ROOT,
         ).decode('utf-8')
-        if week == 3:
-            # The earlier authored W3 main stays at its existing path depth.
+        if week in (3, 4):
+            # Earlier authored W3/4 mains stay at their existing path depth.
             return source
         source = source.replace('href="../', 'href="../../').replace('src="../', 'src="../../')
         return re.sub(rf'href="\.\./\.\./w{week}/#(skiena-[^"]+)"', r'href="#\1"', source)
@@ -886,7 +892,7 @@ def main():
     current = {week: (ROOT / path).read_bytes().decode('utf-8') for week, path in PAGES.items()}
     head = {week: reference_source(week, path) for week, path in PAGES.items()}
     check_original_content(current, head)
-    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data match their reviewed reference (archived authored weeks use pinned baselines at their actual path depth; other pages use HEAD; only deck/visual cache keys and the three historical W2 plus two historical W3 card references are normalized).')
+    print('PASS preservation: all original lesson bytes, IDs, headings, questions and card data match their reviewed reference (archived authored weeks use pinned baselines at their actual path depth; other pages use HEAD; only deck/visual cache keys and the three historical W2, two historical W3 and three successor-audited W1 archive card references are normalized).')
     for name, sources in [('current', current), ('reference', head)]:
         rendered, links = check_sources(sources, published=name == 'current')
         check_displayed_search(rendered[(ROOT / PAGES[1]).resolve()])

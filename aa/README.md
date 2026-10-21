@@ -306,3 +306,51 @@ stepwise interactions, form feedback, keyboard access, mobile layouts, doubled
 text, no-JavaScript use and printing. These checks do not measure learning
 effect or validate the proposed class duration. No deployment is performed by
 the builder or verifiers; the lesson awaits review before publication.
+
+## Fresh Week 4 teaching draft
+
+`tools/lessons/w4.html` is a new lesson from the approved course plan, not a
+rewrite based on the old notes. The builder copies it exactly to `w4/index.html`
+and it reuses the fresh Week 1 visual style. Its storage/policy model, small
+stylesheet and progressive enhancement script are local files in `w4/`.
+
+The lesson opens Week 3's direct-index-access assumption. It distinguishes n
+(existing records), k (one-based access position) and p (given insertion
+position). Array access takes one indexed read; singly linked access with a
+supplied head follows k-1 links and then reads one node value. Insertion into
+an array with spare capacity shifts n-p+1 values rightward, from right to left,
+then writes the new value. In a head-only singly linked list, locating the
+predecessor takes zero follows for p=1 and p-2 for p>=2. It then assigns two
+references, preserving the continuation before relinking the predecessor/head.
+Known-predecessor cases are separately modeled. Allocation, new-node value
+preparation, index arithmetic and finding a sorted insertion position are
+outside this count. Different units are never summed into a speed score.
+
+FIFO/LIFO is introduced through the same arrival/removal events, as a logical
+selection policy whose concrete representation is a separate choice. Message
+tokens distinguish jobs even when device IDs repeat. The model exposes each
+atomic storage operation and each logical policy event without input mutation;
+snapshots are independent. It rejects invalid positions and insufficient array
+capacity. Empty/head/tail cases and uninitialized new-next references are
+explicit. Interactive controls reveal only opened steps and reset on changes.
+
+A worked, faded and independent task asks for trace, mathematical meanings,
+workload-based choice and connection to Week 3/FIFO/LIFO. Numbers are checked
+automatically; written reasoning and formulas use a separate visible rubric.
+Inputs have no application-level storage/upload. Disabled hidden submit buttons
+keep Enter from erasing written answers when JavaScript is unavailable; native
+answer disclosures and a solved paper trace remain usable.
+
+The former authored Week 4 main is preserved at `w4/onceki-ders.html`; the
+separate generated `w4/ek-notlar/` layer remains byte-identical. The historical
+recap redirect retains its fragment and points to that archive. Three old Week
+4 card references to archived Week 1 anchors are corrected as exact URL-only
+changes. Fresh Week 3 gains one onward link; all Week 1/2 files are unchanged.
+
+Checks: `node aa/tools/verify_fresh_week4_model.cjs`,
+`python3 aa/tools/verify_fresh_week4.py`, the prior fresh-week exact-scope chain,
+and the existing alignment, redirect, learning-bridge and independent rebuild
+checks. Browser QA covers storage/policy traces, form feedback, keyboard,
+mobile/doubled text, no-JavaScript answer retention and A4 printing. The builder
+performs no deployment; this draft awaits review before publication. Technical
+checks do not measure student learning or the proposed class duration.
