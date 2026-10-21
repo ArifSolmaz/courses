@@ -16,7 +16,7 @@ Bu notlar, **“Search trees and hash tables”** dersindeki 28 kartı aynı sı
 
 ## 1. Her kutuya bakmak mı, yarısını elemek mi?
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** Sıralı sensör kimlikleri `[10, 20, 30, 40, 50, 60, 70]`. Aranan kimlik 60. İki yöntemin de bulduğu kayıt aynıdır; farklı olan, bulana kadar yaptıkları iştir.
 
@@ -37,7 +37,7 @@ Bu notlar, **“Search trees and hash tables”** dersindeki 28 kartı aynı sı
 
 ## 2. Kimlik anahtardır; ölçüm değerdir
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** `30 → 21 °C` kaydında 30 sensörün kimliğidir, 21 ise ölçümüdür. “30 numaralı sensörü bul” ile “en düşük sıcaklığı bul” farklı sorulardır.
 
@@ -56,7 +56,7 @@ Saklanan anahtarlar: 20      30                50
 
 ## 3. Hızlı aramanın ekleme bedeli olabilir
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Problem.** Sıralı dizi `[10, 20, 30, 40]` içine 25 eklenecek. 25'i sona yazarsak dizi artık sıralı olmaz. İkili aramanın dayandığı özellik bozulur.
 
@@ -77,7 +77,7 @@ Başlangıç: 10  20  30  40  [boş]
 
 ## 4. Arama ağacı: küçük veya büyük kararları
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **Problem.** Anahtarları şu ikili arama ağacında (BST) saklayalım:
 
@@ -101,7 +101,7 @@ Başlangıç: 10  20  30  40  [boş]
 
 ## 5. Her dalı değil, tek yolu izlemek
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 **Problem.** Önceki ağaçta 60'ı arıyoruz. Her karşılaştırmada aramanın devam edeceği yalnızca bir yön vardır.
 
@@ -121,7 +121,7 @@ Başlangıç: 10  20  30  40  [boş]
 
 ## 6. En küçük için sola; en büyük için sağa
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
 
 **Problem.** BST'de minimum anahtarı arıyoruz. Her sol adım daha küçük bir anahtarın bulunduğu alt ağaca götürür.
 
@@ -140,7 +140,7 @@ Maksimum: 50 → 70 → 80 → sağ bağlantı boş → sonuç 80
 
 ## 7. Ekleme: boş yere kadar aramak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
 
 **Problem.** Anahtarları sırayla `50, 30, 70, 20, 40, 60, 80` ekleyelim. İlk anahtar kök olur. Sonraki her anahtar, aramada olduğu gibi küçükse sola, büyükse sağa ilerler; boş bağlantıya yeni düğüm yerleştirilir.
 
@@ -162,7 +162,7 @@ Arama yolu üzerinde üç mevcut düğüm ziyaret edilir; yeni düğümün bağl
 
 ## 8. Ağacı sıralı okumak
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Problem.** Anahtarları küçükten büyüğe yazdırmak istiyoruz. Kökten başlayıp rastgele çocuklara gitmek yeterli değildir. Kullanılan yöntem **inorder**, yani “sol alt ağaç → düğüm → sağ alt ağaç” dolaşımıdır.
 
@@ -183,7 +183,7 @@ Sonuç:             20, 30, 40, 50, 60, 70, 80
 
 ## 9. Ardıl: bir sonraki saklanan anahtar
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 **Problem.** 50'nin ve 40'ın ardılını bulacağız. Ardıl, anahtarın sayısal olarak bir fazlası değil, mevcut anahtarlar arasında bir sonrakidir.
 
@@ -202,7 +202,7 @@ Sonuç:             20, 30, 40, 50, 60, 70, 80
 
 ## 10. Silme: yaprak ve tek çocuk
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
 
 **Problem.** Silinen düğümün altında kalan kayıtları kaybetmeden bağlantıları düzenlemeliyiz. İlk iki durum basittir.
 
@@ -229,7 +229,7 @@ Sonuç:             20, 30, 40, 50, 60, 70, 80
 
 ## 11. Silme: iki çocuk olduğunda ardılı kullanmak
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
 
 **Problem.** Standart ağaçta 50'yi silelim. İki çocuğu olduğu için yalnızca 30'u veya 70'i yerine almak, bağlantıları ayrıca düzenlemeden diğer tarafı kaybettirebilir. Düzenli yöntem, yerine sıralamada komşu bir kaydı taşımaktır.
 
@@ -257,7 +257,7 @@ Son ağaç:
 
 ## 12. Aynı anahtarlar, farklı yükseklikler
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Problem.** Aynı yedi anahtar bir ağaçta dengeli, diğerinde zincir biçiminde olabilir. Sadece kayıt sayısına bakmak arama maliyetini belirlemeye yetmez.
 
@@ -276,7 +276,7 @@ Artan ekleme:     20 → 30 → 40 → 50 → 60 → 70 → 80 (7 ziyaret)
 
 ## 13. Rastgele sıra yardımcı olur; dengeleme garanti verir
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 **Problem.** Sıradan BST'nin kötü zincirini nasıl önleriz? İki yaklaşımı birbirine karıştırmamalıyız.
 
@@ -299,7 +299,7 @@ Bu sayım yeni düğüm yaratma gibi sabit işleri dışarıda bırakır; onlar�
 
 ## 14. İlk mola — ağaçları cevaplarla toparlayalım
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart yeni bir algoritma anlatmaz. Dersteki 78–88. dakikalar arasındaki on dakikalık moladır. Aşağıdaki kısa tekrar, mola öncesi veya sonrası kullanılabilir.
 
@@ -315,7 +315,7 @@ Bu kart yeni bir algoritma anlatmaz. Dersteki 78–88. dakikalar arasındaki on 
 
 ## 15. Anahtardan başlangıç yuvası hesaplamak
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 **Problem.** Beş yuvalı bir hash tablosunda yuvalar 0, 1, 2, 3, 4 diye numaralanmıştır. Basit hash kuralımız `h(k) = k mod 5`; yani k'yi 5'e bölünce kalan.
 
@@ -336,7 +336,7 @@ Bu kart yeni bir algoritma anlatmaz. Dersteki 78–88. dakikalar arasındaki on 
 
 ## 16. Çakışma çözümü: ayrı zincirleme
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 **Problem.** Beş kovaya sırasıyla `10, 15, 3, 20, 8, 13` ekliyoruz. Her anahtar `k mod 5` kovasına gider. Aynı kovaya düşen kayıtlar bir listede tutulur. Bu örnekte listenin sonuna ekliyoruz.
 
@@ -358,7 +358,7 @@ Kova 4: boş
 
 ## 17. Çakışma çözümü: doğrusal yoklama
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 **Problem.** Bu kez her yuva en fazla bir kayıt tutuyor. Başlangıç yuvası doluysa bir sonrakini deniyoruz. Kurala **linear probing**, yani doğrusal yoklama denir.
 
@@ -384,7 +384,7 @@ Anahtar: 10  15  20   3  [boş]
 
 ## 18. “Silindi” ile “hiç kullanılmadı” farklıdır
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
 
 **Problem.** Yedi yuvalı tabloda 7, 14, 21, 1 eklenmiş olsun. İlk üç anahtarın başlangıcı 0; 1'in başlangıcı 1'dir. Çakışmalardan sonra tablo şöyledir:
 
@@ -405,7 +405,7 @@ Doğru sil:  7   SİLİNDİ 21   1    boş   boş   boş
 
 ## 19. Doluluk oranı ve yeniden yerleştirme
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
 
 **Problem.** Yük faktörü (load factor) `α = n/m` olarak tanımlanır. Dört kayıt beş yuvada α = 4/5 = 0,8; on yuvada α = 4/10 = 0,4 eder. Daha fazla boşluk genellikle çakışma çözümünü kolaylaştırır; daha fazla bellek kullanır.
 
@@ -424,7 +424,7 @@ Yeni tabloda 10, 0'a; 15, 5'e; 20, başlangıcı 0 dolu olduğu için 1'e; 8 ise
 
 ## 20. En kötü, beklenen ve amortize: üç ayrı iddia
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
 
 **Problem.** “Hızlı” kelimesi farklı matematiksel iddiaları gizleyebilir. Hangi anlamı kullandığımızı söylemezsek mühendislik açısından yanlış karar verebiliriz.
 
@@ -442,7 +442,7 @@ Yeni tabloda 10, 0'a; 15, 5'e; 20, başlangıcı 0 dolu olduğu için 1'e; 8 ise
 
 ## 21. İkinci mola — hash tablosunu cevaplarla toparlayalım
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart 124–134. dakikalar arasındaki on dakikalık moladır. Yeni bir veri yapısı değildir. Aşağıdaki sorular, birbirine benzeyen kavramları ayırmak içindir.
 
@@ -460,7 +460,7 @@ Bu kart 124–134. dakikalar arasındaki on dakikalık moladır. Yeni bir veri y
 
 ## 22. İyi hash kuralı gerçek anahtarları yaymalıdır
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 **Problem.** Sensör kimlikleri `[10, 20, 30, 40]`. Mod 10 kuralı hepsini 0'a gönderir. On kovamız olsa bile dokuzu işe yaramaz.
 
@@ -481,7 +481,7 @@ Mod 7 bu dört anahtarı farklı kovalara dağıtır. Ancak “asal sayı seç, 
 
 ## 23. Çakışmalar neden beklenenden erken gelir?
 
-[Ders sayfasındaki örnek 23](../#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 23](../onceki-ders.html#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 **Problem.** 365 kovadan her birinin eşit olasılıkla seçildiğini ve seçimlerin bağımsız olduğunu varsayalım. Soru “belirli iki kaydın çakışması” değil, “grupta herhangi iki kaydın çakışması”dır. Bu iki soru çok farklıdır.
 
@@ -503,7 +503,7 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 
 ## 24. İki ölçümün toplamını bulmak
 
-[Ders sayfasındaki örnek 24](../#example-24) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 24](../onceki-ders.html#example-24) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 **Problem.** Ölçümler `[4, 7, 1, 6]`, hedef 10. Farklı iki konumdaki değerin toplamı 10 olsun istiyoruz. Bütün çiftleri denemek yerine, daha önce gördüğümüz değerleri bir hash kümesinde tutacağız.
 
@@ -522,7 +522,7 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 
 ## 25. Metin arama: önce hash, sonra gerçek harfler
 
-[Ders sayfasındaki örnek 25](../#example-25) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
+[Ders sayfasındaki örnek 25](../onceki-ders.html#example-25) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
 
 **Problem.** `ABRACADABRA` içinde `ABRA` arıyoruz. Metin uzunluğu N = 11, desen uzunluğu M = 4. Dört harflik pencereyi birer karakter kaydırırsak `N − M + 1 = 8` aday pencere oluşur. Konumlar 0'dan başlar.
 
@@ -554,7 +554,7 @@ Bu, **rolling hash**, yani kaydırılarak güncellenen hash fikridir. Python'da 
 
 ## 26. Parmak izi ipucudur; kimliğin kendisi değildir
 
-[Ders sayfasındaki örnek 26](../#example-26) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
+[Ders sayfasındaki örnek 26](../onceki-ders.html#example-26) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
 
 **Problem.** Dosyaları kısa hash değerleriyle grupluyoruz. Aynı hash'e sahip iki dosya görünce bunların aynı dosya olduğunu söyleyebilir miyiz? Matematiksel olarak hayır.
 
@@ -576,7 +576,7 @@ Dosyalar → hash hesapla → aynı hash'e sahip adayları grupla
 
 ## 27. Makinenin sorusuna göre veri yapısı seçmek
 
-[Ders sayfasındaki örnek 27](../#example-27) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
+[Ders sayfasındaki örnek 27](../onceki-ders.html#example-27) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
 
 **Problem.** İki mühendislik görevi düşünelim: “CAN kimliği 70 geldi; hangi işleyici çağrılacak?” ve “Zamanı 30 ile 60 arasında olan bütün ölçümleri getir.” İkisi de arama içerir ama ihtiyaçları aynı değildir.
 
@@ -595,7 +595,7 @@ Anahtarlar: 10  20  [30  40  50  60]  70  80
 
 ## 28. Son kontrol: seçiminizi ve işlemlerinizi açıklayın
 
-[Ders sayfasındaki örnek 28](../#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
+[Ders sayfasındaki örnek 28](../onceki-ders.html#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
 
 **Ağaç görevi.** Sırayla 30, 10, 50, 40 ekleyin. 30 kök; 10 solda; 50 sağda; 40, 50'nin solunda olur.
 

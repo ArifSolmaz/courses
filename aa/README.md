@@ -354,3 +354,52 @@ checks. Browser QA covers storage/policy traces, form feedback, keyboard,
 mobile/doubled text, no-JavaScript answer retention and A4 printing. The builder
 performs no deployment; this draft awaits review before publication. Technical
 checks do not measure student learning or the proposed class duration.
+
+## Fresh Week 5 teaching draft
+
+`tools/lessons/w5.html` is authored from the new plan and fresh Weeks 1–4,
+without using the previous Week 5 notes as teaching material. The builder
+copies it exactly to `w5/index.html`. It reuses the fresh Week 1 stylesheet
+and has three local model/style/enhancement files in `w5/`.
+
+The new contract maps a device ID to one current text value, rather than an
+arrival-list position. A dictionary get returns that record or no result; set
+inserts a new key or updates an existing value without increasing size. Two
+implementations share the contract: an unbalanced binary search tree and a
+separate-chaining hash table. Tree height counts edges (empty -1, leaf 0).
+Tree visits count abstract three-way comparisons; hash computation and bucket
+key equalities are separate units. A set is one logical dictionary operation,
+not one physical memory write; allocation and pointer writes are not counted.
+
+The same seven entries show a height-2 tree versus a height-6 chain under sorted
+insertion. A five-bucket modulo hash shows collisions, absent-key scanning,
+insertion and in-place updates. Bucket labels start at zero. Chains preserve
+insertion order; equal keys update in place. The load factor n/m is an average,
+not a worst-bucket bound. Expected O(1+alpha) is explicitly conditional on
+distribution and constant-work hashing; bounded load is necessary for the
+stated expected constant scale. Fixed m and arbitrary growth do not guarantee
+constant search. Balancing, resizing and deletion are outside this lesson.
+
+The widget starts from a prepared structure, then reveals one comparison,
+hash computation or logical set at a time. The guided 4/3 counts are a get
+after key 26 has already been inserted, not that insertion's comparison count.
+The independent task separately assesses tracing, mathematical meaning,
+conditional method choice and the connection between known positions,
+key-based lookup, collisions and updates. Automatic feedback checks four
+numbers only; the written reasoning uses a visible 0–2 rubric. There is no
+application-level answer storage or upload. Paper solutions, keyboard access
+and disabled-submit no-JavaScript fallback follow the earlier fresh lessons.
+
+The previous authored main is archived at `w5/onceki-ders.html`, preserving its
+URL depth and local assets. Its separate generated supplemental notes and old
+card data remain unchanged. Old technical-note links to the authored examples
+are moved to the archive through exact URL-only substitutions. Fresh Week 4
+gains one onward link; earlier lesson content and shared assets are preserved.
+
+Checks: `node aa/tools/verify_fresh_week5_model.cjs`,
+`python3 aa/tools/verify_fresh_week5.py`, the prior fresh-week exact-scope chain,
+and the existing alignment, redirect, learning-bridge and disposable rebuild
+checks. Browser QA covers all get/set scenarios, forms, keyboard, mobile and
+doubled text, no-JavaScript answer retention and A4 printing. These checks do
+not measure learning effect or class duration. No builder or verifier deploys
+the draft; it is prepared for review before publication.
