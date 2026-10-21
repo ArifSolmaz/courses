@@ -16,7 +16,7 @@ Bu notlar, **“Sorting, heaps and priority queues”** dersinin 28 kartını ay
 
 ## 1. Bir sonraki işi seçmenin üç kuralı
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** İşler A, B, C sırasıyla geliyor. Son teslim zamanları A için 9, B için 3, C için 7 milisaniye. “Sıradaki iş hangisi?” sorusu, bir seçim kuralı söylemeden cevaplanamaz.
 
@@ -34,7 +34,7 @@ Bu notlar, **“Sorting, heaps and priority queues”** dersinin 28 kartını ay
 
 ## 2. Minimumu kolay erişilir tutmak
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-0-2)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-0-2)
 
 **Problem.** Sürekli “en erken son teslim zamanı hangisi?” diye soruyoruz. Sırasız dizide bu soruya her defasında bütün kayıtları tarayarak cevap verebiliriz. Min-heap ise minimumu kökte tutar.
 
@@ -54,7 +54,7 @@ peek → 5; dizi değişmez
 
 ## 3. Sıralamaya neden emek harcıyoruz?
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** Ölçümler `[41, 7, 19, 3, 25, 12, 8]` sırasıyla gelmiş. Sıralanınca `[3, 7, 8, 12, 19, 25, 41]` olur. Bu yeni düzen bazı sonraki soruları kolaylaştırır; fakat düzeni kurmanın maliyeti vardır.
 
@@ -68,7 +68,7 @@ peek → 5; dizi değişmez
 
 ## 4. En yakın sayılar sıralanınca komşu olur
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Problem.** Önceki yedi ölçüm arasındaki en küçük mutlak farkı arıyoruz. Her çifti denemek `7 × 6 / 2 = 21` çift gerektirir. Sıralı dizide yalnızca altı komşu aralığına bakabiliriz.
 
@@ -89,7 +89,7 @@ peek → 5; dizi değişmez
 
 ## 5. Eşitlik durumunun kuralı da görevin parçasıdır
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **Problem.** Giriş sırası `Ece 90, Ali 85, Can 90, Deniz 85`. Notları büyükten küçüğe sıralıyoruz. Eşit notlarda kimin önce geleceği ayrıca tanımlanmalıdır.
 
@@ -111,7 +111,7 @@ Can 90 → Ece 90 → Ali 85 → Deniz 85
 
 ## 6. En ağır çifti hafifletmek için büyükle küçüğü eşleştirmek
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 **Problem.** Ağırlıklar `[1, 3, 5, 9]`. Her parça bir kez kullanılacak ve ikişerli gruplar kurulacak. Amaç, **en büyük çift toplamını en aza indirmek**; bütün ağırlıkların toplamını değiştirmek değil.
 
@@ -131,7 +131,7 @@ Can 90 → Ece 90 → Ali 85 → Deniz 85
 
 ## 7. Peek okur; extract çıkarır
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Problem.** Zamanlayıcıların son teslim değerleri `[5, 9, 7]`. Minimum 5'tir. Aynı minimum üzerinde iki farklı işlem yapabiliriz.
 
@@ -150,7 +150,7 @@ Can 90 → Ece 90 → Ali 85 → Deniz 85
 
 ## 8. Tekrar tekrar taramak seçim sıralamasını pahalı yapar
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 **Problem.** Her turda kalanların minimumunu seçip sıradaki çıktı konumuna koyuyoruz. Dört değer varken ilk minimum için üç karşılaştırma gerekir: bir geçici aday seçilir, diğer üç değer onunla karşılaştırılır.
 
@@ -169,7 +169,7 @@ Minimum karşılaştırma:3 + 2 + 1 + 0 = 6
 
 ## 9. Görseldeki işlemi Python ile çalıştırmak
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
 
 **Problem.** Python'ın `heapq` modülü normal listeyi min-heap olarak kullanır. Dersteki kodun yaptığı işlemler şunlardır:
 
@@ -197,7 +197,7 @@ Remaining heap: [5, 9, 7]
 
 ## 10. Heap'in iki kuralı vardır; tam sıralılık bunlardan biri değildir
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Problem.** `[1,3,2,5,4]` geçerli min-heap mi? Diziyi seviyeler halinde okuyalım.
 
@@ -219,7 +219,7 @@ Remaining heap: [5, 9, 7]
 
 ## 11. Kökün en küçük olması yeterli değildir
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 **Problem.** `[1,3,2,5,4]` ile `[1,5,2,3,4]` dizilerini karşılaştırın. İkisinin kökü de 1 ve ikisinde de 1 minimum. Fakat ikincisi geçerli heap değildir.
 
@@ -239,7 +239,7 @@ Geçersiz yapının alt kısmı:
 
 ## 12. İndeks konumdur; değer değildir
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 **Problem.** `[1,3,2,5,4]` dizisinde indeks 1'de değer 3 bulunur. Çocukları hesaplarken 3'ü değil, konum numarası olan 1'i kullanırız.
 
@@ -257,7 +257,7 @@ Geçersiz yapının alt kısmı:
 
 ## 13. Heap yolu neden kısa kalır?
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
 
 **Problem.** Yedi düğümlü tamamlanmış heap'te bir değer yapraktan köke en fazla kaç kenar geçer? Seviyeler 1, 2 ve 4 düğüm içerir; üç seviye ama iki kenarlık yükseklik vardır.
 
@@ -277,7 +277,7 @@ Geçersiz yapının alt kısmı:
 
 ## 14. İlk mola — düzen kurallarını toparlayalım
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart dersteki 78–88. dakikalar arasındaki moladır. Yeni algoritma yoktur. Aşağıdaki cevaplı sorular ilk bölümün temel ayrımlarını toplar.
 
@@ -295,7 +295,7 @@ Bu kart dersteki 78–88. dakikalar arasındaki moladır. Yeni algoritma yoktur.
 
 ## 15. Sona ekle, sonra yukarı taşı
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 **Problem.** `[2,4,3]` min-heap'ine 1 ekliyoruz. Önce şekli, sonra değer düzenini koruyacağız.
 
@@ -316,7 +316,7 @@ Sona ekle:          [2, 4, 3, 1]
 
 ## 16. Kökü çıkar, sonra aşağı taşı
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
 
 **Problem.** `[1,3,2,7,4]` içinden minimumu çıkaracağız. 1 döndürülür. Kökün boşluğunu son değer 4 ile doldurur ve son hücreyi kaldırırız.
 
@@ -337,7 +337,7 @@ Dönen değer:     1
 
 ## 17. Onarım maliyetini dizi büyümesinden ayırmak
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 **Problem.** Bir görselde iki takas gördük diye toplam işi iki kabul edemeyiz. Önce ne saydığımızı belirlemeliyiz.
 
@@ -356,7 +356,7 @@ Dönen değer:     1
 
 ## 18. Tek tek ekleyerek kurmak işi tekrarlayabilir
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 **Problem.** Boş min-heap'e `7,6,5,4,3,2,1` ekliyoruz. Her gelen değer öncekilerin hepsinden küçüktür; yeni yapraktan köke kadar çıkar.
 
@@ -380,7 +380,7 @@ Toplam `0+1+1+2+2+2+2 = 10` takas. Her eklemede köke kadar gidilmesi, bu girdiy
 
 ## 19. En alttaki ebeveynlerden başlayarak kurmak
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 **Problem.** `[9,4,7,1,3,8,2]` dizisini min-heap'e çevireceğiz. Çocukları zaten heap olan bir ebeveyni aşağı onarmak güvenlidir. Bu koşulu sağlamak için aşağıdan yukarıya gideriz.
 
@@ -402,7 +402,7 @@ Devam:    9 ↔ 3  [1, 3, 2, 4, 9, 8, 7]
 
 ## 20. Düğümlerin çoğunun aşağıda gidecek pek yeri yoktur
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
 
 **Problem.** Her onarıma O(log n) deyip n ile çarpmak O(n log n) üst sınır verir. Ancak alttan kurulum için bu sınır gereğinden büyüktür. Çünkü bütün düğümler kökün yüksekliğinden aşağı inemez.
 
@@ -423,7 +423,7 @@ Toplam 11 olası aşağı adım kapasitesi. Bu, tam 11 takas yapılacağını s�
 
 ## 21. İkinci mola — onarma ile kurmayı ayıralım
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart 124–134. dakikalar arasındaki moladır. Birkaç kısa gerekçe, formüllerden daha kalıcı olabilir.
 
@@ -441,7 +441,7 @@ Bu kart 124–134. dakikalar arasındaki moladır. Birkaç kısa gerekçe, form�
 
 ## 22. Artan yerinde heapsort neden max-heap kullanır?
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 **Problem.** `[4,1,3,2]` dizisini küçükten büyüğe, aynı dizi içinde sıralayacağız. Bu kez **max-heap** kullanıyoruz: en büyük kökte, son konuma konmaya hazırdır.
 
@@ -464,7 +464,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 23. İhtiyacın kadarını çıkar; sonra dur
 
-[Ders sayfasındaki örnek 23](../#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
+[Ders sayfasındaki örnek 23](../onceki-ders.html#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
 
 **Problem.** `[9,4,7,1,3,8,2]` içindeki üçüncü küçük oluşumu bulacağız. Tam sıralama `[1,2,3,4,7,8,9]` verir; üçüncü değer 3. Ancak bütün diziyi sıralamak zorunda değiliz.
 
@@ -478,7 +478,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 24. Sonraki olay, sonraki saat darbesi değildir
 
-[Ders sayfasındaki örnek 24](../#example-24) · [İlgili ders notu](../lecture-notes.html#topic-6)
+[Ders sayfasındaki örnek 24](../onceki-ders.html#example-24) · [İlgili ders notu](../lecture-notes.html#topic-6)
 
 **Problem.** A, B, C zamanlayıcıları ilk kez 5, 9, 7 ms'de çalışacak; periyotları da sırasıyla 5, 9, 7 ms. Min-öncelik kuyruğunda anahtar bir sonraki planlanmış zamandır.
 
@@ -501,7 +501,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 25. Değişmez: işlem boyunca korunan bilgi
 
-[Ders sayfasındaki örnek 25](../#example-25) · [İlgili ders notu](../lecture-notes.html#topic-0-3)
+[Ders sayfasındaki örnek 25](../onceki-ders.html#example-25) · [İlgili ders notu](../lecture-notes.html#topic-0-3)
 
 **Problem.** Birkaç örneği çalıştırmak bize güven verir ama bütün girdiler için doğruluk kanıtı değildir. Aşağı onarımı açıklamak için bir **değişmez (invariant)** kullanırız: hangi kısmın doğru kaldığını, hatanın nerede olabileceğini söyleriz.
 
@@ -515,7 +515,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 26. Veri yapısını tekrarlanan soruya göre seçmek
 
-[Ders sayfasındaki örnek 26](../#example-26) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 26](../onceki-ders.html#example-26) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** Bir sistem sürekli en erken işi istiyor; diğeri iki zaman arasındaki bütün kayıtları istiyor. Aynı kayıt türü farklı veri yapıları gerektirebilir.
 
@@ -529,7 +529,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 27. Küçük karşı örnekler büyük yanlış anlamaları gösterir
 
-[Ders sayfasındaki örnek 27](../#example-27) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 27](../onceki-ders.html#example-27) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 **İddia 1: “Her heap sıralıdır.”** `[1,3,2]` karşı örnektir. Kök 1 iki çocuğundan da büyük değildir; şekil geçerlidir. Fakat dizi artan değildir, çünkü 3 > 2. Geçerli bir heap bulduk ve iddianın sonucunun yanlış olduğunu gösterdik.
 
@@ -543,7 +543,7 @@ Dikey çizginin sağındaki bölüm sıralanmış son ektir; artık heap'in par�
 
 ## 28. Kur, onar ve gerekçesini açıkla
 
-[Ders sayfasındaki örnek 28](../#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
+[Ders sayfasındaki örnek 28](../onceki-ders.html#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
 
 **İki ayrı görev var.** Her ikisi de aynı başlangıçtan, `[1,3,2,7,4]` dizisinden başlıyor. Çıkarma görevini ekleme sonucunun üzerinde yapmıyoruz.
 

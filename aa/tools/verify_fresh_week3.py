@@ -191,6 +191,11 @@ def verify(root=ROOT, baseline=BASELINE):
                                         EXPECTED_NEW_FILES as W5_NEW_FILES)
         allowed_changes.update(W5_CHANGES)
         expected_new_files.update(W5_NEW_FILES)
+    if (root / 'tools/lessons/w6.html').is_file():
+        from verify_fresh_week6 import (SUCCESSOR_EXISTING_CHANGES as W6_CHANGES,
+                                        EXPECTED_NEW_FILES as W6_NEW_FILES)
+        allowed_changes.update(W6_CHANGES)
+        expected_new_files.update(W6_NEW_FILES)
     new_files = {path.relative_to(repo).as_posix() for path in root.rglob('*')
                  if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'
                  and path.relative_to(repo).as_posix() not in tracked}
@@ -254,7 +259,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'protected_existing_files': len(protected), 'protected_drift': drift,
         'new_files_in_exact_scope': sorted(new_files),
         'week1_all_files_byte_identical': True,
-        'other_week_main_pages_unchanged': (10 if (root / 'tools/lessons/w5.html').is_file()
+        'other_week_main_pages_unchanged': (9 if (root / 'tools/lessons/w6.html').is_file()
+                                          else 10 if (root / 'tools/lessons/w5.html').is_file()
                                           else 11 if successor else 12),
         'authorized_successor_audit': successor,
         'week2_change_is_only_one_onward_link': True,

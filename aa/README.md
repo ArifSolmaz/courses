@@ -403,3 +403,35 @@ checks. Browser QA covers all get/set scenarios, forms, keyboard, mobile and
 doubled text, no-JavaScript answer retention and A4 printing. These checks do
 not measure learning effect or class duration. No builder or verifier deploys
 the draft; it is prepared for review before publication.
+
+## Fresh Week 6 teaching draft
+
+`tools/lessons/w6.html` is authored from the new plan and fresh Weeks 1–5,
+without using the earlier Week 6 notes as teaching material. The existing
+builder copies it exactly to `w6/index.html`; it reuses the fresh Week 1
+stylesheet with three local model/style/enhancement files in `w6/`.
+
+The lesson moves from finding a record by its key to selecting the next item
+by priority. It separates the priority-queue contract, the heap representation,
+individual operations and their cost before guided and independent work.
+The independent work addresses tracing, mathematical meaning, method choice
+and connections to the preceding lessons. Numeric feedback and written
+reasoning are assessed separately. The next-week question does not route
+students into the unrevised Week 7 lesson.
+
+The former authored main remains at `w6/onceki-ders.html` at the same URL
+depth, with its original text, card data, scripts and local references. Its
+separate generated supplement, detailed lecture notes and Python runner
+remain byte-identical. Technical-note HTML and downloadable Markdown change
+only 58 old-card URLs: 28 example links in each format and two HTML return
+links. Fresh Week 5 gains one marked onward link. All earlier lesson sources
+and shared assets remain unchanged; no course-homepage layer is added.
+
+Checks: `node aa/tools/verify_fresh_week6_model.cjs`,
+`python3 aa/tools/verify_fresh_week6.py`, the nonrecursive fresh-week
+exact-scope chain and the alignment, redirect, learning-bridge and disposable
+rebuild verifiers. Browser QA checks the new interactions, form feedback,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and a small sample of preserved archive links. These checks do not measure
+learning effect or class duration. Publication requires a separate review;
+the builder and verifiers do not publish the draft.
