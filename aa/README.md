@@ -536,3 +536,37 @@ and the preserved archive entry links. These checks establish technical and
 presentation correctness, not learning effects or lesson duration. The draft
 is presented for review before publication; no builder or verifier publishes
 it.
+
+## Fresh Week 10 teaching draft
+
+`tools/lessons/w10.html` is independently authored from the new plan and fresh
+Weeks 1–9. The earlier Week 10 notes are used only as technical archive and
+URL-preservation fixtures. The unchanged builder copies the source exactly to
+`w10/index.html`, using the fresh Week 1 shared stylesheet and three local
+model/style/enhancement files.
+
+The lesson moves from directed dependencies to connecting an undirected
+weighted network. It separates the graph contract, components, Kruskal edge
+decisions, why accepted edges are safe and the meaning of cost before guided
+and independent work. Tracing, mathematical meaning, method choice and links
+between lessons address the four learning problems together. Numeric feedback
+and written reasoning remain separate. The next-week question does not lead
+into the unrevised Week 11 main.
+
+The former authored main stays at `w10/onceki-ders.html` at its original URL
+depth with all original text, styles, scripts, card data and local references.
+Its separate generated supplemental notes, detailed lecture notes, original
+sources and Python runner remain byte-identical. Technical-note HTML and
+Markdown change only the 46 inventoried old-card URLs: 22 example links in
+each format and two HTML return links. Fresh Week 9 gains one marked onward
+link; all Week 1–8 product files and shared assets remain unchanged.
+
+Checks: `node aa/tools/verify_fresh_week10_model.cjs`,
+`python3 aa/tools/verify_fresh_week10.py`, the nonrecursive fresh-week
+exact-scope chain and existing alignment, redirect, learning-bridge and
+disposable rebuild verifiers. Browser QA covers interactions, form feedback,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and the preserved archive entry links. These checks establish technical and
+presentation correctness, not learning effects or lesson duration. The draft
+is presented for review before publication; no builder or verifier publishes
+it.

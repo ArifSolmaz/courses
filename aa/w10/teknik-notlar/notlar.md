@@ -26,7 +26,7 @@ W'nin minimum ağacı AC, BC, BD, DE kenarlarını kullanır. Toplam 1+2+5+3=11.
 
 ## 1. Her istasyonu bağlamak, her çifti doğrudan bağlamak değildir
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** Fabrikadaki beş istasyonun haberleşmesi gerekiyor. Bir mesaj ara istasyonlardan aktarılabiliyorsa, A'dan E'ye doğrudan kablo çekmek zorunda değiliz. A—C—B—D—E gibi bir zincir de bütün istasyonları birbirine bağlar.
 
@@ -42,7 +42,7 @@ W'nin minimum ağacı AC, BC, BD, DE kenarlarını kullanır. Toplam 1+2+5+3=11.
 
 ## 2. Üç istasyonda bütün ağaçları karşılaştırmak
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Veri.** AB=1, BC=2, AC=3. Üç düğümün kapsayan ağacında iki kenar bulunur. Üç kenardan ikisini seçmenin üç yolu vardır.
 
@@ -64,7 +64,7 @@ En küçük toplam 3'tür. Dolayısıyla AB ve BC, bu grafın tek MST'sidir. “
 
 ## 3. Bütün olasılıkları denemek neden büyür?
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **Problem.** W grafının beş düğümü için yedi olası kenardan dört tanesini seçiyoruz. Seçim sırası önemli değildir: AB,AC,BC,DE ile aynı dört kenarı başka sırada yazmak yeni aday oluşturmaz.
 
@@ -86,7 +86,7 @@ Bir kontrol yöntemi, kenarları sırayla ekleyip her eklemenin iki ayrı grubu 
 
 ## 4. Kesitin iki tarafını gerçekten ayırmak
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 W'nin düğümlerini **{A,B,C}** ve **{D,E}** diye ayıralım. Bütün düğümler bir tarafta bulunur; hiçbir düğüm iki tarafta birden bulunmaz.
 
@@ -108,7 +108,7 @@ Bu kesitin en ucuz kenarı BD=5'tir. **Kesit özelliği**, en hafif kesit kenar�
 
 ## 5. Bir kenar ekleyip bir kenar çıkarmak
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 **Başlangıç ağacı.** AB,BC,CD,DE; maliyeti 4+2+8+3=17. B ile D arasında mevcut yol B—C—D'dir.
 
@@ -130,7 +130,7 @@ Ağaca bir kenar eklenince tam bir çevrim oluşur: yeni kenar ve uçları aras�
 
 ## 6. Prim bir bağlı parçayı büyütür
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Başlangıç.** W üzerinde A içeride; B,C,D,E dışarıda. Henüz kablo seçilmedi. Prim her adımda içerideki bir düğümle dışarıdaki bir düğümü bağlayan en ucuz kenarı alır.
 
@@ -151,7 +151,7 @@ Her kabul, mevcut ağaca tam bir yeni düğüm ekler. Böylece seçilen kenarlar
 
 ## 7. Prim'in anahtarı yol uzunluğu değildir
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 Her dış düğüm için **key**, şu anki ağaca bağlayan en ucuz tek kenarın ağırlığını tutar. Henüz böyle bir kenar bilinmiyorsa anahtar sonsuz kabul edilir; görselde çizgiyle gösterilebilir.
 
@@ -172,7 +172,7 @@ C eklenince B için 4 yerine 2 önerilir. B eklenince D için 8 yerine 5 öneril
 
 ## 8. Çalışma maliyeti uygulamaya bağlıdır
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
 
 Aynı algoritmik fikir farklı veri yapılarıyla uygulanabilir. Bu yüzden “Prim'in maliyeti nedir?” sorusunu, hangi uygulamadan söz ettiğimizi belirterek cevaplarız.
 
@@ -194,7 +194,7 @@ Aynı algoritmik fikir farklı veri yapılarıyla uygulanabilir. Bu yüzden “P
 
 ## 9. İlk mola: güvenli seçim ne demek?
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalar arasındaki moladan sonra W grafında şu üç soruyu cevaplayın.
 
@@ -210,7 +210,7 @@ Aynı algoritmik fikir farklı veri yapılarıyla uygulanabilir. Bu yüzden “P
 
 ## 10. Kruskal aynı anda birkaç parça büyütebilir
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 Kruskal, W'nin bütün kenarlarını küçükten büyüğe sıralar: AC=1, BC=2, DE=3, AB=4, BD=5, CD=8, CE=10. Başlangıçta her düğüm ayrı gruptur.
 
@@ -234,7 +234,7 @@ AB'nin uçları zaten A—C—B yoluyla bağlıdır. AB eklenirse çevrim kapan�
 
 ## 11. Yedi düğümlü örnekte aynı kuralı sürdürmek
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 **H grafı.** AD=5, CE=5, DF=6, AB=7, BE=7, BC=8, EF=8, BD=9, EG=9, FG=11, DE=15. Düğümler A–G. Eşit ağırlıklarda demo bu listedeki giriş sırasını korur.
 
@@ -260,7 +260,7 @@ Yedi düğüm için altı kabul edilmiş kenar gerekir. Seçilenlerin maliyeti 5
 
 ## 12. Union-find düğümleri değil, grupları karşılaştırır
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 Başlangıçta 1,2,3,4,5,6 ayrı gruplardır. Her elemanın parent kaydı kendisini gösterir. Kök, grubun temsilcisidir; “grubun fiziksel merkezi” olmak zorunda değildir.
 
@@ -282,7 +282,7 @@ Başlangıçta 1,2,3,4,5,6 ayrı gruplardır. Her elemanın parent kaydı kendis
 
 ## 13. Küçük grubu büyüğün altına bağlamak
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
 
 Parent bağlantıları gelişigüzel kurulursa sekiz eleman 8→7→6→5→4→3→2→1 zinciri oluşturabilir. 8'in kökünü bulmak yedi bağlantı izlemeyi gerektirir.
 
@@ -306,7 +306,7 @@ Bu nedenle n=8 için bir eleman en fazla üç seviye derinleşebilir. Genel sın
 
 ## 14. Arama, sonrakiler için kısa yol bırakabilir
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 Örnek 12'de birleşmeden sonra 4→3→1 ve 1→1 olsun. `find(4)` kökü arar.
 
@@ -328,7 +328,7 @@ Sonra: 4 ───→ 1
 
 ## 15. Neredeyse sabit, her çağrıda tek işlem demek değildir
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 Sekiz elemanlı uzun zincirin en derin elemanında arka arkaya sekiz `find` yapalım. Arada yeni union yapılmadığını varsayıyoruz. Burada sayılan şey köke ulaşırken izlenen parent bağlantılarıdır.
 
@@ -349,7 +349,7 @@ Sekiz elemanlı uzun zincirin en derin elemanında arka arkaya sekiz `find` yapa
 
 ## 16. İkinci mola: üç ayrı ağacı karıştırmamak
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalar arasındaki moladan sonra şu ayrımları tekrar edin.
 
@@ -369,7 +369,7 @@ Sekiz elemanlı uzun zincirin en derin elemanında arka arkaya sekiz `find` yapa
 
 ## 17. Kablo fiyatlarını değiştirip sonucu yeniden hesaplamak
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 Editörde düğümler A,B,C,D,E olarak sabittir. Her satıra `A B 4` gibi iki uç ve maliyet girilir. Kenarlar yönsüzdür; AB ile BA ayrı kablolar değildir. Kendine kenar ve tekrarlanan uç çiftleri bu editörün basit graf modeline uymaz.
 
@@ -392,7 +392,7 @@ Gruplar {A,B}, {C,D}, {E}; toplam 6. Üç bileşen kaldığından bütün beş d
 
 ## 18. Python'da Kruskal'ı satır satır izlemek
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
 
 Ders sayfasındaki kod aşağıdadır. `input()` kullanılmaz; düğümler ve kenarlar kodun başında tanımlıdır. Ana örnekteki Run düğmesiyle çalıştırabilirsiniz.
 
@@ -469,7 +469,7 @@ MST
 
 ## 19. En ucuz ağ, her yolculuğu en kısa yapmaz
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
 
 **Veri.** AB=2, BC=2, AC=3. Kapsayan ağaç seçenekleri AB+BC=4, AB+AC=5, BC+AC=5. Minimum ağ AB ve BC'dir.
 
@@ -489,7 +489,7 @@ AC'yi de kurarsak A–C yolculuğu 3'e düşer fakat toplam kurulum 2+2+3=7 olur
 
 ## 20. Eşit maliyetler, çok sayıda cevap zorunluluğu değildir
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-3)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-3)
 
 İki üçgeni karşılaştıralım. Her üçgende üç farklı iki-kenarlı kapsayan ağaç vardır.
 
@@ -510,7 +510,7 @@ AC'yi de kurarsak A–C yolculuğu 3'e düşer fakat toplam kurulum 2+2+3=7 olur
 
 ## 21. Ağ geçidi ve üç sensör için gerçek tasarım sorusu
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
 
 A ağ geçidi, B,C,D veri aktarabilen sensörler olsun. Güzergâh uzunlukları BC=2, AB=3, CD=4, AC=5, BD=7, AD=8 metredir. Bunlar izin verilen kablo güzergâhlarının uzunluklarıdır; çizimdeki düz çizginin ölçeği değildir.
 
@@ -534,7 +534,7 @@ Rota toplamı: 4+2+3 = 9 metre
 
 ## 22. Ağacı başka amaçlarla kullanırken varsayımları korumak
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
 
 **Kümeleme örneği.** A—B—C—D—E zincirinin ağırlıkları sırasıyla 1,1,8,1 olsun. Büyük 8 bağlantısı C—D arasındadır. Onu kaldırınca {A,B,C} ve {D,E} grupları oluşur.
 
