@@ -19,7 +19,7 @@ Bu hafta büyük formüllerden önce dört soruyu ayırıyoruz: Bir çözüm **b
 
 ## 1. Çözümü bulmak ile verileni kontrol etmek farklı işlerdir
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 Görev süreleri 8,7,6,5,4. Bir makineye toplam 15 verecek görevleri seçmek istiyoruz. Birisi “8 ve 7'yi al” dediğinde toplamı kontrol etmek kolaydır: 8+7=15. Ama cevap verilmemişse hangi görevlerin seçileceğini aramamız gerekir.
 
@@ -39,7 +39,7 @@ Görev süreleri 8,7,6,5,4. Bir makineye toplam 15 verecek görevleri seçmek is
 
 ## 2. Önce hangi soruyu sorduğunuzu belirleyin
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 Aynı beş işi iki özdeş makineye dağıtalım. Her iş bölünmeden bir makinede tamamlanıyor; işler baştan hazır, bağımsız ve süreleri sabit.
 
@@ -59,7 +59,7 @@ Makine yükleri 15 ve 15 olan dağılım, karar sorusuna evet tanığıdır. Den
 
 ## 3. P ve NP tam olarak ne söyler?
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **P:** Girdi uzunluğuna göre polinom zamanda evet/hayır cevabı bulunabilen karar problemleri. **NP:** Evet örnekleri için polinom uzunlukta bir tanığın polinom zamanda doğrulanabildiği karar problemleri.
 
@@ -75,7 +75,7 @@ NP'deki N, “not” anlamında değildir; adın kökeni nondeterministic polyno
 
 ## 4. Hız sözü vermeden önce adayları sayın
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 n görevin her biri ya alınır ya alınmaz: 2ⁿ alt küme. Her yeni görev eski her seçimi ikiye ayırır; yeni görevi içeren ve içermeyen sürümler.
 
@@ -97,7 +97,7 @@ n görevin her biri ya alınır ya alınmaz: 2ⁿ alt küme. Her yeni görev esk
 
 ## 5. Küçük ifade farkları problemi değiştirebilir
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
 
 Euler turu her **kenarı**, Hamilton çevrimi her **düğümü** bir kez kullanmayı ister; ikisi de başlangıca döner. Hamilton çevriminde başlangıç düğümü kapanış için tekrar yazılır; diğer ziyaretler tekrarlanmaz.
 
@@ -116,7 +116,7 @@ Benzer biçimde 2-SAT polinom zamanda çözülürken 3-SAT NP-tamdır. “Yalnı
 
 ## 6. İndirgeme cevabı koruyan bir çeviridir
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 `A ≤p B`, A örneğini polinom zamanda bir B örneğine dönüştürebildiğimiz ve **A evet ancak ve ancak B evet** olduğu anlamına gelir. Burada kullanılan tür, polinom zamanda çoktan-bire indirgemedir.
 
@@ -136,7 +136,7 @@ A girdisi x → çevirici f → B girdisi f(x) → B çözücüsü → A için a
 
 ## 7. Sıralamayı kullanarak yakın sayı çiftini bulmak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 Girdi 9,2,6,3. Farklı iki konumdaki sayılar arasında en küçük mutlak farkı arıyoruz. Sıralayınca 2,3,6,9 elde edilir.
 
@@ -158,7 +158,7 @@ Girdi 9,2,6,3. Farklı iki konumdaki sayılar arasında en küçük mutlak fark�
 
 ## 8. Yeni problemi zor göstermek için oku ona doğru çizin
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
 
 A bilinen NP-tam karar problemi, B yeni karar problemi olsun. B'nin NP-tamlığını göstermek için iki ayrı bölüm gerekir.
 
@@ -177,7 +177,7 @@ A bilinen NP-tam karar problemi, B yeni karar problemi olsun. B'nin NP-tamlığ�
 
 ## 9. İlk mola: iddianın ne olduğunu söyleyin
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalardaki moladan sonra aşağıdaki cümleleri karşılaştırın.
 
@@ -199,7 +199,7 @@ A bilinen NP-tam karar problemi, B yeni karar problemi olsun. B'nin NP-tamlığ�
 
 ## 10. SAT: bütün kuralları sağlayan anahtar ayarları var mı?
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 Formül `(a VEYA b) VE (DEĞİL a VEYA c)`. Değişken doğru/yanlış anahtarıdır. Literal değişkenin kendisi veya değillenmiş hâlidir. Bir yan tümce içindeki VEYA için en az bir literal, yan tümceler arasındaki VE için bütün yan tümceler doğru olmalı.
 
@@ -226,7 +226,7 @@ Formül `(a VEYA b) VE (DEĞİL a VEYA c)`. Değişken doğru/yanlış anahtarı
 
 ## 11. Uzun bir yan tümceyi yeni değişkenle bölmek
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 `a VEYA b VEYA c VEYA d` yerine iki yan tümce kuruyoruz:
 
@@ -254,7 +254,7 @@ w yeni bir değişkendir. Soru “her w değeri çalışıyor mu?” değil, **�
 
 ## 12. Koridorları uç noktalara kamera koyarak kapsamak
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 Graf A–B–C–D: kenarlar AB,BC,CD. Kamera bir düğüme konur ve ona değen kenarları kapsar. B ve C seçilince bütün kenarlar kapsanır. Bu, düğüm örtüsüdür; amaç bütün düğümleri seçmek değildir.
 
@@ -277,7 +277,7 @@ n düğümde en fazla k boyutlu örtü vardır ancak ve ancak en az n−k boyutl
 
 ## 13. Bu kez grafın tümleyenini almak
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 Önceki bölümde düğüm kümesinin tümleyenini aldık. Şimdi aynı düğümleri koruyup grafın kenarlarını değiştiriyoruz. Basit yönsüz grafta farklı düğümler arasındaki her mevcut kenar silinir, her eksik kenar eklenir.
 
@@ -302,7 +302,7 @@ Tümleyenin kenarları AC,AD,BD. A,D orijinalde bağımsız bir küme; tümleyen
 
 ## 14. 3-SAT seçimlerini grafa kodlamak
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
 
 Bu isteğe bağlı derinleşme örneği, küçük parçaların genel bir indirgeme kanıtına nasıl dönüştüğünü gösterir. n değişken, her biri üç literal oluşumu içeren m yan tümce var.
 
@@ -326,7 +326,7 @@ Bu parçaların düğümleri ayrıdır. Bütçe tam alt sınıra eşit olduğu i
 
 ## 15. Eşit makine yükü bir bölüştürme sorusudur
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 8,7,6,5,4 toplamı 30. Partition, bütün sayıları iki gruba tam birer kez koyarak toplamları eşitlemenin mümkün olup olmadığını sorar. Burada 8+7=15 ve 6+5+4=15 bir tanıktır.
 
@@ -344,7 +344,7 @@ Bu parçaların düğümleri ayrıdır. Bütçe tam alt sınıra eşit olduğu i
 
 ## 16. İkinci mola: hangi şeyin tümleyenini aldık?
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalardaki moladan sonra üç dönüşümü kendi cümlenizle açıklayın.
 
@@ -364,7 +364,7 @@ Bu parçaların düğümleri ayrıdır. Bütçe tam alt sınıra eşit olduğu i
 
 ## 17. Hızlı bir plan iyi olabilir, en iyi olmayabilir
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 LPT yöntemi işleri büyükten küçüğe sıralar ve her işi o anda daha az yüklü makineye verir. Eşitlikte ilk makine seçiliyor.
 
@@ -388,7 +388,7 @@ Bitiş süresi büyük yük olan 17. Geçerli bir plan, fakat 8+7 ve 6+5+4 dağ�
 
 ## 18. Bildiğiniz şeyi alt ve üst sınırla ifade edin
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 Bu örnekte makinelere atanmış toplam işler 30,40,25 dakika; bir işin zorunlu sıralı işlem zinciri 35 dakika. Geçerliliği ayrıca kontrol edilmiş bir çizelgenin süresi 46 dakika.
 
@@ -411,7 +411,7 @@ Bu örnekte makinelere atanmış toplam işler 30,40,25 dakika; bir işin zorunl
 
 ## 19. Basit düğüm örtüsü algoritmasının iki kat garantisi
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
 
 Ağırlıksız minimum düğüm örtüsü arıyoruz. Kapsanmamış bir kenar seç, **iki ucunu da** örtüye al, bu uçlara değen bütün kenarları kalan listeden çıkar. Kenar kalmayana kadar sürdür.
 
@@ -429,7 +429,7 @@ Bu kanıt düğüm sayısını minimize eden ağırlıksız model içindir. Dü�
 
 ## 20. MST tur garantisi metrik uzaklıklar ister
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 Birim karenin dört köşesi A,B,C,D sırayla çevrede olsun. Komşu köşeler arası 1, köşegenler √2. Tam yönsüz grafta bütün çiftler arasında doğrudan uzaklık vardır.
 
@@ -448,7 +448,7 @@ Birim karenin dört köşesi A,B,C,D sırayla çevrede olsun. Komşu köşeler a
 
 ## 21. Python ile önce doğrula, sonra küçük bir tam arama yap
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 Ana sayfadaki **Run** düğmesinin kodu aşağıdadır. Görev indeksleri 0'dan başlar. `[0,1]`, 8 ve 7 süreli iki işi belirtir. `input()` kullanılmaz.
 
@@ -511,7 +511,7 @@ Valid: (2, 3, 4) [6, 5, 4]
 
 ## 22. Sonuç verirken doğru garantiyi seçin
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 Bir mühendislik probleminde ilk iş “hangi algoritmayı yazalım?” sorusundan önce girdi, kısıt ve amacı açıklaştırmaktır. İki özdeş makine mi, farklı makineler mi? İşler bölünebilir mi? Öncelik veya teslim süresi var mı? Küçük model değişikliği çözüm yöntemini etkileyebilir.
 
