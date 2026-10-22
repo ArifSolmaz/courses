@@ -14,6 +14,10 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGES = {0: 'aa/index.html', **{n: f'aa/w{n}/index.html' for n in range(1, 15)}}
+# The simplified dashboard retains the complete original bridge panel on its
+# byte-preserved, same-depth archive. Continue testing every original check.
+if (ROOT / 'aa/tools/lessons/home.html').is_file():
+    PAGES[0] = 'aa/previous-home.html'
 # The independently authored main deliberately has no legacy bridge panel.
 # Keep exercising that complete, unmodified panel on its archived route.
 LEGACY_BASELINES = {
@@ -884,6 +888,10 @@ def check_math():
 
 
 def reference_source(week, path):
+    if week == 0 and path == 'aa/previous-home.html':
+        return subprocess.check_output(
+            ['git', 'show', '239ea38383883381cd6e150bb2c9e665422612b2:aa/index.html'], cwd=ROOT,
+        ).decode('utf-8')
     if week in FRESH_WEEKS:
         # Pin the last reviewed complete lesson, so preservation remains
         # meaningful after the fresh lesson itself is eventually committed.

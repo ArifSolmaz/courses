@@ -56,7 +56,7 @@
     else if (!revealed) status = 'Başlangıç: bakılacak konum 1. Henüz bir değer–hedef karşılaştırması yapılmadı.';
     else if (finished && trace.position !== null) status = 'Bulundu: ilk eşleşme konum ' + trace.position + '. Sonuç ' + trace.position + '. Arama durdu; sonraki kayıtlara bakılmıyor.';
     else if (finished) status = 'Bütün ' + trace.values.length + ' kayıt kontrol edildi. Hiçbiri hedef değil. Sonuç: “yok”.';
-    else status = 'Konum ' + revealed + ' hedef değil. Önceki kayıtların hepsini eledik. Sırada konum ' + (revealed + 1) + ' var.';
+    else status = 'Konum ' + revealed + ' içindeki değer hedefe eşit değil. Önceki kayıtların hepsini eledik. Sırada konum ' + (revealed + 1) + ' var.';
     $('trace-status').textContent = status;
   }
 
@@ -144,7 +144,10 @@
       if (event.target.hasAttribute('aria-invalid')) event.target.removeAttribute('aria-invalid');
     });
   }
-  document.querySelectorAll('.js-only').forEach(node => { node.hidden = false; });
+  document.querySelectorAll('.js-only').forEach(node => {
+    node.hidden = false;
+    if (node.matches('button[type="submit"]')) node.disabled = false;
+  });
   const worked = document.querySelector('.worked-table');
   worked.open = false;
   let workedWasOpen = false;

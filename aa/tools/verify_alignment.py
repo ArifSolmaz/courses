@@ -107,8 +107,20 @@ for folder,needles in (('scope',['What the exams cover','id="midterm"','id="fina
 s=(root/'scope/index.html').read_text();assert s.count('class="sample-question"')==4 and 'ungraded' in s
 s=(root/'textbook-problems/index.html').read_text();assert len(re.findall(r'id="p2-\d+"',s))==51 and sum(map(len,textbook_articles().values()))==53
 home=(root/'index.html').read_text();check_links(root/'index.html',home)
-for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in home,x
-print('Scope, review and textbook-problems pages exist and are linked from the dashboard and every week.')
+if (root/'tools/lessons/home.html').is_file():
+ assert (root/'index.html').read_bytes()==(root/'tools/lessons/home.html').read_bytes()
+ assert 'href="resources/"' in home
+ for n in range(1,15):assert f'href="w{n}/"' in home,(n,'fresh route entry')
+ for source,destination in (('resources.html','resources/index.html'),('teaching.html','resources/teaching/index.html'),('w1.tr.html','w1/tr/index.html')):
+  assert (root/destination).read_bytes()==(root/'tools/lessons'/source).read_bytes()
+  check_links(root/destination,(root/destination).read_text())
+ reference=(root/'resources/index.html').read_text()
+ for x in ('href="../scope/"','href="../review/"','href="../textbook-problems/"'):assert x in reference,x
+ legacy=(root/'previous-home.html').read_text();check_links(root/'previous-home.html',legacy)
+ for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in legacy,x
+else:
+ for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in home,x
+print('Scope, review and textbook-problems pages are preserved; the fresh route collects them under additional resources.')
 
 # The student route is only dashboard plus weekly pages; old libraries redirect.
 for n in range(1,15):

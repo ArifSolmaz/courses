@@ -21,6 +21,12 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 MAIN_PAGES = ['index.html'] + [f'w{n}/index.html' for n in range(1, 15)]
+MAIN_PAGES += [f'w{n}/tr/index.html' for n in range(1, 15)
+               if (ROOT / f'tools/lessons/w{n}.tr.html').is_file()]
+MAIN_PAGES += [destination for source, destination in (
+    ('resources.html', 'resources/index.html'),
+    ('teaching.html', 'resources/teaching/index.html'),
+) if (ROOT / 'tools/lessons' / source).is_file()]
 
 
 def snapshot(root):

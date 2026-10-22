@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Bir algoritmadan hangi sonucu bekliyoruz? Tek bir kayıt aramasıyla girdi, çıktı, adım, karar ve durmayı öğren.">
+<title>Hafta 1 · Önce sonucu tarif et · AA</title>
+<link rel="stylesheet" href="../lesson.css?v=1">
+<link rel="stylesheet" href="../../assets/lesson-language.css?v=1">
+<link rel="alternate" hreflang="en" href="../">
+<script defer src="../model.js?v=1"></script>
+<script defer src="../lesson.js?v=2"></script>
+</head>
+<body>
+<a class="skip" href="#main">Derse geç</a>
+<header class="course-header"><a href="../../" aria-label="Algoritma Analizi ana sayfası">AA <span>Algoritma Analizi</span></a><div class="header-end"><span class="week-label">Hafta 1 / 14</span><nav class="language-switch" aria-label="Ders dili"><a href="../" lang="en" hreflang="en">English</a><span aria-current="page" lang="tr">Türkçe</span></nav></div></header>
+<main id="main">
+<section class="intro" aria-labelledby="lesson-title">
+<p class="eyebrow">Bir yöntemi anlamak · İlk adım</p>
+<h1 id="lesson-title">Önce sonucu<br>tarif et.</h1>
+<p class="lead">Bir algoritmayı anlamak, hangi cevabı aradığımızı bilmekle başlar. Bu derste tek bir işi ele alacağız: gelen kayıtlarda bir cihazın <em>ilk mesajını</em> bulmak.</p>
+<div class="lesson-facts"><span>Ön bilgi: basit aritmetik</span><span>Gereken: kâğıt ve kalem</span><span>Python bilmek gerekmiyor</span></div>
+<p class="destination"><strong>Ders sonunda:</strong> yöntemi yeni bir listede elle yürütebilecek, ne zaman durduğunu açıklayabilecek ve istek değişince neden aynı cevabın yetmediğini göstereceksin.</p>
+<nav class="lesson-route" aria-label="Dersin sırası"><a href="#problem">İşi tanımla</a><a href="#trace">Adımları izle</a><a href="#guided">Birlikte dene</a><a href="#practice">Kendin çöz</a></nav>
+</section>
+
+<section id="problem" aria-labelledby="problem-title">
+<span id="bridge-path" class="compat-anchor" aria-hidden="true"></span><span id="learning-bridge-w1" class="compat-anchor" aria-hidden="true"></span>
+<p class="eyebrow">01 · Ne arıyoruz?</p><h2 id="problem-title">Cihazın kimliği ile mesajın konumu farklı şeyler.</h2>
+<p>Bir bakım ekibi, cihazlardan gelen mesajları geliş sırasıyla saklıyor. Aşağıdaki sayılar mesajı gönderen cihazların kimlikleri. Aynı cihaz tekrar mesaj gönderebildiği için listede yinelenen değer olabilir.</p>
+<div class="record-list" aria-label="Konum 1: 18; konum 2: 7; konum 3: 18; konum 4: 24"><div><small>konum 1</small><b>18</b></div><div><small>konum 2</small><b>7</b></div><div><small>konum 3</small><b>18</b></div><div><small>konum 4</small><b>24</b></div></div>
+<p>Ekibin sorusu: <strong>“24 numaralı cihazın ilk mesajı hangi konumda?”</strong> Cevap <strong>4</strong>. Çünkü 24 değeri dördüncü kayıtta.</p>
+<div class="contract"><h3>İşin anlaşması</h3><dl><div><dt>Girdi</dt><dd>Mesaj kimliklerinin sonlu bir listesi ve aranan kimlik, yani <strong>hedef</strong>.</dd></div><div><dt>Beklenen çıktı</dt><dd>Hedefin <strong>ilk görüldüğü konum</strong>. Hedef yoksa “yok”.</dd></div><div><dt>Konum kuralı</dt><dd>Bu dersin konumları <strong>1'den başlıyor</strong>. Boş listede hiçbir konum yok.</dd></div></dl></div>
+<p>Bu anlaşma, neyin doğru cevap olduğunu belirler. Hedef 18 olsaydı cevap 1 olurdu: üçüncü kayıtta da 18 var, ama istenen <em>ilk</em> mesaj.</p>
+<aside class="pause"><h3>Dur ve söyle</h3><p>“Hedef 24; sonuç 4.” Bu iki sayının her biri neyi anlatıyor? Listeyi sıraya koyarsan geliş konumlarını aynı biçimde kullanabilir misin?</p><details><summary>Düşündükten sonra karşılaştır</summary><p>24 cihazın kimliği, 4 mesajın geliş konumu. Listeyi sıralamak kayıtların yerini değiştirir. İşimiz özgün geliş konumunu bulmak olduğu için bu listede sırayı koruyoruz.</p></details></aside>
+</section>
+
+<section id="trace" aria-labelledby="trace-title">
+<p class="eyebrow">02 · Bir kuralı yürüt</p><h2 id="trace-title">Bir kayda bak.<br>Karar ver. Gerekirse ilerle.</h2>
+<p>Henüz bir programlama diline ihtiyacımız yok. <strong>Algoritma</strong>, bu işi bitirmek için izlediğimiz açık adımlar. Burada soldan sağa bakacağız ve ilk eşleşmede duracağız.</p>
+<ol class="method"><li>İlk konumdan başla.</li><li>Bakılacak konum kalmadıysa “yok” sonucu ver ve bitir.</li><li>Bu konumdaki değer hedefe eşitse konumu ver ve bitir.</li><li>Eşit değilse sonraki konuma geç; ikinci adımdan sürdür.</li></ol>
+<p>Tekrarlanan bölüm bir <strong>döngü</strong>: aynı kuralı yeni konumda yeniden uygularız. <strong>Durum</strong>, o anda nerede olduğumuz ve şimdiye kadar ne bildiğimizdir. Örneğin ikinci konuma gelmeden önce ilk kaydın hedef olmadığını öğrenmişizdir.</p>
+<p class="caption">Karşılaştırmaları yazarken <code>=</code> “eşittir”, <code>≠</code> “eşit değildir” anlamına gelir. Örneğin 18 ≠ 24: iki değer farklıdır.</p>
+<details class="code-note" open><summary>Aynı adımları sözde kodda gör</summary><p>Bu, belirli bir programlama dilinin kodu değil. <code>←</code> “sağdaki bilgiyi soldaki ada koy” demek. İçeri girintili satırlar tekrarın içinde yapılır.</p><pre><code>konum ← 1
+konum listede olduğu sürece:
+    değer ← bu konumdaki kayıt
+    değer hedefe eşitse: konumu ver ve dur
+    konumu bir artır
+“yok” ver</code></pre><p><code>konum</code> adını verdiğimiz bilgi değişir: 1, sonra gerekirse 2, 3… Hedef bulunduğunda “dur” dediğimiz için alttaki “yok” sonucuna geçilmez.</p></details>
+<div id="trace-widget" class="trace-widget js-only" hidden>
+<div class="widget-heading"><h3>Bir sonraki adımı sen aç</h3><label for="trace-case">Örnek<select id="trace-case"><option value="worked">Örnek · 24</option><option value="early">Erken · 7</option><option value="duplicate">Tekrar · 18</option><option value="absent">Yok · 99</option><option value="empty">Boş · 24</option></select></label></div>
+<div id="trace-records" class="record-list" aria-label="İzlenecek kayıtlar"></div>
+<p class="trace-target">Aranan kimlik: <strong id="trace-target">24</strong></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Açılan arama adımları"><table><thead><tr><th scope="col">Bakılan konum</th><th scope="col">Değer</th><th scope="col">Hedefe eşit mi?</th><th scope="col">Karar</th></tr></thead><tbody id="trace-rows"></tbody></table></div>
+<p id="trace-status" class="status" role="status" aria-live="polite"></p>
+<div class="widget-actions"><button type="button" id="trace-next">Bir kaydı kontrol et</button><button type="button" id="trace-reset" class="secondary">Başa dön</button><span id="trace-count">0 eşitlik kontrolü</span></div>
+<p class="caption">Sayaç yalnız “bu değer hedefe eşit mi?” sorularını sayar. Konum artırma ve döngü koşulu bu sayaca dahil değil.</p>
+</div>
+<details class="worked-table" open><summary>Ana örneğin tamamını kâğıtta kontrol et</summary><p>Liste [18, 7, 18, 24], hedef 24. Her satır bir eşitlik kontrolüdür.</p><div class="table-scroll" role="region" tabindex="0" aria-label="Çözümlü izleme tablosu"><table><thead><tr><th>Konum</th><th>Değer</th><th>Eşit mi?</th><th>Karar</th></tr></thead><tbody><tr><td>1</td><td>18</td><td>Hayır</td><td>Konum 2'ye geç.</td></tr><tr><td>2</td><td>7</td><td>Hayır</td><td>Konum 3'e geç.</td></tr><tr><td>3</td><td>18</td><td>Hayır</td><td>Konum 4'e geç.</td></tr><tr><td>4</td><td>24</td><td>Evet</td><td>4 sonucunu ver ve dur.</td></tr></tbody></table></div><p><strong>Sonuç 4; eşitlik kontrolü sayısı 4.</strong> Biri konum, diğeri yapılan işin sayısıdır. Bu örnekte aynı sayı olmaları aynı şeyi ölçtükleri anlamına gelmez.</p></details>
+</section>
+
+<section id="meaning" aria-labelledby="meaning-title"><p class="eyebrow">03 · Sayının anlamını kur</p><h2 id="meaning-title">4, 2 ve 7 hangi soruların cevabı?</h2>
+<p>Aynı listede bu kez <strong>hedef 7</strong> olsun. Önce 18'e, sonra 7'ye bakarız ve dururuz. Liste hâlâ dört kayıt içerir; ama yalnız iki eşitlik kontrolü yaptık.</p>
+<div class="meaning-grid"><article><b>4</b><h3>Kaç kayıt var?</h3><p>Listenin uzunluğu. Buna kısaca <code>n</code> diyeceğiz: burada <code>n = 4</code>.</p></article><article><b>2</b><h3>Hangi konumda bulduk?</h3><p>Sonuç konumu. Kontrol sayısı da bu örnekte 2; çünkü soldan başlayıp hiçbir kaydı atlamadık.</p></article><article><b>7</b><h3>Hangi kimliği aradık?</h3><p>Hedef değer. Kimliğin 7 olması yedi kayıt bulunduğu veya yedi kontrol yapıldığı anlamına gelmez.</p></article></div>
+<p>Bir matematiksel ifade okurken önce sembolün neyi temsil ettiğini sor. Burada <code>n = 4</code>, “listede dört kayıt var” cümlesinin kısa yazımı. Henüz bir hız formülü kurmuyoruz; önce sayının anlamını sabitliyoruz.</p>
+<aside class="pause"><h3>Kısa tahmin</h3><p>Listede dört kayıt varken bir hedefi iki kontrolde bulmak mümkün mü? Peki bu listedeki her hedef iki kontrolde mi bulunur?</p><details><summary>Tahminimi karşılaştır</summary><p>Evet: 7 için iki kontrol yeterli. Ama 24 için dört kontrol gerekir. Hedefi değiştirmek, aynı uzunluktaki listede yapılan işi değiştirebilir.</p></details></aside>
+</section>
+
+<section id="guided" aria-labelledby="guided-title"><p class="eyebrow">04 · Desteği azalt</p><h2 id="guided-title">Şimdi boşlukları sen tamamla.</h2>
+<p>Yeni kayıtlar <strong>[12, 5, 19, 5]</strong>, hedef <strong>19</strong>. İşin anlaşması aynı: ilk eşleşmenin konumu, yoksa “yok”. İlk adımı biz yazdık.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Rehberli izleme tablosu"><table><thead><tr><th>Konum</th><th>Değer</th><th>Hedefe eşit mi?</th><th>Karar</th></tr></thead><tbody><tr><td>1</td><td>12</td><td>Hayır</td><td>Konum 2'ye geç.</td></tr><tr><td>2</td><td>5</td><td>…</td><td>…</td></tr><tr><td>3</td><td>19</td><td>…</td><td>…</td></tr></tbody></table></div>
+<form id="guided-form" novalidate><div class="field-grid"><label for="guided-position">Üretilen konum<input id="guided-position" name="position" type="number" min="1" max="4" step="1" inputmode="numeric"></label><label for="guided-count">Eşitlik kontrolü sayısı<input id="guided-count" name="count" type="number" min="0" max="4" step="1" inputmode="numeric"></label></div><label for="guided-reason">Dördüncü kayda neden bakmıyoruz?<textarea id="guided-reason" rows="3" placeholder="Kararı kendi cümlenle açıkla."></textarea></label><button type="submit" class="js-only" hidden disabled>İki sayıyı kontrol et</button><p id="guided-feedback" class="feedback" role="status" aria-live="polite"></p></form>
+<details id="guided-key"><summary>Çalıştıktan sonra çözümü karşılaştır</summary><p>İkinci konumda 5 ≠ 19: ilerle. Üçüncü konumda 19 = 19: <strong>konum 3</strong> sonucunu ver ve dur. <strong>Üç eşitlik kontrolü</strong> yapılır. İlk eşleşmeyi bulduğumuz için dördüncü kayda bakmak gerekmiyor. Otomatik kontrol yalnız iki sayıyı karşılaştırır; gerekçeni bu açıklamayla kendin denetle.</p></details>
+</section>
+
+<section id="boundaries" aria-labelledby="boundaries-title"><p class="eyebrow">05 · Kuralı zorla</p><h2 id="boundaries-title">Sadece işe yarayan örneğe bakma.</h2>
+<p>Bir yöntemi sınamak için onu kolay durumun dışına çıkarırız. Aşağıdaki üç durumda önce sonucu ve kaç değere bakacağını kâğıda yaz.</p>
+<div class="boundary-grid"><article><h3>Hedef hiç yok.</h3><p>[18, 7, 18, 24]<br>Hedef: 99</p><details><summary>Yanıtımı karşılaştır</summary><p>Sonuç “yok”; dört eşitlik kontrolü. Bir kayıtta bulamamak yetmez: aramadığımız bir konumda hedef olabilir. Bütün liste bittiğinde artık bakılmamış kayıt kalmaz.</p></details></article><article><h3>Liste boş.</h3><p>[]<br>Hedef: 24</p><details><summary>Yanıtımı karşılaştır</summary><p>Sonuç “yok”; sıfır eşitlik kontrolü. İlk konum bile bulunmadığından hiçbir değeri hedefle karşılaştırmayız. Döngünün koşuluna bakmak, sayacımızdaki değer–hedef karşılaştırması değildir.</p></details></article><article><h3>Hedef yineleniyor.</h3><p>[18, 7, 18, 24]<br>Hedef: 18</p><details><summary>Yanıtımı karşılaştır</summary><p>Sonuç 1; bir eşitlik kontrolü. Üçüncü konumda bir 18 daha olması sonucu değiştirmez: anlaşmamız ilk eşleşmeyi istiyor.</p></details></article></div>
+<div class="reasoning"><h3>Neden daha önceki bir mesajı kaçırmadık?</h3><p>Başta henüz hiçbir kayda bakmadık. Bir kayıtta hedef yoksa onu eleyip yalnız sonraki konuma geçiyoruz. Bu yüzden bir eşleşme bulduğumuzda önceki bütün kayıtların hedef olmadığını biliyoruz. Hiç eşleşme bulmadan listenin sonuna gelirsek de bütün kayıtları elemiş oluruz.</p><p>Bu açıklama, kuralın bütün sonlu listelerde neden işlediğini adımın anlamına bağlar. Birkaç örneğin doğru çıkması tek başına bütün girdileri kapsamaz. Örneğin “ilk kayıtta yoksa yok de” kuralını hedef 24 olan ana örnek çürütür.</p></div>
+</section>
+
+<section id="practice" aria-labelledby="practice-title"><p class="eyebrow">06 · Bağımsız çalış</p><h2 id="practice-title">Yeni kayıtlar.<br>Aynı anlaşma.</h2><p class="lead-small">Kayıtlar <strong>[9, 14, 6, 14]</strong>. Hedef <strong>14</strong>. Önce ilk eşleşmeyi bul. Ardından yalnız “ilk” sözcüğü “son” olduğunda neyin değiştiğini açıkla.</p><p>Bu bölümde sözde kodu yeni girdiyle elle yürüt; tabloyu ve gerekçeleri kendin üret. Aşağıdaki çözümü çalışman bittikten sonra aç. Yanıtlar otomatik kaydedilmez; saklamak istediklerini kâğıda da yaz.</p>
+<form id="independent-form" novalidate>
+<fieldset><legend>1 · Adımları izle</legend><label for="exit-trace">Baktığın her konum için değeri, eşitlik kararını ve durup durmadığını yaz.<textarea id="exit-trace" rows="4" placeholder="Konum … / değer … / karar …"></textarea></label><div class="field-grid"><label for="exit-position">İlk eşleşmenin konumu<input id="exit-position" type="number" min="1" max="4" step="1" inputmode="numeric"></label><label for="exit-count">Eşitlik kontrolü sayısı<input id="exit-count" type="number" min="0" max="4" step="1" inputmode="numeric"></label></div></fieldset>
+<fieldset><legend>2 · Sayının anlamını açıkla</legend><label for="exit-length">Bu liste için n kaç?<input id="exit-length" type="number" min="0" max="12" step="1" inputmode="numeric"></label><label for="exit-math">n, bulduğun konum ve 14 değeri arasındaki fark ne?<textarea id="exit-math" rows="3"></textarea></label></fieldset>
+<fieldset><legend>3 · Sonucu ihtiyaca bağla</legend><label for="exit-purpose">Ekip 14 numaralı cihazın ilk mesajını açmak istiyor. 14 yerine neden bulduğun konumu çıktı veriyoruz? Hedef 20 olsaydı ne döndürürdük?<textarea id="exit-purpose" rows="3"></textarea></label></fieldset>
+<fieldset><legend>4 · Bir koşulu değiştir</legend><p>Liste ve hedef aynı. Artık ekibin isteği <strong>son eşleşmenin konumu</strong>.</p><label for="exit-last">Yeni anlaşmaya göre sonuç konumu<input id="exit-last" type="number" min="1" max="4" step="1" inputmode="numeric"></label><label for="exit-link">İlk eşleşmede duran yöntem neden bu yeni isteği karşılamıyor? Bu listedeki iki konumu kanıt göster.<textarea id="exit-link" rows="3"></textarea></label></fieldset>
+<button type="submit" class="js-only" hidden disabled>Dört sayıyı kontrol et</button><p id="exit-feedback" class="feedback" role="status" aria-live="polite"></p><p class="caption">Sayısal kontrol gerekçelerini puanlamaz. Gerekçeler için aşağıdaki örnek yanıt ve ölçütleri kullan.</p>
+</form>
+<details id="independent-key"><summary>Çalışmam bitti · yanıt ve ölçütlerle karşılaştır</summary><div class="answer-key"><h3>Örnek yanıt</h3><ol><li>Konum 1: 9 ≠ 14, ilerle. Konum 2: 14 = 14, <strong>2 sonucunu ver ve dur</strong>. İki eşitlik kontrolü.</li><li><strong>n = 4</strong>, kayıt sayısıdır. 2 ilk eşleşmenin konumu, 14 aranan cihaz kimliği. Bunlar farklı soruların cevabı.</li><li>Ekip bir kaydı açmak için onun yerini istiyor. Kimliği zaten biliyor. Hedef 20 olsaydı bütün dört kayıttan sonra “yok” dönerdi.</li><li>Son eşleşme <strong>konum 4</strong>. İkinci konumda durmak dördüncüdeki 14'ü görmeyi engeller. Tek değişen ilk/son isteği olsa da durma kararını yeniden düşünmek gerekir.</li></ol><h3>Çalışmanı değerlendir</h3><p>Her boyutu ayrı incele: <strong>0</strong> = temel çelişki var/üretemedim; <strong>1</strong> = kısmen doğru veya ipucu aldım; <strong>2</strong> = çözümü görmeden tutarlı ve gerekçeli ürettim. Çözümü açtıktan sonra yaptığın düzeltmeyi ilk denemenden ayrı işaretle.</p><ul class="rubric"><li><strong>İzleme:</strong> iki satır, doğru kararlar ve ikinci konumda durma birlikte var mı?</li><li><strong>Matematik:</strong> 4 kayıt, 2. konum, 14 kimlik ve 2 kontrolün anlamlarını ayırdın mı?</li><li><strong>Amaç:</strong> çıktının ekip için ne işe yaradığını ve hedef yokken sonucu açıkladın mı?</li><li><strong>Bağ:</strong> yeni isteğin durma kararını neden değiştirdiğini konum 2 ve 4 ile gösterdin mi?</li></ul><p id="solution-seen" class="caption js-only" hidden></p></div></details>
+</section>
+
+<section id="next-question" class="closing" aria-labelledby="closing-title"><p class="eyebrow">Buradan sonra</p><h2 id="closing-title">Liste büyürse ne kadar iş yaparız?</h2><p>Bu hafta bir kontrolün ne olduğunu, hangi kayıtlara baktığımızı ve neden durduğumuzu belirledik. <strong>Hafta 2'nin sorusu bu tablodan doğuyor:</strong> 4 kayıt yerine 40 ya da n kayıt olsaydı, kaç eşitlik kontrolü gerekirdi?</p><p>Yanında götür: bağımsız örneğinin izleme tablosu ve “ilk eşleşme” anlaşması. Bir sonraki derste bu somut sayımı genelleştireceğiz.</p>
+<!-- AA:FRESH-W2:NEXT:START --><p class="next-lesson"><a href="../../w2/" style="display:inline-flex;align-items:center;min-height:44px">Hafta 2’ye geç: yaptığımız işi say →</a></p><!-- AA:FRESH-W2:NEXT:END --></section>
+
+<span id="teacher-note" class="compat-anchor" aria-hidden="true"></span>
+</main>
+<footer><span>AA · Hafta 1</span><a href="#lesson-title">Dersin başına dön ↑</a></footer>
+</body>
+</html>

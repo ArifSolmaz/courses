@@ -378,6 +378,22 @@ def build(B):
 </section>
 </main>'''
  (ROOT/'index.html').write_text(learning_paths.apply(shell(B,'Algorithm Analysis',home,'',sheets=('home.css?v=1',),scripts=('home.js?v=1',)),0))
+ # Fresh route pages are authored independently of the earlier syllabus.
+ # Keep the complete earlier dashboard as a static archive at its own route.
+ for source, destination in (
+     ('home.html', 'index.html'),
+     ('resources.html', 'resources/index.html'),
+     ('teaching.html', 'resources/teaching/index.html'),
+ ):
+  fresh=ROOT/'tools'/'lessons'/source
+  if fresh.is_file():
+   target=ROOT/destination;target.parent.mkdir(parents=True,exist_ok=True)
+   target.write_bytes(fresh.read_bytes())
+ for n in range(1,15):
+  translated=ROOT/'tools'/'lessons'/f'w{n}.tr.html'
+  if translated.is_file():
+   target=ROOT/f'w{n}'/'tr'/'index.html';target.parent.mkdir(parents=True,exist_ok=True)
+   target.write_bytes(translated.read_bytes())
  consolidate_routes()
  (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x["title"]} — document lectures {", ".join(map(str,x["lectures"]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Exam scope: scope/. Cumulative review: review/. Additional textbook problems: textbook-problems/. Older library addresses redirect to that route.\n')
  print('Built 14 aligned lessons, dashboard, scope, review, textbook-problems and reference routes.')

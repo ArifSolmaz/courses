@@ -707,3 +707,30 @@ and preserved archive/alias routes. These checks establish technical and
 presentation correctness, not learning effects or lesson duration. The draft
 is presented for review before publication; no builder or verifier publishes
 it.
+
+## Connected course home and English/Turkish Week 1
+
+The student home is now authored in `tools/lessons/home.html`. It follows the
+fourteen freshly written lessons, rather than the earlier lecture mapping.
+The complete previous dashboard is preserved at `previous-home.html`, at its
+original URL depth. Additional notes, reading and older assessment references
+are collected under `resources/`; `resources/teaching/` provides the teacher
+and pilot entry. The Bridge Laboratory and Play Lab remain available.
+
+Week 1 opens in English at `w1/`, with Turkish at `w1/tr/`; the header switches
+between the two. `tools/lessons/w1.html` and `w1.tr.html` are exact-copy build
+sources. They share the unchanged search model and base CSS; English UI copy
+is in `w1/lesson.en.js`, Turkish in `w1/lesson.js`. Language navigation and
+responsive additions use `assets/lesson-language.css`. Teacher guidance has
+moved to `resources/teaching/#week1-en` and `#week1-tr`. Weeks 2–14 remain in
+Turkish until each English edition is separately prepared and reviewed.
+
+Use `python3 aa/tools/verify_home_week1_bilingual.py` for the exact-scope
+migration/preservation audit, plus `python3 aa/tools/verify_alignment.py`,
+`python3 aa/tools/verify_learning_bridges.py` and
+`python3 aa/tools/verify_rebuild.py`. The numbered fresh-week scope verifiers
+record their original historical packages and baseline assumptions; they are
+not broadened to waive this later migration. The new audit checks every
+unrelated AA file against the approved fourteen-week baseline and preserves
+the earlier dashboard byte for byte. This draft is for review; building or
+checking it does not publish it.
