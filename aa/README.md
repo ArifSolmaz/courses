@@ -773,3 +773,17 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after the review stage.
+
+## English/Turkish Week 4
+
+The default Week 4 route, `w4/`, is English; `w4/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w4.html` and `w4.tr.html`; the existing builder copies both editions. Week 3’s onward link and Week 4’s prerequisite/back links stay in the selected language. The homepage identifies Weeks 1–4 as bilingual. The English lesson explicitly labels the Week 5 destination as Turkish.
+
+Both editions retain the original device records, array and linked-list access/insertion traces, FIFO/LIFO events, guided/independent tasks and four assessment dimensions. They share the unchanged `w4/model.js`, Turkish UI script and Week 1 stylesheet; the English strings are in `w4/lesson.en.js`. The local storage-board grid has a wider minimum column to fit the full empty-slot label on mobile and enlarged text; both editions load its version 2 stylesheet. The policy grid and shared styles are unchanged. Counting units and capacity, allocation, given-position and known-predecessor assumptions remain explicit. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week4-tr`, with an English counterpart at `#week4-en`.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week4_bilingual.py` — pinned migration, preservation, routing and bilingual data contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after the review stage.
