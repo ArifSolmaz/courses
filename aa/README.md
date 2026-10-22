@@ -435,3 +435,36 @@ keyboard, mobile and doubled text, no-JavaScript answer retention, printing
 and a small sample of preserved archive links. These checks do not measure
 learning effect or class duration. Publication requires a separate review;
 the builder and verifiers do not publish the draft.
+
+## Fresh Week 7 teaching draft
+
+`tools/lessons/w7.html` is independently authored from the new plan and fresh
+Weeks 1–6. The earlier Week 7 notes are used only as archive preservation
+fixtures. The unchanged builder copies the new source exactly to
+`w7/index.html`, reusing the shared fresh Week 1 stylesheet and three local
+model/style/enhancement files.
+
+The lesson moves from selecting one priority item to ordering a complete
+collection. It separates merging sorted parts, recursive splitting, complete
+merge sort and the meaning of their cost before guided and independent work.
+Tracing, mathematical meaning, method choice and connections between lessons
+are addressed together. Numeric feedback and written reasoning remain
+separate. The next-week question does not lead into the unrevised Week 8 main.
+
+The previous authored main stays at `w7/onceki-ders.html`, at the original URL
+depth with all original text, styles, scripts, card data and local references.
+Its separate generated supplemental notes, detailed lecture notes, original
+sources and Python runner remain byte-identical. Technical-note HTML and
+Markdown change only the 58 inventoried old-card URLs: 28 example links in
+each format and two HTML return links. Fresh Week 6 gains one marked onward
+link; all Week 1–5 product files and shared assets remain unchanged.
+
+Checks: `node aa/tools/verify_fresh_week7_model.cjs`,
+`python3 aa/tools/verify_fresh_week7.py`, the nonrecursive fresh-week
+exact-scope chain and the existing alignment, redirect, learning-bridge and
+disposable rebuild verifiers. Browser QA covers the new interactions, forms,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and a small sample of preserved archive routes. These checks establish
+technical and presentation correctness, not learning effects or lesson
+duration. The draft is presented for review before publication; no builder
+or verifier publishes it.

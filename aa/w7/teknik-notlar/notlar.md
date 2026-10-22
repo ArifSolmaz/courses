@@ -16,7 +16,7 @@ Bu notlar **“Recursion and sorting”** dersindeki 28 kartı aynı sırayla a�
 
 ## 1. Hangi soruyu cevapladığımızı unutmayalım
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** “Sıradaki minimum hangisi?”, “70 numaralı kayıt nerede?” ve “bütün kayıtları sırayla ver” farklı sorulardır. Önceki haftaların veri yapıları bu soruların farklılarına odaklanıyordu.
 
@@ -35,7 +35,7 @@ Bu notlar **“Recursion and sorting”** dersindeki 28 kartı aynı sırayla a�
 
 ## 2. Büyümenin adını koymadan önce eylemleri saymak
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-0-3)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-0-3)
 
 **Problem.** Sekiz kartlık bir grubu iki şekilde küçültelim.
 
@@ -54,7 +54,7 @@ Bir çıkar:   8 → 7 → 6 → 5 → 4 → 3 → 2 → 1 : 7 küçültme
 
 ## 3. Özyineleme, daha küçük aynı soruyu çözmektir
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** `[A,B,C,D]` içindeki parçaları sayalım. İlk parçayı ayırıp kalanların sayısına 1 ekleyebiliriz.
 
@@ -77,7 +77,7 @@ Dönüşler: 0 → 1 → 2 → 3 → 4
 
 ## 4. Eylemleri maliyet bağıntısına çevirmek
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Problem.** T(n), n eleman için gereken işi temsil etsin. Bir çağrıda kaç alt çağrı yapılıyor, bunların boyutu ne, çağrının kendisi başka ne yapıyor?
 
@@ -97,7 +97,7 @@ Dönüşler: 0 → 1 → 2 → 3 → 4
 
 ## 5. İki sıralı satırı birleştirmek
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Problem.** Sol `[2,5,8]`, sağ `[1,4,9]`. İki satırın da zaten sıralı olduğu veriliyor. Her satırdaki ilk okunmamış değeri bir aday olarak tutuyoruz.
 
@@ -118,7 +118,7 @@ Dönüşler: 0 → 1 → 2 → 3 → 4
 
 ## 6. Merge sort: böl, çöz, birleştir
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 **Problem.** `[7,2,5,1]` sıralanacak. Tek eleman zaten sıralı olduğundan büyük problemi tek elemanlı parçalara kadar küçültebiliriz.
 
@@ -144,7 +144,7 @@ Dönüşler: 0 → 1 → 2 → 3 → 4
 
 ## 7. Birleştirme işini seviye seviye saymak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-3)
 
 **Problem.** Sekiz değeri dengeli bölüp birleştiriyoruz. Her seviyede kaç eleman çıktıya yazılır?
 
@@ -164,7 +164,7 @@ Dönüşler: 0 → 1 → 2 → 3 → 4
 
 ## 8. İki kümenin ortak kimliği var mı?
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
 
 **Problem.** Sıralı kimlikler A = `[1,4,7]`, B = `[2,4,9]`. Bütün çiftleri denemek yerine iki indeksle ilerleyebiliriz.
 
@@ -185,7 +185,7 @@ A: 1  4  7       B: 2  4  9
 
 ## 9. Birleştirmede üç yaygın hata
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
 
 **Hata 1 — yan yana koymak.** `[2,7]` ile `[1,5]` birleştirilince sonuç `[1,2,5,7]` olmalıdır. Sadece listeleri art arda eklemek `[2,7,1,5]` verir; 7 → 1 geçişi sıralamayı bozar. İki listenin kendi içinde sıralı olması, ilk listenin bütün değerlerinin ikinci listeden küçük olduğu anlamına gelmez.
 
@@ -197,7 +197,7 @@ A: 1  4  7       B: 2  4  9
 
 ## 10. Özyineleme ağacı, işin haritasıdır
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Problem.** `T(n) = 2T(n/2) + n` modelini n = 8 için çizelim. Her düğüm bir alt problemi, etiketi ise yalnızca o çağrının yerel işini göstersin.
 
@@ -219,7 +219,7 @@ Boyutlar / yerel iş:
 
 ## 11. Bir eleman azaltmak yarıya indirmek değildir
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 **Problem.** `T(n) = T(n−1) + n`, T(1) = 1. Her çağrı bir küçük probleme iner ama yerel olarak mevcut boyut kadar iş yapar.
 
@@ -240,7 +240,7 @@ T(5) = T(4) + 5
 
 ## 12. Önerdiğimiz formülü nasıl doğrularız?
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 **Problem.** Önceki bağıntı için `T(n) = n(n+1)/2` öneriyoruz. Birkaç sayıda doğru çıkması yeterli değildir. Başlangıcı ve genel geçişi kontrol edeceğiz.
 
@@ -262,7 +262,7 @@ T(n) = T(n−1) + n
 
 ## 13. Üç bağıntı, üç farklı sonuç
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
 
 **Problem.** Alt problemlerin yarı boyutlu olması, tek başına toplam maliyetin aynı olmasını sağlamaz. Çağrı sayısı ve yerel katkı da belirleyicidir.
 
@@ -282,7 +282,7 @@ T(n) = T(n−1) + n
 
 ## 14. İlk mola — bölmek, birleştirmek ve saymak
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart ilk on dakikalık moladır. Aşağıdaki cevaplar, ilk bölümün sık karışan noktalarını toparlar.
 
@@ -300,7 +300,7 @@ Bu kart ilk on dakikalık moladır. Aşağıdaki cevaplar, ilk bölümün sık k
 
 ## 15. Bir pivotun etrafında bölmek
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 **Problem.** `[4,1,5,2,3]` için son değer 3 pivot. Görselin belirli yöntemi: solda pivot'tan **kesin küçük** değerleri biriktir, diğerlerini sağda bırak, son adımda pivotu araya koy.
 
@@ -323,7 +323,7 @@ Pivotu sınıra koy: [1,2,3,4,5]
 
 ## 16. Pivot işi dengeli bölebilir veya neredeyse hiç küçültmeyebilir
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
 
 **Problem.** Yedi farklı anahtarı sıralıyoruz. Ortanca anahtar pivot olursa üç küçük ve üç büyük değer kalır. En büyük seçilirse altı küçük ve boş bir büyük taraf kalır.
 
@@ -347,7 +347,7 @@ n eleman için: n(n−1)/2 → Θ(n²)
 
 ## 17. Rastgele pivot, giriş sırasına bağımlılığı azaltır
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 **Problem.** Artan sıralı farklı anahtarlarda son elemanı sürekli pivot seçmek maksimumu seçer; önceki kötü zincir oluşur. Her alt problemde pivotu mevcut kayıtlardan eşit olasılıkla seçersek giriş sırası artık bunu tek başına zorlayamaz.
 
@@ -361,7 +361,7 @@ n eleman için: n(n−1)/2 → Θ(n²)
 
 ## 18. Eşit anahtarları ayrıca düşünmek gerekir
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
 
 **Problem.** `[4,4,4,4]` dizisinde “pivot'tan küçükse sola al” kuralını kullanalım. Hiçbir değer 4'ten küçük değildir.
 
@@ -382,7 +382,7 @@ Toplam: 6
 
 ## 19. Garantilere ve ölçülen iş yüküne göre seçim
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
 
 **Problem.** Merge sort, heapsort ve quicksort arasında tek bir evrensel kazanan yoktur. Süre garantisi, yardımcı alan ve eşit anahtarların sırası birlikte değerlendirilir.
 
@@ -400,7 +400,7 @@ Toplam: 6
 
 ## 20. Somun ve cıvataları yalnızca çapraz karşılaştırmayla eşlemek
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
 
 **Problem.** İki somunu veya iki cıvatayı doğrudan karşılaştıramıyoruz. Yalnızca bir somunla bir cıvatayı deneyip küçük, eşit veya büyük sonucunu alabiliyoruz. Her boyuttan tek somun ve tek eş cıvata olduğunu varsayıyoruz.
 
@@ -419,7 +419,7 @@ Toplam: 6
 
 ## 21. İkinci mola — pivotun verdiği sözü ayıralım
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart ikinci on dakikalık moladır. Pivot ve sıralama kavramlarını aşağıdaki küçük sorularla toparlayın.
 
@@ -437,7 +437,7 @@ Bu kart ikinci on dakikalık moladır. Pivot ve sıralama kavramlarını aşağ�
 
 ## 22. Karşılaştırmalı sıralama yeterince bilgi toplamalıdır
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 **Problem.** Üç farklı anahtar altı sırada gelebilir: 123,132,213,231,312,321. Doğru bir algoritma bunların her birinde hangi kaydın nereye gideceğini belirlemelidir.
 
@@ -451,7 +451,7 @@ Bu kart ikinci on dakikalık moladır. Pivot ve sıralama kavramlarını aşağ�
 
 ## 23. Küçük tamsayıları karşılaştırmak yerine saymak
 
-[Ders sayfasındaki örnek 23](../#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 23](../onceki-ders.html#example-23) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 **Problem.** Girdi `[3,1,2,3,0,1]`, izin verilen anahtarlar 0…15. On altı sayacı önce sıfırlarız. Her x değerinde `sayac[x]` bir artırılır.
 
@@ -474,7 +474,7 @@ Diğer on iki sayaç sıfır kalır. Sayaçları anahtar sırasıyla okuruz: 0 b
 
 ## 24. Kovalar aralıkları ayırır; içleri ayrıca sıralanır
 
-[Ders sayfasındaki örnek 24](../#example-24) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
+[Ders sayfasındaki örnek 24](../onceki-ders.html#example-24) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
 **Problem.** `[0.42,0.12,0.88,0.31,0.74]` değerlerini dört eşit aralık kovasına dağıtıyoruz. Giriş aralığı `[0,1)`; 0 dahil, 1 hariç. Kova numarası `floor(4x)`.
 
@@ -495,7 +495,7 @@ Diğer on iki sayaç sıfır kalır. Sayaçları anahtar sırasıyla okuruz: 0 b
 
 ## 25. Basamakları sıralarken önceki işi korumak
 
-[Ders sayfasındaki örnek 25](../#example-25) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
+[Ders sayfasındaki örnek 25](../onceki-ders.html#example-25) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
 
 **Problem.** Girdi `[170,45,75,90,802,24,2,66]`. Sayılar negatif olmayan, en fazla üç basamaklı tamsayılar. LSD radix sort, birler basamağından başlayıp sola doğru gider. Eksik basamakları sıfır kabul ederiz: 2 → 002.
 
@@ -518,7 +518,7 @@ Yüzler:    [2,24,45,66,75,90,170,802]
 
 ## 26. Sensör günlükleri ile ADC seviyeleri farklı sorular sorar
 
-[Ders sayfasındaki örnek 26](../#example-26) · [İlgili ders notu](../lecture-notes.html#topic-6)
+[Ders sayfasındaki örnek 26](../onceki-ders.html#example-26) · [İlgili ders notu](../lecture-notes.html#topic-6)
 
 **Problem A — iki sıralı zaman günlüğü:** `[1,4,6]` ve `[2,3,5]` zamanlarına ait kayıtları tek günlükte birleştirelim. Her giriş zaten sıralı olduğu için O(a+b) merge yeterlidir; birleşimi baştan genel sıralamaya göndermek gereksiz iş yapabilir. Zamanla birlikte sensör kimliği ve ölçüm de taşınır.
 
@@ -537,7 +537,7 @@ Yüzler:    [2,24,45,66,75,90,170,802]
 
 ## 27. Küçük örneklerle yanlış iddiaları reddetmek
 
-[Ders sayfasındaki örnek 27](../#example-27) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
+[Ders sayfasındaki örnek 27](../onceki-ders.html#example-27) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
 
 **İddia 1: “Tek partition her şeyi sıralar.”** `[7,2,5,1,4]` için son pivot 4 ile sonuç `[2,1,4,7,5]`. Solda 2 > 1, sağda 7 > 5; iki taraf da hâlâ iş ister. Buna rağmen partition doğru çalışmıştır: 2 ve 1, 4'ten küçük; 7 ve 5 küçük değildir. Algoritmanın vermediği bir sözü ondan beklemeyin.
 
@@ -549,7 +549,7 @@ Yüzler:    [2,24,45,66,75,90,170,802]
 
 ## 28. Önce adımları açıkla, sonra maliyeti adlandır
 
-[Ders sayfasındaki örnek 28](../#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
+[Ders sayfasındaki örnek 28](../onceki-ders.html#example-28) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
 
 **Görev A — birleştirme:** Sol `[1,4,6]`, sağ `[2,3,5]`.
 
