@@ -759,3 +759,17 @@ pinned exact-scope audit, plus `python3 aa/tools/verify_alignment.py`,
 their original scope and are not weakened to allow later migrations.
 This package is prepared for review before publication; no build or check
 publishes it.
+
+## English/Turkish Week 3
+
+The default Week 3 route, `w3/`, is English; `w3/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w3.html` and `w3.tr.html`. The existing builder copies both editions. Week 2’s next link and Week 3’s prerequisite/back links stay in the selected language; the homepage identifies Weeks 1–3 as bilingual. Week 4’s next link is labelled as Turkish in the English lesson.
+
+Both editions retain the original growth presets, sorted directory, abstract three-way probe unit, search cases, guided/independent exercises and four assessment dimensions. They share the unchanged `w3/model.js` and Week 1 stylesheet; the UI strings in `w3/lesson.en.js` are translated. The local search-control grid uses a wider minimum column so the full English empty-directory option fits on mobile; both editions load its version 2 stylesheet. The existing language-switch stylesheet also keeps the skip link hidden until focused when text is enlarged. Turkish teaching guidance is preserved verbatim under `resources/teaching/#week3-tr`; its English counterpart is `#week3-en`.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week3_bilingual.py` — pinned migration, preservation, routing and bilingual data contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after the review stage.
