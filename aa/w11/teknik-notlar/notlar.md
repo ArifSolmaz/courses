@@ -21,7 +21,7 @@ Negatif çevrimleri konuşurken kenar veya düğümlerin tekrar kullanılabildi�
 
 ## 1. En ucuz ağ ile en ucuz yolculuk farklıdır
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Veri.** Yönsüz üçgende AB=2, BC=2, AC=3. Bütün düğümleri bağlayan en ucuz ağaç AB ve BC'dir; toplam kurulum maliyeti 4 olur.
 
@@ -41,7 +41,7 @@ DFS erişilebilirliği bulur ama genel ağırlıklı en kısa yol garantisi verm
 
 ## 2. Daha az yol parçası daha az süre demek değildir
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** A→D doğrudan kenarı 10; A→B, B→C, C→D kenarlarının her biri 1 olsun. Okların ters yönü verilmemiştir.
 
@@ -60,7 +60,7 @@ BFS, kaynaktan kenar sayısına göre katmanlar oluşturur. D bir kenarla bulunu
 
 ## 3. Her kenara aynı sayıyı eklemek sonucu bozabilir
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 Başlangıçta üç kenarlı rota 1+1+1=3, doğrudan rota 4 tutuyor. Her kenara 10 ekleyelim.
 
@@ -81,7 +81,7 @@ Başlangıçta üç kenarlı rota 1+1+1=3, doğrudan rota 4 tutuyor. Her kenara 
 
 ## 4. Gevşetme, daha ucuz teklif sınamasıdır
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 **Durum.** A'dan B'ye bulunan maliyet 2. B→C kenarı 1. C'nin mevcut kaydı 5 olsun.
 
@@ -109,7 +109,7 @@ Aday rota, B'ye kadar bildiğimiz rotaya B→C kenarını ekleyerek oluşur. Bu,
 
 ## 5. Maliyet kaydından gerçek rotayı çıkarmak
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **Son kayıtlar.** dist[A]=0, dist[B]=2, dist[C]=3; parent[B]=A, parent[C]=B. Kaynak A'nın ebeveyni yoktur.
 
@@ -130,7 +130,7 @@ Ebeveyn okları geriye doğru kayıt okumadır; grafın C→B veya B→A yönün
 
 ## 6. Dijkstra en küçük geçerli teklifi kesinleştirir
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Veri.** A→B=2, A→C=5, B→C=1. Bütün ağırlıklar negatif değildir.
 
@@ -151,7 +151,7 @@ C'nin 5 ile ilk görülmesi kesinleşme değildir. B'nin 2 teklifi daha küçük
 
 ## 7. Beş düğümlü W grafını takip etmek
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
 
 Bu örnek yönsüzdür. Kenarlar AB=4, AC=1, BC=2, BD=5, CD=8, DE=3, CE=10. Kaynak A. Aynı W grafı geçen hafta MST için kullanılmıştı; bu kez sorumuz kaynak uzaklıklarıdır.
 
@@ -178,7 +178,7 @@ Son ebeveynler B←C, C←A, D←B, E←C'dir. Bu en kısa yol ağacının kenar
 
 ## 8. Eski kuyruk kaydı yeniden işlenecek yeni bir rota değildir
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 Basit örnekte C önce 5, sonra 3 maliyetiyle keşfedilir. Heap kullanan kısa uygulama eski kaydı silmek yerine yeni kaydı da ekler.
 
@@ -201,7 +201,7 @@ Heap'in iç dizisi tamamen sıralı görünmek zorunda değildir; garantisi en k
 
 ## 9. İlk mola: üç farklı toplamı ayırmak
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalar arasındaki moladan sonra şu soruları birer hesapla cevaplayın.
 
@@ -217,7 +217,7 @@ Heap'in iç dizisi tamamen sıralı görünmek zorunda değildir; garantisi en k
 
 ## 10. Tek negatif kenar kesinleştirme kuralını bozabilir
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Veri.** A→B=2, A→C=5, C→B=−4. B'nin çıkış kenarı yoktur.
 
@@ -238,7 +238,7 @@ Bir kez kesinleştirip düğümü tekrar açmayan Dijkstra, A'dan sonra B'yi 2 i
 
 ## 11. Bellman–Ford teklifleri yeniden değerlendirir
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 **Kenar sırası.** S→A=4, S→B=2, B→A=−3, A→C=1, B→C=5. Başlangıçta S=0, diğerleri ∞. Güncellemeler hemen uygulanır.
 
@@ -260,7 +260,7 @@ Bir turda S→B→A→C boyunca üç kenarlık bilgi yayılmıştır. “Her tur
 
 ## 12. Kenar listesi sırası ara tabloları değiştirir
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
 
 Önceki örneğin **listesini** ters çeviriyoruz; okların yönlerini değil. Yeni sıra B→C, A→C, B→A, S→B, S→A olur.
 
@@ -281,7 +281,7 @@ Bir turda S→B→A→C boyunca üç kenarlık bilgi yayılmıştır. “Her tur
 
 ## 13. n−1 tur sınırının gerekçesi
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-6)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-6)
 
 n düğümlü bir basit yol, düğüm tekrarlamadan en fazla n−1 kenar kullanır. Beş farklı düğümün zinciri dört bağlantı içerir.
 
@@ -297,7 +297,7 @@ Yerinde güncellemede daha uzun yolların bilgisi de aynı turda yayılabilir. G
 
 ## 14. Negatif çevrim maliyeti sınırsız azaltır
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Veri.** S→A=1, A→B=2, B→C=−4, C→A=1. Çevrimin toplamı 2−4+1=−1'dir.
 
@@ -320,7 +320,7 @@ Ne kadar küçük bir değer yazarsanız yazın, bir tur daha atıp onu 1 azalta
 
 ## 15. DAG'da sıra, öncelik kuyruğunun yerini alır
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 A→B=2, A→C=5, C→B=−4 grafı çevrimsizdir. Geçerli topolojik sıra **A,C,B**'dir; çünkü C→B oku C'nin B'den önce gelmesini ister.
 
@@ -342,7 +342,7 @@ B işlendiğinde ona gelebilecek bütün öncüller zaten işlenmiştir. Daha so
 
 ## 16. İkinci mola: üç negatif durumu ayırmak
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalar arasındaki moladan sonra aşağıdaki ayrımı kendi grafınızla doğrulayın.
 
@@ -362,7 +362,7 @@ B işlendiğinde ona gelebilecek bütün öncüller zaten işlenmiştir. Daha so
 
 ## 17. Floyd–Warshall bütün çiftleri bir tabloda tutar
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
 
 **Veri.** A→B=2, B→C=1, A→C=5. Satır başlangıç, sütun hedef olsun. Başlangıçta doğrudan kenarlar yazılır, köşegene 0, bulunmayan bağlantılara ∞ konur.
 
@@ -384,7 +384,7 @@ B ara düğümüne izin verildiğinde A→C için 2+1=3 denenir ve 5 yerine 3 ya
 
 ## 18. Kendi ağırlıklı oklarınızla deney yapmak
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 Editörde düğümler A–E, kaynak A olarak sabittir. `A B 4`, A→B maliyeti 4 demektir; çift yönlü koridor değildir. Editör Bellman–Ford hesaplar; bu nedenle negatif girişleri de inceleyebilir.
 
@@ -417,7 +417,7 @@ B→C→B çevrimi −1'dir. A çevrime ulaşır. B,C ve çevrimden çıkışla 
 
 ## 19. Python Dijkstra kodunu satır satır okumak
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 Ana örnekteki Run düğmesi aşağıdaki kodu çalıştırır. `input()` yoktur; graf doğrudan sözlükte tanımlıdır. Her çalıştırma başlangıç kayıtlarını yeniden oluşturur.
 
@@ -485,7 +485,7 @@ Parents: {'A': None, 'B': 'A', 'C': 'B'}
 
 ## 20. Robot daha fazla hareketle daha az maliyet ödeyebilir
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 **Izgara.** İki satır, üç sütun. Üst satır S, çamur, hedef; alt satır A,B,C. Bu harfler yalnızca bu ızgaranın hücre etiketleridir. Hareketler yukarı, aşağı, sağ, sol; çapraz hareket yok.
 
@@ -511,7 +511,7 @@ BFS en az hareketli iki adımlı rotayı bulur. Dijkstra biriken maliyete bakara
 
 ## 21. A*: ödenen maliyete kalan iş tahminini eklemek
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 A* önceliği `f=g+h` olarak kurar. g, şimdiye kadar bulunan rotanın gerçek maliyetidir. h, hedefe kalan maliyet için iyimser tahmindir. h, ödenmiş gerçek ücret değildir.
 
@@ -536,7 +536,7 @@ Tablodaki g değerleri ilgili rotalar bulunduğundaki değerlerdir; hepsi araman
 
 ## 22. Algoritmayı isminden değil koşullarından seçmek
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 Önce okun anlamını, sonra ağırlığı, sonra hangi mesafelerin istendiğini yazın. Tek hedef, tek kaynaktan bütün hedefler ve bütün çiftler farklı çıktı kapsamlarıdır.
 

@@ -194,6 +194,9 @@ def verify(root, baseline):
     if (root / 'tools/lessons/w10.html').is_file():
         from verify_fresh_week10 import SUCCESSOR_EXISTING_CHANGES
         allowed_changes.update(SUCCESSOR_EXISTING_CHANGES)
+    if (root / 'tools/lessons/w11.html').is_file():
+        from verify_fresh_week11 import SUCCESSOR_EXISTING_CHANGES
+        allowed_changes.update(SUCCESSOR_EXISTING_CHANGES)
 
     tracked = baseline_files(repo, baseline)
     protected = {path: digest for path, digest in tracked.items()
@@ -266,7 +269,8 @@ def verify(root, baseline):
         'protected_drift': drift,
         'other_weeks_files': sum(bool(re.match(r'aa/w(?:[2-9]|1[0-4])/', path))
                                 for path in protected) + 1,
-        'other_week_main_pages_unchanged': (4 if (root / 'tools/lessons/w10.html').is_file()
+        'other_week_main_pages_unchanged': (3 if (root / 'tools/lessons/w11.html').is_file()
+                                          else 4 if (root / 'tools/lessons/w10.html').is_file()
                                           else 5 if (root / 'tools/lessons/w9.html').is_file()
                                           else 6 if (root / 'tools/lessons/w8.html').is_file()
                                           else 7 if (root / 'tools/lessons/w7.html').is_file()

@@ -131,9 +131,15 @@ def verify(root=ROOT, baseline=BASELINE):
             other = page if target == main else Page(target.read_text(encoding='utf-8'))
             check(unquote(parsed.fragment) in other.ids, f'fragment exists: {value}')
         references.append(value)
-    check(not any(re.fullmatch(r'\.\./w11(?:/(?:index\.html)?)?', urlsplit(value).path)
-                  for value in references),
-          'the next-week question does not route learners to the unrevised W11 main')
+    if not (root / 'tools/lessons/w11.html').is_file():
+        check(not any(re.fullmatch(r'\.\./w11(?:/(?:index\.html)?)?', urlsplit(value).path)
+                      for value in references),
+              'the next-week question does not route learners to the unrevised W11 main')
+    else:
+        from verify_fresh_week11 import NEXT_LINK as W11_NEXT_LINK, BASELINE as W11_BASELINE
+        check(raw.count(W11_NEXT_LINK) == 1 and raw.replace(W11_NEXT_LINK, '', 1).encode('utf-8') ==
+              git(repo, 'show', f'{W11_BASELINE}:aa/tools/lessons/w10.html'),
+              'the reviewed W11 onward link is the only addition to the approved W10 source')
 
     old_raw = git(repo, 'show', f'{baseline}:aa/w10/index.html').decode('utf-8')
     archived_raw = archive.read_text(encoding='utf-8')
@@ -236,13 +242,21 @@ def verify(root=ROOT, baseline=BASELINE):
     check((root / 'README.md').read_bytes().startswith(old_readme),
           'all existing README text precedes the additive documentation')
     tracked = baseline_files(repo, baseline)
+    allowed_changes = set(SUCCESSOR_EXISTING_CHANGES)
+    expected_new_files = set(EXPECTED_NEW_FILES)
+    successor = None
+    if (root / 'tools/lessons/w11.html').is_file():
+        from verify_fresh_week11 import (SUCCESSOR_EXISTING_CHANGES as W11_CHANGES,
+                                        EXPECTED_NEW_FILES as W11_NEW_FILES)
+        allowed_changes.update(W11_CHANGES)
+        expected_new_files.update(W11_NEW_FILES)
     new_files = {path.relative_to(repo).as_posix() for path in root.rglob('*')
                  if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'
                  and path.relative_to(repo).as_posix() not in tracked}
-    check(new_files == EXPECTED_NEW_FILES,
+    check(new_files == expected_new_files,
           f'the only added AA files are the canonical lesson, three local assets, archive and verifiers: {sorted(new_files)}')
     protected = {path: digest for path, digest in tracked.items()
-                 if path not in SUCCESSOR_EXISTING_CHANGES}
+                 if path not in allowed_changes}
     drift = [path for path, digest in protected.items()
              if not (repo / path).is_file() or blob_hash((repo / path).read_bytes()) != digest]
     check(not drift, f'all {len(protected)} unrelated existing AA files are byte-preserved: {drift}')
@@ -260,6 +274,14 @@ def verify(root=ROOT, baseline=BASELINE):
           'previous W10 sources, card data, notes, Python runner and unchanged build machinery remain protected')
     check(not (root / 'w10/examples/index.html').exists(),
           'no nonexistent historical example alias is invented')
+
+    # The W11 successor pins the next publication and never calls an older
+    # audit. Each deferred change has its own nonrecursive exact-scope check.
+    if (root / 'tools/lessons/w11.html').is_file():
+        from verify_fresh_week11 import verify as verify_fresh_week11
+        successor = verify_fresh_week11(root)
+        check(successor['status'] == 'passed',
+              'authorized Week 11 successor passes its exact-scope preservation audit')
 
     entry_links = []
     for path in sorted(root.rglob('*.html')):
@@ -309,7 +331,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'new_files_in_exact_scope': sorted(new_files),
         'week1_through_week8_all_files_byte_identical': True,
         'builder_and_rebuild_verifier_byte_identical': True,
-        'other_week_main_pages_unchanged': 12,
+        'other_week_main_pages_unchanged': 11 if successor else 12,
+        'authorized_successor_audit': successor,
         'week9_change_is_only_one_onward_link': True,
         'legacy_redirects_checked': redirects['aliases'],
         'historical_week10_notes_redirects': len(w10_aliases),
