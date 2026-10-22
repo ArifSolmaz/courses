@@ -17,7 +17,7 @@ Hesap maliyetlerinde, aksi söylenmedikçe küçük tamsayıların karşılaşt�
 
 ## 1. Her tablo hücresine açık bir anlam verin
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** “6 numaralı hücrede 2 var” tek başına bir açıklama değildir. Bu 2, iki çözüm mü, iki para mı, iki saniye mi? Önce birimi ve amacı söylemeliyiz: “6 tutarını oluşturmak için gereken en az para sayısı 2.”
 
@@ -39,7 +39,7 @@ Hesap maliyetlerinde, aksi söylenmedikçe küçük tamsayıların karşılaşt�
 
 ## 2. Altı tutarını en az sayıda parayla oluşturmak
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 1,3,4 değerli paralardan sınırsız kopya var. Büyükten başlamak 4+1+1 ile üç para kullanır. 3+3 ise iki para kullanır. 6 değerli tek para olmadığı için iki paranın optimum olduğu da anlaşılır.
 
@@ -63,7 +63,7 @@ Hesap maliyetlerinde, aksi söylenmedikçe küçük tamsayıların karşılaşt�
 
 ## 3. cat sözcüğünü cut yapmak
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 İzin verilen işlemler bir harf ekleme, bir harf silme ve bir harfi değiştirmedir; her biri 1 maliyetlidir. Aynı harfi eşleştirmek 0 maliyetlidir. `cat → cut` için a yerine u yazmak yeterlidir; cevap 1'dir.
 
@@ -83,7 +83,7 @@ Hesap maliyetlerinde, aksi söylenmedikçe küçük tamsayıların karşılaşt�
 
 ## 4. Boş satır ve sütun gerçek problemleri temsil eder
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-2-7)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-2-7)
 
 Kaynak satırlarda, hedef sütunlarda olsun. ∅ işareti boş önektir; metnin içine eklenmiş bir karakter değildir.
 
@@ -106,7 +106,7 @@ Kaynak satırlarda, hedef sütunlarda olsun. ∅ işareti boş önektir; metnin 
 
 ## 5. Yalnızca işlem sayısını değil işlemleri de bulmak
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-5)
 
 `sun → snow` için bir optimum dönüşüm şöyledir:
 
@@ -127,7 +127,7 @@ Toplam: 3
 
 ## 6. Kendi sözcüklerinizi deneyin
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
 
 Kaynak ve hedef alanlarını değiştirip **Build table** düğmesine basın. **Step →** hesaplanan hücreleri sırayla gösterir. Turuncu hücre şu anda hesaplanandır; son adım minimum uzaklıkla birlikte bir optimum hizalama verir. Yeni girişler hem sayıları hem açıklamaları yeniden oluşturur.
 
@@ -147,7 +147,7 @@ Kaynak ve hedef alanlarını değiştirip **Build table** düğmesine basın. **
 
 ## 7. Python kodunda tabloyu satır satır kurmak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-6)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-6)
 
 Ana ders sayfasındaki **Run** düğmesi aşağıdaki kodu çalıştırır. Kod kaynakla bire bir aynıdır; giriş kutusu gerektiren `input()` çağrısı yoktur.
 
@@ -207,7 +207,7 @@ Distance: 1
 
 ## 8. Ortak sırayı koruyun, aralarda boşluk olabilir
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 `ABCD` ile `ACBD` karşılaştırılıyor. `ABD` her ikisinde de aynı sırada bulunur; bazı harfleri atlıyoruz. `ACD` de ortak ve uzunluğu 3'tür. Dört harfli ortak alt dizi olsaydı iki metnin tamamı aynı sırada olmalıydı; değiller. Bu nedenle en uzun ortak alt dizi uzunluğu 3'tür.
 
@@ -224,7 +224,7 @@ Distance: 1
 
 ## 9. İlk mola: aynı tablo biçimi, farklı anlamlar
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalardaki moladan sonra aşağıdaki ayrımları kontrol edin.
 
@@ -244,7 +244,7 @@ Distance: 1
 
 ## 10. Artan alt dizi için sırayı değiştirmeyin
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 Girdi `3,1,4,1,5,9,2,6`. Amaç bazı konumları seçerek değerleri kesin artan bir alt dizi bulmaktır. `3,4,5,6` geçerli ve uzunluğu 4'tür; değerler orijinal sıradadır.
 
@@ -265,7 +265,7 @@ Girdi `3,1,4,1,5,9,2,6`. Amaç bazı konumları seçerek değerleri kesin artan 
 
 ## 11. İki akışı kendi iç sıralarını bozmadan karıştırmak
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 Girdiler `AB` ve `CD`. Çıktı `ACBD` olabilir: A birinci akıştan, C ikinciden, B birinciden, D ikinciden alınır. `ADBC` olamaz; D, C'den önce kullanılmıştır.
 
@@ -285,7 +285,7 @@ Girdiler `AB` ve `CD`. Çıktı `ACBD` olabilir: A birinci akıştan, C ikincide
 
 ## 12. Uzun mesajın içinde yaklaşık eşleşme aramak
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-4)
 
 Desen `cat`, metin `xxcutyy`. Bütün metinleri dönüştürmek, ilgisiz xx ve yy harflerine de işlem maliyeti yükler. Burada desenin metin içindeki en iyi parçayla eşleşmesini istiyoruz.
 
@@ -304,7 +304,7 @@ En iyi bitiş beşinci metin harfindedir: `xxcut` önekinin sonunda. Geriye izle
 
 ## 13. En değerli tek nesne yerine en iyi birleşimi seçmek
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 Nesneler ağırlık/değer olarak (2,3), (3,4), (4,5). Kapasite 5. En değerli tek nesne 5 değer verir. İlk iki nesne birlikte ağırlık 5, değer 7 verir ve daha iyidir.
 
@@ -327,7 +327,7 @@ Son hücrede üçüncü nesneyi alma adayı `5+V[2][1]=5`; almama adayı `V[2][5
 
 ## 14. Daha çok iş yapmak ile daha çok ücret kazanmak farklıdır
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 A işi [1,10) aralığında ve ücreti 10. B [2,3), ücreti 3; C [4,5), ücreti 4. B ve C birlikte yapılabilir; gelir 7. A tek başına 10 getirir ama diğerleriyle çakışır.
 
@@ -349,7 +349,7 @@ Bitiş zamanına göre sıra B,C,A olur. `OPT[i]`, bu sıradaki ilk i işten eld
 
 ## 15. Burada biten en iyi parça, genel en iyi parça değildir
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Dizi −2,3,−1,4,−5. Bitişik, boş olmayan bir parçanın toplamını en büyük yapmak istiyoruz. `3,−1,4` toplamı 6. −1'i atlayıp 3+4=7 diyemeyiz; bitişiklik bozulur.
 
@@ -371,7 +371,7 @@ Son elemanda biten en iyi toplam 1 iken genel cevap 6'dır. Bu nedenle yalnızca
 
 ## 16. İkinci mola: çıktı türünü ve kısıtı söyleyin
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalar arasındaki moladan sonra her problem için tek cümlelik durum tanımı yapın.
 
@@ -391,7 +391,7 @@ Son elemanda biten en iyi toplam 1 iken genel cevap 6'dır. Bu nedenle yalnızca
 
 ## 17. İki kırılabilir numuneyle en kötü durumu planlamak
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
 
 10 kat ve iki özdeş yumurta var. Bilinmeyen en yüksek güvenli kat 0 ile 10 arasında olabilir: toplam 11 eşik. Eşik katı ve altındaki atışlar güvenli, üstündekiler kırılma yaratır. Gürültüsüz, sabit ve monoton bir eşik varsayıyoruz.
 
@@ -418,7 +418,7 @@ Hepsi güvenliyse eşik 10'dur. Aralıklar 4,3,2,1 diye küçülür; önceki ba�
 
 ## 18. İlk kesim sonraki maliyetleri değiştirir
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
 
 10 uzunluğunda parça 2 ve 5 konumlarından kesilecek. Bir kesim o anda kesilen parçanın uzunluğu kadar maliyetli olsun.
 
@@ -447,7 +447,7 @@ Son parçalar aynı uzunlukta olsa da işlem sırası maliyeti değiştirir. Bu,
 
 ## 19. Yol parçası sayısı ile yakıt molası sayısını ayırmak
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-7)
 
 Tam depoyla menzil 60. İstasyonlar 40,70,120,150; hedef 190. Başlangıç 0'da depo dolu, hareket ileri yönde, her duruş depoyu tamamen dolduruyor; fiyat farkı yok.
 
@@ -472,7 +472,7 @@ Bu basit modelde en uzaktaki ulaşılabilir istasyona gitmek de doğru bir açg�
 
 ## 20. Sıralı işleri en ağır grubu küçülterek paylaşmak
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 1,2,3,4,5 süreli işler iki boş olmayan bitişik gruba ayrılacak. Sıra değiştirilemez. Amaç grup toplamlarının en büyüğünü en aza indirmektir; iki eş hızlı işçi eşzamanlı çalışırsa bu en büyük toplam bitiş süresini belirler.
 
@@ -495,7 +495,7 @@ Dört olasılığın tamamı kontrol edildi: optimum 9. Toplam 15 olduğundan te
 
 ## 21. Yavaş ve hızlı sensör akışlarını hizalamak
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-dtw)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-dtw)
 
 A=[1,3,3,1], B=[1,3,1]. A'daki 3 değeri iki örnek boyunca, B'de bir örnek boyunca sürüyor. İndeksleri doğrudan eşlemek ilk üç çiftte 0+0+2 maliyet verir ve A'nın son elemanı açıkta kalır; bu tam bir hizalama değildir.
 
@@ -525,7 +525,7 @@ B'ye yeni fiziksel ölçüm eklenmedi; aynı ölçüm hizalamada iki kez kullan�
 
 ## 22. DP kullanmak küçük tablo garantisi vermez
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
 
 Düzenleme uzaklığında iki önek uzunluğu gelecekteki seçenekleri belirlemek için yeterliydi. Ama silme maliyeti bir önceki işlemin silme olup olmamasına bağlıysa aynı (i,j) durumuna farklı geçmişlerden gelmek farklı gelecek maliyetleri doğurabilir. Bu durumda işlem türü gibi ek bilgi tutulmalıdır.
 
