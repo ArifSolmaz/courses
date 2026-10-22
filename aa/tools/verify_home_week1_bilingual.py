@@ -199,7 +199,7 @@ def expected_turkish(old):
         '<span aria-current="page" lang="tr">Türkçe</span></nav></div>')
     s = s.replace('<link rel="stylesheet" href="../lesson.css?v=1">',
         '<link rel="stylesheet" href="../lesson.css?v=1">\n'
-        '<link rel="stylesheet" href="../../assets/lesson-language.css?v=1">\n'
+        '<link rel="stylesheet" href="../../assets/lesson-language.css?v=2">\n'
         '<link rel="alternate" hreflang="en" href="../">')
     for before, after in TR_LABELS.items():
         assert s.count(before) == 1, f'one original native select label: {before}'
