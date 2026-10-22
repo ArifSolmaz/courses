@@ -21,7 +21,7 @@ Aksi söylenmedikçe yönlü graflar kullanılır; komşular ve yeni DFS kökler
 
 ## 1. Kuyruk yayılır; DFS derine gider
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** A'dan B ve C'ye, B'den D'ye gidilebilsin: AB, AC, BD. Robot bütün erişilebilir odaları araştıracak. Harfler oda kimliğidir; mesafe değildir.
 
@@ -42,7 +42,7 @@ BFS, önceden bekleyen C'yi yeni bulunan D'den önce işler. DFS ise B'nin araş
 
 ## 2. Geri dönüş, yarım kalan işe dönmektir
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** Basit A→B→D zincirini izliyoruz. Yığının soldaki ucu taban, sağdaki ucu tepedir.
 
@@ -65,7 +65,7 @@ D'nin çıkış kenarı yoksa D hemen tamamlanır. B'ye dönüldüğünde B'yi y
 
 ## 3. Görülmüş olmak ile aktif olmak aynı şey değildir
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Problem.** Yönlü elmas graf: A→B, A→C, B→D, C→D. İki farklı yol D'de buluşur.
 
@@ -91,7 +91,7 @@ D'den geriye giden ok yok.
 
 ## 4. Altı düğümlü örnekte çevrimi göstermek
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 **Veri.** Oklar AB, AC, BD, CD, CF, DE, EB; düğümler A–F. Alfabetik incelemede ilk derin rota A→B→D→E olur.
 
@@ -111,7 +111,7 @@ Animasyon çevrimi kaydettikten sonra araştırmayı sürdürür. E, D ve B tama
 
 ## 5. Giriş ve çıkış iki ayrı olaydır
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-1-3)
 
 Örnek 4'teki grafı kullanıp her girişte ve her bitişte sayacı bir artırıyoruz. Kenar incelerken bu saat artmıyor.
 
@@ -134,7 +134,7 @@ Bir düğümün DFS ağacındaki torunları, giriş-çıkış aralığının iç
 
 ## 6. Açık yığınla çağrıları taklit etmek
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
 
 Python iç içe çağrıları kendi çağrı yığınında saklayabilir. Çok uzun bir zincir, çok sayıda eşzamanlı çağrı gerektirir. Yinelemeli DFS'de bu kayıtları kendimiz tutabiliriz.
 
@@ -159,7 +159,7 @@ Bir kayıt **(düğüm, sıradaki komşu indeksi)** biçiminde olsun. A'nın lis
 
 ## 7. Düğümleri ve kenarları ayrı saymak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
 
 **Problem.** Altı düğümlü iki farklı yönlü grafı karşılaştıralım. Birincisi A→B→C→D→E→F zinciri: n=6,m=5. İkincisinde aynı altı düğüm arasında 12 farklı ok olsun: n=6,m=12.
 
@@ -181,7 +181,7 @@ Her iki grafın tam DFS taramasında altı giriş ve altı çıkış vardır. Bu
 
 ## 8. Dört kenar sınıfını iz üzerinden ayırmak
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Veri.** AB, AC, AD, BD, CD oklarını alfabetik sırada izleyelim. B→D, D'yi ilk kez keşfeder. D ve B bittikten sonra C açılır.
 
@@ -203,7 +203,7 @@ Bu graf çevrimsizdir; **geri kenar içermez**. D→A eklenirse D aktifken A da 
 
 ## 9. İlk mola: üç ayrımı tekrar etmek
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalar arasındaki mola, üç saatlik planın içindedir. Dönünce aşağıdaki soruları önce kendiniz cevaplayıp açıklamalarla karşılaştırın.
 
@@ -217,7 +217,7 @@ Bu graf çevrimsizdir; **geri kenar içermez**. D→A eklenirse D aktifken A da 
 
 ## 10. Tek koridoru iki ayrı kenar sanmamak
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 **Problem.** Yönsüz A—B kenarı komşuluk listesinde hem A:[B] hem B:[A] olarak saklanır. Bunlar aynı fiziksel bağlantının iki kaydıdır.
 
@@ -236,7 +236,7 @@ Tek kenar: A—B        çevrim yok
 
 ## 11. Bir okun yönü sonucu değiştirir
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 Başlangıç A→B→C olsun. C'den çıkış olmadığı için geri dönüş yoktur. Şimdi iki farklı değişikliği karşılaştırın.
 
@@ -255,7 +255,7 @@ Graf modeli fiziksel sistemin kararlılığını tek başına kanıtlamaz. DFS �
 
 ## 12. Ön koşullar iş sırasını belirler
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 **İşler.** A: tabanı monte et, B: sensörü tak, C: kalibrasyon yap, D: test et. Modelin okları A→C, B→C, C→D. Model yalnızca yazılan ön koşulları kabul eder.
 
@@ -275,7 +275,7 @@ Geçersiz: A, C, B, D  (B→C ihlal edilir)
 
 ## 13. Önce bitir, sonra listeyi ters çevir
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-4-2)
 
 **Ortak DAG.** AB, AC, BD, CD, CE, DE okları; A–E düğümleri. Alfabetik DFS A→B→D→E dalını açar.
 
@@ -297,7 +297,7 @@ Tersi **A,C,B,D,E** olur. A, B ve C'den önce; B ve C, D'den önce; C ve D, E'de
 
 ## 14. Kahn: bekleyecek işi kalmayanı seçmek
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Aynı beş düğümlü graf için başlangıç giriş dereceleri A:0,B:1,C:1,D:2,E:2. Hazır kuyruğu yalnızca A içerir.
 
@@ -319,7 +319,7 @@ Buradaki kaldırma mantıksaldır; özgün grafın çizimini silmek zorunlu değ
 
 ## 15. İki farklı doğru cevabı doğrulamak
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-6)
 
 Önceki graf için DFS **A,C,B,D,E**, Kahn **A,B,C,D,E** verdi. Birini diğerine benzemediği için yanlış sayamayız.
 
@@ -339,7 +339,7 @@ Buradaki kaldırma mantıksaldır; özgün grafın çizimini silmek zorunlu değ
 
 ## 16. İkinci mola: kanıtı bir cümlede söylemek
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalar arasındaki moladan sonra üç küçük graf çizin: zincir, yönlü elmas ve yönlü üçgen.
 
@@ -359,7 +359,7 @@ Buradaki kaldırma mantıksaldır; özgün grafın çizimini silmek zorunlu değ
 
 ## 17. Kuyruğun erken boşalması ne anlatır?
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Ortak DAG'a **E→B** ekleyelim. Yeni çevrim B→D→E→B. Başlangıç sayaçları A:0,B:2,C:1,D:2,E:2 olur.
 
@@ -379,7 +379,7 @@ Sıra [A,C] olarak kalır. B E'yi, D B'yi, E D'yi bekler. Üç kalan düğümün
 
 ## 18. Kendi oklarınızla deney yapmak
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-editor)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-editor)
 
 Editörde **AB**, A→B demektir. BA ters yöndeki başka bir oktur. Düğüm kümesi her zaman A,B,C,D,E,F olarak kalır; kenar yazılmayan düğümler kaybolmaz.
 
@@ -407,7 +407,7 @@ E ve F'nin erken çıkması hata değildir; hiçbir ön koşulları yoktur. Kuyr
 
 ## 19. Python kodunu satır satır anlamak
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Ders sayfasındaki kod, beş iş için Kahn algoritmasını çalıştırır. `input()` çağrısı yoktur; veri doğrudan `graph` sözlüğündedir.
 
@@ -475,7 +475,7 @@ Cycle detected. Partial order: ['A', 'C']
 
 ## 20. Bir düğümün kaybı ağı böler mi?
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
 
 **Problem.** Yönsüz A—B—C zinciri ile A—B—C—A üçgenini karşılaştırıyoruz. Başlangıçta her biri tek bağlı bileşendir. B'yi ve B'ye bağlı bütün kenarları kaldırın.
 
@@ -494,7 +494,7 @@ Cycle detected. Partial order: ['A', 'C']
 
 ## 21. Tek yönlü erişim güçlü bağlılık değildir
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
 
 **Veri.** A→B→C→A çevrimi ve C→D oku. A,B,C birbirine ok yönlerini izleyerek ulaşabilir. D'ye de ulaşırlar fakat D'den geri dönemezler.
 
@@ -515,7 +515,7 @@ Cycle detected. Partial order: ['A', 'C']
 
 ## 22. Önce soruyu seç, sonra kanıtı göster
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-8-1)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-8-1)
 
 Aynı graf yapısı farklı sorular için farklı algoritmalar gerektirir. Bir algoritmayı tanımak, onu her soruya uygulamak demek değildir.
 

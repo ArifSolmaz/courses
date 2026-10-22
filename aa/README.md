@@ -502,3 +502,37 @@ and a small sample of archive routes. These checks establish technical and
 presentation correctness, not learning effects or lesson duration. The draft
 is presented for review before publication; no builder or verifier publishes
 it.
+
+## Fresh Week 9 teaching draft
+
+`tools/lessons/w9.html` is independently authored from the new plan and fresh
+Weeks 1–8. The earlier Week 9 notes are used only as technical archive and
+URL-preservation fixtures. The unchanged builder copies the source exactly to
+`w9/index.html`, using the fresh Week 1 shared stylesheet and three local
+model/style/enhancement files.
+
+The lesson moves from hop distance to directed dependencies. It separates the
+graph contract, active DFS stack, traversal, cycle evidence, dependency order
+and the meaning of cost before guided and independent work. Tracing,
+mathematical meaning, method choice and links between lessons address the
+four learning problems together. Numeric feedback and written reasoning
+remain separate. The next-week question does not lead into the unrevised
+Week 10 main.
+
+The former authored main stays at `w9/onceki-ders.html` at its original URL
+depth with all original text, styles, scripts, card data and local references.
+Its separate generated supplemental notes, detailed lecture notes, original
+sources and Python runner remain byte-identical. Technical-note HTML and
+Markdown change only the 46 inventoried old-card URLs: 22 example links in
+each format and two HTML return links. Fresh Week 8 gains one marked onward
+link; all Week 1–7 product files and shared assets remain unchanged.
+
+Checks: `node aa/tools/verify_fresh_week9_model.cjs`,
+`python3 aa/tools/verify_fresh_week9.py`, the nonrecursive fresh-week
+exact-scope chain and existing alignment, redirect, learning-bridge and
+disposable rebuild verifiers. Browser QA covers interactions, form feedback,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and the preserved archive entry links. These checks establish technical and
+presentation correctness, not learning effects or lesson duration. The draft
+is presented for review before publication; no builder or verifier publishes
+it.
