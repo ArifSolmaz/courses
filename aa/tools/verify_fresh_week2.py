@@ -204,6 +204,9 @@ def verify(root=ROOT, baseline=BASELINE):
     if (root / 'tools/lessons/w11.html').is_file():
         from verify_fresh_week11 import SUCCESSOR_EXISTING_CHANGES as W11_CHANGES
         allowed_changes.update(W11_CHANGES)
+    if (root / 'tools/lessons/w12.html').is_file():
+        from verify_fresh_week12 import SUCCESSOR_EXISTING_CHANGES as W12_CHANGES
+        allowed_changes.update(W12_CHANGES)
     protected = {path: digest for path, digest in tracked.items()
                  if path not in allowed_changes}
     drift = [path for path, digest in protected.items()
@@ -247,7 +250,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'old_lesson_bytes_text_and_anchors_preserved': True,
         'old_lesson_anchors': len(old_page.ids),
         'protected_existing_files': len(protected), 'protected_drift': drift,
-        'other_week_main_pages_unchanged': (3 if (root / 'tools/lessons/w11.html').is_file()
+        'other_week_main_pages_unchanged': (2 if (root / 'tools/lessons/w12.html').is_file()
+                                          else 3 if (root / 'tools/lessons/w11.html').is_file()
                                           else 4 if (root / 'tools/lessons/w10.html').is_file()
                                           else 5 if (root / 'tools/lessons/w9.html').is_file()
                                           else 6 if (root / 'tools/lessons/w8.html').is_file()

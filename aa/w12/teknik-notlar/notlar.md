@@ -21,7 +21,7 @@ Sayılar küçük olsa da aynı kavram farklı örneklerde farklı şeyi sayar: 
 
 ## 1. En büyük parayı almak her zaman güvenli değildir
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** Değerleri 1,3,4 olan paralardan sınırsız kopya var. Toplam 6 oluştururken para sayısını en aza indirmek istiyoruz.
 
@@ -40,7 +40,7 @@ Sayılar küçük olsa da aynı kavram farklı örneklerde farklı şeyi sayar: 
 
 ## 2. Al veya atla: alt kümeleri üretmek
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 Üç farklı görev A,B,C için her birine iki karar verilir: al veya atla. Karar sırası A,B,C olarak sabittir.
 
@@ -61,7 +61,7 @@ Toplam 2×2×2=8 alt küme vardır. Boş küme de geçerli seçimdir: bütün g�
 
 ## 3. Görev seçmek ile görev sıralamak farklıdır
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-5)
 
 A,B,C görevlerinin hepsi bir kez yapılacak; hangi sırada yapılacağını araştırıyoruz. İlk konuma üç, ikinciye kalan iki, sonuncuya kalan bir seçenek vardır.
 
@@ -82,7 +82,7 @@ Alt kümede AB ile BA aynı seçilmiş kümedir. Permütasyonda ABC ile BAC fark
 
 ## 4. Eşit etiketler aynı cevabı tekrar üretebilir
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-7)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-7)
 
 A,A,B harflerini düzenleyelim. İki A'yı geçici olarak A₁,A₂ diye ayırırsak altı indeks sıralaması vardır. Fakat A₁ ile A₂ görünürde aynı harftir.
 
@@ -104,7 +104,7 @@ Görünür cevap sayısı 3!/2!=3'tür. İki A'nın yer değiştirmesi yeni gör
 
 ## 5. Dört veziri satır satır yerleştirmek
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 4×4 tahtada birbirini tehdit etmeyen dört vezir yerleştiriyoruz. Her satıra bir vezir koyduğumuz için satır çatışmasını temsil zaten önler. Karar, sıradaki satırın sütunudur.
 
@@ -127,7 +127,7 @@ Görünür cevap sayısı 3!/2!=3'tür. İki A'nın yer değiştirmesi yeni gör
 
 ## 6. Sudoku'da az seçeneği olan hücreden başlamak
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
 
 Görsel 1–4 rakamlarını kullanan 4×4 Sudoku'dur. Her satır, sütun ve 2×2 kutu her rakamı bir kez içermelidir. Verilmiş ipuçları sabit tutulur.
 
@@ -159,7 +159,7 @@ Hiç adayı olmayan hücreye gelinirse önceki denemelerden biri geri alınır. 
 
 ## 7. Dokuz milisaniyeyi tam dolduran görevleri seçmek
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 Görev süreleri sırasıyla 3,34,4,12,5,2 ms. Her görev en fazla bir kez seçilebilir. Hedef en fazla 9 değil, **tam 9**'dur.
 
@@ -182,7 +182,7 @@ Bu örnekte iki çözüm vardır. Büyük süreli 34 ve 12, pozitif süreler ara
 
 ## 8. Negatif değer, “hedefi aştıysan dur” kuralını bozar
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 Bu kez matematiksel sayılar 5,4,−3,2; hedef 6. Fiziksel görev süresinin negatif olduğunu iddia etmiyoruz; budama varsayımını sınayan karşı örnektir.
 
@@ -205,7 +205,7 @@ s=9 ve kalanlar {−3,2} için alt sınır 9−3=6, üst sınır 9+2=11'dir. Hed
 
 ## 9. İlk mola: seçim ve budama ayrımı
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html)
 
 64–74. dakikalar arasındaki moladan sonra aşağıdaki cevapları birer örnekle açıklayın.
 
@@ -221,7 +221,7 @@ s=9 ve kalanlar {−3,2} için alt sınır 9−3=6, üst sınır 9+2=11'dir. Hed
 
 ## 10. Fibonacci aynı soruyu tekrar tekrar sorar
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 Tanım F(0)=0, F(1)=1; n≥2 için F(n)=F(n−1)+F(n−2). İlk değerler 0,1,1,2,3,5'tir.
 
@@ -246,7 +246,7 @@ Bu sayım için C(n)=2F(n+1)−1 bağıntısı da geçerlidir. Örneğin C(5)=2�
 
 ## 11. Memoization tamamlanan cevabı hatırlar
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 Önbellek başlangıçta boş olsun. F(5) için ilk kez F(3) gerektiğinde alt çağrılar hesaplanır ve sonuç 2, anahtar 3 altında saklanır. Sonraki F(3) isteğinde aynı alt ağaç tekrar açılmaz.
 
@@ -268,7 +268,7 @@ Bu sayım için C(n)=2F(n+1)−1 bağıntısı da geçerlidir. Örneğin C(5)=2�
 
 ## 12. Tabloyu bağımlılık sırasıyla doldurmak
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Fibonacci'yi aşağıdan yukarı hesaplayalım. F(0)=0 ve F(1)=1 hazırdır. Sonraki hücre, önceki iki hücrenin toplamıdır.
 
@@ -292,7 +292,7 @@ Tablo 0,1,1,2,3,5,8 olur. Her hücre hesaplanırken gerekli iki önceki cevap ha
 
 ## 13. Dört basamağa çıkış yollarını saymak
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-5-3)
 
 Her hareket 1 veya 2 basamak; sıralama önemli. Dört basamak için beş hareket dizisi vardır:
 
@@ -316,7 +316,7 @@ Bu nedenle ways[n]=ways[n−1]+ways[n−2]. ways[0]=1 ve ways[1]=1. Tablo n=0…
 
 ## 14. Durum geleceği belirleyecek kadar bilgi tutmalı
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 “Şimdi toplam 4” bilgisi tek başına yeterli olmayabilir. Örneğin görev süreleri 4,2,2,5 ve hedef 6 olsun. İlk 4'ü aldıktan sonra hâlâ 2,2,5 görevleri vardır ve hedef tamamlanabilir. İlk üç görevi işleyip iki tane 2'yi seçtiysek toplam yine 4'tür; geriye yalnızca 5 kaldığından 6 yapılamaz.
 
@@ -338,7 +338,7 @@ Pozitif süreli karar probleminde t=0 ise boş kalan seçim yeterlidir. Görevle
 
 ## 15. Ekip seçmek: son kişiyi al veya alma
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-5-5)
 
 Beş farklı kişiden üç kişilik ekip seçiyoruz. Sıra önemli değil. Son kişi E olsun.
 
@@ -368,7 +368,7 @@ Satırdaki konum k=0'dan başlar. C(5,3), son satırın dördüncü girişidir: 
 
 ## 16. İkinci mola: bağıntı aynı, anlam farklı olabilir
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html)
 
 122–132. dakikalar arasındaki moladan sonra üç taban durumu karşılaştırın.
 
@@ -388,7 +388,7 @@ Satırdaki konum k=0'dan başlar. C(5,3), son satırın dördüncü girişidir: 
 
 ## 17. Hiçbir etiket kendi yerinde kalmasın
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-1-6)
 
 1,2,3 etiketlerini 1,2,3 konumlarına birer kez yerleştiriyoruz. i konumuna i etiketi gelemez. Böyle permütasyonlara sabit noktasız permütasyon, İngilizcede derangement denir.
 
@@ -408,7 +408,7 @@ Normal permütasyon aramasına ek olarak aday etiketin konumdan farklı olması 
 
 ## 18. Tam iki kenar kullanmak ayrı bir kısıttır
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-8)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-8)
 
 A→B=2, B→C=3, A→C=1 olsun. Kaynak A.
 
@@ -430,7 +430,7 @@ Serbest kenar sayısında A→C maliyeti 1 en iyidir. **Tam iki kenar** koşulun
 
 ## 19. Merdiven tablosunu Python'da çalıştırmak
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-4-4)
 
 Ana örnekteki Run düğmesi aşağıdaki kodu çalıştırır. n değişkeni basamak sayısıdır; sonuç, 1 veya 2 basamaklık hareketlerin sıralı dizilerini sayar.
 
@@ -482,7 +482,7 @@ Number of routes: 5
 
 ## 20. Robot engelin çevresindeki rotaları sayar
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6-2)
 
 Izgara 3 satır, 4 sütun. Başlangıç sol üst, hedef sağ alt. Yalnızca **sağa veya aşağıya** gidilebilir. Görselin başlangıç engeli ikinci satır ikinci sütundadır; aşağıda satır ve sütunları 1'den sayıyoruz.
 
@@ -506,7 +506,7 @@ Engelin üzerinden geçecek rotalar da sayılabilir: başlangıçtan (2,2)'ye 2 
 
 ## 21. Robot kolunda düzeltilemeyecek çarpışmayı erken elemek
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-6-1)
 
 Üç eklemin her birinde 12 izinli açı var. Bütün tam konfigürasyonlar 12³=1.728 adettir. Sabit tabanlı seri kol modelinde önceki eklem açıları sabitse sonraki eklemler, önceki kol parçasının konumunu değiştirmez.
 
@@ -528,7 +528,7 @@ Toplam önek düzeyinde kontrol 12+96+864=972'dir. Üçüncü aşamadaki bütün
 
 ## 22. Listele, say veya karar ver: doğru çıktıyı seçmek
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-9)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-5-9)
 
 Aynı görev kümesi için farklı istekler farklı iş gerektirir.
 

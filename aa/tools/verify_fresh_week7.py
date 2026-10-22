@@ -262,6 +262,11 @@ def verify(root=ROOT, baseline=BASELINE):
                                         EXPECTED_NEW_FILES as W11_NEW_FILES)
         allowed_changes.update(W11_CHANGES)
         expected_new_files.update(W11_NEW_FILES)
+    if (root / 'tools/lessons/w12.html').is_file():
+        from verify_fresh_week12 import (SUCCESSOR_EXISTING_CHANGES as W12_CHANGES,
+                                        EXPECTED_NEW_FILES as W12_NEW_FILES)
+        allowed_changes.update(W12_CHANGES)
+        expected_new_files.update(W12_NEW_FILES)
     new_files = {path.relative_to(repo).as_posix() for path in root.rglob('*')
                  if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'
                  and path.relative_to(repo).as_posix() not in tracked}
@@ -341,7 +346,8 @@ def verify(root=ROOT, baseline=BASELINE):
         'new_files_in_exact_scope': sorted(new_files),
         'week1_through_week5_all_files_byte_identical': True,
         'builder_and_rebuild_verifier_byte_identical': True,
-        'other_week_main_pages_unchanged': (8 if (root / 'tools/lessons/w11.html').is_file()
+        'other_week_main_pages_unchanged': (7 if (root / 'tools/lessons/w12.html').is_file()
+                                          else 8 if (root / 'tools/lessons/w11.html').is_file()
                                           else 9 if (root / 'tools/lessons/w10.html').is_file()
                                           else 10 if (root / 'tools/lessons/w9.html').is_file()
                                           else 11 if successor else 12),

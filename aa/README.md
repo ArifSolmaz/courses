@@ -604,3 +604,37 @@ and the preserved archive entry links. These checks establish technical and
 presentation correctness, not learning effects or lesson duration. The draft
 is presented for review before publication; no builder or verifier publishes
 it.
+
+## Fresh Week 12 teaching draft
+
+`tools/lessons/w12.html` is independently authored from the new plan and fresh
+Weeks 1–11. The earlier Week 12 notes are used only as technical archive and
+URL-preservation fixtures. The unchanged builder copies the source exactly to
+`w12/index.html`, using the fresh Week 1 shared stylesheet and three local
+model/style/enhancement files.
+
+The lesson moves from cheapest paths to walks constrained to exactly k
+edges. It separates the graph contract, walk definition, choice tree,
+explicit search, safe pruning and the meaning of cost before guided and
+independent work. Tracing, mathematical meaning, method choice and links
+between lessons address the four learning problems together. Numeric feedback
+and written reasoning remain separate. The next-week question does not lead
+into the unrevised Week 13 main.
+
+The former authored main stays at `w12/onceki-ders.html` at its original URL
+depth with all original text, styles, scripts, card data and local references.
+Its separate generated supplemental notes, detailed lecture notes, original
+sources and Python runner remain byte-identical. Technical-note HTML and
+Markdown change only the 46 inventoried old-card URLs: 22 example links in
+each format and two HTML return links. Fresh Week 11 gains one marked onward
+link; all Week 1–10 product files and shared assets remain unchanged.
+
+Checks: `node aa/tools/verify_fresh_week12_model.cjs`,
+`python3 aa/tools/verify_fresh_week12.py`, the nonrecursive fresh-week
+exact-scope chain and existing alignment, redirect, learning-bridge and
+disposable rebuild verifiers. Browser QA covers interactions, form feedback,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and the preserved archive entry links. These checks establish technical and
+presentation correctness, not learning effects or lesson duration. The draft
+is presented for review before publication; no builder or verifier publishes
+it.
