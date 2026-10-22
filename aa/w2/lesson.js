@@ -159,7 +159,10 @@
   let workedWasOpen = false;
   window.addEventListener('beforeprint', () => { workedWasOpen = worked.open; worked.open = true; });
   window.addEventListener('afterprint', () => { worked.open = workedWasOpen; });
-  document.querySelectorAll('.js-only').forEach(node => { node.hidden = false; });
+  document.querySelectorAll('.js-only').forEach(node => {
+    node.hidden = false;
+    if (node.matches('button[type="submit"]')) node.disabled = false;
+  });
   document.documentElement.classList.add('lesson-ready');
   reset();
 })();

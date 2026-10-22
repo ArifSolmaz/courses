@@ -111,7 +111,8 @@ if (root/'tools/lessons/home.html').is_file():
  assert (root/'index.html').read_bytes()==(root/'tools/lessons/home.html').read_bytes()
  assert 'href="resources/"' in home
  for n in range(1,15):assert f'href="w{n}/"' in home,(n,'fresh route entry')
- for source,destination in (('resources.html','resources/index.html'),('teaching.html','resources/teaching/index.html'),('w1.tr.html','w1/tr/index.html')):
+ translated=[(f'w{n}.tr.html',f'w{n}/tr/index.html') for n in range(1,15) if (root/f'tools/lessons/w{n}.tr.html').is_file()]
+ for source,destination in [('resources.html','resources/index.html'),('teaching.html','resources/teaching/index.html')]+translated:
   assert (root/destination).read_bytes()==(root/'tools/lessons'/source).read_bytes()
   check_links(root/destination,(root/destination).read_text())
  reference=(root/'resources/index.html').read_text()

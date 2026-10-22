@@ -734,3 +734,28 @@ not broadened to waive this later migration. The new audit checks every
 unrelated AA file against the approved fourteen-week baseline and preserves
 the earlier dashboard byte for byte. This draft is for review; building or
 checking it does not publish it.
+
+## English/Turkish Week 2
+
+Week 2 opens in English at `w2/`, with the complete Turkish lesson at
+`w2/tr/`. Its canonical sources are `tools/lessons/w2.html` and
+`tools/lessons/w2.tr.html`. Both editions use the same unchanged count/search
+model and the Week 2 stylesheet, whose controls accommodate enlarged labels.
+They use the unchanged Week 1 shared stylesheet and `assets/lesson-language.css`. The localized enhancements are
+`w2/lesson.en.js` and `w2/lesson.js`; number checks remain disabled unless
+JavaScript has initialized successfully.
+
+The Week 1/2 trace, forward and return links keep the selected language.
+Week 3 still opens in Turkish and is identified accordingly from English
+Week 2. The homepage reports Weeks 1–2 as bilingual. Week 2 instructor
+notes are collected at `resources/teaching/#week2-en` and `#week2-tr`;
+all existing notes, practice banks and other weekly content are preserved.
+
+Use `python3 aa/tools/verify_week2_bilingual.py` for this migration's
+pinned exact-scope audit, plus `python3 aa/tools/verify_alignment.py`,
+`node aa/tools/verify_fresh_week2_model.cjs`,
+`python3 aa/tools/verify_redirects.py` and
+`python3 aa/tools/verify_rebuild.py`. Historical package verifiers retain
+their original scope and are not weakened to allow later migrations.
+This package is prepared for review before publication; no build or check
+publishes it.
