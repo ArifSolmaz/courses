@@ -468,3 +468,37 @@ and a small sample of preserved archive routes. These checks establish
 technical and presentation correctness, not learning effects or lesson
 duration. The draft is presented for review before publication; no builder
 or verifier publishes it.
+
+## Fresh Week 8 teaching draft
+
+`tools/lessons/w8.html` is independently authored from the new plan and fresh
+Weeks 1–7. The earlier Week 8 notes are read only as technical archive and URL
+preservation fixtures. The unchanged builder copies the source exactly to
+`w8/index.html`, with the shared fresh Week 1 stylesheet and three local
+model/style/enhancement files.
+
+The lesson moves from ordering a complete collection to exploring connections
+in a network. It separates graph representation, FIFO queue use, breadth-first
+search, hop distance and the meaning of the traversal cost before guided and
+independent work. The four learning problems are addressed through tracing,
+mathematical meaning, choosing a method and connecting earlier lessons.
+Numeric feedback and written reasoning remain separate. The next-week
+question does not lead into the unrevised Week 9 main.
+
+The former authored main remains at `w8/onceki-ders.html` at its original URL
+depth, with its original text, card data, scripts and references. The separate
+generated supplement, detailed lecture notes, original sources and Python
+runner remain byte-identical. Technical-note HTML and Markdown change only
+the 46 inventoried old-card URLs: 22 example links in each format and two
+HTML return links. Fresh Week 7 gains one marked onward link. All Week 1–6
+product files and shared assets are preserved; no homepage layer is added.
+
+Checks: `node aa/tools/verify_fresh_week8_model.cjs`,
+`python3 aa/tools/verify_fresh_week8.py`, the nonrecursive fresh-week
+exact-scope chain and existing alignment, redirect, learning-bridge and
+disposable rebuild verifiers. Browser QA covers interactions, form feedback,
+keyboard, mobile and doubled text, no-JavaScript answer retention, printing
+and a small sample of archive routes. These checks establish technical and
+presentation correctness, not learning effects or lesson duration. The draft
+is presented for review before publication; no builder or verifier publishes
+it.

@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 8 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js?v=3"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script><!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=3">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
+</head><body><p class="previous-lesson-banner" style="margin:1rem;padding:.75rem 1rem;border:1px solid #888;border-radius:10px">Arşiv: Hafta 8 önceki ders sayfası. <a href="./">← Yeni ders sayfasına dön</a></p>
+<header><a href="../">← AA course</a><span>Week 8 · Graphs and breadth-first search</span><button id="print" type="button">Print</button></header>
+<main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Explore one step farther.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
+<details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: Graphs, storage and the BFS idea</li><li>64–74: Break</li><li>74–122: Trace BFS and explain shortest paths</li><li>122–132: Break</li><li>132–180: Weights, components, colouring and robot routes</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w8-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w8">Hafta 8 · Kuyruktan en az adımlı yola</p>
+<h2 id="lb-w8-title">Sensör ağına kaç bağlantıyla ulaşırsın?</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w7/#bridge-path"><strong>← Önce: Hafta 7 — amaca göre yöntem</strong><span>Şimdi sıralama yerine bağlantıları izleyerek erişim arıyoruz.</span></a>
+<a href="../w9/#bridge-path"><strong>Sonra: Hafta 9 — derine git, geri dön →</strong><span>Aynı bağlantılarda bu kez döngü ve bağımlılık ara.</span></a>
+</nav>
+<p>Her bağlantı bir adım olsun. BFS, <a href="../w4/#lb-w4-transfer">Hafta 4’teki FIFO kuyruğuyla</a> önce yakın sensörleri işler. Bir tepeyi <strong>kuyruğa eklerken işaretlemek</strong>, iki farklı komşunun onu tekrar eklemesini önler.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-10">Bu haftanın laboratuvarı: BFS kuyruğunu izle →</a><a href="../bridge/#arama">Önkoşul: arama adımlarını takip et</a></p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — D’nin ebeveynini önce tahmin et</summary>
+<p>Yerel görsel A–D’yi gösterir; burada yalnız kalan E’yi ekledik. Bütün komşular sözlükte anahtardır, başlangıç A’dır. Listelerde yazılı sırayı izle.</p>
+<pre><code>from collections import deque
+
+def bfs(graph, start):
+    distance, parent = {start: 0}, {start: None}
+    queue, scans = deque([start]), 0
+    while queue:
+        u = queue.popleft()
+        for v in graph[u]:
+            scans += 1
+            if v not in distance:
+                distance[v] = distance[u] + 1
+                parent[v] = u
+                queue.append(v)
+    return distance, parent, scans
+
+graph = {"A": ["B", "C"], "B": ["A", "D"],
+         "C": ["A", "D"], "D": ["B", "C"], "E": []}
+distance, parent, scans = bfs(graph, "A")</code></pre>
+<p>Kuyruk <code>[A] → [B,C] → [C,D] → [D] → []</code>. D’yi önce B keşfeder: uzaklığı <strong>2</strong>, ebeveyni B; C onu yeniden eklemez. Komşu sırası değişirse ebeveyn C olabilir, en az kenar sayısı değişmez.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>Yönsüz kenarları AB, AC, BD, CD olan ve E tepesi yalnız kalan çizgede A’dan BFS bitene kadar <strong>kaç komşuluk listesi girdisi incelenir?</strong> Önceden keşfedilmiş komşuya bakmayı da say; kuyruktan çıkarmaları ve diğer Python işlemlerini sayma.</p>
+<div class="learning-bridge-check" data-learning-check data-answer="8">
+<label for="lb-w8-count">Tahminim (işlem sayısı)</label>
+<div class="learning-bridge-input-row"><input id="lb-w8-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w8-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w8-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>A, B, C ve D’nin listelerinin her biri iki girdili. E’ye ulaşılmıyor. Her yönsüz kenarın iki uçtaki kaydını ayrı ayrı say.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>8 inceleme.</strong> 2 + 2 + 2 + 2 = 8 = 2·4 kenar. Ayrıca 4 tepe kuyruktan çıkarılır; bu ayrı bir sayaçtır. E’nin uzaklığı 0 değildir: A’dan erişilemez.</p></details>
+</div>
+<details><summary>Matematik köprüsü — iki büyüklüğü birlikte say</summary><p>V tepe, E kenar sayısı olsun. Sabit maliyetli keşif/kuyruk işlemleri modelinde komşuluk listeleriyle tam dolaşım O(V + E); tam satırları taranan matriste O(V²). Bu kaynak araması yalnız erişilen bölgeyi işler; çizgeyi okumak ayrı maliyettir. Sayılar saniye değildir.</p></details>
+<div class="learning-bridge-transfer" id="lb-w8-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>Doğrudan A–D bağlantısı 10, A–B ve B–D bağlantıları 1’er birim enerji harcıyor. BFS enerji tüketimini en aza indirir mi? Başlangıç E ise ne olur?</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>BFS bir kenarlı yolu seçebilir: enerji 10. İki kenarlı A–B–D ise 2 harcar. BFS en az kenarı bulur; farklı ağırlıklarda en düşük toplamı garanti etmez. Negatif olmayan ağırlıklarda Dijkstra uygundur. E’den yalnız E keşfedilir: uzaklığı 0, komşu incelemesi 0.</p></details></div>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> keşif anını, kenar sayısını ve ağırlık sınırını açıklayabiliyorsan <a href="../w9/#bridge-path">DFS’ye geç</a>. Takıldıysan <a href="#example-15">FIFO ve işaretleme gerekçesini yeniden izle</a>.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
+<article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">from collections import deque
+
+graph = {"A": ["B", "C"], "B": ["A", "D"],
+         "C": ["A", "D"], "D": ["B", "C"]}
+start = "A"
+distance = {start: 0}
+parent = {start: None}
+queue = deque([start])
+while queue:
+    u = queue.popleft()
+    for v in graph[u]:
+        if v not in distance:
+            distance[v] = distance[u] + 1
+            parent[v] = u
+            queue.append(v)
+print("Distances:", distance)
+print("Parents:", parent)</pre></section><section id="walkthrough" class="walkthrough" aria-labelledby="explanationHeading"><h3 id="explanationHeading">What is happening? Step by step</h3><p id="guideNote" class="guide-note">These steps explain the written example. The visual above can show other sizes or cases.</p><ol id="guideSteps" class="full-explanation"></ol></section><p id="lesson" class="lesson"></p><div class="check"><p><strong>Try this:</strong> <span id="check"></span></p><p class="answer"><strong>Answer:</strong> <span id="answer"></span></p></div><section id="details" class="assumptions"><h3>Important details</h3><p id="extra"></p><a id="ref">Related lecture notes →</a></section></article>
+<nav class="steps" aria-label="Move between examples"><button id="prev" type="button">← Previous</button><div class="navigation-help"><span id="status" role="status" aria-live="polite"></span><small>Use ← / → arrow keys</small></div><button id="next" type="button">Next →</button></nav>
+</main><noscript>This lesson needs JavaScript. <a href="lecture-notes.html">Open the detailed lecture notes.</a></noscript>
+<script>if(/^#(?:topic-|s\d|python-example-)/.test(location.hash))location.replace('lecture-notes.html'+location.hash);</script></body></html>

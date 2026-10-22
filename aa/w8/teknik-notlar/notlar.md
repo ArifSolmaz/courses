@@ -29,7 +29,7 @@ Harfler kimliktir; konum veya uzaklık değildir. Aşağıda aksi söylenmedikç
 
 ## 1. Doğru bekleme sırasını seçmek
 
-[Ders sayfasındaki örnek 1](../#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
+[Ders sayfasındaki örnek 1](../onceki-ders.html#example-1) · [İlgili ders notu](../lecture-notes.html#topic-0-1)
 
 **Problem.** Robot B, C, D yerlerini bu sırayla keşfetti. Hangisini önce işleyeceği, bekleyenleri nasıl sakladığına bağlıdır.
 
@@ -46,7 +46,7 @@ Harfler kimliktir; konum veya uzaklık değildir. Aşağıda aksi söylenmedikç
 
 ## 2. Graf, neyin neye bağlı olduğunu kaydeder
 
-[Ders sayfasındaki örnek 2](../#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
+[Ders sayfasındaki örnek 2](../onceki-ders.html#example-2) · [İlgili ders notu](../lecture-notes.html#topic-1-1)
 
 **Problem.** Dört oda A, B, C, D; koridorlar AB, AC, BD, CD. A'nın doğrudan komşuları B ve C'dir. D'ye ulaşılabilir ama A–D doğrudan kenarı yoktur.
 
@@ -66,7 +66,7 @@ Başka rota:       A—C—D
 
 ## 3. Tek yön, çift yön ve maliyet ayrı özelliklerdir
 
-[Ders sayfasındaki örnek 3](../#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
+[Ders sayfasındaki örnek 3](../onceki-ders.html#example-3) · [İlgili ders notu](../lecture-notes.html#topic-1-2)
 
 **Problem.** Bir koridor iki yönlü olabilir, bir kapı yalnızca A'dan B'ye geçirebilir, bir yolun enerji maliyeti farklı olabilir. Bunları tek kavram gibi kullanmayalım.
 
@@ -86,7 +86,7 @@ Başka rota:       A—C—D
 
 ## 4. Tek bağlantı eklemek neyi değiştirir?
 
-[Ders sayfasındaki örnek 4](../#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
+[Ders sayfasındaki örnek 4](../onceki-ders.html#example-4) · [İlgili ders notu](../lecture-notes.html#topic-1-4)
 
 **Problem.** AB, AC, BD, CD grafında n = 4, m = 4. E odasını koridorsuz eklersek n = 5, m = 4 olur. A'dan BFS, E'ye erişemez.
 
@@ -100,7 +100,7 @@ Başka rota:       A—C—D
 
 ## 5. Aynı grafı iki farklı biçimde saklamak
 
-[Ders sayfasındaki örnek 5](../#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
+[Ders sayfasındaki örnek 5](../onceki-ders.html#example-5) · [İlgili ders notu](../lecture-notes.html#topic-2-1)
 
 **Problem.** Dört odalı grafın komşu listeleri şöyledir:
 
@@ -130,7 +130,7 @@ Aynı bilgiyi satır ve sütun sırası A, B, C, D olan komşuluk matrisiyle sak
 
 ## 6. Saklama biçimini yapılacak işlere göre seçmek
 
-[Ders sayfasındaki örnek 6](../#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
+[Ders sayfasındaki örnek 6](../onceki-ders.html#example-6) · [İlgili ders notu](../lecture-notes.html#topic-2-2)
 
 **Problem.** Altı düğüm ve üç yönsüz kenar olsun. Tam matris 6×6 = 36 hücre kullanır. Komşu listeleri altı düğüm başlığı ve toplam altı komşu girdisi tutar.
 
@@ -148,7 +148,7 @@ Aynı bilgiyi satır ve sütun sırası A, B, C, D olan komşuluk matrisiyle sak
 
 ## 7. Dönüştürürken kenarları kaybetmemek veya iki kez saymamak
 
-[Ders sayfasındaki örnek 7](../#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
+[Ders sayfasındaki örnek 7](../onceki-ders.html#example-7) · [İlgili ders notu](../lecture-notes.html#topic-2-4)
 
 **Problem.** Komşuluk matrisinden listeye ya da listeden matrise geçelim. Aynı grafı korumak için kenarın kendisi ile onu saklayan girdileri ayırmalıyız.
 
@@ -164,7 +164,7 @@ Aynı bilgiyi satır ve sütun sırası A, B, C, D olan komşuluk matrisiyle sak
 
 ## 8. BFS katman katman yayılır
 
-[Ders sayfasındaki örnek 8](../#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
+[Ders sayfasındaki örnek 8](../onceki-ders.html#example-8) · [İlgili ders notu](../lecture-notes.html#topic-3-1)
 
 **Problem.** A'dan başlayıp önce bir kenarla, sonra iki kenarla ulaşılabilen odaları bulacağız.
 
@@ -186,7 +186,7 @@ Katman 2: D       mesafe 2
 
 ## 9. İlk mola — grafı doğru okumak
 
-[Ders sayfasındaki örnek 9](../#example-9) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 9](../onceki-ders.html#example-9) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart 64–74. dakikalar arasındaki moladır. İlk bölümün temel ayrımlarını aşağıdaki cevaplarla tekrar edin.
 
@@ -204,7 +204,7 @@ Bu kart 64–74. dakikalar arasındaki moladır. İlk bölümün temel ayrımlar
 
 ## 10. Kuyruğu tek işlem tek işlem izlemek
 
-[Ders sayfasındaki örnek 10](../#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
+[Ders sayfasındaki örnek 10](../onceki-ders.html#example-10) · [İlgili ders notu](../lecture-notes.html#topic-3-3)
 
 **Problem.** A kaynağı ve alfabetik komşu sırası. Kuyruk gösterimi soldan sağa, önden arkaya okunur.
 
@@ -226,7 +226,7 @@ Bu kart 64–74. dakikalar arasındaki moladır. İlk bölümün temel ayrımlar
 
 ## 11. Python kodunu kuyruk iziyle bağlamak
 
-[Ders sayfasındaki örnek 11](../#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
+[Ders sayfasındaki örnek 11](../onceki-ders.html#example-11) · [İlgili ders notu](../lecture-notes.html#topic-3-2)
 
 **Problem.** Ders sayfasındaki kod, FIFO kuyruğu için `deque` kullanır. `distance` sözlüğü hem keşif işareti hem de mesafe tablosudur.
 
@@ -263,7 +263,7 @@ Parents: {'A': None, 'B': 'A', 'C': 'A', 'D': 'B'}
 
 ## 12. Maliyette neden hem n hem m var?
 
-[Ders sayfasındaki örnek 12](../#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-5)
+[Ders sayfasındaki örnek 12](../onceki-ders.html#example-12) · [İlgili ders notu](../lecture-notes.html#topic-3-5)
 
 **Problem.** BFS'de düğüm işleri ile bağlantı işleri ayrı birikir. Düğüm kuyruğa bir kez girer diye her komşu da yalnızca bir kez görünüyor sanmayın.
 
@@ -284,7 +284,7 @@ n = 4, m = 4; 2m = 8
 
 ## 13. Bir ok, kimin kime ulaşabildiğini değiştirir
 
-[Ders sayfasındaki örnek 13](../#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-6)
+[Ders sayfasındaki örnek 13](../onceki-ders.html#example-13) · [İlgili ders notu](../lecture-notes.html#topic-3-6)
 
 **Problem.** Yönlü kenarlar A → B, B → C ve D → C.
 
@@ -308,7 +308,7 @@ A → B → C ← D
 
 ## 14. Ebeveynler keşiften rotaya götürür
 
-[Ders sayfasındaki örnek 14](../#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
+[Ders sayfasındaki örnek 14](../onceki-ders.html#example-14) · [İlgili ders notu](../lecture-notes.html#topic-4-1)
 
 **Problem.** A'dan D'ye yalnızca mesafe değil, bir rota istiyoruz. Alfabetik komşu sırasında kayıtlar B←A, C←A, D←B şeklindedir.
 
@@ -328,7 +328,7 @@ Düğüm sayısı 3; kenar sayısı 2
 
 ## 15. İki küçük uygulama kararı sonucu etkiler
 
-[Ders sayfasındaki örnek 15](../#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
+[Ders sayfasındaki örnek 15](../onceki-ders.html#example-15) · [İlgili ders notu](../lecture-notes.html#topic-4-3)
 
 **Problem A — FIFO yerine derine gitmek:** Kenarlar AB, BC, CD ve AD. A–D doğrudan bir kenarlı yol. Fakat komşu sırasıyla A–B–C–D dalını önce takip eden derinlik öncelikli arama D'yi ilk kez üç kenarlı yoldan bulabilir.
 
@@ -347,7 +347,7 @@ En kısa rota:  A → D           (1 kenar)
 
 ## 16. İkinci mola — BFS'nin verdiği garantiyi toparlayalım
 
-[Ders sayfasındaki örnek 16](../#example-16) · [İlgili ders notu](../lecture-notes.html#topic-8)
+[Ders sayfasındaki örnek 16](../onceki-ders.html#example-16) · [İlgili ders notu](../lecture-notes.html#topic-8)
 
 Bu kart 122–132. dakikalar arasındaki moladır. Aşağıdaki sorular uygulama ile matematik arasındaki bağı kontrol eder.
 
@@ -365,7 +365,7 @@ Bu kart 122–132. dakikalar arasındaki moladır. Aşağıdaki sorular uygulama
 
 ## 17. Az kenarlı yol her zaman ucuz yol değildir
 
-[Ders sayfasındaki örnek 17](../#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
+[Ders sayfasındaki örnek 17](../onceki-ders.html#example-17) · [İlgili ders notu](../lecture-notes.html#topic-4-5)
 
 **Problem.** A–D doğrudan kenarının maliyeti 10; A–B ve B–D kenarlarının her biri 1.
 
@@ -384,7 +384,7 @@ Bu kart 122–132. dakikalar arasındaki moladır. Aşağıdaki sorular uygulama
 
 ## 18. Her bağlı grubu bulmak için yeniden başlatmak
 
-[Ders sayfasındaki örnek 18](../#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
+[Ders sayfasındaki örnek 18](../onceki-ders.html#example-18) · [İlgili ders notu](../lecture-notes.html#topic-5-1)
 
 **Problem.** Yönsüz kenarlar AB, BC ve DE; F yalıtılmış.
 
@@ -405,7 +405,7 @@ Bileşen 1    Bileşen 2  Bileşen 3
 
 ## 19. Her kenar karşıt iki grubu bağlayabilir mi?
 
-[Ders sayfasındaki örnek 19](../#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
+[Ders sayfasındaki örnek 19](../onceki-ders.html#example-19) · [İlgili ders notu](../lecture-notes.html#topic-5-2)
 
 **Problem.** Düğümlere iki renk verelim ve her kenarın uçları farklı renk olsun. Böyle bir ayrım mümkünse graf **iki parçalıdır (bipartite)**.
 
@@ -421,7 +421,7 @@ Bileşen 1    Bileşen 2  Bileşen 3
 
 ## 20. Izgara, hareket kuralı tanımlanmış bir graftır
 
-[Ders sayfasındaki örnek 20](../#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6)
+[Ders sayfasındaki örnek 20](../onceki-ders.html#example-20) · [İlgili ders notu](../lecture-notes.html#topic-6)
 
 **Problem.** Görsel üç satır, dört sütun kullanıyor. Başlangıç S = (0,0), hedef T = (0,3). (0,1) ve (1,1) hücreleri engel. Satır ve sütunlar 0'dan başlıyor.
 
@@ -449,7 +449,7 @@ Sekiz hücreden geçilir ama **yedi hareket** yapılır. Engel sütununu aşmak 
 
 ## 21. Küçük grafla genel iddiayı sınamak
 
-[Ders sayfasındaki örnek 21](../#example-21) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
+[Ders sayfasındaki örnek 21](../onceki-ders.html#example-21) · [İlgili ders notu](../lecture-notes.html#topic-7-1)
 
 **İddia 1: “BFS bütün düğümleri ziyaret eder.”** Kenarlar AB ve CD, kaynak A olsun. BFS yalnızca A,B'yi bulur. C,D başka bir bileşendedir. Doğru ifade “kaynaktan erişilebilen bütün düğümleri bulur” şeklindedir. Bütün yönsüz bileşenleri dolaşmak için dış döngüyle yeni kaynaklar gerekir.
 
@@ -463,7 +463,7 @@ Sekiz hücreden geçilir ama **yedi hareket** yapılır. Engel sütununu aşmak 
 
 ## 22. Çiz, izle ve gerekçelendir
 
-[Ders sayfasındaki örnek 22](../#example-22) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
+[Ders sayfasındaki örnek 22](../onceki-ders.html#example-22) · [İlgili ders notu](../lecture-notes.html#topic-7-2)
 
 **Problem.** Düğümler A…E; yönsüz kenarlar AB, AC, BD, CD, DE. Kaynak A, komşular alfabetik. Bu görev beş düğümlüdür; editörde ayrıca F tutuluyorsa F ayrı, yalıtılmış bir düğüm olarak kalır.
 

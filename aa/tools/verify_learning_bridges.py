@@ -24,11 +24,12 @@ LEGACY_BASELINES = {
     5: '12eb8e0aeea6644c59fdb30be70eb522a1339a08',
     6: 'c9ec539f9689d4df85bcc689c65a914b3edd66e3',
     7: '98b76f82de178b7d1f6d22e0620450178ae52b4e',
+    8: '9c32f7df3f45437e47fd12fb96928fe0b9efe585',
 }
 FRESH_WEEKS = {week for week in LEGACY_BASELINES
                if (ROOT / f'aa/tools/lessons/w{week}.html').is_file()}
 for week in FRESH_WEEKS:
-    PAGES[week] = (f'aa/w{week}/onceki-ders.html' if week in (3, 4, 5, 6, 7)
+    PAGES[week] = (f'aa/w{week}/onceki-ders.html' if week in (3, 4, 5, 6, 7, 8)
                    else f'aa/w{week}/ek-notlar/index.html')
 from aligned import learning_paths as bridges
 from aligned.page_links import fragment_exists
@@ -264,9 +265,9 @@ def guided_answers():
 
 
 def apply_at_route(source, week):
-    """Use each archived panel at its actual path depth (W3–7 stay one deep)."""
+    """Use each archived panel at its actual path depth (W3–8 stay one deep)."""
     page = bridges.apply(source, week)
-    if week in FRESH_WEEKS and week not in (3, 4, 5, 6, 7):
+    if week in FRESH_WEEKS and week not in (3, 4, 5, 6, 7, 8):
         for start, end in ((bridges.PANEL_START, bridges.PANEL_END),
                            (bridges.ASSETS_START, bridges.ASSETS_END)):
             content = marked(page, start, end)
@@ -813,7 +814,7 @@ def check_original_content(current, head):
         if week in FRESH_WEEKS:
             # Only the archive label is additive; relative paths were relocated
             # in the reference reader below before this exact-byte comparison.
-            banner_class = 'previous-lesson-banner' if week in (3, 4, 5, 6, 7) else 'ek-banner'
+            banner_class = 'previous-lesson-banner' if week in (3, 4, 5, 6, 7, 8) else 'ek-banner'
             revised = re.sub(r'<p class="' + banner_class + r'"[^>]*>.*?</p>', '', revised, count=1, flags=re.S)
         if week in range(4, 15):
             # The existing deck script gains only a cache key for hash routing.
@@ -883,8 +884,8 @@ def reference_source(week, path):
         source = subprocess.check_output(
             ['git', 'show', f'{LEGACY_BASELINES[week]}:aa/w{week}/index.html'], cwd=ROOT,
         ).decode('utf-8')
-        if week in (3, 4, 5, 6, 7):
-            # Earlier authored W3–7 mains stay at their existing path depth.
+        if week in (3, 4, 5, 6, 7, 8):
+            # Earlier authored W3–8 mains stay at their existing path depth.
             return source
         source = source.replace('href="../', 'href="../../').replace('src="../', 'src="../../')
         return re.sub(rf'href="\.\./\.\./w{week}/#(skiena-[^"]+)"', r'href="#\1"', source)
