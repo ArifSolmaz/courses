@@ -835,3 +835,19 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 8
+
+The default Week 8 route, `w8/`, is English; `w8/tr/` preserves the Turkish lesson with spaces after commas inside static bracketed lists so complete IDs can wrap on enlarged mobile text. Canonical sources are `tools/lessons/w8.html` and `w8.tr.html`; the existing builder copies both. Week 7’s onward link and Week 8’s prerequisite/back links retain the lesson language, including the FIFO prerequisite in Week 4. The homepage identifies Weeks 1–8 as bilingual, and the English lesson labels Week 9 as Turkish.
+
+Both editions preserve every vertex, edge, SVG coordinate, example, FIFO state and counting unit. English location labels share the existing glossary: roof, greenhouse, well, pump, garden, warehouse, room and gate. The same undirected unweighted graph is represented by adjacency lists. Discovery is marked when enqueuing; the source’s distance is zero, unknown is distinct from unreachable, and the full reachable component is processed. Reversing neighbour order can change parents but not minimum-edge distances. Counts distinguish initial rows, adjacency entries, enqueues and dequeues; O(V+E) assumes ready-made lists and constant-time queue operations, excluding neighbour sorting, path output and teaching snapshots.
+
+The model, Turkish UI, local stylesheet and shared styles are unchanged; English display and accessibility strings are in `w8/lesson.en.js`. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week8-tr`, with a full English edition at `#week8-en`. All four assessment dimensions, hidden/disabled NoJS submits and print/restore behavior remain.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week8_bilingual.py` — pinned migration, preservation, routing and bilingual operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
