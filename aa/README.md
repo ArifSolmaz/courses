@@ -787,3 +787,19 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after the review stage.
+
+## English/Turkish Week 5
+
+The default Week 5 route, `w5/`, is English; `w5/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w5.html` and `w5.tr.html`; the existing builder copies both. Week 4’s onward link and Week 5’s prerequisite/back links retain the lesson language. The homepage identifies Weeks 1–5 as bilingual, and the English lesson labels Week 6 as Turkish.
+
+The dictionary contract, insertion order, keys, operations, search paths and all four assessment dimensions are preserved. English location labels use one glossary in prose and UI: pump, greenhouse, warehouse, roof, well, garden, gate, room and workshop. Model computations and the Turkish UI are unchanged. Alpha is displayed with English decimal punctuation in the English UI. BST comparisons, bucket computations, equality checks and logical sets retain their separate units.
+
+Both editions share the existing model and styles. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week5-tr`, with its English edition at `#week5-en`.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week5_bilingual.py` — pinned migration, preservation, routing and normalized bilingual data contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
