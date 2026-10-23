@@ -965,3 +965,48 @@ Checks from repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
 
 Independent mathematical, primary-source and browser/mobile evidence accompany local review. Publish only after review.
+
+
+## Bilingual Weeks 1–3 pilot (review draft)
+
+`pilot/` (English) and `pilot/tr/` (Turkish) provide a 25-minute, 6–8-learner
+pilot of the new search → counting → method-conditions route. The separate
+teacher workspace is at `pilot/teacher/` and `pilot/teacher/tr/`, reached from
+Additional resources → Teacher & pilot tools. Existing weekly lessons and the
+sensor-network capstone/pilot remain unchanged and available.
+
+The protocol allocates 5 minutes to original responses, 10 to three guided
+activities, 7 to transfer, and 3 to reflection/saving. Student responses are
+locked before the next phase; the answer key opens after transfer. A TXT
+backup keeps both original responses, data/targets, ungraded predictions,
+observed times, support, actual response language and separate corrections.
+Written answers are not automatically scored. Teaching scores 0–2 need evidence
+in each of four dimensions; assistance is a separate observation. Missing data
+is not zero. Actual phase times are optional and are never filled from the plan.
+
+The model uses four phase times, per-phase bottleneck notes, per-response
+support and `en`/`tr`/`mixed` response-language metadata. Each paired summary has
+its own denominator; the number of independently completed pairs is explicit.
+Small-group changes are descriptive; the pre/post tasks are not psychometrically
+equated, and changes do not establish a causal learning effect.
+
+New CSV identity is `AA-W1-3-PILOT-1`, `weeks1-3`, task version `1.0` on every
+row. The ASCII headers are interface-language independent. Import validates a
+complete eight-code cohort and previews all replacements before Apply; Cancel
+keeps current records. Prior sensor-network CSV files are rejected by this
+instrument and still work in the original pilot. Invalid raw fields can be
+resumed and repaired; numerical summaries exclude invalid records. Downloadable
+teacher HTML contains current confirmed data, evidence, support, timing and
+notes. It contains no scripts or remote resources.
+
+Drafts use sessionStorage scoped to this pilot/version in the current browser
+tab, including on language changes. No responses are sent to a server. CSV/TXT
+are the portable backup; download them before closing. A storage failure blocks
+language navigation rather than discard the active draft. No-JavaScript and
+failed-model paths retain paper instructions and fields.
+
+Author the tasks in `pilot/tasks.js`; regenerate the four static pages with
+`python3 aa/tools/build_weeks13_pilot.py`. `--output` accepts an alternative AA
+root for disposable reproduction checks. The ordinary course build preserves
+these authored pilot files. Data checks: `node
+aa/tools/verify_weeks13_pilot_models.cjs`.
