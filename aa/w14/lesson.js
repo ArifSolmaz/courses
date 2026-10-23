@@ -14,21 +14,21 @@
     short:{source:24,target:31,k:4,B:12,path:[24,20,31],simple:true,text:'Bu ucuz aday yalnız iki kenar içeriyor. Tam dört koşulunda ilk hangi kontrol başarısız?'},
     missing:{source:24,target:31,k:4,B:12,path:[24,18,7,26,31],simple:true,text:'Kimlikler biliniyor ve farklı; her ardışık çift gerçekten bağlantılı mı? Eksik kenarın bedelini uydurma.'},
     wrong:{source:24,target:31,k:4,B:12,path:[18,24,11,7,31],simple:true,text:'Liste tanıdık kimliklerden oluşuyor ama kaynak koşulu aynı kaldı. İlk hatadan sonra diğer koşullar test edilmez.'},
-    unknown:{source:24,target:31,k:4,B:12,path:[24,18,7,99,31],simple:true,text:'99 bu grafikte kayıtlı değil. Kimlik denetimi kenar aramadan önce gelir.'},
+    unknown:{source:24,target:31,k:4,B:12,path:[24,18,7,99,31],simple:true,text:'99 bu çizgede kayıtlı değil. Kimlik denetimi kenar aramadan önce gelir.'},
     empty:{source:24,target:24,k:0,B:0,path:[24],simple:true,text:'Kaynak ve hedef 24; k=0. Tek cihaz konumu içeren liste hiç kenar geçmez ve bedeli 0.'},
     separate:{source:24,target:31,k:0,B:0,path:[24],simple:true,text:'Kaynak 24, hedef 31; k=0. Liste uzunluğu doğru olsa bile hedef koşulu ne olur?'}
   };
-  const reasons={format:'liste biçimi uygun değil',length:'tam k+1 kayıt koşulu sağlanmadı','unknown-id':'bir kimlik grafikte yok veya geçersiz',source:'ilk kimlik kaynak değil',target:'son kimlik hedef değil',repeat:'tekrar yasağı bozuldu','missing-edge':'ardışık iki cihaz arasında kenar yok',budget:'toplam bedel bütçeyi aşıyor',valid:'bütün aday koşulları sağlandı'};
+  const reasons={format:'liste biçimi uygun değil',length:'tam k+1 kayıt koşulu sağlanmadı','unknown-id':'bir kimlik çizgede yok veya geçersiz',source:'ilk kimlik kaynak değil',target:'son kimlik hedef değil',repeat:'tekrar yasağı bozuldu','missing-edge':'ardışık iki cihaz arasında kenar yok',budget:'toplam bedel bütçeyi aşıyor',valid:'bütün aday koşulları sağlandı'};
   let task,trace,seen=0,dirty=false,solutionSeen=false;
   const pathText=ids=>ids.join(' → ');
   function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
   function describe(s){
     if(s.type==='start')return s.formatValid?'Verilen listeyi denetlemeye başla. Henüz uzunluk, kimlik veya kenar kontrol edilmedi.':'Verilen aday bir liste değil veya gösterim sınırını aşıyor; ret kararı sırada.';
     if(s.type==='length')return 'Uzunluk '+s.actual+' kayıt; gereken k+1='+s.expected+'. '+(s.passed?'Koşul geçti.':'Koşul sağlanmadı; bu adayı reddedeceğiz.');
-    if(s.type==='id')return 'Konum '+s.index+' · kimlik '+(s.id===null?'geçersiz':s.id)+': '+(s.passed?'grafikte var.':'geçerli bir kayıtlı kimlik değil. Ret kararı sırada.');
-    if(s.type==='endpoint')return (s.kind==='source'?'Kaynak':'Hedef')+' kontrolü: konum '+s.index+' değeri '+s.actual+', gereken '+s.expected+'. '+(s.passed?'Geçti.':'Bu aday koşulu sağlamıyor.');
-    if(s.type==='repeat')return 'Konum '+s.index+' · '+s.id+': '+(s.passed?'önceki konumlarda kullanılmadı; kümeye ekle.':'ilk kez konum '+s.firstIndex+' içinde vardı. Tekrar yasağı bozuldu; henüz kenarları toplamıyoruz.');
-    if(s.type==='edge')return 'Konum '+(s.index-1)+' → '+s.index+': '+s.from+' → '+s.to+' kenarı '+(s.exists?'var; bedel '+s.weight+'. Toplama henüz eklenmedi.':'yok. Sonlu bir bedel uydurma; bu aday reddedilecek.');
+    if(s.type==='id')return 'Konum '+(s.index+1)+' · kimlik '+(s.id===null?'geçersiz':s.id)+': '+(s.passed?'çizgede var.':'geçerli bir kayıtlı kimlik değil. Ret kararı sırada.');
+    if(s.type==='endpoint')return (s.kind==='source'?'Kaynak':'Hedef')+' kontrolü: konum '+(s.index+1)+' değeri '+s.actual+', gereken '+s.expected+'. '+(s.passed?'Geçti.':'Bu aday koşulu sağlamıyor.');
+    if(s.type==='repeat')return 'Konum '+(s.index+1)+' · '+s.id+': '+(s.passed?'önceki konumlarda kullanılmadı; kümeye ekle.':'ilk kez konum '+(s.firstIndex+1)+' içinde vardı. Tekrar yasağı bozuldu; henüz kenarları toplamıyoruz.');
+    if(s.type==='edge')return 'Konum '+s.index+' → '+(s.index+1)+': '+s.from+' → '+s.to+' kenarı '+(s.exists?'var; bedel '+s.weight+'. Toplama henüz eklenmedi.':'yok. Sonlu bir bedel uydurma; bu aday reddedilecek.');
     if(s.type==='add')return 'Gerçek kenarın bedelini ekle: '+s.previous+' + '+s.weight+' = '+s.total+'. Bu, şimdiye kadar denetlenip eklenmiş öneğin bedeli.';
     if(s.type==='budget')return 'Bütün kenarlar toplandı: '+s.total+' ≤ '+s.B+' mi? '+(s.passed?'Evet; kabul kararı sırada.':'Hayır; bu aday bütçeyi aşıyor.');
     if(s.type==='accept')return 'Bu aday kabul edildi; toplam '+s.cost+'. Geçerli bir EVET tanığı var. Minimumluk kontrol edilmedi.';
@@ -41,11 +41,11 @@
     $('cert-progress').textContent='Açılan adım: '+seen+'/'+trace.steps.length+' · Denetime alınan aday: '+(trace.certificate.length?pathText(trace.certificate):'[] · boş liste');
     $('cert-draft').textContent=dirty?'Düzenlenen aday/bütçe henüz uygulanmadı. Devam etmek için Adayı uygula düğmesini kullan.':'Ekrandaki iz, denetime alınmış aday ve bütçeye aittir.';
     const cards=$('cert-records');cards.replaceChildren();
-    trace.certificate.forEach((id,index)=>{const card=el('article');card.className='cert-card';card.dataset.index=String(index);card.dataset.id=String(id);card.dataset.current=String(state.index===index&&!state.done);card.dataset.violation=String(Boolean(state.violation&&state.violation.index===index));const known=index<state.checkedIds.length;card.dataset.known=String(known);card.append(el('h5','Konum '+index+' · cihaz '+id));card.append(el('p',state.violation&&state.violation.index===index?'Bu konumda ret: '+reasons[state.violation.reason]:known?'Kimlik grafikte doğrulandı.':'Kimlik henüz denetlenmedi.'));cards.append(card);});
+    trace.certificate.forEach((id,index)=>{const card=el('article');card.className='cert-card';card.dataset.index=String(index);card.dataset.id=String(id);card.dataset.current=String(state.index===index&&!state.done);card.dataset.violation=String(Boolean(state.violation&&state.violation.index===index));const known=index<state.checkedIds.length;card.dataset.known=String(known);card.append(el('h5','Konum '+(index+1)+' · cihaz '+id));card.append(el('p',state.violation&&state.violation.index===index?'Bu konumda ret: '+reasons[state.violation.reason]:known?'Kimlik çizgede doğrulandı.':'Kimlik henüz denetlenmedi.'));cards.append(card);});
     if(!trace.certificate.length)cards.append(el('p','Aday []: hiç kayıt yok. k=0 için bile kaynak konumunu yazmalısın.'));
     const active=$('cert-active');active.replaceChildren(el('h4','Şimdiki koşul'));
     active.dataset.edge=state.activeEdge?state.activeEdge.from+'-'+state.activeEdge.to:'';active.dataset.total=String(state.total);active.dataset.checkedEdges=String(state.checkedEdges.length);active.dataset.unique=state.uniqueIds.join(',');
-    if(state.activeEdge){const a=state.activeEdge;active.append(el('p','Kenar: '+a.from+' → '+a.to));active.append(el('p',a.exists?'Gerçek bedel: '+a.weight+(last.type==='add'?' · toplama eklendi.':' · henüz toplama eklenmedi.'):'Bu bağlantı grafikte yok; bedel yazılmaz.'));}
+    if(state.activeEdge){const a=state.activeEdge;active.append(el('p','Kenar: '+a.from+' → '+a.to));active.append(el('p',a.exists?'Gerçek bedel: '+a.weight+(last.type==='add'?' · toplama eklendi.':' · henüz toplama eklenmedi.'):'Bu bağlantı çizgede yok; bedel yazılmaz.'));}
     else if(last)active.append(el('p',describe(last)));
     else active.append(el('p','Henüz hiçbir kontrol açılmadı. İlk koşul ne olmalı?'));
     active.append(el('p','Tekrar kümesi: '+(state.uniqueIds.length?state.uniqueIds.join(', '):'henüz boş')+(trace.simple?'':' · yürüyüş modunda bu kontrol uygulanmaz.')));

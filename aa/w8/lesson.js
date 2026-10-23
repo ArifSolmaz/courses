@@ -12,10 +12,10 @@
     main: { vertices, edges, source: 18, target: 31, text: 'Ana ağ, kaynak 18. Komşular artan kimlik sırasıyla hazır. 26 yalıtılmış; hedef 31 için en az bağlantıyı bul.' },
     reverse: { vertices, edges, source: 18, target: 31, order: 'descending', text: 'Aynı ağ ve kaynak 18; komşular azalan sırada. Uzaklıklarla seçilen ebeveynlerin hangisi değişebilir?' },
     source31: { vertices, edges, source: 31, target: 18, text: 'Aynı ağda kaynak bu kez 31. Uzaklıkları 31’e göre baştan hesapla; başlangıç 18 artık uzaklığı 0 olan düğüm değil.' },
-    isolated: { vertices, edges, source: 26, target: 31, text: 'Aynı ağda kaynak 26; komşuluk listesi boş. Diğer kenarlar grafikte var, fakat bu kaynaktan onlara ulaşılmıyor.' },
+    isolated: { vertices, edges, source: 26, target: 31, text: 'Aynı ağda kaynak 26; komşuluk listesi boş. Diğer kenarlar çizgede var, fakat bu kaynaktan onlara ulaşılmıyor.' },
     linked: { vertices, edges: edges.concat([[31, 26]]), source: 18, target: 26, text: 'Ana ağa bir yönsüz 31–26 kenarı ekledik. Kaynak 18; 26 artık erişilebilir mi? Bütün bileşeni işle.' },
     single: { vertices: [18], edges: [], source: 18, target: 18, text: 'Tek düğüm 18, kenar yok. Kaynağın kendisine uzaklığı ve yolu nedir?' },
-    noedges: { vertices, edges: [], source: 18, target: 31, text: 'Sekiz cihazın hepsi grafikte, hiç kenar yok. Kaynak 18. Düğümün mevcut olması ile erişilebilir olması aynı şey mi?' }
+    noedges: { vertices, edges: [], source: 18, target: 31, text: 'Sekiz cihazın hepsi çizgede, hiç kenar yok. Kaynak 18. Düğümün mevcut olması ile erişilebilir olması aynı şey mi?' }
   };
   let trace, task, seen = 0, solutionSeen = false;
   function el(tag, text) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; return node; }
@@ -40,7 +40,7 @@
     const target = Number($('bfs-target').value);
     if (seen !== trace.steps.length) { $('bfs-path').textContent = 'Yol tablosunu karşılaştırmak için aramayı tamamla. Henüz keşfedilmemiş hedefe bu aşamada “erişilemedi” demiyoruz.'; return; }
     const path = model.shortestPath(trace, target);
-    $('bfs-path').textContent = path === null ? 'Grafikte ' + target + ' var; ' + trace.source + ' kaynağından erişilemedi. Uzaklığı 0 değil, yol yok.' : 'Bir en az adımlı yol: ' + path.join(' → ') + '. ' + (path.length - 1) + ' kenar, ' + path.length + ' düğüm; d[' + target + ']=' + trace.result.distances[target] + '.';
+    $('bfs-path').textContent = path === null ? 'Çizgede ' + target + ' var; ' + trace.source + ' kaynağından erişilemedi. Uzaklığı 0 değil, yol yok.' : 'Bir en az adımlı yol: ' + path.join(' → ') + '. ' + (path.length - 1) + ' kenar, ' + path.length + ' düğüm; d[' + target + ']=' + trace.result.distances[target] + '.';
   }
   function render() {
     const last = seen ? trace.steps[seen - 1] : null;
