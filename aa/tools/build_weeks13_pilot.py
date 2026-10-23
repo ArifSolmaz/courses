@@ -10,8 +10,10 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import posixpath
 from pathlib import Path
 import subprocess
+from urllib.parse import urlsplit
 
 AA_ROOT = Path(__file__).resolve().parents[1]
 
@@ -93,10 +95,12 @@ def shell(tasks: dict, language: str, page: str, content: str) -> str:
     scripts = [prefix + "tasks.js?v=1", prefix + "model.js?v=1"]
     if teacher:
         scripts.extend(prefix + file + "?v=1" for file in ("csv.js", "report.js", "teacher.js"))
+        scripts.append(prefix + "checklist.js?v=1")
     else:
         scripts.extend(prefix + "../w" + str(i) + "/model.js?v=1" for i in (1, 2, 3))
         scripts.append(prefix + "student.js?v=1")
     scripts_html = "\n".join(f'<script src="{esc(src)}" defer></script>' for src in scripts)
+    checklist_style = f'\n<link rel="stylesheet" href="{esc(prefix)}checklist.css?v=1">' if teacher else ""
     counterpart = (prefix + ("tr/" if language == "tr" else "")) if teacher else (prefix + "teacher/" + ("tr/" if language == "tr" else ""))
     counterpart_text = label("Student instructions", "Öğrenci yönergesi", language) if teacher else label("Teacher tools", "Öğretmen araçları", language)
     draft_status = '<p id="draft-status" role="status" aria-live="polite"></p>'
@@ -111,7 +115,7 @@ def shell(tasks: dict, language: str, page: str, content: str) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="{esc(label('A 25-minute, bilingual small-group pilot for tracing, counting work and choosing a search method in Weeks 1–3.', 'Hafta 1–3’te izleme, işi sayma ve arama yöntemi seçme için 25 dakikalık iki dilli küçük grup pilotu.', language))}">
 <title>{esc(title)} · AA</title>
-<link rel="stylesheet" href="{esc(prefix)}style.css?v=1">
+<link rel="stylesheet" href="{esc(prefix)}style.css?v=1">{checklist_style}
 {scripts_html}
 </head>
 <body data-pilot-page="{page}">
@@ -173,6 +177,37 @@ def student(tasks: dict, language: str) -> str:
     return shell(tasks,language,'student',intro + '<form id="student-form" novalidate>' + start + stages[0] + practice + stages[1] + reflection + downloads + resets + '</form>')
 
 
+def pilot_checklist(language: str) -> str:
+    t = lambda en, tr: label(en, tr, language)
+    data = json.loads((AA_ROOT / 'tools/lessons/pilot_checklist.json').read_text(encoding='utf-8'))
+    identifiers = [item['id'] for section in data['sections'] for item in section['items']]
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError('Checklist item IDs must be unique.')
+    title = data['title'][language]
+    content = '<details id="pilot-checklist" class="pilot-checklist"><summary>' + esc(title) + '</summary><div class="checklist-content">'
+    content += '<h2 class="checklist-print-title">' + esc(title) + '</h2><p>' + esc(data['summary'][language]) + '</p>'
+    content += '<p class="checklist-meta"><span>' + esc(t('Date: __________', 'Tarih: __________')) + '</span><span>' + esc(t('Participants: ____ / 8', 'Katılımcı: ____ / 8')) + '</span><span>' + esc(t('Response language(s): __________', 'Yanıt dili/dilleri: __________')) + '</span></p>'
+    content += '<div class="actions checklist-actions"><button id="print-pilot-checklist" class="checklist-print-button" type="button" hidden disabled>' + esc(t('Print pilot checklist', 'Kontrol listesini yazdır')) + '</button></div><p id="checklist-print-status" class="caption checklist-screen-note" role="status" aria-live="polite"></p>'
+    content += '<p class="caption checklist-screen-note">' + esc(t('Check marks stay on this page until it is reloaded. Print a copy to keep them; they are not added to participant CSV records.', 'İşaretler sayfa yenilenene kadar kalır. Saklamak için bir kopya yazdır; katılımcı CSV kayıtlarına eklenmez.')) + '</p>'
+    content += '<ul class="checklist-routes" aria-label="' + esc(t('Pilot pages', 'Pilot sayfaları')) + '">'
+    current_directory = 'pilot/teacher/tr' if language == 'tr' else 'pilot/teacher'
+    for route in data['routes']:
+        url = urlsplit(route['href'])
+        if url.scheme != 'https' or url.netloc != 'arifsolmaz.github.io' or not url.path.startswith('/courses/aa/'):
+            raise ValueError('Checklist routes must be canonical AA HTTPS pages.')
+        relative = posixpath.relpath(url.path.removeprefix('/courses/aa/').rstrip('/'), current_directory) + '/'
+        content += '<li><a href="' + esc(relative) + '">' + esc(route['label'][language]) + '</a><span class="checklist-route-url"> · ' + esc(route['href']) + '</span></li>'
+    content += '</ul>'
+    for section in data['sections']:
+        heading_id = 'checklist-section-' + section['id']
+        content += '<section class="checklist-section" aria-labelledby="' + esc(heading_id) + '"><h3 id="' + esc(heading_id) + '">' + esc(section['title'][language]) + '</h3><ul class="checklist-items">'
+        for item in section['items']:
+            id_ = 'checklist-' + item['id']
+            content += '<li><label class="checklist-item" for="' + esc(id_) + '"><input id="' + esc(id_) + '" type="checkbox" data-checklist-item="' + esc(item['id']) + '"><span>' + esc(item['text'][language]) + '</span></label></li>'
+        content += '</ul></section>'
+    return content + '</div></details>'
+
+
 def teacher(tasks: dict, language: str) -> str:
     t=lambda en,tr:label(en,tr,language)
     intro='<section class="intro" aria-labelledby="pilot-title"><p class="eyebrow">'+esc(t('6–8 learners · 25-minute protocol','6–8 öğrenci · 25 dakikalık protokol'))+'</p><h1 id="pilot-title">'+esc(t('Compare the explanations, with their evidence.','Açıklamaları kanıtlarıyla karşılaştır.'))+'</h1><p class="lead">'+esc(t('Use the new Weeks 1–3 pilot: first-match tracing, equality-check counts, the purpose of the output, and the conditions for binary search. Content scores, support, observed time and bottlenecks are separate records.','Yeni Hafta 1–3 pilotunu kullan: ilk eşleşmeyi izleme, eşitlik kontrolü sayımı, çıktının amacı ve ikili aramanın koşulları. İçerik puanı, destek, gözlenen süre ve takılma noktaları ayrı kayıtlardır.'))+'</p><p class="notice">'+esc(t('This is the Weeks 1–3 instrument, not the legacy sensor-network capstone rubric. Use P01–P08 and keep unused records blank. With JavaScript, a draft stays in sessionStorage in this browser tab; no data is sent to a server. Download the current CSV before closing. An import first opens a preview and changes nothing until confirmation.','Bu, eski sensör-ağı bütünleşik uygulama rubriği değil, Hafta 1–3 ölçme aracıdır. P01–P08 kullan; kullanılmayan kayıtları boş bırak. JavaScript açıkken taslak bu tarayıcı sekmesinde sessionStorage içinde tutulur; sunucuya veri gönderilmez. Kapatmadan güncel CSV’yi indir. Yüklenen dosya önce önizlemeyi açar; onaylanmadan kayıtları değiştirmez.'))+'</p><p id="draft-status" role="status" aria-live="polite"></p><noscript><p class="notice">'+esc(t('JavaScript is off: use the student sheet and this teacher form on paper. Print one teacher form per participant. CSV import/export and numerical summaries require JavaScript. Do not treat blank scores or missing time as zero.','JavaScript kapalı: öğrenci yönergesini ve bu öğretmen formunu kâğıtta kullan. Her öğrenci için ayrı öğretmen formu yazdır. CSV yükleme/indirme ve sayısal özet için JavaScript gerekir. Boş puanı veya eksik süreyi sıfır sayma.'))+'</p></noscript></section>'
@@ -200,7 +235,7 @@ def teacher(tasks: dict, language: str) -> str:
     keys+='<h3>'+esc(t('Guided work','Rehberli çalışma'))+'</h3><ol>'+''.join('<li><strong>'+esc(tasks['practice'][week]['title'][language])+':</strong> '+esc(tasks['practice'][week]['solution'][language])+'</li>'for week in ('w1','w2','w3'))+'</ol>'
     keys+='</details>'
     reset='<section class="card no-print">'+button('clear-request',t('Clear all pilot records','Bütün pilot kayıtlarını sil'))+'<div id="clear-confirm" class="confirmation" hidden><p>'+esc(t('All eight records and the session conclusion will be removed from this tab. Download current work first.','Sekiz kayıt ve oturum sonuç notu bu sekmeden silinecek. Güncel çalışmayı önce indir.'))+'</p><div class="actions">'+button('clear-all',t('Yes, clear all','Evet, hepsini sil'),js=False)+button('clear-cancel',t('Cancel','Vazgeç'),js=False)+'</div></div></section>'
-    return shell(tasks,language,'teacher',intro+admin+form+summary+imports+report+keys+reset)
+    return shell(tasks,language,'teacher',intro+admin+pilot_checklist(language)+form+summary+imports+report+keys+reset)
 
 
 def main() -> None:
