@@ -923,3 +923,23 @@ Checks from repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
 
 Independent mathematical and browser/mobile evidence accompany local review. Publish only after review.
+
+## English/Turkish Week 13
+
+The default Week 13 route, `w13/`, is English; `w13/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w13.html` and `w13.tr.html`. Week 12 onward links and Week 13 prerequisites/back links retain the selected language. The homepage identifies Weeks 1–13 as bilingual; the English onward link identifies Week 14 as Turkish.
+
+All eight devices, ten undirected weighted edges, SVG geometry, seven examples, guided and independent tasks, four assessment dimensions and numeric answers remain. The model, Turkish UI and styles are preserved. English display and accessibility strings live in `w13/lesson.en.js`. Four original teacher paragraphs move verbatim to `resources/teaching/#week13-tr`, with an English edition at `#week13-en`.
+
+D[v,r] is the minimum cost from a fixed source to v with exactly r edges; devices and edges may repeat. D[source,0]=0; other base entries are unreachable. Every transition reads column r−1, with candidate inspection before a separate strict update. Equal candidates retain the first predecessor. Pending cells are distinct from completed unreachable cells. Reconstruction follows (parent,r−1), permitting repeated device IDs while the column strictly decreases. The final walk opens only after table computation and predecessor traversal complete. The column selector only changes the view.
+
+The main k=4 optimum is 10: 24→20→31→20→31. Forty initialized D cells include the eight base cells; 32 cells are completed by transition. There are 80 neighbor-entry scans, 36 finite candidates, 22 strict improvements and four predecessor steps. The independent k=5 task from 18 to 4 costs 8, with 24 cells, 30 scans and five predecessor steps. Calls and scans are different units. The full edit-distance CAT→CUT transfer is retained.
+
+With adjacency ready, time is O((k+1)V+kE), D/P storage O((k+1)V), and reconstruction/write cost O(k+1). Input storage is O(V+E). Validation, sorting, full teaching snapshots and display are excluded from those basic counts. The chosen input domain is 1–32 devices, k=0–6 and integer weights 0–1000000. Finite exact-length DP can also support negative weights; this lesson retains a nonnegative input domain and does not import Week 12's pruning proof as a DP requirement.
+
+Checks from repository root:
+
+- `python3 aa/tools/verify_week13_bilingual.py` — pinned preservation, bilingual structural/operational contracts and routing.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeated disposable builds.
+- `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
+
+Independent mathematical and browser/mobile evidence accompany local review. Publish only after review.
