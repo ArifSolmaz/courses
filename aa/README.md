@@ -885,3 +885,21 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 11
+
+The default Week 11 route, `w11/`, is English; `w11/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w11.html` and `w11.tr.html`. Static numeric lists and paths gain spaces so whole IDs can wrap on enlarged mobile text. Week 10 onward links and Week 11 prerequisite/back links retain the selected language, including Week 6 min-heap and Week 8 BFS. The homepage identifies Weeks 1–11 as bilingual; the English next link identifies Week 12 as Turkish.
+
+All devices, weighted edges, SVG coordinates, seven presets, exercise fields and numeric answers remain. The model, Turkish UI, local stylesheet and shared styles are unchanged. English display/accessibility strings are in `w11/lesson.en.js`. Four original teacher paragraphs move verbatim to `resources/teaching/#week11-tr`, with a complete English edition at `#week11-en`.
+
+All input edges must be nonnegative for this Dijkstra model, including unreachable components; zero weights remain valid. Every queued device has one indexed binary min-heap entry. The displayed priority-sorted queue is not the physical heap array. Inspect and strict relaxation are separate steps; equal candidates preserve distance/predecessor. Tentative distance becomes settled on extraction; infinity is reported unreachable after completion. Negative directed counterexamples are distinguished from the undirected input. All four assessment dimensions and ungraded prose remain explicit.
+
+Counts separate initial rows, adjacency scans, improvements, insertions, decreases and extractions from path cost. With ready adjacency lists, the safe bound is O((V+E) log(V+1)), auxiliary distance/predecessor/queue space O(V), input space O(V+E). Input preparation/sorting, display sorting, snapshots and drawing are excluded. Source-to-source path has cost zero; unreachable targets have no path.
+
+Checks from repository root:
+
+- `python3 aa/tools/verify_week11_bilingual.py` — pinned preservation, routing, bilingual structural and operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — disposable independent and repeatable builds.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and inventory.
+
+Independent mathematical and browser/mobile evidence accompany the local review. Publish only after review.
