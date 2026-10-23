@@ -819,3 +819,19 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 7
+
+The default Week 7 route, `w7/`, is English; `w7/tr/` preserves the original Turkish lesson. Canonical sources are `tools/lessons/w7.html` and `w7.tr.html`; the existing builder copies both. Week 6’s onward link and Week 7’s prerequisite/back links retain the lesson language. The homepage identifies Weeks 1–7 as bilingual, and the English lesson labels Week 8 as Turkish.
+
+Both editions preserve device IDs, record order and tags, all seven presets, the sorted-input merge condition, left-first recursive calls, base-case returns, whole-sort versus final-merge counting and all four assessment dimensions. English location labels share the established glossary: pump, greenhouse, warehouse, roof, well, garden, gate and room. ID comparisons and output placements remain separate units. For power-of-two n, P(n)=n log₂n counts placements exactly, not comparisons; the general work bound retains constant-cost comparison and placement assumptions. Active recursion space is distinguished from the teaching trace’s stored snapshots.
+
+The model and shared styles are unchanged. The Turkish UI changes only by spaces after commas in bracketed preset descriptions; both UI asset queries use version 2. These same spaces appear in the English preset descriptions, with no changes to algorithm code or data. The local stylesheet retains its original bytes and appends one rule to wrap long static and dynamic record labels; both editions request version 2 of that stylesheet. Commas inside static bracketed lists gain following spaces in both editions so enlarged mobile text can wrap between complete IDs without changing list items or DOM nodes. English display and accessibility strings are in `w7/lesson.en.js`. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week7-tr`, with a full English edition at `#week7-en`. Hidden/disabled NoJS submits and print/restore behavior remain.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week7_bilingual.py` — pinned migration, preservation, routing and bilingual operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
