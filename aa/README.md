@@ -943,3 +943,25 @@ Checks from repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
 
 Independent mathematical and browser/mobile evidence accompany local review. Publish only after review.
+
+## English/Turkish Week 14
+
+The default Week 14 route, `w14/`, is English; `w14/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w14.html` and `w14.tr.html`. Week 13 onward links and Week 14 prerequisite/back links retain the selected language. The homepage now identifies all 14 weeks as bilingual. Week 14 closes the course without a fictitious next lesson.
+
+All eight devices, ten undirected weighted edges, SVG geometry, ten examples, editable candidate/budget controls, guided and independent tasks, four assessment dimensions and numeric answers remain. The model, Turkish UI and styles are preserved. English display/accessibility strings live in `w14/lesson.en.js`. Five original teacher paragraphs move verbatim to `resources/teaching/#week14-tr`, with a complete English edition at `#week14-en`.
+
+The verifier checks only the given certificate. Its order is format, exact k+1 length, registered IDs, endpoints, no repeats (simple mode), each existing edge and a separate addition, then total<=B. It stops at the first failed condition. A running prefix total is not a completed candidate cost; result.cost stays null until all edges were checked and added. Accepting one valid candidate establishes a YES witness, not minimality or an efficient general solver. Rejecting one candidate does not prove NO. The old repeated-device walk is accepted only in the explicitly separate walk comparison.
+
+The guided candidate 24→18→7→11→31 has four edges and cost 12; B=12 accepts equality, B=10 rejects. The guided answers are 12, 4 and yes. Independent candidates Y and Z cost 6 and 9; Y makes the original decision YES at budget 6. The unit-weight transformation has k=B=V−1=3, distinct from the original budget. Independent answers are 6, 9, 3, 3 and a-to-l.
+
+The general decision family L additionally has k<=V−1. Short YES certificates can be verified in polynomial bit time; P is contained in NP and whether P=NP is open. NP does not mean non-polynomial. The fixed-interface size limits do not establish complexity classes. The reduction is UHAMPATH<=pL: preserve the undirected graph and endpoints, set all weights 1 and k=B=V−1, with no-repeat paths. Both directions are justified. The transformation only creates an instance; it neither finds a path nor computes an NP classification. The known NP-completeness of undirected specified-endpoint Hamiltonian path is a cited starting theorem, separate from this new reduction and L's NP membership.
+
+The display domain is 1–32 devices, k=0–31, integer weights 0–1000000, nonnegative safe-integer B and at most 64 candidate records. Logical counts exclude graph preparation, bit arithmetic, copying snapshots and drawing; class claims refer to the unbounded problem family. Written verification, input-bit-size reasoning and both reduction directions remain separate assessment evidence. Responses are not saved or uploaded.
+
+Checks from repository root:
+
+- `python3 aa/tools/verify_week14_bilingual.py` — pinned preservation, bilingual operational contracts and routing.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeated disposable builds.
+- `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
+
+Independent mathematical, primary-source and browser/mobile evidence accompany local review. Publish only after review.
