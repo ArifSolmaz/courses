@@ -851,3 +851,19 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 9
+
+The default Week 9 route, `w9/`, is English; `w9/tr/` preserves the Turkish lesson with spaces after commas inside static bracketed lists and around numeric arrows, so complete IDs can wrap on enlarged mobile text. Canonical sources are `tools/lessons/w9.html` and `w9.tr.html`; the existing builder copies both. Week 8’s onward link and Week 9’s prerequisite/back links retain the lesson language, including the recursion prerequisite in Week 7 and LIFO prerequisite in Week 4. The homepage identifies Weeks 1–9 as bilingual, and the English lesson labels Week 10 as Turkish.
+
+Both editions preserve every job, directed arrow, SVG coordinate, example, call-stack event and counting unit. English location labels use the established glossary: roof, greenhouse, well, pump, garden, warehouse, room and gate. An arrow A→B requires job A to finish before B starts. DFS computes a plan; its call entries/returns are distinct from actual maintenance. Only an arrow to an active ancestor proves a directed cycle; an arrow to a finished vertex does not. The outer loop covers every job. Reversing a full finish list produces a topological order only after the search establishes acyclicity; every candidate is checked as a permutation against all arrows. Counts distinguish initial rows, calls, directed adjacency entries, returns and maximum simultaneous frames. O(V+E) assumes ready-made lists and constant-work state/stack operations, excluding list construction/sorting and teaching snapshots.
+
+The model, Turkish UI, local stylesheet and shared styles are unchanged; English display and accessibility strings are in `w9/lesson.en.js`. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week9-tr`, with a full English edition at `#week9-en`. All four assessment dimensions, hidden/disabled NoJS submits and print/restore behavior remain.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week9_bilingual.py` — pinned migration, preservation, routing and bilingual operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
