@@ -903,3 +903,23 @@ Checks from repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and inventory.
 
 Independent mathematical and browser/mobile evidence accompany the local review. Publish only after review.
+
+## English/Turkish Week 12
+
+The default Week 12 route, `w12/`, is English; `w12/tr/` preserves the Turkish lesson. Canonical sources are `tools/lessons/w12.html` and `w12.tr.html`. Week 11 onward links, Week 12 back link, and the Week 7 recursion / Week 9 DFS prerequisites retain the selected language. The homepage identifies Weeks 1–12 as bilingual; the English onward link identifies Week 13 as Turkish.
+
+All eight devices, ten weighted edges, SVG geometry, seven presets, guided and independent tasks, four assessment dimensions and numeric answers remain. The model, Turkish UI and styles are preserved. English display and accessibility strings live in `w12/lesson.en.js`. Four original teacher paragraphs move verbatim to `resources/teaching/#week12-tr`, with an English edition at `#week12-en`.
+
+The problem seeks one cheapest walk with exactly k edges; devices and edges may repeat. Reaching the target early does not stop the recursion. Each call has its own ID, vertex, remaining-edge count r, prefix cost c, path and depth. Choose and enter are separate; terminal evaluation and strict incumbent update are separate. The opened choice tree contains only revealed calls. Equal-cost candidates preserve the first optimum.
+
+With nonnegative costs and a previously found valid incumbent B, an interior prefix with c>=B cannot improve the incumbent. The r=0 terminal check comes before this optional bound. Pruned counters count only visited calls/terminals, not hidden valid walks. Negative weights would invalidate this simple bound even though a fixed-k enumeration is finite. Every negative input edge is rejected by the chosen model. Both modes reject requests whose unpruned tree exceeds 5000 calls; no truncated optimum is returned. Model bounds are 1–32 devices, k=0–6 and integer edge costs 0–1000000.
+
+The logical call bound is O(1+Delta+...+Delta^k), with the Delta=0 and Delta=1 cases explicit. Basic mutable-prefix DFS can use O(k+1) auxiliary space, excluding copied incumbent paths and the teaching model's full event/tree/stack snapshots. Counts separate calls, extensions, terminals, valid candidates, strict improvements, prunes and returns from walk cost.
+
+Checks from repository root:
+
+- `python3 aa/tools/verify_week12_bilingual.py` — pinned preservation, bilingual structural/operational contracts and routing.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeated disposable builds.
+- `python3 aa/tools/verify_alignment.py` — canonical course and inventory.
+
+Independent mathematical and browser/mobile evidence accompany local review. Publish only after review.
