@@ -867,3 +867,21 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 10
+
+The default Week 10 route, `w10/`, is English; `w10/tr/` preserves the Turkish lesson. Static bracketed lists and brace-delimited component groups gain spaces after commas, and numeric en-dash paths or arrows gain surrounding spaces, so complete IDs can wrap on enlarged mobile text. Canonical sources are `tools/lessons/w10.html` and `w10.tr.html`; the existing builder copies both. Week 9’s onward link and Week 10’s prerequisite/back links retain the lesson language, including the sorting prerequisite in Week 7. The homepage identifies Weeks 1–10 as bilingual, and the English lesson labels Week 11 as Turkish.
+
+Both editions preserve every device, weighted edge, SVG coordinate, example, Kruskal event and counting unit. English location labels use the established glossary: roof, greenhouse, well, pump, garden, warehouse, room and gate. Each undirected candidate appears once. Non-negative integer costs are the chosen data contract, not a general requirement of Kruskal’s algorithm. Cost order plus selected-forest components determines safe acceptance. Equal-cost ties may yield different minimum forests. Disconnected inputs retain every device, including isolated vertices. Minimum total installation cost differs from pairwise shortest paths.
+
+This teaching version relabels components by scanning all V rows on each accepted edge. Counts distinguish initial rows, edge decisions, merges, rejections and label-row scans; scans do not imply every label is rewritten. Its safe bound including sorting is O(V + E log(E+1) + V²), with O(V) auxiliary label/forest space and O(E) candidate/sorted-list space. Cycle-witness extraction, drawing and teaching snapshots are excluded from basic counters.
+
+The model, Turkish UI, local stylesheet and shared styles are unchanged; English display and accessibility strings are in `w10/lesson.en.js`. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week10-tr`, with a full English edition at `#week10-en`. All four assessment dimensions, hidden/disabled NoJS submits and print/restore behavior remain.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week10_bilingual.py` — pinned migration, preservation, routing and bilingual operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
