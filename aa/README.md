@@ -803,3 +803,19 @@ Checks from the repository root:
 - `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
 
 Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
+
+## English/Turkish Week 6
+
+The default Week 6 route, `w6/`, is English; `w6/tr/` preserves the original Turkish lesson. Canonical sources are `tools/lessons/w6.html` and `w6.tr.html`; the existing builder copies both. Week 5’s onward link and Week 6’s prerequisite/back links retain the lesson language. The homepage identifies Weeks 1–6 as bilingual, and the English lesson labels Week 7 as Turkish.
+
+Both editions preserve the job labels, device IDs, priorities, persistent arrival numbers, example presets and guided/independent tasks. The min-heap remains a complete binary tree with the same parent–child ordering; equal priorities use the original arrival-number tie rule. Job comparisons and swaps remain separate units. Worst-case logarithmic sifting retains the assumptions of direct array access and enough capacity; array growth and building the initial heap are excluded from these counters.
+
+The model, Turkish UI, local stylesheet and shared styles are unchanged; English display and accessibility strings are in `w6/lesson.en.js`. Original Turkish teaching guidance is preserved verbatim at `resources/teaching/#week6-tr`, with a full English edition at `#week6-en`. All four assessment dimensions, hidden/disabled NoJS submits and print/restore behavior remain.
+
+Checks from the repository root:
+
+- `python3 aa/tools/verify_week6_bilingual.py` — pinned migration, preservation, routing and bilingual operational contracts.
+- `python3 aa/tools/verify_rebuild.py` — independent and repeatable builds in disposable copies.
+- `python3 aa/tools/verify_alignment.py` — canonical pages and existing course inventory.
+
+Browser and independent mathematical evidence are kept in the local review package. Publish only after review.
