@@ -5,6 +5,10 @@
   const $ = id => document.getElementById(id);
   const values = [18, 7, 18, 24, 11, 20];
   let work, revealed = 0, solutionSeen = false;
+  const checkpoint = window.AAWeekTwoCheckpoint ? window.AAWeekTwoCheckpoint.create({
+    advance() { if (revealed < work.steps.length) { revealed++; render(); } },
+    refresh() { render(); }
+  }) : null;
 
   function el(tag, text) {
     const node = document.createElement(tag);
@@ -68,17 +72,22 @@
       if (done) status += ' The report is complete. Equality checks: ' + revealed + '.';
       else {
         const next = work.steps[revealed];
-        status += mode === 'nested' ? ' Next pair (' + next.i + ',' + next.j + ').'
-          : ' Next: pass ' + next.pass + ', position ' + next.i + '.';
+        if (!(checkpoint && mode === 'nested' && n >= 2 && revealed === n)) {
+          status += mode === 'nested' ? ' Next pair (' + next.i + ',' + next.j + ').'
+            : ' Next: pass ' + next.pass + ', position ' + next.i + '.';
+        }
         if (result.equal) status += ' A match fills only one cell of the report; we continue for the other results.';
       }
     }
     $('work-status').textContent = status;
+    if (checkpoint) checkpoint.update(work, revealed);
   }
 
   function reset() {
     work = model.traceWork(Number($('work-n').value), $('work-mode').value);
-    revealed = 0; render();
+    revealed = 0;
+    if (checkpoint) checkpoint.reset();
+    render();
   }
 
   function number(id, min, max) {
@@ -95,7 +104,7 @@
 
   $('work-n').addEventListener('change', reset);
   $('work-mode').addEventListener('change', reset);
-  $('work-next').addEventListener('click', () => { if (revealed < work.steps.length) { revealed++; render(); } });
+  $('work-next').addEventListener('click', () => { if ((!checkpoint || !checkpoint.blocked()) && revealed < work.steps.length) { revealed++; render(); } });
   $('work-reset').addEventListener('click', reset);
   $('guided-form').addEventListener('submit', event => {
     event.preventDefault();
