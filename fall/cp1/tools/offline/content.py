@@ -59,6 +59,9 @@ def prepare(week,root):
             from practice_support import english_prose
             s=english_prose(s)
         cell['source']=s.splitlines(keepends=True)
+    if week in range(1,6):
+        from early_changes import attach_early_changes
+        attach_early_changes(nb,week,lesson_count)
     if week in (13,14):
         from science_changes import attach_science_changes
         attach_science_changes(nb,week,lesson_count)

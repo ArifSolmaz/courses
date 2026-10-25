@@ -92,7 +92,7 @@ for week in range(1,15):
             from practice_support import english_prose
             normalize=english_prose if week in (13,14) else lambda s:s
             offline_text=text(offline)
-            if week in (13,14) and index==0:
+            if week in (1,2,3,4,5,13,14) and index==0:
                 offline_text=offline_text.rsplit('\n**Change one thing:**',1)[0]
             assert lesson_text(normalize(text(source))) == lesson_text(normalize(offline_text)), context
     # Run the original notebooks too and compare every saved output. Echo seeded

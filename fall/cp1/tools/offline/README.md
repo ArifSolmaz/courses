@@ -107,9 +107,9 @@ Rebuild with `python3 fall/cp1/tools/offline/build.py --week 12`, then run
 and changed programs in isolated folders, repeat-run behavior, CSV round trips,
 raw/clean/rejected files, the English steps, and the generated HTML.
 
-### Clickable code and easier edits, Weeks 6–14
+### Clickable code and easier edits, Weeks 1–14
 
-All nine pages show numbered code with a selected-line explanation. Clicking the
+All fourteen pages show numbered code with a selected-line explanation. Clicking the
 code text or its number also highlights the output actually produced by that line
 after Run. A line with no printed output says so; file writes are not stdout.
 
@@ -160,9 +160,25 @@ original prerequisites in fresh folders, keeping internal assertions active and
 checking plotted artists and PNG files. Existing guided-change/history tests cover
 Undo, Restore, saved edits, and protection of custom student code.
 
+### Suggested beginner edits, Weeks 1–5
+
+`early_changes.py` adds 190 reversible **Apply suggested change** controls to the
+first five offline pages. Lesson edits cover messages, values, conditions, formatting
+and bounded loops. Worked-answer edits change display only, so the existing numeric
+checks still pass. Empty exercise starters, diagnostic helpers and assertion-only
+cells retain their original purpose. Original exercises, answers, expected results
+and authored line walkthroughs are preserved; suggested variants have matching line
+help and real output links. Undo, Restore and automatic indentation are enabled on
+all fourteen weeks. Restore and rerun before moving to a dependent example.
+
+Run `python3 fall/cp1/tools/offline/verify_early_changes.py`: all 380 original/changed
+programs execute with their original prerequisites and seeded inputs; changed output,
+line attribution and 136 following answer-check executions are verified. The full
+`verify_content_parity.py` continues to verify all original tasks and saved outputs.
+
 ## Interface and persistence
 
-Weeks 6–14 provide per-cell **Undo last change** and **Restore original code**
+Weeks 1–14 provide per-cell **Undo last change** and **Restore original code**
 buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
 recent edit events in that cell. Restoring the original code can itself be undone.
 The original always comes from the page's authored example, even after opening
