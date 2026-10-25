@@ -399,7 +399,9 @@ Use the same three steps for every example:
 3. **Change one thing:** Edit only the item requested, predict again, and rerun the same cell.
 
 Each program includes its own data. You can run an example on its own or rerun it after a change.
-If you want the starting version again, undo your edit in the code cell.
+Use **Undo last change** to step back one edit in that cell. Use **Restore original code**
+to return to the starting example. These buttons change the code only; press Run again
+to update the output. You can also undo a restore.
 
 Examples 1–14 are the main activities. The remaining activities are optional.
 Work at your own pace; you do not need to finish every example in one lesson.

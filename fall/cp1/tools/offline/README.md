@@ -36,6 +36,15 @@ explanation checks continue to verify the original notebook editions.
 
 ## Interface and persistence
 
+Weeks 6–7 provide per-cell **Undo last change** and **Restore original code**
+buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
+recent edit events in that cell. Restoring the original code can itself be undone.
+The original always comes from the page's authored example, even after opening
+saved work. Histories are session-only and reset when a saved notebook is opened;
+they survive running cells and restarting Python. Both actions update saved code
+without running it or changing Python variables. An English note reminds students
+to rerun to update the output. Other cells keep their own edits and histories.
+
 The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 01–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
 
 Save notebook exports `.ipynb` with edited code, input values, stdout and plots. Open saved work accepts the matching week and restores code, inputs and safe outputs without executing code. Variables are not saved: rerun setup cells after reopening. Markdown remains the trusted original. There is no cloud sync or automatic persistence.

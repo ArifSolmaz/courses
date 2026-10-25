@@ -109,6 +109,7 @@ function render(){
       const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';input.value=(cell.metadata?.offline_inputs||[]).join('\n');input.oninput=()=>{cell.metadata.offline_inputs=input.value===''?[]:input.value.split('\n');fitEditor(input);markDirty();};details.hidden=!codeNeedsInput(editor.value);const help=document.createElement('p');help.className='input-help';help.textContent='One response per input() call, in order. Edit the sample values to try another case.';details.append(summary,help,input);
       const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).filter(o=>o.output_type!=='display_data').map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
       section.append(bar);
+      if(CONFIG.codeHistory)addCodeHistory(bar,editor,i);
       const layout=document.createElement('div');layout.className='cell-layout';
       const codePane=document.createElement('div');codePane.className='code-pane';const codeTitle=document.createElement('h3');codeTitle.textContent='Code';codeTitle.className='output-title';codePane.append(codeTitle,editor);
       const walkthrough=notebook.cells[i+1]?.metadata?.cp1_line_walkthrough;
@@ -148,6 +149,7 @@ function boot(){
 }
 function runCell(i){
   if(!ready||busy)return;busy=true;active=i;controls();$('cell-'+i).classList.add('running');$('status').textContent='Running cell '+(i+1)+'…';
+  const editNote=$('cell-'+i).querySelector('.code-edit-note');if(editNote)editNote.hidden=true;
   const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);if(selectedOutputLines.has(i))highlightOutput(i,selectedOutputLines.get(i));markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
 }
