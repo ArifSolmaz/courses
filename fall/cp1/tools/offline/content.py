@@ -11,6 +11,9 @@ def prepare(week,root):
     if week == 7:
         from week07 import prepare as prepare_guided_week
         return prepare_guided_week(root)
+    if week == 8:
+        from week08 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
     nb=json.loads((root/f'notebooks/Week_{week:02d}.ipynb').read_text());lesson_count=len(nb['cells'])
     answers=json.loads((root/f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
     for cell in answers['cells']:

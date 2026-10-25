@@ -54,6 +54,11 @@ for week in range(1,15):
         verify()
         print('Week 7: guided offline source matches HTML; all starting and changed programs pass.')
         continue
+    if week == 8:
+        from verify_week08_guided import verify
+        verify()
+        print('Week 8: guided offline source matches HTML; all starting and changed programs pass.')
+        continue
     assert lesson_count == len(lesson['cells'])
     source_cells = lesson['cells'] + solutions['cells']
     assert len(source_cells) == len(embedded['cells'])
