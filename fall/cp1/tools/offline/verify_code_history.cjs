@@ -19,10 +19,10 @@ assert.equal(saved.isOriginal,false);assert.equal(saved.canUndo,false);
 assert.equal(saved.restore(),'original');assert.equal(saved.undo(),'saved student edit');
 const limited=make();for(let i=0;i<105;i++)limited.record(String(i));
 let count=0;while(limited.canUndo){limited.undo();count++;}assert.equal(count,100);
-for(const week of [6,7,8]){
+for(const week of [6,7,8,9]){
   const page=fs.readFileSync(path.join(__dirname,`../../offline/CP1_Week_${String(week).padStart(2,'0')}_Offline.html`),'utf8');
   assert.ok(page.includes('"codeHistory": true'));
   assert.ok(page.includes(fs.readFileSync(path.join(__dirname,'code_history.js'),'utf8')));
   assert.ok(page.includes('if(CONFIG.codeHistory)addCodeHistory(bar,editor,i);'));
 }
-console.log('Per-cell undo, reversible restore, saved edits, no-op edits, history limit and all three page bundles pass.');
+console.log('Per-cell undo, reversible restore, saved edits, no-op edits, history limit and all four page bundles pass.');
