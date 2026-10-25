@@ -38,7 +38,7 @@ def build(week,assets):
         page=page.replace('Solutions use separate variables and files, so they do not fill in your practice. Where the notes say Colab or “play button”, use this page’s <strong>Run</strong> button.', f'Examples 1–{main_activities} are the main activities. Harder activities are marked <strong>Optional</strong>. You do not need to write a new program from scratch.')
     page=page.replace('{{WEEK}}',f'{week:02d}').replace('{{TITLE}}',html.escape(title)).replace('{{COVERAGE}}',f'The complete Week {week:02d} lesson, exercises and worked solutions are included below.')
     if week in (6, 7, 8, 9, 10, 11, 12):
-        page=page.replace(f'The complete Week {week:02d} lesson, exercises and worked solutions are included below.', f'All guided Week {week:02d} examples are included below, in English.')
+        page=page.replace(f'The complete Week {week:02d} lesson, exercises and worked solutions are included below.', f'Guided Week {week:02d} examples, practice exercises and fully worked solutions are included below, in English.')
     scope='Includes Python and its bundled standard library'+(', NumPy and Matplotlib.' if scientific else '.')+' Notebook widgets and Colab services are not included. External links require internet. This file still needs a compatibility trial on your managed classroom PCs.'
     page=page.replace('{{SCOPE}}',scope)
     replacements={'CONFIG':js(config),'MARKED':assets['marked.js'].decode(),'PURIFY':assets['purify.js'].decode(),'NOTEBOOK':js(nb),'FILES':js(files),'WORKER':js(worker),'LICENSES':js('\n\n'.join(n+'\n'+v.decode() for n,v in assets.items() if n.startswith('LICENSE-'))),'APP':(HERE/'errors.js').read_text()+'\n'+(HERE/'app.js').read_text()}

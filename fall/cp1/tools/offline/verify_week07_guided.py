@@ -18,7 +18,7 @@ def output(source):
 
 def verify():
     nb, count = prepare(ROOT)
-    assert count == len(nb['cells'])
+    assert count == next(i for i,c in enumerate(nb['cells']) if c['metadata'].get('offline_realm') == 'solutions')
     assert [a['number'] for a in ACTIVITIES] == [str(n) for n in range(1, 26)]
     assert sum(not a['optional'] for a in ACTIVITIES) == 12
     for item in ACTIVITIES:
@@ -37,7 +37,7 @@ def verify():
         assert code['cell_type'] == 'code' and ''.join(code['source']) == item['code']
         assert not code['outputs'] and code['execution_count'] is None
         assert ('Optional example' in ''.join(before['source'])) == item['optional'], context
-    content = '\n'.join(''.join(c['source']) for c in nb['cells'])
+    content = '\n'.join(''.join(c['source']) for c in nb['cells'][:count] if c['metadata'].get('offline_realm') != 'practice')
     assert not re.search('[çğıöşüÇĞİÖŞÜ]', content)
     page = (ROOT / 'offline/CP1_Week_07_Offline.html').read_text()
     embedded, _ = json.JSONDecoder().raw_decode(page.split('const ORIGINAL=', 1)[1])

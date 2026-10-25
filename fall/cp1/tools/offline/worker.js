@@ -2,7 +2,7 @@ let py, realms, plotScope, active = null, inputs = [], streamCount = 0, fileSupp
 let traceScope, traceContext, tracedText='', tracedLines='';
 function flushTrace(){if(!tracedText)return;if(streamCount++<400)send('stream',{name:'stdout',text:tracedText,lines:tracedLines.split(',').filter(Boolean).map(Number)});else if(streamCount===401)send('stream',{name:'stderr',text:'Output limit reached. Stop and restart if your loop does not finish.\n'});tracedText='';}
 function traceWrite(text,lines){if(lines!==tracedLines)flushTrace();tracedLines=lines;tracedText+=text;if(text.includes('\n'))flushTrace();}
-const roots={lesson:'/home/pyodide/lesson',solutions:'/home/pyodide/solutions'};
+const roots={practice:'/home/pyodide/practice',lesson:'/home/pyodide/lesson',solutions:'/home/pyodide/solutions'};
 const send = (type, data={}) => postMessage({type, id:active, ...data});
 function stream(name, text) {
   if (streamCount++ < 400) send('stream', {name, text: text+'\n'});
@@ -43,7 +43,7 @@ self.onmessage = async ({data:m}) => {
         py.runPython(m.config.plotSetup,{globals:plotScope});
       }
       if(m.config.outputTrace){py.registerJsModule('offline_output',{emit:traceWrite});traceScope=py.runPython("dict(__name__='__offline_output__')");py.runPython(m.config.outputTrace,{globals:traceScope});}
-      realms={lesson:py.globals,solutions:py.runPython("dict(__name__='__main__')")};
+      realms={practice:py.runPython("dict(__name__='__main__')"),lesson:py.globals,solutions:py.runPython("dict(__name__='__main__')")};
       for(const path of Object.values(roots))py.FS.mkdirTree(path);
       fileSupport=m.config.week>=11;
       send('ready');

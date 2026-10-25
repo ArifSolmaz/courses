@@ -128,6 +128,22 @@ complete explanation coverage and real traced output for all original/changed
 guided examples. `verify_code_history.cjs` checks history and all nine bundles.
 `verify_guided_change.cjs` checks the apply/undo/restore path and custom-edit protection.
 
+### Restored practice and complete solutions
+
+Weeks 6–12 keep the original exercise tasks, starter code, supplied file setup,
+complete answers and expected results after the guided examples. Exercises 1–8
+are core; Exercises 9–12 and the bridge are optional. Worked answers follow all
+practice tasks and use a separate namespace and working folder. Practice also has
+its own namespace and folder, so demonstration variables cannot supply hidden answers.
+Weeks 13–14 retain their original practice/answer sections and dependencies.
+English-only offline prose omits the originals' duplicate Turkish translations.
+Colab lesson/answer notebooks remain unchanged.
+
+`verify_practice_support.py` checks that every original starter and answer program
+is preserved across all nine pages and runs all 91 restored Weeks 6–12 answers
+against saved outputs and internal assertions. `verify_guided_support.py` checks
+numbered explanation coverage for practice and worked answers too.
+
 ## Interface and persistence
 
 Weeks 6–14 provide per-cell **Undo last change** and **Restore original code**

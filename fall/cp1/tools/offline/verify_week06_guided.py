@@ -18,7 +18,7 @@ def output(source):
 
 def verify():
     nb, count = prepare(ROOT)
-    assert count == len(nb['cells'])
+    assert count == next(i for i,c in enumerate(nb['cells']) if c['metadata'].get('offline_realm') == 'solutions')
     assert len(ACTIVITIES) == 24
     assert len({item['number'] for item in ACTIVITIES}) == 24
     for item in ACTIVITIES:
@@ -38,7 +38,7 @@ def verify():
         assert not code['outputs'] and code['execution_count'] is None
         assert 'Optional example' in ''.join(before['source']) if item['optional'] else 'Optional example' not in ''.join(before['source'])
     # Both lesson prose and executable strings are English-only authored content.
-    content = '\n'.join(''.join(c['source']) for c in nb['cells'])
+    content = '\n'.join(''.join(c['source']) for c in nb['cells'][:count] if c['metadata'].get('offline_realm') != 'practice')
     assert not re.search('[çğıöşüÇĞİÖŞÜ]', content)
     page = (ROOT / 'offline/CP1_Week_06_Offline.html').read_text()
     embedded, _ = json.JSONDecoder().raw_decode(page.split('const ORIGINAL=', 1)[1])

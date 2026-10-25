@@ -534,4 +534,5 @@ Assessment remains the midterm exam (50%) and final exam (50%).
         cell['id'] = f'w11-guided-{index:03d}'
     from guided_support import attach_guidance
     attach_guidance(nb, ACTIVITIES)
-    return nb, len(nb['cells'])
+    from practice_support import restore_practice
+    return restore_practice(nb, root, 11)

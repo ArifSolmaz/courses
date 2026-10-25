@@ -15,7 +15,7 @@ function highlightOutput(i,n){
   note.hidden=false;
   note.textContent=!runSources.has(i)?'Run this cell to link lines to output.':!current?'Code changed — run again to update output links.':matches?'Highlighted output from line '+n+'.':'Line '+n+' produced no printed output'+(CONFIG.packages?.length?' or displayed plot':'')+' in this run.';
 }
-let runtimeFiles={lesson:[],solutions:[]};
+let runtimeFiles={lesson:[],practice:[],solutions:[]};
 $('licenses').textContent=LICENSES;
 if(location.protocol==='https:'||location.protocol==='http:'){const a=$('download-html');a.hidden=false;a.href=CONFIG.filename;a.download=CONFIG.filename;}
 
@@ -113,8 +113,8 @@ function render(){
     if(cell.cell_type==='markdown'){
       section.className='md';section.innerHTML=DOMPurify.sanitize(marked.parse(cell.source.join('')));
       section.querySelectorAll('a').forEach(a=>{if(!a.getAttribute('href').startsWith('#')){a.target='_blank';a.rel='noopener noreferrer';}});
-    const heading=[...section.querySelectorAll('h1,h2')].find(h=>!h.closest('details'));
-      if(heading){section.id=cell.metadata?.offline_anchor||'section-'+i;const realm=cell.metadata?.offline_realm||'lesson';if(realm!==lastRealm){const group=document.createElement('h3');group.textContent=realm==='solutions'?'Worked solutions':'Lesson & practice';$('sections').append(group);lastRealm=realm;}
+    const heading=[...section.querySelectorAll(cell.metadata?.offline_anchor?'h1,h2,h3':'h1,h2')].find(h=>!h.closest('details'));
+      if(heading){section.id=cell.metadata?.offline_anchor||'section-'+i;const realm=cell.metadata?.offline_realm||'lesson';if(realm!==lastRealm){const group=document.createElement('h3');group.textContent=realm==='solutions'?'Worked solutions':realm==='practice'?'Exercises to solve':'Lesson & practice';$('sections').append(group);lastRealm=realm;}
         const link=document.createElement('a');link.href='#'+section.id;link.textContent=(i===0?'Week '+CONFIG.week+' overview':cell.metadata?.offline_anchor==='solutions'?'Solutions overview':heading.textContent).replace(/^Part (\d+): /,'$1. ').replace(/^CP1 Week \d+ — /,'');$('sections').append(link);}
     }else if(cell.cell_type==='code'){
       section.className='cell';section.id='cell-'+i;
@@ -150,7 +150,7 @@ function render(){
 function boot(){
   if(worker)worker.terminate();if(workerURL)URL.revokeObjectURL(workerURL);
   if(active!==null){$('cell-'+active)?.classList.remove('running');const cell=notebook.cells[active];cell.outputs.push({output_type:'stream',name:'stderr',text:['Stopped. Python state was cleared.\n']});outputs.get(active).textContent+='\nStopped. Python state was cleared.\n';}
-  runtimeFiles={lesson:[],solutions:[]};renderFiles();ready=false;busy=false;active=null;execution=0;controls();$('status').textContent='Starting local Python…';$('fatal').textContent='';
+  runtimeFiles={lesson:[],practice:[],solutions:[]};renderFiles();ready=false;busy=false;active=null;execution=0;controls();$('status').textContent='Starting local Python…';$('fatal').textContent='';
   workerURL=URL.createObjectURL(new Blob([WORKER],{type:'text/javascript'}));worker=new Worker(workerURL);
   worker.onmessage=({data:m})=>{
     if(m.type==='ready'){ready=true;$('status').textContent='Python ready · runs on this computer';controls();return;}
@@ -181,7 +181,7 @@ function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.
 function renderFiles(){
   $('file-list').replaceChildren();$('runtime-files').hidden=!Object.values(runtimeFiles).some(a=>a.length);
   for(const [realm,files] of Object.entries(runtimeFiles)){
-    if(!files.length)continue;const heading=document.createElement('h3');heading.textContent=realm==='lesson'?'Lesson & practice':'Worked solutions';$('file-list').append(heading);
+    if(!files.length)continue;const heading=document.createElement('h3');heading.textContent=realm==='lesson'?'Lesson examples':realm==='practice'?'Your practice files':'Worked solutions';$('file-list').append(heading);
     for(const f of files){const button=document.createElement('button');button.textContent=f.name+' · '+Math.ceil(f.size/1024)+' KB';button.disabled=busy||!ready;button.dataset.runtimeControl='';button.onclick=()=>{if(ready&&!busy)worker.postMessage({type:'getFile',realm,name:f.name});};$('file-list').append(button);}
   }
 }

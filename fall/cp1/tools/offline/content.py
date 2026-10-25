@@ -55,5 +55,8 @@ def prepare(week,root):
                 s+='\n\n**Offline edition:** the following setup cells use `with open(..., "w")` instead of Colab’s `%%writefile` command. They create the same files. Run each setup cell before reading its file.\n'
         s=s.replace('In Google Colab and Jupyter Notebooks, `input()` works interactively — it pops up a text box for the user to type in.', 'In this offline page, fill in **Input values below the code/output pair before pressing Run**. Each `input()` call consumes one response line. The page does not open a live input dialog. If responses run out, add the missing lines and rerun the cell from the beginning.')
         s=s.replace('- In Jupyter/Colab: Click the **stop button** (square icon) or go to **Runtime > Interrupt execution**', '- On this offline page: use **Stop / restart Python** at the top. This stops execution and clears Python variables; your code edits remain.')
+        if week in (13,14) and cell['cell_type']=='markdown':
+            from practice_support import english_prose
+            s=english_prose(s)
         cell['source']=s.splitlines(keepends=True)
     return nb,lesson_count

@@ -35,7 +35,7 @@ for week in range(6,15):
         expected={str(n) for n,line in enumerate(source.splitlines(),1) if line.strip() and not line.lstrip().startswith('#')}
         assert set(help['line_focus'])==expected,(week,i,'line coverage')
         lines+=len(expected)
-        if week>12:continue
+        if week>12 or 'cp1_activity' not in cell['metadata']:continue
         item=next(a for a in importlib.import_module(f'week{week:02d}').ACTIVITIES if str(a['number'])==str(cell['metadata']['cp1_activity']['number']))
         change=cell['metadata']['cp1_guided_change']
         assert source.count(change['old'])==1

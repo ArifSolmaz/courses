@@ -89,7 +89,9 @@ for week in range(1,15):
             # Colab helper visibility comments can differ; executable code cannot.
             assert ast.dump(ast.parse(text(source))) == ast.dump(ast.parse(text(offline))), context
         else:
-            assert lesson_text(text(source)) == lesson_text(text(offline)), context
+            from practice_support import english_prose
+            normalize=english_prose if week in (13,14) else lambda s:s
+            assert lesson_text(normalize(text(source))) == lesson_text(normalize(text(offline))), context
     # Run the original notebooks too and compare every saved output. Echo seeded
     # responses as Colab does, rather than silently substituting input().
     for notebook in (lesson, solutions):
