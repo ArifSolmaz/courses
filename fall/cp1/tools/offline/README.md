@@ -93,9 +93,23 @@ step structure and source/HTML parity. `verify_code_history.cjs` checks undo and
 restore in all six guided editions. The file preview creates and cleans up its
 own temporary directory in both runs.
 
+### Week 12 guided edition
+
+Week 12 uses the approved English draft in `week12.py`: 14 main activities and
+12 optional extensions. Every activity has Predict, Run, and Change one thing.
+Each program creates its own demonstration files; repeated runs reset those files.
+Undo and Restore change code only. Files live in the Python session and must be
+downloaded separately from the saved notebook. Longer reports and cleaning stay optional.
+The Colab notebooks remain separate from this guided offline edition.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 12`, then run
+`python3 fall/cp1/tools/offline/verify_week12_guided.py`. It checks all 52 original
+and changed programs in isolated folders, repeat-run behavior, CSV round trips,
+raw/clean/rejected files, the English steps, and the generated HTML.
+
 ## Interface and persistence
 
-Weeks 6–11 provide per-cell **Undo last change** and **Restore original code**
+Weeks 6–12 provide per-cell **Undo last change** and **Restore original code**
 buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
 recent edit events in that cell. Restoring the original code can itself be undone.
 The original always comes from the page's authored example, even after opening
@@ -110,7 +124,7 @@ Save notebook exports `.ipynb` with edited code, input values, stdout and plots.
 
 Lesson and solution code have separate global namespaces and working directories. This prevents ordinary solution examples supplying hidden variables/files to practice, but is not a security boundary against deliberate Python code. In normal Jupyter/Colab the exported combined notebook uses one kernel; restart between lesson and answers there.
 
-Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render inside the Output panel beside the code on laptops (below on narrow screens) and are saved in notebook output. Week 12 uses ordinary `with open` setup code in both the source notebook and HTML.
+Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render inside the Output panel beside the code on laptops (below on narrow screens) and are saved in notebook output. Week 12 uses ordinary file setup code in its guided offline source and HTML.
 
 ## Runtime and limitations
 
