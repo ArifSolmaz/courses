@@ -334,7 +334,7 @@ Bu parçaların düğümleri ayrıdır. Bütçe tam alt sınıra eşit olduğu i
 
 **Hedef farkı.** Subset Sum keyfî T hedefli bir alt küme sorar. Partition hedefi toplamın yarısı olarak belirler ve kalanlar diğer gruptur. Bunlar yakın ama aynı soru cümlesi değildir.
 
-**Tek toplam.** Tamsayı sürelerin toplamı 31 ise eşit gruplar 15,5 gerektirir; tamsayıların toplamıyla mümkün değildir. Çift toplam ise yalnızca gerekli koşuldur: 2,2,2 toplamı 6 ama 3 yapan alt küme yoktur.
+**Tek toplam.** Tamsayı sürelerin toplamı tek ise eşit gruplar tamsayı olmayan yarım toplam gerektirir; tamsayıların toplamıyla mümkün değildir. Çift toplam ise yalnızca gerekli koşuldur: 2,2,2 toplamı 6 ama 3 yapan alt küme yoktur.
 
 **Karmaşıklık.** İkili yazılmış pozitif tamsayılarla karar sürümleri NP-tamdır; aynı zamanda sayısal hedefe bağlı sözde polinom DP yöntemleri vardır. Bu iki bilgi çelişmez, çünkü hedefin değeri girdi bit uzunluğundan çok büyük olabilir.
 

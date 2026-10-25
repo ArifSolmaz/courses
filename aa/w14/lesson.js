@@ -3,20 +3,20 @@
   const model=window.FreshWeek14;
   if(!model||typeof model.traceCertificate!=='function'||typeof model.transformHamiltonianST!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
-  const repeatPath=[24,20,31,20,31],simplePath=[24,18,7,11,31];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
+  const repeatPath=[24,20,32,20,32],simplePath=[24,18,7,11,32];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2],[18,7,1],[24,4,7]];
   const cases={
-    repeat:{source:24,target:31,k:4,B:10,path:repeatPath,simple:true,text:'Hafta 13’ün adayı, bu kez cihaz tekrarı yasak. Kimlik/kenar koşullarını birbirine karıştırma.'},
-    walk:{source:24,target:31,k:4,B:10,path:repeatPath,simple:false,text:'Önceki yürüyüş sözleşmesi: tekrar serbest. Bu karşılaştırma L’nin basit yol kuralını kullanmıyor.'},
-    budget:{source:24,target:31,k:4,B:10,path:simplePath,simple:true,text:'Tekrarsız ve gerçek kenarlı aday; bütçe 10. Hangi kontrolde duracağını önce söyle.'},
-    valid:{source:24,target:31,k:4,B:12,path:simplePath,simple:true,text:'Aynı tekrarsız aday, bütçe 12. Kabul edilmesi minimumluğu kanıtlar mı?'},
-    short:{source:24,target:31,k:4,B:12,path:[24,20,31],simple:true,text:'Bu ucuz aday yalnız iki kenar içeriyor. Tam dört koşulunda ilk hangi kontrol başarısız?'},
-    missing:{source:24,target:31,k:4,B:12,path:[24,18,7,26,31],simple:true,text:'Kimlikler biliniyor ve farklı; her ardışık çift gerçekten bağlantılı mı? Eksik kenarın bedelini uydurma.'},
-    wrong:{source:24,target:31,k:4,B:12,path:[18,24,11,7,31],simple:true,text:'Liste tanıdık kimliklerden oluşuyor ama kaynak koşulu aynı kaldı. İlk hatadan sonra diğer koşullar test edilmez.'},
-    unknown:{source:24,target:31,k:4,B:12,path:[24,18,7,99,31],simple:true,text:'99 bu çizgede kayıtlı değil. Kimlik denetimi kenar aramadan önce gelir.'},
+    repeat:{source:24,target:32,k:4,B:10,path:repeatPath,simple:true,text:'Hafta 13’ün adayı, bu kez cihaz tekrarı yasak. Kimlik/kenar koşullarını birbirine karıştırma.'},
+    walk:{source:24,target:32,k:4,B:10,path:repeatPath,simple:false,text:'Önceki yürüyüş sözleşmesi: tekrar serbest. Bu karşılaştırma L’nin basit yol kuralını kullanmıyor.'},
+    budget:{source:24,target:32,k:4,B:10,path:simplePath,simple:true,text:'Tekrarsız ve gerçek kenarlı aday; bütçe 10. Hangi kontrolde duracağını önce söyle.'},
+    valid:{source:24,target:32,k:4,B:12,path:simplePath,simple:true,text:'Aynı tekrarsız aday, bütçe 12. Kabul edilmesi minimumluğu kanıtlar mı?'},
+    short:{source:24,target:32,k:4,B:12,path:[24,20,32],simple:true,text:'Bu ucuz aday yalnız iki kenar içeriyor. Tam dört koşulunda ilk hangi kontrol başarısız?'},
+    missing:{source:24,target:32,k:4,B:12,path:[24,18,7,26,32],simple:true,text:'Kimlikler biliniyor ve farklı; her ardışık çift gerçekten bağlantılı mı? Eksik kenarın bedelini uydurma.'},
+    wrong:{source:24,target:32,k:4,B:12,path:[18,24,11,7,32],simple:true,text:'Liste tanıdık kimliklerden oluşuyor ama kaynak koşulu aynı kaldı. İlk hatadan sonra diğer koşullar test edilmez.'},
+    unknown:{source:24,target:32,k:4,B:12,path:[24,18,7,99,32],simple:true,text:'99 bu çizgede kayıtlı değil. Kimlik denetimi kenar aramadan önce gelir.'},
     empty:{source:24,target:24,k:0,B:0,path:[24],simple:true,text:'Kaynak ve hedef 24; k=0. Tek cihaz konumu içeren liste hiç kenar geçmez ve bedeli 0.'},
-    separate:{source:24,target:31,k:0,B:0,path:[24],simple:true,text:'Kaynak 24, hedef 31; k=0. Liste uzunluğu doğru olsa bile hedef koşulu ne olur?'}
+    separate:{source:24,target:32,k:0,B:0,path:[24],simple:true,text:'Kaynak 24, hedef 32; k=0. Liste uzunluğu doğru olsa bile hedef koşulu ne olur?'}
   };
   const reasons={format:'liste biçimi uygun değil',length:'tam k+1 kayıt koşulu sağlanmadı','unknown-id':'bir kimlik çizgede yok veya geçersiz',source:'ilk kimlik kaynak değil',target:'son kimlik hedef değil',repeat:'tekrar yasağı bozuldu','missing-edge':'ardışık iki cihaz arasında kenar yok',budget:'toplam bedel bütçeyi aşıyor',valid:'bütün aday koşulları sağlandı'};
   let task,trace,seen=0,dirty=false,solutionSeen=false;

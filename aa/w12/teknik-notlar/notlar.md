@@ -57,7 +57,7 @@ Toplam 2×2×2=8 alt küme vardır. Boş küme de geçerli seçimdir: bütün g�
 
 **Ne sayılıyor?** Üç görevde 8 tam seçim vardır; tam ikili ağacın çağrı sayısı 1+2+4+8=15'tir. Kök ve kısmi kararlar da çağrıdır. Bütün seçilmiş listeleri yazmak, liste uzunluklarına bağlı ek çıktı maliyeti getirir.
 
-**Kontrol ve cevap.** Dört görevde 16 çözüm sayılması, 16 çağrı demek mi? Hayır. Budamasız tam ağaç 1+2+4+8+16=31 düğüm/çağrı içerir.
+**Kontrol ve cevap.** Dört görevde 16 çözüm sayılması, 16 çağrı demek mi? Hayır. Budamasız tam ağaç 1+2+4+8+16=32−1 düğüm/çağrı içerir.
 
 ## 3. Görev seçmek ile görev sıralamak farklıdır
 
@@ -474,7 +474,7 @@ Number of routes: 5
 | 0 | [1], sonuç 1 | Boş hareket dizisi; ways[1] yazılmaz |
 | 1 | [1,1], sonuç 1 | Döngü hiç çalışmadan taban cevap |
 | 5 | [1,1,2,3,5,8], sonuç 8 | 5+3 toplamı |
-| −1 veya 31 | ValueError | İzin verilen aralık |
+| −1 veya 32 | ValueError | İzin verilen aralık |
 
 **Kodun sınırı.** 30 sınırı matematiksel zorunluluk değil, gösterimi okunabilir tutan ders tercihidir. Python tamsayıları bu sonuçları tam temsil eder. `isinstance(True,int)` Python'da doğru olduğundan bu kısa tür kontrolü boolean değerini ayrıca dışlamaz; ders deneylerinde n için 0,1,4 gibi tamsayılar kullanın. `input()` çağrısı yoktur.
 

@@ -7,12 +7,12 @@
     { id: 'A', device: 18, priority: 4, seq: 1 }, { id: 'B', device: 7, priority: 7, seq: 2 },
     { id: 'C', device: 24, priority: 6, seq: 3 }, { id: 'D', device: 4, priority: 12, seq: 4 },
     { id: 'E', device: 11, priority: 9, seq: 5 }, { id: 'F', device: 20, priority: 8, seq: 6 },
-    { id: 'G', device: 31, priority: 10, seq: 7 }
+    { id: 'G', device: 32, priority: 10, seq: 7 }
   ];
   const h = { id: 'H', device: 26, priority: 3, seq: 8 };
   const independent = [
     { id: 'K', device: 18, priority: 2, seq: 1 }, { id: 'L', device: 7, priority: 5, seq: 2 },
-    { id: 'M', device: 24, priority: 3, seq: 3 }, { id: 'N', device: 31, priority: 7, seq: 4 }
+    { id: 'M', device: 24, priority: 3, seq: 3 }, { id: 'N', device: 32, priority: 7, seq: 4 }
   ];
   const p = { id: 'P', device: 11, priority: 1, seq: 5 };
   const cases = {

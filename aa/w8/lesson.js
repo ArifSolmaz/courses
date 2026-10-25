@@ -3,19 +3,19 @@
   const model = window.FreshWeek8;
   if (!model || typeof model.traceBFS !== 'function') return;
   const $ = id => document.getElementById(id);
-  const vertices = [4, 7, 11, 18, 20, 24, 26, 31];
-  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 31], [20, 31]];
-  const names = { 4: 'çatı', 7: 'sera', 11: 'kuyu', 18: 'pompa', 20: 'bahçe', 24: 'depo', 26: 'oda', 31: 'kapı' };
+  const vertices = [4, 7, 11, 18, 20, 24, 26, 32];
+  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 32], [20, 32]];
+  const names = { 4: 'çatı', 7: 'sera', 11: 'kuyu', 18: 'pompa', 20: 'bahçe', 24: 'depo', 26: 'oda', 32: 'kapı' };
   const independentVertices = [4, 7, 18, 20, 24, 26];
   const independentEdges = [[18, 7], [18, 24], [7, 26], [24, 26], [26, 4]];
   const cases = {
-    main: { vertices, edges, source: 18, target: 31, text: 'Ana ağ, kaynak 18. Komşular artan kimlik sırasıyla hazır. 26 yalıtılmış; hedef 31 için en az bağlantıyı bul.' },
-    reverse: { vertices, edges, source: 18, target: 31, order: 'descending', text: 'Aynı ağ ve kaynak 18; komşular azalan sırada. Uzaklıklarla seçilen ebeveynlerin hangisi değişebilir?' },
-    source31: { vertices, edges, source: 31, target: 18, text: 'Aynı ağda kaynak bu kez 31. Uzaklıkları 31’e göre baştan hesapla; başlangıç 18 artık uzaklığı 0 olan düğüm değil.' },
-    isolated: { vertices, edges, source: 26, target: 31, text: 'Aynı ağda kaynak 26; komşuluk listesi boş. Diğer kenarlar çizgede var, fakat bu kaynaktan onlara ulaşılmıyor.' },
-    linked: { vertices, edges: edges.concat([[31, 26]]), source: 18, target: 26, text: 'Ana ağa bir yönsüz 31–26 kenarı ekledik. Kaynak 18; 26 artık erişilebilir mi? Bütün bileşeni işle.' },
+    main: { vertices, edges, source: 18, target: 32, text: 'Ana ağ, kaynak 18. Komşular artan kimlik sırasıyla hazır. 26 yalıtılmış; hedef 32 için en az bağlantıyı bul.' },
+    reverse: { vertices, edges, source: 18, target: 32, order: 'descending', text: 'Aynı ağ ve kaynak 18; komşular azalan sırada. Uzaklıklarla seçilen ebeveynlerin hangisi değişebilir?' },
+    source32: { vertices, edges, source: 32, target: 18, text: 'Aynı ağda kaynak bu kez 32. Uzaklıkları 32’e göre baştan hesapla; başlangıç 18 artık uzaklığı 0 olan düğüm değil.' },
+    isolated: { vertices, edges, source: 26, target: 32, text: 'Aynı ağda kaynak 26; komşuluk listesi boş. Diğer kenarlar çizgede var, fakat bu kaynaktan onlara ulaşılmıyor.' },
+    linked: { vertices, edges: edges.concat([[32, 26]]), source: 18, target: 26, text: 'Ana ağa bir yönsüz 32–26 kenarı ekledik. Kaynak 18; 26 artık erişilebilir mi? Bütün bileşeni işle.' },
     single: { vertices: [18], edges: [], source: 18, target: 18, text: 'Tek düğüm 18, kenar yok. Kaynağın kendisine uzaklığı ve yolu nedir?' },
-    noedges: { vertices, edges: [], source: 18, target: 31, text: 'Sekiz cihazın hepsi çizgede, hiç kenar yok. Kaynak 18. Düğümün mevcut olması ile erişilebilir olması aynı şey mi?' }
+    noedges: { vertices, edges: [], source: 18, target: 32, text: 'Sekiz cihazın hepsi çizgede, hiç kenar yok. Kaynak 18. Düğümün mevcut olması ile erişilebilir olması aynı şey mi?' }
   };
   let trace, task, seen = 0, solutionSeen = false;
   function el(tag, text) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; return node; }

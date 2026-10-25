@@ -3,15 +3,15 @@
   const model=window.FreshWeek13;
   if(!model||typeof model.traceDP!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2]];
   const cases={
-    main:{vertices,edges,source:24,target:31,k:4,text:'Ana ağ · kaynak 24, hedef 31, tam 4 kenar. Son kenarı eklerken hangi sütunu okumalısın?'},
-    none:{vertices,edges,source:24,target:31,k:3,text:'Aynı ağ · kaynak 24, hedef 31, tam 3 kenar. İki kenarlık ucuz cevap bu soruyu çözer mi?'},
-    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:31,k:4,text:'Bütün kenar bedelleri 0 · kaynak 24, hedef 31, tam 4 kenar. Eşit adayda ilk öncül korunur; erişilemeyen hücre hâlâ ∞.'},
+    main:{vertices,edges,source:24,target:32,k:4,text:'Ana ağ · kaynak 24, hedef 32, tam 4 kenar. Son kenarı eklerken hangi sütunu okumalısın?'},
+    none:{vertices,edges,source:24,target:32,k:3,text:'Aynı ağ · kaynak 24, hedef 32, tam 3 kenar. İki kenarlık ucuz cevap bu soruyu çözer mi?'},
+    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:32,k:4,text:'Bütün kenar bedelleri 0 · kaynak 24, hedef 32, tam 4 kenar. Eşit adayda ilk öncül korunur; erişilemeyen hücre hâlâ ∞.'},
     self:{vertices,edges,source:24,target:24,k:0,text:'Kaynak ve hedef 24 · k=0. Hiç kenar geçmeyen boş yürüyüşü taban hücresinde kontrol et.'},
-    wrongzero:{vertices,edges,source:24,target:31,k:0,text:'Kaynak 24, hedef 31 · k=0. Taban kaynak dışında hangi maliyeti verir?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,target:26,k:4,text:'31–26 kenarı kaldırıldı · kaynak 24, hedef 26, k=4. 26 listede ama yalıtık; komşusuz hücreyi nasıl bitirirsin?'},
+    wrongzero:{vertices,edges,source:24,target:32,k:0,text:'Kaynak 24, hedef 32 · k=0. Taban kaynak dışında hangi maliyeti verir?'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,target:26,k:4,text:'32–26 kenarı kaldırıldı · kaynak 24, hedef 26, k=4. 26 listede ama yalıtık; komşusuz hücreyi nasıl bitirirsin?'},
     return:{vertices,edges,source:24,target:24,k:4,text:'Aynı ağ · kaynak ve hedef 24, tam 4 kenar. Kaynakta başlamak son sütuna ücretsiz 0 yazma hakkı verir mi?'}
   };
   let task,trace,seen=0,viewColumn=0,solutionSeen=false;

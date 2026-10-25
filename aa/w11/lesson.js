@@ -3,14 +3,14 @@
   const model=window.FreshWeek11;
   if(!model||typeof model.traceDijkstra!=='function'||typeof model.shortestPath!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31];
-  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32];
+  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,20,24,26],independentEdges=[[18,7,6],[18,24,2],[24,7,1],[7,26,2],[24,26,7],[26,4,1]];
   const cases={
-    main:{vertices,edges,source:24,text:'Kaynak 24; bütün bağlantılar mevcut. Komşular kimlik artan; kuyrukta küçük mesafe, eşitlikte küçük kimlik önce. 31 için ilk bulunan 8 değişir mi?'},
+    main:{vertices,edges,source:24,text:'Kaynak 24; bütün bağlantılar mevcut. Komşular kimlik artan; kuyrukta küçük mesafe, eşitlikte küçük kimlik önce. 32 için ilk bulunan 8 değişir mi?'},
     ties:{vertices,edges,source:24,order:'descending',text:'Kaynak 24, aynı ağ. Yalnız eşit kuyruk mesafelerinde büyük kimlik önce. Öncelik yine küçük mesafe. Son maliyetler ve öncüller nasıl değişir?'},
-    source11:{vertices,edges,source:11,text:'Aynı ağ; kaynak artık 11. Şekildeki koyu 24 bu örneğin kaynağı değil. 31’e doğrudan 5 maliyetle gidilebilir; önceki minimum toplam ağdaki 9 maliyetli yolla karşılaştır.'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,text:'Kaynak 24; 31–26 bağlantısı kaldırıldı. 26 cihaz listesinde ama kenarı yok. Ne zaman erişilemez diyeceğiz?'},
+    source11:{vertices,edges,source:11,text:'Aynı ağ; kaynak artık 11. Şekildeki koyu 24 bu örneğin kaynağı değil. 32’e doğrudan 5 maliyetle gidilebilir; önceki minimum toplam ağdaki 9 maliyetli yolla karşılaştır.'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,text:'Kaynak 24; 32–26 bağlantısı kaldırıldı. 26 cihaz listesinde ama kenarı yok. Ne zaman erişilemez diyeceğiz?'},
     zero:{vertices,edges:edges.map(([a,b,w])=>[a,b,a===7&&b===4?0:w]),source:24,text:'Kaynak 24; yalnız 4–7 maliyeti 0 oldu. Sıfır bedel gerçek kenar; d[4]=d[7] mümkün. Eşit adayda öncülü koru.'},
     single:{vertices:[24],edges:[],source:24,text:'Tek cihaz ve kaynak 24; kenar yok. Kendine boş yol 0 maliyet. Kuyruk çıkarıldıktan sonra bütün ulaşılabilir işler biter.'},
     noedges:{vertices,edges:[],source:24,text:'Sekiz cihaz, kenar yok, kaynak 24. Kaynak için 0; diğerleri ancak kuyruk boşalınca erişilemez diye raporlanır.'}
@@ -69,7 +69,7 @@
   }
   function reset(){
     task=cases[$('dijkstra-case').value];trace=model.traceDijkstra(task.vertices,task.edges,task.source,{tieOrder:task.order||'ascending'});seen=0;
-    const target=$('dijkstra-target');target.replaceChildren();trace.vertices.forEach(id=>{const option=el('option',String(id));option.value=String(id);target.append(option);});target.value=String(trace.vertices.includes(31)?31:trace.source);render();
+    const target=$('dijkstra-target');target.replaceChildren();trace.vertices.forEach(id=>{const option=el('option',String(id));option.value=String(id);target.append(option);});target.value=String(trace.vertices.includes(32)?32:trace.source);render();
   }
   function number(id,min,max){const input=$(id),raw=input.value.trim(),n=Number(raw),valid=raw!==''&&!input.validity.badInput&&Number.isSafeInteger(n)&&n>=min&&n<=max;input.setAttribute('aria-invalid',String(!valid));return{id,value:n,valid};}
   function feedback(id,text,error){$(id).textContent=text;$(id).dataset.state=error?'error':'ok';}
@@ -85,9 +85,9 @@
   $('guided-form').addEventListener('submit',event=>{
     event.preventDefault();const distance=number('guided-distance',0,100),parent=number('guided-parent',0,100),invalid=[distance,parent].find(item=>!item.valid);
     if(invalid){feedback('guided-feedback','İki kutuyu da 0–100 arasında tam sayıyla doldur. Eksik veya geçersiz kutuyu işaretledim.',true);$(invalid.id).focus();return;}
-    const step=model.traceDijkstra(vertices,edges,24).steps.find(step=>step.type==='relax'&&step.from===20&&step.to===31);
+    const step=model.traceDijkstra(vertices,edges,24).steps.find(step=>step.type==='relax'&&step.from===20&&step.to===32);
     if(distance.value===step.distance&&parent.value===step.from)feedback('guided-feedback','İki sayı doğru. Aday formülünü, öncül yolunu ve tek kuyruk kaydını çözümle ayrıca karşılaştır; yazılı gerekçen otomatik puanlanmadı.',false);
-    else feedback('guided-feedback',distance.value!==step.distance?'Aday yalnız son kenarın bedeli değil: d[20]+w(20,31)=4+2. Bulunan 8 ile karşılaştır.':'Daha ucuz aday 20 üzerinden geldi. Yeni mesafeyle birlikte öncülü de güncelle.',true);
+    else feedback('guided-feedback',distance.value!==step.distance?'Aday yalnız son kenarın bedeli değil: d[20]+w(20,32)=4+2. Bulunan 8 ile karşılaştır.':'Daha ucuz aday 20 üzerinden geldi. Yeni mesafeyle birlikte öncülü de güncelle.',true);
   });
   $('independent-form').addEventListener('submit',event=>{
     event.preventDefault();const expected=model.traceDijkstra(independentVertices,independentEdges,18);

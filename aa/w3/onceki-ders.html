@@ -333,7 +333,7 @@ Bir algoritma ancak <b>her yasal girdi</b> için istenen çıktıyı veriyorsa <
 <tr><td>2</td><td class="m">1 → −1</td><td class="r">2</td><td class="r">3</td></tr>
 <tr><td>3</td><td class="m">−1 → 3</td><td class="r">4</td><td class="r">7</td></tr>
 <tr><td>4</td><td class="m">3 → −5</td><td class="r">8</td><td class="r">15</td></tr>
-<tr><td>5</td><td class="m">−5 → 11</td><td class="r">16</td><td class="r">31</td></tr>
+<tr><td>5</td><td class="m">−5 → 11</td><td class="r">16</td><td class="r">32 − 1</td></tr>
 <tr><td>6</td><td class="m">11 → −21</td><td class="r">32</td><td class="r">63</td></tr>
 <tr><td>7</td><td class="m">−21 → 0 (eve dön)</td><td class="r">21</td><td class="r"><b>84</b></td></tr>
 </table></div>
@@ -537,7 +537,7 @@ Aynı <b>n</b> boyutundaki girdiler için: <b>en iyi durum</b> (best case) = en 
 <div class="r0-mist"><b class="l">Sık hata</b>“n = 100’de n¹⁰⁰ ≫ 2¹⁰⁰ gibi görünüyor, o hâlde polinom üsteli yener.” Büyüme <b>eninde sonunda</b> demektir: n = 1.000’de 2ⁿ artık önde, ve sonra bir daha geri dönmez. Küçük n’deki sıralama karar vermez.</div>
 
 <h3 id="r0_b5">0B.5 Logaritmaya ilk bakış</h3>
-<div class="r0-intu"><b class="l">Sezgi</b>Bir kâğıdı ikiye katlıyorsunuz. Telefon rehberinde bir ismi ararken ortadan açıp “bu sayfadan önce mi sonra mı” diye yarılıyorsunuz. 1000 sayfa kaç yarılamada tek sayfaya iner? 1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1: <b>9 yarılama</b>. İşte logaritma: “kaç kez ikiye bölersem 1’e inerim?” sorusu.</div>
+<div class="r0-intu"><b class="l">Sezgi</b>Bir kâğıdı ikiye katlıyorsunuz. Telefon rehberinde bir ismi ararken ortadan açıp “bu sayfadan önce mi sonra mı” diye yarılıyorsunuz. 1024 sayfa kaç yarılamada tek sayfaya iner? 1024 → 512 → 256 → 128 → 64 → 32 → 16 → 8 → 4 → 2 → 1: <b>10 yarılama</b>. İşte logaritma: “kaç kez ikiye bölersem 1’e inerim?” sorusu.</div>
 <div class="rule rev"><b class="t">Tekrar · Hafta 2 — logaritma</b>
 <b>log₂ n</b> (kısaca lg n): 2ᵏ = n olan k. log₂ 8 = 3 çünkü 2³ = 8. n’yi aşağı yuvarlayarak ikiye bölmek, 1’e inene kadar ⌊log₂ n⌋ adım sürer. <b>Taban değişimi:</b> log₂ n = log₁₀ n / log₁₀ 2 ≈ 3,32 × log₁₀ n; yani iki taban arasında yalnızca <b>sabit bir çarpan</b> var. Bu yüzden Big-O’da tabanı yazmayız: O(log₂ n) = O(log₁₀ n) = O(log n). (Ayrıntı: Blok 4.)</div>
 <div class="r0-ex"><b class="l">Çözümlü örnek 11 — log₂ ile log₁₀ oranı sabit</b>
@@ -756,7 +756,7 @@ function r0_nnRun(){
 E("r0_nn_go").onclick=r0_nnRun;r0_nnRun();
 E("r0_cx_go").onclick=function(){
   const k=+E("r0_cx_k").value,T=3000;let bad=0,first=null;
-  for(let t=0;t<T;t++){const set=new Set();while(set.size<k){const v=Math.floor(Math.random()*31)-15;if(v!==0)set.add(v)}
+  for(let t=0;t<T;t++){const set=new Set();while(set.size<k){const v=Math.floor(Math.random()*(2*15+1))-15;if(v!==0)set.add(v)}
     const pts=[...set],r=r0_nnTour(0,pts),o=r0_lineOpt(0,pts);if(r.tot>o){bad++;if(!first)first={pts,tot:r.tot,o}}}
   E("r0_cx_out").innerHTML=`${k} noktalı ${T} rastgele kümeden <b>${bad}</b> tanesinde (%${(100*bad/T).toFixed(1).replace('.',',')}) yakın komşu optimal değil. `+(first?`<br>İlk karşı örnek: noktalar [${first.pts.join(", ")}], yakın komşu ${first.tot} &gt; en kısa ${first.o}.`:`<br><span class="ok">Hiç karşı örnek çıkmadı: ${k} noktada bu kural (çizgi üstünde) bozulmuyor.</span>`)};
 
@@ -978,7 +978,7 @@ mkQuiz("#r0_quiz",[
  ["3n² + 10n = O(n²) için hangi (c, n₀) çifti geçerli bir tanıktır?",["c = 3, n₀ = 1","c = 4, n₀ = 10","c = 3,5, n₀ = 5","c = 2, n₀ = 100"],1,"3n²+10n ≤ 4n² ⟺ 10n ≤ n² ⟺ n ≥ 10. Diğerlerinde eşitsizlik bozulur (örn. c = 3,5 için n = 5: 125 > 87,5)."],
  ["Hangisi eninde sonunda en hızlı büyür?",["n⁵⁰","2ⁿ","n² log n","n³"],1,"Üstel, her polinomu (n⁵⁰ dahil) eninde sonunda geçer."],
  ["Zamanı yaklaşık c·n² olan bir program n = 1000’de 1 sn sürüyor. n = 4000’de tahmini süre?",["4 sn","8 sn","16 sn","64 sn"],2,"Boyut 4 kat → 4² = 16 kat."],
- ["n = 1000 sayısını her adımda ⌊n/2⌋ ile 1’e kadar yarılarsak kaç adım atılır?",["9","10","500","1000"],0,"1000→500→250→125→62→31→15→7→3→1: 9 adım = ⌊log₂ 1000⌋."],
+ ["n = 1024 sayısını her adımda ⌊n/2⌋ ile 1’e kadar yarılarsak kaç adım atılır?",["9","10","500","1000"],1,"1024→512→256→128→64→32→16→8→4→2→1: 10 adım = log₂ 1024."],
  ["5n² + 3n = O(n³) ifadesi için hangisi doğrudur?",["Doğru; n³ geçerli ama gevşek bir üst sınırdır","Yanlış; sıkı sınır n² olduğu için","Yanlış; Big-O yalnızca en kötü durum demektir","Doğru; çünkü Θ(n³)"],0,"Big-O bir tavandır; yüksek tavan da tavandır. Sıkı sınır Θ(n²)."],
  ["1 + 2 + … + n = n(n+1)/2 formülünü n = 1, 2, 3, 4 için doğruladık. Bu neden ispat değil?",["Çünkü 4 test azdır, 5 test yeterdi","Her n için geçerli olduğunu göstermez; adım (k → k+1) da gösterilmelidir","Çünkü formül yanlıştır","Çünkü n = 0 da denenmeliydi"],1,"Sonlu sayıda doğrulama sonsuz sayıda n’yi kapsamaz; tümevarım adımı gerekir."],
  ["f(n) = O(n²) ve g(n) = O(n) ise f(n)·g(n) için bu bilgiyle garanti edilen en sıkı üst sınır?",["O(n)","O(n²)","O(n³)","Sınırlanamaz"],2,"Çarpımda sınırlar çarpılır: n² · n = n³."],
@@ -1133,7 +1133,7 @@ n(n+1)/2’yi “n’ye kadar” yerine “n−1’e kadar” toplamda kullanmak
 
 <div class="try"><div class="lab">Kendin dene — kâğıt kalem</div>
 <p>(a) 1+2+…+20 = ? (b) 1+2+4+8+16+32 = ? (formülle bulun) (c) 1+2+…+n = 5050 ise n kaç?</p>
-<details><summary>Cevaplar</summary><p>(a) 20·21/2 = <b>210</b>. (b) Son terim 2⁵ → 2⁶ − 1 = <b>63</b> (elle: 1+2=3, +4=7, +8=15, +16=31, +32=63). (c) n(n+1)/2 = 5050 → n(n+1) = 10100 → <b>n = 100</b>.</p></details></div>
+<details><summary>Cevaplar</summary><p>(a) 20·21/2 = <b>210</b>. (b) Son terim 2⁵ → 2⁶ − 1 = <b>63</b> (elle: 1+2=3, +4=7, +8=15, +16=32−1, +32=63). (c) n(n+1)/2 = 5050 → n(n+1) = 10100 → <b>n = 100</b>.</p></details></div>
 
 <p><b>Yol 2: Tümevarım (Hafta 1’deki üç parça).</b> Aynı üç adımı sonra döngü değişmezinde de kullanacağız, o yüzden alışın:</p>
 <div class="rule rev"><b class="t">Tekrar · Hafta 1 — tümevarım</b>
@@ -1569,8 +1569,8 @@ lg(a + b) = lg a + lg b yazmak. Doğru olan lg(a · b) = lg a + lg b’dir. Ayr�
 <tr><td class="m">2</td><td class="m">8</td><td class="m">8</td><td class="m">24</td></tr>
 <tr><td class="m">3</td><td class="m">4</td><td class="m">4</td><td class="m">28</td></tr>
 <tr><td class="m">4</td><td class="m">2</td><td class="m">2</td><td class="m">30</td></tr>
-<tr><td class="m">5</td><td class="m">1</td><td class="m">1</td><td class="m">31</td></tr></table></div>
-<p class="mut">Toplam 31 = 2·16 − 1. “Tur sayısı (5) × iç döngü (16)” = 80 hesabı yanlış olurdu: iç döngü her turda yarılanıyor.</p>
+<tr><td class="m">5</td><td class="m">1</td><td class="m">1</td><td class="m">32 − 1</td></tr></table></div>
+<p class="mut">Toplam 32 − 1 = 2·16 − 1. “Tur sayısı (5) × iç döngü (16)” = 80 hesabı yanlış olurdu: iç döngü her turda yarılanıyor.</p>
 <p class="mut">Son satır sınav sevdiği bir tuzaktır: iç içe gibi görünür ama toplam bir geometrik toplamdır ve Θ(n)’dir, Θ(n log n) <b>değil</b>.</p>
 
 <div class="try"><div class="lab">Kendin dene — döngü kalıbı tanıyıcı: kendi döngünü kur</div>
@@ -1737,7 +1737,7 @@ Başlangıç ve adım tek başına “döngü biterse sonuç doğru” der; sonl
 Bir fotoğraf, satır satır dizilmiş sayılardan (piksel parlaklıkları) oluşur: <b>H</b> satır, <b>W</b> sütun. “Yumuşatmak” (blur) için her pikseli, kendisi ve komşularının ortalamasıyla değiştiririz. Ortalama alınan pencereye <b>çekirdek</b> (kernel) denir; <b>k × k</b> pencere, her pikselde k·k sayı toplamak demektir. Önce tek boyutta (1D) düşünelim: dizi [10, 20, 30, 40, 50], pencere k = 3. İlk çıktı (10+20+30)/3 = 20, ikinci (20+30+40)/3 = 30, üçüncü (30+40+50)/3 = 40. Her pencere için toplamı 0’dan başlatıp üç değeri eklersek 3 × 3 = 9 toplama yaparız; bölmeleri ayrıca sayarız. İki boyutta pencere k × k olduğu için her piksel k² işlem yapar. Toplam iş = piksel sayısı × k². İç içe döngü (piksel × pencere) → <b>çarp</b>.</div>
 <p>Bir kamera H × W piksellik görüntüyü k × k’lık bir çekirdek (kernel) ile yumuşatır. Her piksel için k × k iç döngü → <b>iç içe → çarp</b>: yaklaşık <code>k²·H·W</code> çarpma-toplama. <b>Ayrılabilir (separable)</b> çekirdekte önce yatay k, sonra dikey k geçişi yapılır: bunlar <b>ardışık</b>tır, yani <b>toplanır</b>: <code>2·k·H·W</code>.</p>
 <div class="try"><div class="lab">Kendin dene — kare başına süre</div>
-<div class="row"><span>H</span><input type="number" id="kn_h" value="240" style="width:80px"><span>W</span><input type="number" id="kn_w" value="320" style="width:80px"><span>k</span><input type="number" id="kn_k" value="5" min="1" max="31" style="width:70px"><span>ns/işlem</span><input type="number" id="kn_ns" value="20" style="width:70px"></div>
+<div class="row"><span>H</span><input type="number" id="kn_h" value="240" style="width:80px"><span>W</span><input type="number" id="kn_w" value="320" style="width:80px"><span>k</span><input type="number" id="kn_k" value="5" min="1" max="32" style="width:70px"><span>ns/işlem</span><input type="number" id="kn_ns" value="20" style="width:70px"></div>
 <div class="scroll"><table><tr><th></th><th>İşlem sayısı</th><th>Süre</th><th>30 fps (33,3 ms) için yeter mi?</th></tr><tbody id="kn_t"></tbody></table></div>
 <div class="mut">Varsayılan değerler Hafta 3 sorusudur: 320×240, 5×5, 20 ns. Doğrudan 38,4 ms (yetmez), ayrılabilir 15,4 ms (yeter). k’yı iki katına çıkarınca doğrudan işin 4 katına, ayrılabilirin 2 katına çıktığını görün; görüntü genişliğini iki katına çıkarınca ikisi de 2 katına çıkar.</div></div>
 <div class="try"><div class="lab">Kendin dene — filtre sayacı: 1D ve 2D (döngüler gerçekten çalışır)</div>
@@ -2146,7 +2146,7 @@ mkQuiz("#quiz1",[
  ["lg(8·16) kaçtır?",["7","12","128","4,58"],0,"lg(8·16) = lg 8 + lg 16 = 3 + 4 = 7. (4,58 ≈ lg(8+16) değeridir: logaritma toplam üzerine bu biçimde dağılmaz; genel olarak log(a+b) ≠ log a + log b.)"],
  ["Ters sıralı 5 elemanlı dizide insertion sort kaç takas yapar?",["4","5","10","15"],2,"1+2+3+4 = 10 = ters sıralı çift sayısı."],
  ["Insertion sort [2, 1, 3, 5, 4] dizisinde kaç takas yapar?",["1","2","3","4"],1,"Ters sıralı çiftler: (2,1) ve (5,4) → 2 takas."],
- ["<code>i = n; while i &gt; 1: i //= 2</code> n = 1000 için kaç kez döner?",["9","10","500","1000"],0,"1000→500→250→125→62→31→15→7→3→1: 9 adım (⌊lg 1000⌋ = 9)."],
+ ["<code>i = n; while i &gt; 1: i //= 2</code> n = 1024 için kaç kez döner?",["9","10","500","1000"],1,"1024→512→256→128→64→32→16→8→4→2→1: 10 adım (lg 1024 = 10)."],
  ["<code>i = 1; while i &lt; n: i = 3*i</code> kaç kez döner?",["Θ(log n)","Θ(n)","Θ(n/3)","Θ(√n)"],0,"Her adım 3 katına çıkar; n’ye log₃ n adımda varılır, taban önemsiz."],
  ["Sıralı 100 elemanlı dizide ikili aramanın en kötü yoklama (üç yönlü karşılaştırma) sayısı?",["6","7","50","100"],1,"⌊lg 100⌋ + 1 = 6 + 1 = 7."],
  ["Sıralı 1000 elemanlı dizide ikili aramanın en kötü yoklama (üç yönlü karşılaştırma) sayısı?",["10","11","500","1000"],0,"⌊lg 1000⌋ + 1 = 9 + 1 = 10."],

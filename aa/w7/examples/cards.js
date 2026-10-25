@@ -920,7 +920,7 @@ const cards = [
     "id": 24,
     "week": "7",
     "title": "Buckets group ranges, then sort inside each group",
-    "question": "Place values [0.42, 0.12, 0.88, 0.31, 0.74] into four equal-width buckets.",
+    "question": "Place values [0.42, 0.12, 0.88, 0.30, 0.74] into four equal-width buckets.",
     "a": [
       "Spread-out input",
       "Some buckets get one or two values. Sorting each small bucket can be cheap."
@@ -936,7 +936,7 @@ const cards = [
       },
       {
         "title": "Sort within each bucket",
-        "text": "Distribution alone is not enough: .42 and .31 land together but are initially out of order."
+        "text": "Distribution alone is not enough: .42 and .30 land together but are initially out of order."
       },
       {
         "title": "Join buckets in order",

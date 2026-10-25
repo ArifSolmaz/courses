@@ -45,7 +45,7 @@
 <pre><code class="language-text">Saklanan anahtarlar: 20      30                50
                             └── ardılı ──────→ 50
 </code></pre>
-<p><strong>Önemli ayrım.</strong> 30'un ardılı 31 değildir; 31 kayıtlı değil. Aynı şekilde en küçük kimlikli sensörün sıcaklığı mutlaka en düşük değildir. Ağaç kimliğe göre kurulmuşsa sıcaklığa göre minimum bulmak için başka bir düzenleme veya kayıtları tarama gerekebilir.</p>
+<p><strong>Önemli ayrım.</strong> 30'un ardılı 32 değildir; 32 kayıtlı değil. Aynı şekilde en küçük kimlikli sensörün sıcaklığı mutlaka en düşük değildir. Ağaç kimliğe göre kurulmuşsa sıcaklığa göre minimum bulmak için başka bir düzenleme veya kayıtları tarama gerekebilir.</p>
 <p><strong>Ne alınmalı?</strong> Veri yapısını seçmeden önce hangi soruların sorulacağını tanımlayın. Sadece kimlikle arama ile kimlikler arasında sırayla ilerleme aynı gereksinim değildir. İşlemlerin adı tek başına ne kadar hızlı olduklarını söylemez; kullanılan yapı belirleyicidir.</p></section><section id="ornek-3" aria-labelledby="baslik-3"><p class="eyebrow">ÖRNEK 3 / 28 · Fast search can make insertion harder</p><h2 id="baslik-3">3. Hızlı aramanın ekleme bedeli olabilir</h2><p><a href="../onceki-ders.html#example-3">Ders sayfasındaki örnek 3</a> · <a href="../lecture-notes.html#topic-1-2">İlgili ders notu</a></p>
 <p><strong>Problem.</strong> Sıralı dizi <code>[10, 20, 30, 40]</code> içine 25 eklenecek. 25'i sona yazarsak dizi artık sıralı olmaz. İkili aramanın dayandığı özellik bozulur.</p>
 <pre><code class="language-text">Başlangıç: 10  20  30  40  [boş]
@@ -400,7 +400,7 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 <tr>
 <th style="text-align: right;">Başlangıç</th>
 <th>Pencere</th>
-<th style="text-align: right;">Hash (taban 31, mod 101)</th>
+<th style="text-align: right;">Hash (taban 32, mod 4861)</th>
 <th>Karar</th>
 </tr>
 </thead>
@@ -408,13 +408,13 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 <tr>
 <td style="text-align: right;">0</td>
 <td>ABRA</td>
-<td style="text-align: right;">22</td>
+<td style="text-align: right;">3021</td>
 <td>Desenle harf harf aynı; eşleşme</td>
 </tr>
 <tr>
 <td style="text-align: right;">1</td>
 <td>BRAC</td>
-<td style="text-align: right;">22</td>
+<td style="text-align: right;">3021</td>
 <td>Hash aynı, harfler farklı; çakışmayı ele</td>
 </tr>
 <tr>
@@ -450,18 +450,18 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 <tr>
 <td style="text-align: right;">7</td>
 <td>ABRA</td>
-<td style="text-align: right;">22</td>
+<td style="text-align: right;">3021</td>
 <td>Desenle harf harf aynı; eşleşme</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Hash nasıl hesaplanır?</strong> ASCII kodları A = 65, B = 66, R = 82, C = 67, D = 68. Dört harf için <code>H = (c₀·31³ + c₁·31² + c₂·31 + c₃) mod 101</code>. ABRA için sonuç 22'dir. Üsler harfin konumunu ayırt eder; yalnızca karakter kodlarını toplamak sıralama bilgisini kaybeder.</p>
-<p><strong>Her pencereyi baştan hesaplamıyoruz.</strong> Soldan çıkan harfin katkısını çıkarır, kalan ifadeyi 31 ile çarpar ve yeni harfi ekleriz. <code>31³ mod 101 = 97</code> önceden hesaplanır:</p>
-<pre><code class="language-text">H_yeni = ((H_eski − çıkan_harf × 97) × 31 + giren_harf) mod 101
-ABRA → BRAC: ((22 − 65 × 97) × 31 + 67) mod 101 = 22
+<p><strong>Hash nasıl hesaplanır?</strong> ASCII kodları A = 65, B = 66, R = 82, C = 67, D = 68. Dört harf için <code>H = (c₀·31³ + c₁·31² + c₂·32 + c₃) mod 4861</code>. ABRA için sonuç 3021'dir. Üsler harfin konumunu ayırt eder; yalnızca karakter kodlarını toplamak sıralama bilgisini kaybeder.</p>
+<p><strong>Her pencereyi baştan hesaplamıyoruz.</strong> Soldan çıkan harfin katkısını çıkarır, kalan ifadeyi 32 ile çarpar ve yeni harfi ekleriz. <code>31³ mod 4861 = 3602</code> önceden hesaplanır:</p>
+<pre><code class="language-text">H_yeni = ((H_eski − çıkan_harf × 3602) × 32 + giren_harf) mod 4861
+ABRA → BRAC: ((3021 − 65 × 3602) × 32 + 67) mod 4861 = 3021
 </code></pre>
-<p>Bu, <strong>rolling hash</strong>, yani kaydırılarak güncellenen hash fikridir. Python'da pozitif modül ile <code>%</code> sonucu 0…100 aralığına getirir; başka bir dilde negatif kalan davranışına dikkat etmek gerekebilir.</p>
-<p><strong>Neden harfleri yine kontrol ediyoruz?</strong> Farklı hash değerleri farklı metinleri garanti eder; aynı hash değeri eşit metin garantisi vermez. Bu nedenle 22 çıkan pencerelerde gerçek karakter eşitliği doğrulanır. Özellikle BRAC de 22 verir ama ABRA değildir; daha ilk harfte B ≠ A olduğu görülür ve aday elenir. Bu örnek çakışmanın yalnızca teorik bir ihtimal olmadığını doğrudan gösterir. Böylece hash çakışması yanlış eşleşme sonucuna dönüşmez.</p>
+<p>Bu, <strong>rolling hash</strong>, yani kaydırılarak güncellenen hash fikridir. Python'da pozitif modül ile <code>%</code> sonucu 0…4860 aralığına getirir; başka bir dilde negatif kalan davranışına dikkat etmek gerekebilir.</p>
+<p><strong>Neden harfleri yine kontrol ediyoruz?</strong> Farklı hash değerleri farklı metinleri garanti eder; aynı hash değeri eşit metin garantisi vermez. Bu nedenle 3021 çıkan pencerelerde gerçek karakter eşitliği doğrulanır. Özellikle BRAC de 3021 verir ama ABRA değildir; daha ilk harfte B ≠ A olduğu görülür ve aday elenir. Bu örnek çakışmanın yalnızca teorik bir ihtimal olmadığını doğrudan gösterir. Böylece hash çakışması yanlış eşleşme sonucuna dönüşmez.</p>
 <p><strong>Maliyet.</strong> Sabit boyutlu aritmetik varsayımıyla ilk hesap ve hazırlık O(M), her kaydırma O(1)'dir. Fakat hash eşleşmelerindeki harf kontrolü O(M) sürebilir. Bu yüzden doğrulamalı yöntemin en kötü toplam maliyeti O(NM)'ye çıkabilir; her durumda doğrusal çalışma garantisi vermez. Bu örnekte doğru eşleşmeler 0 ve 7'dir.</p></section><section id="ornek-26" aria-labelledby="baslik-26"><p class="eyebrow">ÖRNEK 26 / 28 · A fingerprint is a clue, not an identity</p><h2 id="baslik-26">26. Parmak izi ipucudur; kimliğin kendisi değildir</h2><p><a href="../onceki-ders.html#example-26">Ders sayfasındaki örnek 26</a> · <a href="../lecture-notes.html#topic-5-3">İlgili ders notu</a></p>
 <p><strong>Problem.</strong> Dosyaları kısa hash değerleriyle grupluyoruz. Aynı hash'e sahip iki dosya görünce bunların aynı dosya olduğunu söyleyebilir miyiz? Matematiksel olarak hayır.</p>
 <p><strong>Sayfadaki somut çakışma.</strong> Basit kural “karakter kodlarını topla, mod 101 al” olsun. <code>AB</code> için <code>(65 + 66) mod 101 = 30</code>, <code>BA</code> için <code>(66 + 65) mod 101 = 30</code> bulunur. Parmak izleri aynı, metinler farklıdır. İlk karakteri karşılaştırmak bile A ≠ B farkını ortaya çıkarır. Bu kural karakterlerin sırasını korumadığı için bu çakışma kolayca oluşur. Önceki örneğin konuma duyarlı hash'i de çakışabilir; yalnızca çakışmanın biçimi farklıdır.</p>

@@ -3,7 +3,7 @@
   const model = window.AAWeekThree;
   if (!model || typeof model.traceSearch !== 'function') return;
   const $ = id => document.getElementById(id);
-  const directory = [4, 7, 11, 18, 24, 31, 42, 56];
+  const directory = [4, 7, 11, 18, 24, 32, 42, 56];
   const cases = { worked: 42, first: 4, guided: 11, missing: 5, last: 56, empty: 42 };
   let trace, revealed = 0, solutionSeen = false;
 

@@ -3,16 +3,16 @@
   const model = window.FreshWeek9;
   if (!model || typeof model.traceDFS !== 'function' || typeof model.validateTopologicalOrder !== 'function') return;
   const $ = id => document.getElementById(id);
-  const vertices = [4, 7, 11, 18, 20, 24, 26, 31];
-  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 31], [20, 31]];
-  const names = {4:'çatı',7:'sera',11:'kuyu',18:'pompa',20:'bahçe',24:'depo',26:'oda',31:'kapı'};
+  const vertices = [4, 7, 11, 18, 20, 24, 26, 32];
+  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 32], [20, 32]];
+  const names = {4:'çatı',7:'sera',11:'kuyu',18:'pompa',20:'bahçe',24:'depo',26:'oda',32:'kapı'};
   const independentVertices = [4, 7, 18, 20, 24, 26];
   const independentEdges = [[18, 7], [18, 24], [7, 26], [24, 26], [26, 4]];
   const cases = {
     main: {vertices,edges,first:18,text:'Ana yönlü bağımlılıklar. Önce 18, sonra girilmemiş kalan kökler artan sırada; komşular artan sırada. Her ok önce bitmesi gereken işten sonrakine gider.'},
     reverse: {vertices,edges,first:18,order:'descending',text:'Aynı yönlü ağ; çıkan komşular azalan sırada. İlk kök yine 18. Geçerli sıra değişebilir mi?'},
     first7: {vertices,edges,first:7,text:'Aynı ağ; ilk DFS kökü 7. Ardından girilmemiş kalan kökler artan sırada. 7’nin çağrısının bitmesi bütün ağın bittiği anlamına gelmez.'},
-    cycle: {vertices,edges:edges.concat([[31,7]]),first:18,text:'Ana ağa 31→7 bağımlılığını ekledik. İlk kök 18, komşular artan. Etkin düğüme giden oku ve kapalı çevrim tanığını bul.'},
+    cycle: {vertices,edges:edges.concat([[32,7]]),first:18,text:'Ana ağa 32→7 bağımlılığını ekledik. İlk kök 18, komşular artan. Etkin düğüme giden oku ve kapalı çevrim tanığını bul.'},
     remote: {vertices,edges:edges.concat([[26,26]]),first:18,text:'Ana ağa yalnız 26→26 ekledik. 18’in altındaki arama çevrimsiz bitebilir; bütün işler denetlenmeden sonuca varma.'},
     single: {vertices:[18],edges:[],first:18,text:'Tek iş 18, ok yok. Bir giriş, bir geri dönüş; geçerli iş sırası tek elemanlı.'},
     noedges: {vertices,edges:[],first:18,text:'Sekiz iş var, ok yok. Önce 18, kalan kökler artan sırada. Her işi bir kez içeren bütün sıralar geçerlidir.'}

@@ -3,16 +3,16 @@
   const model = window.FreshWeek9;
   if (!model || typeof model.traceDFS !== 'function' || typeof model.validateTopologicalOrder !== 'function') return;
   const $ = id => document.getElementById(id);
-  const vertices = [4, 7, 11, 18, 20, 24, 26, 31];
-  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 31], [20, 31]];
-  const names = {4:'roof',7:'greenhouse',11:'well',18:'pump',20:'garden',24:'warehouse',26:'room',31:'gate'};
+  const vertices = [4, 7, 11, 18, 20, 24, 26, 32];
+  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 32], [20, 32]];
+  const names = {4:'roof',7:'greenhouse',11:'well',18:'pump',20:'garden',24:'warehouse',26:'room',32:'gate'};
   const independentVertices = [4, 7, 18, 20, 24, 26];
   const independentEdges = [[18, 7], [18, 24], [7, 26], [24, 26], [26, 4]];
   const cases = {
     main: {vertices,edges,first:18,text:'Main directed dependencies. Start with 18, then the remaining unentered roots in increasing order; neighbours are in increasing order. Each arrow goes from the job that must finish first to the next one.'},
     reverse: {vertices,edges,first:18,order:'descending',text:'The same directed network; outgoing neighbours in decreasing order. The first root is still 18. Can the valid order change?'},
     first7: {vertices,edges,first:7,text:'The same network; the first DFS root is 7. Then examine the remaining unentered roots in increasing order. Finishing the call for 7 does not mean the whole network is finished.'},
-    cycle: {vertices,edges:edges.concat([[31,7]]),first:18,text:'We added the 31 → 7 dependency to the main network. First root 18, neighbours increasing. Find the arrow to an active vertex and the closed-cycle witness.'},
+    cycle: {vertices,edges:edges.concat([[32,7]]),first:18,text:'We added the 32 → 7 dependency to the main network. First root 18, neighbours increasing. Find the arrow to an active vertex and the closed-cycle witness.'},
     remote: {vertices,edges:edges.concat([[26,26]]),first:18,text:'We added only 26 → 26 to the main network. The search below 18 may finish without a cycle; do not conclude before checking every job.'},
     single: {vertices:[18],edges:[],first:18,text:'One job, 18; no arrows. One entry and one return; the valid job order has one element.'},
     noedges: {vertices,edges:[],first:18,text:'Eight jobs, no arrows. Start with 18, then the remaining roots in increasing order. Every order containing each job once is valid.'}

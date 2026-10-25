@@ -71,7 +71,7 @@ const cards = [
     ],
     "lesson": "A dictionary describes the operations we need. A tree or a hash table is a way to build it.",
     "check": "IDs are 20, 30 and 50. What is the successor of 30?",
-    "answer": "50. Successor means the next stored key, not the number 31.",
+    "answer": "50. Successor means the next stored key, not an unstored number such as 32.",
     "extra": "The seven lecture operations are search, insert, delete, minimum, maximum, predecessor and successor. Duplicate-key rules must be chosen explicitly.",
     "refs": [
       "1-1"
@@ -984,7 +984,7 @@ const cards = [
       },
       {
         "title": "Update the fingerprint",
-        "text": "A rolling hash removes the outgoing character’s contribution, shifts the remaining contributions, and adds the incoming character. The visual uses base 31, modulus 101 and ASCII codes."
+        "text": "A rolling hash removes the outgoing character’s contribution, shifts the remaining contributions, and adds the incoming character. The visual uses base 32, modulus 4861 and ASCII codes."
       },
       {
         "title": "Never trust only the fingerprint",

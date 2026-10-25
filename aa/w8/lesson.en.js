@@ -3,19 +3,19 @@
   const model = window.FreshWeek8;
   if (!model || typeof model.traceBFS !== 'function') return;
   const $ = id => document.getElementById(id);
-  const vertices = [4, 7, 11, 18, 20, 24, 26, 31];
-  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 31], [20, 31]];
-  const names = { 4: 'roof', 7: 'greenhouse', 11: 'well', 18: 'pump', 20: 'garden', 24: 'warehouse', 26: 'room', 31: 'gate' };
+  const vertices = [4, 7, 11, 18, 20, 24, 26, 32];
+  const edges = [[18, 7], [18, 24], [7, 4], [7, 11], [24, 11], [24, 20], [11, 32], [20, 32]];
+  const names = { 4: 'roof', 7: 'greenhouse', 11: 'well', 18: 'pump', 20: 'garden', 24: 'warehouse', 26: 'room', 32: 'gate' };
   const independentVertices = [4, 7, 18, 20, 24, 26];
   const independentEdges = [[18, 7], [18, 24], [7, 26], [24, 26], [26, 4]];
   const cases = {
-    main: { vertices, edges, source: 18, target: 31, text: 'Main network, source 18. Neighbours are ready in increasing ID order. 26 is isolated; find the fewest connections to target 31.' },
-    reverse: { vertices, edges, source: 18, target: 31, order: 'descending', text: 'The same network and source 18, with neighbours in decreasing order. Which can change: distances or the selected parents?' },
-    source31: { vertices, edges, source: 31, target: 18, text: 'The source in the same network is now 31. Recalculate distances from 31; the original start 18 is no longer the vertex at distance 0.' },
-    isolated: { vertices, edges, source: 26, target: 31, text: 'Source 26 in the same network; its adjacency list is empty. The other edges exist in the graph but cannot be reached from this source.' },
-    linked: { vertices, edges: edges.concat([[31, 26]]), source: 18, target: 26, text: 'We added one undirected edge 31–26 to the main network. Source 18; is 26 now reachable? Process the whole component.' },
+    main: { vertices, edges, source: 18, target: 32, text: 'Main network, source 18. Neighbours are ready in increasing ID order. 26 is isolated; find the fewest connections to target 32.' },
+    reverse: { vertices, edges, source: 18, target: 32, order: 'descending', text: 'The same network and source 18, with neighbours in decreasing order. Which can change: distances or the selected parents?' },
+    source32: { vertices, edges, source: 32, target: 18, text: 'The source in the same network is now 32. Recalculate distances from 32; the original start 18 is no longer the vertex at distance 0.' },
+    isolated: { vertices, edges, source: 26, target: 32, text: 'Source 26 in the same network; its adjacency list is empty. The other edges exist in the graph but cannot be reached from this source.' },
+    linked: { vertices, edges: edges.concat([[32, 26]]), source: 18, target: 26, text: 'We added one undirected edge 32–26 to the main network. Source 18; is 26 now reachable? Process the whole component.' },
     single: { vertices: [18], edges: [], source: 18, target: 18, text: 'One vertex 18, no edges. What are the source’s distance and path to itself?' },
-    noedges: { vertices, edges: [], source: 18, target: 31, text: 'All eight devices exist in the graph, with no edges. Source 18. Is a vertex’s existence the same as reachability?' }
+    noedges: { vertices, edges: [], source: 18, target: 32, text: 'All eight devices exist in the graph, with no edges. Source 18. Is a vertex’s existence the same as reachability?' }
   };
   let trace, task, seen = 0, solutionSeen = false;
   function el(tag, text) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; return node; }

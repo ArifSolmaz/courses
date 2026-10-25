@@ -5,17 +5,17 @@
   const $ = id => document.getElementById(id);
   const entries = [
     { key: 18, value: 'pompa' }, { key: 7, value: 'sera' }, { key: 24, value: 'depo' },
-    { key: 4, value: 'çatı' }, { key: 11, value: 'kuyu' }, { key: 20, value: 'bahçe' }, { key: 31, value: 'kapı' }
+    { key: 4, value: 'çatı' }, { key: 11, value: 'kuyu' }, { key: 20, value: 'bahçe' }, { key: 32, value: 'kapı' }
   ];
   const added = { key: 26, value: 'oda' };
   const cases = {
-    found: { entries, kind: 'get', key: 31 },
+    found: { entries, kind: 'get', key: 32 },
     missing: { entries, kind: 'get', key: 16 },
     insert: { entries, kind: 'set', key: 26, value: 'oda' },
     after: { entries: entries.concat([added]), kind: 'get', key: 26 },
-    update: { entries, kind: 'set', key: 31, value: 'atölye' },
-    sorted: { entries: entries.slice().sort((a, b) => a.key - b.key), kind: 'get', key: 31 },
-    empty: { entries: [], kind: 'get', key: 31 }
+    update: { entries, kind: 'set', key: 32, value: 'atölye' },
+    sorted: { entries: entries.slice().sort((a, b) => a.key - b.key), kind: 'get', key: 32 },
+    empty: { entries: [], kind: 'get', key: 32 }
   };
   let trace, task, seen = 0, solutionSeen = false;
   function el(tag, text) {
@@ -53,7 +53,7 @@
     const counts = last ? last.counts : { nodeComparisons: 0, bucketKeyChecks: 0, hashComputations: 0, recordSets: 0 };
     const selected = $('lookup-case').value;
     $('lookup-task').textContent = (task.kind === 'get' ? 'bul(' + task.key + ')' : 'kaydet(' + task.key + ', “' + task.value + '”)')
-      + '. ' + (selected === 'after' ? '26 önceden eklenmiş; şimdi yalnız arama sayılıyor.' : selected === 'sorted' ? 'Aynı kayıtlar artan kimlik sırasıyla yerleştirildi.' : selected === 'empty' ? 'Başlangıçta kayıt yok.' : 'Başlangıç yerleştirme sırası: 18, 7, 24, 4, 11, 20, 31.');
+      + '. ' + (selected === 'after' ? '26 önceden eklenmiş; şimdi yalnız arama sayılıyor.' : selected === 'sorted' ? 'Aynı kayıtlar artan kimlik sırasıyla yerleştirildi.' : selected === 'empty' ? 'Başlangıçta kayıt yok.' : 'Başlangıç yerleştirme sırası: 18, 7, 24, 4, 11, 20, 32.');
     const board = $('lookup-board'); board.replaceChildren();
     const written = last && last.op === 'set-record' ? last.key : null;
     if (trace.structure === 'bst') {
@@ -146,7 +146,7 @@
     } else {
       feedback('guided-feedback', tree.value !== model.traceGet(source, 26, 'bst').counts.nodeComparisons
         ? 'Yalnız ekleme bittikten sonraki aramayı say. Yeni düğüme kadar yolu izle; eşleşen düğüm de karşılaştırılır.'
-        : 'Kova hesabını eşitlik sayacına ekleme. Kova içindeki 11, 31 ve yeni anahtarı sırayla denetle.', true);
+        : 'Kova hesabını eşitlik sayacına ekleme. Kova içindeki 11 ve yeni anahtarı sırayla denetle.', true);
     }
   });
   $('independent-form').addEventListener('submit', event => {

@@ -92,15 +92,16 @@ def shell(tasks: dict, language: str, page: str, content: str) -> str:
     other = f'<a href="{alternate}" hreflang="{"tr" if language == "en" else "en"}">{"Türkçe" if language == "en" else "English"}</a>'
     languages = current + other if language == "en" else other + current
     title = label("Teacher form · Weeks 1–3 pilot", "Öğretmen formu · Hafta 1–3 pilotu", language) if teacher else tasks["title"][language]
-    scripts = [prefix + "tasks.js?v=1", prefix + "model.js?v=1"]
+    scripts = [prefix + "tasks.js?v=2", prefix + "model.js?v=1"]
     if teacher:
         scripts.extend(prefix + file + "?v=1" for file in ("csv.js", "report.js", "teacher.js"))
         scripts.append(prefix + "checklist.js?v=1")
     else:
         scripts.extend(prefix + "../w" + str(i) + "/model.js?v=1" for i in (1, 2, 3))
-        scripts.append(prefix + "student.js?v=1")
+        scripts.append(prefix + "w2-checkpoint.js?v=1")
+        scripts.append(prefix + "student.js?v=2")
     scripts_html = "\n".join(f'<script src="{esc(src)}" defer></script>' for src in scripts)
-    checklist_style = f'\n<link rel="stylesheet" href="{esc(prefix)}checklist.css?v=1">' if teacher else ""
+    checklist_style = (f'\n<link rel="stylesheet" href="{esc(prefix)}checklist.css?v=1">' if teacher else f'\n<link rel="stylesheet" href="{esc(prefix)}w2-checkpoint.css?v=1">')
     counterpart = (prefix + ("tr/" if language == "tr" else "")) if teacher else (prefix + "teacher/" + ("tr/" if language == "tr" else ""))
     counterpart_text = label("Student instructions", "Öğrenci yönergesi", language) if teacher else label("Teacher tools", "Öğretmen araçları", language)
     draft_status = '<p id="draft-status" role="status" aria-live="polite"></p>'
@@ -129,6 +130,24 @@ def shell(tasks: dict, language: str, page: str, content: str) -> str:
 </body>
 </html>
 '''
+
+
+def w2_checkpoint(language: str) -> str:
+    t = lambda en, tr: esc(label(en, tr, language))
+    return f'''<!-- AA:PILOT-W2-CHECKPOINT:START -->
+<p class="caption">{t('Choose Nested and reveal three checks. The row transition pauses for a prediction and explanation. Demonstration resets keep your first submitted attempt and each later attempt in the TXT; only a confirmed new participant clears them.', 'İç içe seçip üç kontrol aç. Satır geçişi tahmin ve açıklama için durur. Gösterimi sıfırlamak ilk gönderilen denemeyi ve sonraki denemeleri TXT’de korur; yalnız onaylanan yeni katılımcı işlemi bunları siler.')}</p>
+<div id="pilot-w2-checkpoint" class="pilot-w2-checkpoint no-print" data-phase="waiting" hidden role="group" aria-labelledby="w2-checkpoint-title">
+<p class="eyebrow">{t('Predict → Run → Explain', 'Tahmin et → Çalıştır → Açıkla')}</p><h4 id="w2-checkpoint-title">{t('What happens after the first row?', 'İlk satır bitince ne olur?')}</h4><p id="w2-checkpoint-context"></p>
+<div id="w2-checkpoint-seen" hidden><p>{t('This draft already revealed the transition without a checkpoint submission. No first prediction is invented. Start the demonstration over to record a new attempt; earlier exposure remains recorded.', 'Bu taslak, durak gönderimi olmadan geçişi zaten göstermiş. İlk tahmin uydurulmaz. Yeni deneme kaydetmek için gösterimi başa al; önceki gösterim bilgisi kayıtta kalır.')}</p></div>
+<div id="w2-checkpoint-predict"><p>{t('Use row and column positions, not device IDs. A valid wrong prediction is kept and compared with the actual step.', 'Cihaz kimliklerini değil, satır ve sütun konumlarını kullan. Geçerli ama yanlış tahmin de saklanır ve gerçek adımla karşılaştırılır.')}</p>
+<div class="w2-checkpoint-fields"><div><label for="w2-predict-i">{t('Next row i', 'Sonraki satır i')}</label><input id="w2-predict-i" type="number" min="1" max="3" step="1" inputmode="numeric"></div><div><label for="w2-predict-j">{t('Next column j', 'Sonraki sütun j')}</label><input id="w2-predict-j" type="number" min="1" max="3" step="1" inputmode="numeric"></div><div><label for="w2-predict-relation">{t('Result: = equal, ≠ different', 'Sonuç: = eşit, ≠ farklı')}</label><select id="w2-predict-relation"><option value="">{t('Choose', 'Seç')}</option><option value="equal">=</option><option value="different">≠</option></select></div><div><label for="w2-predict-count">{t('Counter after the check', 'Kontrolden sonra sayaç')}</label><input id="w2-predict-count" type="number" min="0" max="9" step="1" inputmode="numeric"></div></div>
+<div class="actions">{button('w2-checkpoint-run',label('Run the next check', 'Sıradaki kontrolü çalıştır',language))}{button('w2-checkpoint-hint',label('Get a checkpoint hint', 'Durak ipucu al',language))}</div>
+<p id="w2-checkpoint-feedback" role="status" aria-live="polite"></p><p id="w2-checkpoint-hint-text" class="notice" hidden>{t('Each new outer-loop row restarts the inner loop at column 1. Count each equality question, including a different result.', 'Dış döngüdeki her yeni satır, iç döngüyü sütun 1’den başlatır. Sonuç farklı olsa da her eşitlik sorusunu say.')}</p><p id="w2-checkpoint-support" class="caption"></p><p id="w2-checkpoint-actual"></p></div>
+<div id="w2-checkpoint-explain" hidden><label for="w2-checkpoint-explanation">{t('Why does j restart? Why count a different result? Why continue when Week 1 stopped at a match?', 'j neden yeniden başlar? Farklı sonuç neden sayılır? Hafta 1 eşleşmede dururken burada neden devam edilir?')}</label><textarea id="w2-checkpoint-explanation" maxlength="1200" rows="3"></textarea>{button('w2-checkpoint-compare',label('Compare my explanation', 'Gerekçemi karşılaştır',language))}<p id="w2-checkpoint-explain-status" role="status" aria-live="polite"></p>
+<div id="w2-checkpoint-model" class="w2-checkpoint-model" hidden><h4 id="w2-checkpoint-model-title" tabindex="-1">{t('Compare these three ideas', 'Bu üç fikri karşılaştır')}</h4><ul><li>{t('Loop: i moves to row 2; the inner loop restarts at j=1. The next pair is (2,1).', 'Döngü: i ikinci satıra geçer; iç döngü j=1’den yeniden başlar. Sıradaki çift (2,1).')}</li><li>{t('Count: 7 ≠ 18 fills one cell and adds one equality check: 3 → 4. Three rows of three cells give C(n)=n×n.', 'Sayım: 7 ≠ 18 bir hücre doldurur ve bir eşitlik kontrolü ekler: 3 → 4. Üç satırın her birindeki üç hücre C(n)=n×n verir.')}</li><li>{t('Purpose and connection: Week 1 needed the first matching position. This report needs every cell, so a match does not end it.', 'Amaç ve bağ: Hafta 1 ilk eşleşmenin konumunu istiyordu. Bu rapor bütün hücreleri istediği için eşleşme işi bitirmez.')}</li></ul><p>{t('Your explanation is not automatically graded. Continue the demonstration when ready.', 'Gerekçen otomatik puanlanmaz. Hazır olduğunda gösterime devam et.')}</p></div></div>
+<details id="w2-checkpoint-evidence-box" hidden><summary>{t('Saved checkpoint attempts · first and later kept separate', 'Saklanan durak denemeleri · ilk ve sonrakiler ayrı')}</summary><div id="w2-checkpoint-evidence"></div></details></div>
+<aside class="pilot-w2-paper"><h4>{t('On paper · row-transition checkpoint', 'Kâğıtta · satır-geçiş durağı')}</h4><p>{t('After (1,1), (1,2), (1,3), the counter is 3. Write the next i, j, equality result and counter; then explain the loop restart, counting and report purpose. Keep your first answer separate from corrections and note any hint or solution seen. Digital TXT export requires JavaScript.', '(1,1), (1,2), (1,3) sonrasında sayaç 3. Sıradaki i, j, eşitlik sonucu ve sayacı yaz; döngünün yeniden başlamasını, sayımı ve rapor amacını açıkla. İlk yanıtını düzeltmelerden ayrı tut; gördüğün ipucu veya çözümü kaydet. Dijital TXT indirme JavaScript gerektirir.')}</p></aside>
+<!-- AA:PILOT-W2-CHECKPOINT:END -->'''
 
 
 def student(tasks: dict, language: str) -> str:
@@ -166,8 +185,10 @@ def student(tasks: dict, language: str) -> str:
             practice += select('guide-w2-mode',t('Loop pattern','Döngü düzeni'),[('sequential',t('Sequential','Ardışık')),('nested',t('Nested','İç içe'))])
         practice += textarea('guide-' + week + '-predict', t('My prediction (optional, ungraded)', 'Tahminim (isteğe bağlı, puanlanmaz)'), 1200, 2)
         practice += '<div class="actions">' + button('guide-' + week + '-next',t('Reveal one step','Bir adımı aç')) + button('guide-' + week + '-reset',t('Start over','Başa dön')) + button('guide-' + week + '-end',t('Reveal worked result','İşlenmiş sonucu aç')) + '</div><p id="guide-' + week + '-state" role="status" aria-live="polite"></p><ol id="guide-' + week + '-history" class="step-history"></ol>'
+        if week == 'w2':
+            practice += w2_checkpoint(language)
         practice += '<details data-hint="' + week + '"><summary>' + esc(t('Hint · record that I used it', 'İpucu · kullandığımı kaydet')) + '</summary><p>' + esc(g['hint'][language]) + '</p></details>'
-        fragment = {'w1':'trace','w2':'sequential','w3':'binary'}[week]
+        fragment = {'w1':'trace','w2':'work-widget','w3':'binary'}[week]
         practice += '<p class="caption optional-reference"><a href="' + prefix + '../' + week + ('/tr/' if language == 'tr' else '/') + '#' + fragment + '" target="_blank" rel="noopener">' + esc(t('Optional full lesson (new tab)', 'İsteğe bağlı tam ders (yeni sekme)')) + '</a></p></article>'
     practice += phase_fields('practice',phase_names['practice'],language) + '<div class="actions">' + button('finish-practice',t('Begin independent transfer','Bağımsız aktarıma geç')) + '</div></section>'
     reflection = '<section class="stage card" data-stage="reflection" aria-labelledby="reflection-title"><p class="eyebrow">3 ' + esc(t('minutes planned','dakika planlandı')) + '</p><h2 id="reflection-title">' + esc(phase_names['reflection']) + '</h2><p>' + esc(t('Save both original attempts before comparing with the model explanation. Seeing the answer does not change the saved first or transfer response. Add any later correction only in the separate reflection note.', 'Model açıklamayla karşılaştırmadan iki ilk denemeyi sakla. Yanıtı görmek saklanan ilk veya aktarım yanıtını değiştirmez. Sonradan yaptığın düzeltmeyi yalnız ayrı yansıtma notuna ekle.')) + '</p><div class="actions">' + button('show-key',t('Both saved · show explanation','İkisi saklandı · açıklamayı aç')) + '</div><section id="answer-key" class="answer-key" aria-live="polite"></section>'

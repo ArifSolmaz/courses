@@ -81,9 +81,9 @@ Now consider these **illustrative timing values**, not actual benchmark results:
 | --- | --- | --- |
 | 100 | 1.2 | 2.0 |
 | 200 | 2.3 | 7.8 |
-| 400 | 4.7 | 31.0 |
+| 400 | 4.7 | 32.0 |
 
-Scan ratios are 2.3/1.2 ≈ 1.92 and 4.7/2.3 ≈ 2.04. Pair ratios are 7.8/2.0 = 3.9 and 31.0/7.8 ≈ 3.97. They are close to two and four. Exact operation counts and noisy timings support the same explanation here, but only the loop argument establishes those counts for every valid n.
+Scan ratios are 2.3/1.2 ≈ 1.92 and 4.7/2.3 ≈ 2.04. Pair ratios are 7.8/2.0 = 3.9 and 32.0/7.8 ≈ 4.10. They are close to two and four. Exact operation counts and noisy timings support the same explanation here, but only the loop argument establishes those counts for every valid n.
 
 **Türkçe:** Kareli kâğıt iç içe döngüyü görünür kılar: satır sayısı da sütun sayısı da ikiye katlanır. Süre tablosunda ise 4 yerine 3.9 görebiliriz. Bu, otomatik olarak hesabın yanlış olduğunu göstermez; ölçümde sabit işler ve değişken etkiler de vardır.
 

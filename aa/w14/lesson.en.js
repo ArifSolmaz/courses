@@ -3,20 +3,20 @@
   const model=window.FreshWeek14;
   if(!model||typeof model.traceCertificate!=='function'||typeof model.transformHamiltonianST!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
-  const repeatPath=[24,20,31,20,31],simplePath=[24,18,7,11,31];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
+  const repeatPath=[24,20,32,20,32],simplePath=[24,18,7,11,32];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2],[18,7,1],[24,4,7]];
   const cases={
-    repeat:{source:24,target:31,k:4,B:10,path:repeatPath,simple:true,text:'Week 13’s candidate, now with repeated devices forbidden. Keep the ID and edge conditions distinct.'},
-    walk:{source:24,target:31,k:4,B:10,path:repeatPath,simple:false,text:'Previous walk contract: repeats allowed. This comparison does not use L’s simple-path rule.'},
-    budget:{source:24,target:31,k:4,B:10,path:simplePath,simple:true,text:'A candidate with no repeats and real edges; budget 10. Predict which check will stop it.'},
-    valid:{source:24,target:31,k:4,B:12,path:simplePath,simple:true,text:'The same candidate with no repeats, budget 12. Does accepting it prove minimum cost?'},
-    short:{source:24,target:31,k:4,B:12,path:[24,20,31],simple:true,text:'This cheap candidate uses only two edges. With exactly four required, which check fails first?'},
-    missing:{source:24,target:31,k:4,B:12,path:[24,18,7,26,31],simple:true,text:'The IDs are known and distinct; is every consecutive pair really linked? Do not invent a missing edge’s cost.'},
-    wrong:{source:24,target:31,k:4,B:12,path:[18,24,11,7,31],simple:true,text:'The list contains familiar IDs, but the source condition is unchanged. No further conditions are tested after the first error.'},
-    unknown:{source:24,target:31,k:4,B:12,path:[24,18,7,99,31],simple:true,text:'99 is not registered in this graph. The ID check comes before looking for edges.'},
+    repeat:{source:24,target:32,k:4,B:10,path:repeatPath,simple:true,text:'Week 13’s candidate, now with repeated devices forbidden. Keep the ID and edge conditions distinct.'},
+    walk:{source:24,target:32,k:4,B:10,path:repeatPath,simple:false,text:'Previous walk contract: repeats allowed. This comparison does not use L’s simple-path rule.'},
+    budget:{source:24,target:32,k:4,B:10,path:simplePath,simple:true,text:'A candidate with no repeats and real edges; budget 10. Predict which check will stop it.'},
+    valid:{source:24,target:32,k:4,B:12,path:simplePath,simple:true,text:'The same candidate with no repeats, budget 12. Does accepting it prove minimum cost?'},
+    short:{source:24,target:32,k:4,B:12,path:[24,20,32],simple:true,text:'This cheap candidate uses only two edges. With exactly four required, which check fails first?'},
+    missing:{source:24,target:32,k:4,B:12,path:[24,18,7,26,32],simple:true,text:'The IDs are known and distinct; is every consecutive pair really linked? Do not invent a missing edge’s cost.'},
+    wrong:{source:24,target:32,k:4,B:12,path:[18,24,11,7,32],simple:true,text:'The list contains familiar IDs, but the source condition is unchanged. No further conditions are tested after the first error.'},
+    unknown:{source:24,target:32,k:4,B:12,path:[24,18,7,99,32],simple:true,text:'99 is not registered in this graph. The ID check comes before looking for edges.'},
     empty:{source:24,target:24,k:0,B:0,path:[24],simple:true,text:'Source and target 24; k=0. A list with one device position traverses no edges and costs 0.'},
-    separate:{source:24,target:31,k:0,B:0,path:[24],simple:true,text:'Source 24, target 31; k=0. Even if list length is correct, what happens to the target condition?'}
+    separate:{source:24,target:32,k:0,B:0,path:[24],simple:true,text:'Source 24, target 32; k=0. Even if list length is correct, what happens to the target condition?'}
   };
   const reasons={format:'invalid list format',length:'the exactly k+1 entries condition failed','unknown-id':'an ID is absent from the graph or invalid',source:'the first ID is not the source',target:'the last ID is not the target',repeat:'the no-repeat rule was violated','missing-edge':'there is no edge between consecutive devices',budget:'the total cost exceeds the budget',valid:'all candidate conditions were met'};
   let task,trace,seen=0,dirty=false,solutionSeen=false;

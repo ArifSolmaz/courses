@@ -3,14 +3,14 @@
   const model=window.FreshWeek10;
   if(!model||typeof model.traceKruskal!=='function'||typeof model.validateForest!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31];
-  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32];
+  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,20,24,26],independentEdges=[[18,7,1],[7,24,2],[18,24,3],[24,26,4],[26,4,5],[4,18,6]];
   const cases={
     main:{vertices,edges,text:'The main undirected network. Costs increase; ties use increasing smaller endpoint, then increasing larger endpoint. Process all 10 candidates.'},
     reverse:{vertices,edges,order:'descending',text:'The same network; only endpoint order within equal costs is reversed. Costs still increase. Can we choose different cables with the same total?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),text:'We removed candidate 31–26. 26 is still in the device list; no candidate cable reaches it. Can we build one tree?'},
-    split:{vertices,edges:edges.filter(([a,b])=>!(a===24&&b===20)&&!(a===11&&b===31)),text:'We removed candidates 20–24 and 11–31. There are two separate input components; find the minimum network for each.'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),text:'We removed candidate 32–26. 26 is still in the device list; no candidate cable reaches it. Can we build one tree?'},
+    split:{vertices,edges:edges.filter(([a,b])=>!(a===24&&b===20)&&!(a===11&&b===32)),text:'We removed candidates 20–24 and 11–32. There are two separate input components; find the minimum network for each.'},
     single:{vertices:[18],edges:[],text:'One device, 18, with no candidates. Zero cables suffice to include every device.'},
     noedges:{vertices,edges:[],text:'Eight devices, no candidates. Report the disconnected result without deleting devices.'},
     zero:{vertices,edges:edges.map(([a,b,w])=>[a,b,a===7&&b===4?0:w]),text:'Only the 4–7 cost changed to 0. A zero-cost candidate is not ignored; rebuild the selection and total.'}

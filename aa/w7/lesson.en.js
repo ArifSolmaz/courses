@@ -3,16 +3,16 @@
   const model = window.FreshWeek7;
   if (!model || typeof model.traceSort !== 'function') return;
   const $ = id => document.getElementById(id);
-  const keys = [18, 7, 24, 4, 11, 20, 31, 26];
+  const keys = [18, 7, 24, 4, 11, 20, 32, 26];
   const values = ['pump', 'greenhouse', 'warehouse', 'roof', 'well', 'garden', 'gate', 'room'];
   const records = keys.map((key, index) => ({ key, value: values[index], tag: String.fromCharCode(65 + index) }));
   function byKeys(list) { return list.map(key => records.find(record => record.key === key)); }
-  const guidedLeft = byKeys([4, 7, 18, 24]), guidedRight = byKeys([11, 20, 26, 31]);
-  const independent = byKeys([20, 4, 31, 7]);
+  const guidedLeft = byKeys([4, 7, 18, 24]), guidedRight = byKeys([11, 20, 26, 32]);
+  const independent = byKeys([20, 4, 32, 7]);
   const cases = {
     small: { source: records.slice(0, 4), text: 'Four records: [18, 7, 24, 4]. Complete the left call, then the right call, then merge. Count the whole sort.' },
     merge: { left: byKeys([7, 18]), right: byKeys([4, 24]), text: 'Ready-made sorted left [7, 18], right [4, 24]. Count only this single merge; earlier sorting is excluded.' },
-    full: { source: records, text: 'Eight records: [18, 7, 24, 4, 11, 20, 31, 26]. Sort the whole directory by ID, including every lower merge.' },
+    full: { source: records, text: 'Eight records: [18, 7, 24, 4, 11, 20, 32, 26]. Sort the whole directory by ID, including every lower merge.' },
     odd: { source: records.slice(0, 5), text: 'Five records: [18, 7, 24, 4, 11]. The first split has 2 and 3 records; halves need not be equal.' },
     sorted: { source: records.slice().sort((a, b) => a.key - b.key), text: 'The input is already sorted. This basic version does not detect sorted pieces and skip merging.' },
     single: { source: [records[0]], text: 'One record: [18:pump]. The base case immediately returns the sorted result; no merge.' },

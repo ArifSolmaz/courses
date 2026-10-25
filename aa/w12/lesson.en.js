@@ -3,18 +3,18 @@
   const model=window.FreshWeek12;
   if(!model||typeof model.traceWalks!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2]];
   const cases={
-    main:{vertices,edges,source:24,target:31,k:4,text:'Main network; source 24, target 31, exactly 4 edges. Is the first candidate costing 12 the final answer? Check remaining r when you reach the target early.'},
-    two:{vertices,edges,source:24,target:31,k:2,text:'Same network, source 24/target 31; only k=2. Compare all eight terminals of the small tree on paper.'},
-    none:{vertices,edges,source:24,target:31,k:3,text:'Same network, source 24/target 31; k=3. The devices are connected, but is there a solution with this exact edge count?'},
-    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:31,k:4,text:'All edge costs in the same network are now 0; source 24/target 31,k=4. After a valid 0-cost candidate, why can we skip internal branches with equal cost?'},
-    self:{vertices,edges,source:24,target:24,k:0,text:'Source and target are 24, k=0. The empty walk is valid without traversing an edge. The drawing’s target 31 description does not apply to this example.'},
-    wrongzero:{vertices,edges,source:24,target:31,k:0,text:'Source 24, target 31,k=0. The root is terminal but is not at the target. Can the empty walk answer this target?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,target:26,k:4,text:'31–26 was removed; source 24, target 26,k=4. Device 26 is listed but isolated. Explain the result after the full search finishes.'}
+    main:{vertices,edges,source:24,target:32,k:4,text:'Main network; source 24, target 32, exactly 4 edges. Is the first candidate costing 12 the final answer? Check remaining r when you reach the target early.'},
+    two:{vertices,edges,source:24,target:32,k:2,text:'Same network, source 24/target 32; only k=2. Compare all eight terminals of the small tree on paper.'},
+    none:{vertices,edges,source:24,target:32,k:3,text:'Same network, source 24/target 32; k=3. The devices are connected, but is there a solution with this exact edge count?'},
+    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:32,k:4,text:'All edge costs in the same network are now 0; source 24/target 32,k=4. After a valid 0-cost candidate, why can we skip internal branches with equal cost?'},
+    self:{vertices,edges,source:24,target:24,k:0,text:'Source and target are 24, k=0. The empty walk is valid without traversing an edge. The drawing’s target 32 description does not apply to this example.'},
+    wrongzero:{vertices,edges,source:24,target:32,k:0,text:'Source 24, target 32,k=0. The root is terminal but is not at the target. Can the empty walk answer this target?'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,target:26,k:4,text:'32–26 was removed; source 24, target 26,k=4. Device 26 is listed but isolated. Explain the result after the full search finishes.'}
   };
-  Object.values(cases).forEach(task=>{task.text=task.text.replace(/(kaynak|Kaynak|hedef|hedefi|bedelleri|geçerli|adaydan sonra eşit bedelli iç dalları neden atlayabiliriz)(\d)/g,'$1 $2').replace('tam4','tam 4').replace('İlk12','İlk 12').replace('hedef24','hedef 24').replace('hedef31','hedef 31').replace('geçerli0','geçerli 0');});
+  Object.values(cases).forEach(task=>{task.text=task.text.replace(/(kaynak|Kaynak|hedef|hedefi|bedelleri|geçerli|adaydan sonra eşit bedelli iç dalları neden atlayabiliriz)(\d)/g,'$1 $2').replace('tam4','tam 4').replace('İlk12','İlk 12').replace('hedef24','hedef 24').replace('hedef32','hedef 32').replace('geçerli0','geçerli 0');});
   let task,trace,fullTrace,seen=0,solutionSeen=false;
   function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
   function pathText(ids){return ids.join(' → ');}

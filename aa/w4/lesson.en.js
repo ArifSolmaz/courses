@@ -3,7 +3,7 @@
   const model = window.AAWeekFour;
   if (!model || typeof model.traceInsert !== 'function') return;
   const $ = id => document.getElementById(id);
-  const directory = [4, 7, 11, 18, 24, 31];
+  const directory = [4, 7, 11, 18, 24, 32];
   const cases = {
     access: { values: directory, kind: 'access', position: 4 },
     insert: { values: directory, kind: 'insert', position: 4, value: 15 },

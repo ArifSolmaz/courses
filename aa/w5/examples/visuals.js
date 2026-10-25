@@ -17,7 +17,7 @@ const lessonVisuals = (() => {
  function path(keys,target){let n=build(keys),p=[];while(n){p.push(n.key);if(n.key===target)break;n=n[target<n.key?'left':'right']}return {p,found:n?.key===target}}
  function searchFrames(target){const {p,found}=path(standard,target);return [frame('Choose a key and follow its path',tree(standard),`Find ${target}. Count visits to existing nodes.`),...p.map((k,i)=>frame(`Visit ${i+1}: compare ${target} with ${k}`,tree(standard,p.slice(0,i+1)),target===k?`Equal: found ${target}. ${i+1} node visits.`:`${target} is ${target<k?'smaller':'larger'} than ${k}. Follow the ${target<k?'left':'right'} link.`)),...(!found?[frame('The next link is empty',tree(standard,p),`${target} is not present. ${p.length} node visits; the final empty link is not another visited node.`)]:[])]}
  function probing(keys,m){let slots=Array(m).fill(null),frames=[frame('Start with an empty table',table(slots),`Hash rule: key mod ${m}. Slots run from 0 to ${m-1}.`)];for(const k of keys){let j=k%m,count=0;while(slots[j]!==null&&count<m){count++;frames.push(frame(`Insert ${k}: slot ${j} is occupied`,table(slots,[j]),`${k} mod ${m} = ${k%m}. Key ${slots[j]} is different; try the next slot.`));j=(j+1)%m}if(count===m)throw Error('Trace table full');slots[j]=k;frames.push(frame(`Store ${k} in slot ${j}`,table(slots,[j]),`${count+1} slot inspections for this insertion, including the empty destination.`))}return frames}
- function hashValue(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%101;return h}
+ function hashValue(s){let h=0;for(const c of s)h=(h*32+c.charCodeAt(0))%4861;return h}
  const scenarios={
  binary:()=>[frame('One-by-one search',row('Sorted IDs',[10,20,30,40,50,60,70],[0,1,2,3,4,5]),'Six visited IDs before we find 60.'),frame('Binary search: first middle',row('Sorted IDs',[10,20,30,40,50,60,70],[3]),'40 is below 60. Only the three IDs on the right remain possible.'),frame('Middle of the remaining part',row('Remaining',[50,60,70],[1]),'60 matches. Two visited IDs in total: 40, 60.')],
  dictionary:()=>[frame('Keep each key with its value',row('Records',['20 → 18°C','30 → 21°C','50 → 19°C']), 'The ID is the key; the reading is its value.'),frame('Search and update',row('After update',['20 → 18°C','30 → 22°C','50 → 19°C'],[1]),'Updating key 30 changes its reading. It does not create a second sensor 30.'),frame('Ask about key order',row('Ordered keys',[20,30,50],[0,2]),'For key 30: predecessor 20; successor 50. Minimum 20; maximum 50.')],
@@ -43,11 +43,11 @@ const lessonVisuals = (() => {
  twoSum:()=>{let seen=[];return [4,7,1,6].map(x=>{const need=10-x,found=seen.includes(need),html=row('Current value',[x])+row('Earlier values',seen.length?seen:['empty'],seen.map((v,i)=>v===need?i:-1));const f=frame(`Need ${need} to go with ${x}`,html,found?`Found ${need} in the earlier values: ${need} + ${x} = 10. Stop.`:`${need} is not present. Add ${x} after the lookup.`);seen.push(x);return f})},
  rabin:()=>{
   const text='ABRACADABRA',pattern='ABRA',h=hashValue(pattern),m=pattern.length,frames=[];
-  let wh=hashValue(text.slice(0,m)),high=1;for(let i=1;i<m;i++)high=high*31%101;
+  let wh=hashValue(text.slice(0,m)),high=1;for(let i=1;i<m;i++)high=high*32%4861;
   for(let i=0;i<=text.length-m;i++){
    const w=text.slice(i,i+m),change=i?`Remove ${text[i-1]}, shift the remaining contributions, add ${text[i+m-1]}. `:'Calculate the first four-letter fingerprint. ';
    frames.push(frame(`Window starting at position ${i}`,row('Text',Array.from(text),[i,i+1,i+2,i+3])+row('Fingerprints',[`ABRA → ${h}`,`${w} → ${wh}`]),change+(wh===h?`Hashes match. Compare letters: ${w===pattern?'all four match. Report position '+i+'.':'different letters; reject this collision.'}`:'Hashes differ. Reject this window without comparing every letter.')));
-   if(i<text.length-m){const remaining=((wh-text.charCodeAt(i)*high)%101+101)%101;wh=(remaining*31+text.charCodeAt(i+m))%101;}
+   if(i<text.length-m){const remaining=((wh-text.charCodeAt(i)*high)%4861+4861)%4861;wh=(remaining*32+text.charCodeAt(i+m))%4861;}
   }
   return frames;
  },

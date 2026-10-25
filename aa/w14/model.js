@@ -14,7 +14,7 @@
    * - Domain errors in the graph/task/options throw. A malformed/unsuitable
    *   candidate is a normal rejection. No alternative candidate is examined.
    * - Undirected simple graph; 1..32 distinct nonnegative safe integer IDs;
-   *   integer weights 0..1,000,000; k 0..31; B nonnegative safe integer.
+   *   integer weights 0..1,000,000; 0 <= k < 32; B nonnegative safe integer.
    * - Candidate array cap: 64. A valid candidate has exactly k+1 records.
    * - Check order: format, length, all IDs, source, target, all repetitions
    *   (simple mode only), consecutive edges and separate additions, budget.
@@ -44,7 +44,7 @@
    * simple:true. It does not find a path or answer the decision problem.
    */
   const MAX_VERTICES = 32;
-  const MAX_K = 31;
+  const MAX_K = MAX_VERTICES - 1;
   const MAX_CANDIDATE = 64;
   const MAX_WEIGHT = 1000000;
   const safeId = value => Number.isSafeInteger(value) && value >= 0;
@@ -98,7 +98,7 @@
   function traceCertificate(vertices, edges, source, target, k, B, certificate, options) {
     const g = graph(vertices, edges, true);
     taskEndpoints(g, source, target);
-    if (!Number.isSafeInteger(k) || k < 0 || k > MAX_K) throw new RangeError('k must be an integer from 0 to 31.');
+    if (!Number.isSafeInteger(k) || k < 0 || k > MAX_K) throw new RangeError('k must be an integer satisfying 0 <= k < 32.');
     if (!Number.isSafeInteger(B) || B < 0) throw new RangeError('B must be a nonnegative safe integer.');
     if (options === undefined) options = {};
     if (options === null || typeof options !== 'object' || Array.isArray(options)) throw new TypeError('options must be an object.');

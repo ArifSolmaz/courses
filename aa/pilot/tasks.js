@@ -94,12 +94,12 @@
         7,
         11,
         7,
-        31
+        32
       ],
       "target": 7,
       "context": {
-        "en": "A maintenance team keeps incoming message IDs in arrival order: [18, 24, 7, 11, 7, 31]. Positions start at 1. The target device ID is 7.",
-        "tr": "Bakım ekibi gelen mesajların kimliklerini geliş sırasıyla tutuyor: [18, 24, 7, 11, 7, 31]. Konumlar 1’den başlar. Hedef cihaz kimliği 7."
+        "en": "A maintenance team keeps incoming message IDs in arrival order: [18, 24, 7, 11, 7, 32]. Positions start at 1. The target device ID is 7.",
+        "tr": "Bakım ekibi gelen mesajların kimliklerini geliş sırasıyla tutuyor: [18, 24, 7, 11, 7, 32]. Konumlar 1’den başlar. Hedef cihaz kimliği 7."
       },
       "instruction": {
         "en": "Write four short responses in your own words. One or two short lines per item are enough; do not fill an entire comparison table. I do not know is a valid response.",
@@ -195,8 +195,8 @@
             "tr": "Eleme gerekçesini sına"
           },
           "prompt": {
-            "en": "Different directory: [4, 31, 11, 18, 24, 7, 26, 20], target 7. A binary step checks position 4: 18 > 7, so it discards positions 5–8. Show the target’s position to explain why this fails. Contrast left-to-right scanning; state the ordering and access conditions binary search needs.",
-            "tr": "Farklı rehber: [4, 31, 11, 18, 24, 7, 26, 20], hedef 7. Bir ikili adım konum 4’e bakıyor: 18 > 7 deyip konum 5–8’i eliyor. Neden başarısız olduğunu hedefin konumuyla göster. Soldan taramayla karşılaştır; ikili aramanın sıralama ve erişim koşullarını belirt."
+            "en": "Different directory: [4, 32, 11, 18, 24, 7, 26, 20], target 7. A binary step checks position 4: 18 > 7, so it discards positions 5–8. Show the target’s position to explain why this fails. Contrast left-to-right scanning; state the ordering and access conditions binary search needs.",
+            "tr": "Farklı rehber: [4, 32, 11, 18, 24, 7, 26, 20], hedef 7. Bir ikili adım konum 4’e bakıyor: 18 > 7 deyip konum 5–8’i eliyor. Neden başarısız olduğunu hedefin konumuyla göster. Soldan taramayla karşılaştır; ikili aramanın sıralama ve erişim koşullarını belirt."
           },
           "answer": {
             "en": "The target 7 is at position 6, inside the discarded side. Sorted order is what would justify concluding that every value to the right of 18 is larger than 7. The given order does not justify that inference. A left-to-right search reaches position 6 without discarding unchecked positions. Binary search needs sorted order for this inference and direct access for cheap midpoint access; preparation and the required output must also be accounted for.",
@@ -217,7 +217,7 @@
           },
           "directory": [
             4,
-            31,
+            32,
             11,
             18,
             24,
@@ -239,15 +239,15 @@
         7,
         18,
         11,
-        31,
+        32,
         11,
         4,
         26
       ],
       "target": 11,
       "context": {
-        "en": "Use new messages in arrival order: [24, 7, 18, 11, 31, 11, 4, 26]. Positions still start at 1. The target device ID is 11. Apply the same reasoning to these records; do not copy your first answer.",
-        "tr": "Geliş sırasındaki yeni mesajları kullan: [24, 7, 18, 11, 31, 11, 4, 26]. Konumlar yine 1’den başlar. Hedef cihaz kimliği 11. Aynı düşünme adımlarını bu kayıtlara uygula; ilk yanıtını kopyalama."
+        "en": "Use new messages in arrival order: [24, 7, 18, 11, 32, 11, 4, 26]. Positions still start at 1. The target device ID is 11. Apply the same reasoning to these records; do not copy your first answer.",
+        "tr": "Geliş sırasındaki yeni mesajları kullan: [24, 7, 18, 11, 32, 11, 4, 26]. Konumlar yine 1’den başlar. Hedef cihaz kimliği 11. Aynı düşünme adımlarını bu kayıtlara uygula; ilk yanıtını kopyalama."
       },
       "instruction": {
         "en": "Write four short responses in your own words. One or two short lines per item are enough; do not fill an entire comparison table. I do not know is a valid response.",
@@ -346,8 +346,8 @@
             "tr": "Eleme gerekçesini sına"
           },
           "prompt": {
-            "en": "Different directory: [4, 24, 11, 18, 7, 20, 26, 31], target 24. A binary step checks position 4: 18 < 24, so it discards positions 1–4. Show the target’s position to explain why this fails. Contrast left-to-right scanning; state the ordering and access conditions binary search needs.",
-            "tr": "Farklı rehber: [4, 24, 11, 18, 7, 20, 26, 31], hedef 24. Bir ikili adım konum 4’e bakıyor: 18 < 24 deyip konum 1–4’ü eliyor. Neden başarısız olduğunu hedefin konumuyla göster. Soldan taramayla karşılaştır; ikili aramanın sıralama ve erişim koşullarını belirt."
+            "en": "Different directory: [4, 24, 11, 18, 7, 20, 26, 32], target 24. A binary step checks position 4: 18 < 24, so it discards positions 1–4. Show the target’s position to explain why this fails. Contrast left-to-right scanning; state the ordering and access conditions binary search needs.",
+            "tr": "Farklı rehber: [4, 24, 11, 18, 7, 20, 26, 32], hedef 24. Bir ikili adım konum 4’e bakıyor: 18 < 24 deyip konum 1–4’ü eliyor. Neden başarısız olduğunu hedefin konumuyla göster. Soldan taramayla karşılaştır; ikili aramanın sıralama ve erişim koşullarını belirt."
           },
           "answer": {
             "en": "Target 24 is at position 2, inside the discarded side. With no sorted-order guarantee, 18 < 24 at the middle says nothing about all values to its left. A left-to-right search finds 24 at position 2. Binary search needs sorted order for the discard argument and direct positional access for cheap midpoint access; preparation and output requirements still matter.",
@@ -374,7 +374,7 @@
             7,
             20,
             26,
-            31
+            32
           ],
           "target": 24
         }
@@ -444,7 +444,7 @@
         11,
         18,
         24,
-        31,
+        32,
         42,
         56
       ],
@@ -458,8 +458,8 @@
         "tr": "(sol + sağ) / 2’yi aşağı yuvarla. Bir tarafın tamamını elemeyi haklı çıkaran şey sıralılıktır. Kontrol edilen orta, yeni aralıkta kalmaz. İki yöntemde de tek soyut üç yönlü karşılaştırmayı bir yoklama say."
       },
       "solution": {
-        "en": "For target 42, binary search checks position 4 (18), then 6 (31), then 7 (42): 3 probes, result position 7. A left-to-right search makes 7 probes in the same directory and returns 7. This is a given sorted-directory position, not the original arrival position. For target 56 the binary method takes 4 probes, so one example does not cover every target. Without sorted order, a single midpoint comparison cannot justify discarding all positions on one side. For one unsorted search, scanning needs no preparation; for many searches, include preparation and the required position information in the choice.",
-        "tr": "Hedef 42 için ikili arama konum 4 (18), sonra 6 (31), sonra 7’ye (42) bakar: 3 yoklama, sonuç konum 7. Soldan arama aynı rehberde 7 yoklama yapar ve 7 döndürür. Bu, verilen sıralı rehberin konumudur; özgün geliş konumu değildir. Hedef 56 için ikili yöntem 4 yoklama yapar; tek örnek bütün hedefleri kapsamaz. Sıralılık yokken tek orta karşılaştırması bir taraftaki bütün konumları elemeyi haklı çıkarmaz. Sırasız tek aramada tarama hazırlık istemez; çok aramada hazırlığı ve gereken konum bilgisini de seçime kat."
+        "en": "For target 42, binary search checks position 4 (18), then 6 (32), then 7 (42): 3 probes, result position 7. A left-to-right search makes 7 probes in the same directory and returns 7. This is a given sorted-directory position, not the original arrival position. For target 56 the binary method takes 4 probes, so one example does not cover every target. Without sorted order, a single midpoint comparison cannot justify discarding all positions on one side. For one unsorted search, scanning needs no preparation; for many searches, include preparation and the required position information in the choice.",
+        "tr": "Hedef 42 için ikili arama konum 4 (18), sonra 6 (32), sonra 7’ye (42) bakar: 3 yoklama, sonuç konum 7. Soldan arama aynı rehberde 7 yoklama yapar ve 7 döndürür. Bu, verilen sıralı rehberin konumudur; özgün geliş konumu değildir. Hedef 56 için ikili yöntem 4 yoklama yapar; tek örnek bütün hedefleri kapsamaz. Sıralılık yokken tek orta karşılaştırması bir taraftaki bütün konumları elemeyi haklı çıkarmaz. Sırasız tek aramada tarama hazırlık istemez; çok aramada hazırlığı ve gereken konum bilgisini de seçime kat."
       }
     }
   },

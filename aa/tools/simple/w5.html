@@ -569,13 +569,13 @@ mod adımı rulet çarkı gibidir: büyük sayı M gözlü çarkın etrafında �
 <div class="try"><div class="lab">Kendin dene — metni sayıya, sayıyı göze</div>
 <div class="row"><span>Metin:</span><input type="text" id="sh_s" value="Ali" style="max-width:220px"><span>M =</span><input type="number" id="sh_m" value="101" min="2" max="100000" style="width:100px"></div>
 <div id="sh_out" class="steps"></div>
-<div class="mut">Taban 128: her karakter bir basamak. “Ali” = 65·128² + 108·128 + 105 = 1 078 889. 101’e bölününce kalan 7: <b>“Ali” göz 7’ye düşer</b>. Aynı sayı M = 31 ile göz 27 olur: aynı anahtar, farklı tablo boyutu, farklı göz. Program sayıyı her adımda mod alarak hesaplar (Horner kuralı): <code>h = (h·128 + karakter) mod M</code>; bu sayede dev sayılar hiç oluşmaz.</div></div>
+<div class="mut">Taban 128: her karakter bir basamak. “Ali” = 65·128² + 108·128 + 105 = 1 078 889. 101’e bölününce kalan 7: <b>“Ali” göz 7’ye düşer</b>. Aynı sayı M = 32 ile göz 9 olur: aynı anahtar, farklı tablo boyutu, farklı göz. Program sayıyı her adımda mod alarak hesaplar (Horner kuralı): <code>h = (h·128 + karakter) mod M</code>; bu sayede dev sayılar hiç oluşmaz.</div></div>
 
 <div class="try"><div class="lab">Kendin dene — hangi karma fonksiyonu yayar? (tablo boyutu ve anahtar yapısı)</div>
 <div class="row"><span>Anahtarlar:</span><select id="kh_k"><option value="can">CAN kimlikleri: 0x100 + 0x20·i (20 tane)</option><option value="mul8">8’in katları (8, 16, …, 160)</option><option value="seq">Ardışık (100…119)</option><option value="rnd">Rastgele 0–2047 (20 tane)</option></select></div>
 <div class="row"><span>Fonksiyon:</span><select id="kh_f"><option value="mod">h(k) = k mod m</option><option value="hi">h(k) = ⌊k/64⌋ mod m (üst basamaklar, kötü fikir)</option><option value="mult">h(k) = ⌊m · frac(k · 0,6180339887)⌋ (çarpımsal)</option></select>
 <span>m =</span><input type="number" id="kh_m" value="32" min="2" max="200" style="width:80px">
-<button class="btn g" data-m="32">32</button><button class="btn g" data-m="31">31</button><button class="btn g" data-m="37">37</button><button class="btn g" data-m="64">64</button></div>
+<button class="btn g" data-m="32">32</button><button class="btn g" data-m="30">30</button><button class="btn g" data-m="37">37</button><button class="btn g" data-m="64">64</button></div>
 <div id="kh_hist" class="hist"></div>
 <div id="kh_out" class="steps"></div>
 <div class="mut">Çubuklar = göz başına anahtar sayısı (kırmızı = en uzun zincir). <b>Deneyin:</b> CAN kimlikleri + mod 32 → hepsi göz 0; m = 37 → dağılır; m = 64 (ikinin kuvveti) → yalnızca iki göz kullanılır. Kural “m asal olsun, 2’nin kuvvetine yakın olmasın”ın gerekçesi budur. Bu bir <b>garanti değil</b>: anahtar yapısına göre bir asal da kötü olabilir; anahtarlar sabitse (Blok 6) tabloyu önceden test edin.</div></div>
@@ -624,23 +624,23 @@ P(en az bir çakışma) = 1 − P(çakışma yok)</pre>
 <p>Bir pencerenin karmasından sonrakini <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulursunuz: <b>O(1)</b> (α<sup>m−1</sup> mod q önceden hesaplanır, sabit uzunlukta mod aritmetiği varsayılır). Böylece n pencerenin hepsi O(n)’de karmalanır ve ilk eşleşmeyi arayan bütün arama <b>beklenen O(n + m)</b>’dir (tüm eşleşmeler için aşağıdaki z·m terimine bakın). Eşit karmalı ama farklı dizeler (<b>yanlış alarm</b>, false positive) O(m) ile elenir; çok yanlış alarm olursa en kötü durum yine O(nm)’dir. <b>İlk eşleşme / tüm eşleşmeler:</b> yalnızca <u>ilk</u> eşleşmeyi arıyorsak, ilk gerçek eşleşmede durulur. <u>Tüm</u> eşleşmeler isteniyorsa, z gerçek eşleşmenin her biri m karakterlik doğrulama ister: toplam beklenen O(n + m + z·m). Yani yanlış alarm olmasa bile z büyükse iş Θ(nm)’e varabilir (örnek: 40 “A”lık metinde 12 “A”lık örüntü → z = 29 eşleşme, 29 · 12 = 348 doğrulama karşılaştırması).</p>
 <div class="try"><div class="lab">Kendin dene — kayan karmayı hesapla</div>
 <div class="row"><span>Metin:</span><input type="text" id="rk_t" value="ABRACADABRA" style="flex:1;min-width:160px"><span>Örüntü:</span><input type="text" id="rk_p" value="ABRA" style="max-width:140px"></div>
-<div class="row"><span>Taban α =</span><input type="number" id="rk_a" value="31" min="2" max="256" style="width:80px"><span>Modül q =</span><input type="number" id="rk_q" value="101" min="2" max="10007" style="width:90px"><button class="btn g" id="rk_small">Çok küçük q = 2 (yanlış alarmlar)</button><button class="btn g" id="rk_aaa">40 A / 12 A (çok gerçek eşleşme)</button></div>
+<div class="row"><span>Taban α =</span><input type="number" id="rk_a" value="32" min="2" max="256" style="width:80px"><span>Modül q =</span><input type="number" id="rk_q" value="4861" min="2" max="10007" style="width:90px"><button class="btn g" id="rk_small">Çok küçük q = 2 (yanlış alarmlar)</button><button class="btn g" id="rk_aaa">40 A / 12 A (çok gerçek eşleşme)</button></div>
 <div class="scroll"><table class="tight"><thead><tr><th>j</th><th>Pencere</th><th>Kayan H(j)</th><th>Baştan hesap</th><th>Karma eşit?</th><th>Gerçek eşleşme?</th></tr></thead><tbody id="rk_tb"></tbody></table></div>
 <div id="rk_out" class="steps"></div>
-<div class="mut">Varsayılan (α = 31, q = 101): p = “ABRA” karması 22. Pencereler 0, 1 ve 7’de karma 22; 0 ve 7 <b>gerçek eşleşme</b>, 1 (“BRAC”) <b>yanlış alarm</b>. “Kayan” ve “baştan hesap” sütunları her satırda aynı: kayan formül doğru çalışıyor. q = 2 düğmesiyle karma değeri yalnızca 0 ya da 1 olur: karma eşit sayısı 4’e, yanlış alarm 2’ye çıkar. Karma ne kadar çok çakışırsa, “karmalar eşit” sinyali o kadar az güvenilir. “40 A / 12 A” düğmesi başka bir uç durumdur: yanlış alarm 0, ama z = 29 gerçek eşleşmenin hepsi doğrulanır (29 · 12 = 348 karşılaştırma). Karakter karşılaştırma sayısını kaba kuvvetle kıyaslayın.</div></div>
-<h3>Çözümlü örnek 9 — Rabin–Karp izi: metin ABRACADABRA, örüntü ABRA, α = 31, q = 101 (karakter kodu: ASCII)</h3>
+<div class="mut">Varsayılan (α = 32, q = 4861): p = “ABRA” karması 3021. Pencereler 0, 1 ve 7’de karma 3021; 0 ve 7 <b>gerçek eşleşme</b>, 1 (“BRAC”) <b>yanlış alarm</b>. “Kayan” ve “baştan hesap” sütunları her satırda aynı: kayan formül doğru çalışıyor. q = 2 düğmesiyle karma değeri yalnızca 0 ya da 1 olur: karma eşit sayısı 5’e, yanlış alarm 3’e çıkar. Karma ne kadar çok çakışırsa, “karmalar eşit” sinyali o kadar az güvenilir. “40 A / 12 A” düğmesi başka bir uç durumdur: yanlış alarm 0, ama z = 29 gerçek eşleşmenin hepsi doğrulanır (29 · 12 = 348 karşılaştırma). Karakter karşılaştırma sayısını kaba kuvvetle kıyaslayın.</div></div>
+<h3>Çözümlü örnek 9 — Rabin–Karp izi: metin ABRACADABRA, örüntü ABRA, α = 32, q = 4861 (karakter kodu: ASCII)</h3>
 <div class="scroll"><table class="tight">
-<tr><th>j</th><th>Pencere</th><th>H(j)</th><th>Karma = 22?</th><th>Karakterle doğrula</th></tr>
-<tr><td class="m">0</td><td class="m">ABRA</td><td class="m">22</td><td>evet</td><td class="ok">eşleşme</td></tr>
-<tr><td class="m">1</td><td class="m">BRAC</td><td class="m">22</td><td>evet</td><td class="bad">yanlış alarm (B ≠ A, 1 karşılaştırma)</td></tr>
-<tr><td class="m">2</td><td class="m">RACA</td><td class="m">43</td><td>hayır</td><td>–</td></tr>
-<tr><td class="m">3</td><td class="m">ACAD</td><td class="m">55</td><td>hayır</td><td>–</td></tr>
-<tr><td class="m">4</td><td class="m">CADA</td><td class="m">33</td><td>hayır</td><td>–</td></tr>
-<tr><td class="m">5</td><td class="m">ADAB</td><td class="m">4</td><td>hayır</td><td>–</td></tr>
-<tr><td class="m">6</td><td class="m">DABR</td><td class="m">85</td><td>hayır</td><td>–</td></tr>
-<tr><td class="m">7</td><td class="m">ABRA</td><td class="m">22</td><td>evet</td><td class="ok">eşleşme</td></tr>
+<tr><th>j</th><th>Pencere</th><th>H(j)</th><th>Karma = 3021?</th><th>Karakterle doğrula</th></tr>
+<tr><td class="m">0</td><td class="m">ABRA</td><td class="m">3021</td><td>evet</td><td class="ok">eşleşme</td></tr>
+<tr><td class="m">1</td><td class="m">BRAC</td><td class="m">3021</td><td>evet</td><td class="bad">yanlış alarm (B ≠ A, 1 karşılaştırma)</td></tr>
+<tr><td class="m">2</td><td class="m">RACA</td><td class="m">4419</td><td>hayır</td><td>–</td></tr>
+<tr><td class="m">3</td><td class="m">ACAD</td><td class="m">3504</td><td>hayır</td><td>–</td></tr>
+<tr><td class="m">4</td><td class="m">CADA</td><td class="m">3892</td><td>hayır</td><td>–</td></tr>
+<tr><td class="m">5</td><td class="m">ADAB</td><td class="m">4526</td><td>hayır</td><td>–</td></tr>
+<tr><td class="m">6</td><td class="m">DABR</td><td class="m">2586</td><td>hayır</td><td>–</td></tr>
+<tr><td class="m">7</td><td class="m">ABRA</td><td class="m">3021</td><td>evet</td><td class="ok">eşleşme</td></tr>
 </table></div>
-<p class="mut">Sonuç: eşleşmeler j = 0 ve j = 7. Sekiz pencerenin yalnızca üçünde karakter karşılaştırması gerekti. Her H(j+1), H(j)’den <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulundu: örneğin H(1) = ((22 − 31³·65) · 31 + 67) mod 101 = 22 (31³ mod 101 hesabı: araç sizin için yapar).</p>
+<p class="mut">Sonuç: eşleşmeler j = 0 ve j = 7. Sekiz pencerenin yalnızca üçünde karakter karşılaştırması gerekti. Her H(j+1), H(j)’den <b>iki çarpma, bir çıkarma, bir toplama</b> ile bulundu: örneğin H(1) = ((3021 − 31³·65) · 32 + 67) mod 4861 = 3021 (31³ mod 4861 hesabı: araç sizin için yapar).</p>
 <div class="rule"><b class="t">Kural 13 — Rabin–Karp</b>
 Pencere karması <b>O(1)</b>’de güncellenir (kayan karma). Karmalar eşitse karakterlerle <b>doğrula</b> (yanlış alarm olabilir). Yalnızca ilk eşleşme aranıyorsa beklenen O(n + m); <b>tüm</b> eşleşmeler aranıyorsa z gerçek eşleşme için doğrulama terimi z·m eklenir: O(n + m + z·m). Karmanın çok çakıştığı ya da z’nin büyük olduğu en kötü durumda O(nm).</div>
 </section>
@@ -674,7 +674,7 @@ Pencere karması <b>O(1)</b>’de güncellenir (kayan karma). Karmalar eşitse k
 <div class="try"><div class="lab">Kendin dene — kendi CAN kimliklerinizle tablo tasarlayın</div>
 <div class="row"><span>Kimlikler (onaltılık veya ondalık, virgülle):</span></div>
 <input type="text" id="cn_ids" value="0x100, 0x120, 0x140, 0x121">
-<div class="row"><span>Tablo boyutu m =</span><input type="number" id="cn_m" value="32" min="2" max="256" style="width:90px"><button class="btn g" data-cm="32">32</button><button class="btn g" data-cm="37">37</button><button class="btn g" data-cm="31">31</button><button class="btn g" data-cm="64">64</button><button class="btn" id="cn_best">En küçük “her arama 1 yoklama” m’yi bul</button></div>
+<div class="row"><span>Tablo boyutu m =</span><input type="number" id="cn_m" value="32" min="2" max="256" style="width:90px"><button class="btn g" data-cm="32">32</button><button class="btn g" data-cm="37">37</button><button class="btn g" data-cm="30">30</button><button class="btn g" data-cm="64">64</button><button class="btn" id="cn_best">En küçük “her arama 1 yoklama” m’yi bul</button></div>
 <div id="cn_slots" class="slots"></div>
 <div class="scroll"><table class="tight"><thead><tr><th>Kimlik</th><th>Ondalık</th><th>Ev göz h(id)</th><th>Yerleştiği göz</th><th>Arama yoklaması</th></tr></thead><tbody id="cn_t"></tbody></table></div>
 <div id="cn_out" class="steps"></div>
@@ -1304,7 +1304,7 @@ $("#ts_a").oninput=$("#ts_t").oninput=tsUpdate;tsUpdate();
 
 /* ---------- 5.5: Rabin-Karp ---------- */
 function rkUpdate(){
-  const t=$("#rk_t").value.slice(0,40),p=$("#rk_p").value.slice(0,12),al=Math.max(2,+$("#rk_a").value||31),q=Math.max(2,+$("#rk_q").value||101);
+  const t=$("#rk_t").value.slice(0,40),p=$("#rk_p").value.slice(0,12),al=Math.max(2,+$("#rk_a").value||32),q=Math.max(2,+$("#rk_q").value||4861);
   const n=t.length,m=p.length;
   if(!m||m>n){$("#rk_tb").innerHTML="";$("#rk_out").textContent="Örüntü metinden uzun ya da boş.";return}
   const md=x=>((x%q)+q)%q,cc=ch=>ch.codePointAt(0);
@@ -1326,7 +1326,7 @@ function rkUpdate(){
 }
 ["#rk_t","#rk_p","#rk_a","#rk_q"].forEach(s=>$(s).oninput=rkUpdate);
 $("#rk_small").onclick=()=>{$("#rk_q").value=2;rkUpdate()};
-$("#rk_aaa").onclick=()=>{$("#rk_t").value="A".repeat(40);$("#rk_p").value="A".repeat(12);$("#rk_a").value=31;$("#rk_q").value=101;rkUpdate()};rkUpdate();
+$("#rk_aaa").onclick=()=>{$("#rk_t").value="A".repeat(40);$("#rk_p").value="A".repeat(12);$("#rk_a").value=32;$("#rk_q").value=4861;rkUpdate()};rkUpdate();
 
 /* ---------- 6: CAN table ---------- */
 function cnSim(ids,m){

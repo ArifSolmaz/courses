@@ -3,16 +3,16 @@
   const model = window.FreshWeek7;
   if (!model || typeof model.traceSort !== 'function') return;
   const $ = id => document.getElementById(id);
-  const keys = [18, 7, 24, 4, 11, 20, 31, 26];
+  const keys = [18, 7, 24, 4, 11, 20, 32, 26];
   const values = ['pompa', 'sera', 'depo', 'çatı', 'kuyu', 'bahçe', 'kapı', 'oda'];
   const records = keys.map((key, index) => ({ key, value: values[index], tag: String.fromCharCode(65 + index) }));
   function byKeys(list) { return list.map(key => records.find(record => record.key === key)); }
-  const guidedLeft = byKeys([4, 7, 18, 24]), guidedRight = byKeys([11, 20, 26, 31]);
-  const independent = byKeys([20, 4, 31, 7]);
+  const guidedLeft = byKeys([4, 7, 18, 24]), guidedRight = byKeys([11, 20, 26, 32]);
+  const independent = byKeys([20, 4, 32, 7]);
   const cases = {
     small: { source: records.slice(0, 4), text: 'Dört kayıt: [18, 7, 24, 4]. Önce sol çağrı, sonra sağ çağrı ve birleştirme. Bütün sıralamayı say.' },
     merge: { left: byKeys([7, 18]), right: byKeys([4, 24]), text: 'Hazır sıralı sol [7, 18], sağ [4, 24]. Yalnız bu tek birleştirmeyi say; öncesindeki sıralamalar dahil değil.' },
-    full: { source: records, text: 'Sekiz kayıt: [18, 7, 24, 4, 11, 20, 31, 26]. Bütün rehberi kimliğe göre sırala; bütün alt birleşmeler dahil.' },
+    full: { source: records, text: 'Sekiz kayıt: [18, 7, 24, 4, 11, 20, 32, 26]. Bütün rehberi kimliğe göre sırala; bütün alt birleşmeler dahil.' },
     odd: { source: records.slice(0, 5), text: 'Beş kayıt: [18, 7, 24, 4, 11]. İlk bölünme 2 ve 3 kayda; yarılar eşit olmak zorunda değil.' },
     sorted: { source: records.slice().sort((a, b) => a.key - b.key), text: 'Başlangıç zaten sıralı. Bu temel sürüm, hazır sıralı parçaları fark edip birleşmeyi atlamaz.' },
     single: { source: [records[0]], text: 'Tek kayıt: [18:pompa]. Taban durumu sıralı sonucu hemen geri verir; birleştirme yok.' },

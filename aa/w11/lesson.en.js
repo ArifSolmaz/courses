@@ -3,14 +3,14 @@
   const model=window.FreshWeek11;
   if(!model||typeof model.traceDijkstra!=='function'||typeof model.shortestPath!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31];
-  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32];
+  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,20,24,26],independentEdges=[[18,7,6],[18,24,2],[24,7,1],[7,26,2],[24,26,7],[26,4,1]];
   const cases={
-    main:{vertices,edges,source:24,text:'Source 24; all links exist. Inspect neighbors in increasing ID order; in the queue, smaller distances come first, then smaller IDs. For 31, will the first value 8 change?'},
+    main:{vertices,edges,source:24,text:'Source 24; all links exist. Inspect neighbors in increasing ID order; in the queue, smaller distances come first, then smaller IDs. For 32, will the first value 8 change?'},
     ties:{vertices,edges,source:24,order:'descending',text:'Source 24, the same network. Larger IDs come first only for equal queue distances. Smaller distances still have priority. How do the final costs and predecessors change?'},
-    source11:{vertices,edges,source:11,text:'The same network; the source is now 11. The dark device 24 in the drawing is not this example’s source. The direct path to 31 costs 5; compare it with the path costing 9 in the earlier network of minimum total cost.'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,text:'Source 24; link 31–26 has been removed. Device 26 is listed but has no edges. When can we call it unreachable?'},
+    source11:{vertices,edges,source:11,text:'The same network; the source is now 11. The dark device 24 in the drawing is not this example’s source. The direct path to 32 costs 5; compare it with the path costing 9 in the earlier network of minimum total cost.'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,text:'Source 24; link 32–26 has been removed. Device 26 is listed but has no edges. When can we call it unreachable?'},
     zero:{vertices,edges:edges.map(([a,b,w])=>[a,b,a===7&&b===4?0:w]),source:24,text:'Source 24; only the cost of 4–7 has become 0. Zero cost is a real edge; d[4]=d[7] is possible. Keep the predecessor when a candidate is equal.'},
     single:{vertices:[24],edges:[],source:24,text:'A single device, source 24; no edges. The empty path to itself costs 0. Once the source is extracted from the queue, all reachable work is complete.'},
     noedges:{vertices,edges:[],source:24,text:'Eight devices, no edges, source 24. The source has 0; the others are reported as unreachable only after the queue empties.'}
@@ -69,7 +69,7 @@
   }
   function reset(){
     task=cases[$('dijkstra-case').value];trace=model.traceDijkstra(task.vertices,task.edges,task.source,{tieOrder:task.order||'ascending'});seen=0;
-    const target=$('dijkstra-target');target.replaceChildren();trace.vertices.forEach(id=>{const option=el('option',String(id));option.value=String(id);target.append(option);});target.value=String(trace.vertices.includes(31)?31:trace.source);render();
+    const target=$('dijkstra-target');target.replaceChildren();trace.vertices.forEach(id=>{const option=el('option',String(id));option.value=String(id);target.append(option);});target.value=String(trace.vertices.includes(32)?32:trace.source);render();
   }
   function number(id,min,max){const input=$(id),raw=input.value.trim(),n=Number(raw),valid=raw!==''&&!input.validity.badInput&&Number.isSafeInteger(n)&&n>=min&&n<=max;input.setAttribute('aria-invalid',String(!valid));return{id,value:n,valid};}
   function feedback(id,text,error){$(id).textContent=text;$(id).dataset.state=error?'error':'ok';}
@@ -85,9 +85,9 @@
   $('guided-form').addEventListener('submit',event=>{
     event.preventDefault();const distance=number('guided-distance',0,100),parent=number('guided-parent',0,100),invalid=[distance,parent].find(item=>!item.valid);
     if(invalid){feedback('guided-feedback','Fill both boxes with integers from 0 to 100. The missing or invalid box is marked.',true);$(invalid.id).focus();return;}
-    const step=model.traceDijkstra(vertices,edges,24).steps.find(step=>step.type==='relax'&&step.from===20&&step.to===31);
+    const step=model.traceDijkstra(vertices,edges,24).steps.find(step=>step.type==='relax'&&step.from===20&&step.to===32);
     if(distance.value===step.distance&&parent.value===step.from)feedback('guided-feedback','Both numbers are correct. Also compare your candidate formula, predecessor path and single queue entry with the solution; your written reasoning was not graded automatically.',false);
-    else feedback('guided-feedback',distance.value!==step.distance?'The candidate is not just the last edge’s cost: d[20]+w(20,31)=4+2. Compare it with the value 8 already found.':'The cheaper candidate came via 20. Update the predecessor along with the new distance.',true);
+    else feedback('guided-feedback',distance.value!==step.distance?'The candidate is not just the last edge’s cost: d[20]+w(20,32)=4+2. Compare it with the value 8 already found.':'The cheaper candidate came via 20. Update the predecessor along with the new distance.',true);
   });
   $('independent-form').addEventListener('submit',event=>{
     event.preventDefault();const expected=model.traceDijkstra(independentVertices,independentEdges,18);

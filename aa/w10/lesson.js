@@ -3,14 +3,14 @@
   const model=window.FreshWeek10;
   if(!model||typeof model.traceKruskal!=='function'||typeof model.validateForest!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31];
-  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32];
+  const edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,20,24,26],independentEdges=[[18,7,1],[7,24,2],[18,24,3],[24,26,4],[26,4,5],[4,18,6]];
   const cases={
     main:{vertices,edges,text:'Ana yönsüz ağ. Maliyetler artan; eşitlikte küçük uç, sonra büyük uç artan sırada. Bütün 10 adayı işle.'},
     reverse:{vertices,edges,order:'descending',text:'Aynı ağ; yalnız eşit maliyetlerin uç sırası ters. Maliyetler yine küçükten büyüğe. Aynı toplamla farklı kablolar seçilebilir mi?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),text:'31–26 adayını kaldırdık. 26 hâlâ cihaz listesinde; ona hiç kablo adayı yok. Tek ağaç kurabilir miyiz?'},
-    split:{vertices,edges:edges.filter(([a,b])=>!(a===24&&b===20)&&!(a===11&&b===31)),text:'20–24 ve 11–31 adaylarını kaldırdık. İki ayrı giriş bileşeni var; her birinin minimum ağını bul.'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),text:'32–26 adayını kaldırdık. 26 hâlâ cihaz listesinde; ona hiç kablo adayı yok. Tek ağaç kurabilir miyiz?'},
+    split:{vertices,edges:edges.filter(([a,b])=>!(a===24&&b===20)&&!(a===11&&b===32)),text:'20–24 ve 11–32 adaylarını kaldırdık. İki ayrı giriş bileşeni var; her birinin minimum ağını bul.'},
     single:{vertices:[18],edges:[],text:'Tek cihaz 18, aday yok. Bütün cihazları kapsamak için sıfır kablo yeterli.'},
     noedges:{vertices,edges:[],text:'Sekiz cihaz, hiç aday yok. Cihazları silmeden kopuk sonucu raporla.'},
     zero:{vertices,edges:edges.map(([a,b,w])=>[a,b,a===7&&b===4?0:w]),text:'Yalnız 4–7 maliyeti 0 oldu. Sıfır maliyetli aday yok sayılmaz; seçimi ve toplamı yeniden kur.'}

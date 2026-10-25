@@ -597,8 +597,8 @@ const cards = [
       }
     ],
     "lesson": "Input encoding matters when discussing complexity.",
-    "check": "If total work is 31, can two integer-load groups be equal?",
-    "answer": "No. Equal groups would each require 15.5, impossible for sums of integer durations.",
+    "check": "If total work is odd, can two integer-load groups be equal?",
+    "answer": "No. Half of an odd integer is not an integer, whereas each group sums integer durations.",
     "extra": "This two-machine assignment is a restricted scheduling model. General job-shop scheduling also includes machine routes and operation-order constraints.",
     "refs": [
       "4-3",

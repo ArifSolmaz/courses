@@ -3,15 +3,15 @@
   const model=window.FreshWeek13;
   if(!model||typeof model.traceDP!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2]];
   const cases={
-    main:{vertices,edges,source:24,target:31,k:4,text:'Main network · source 24, target 31, exactly 4 edges. Which column should you read when adding the last edge?'},
-    none:{vertices,edges,source:24,target:31,k:3,text:'Same network · source 24, target 31, exactly 3 edges. Does the cheap two-edge answer solve this question?'},
-    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:31,k:4,text:'Every edge costs 0 · source 24, target 31, exactly 4 edges. Ties keep the first predecessor; unreachable cells still contain ∞.'},
+    main:{vertices,edges,source:24,target:32,k:4,text:'Main network · source 24, target 32, exactly 4 edges. Which column should you read when adding the last edge?'},
+    none:{vertices,edges,source:24,target:32,k:3,text:'Same network · source 24, target 32, exactly 3 edges. Does the cheap two-edge answer solve this question?'},
+    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:32,k:4,text:'Every edge costs 0 · source 24, target 32, exactly 4 edges. Ties keep the first predecessor; unreachable cells still contain ∞.'},
     self:{vertices,edges,source:24,target:24,k:0,text:'Source and target 24 · k=0. Check the empty walk, which traverses no edges, in the base cell.'},
-    wrongzero:{vertices,edges,source:24,target:31,k:0,text:'Source 24, target 31 · k=0. What base cost applies outside the source?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,target:26,k:4,text:'Edge 31–26 removed · source 24, target 26, k=4. Device 26 is listed but isolated; how do you finish a cell with no neighbors?'},
+    wrongzero:{vertices,edges,source:24,target:32,k:0,text:'Source 24, target 32 · k=0. What base cost applies outside the source?'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,target:26,k:4,text:'Edge 32–26 removed · source 24, target 26, k=4. Device 26 is listed but isolated; how do you finish a cell with no neighbors?'},
     return:{vertices,edges,source:24,target:24,k:4,text:'Same network · source and target 24, exactly 4 edges. Does starting at the source allow a free 0 in the final column?'}
   };
   let task,trace,seen=0,viewColumn=0,solutionSeen=false;

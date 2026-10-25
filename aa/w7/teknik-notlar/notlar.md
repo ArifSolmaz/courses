@@ -476,18 +476,18 @@ Diğer on iki sayaç sıfır kalır. Sayaçları anahtar sırasıyla okuruz: 0 b
 
 [Ders sayfasındaki örnek 24](../onceki-ders.html#example-24) · [İlgili ders notu](../lecture-notes.html#topic-5-4)
 
-**Problem.** `[0.42,0.12,0.88,0.31,0.74]` değerlerini dört eşit aralık kovasına dağıtıyoruz. Giriş aralığı `[0,1)`; 0 dahil, 1 hariç. Kova numarası `floor(4x)`.
+**Problem.** `[0.42,0.12,0.88,0.30,0.74]` değerlerini dört eşit aralık kovasına dağıtıyoruz. Giriş aralığı `[0,1)`; 0 dahil, 1 hariç. Kova numarası `floor(4x)`.
 
 | Kova | Aralık | İlk içerik | Sıralı içerik |
 |---:|---|---|---|
 | 0 | [0,0.25) | 0.12 | 0.12 |
-| 1 | [0.25,0.50) | 0.42,0.31 | 0.31,0.42 |
+| 1 | [0.25,0.50) | 0.42,0.30 | 0.30,0.42 |
 | 2 | [0.50,0.75) | 0.74 | 0.74 |
 | 3 | [0.75,1) | 0.88 | 0.88 |
 
-**Adımlar.** Önce değerleri aralıklarına göre dağıtırız. Sonra her kovayı kendi içinde sıralarız. Son olarak kovaları 0,1,2,3 sırasıyla birleştiririz: `[0.12,0.31,0.42,0.74,0.88]`.
+**Adımlar.** Önce değerleri aralıklarına göre dağıtırız. Sonra her kovayı kendi içinde sıralarız. Son olarak kovaları 0,1,2,3 sırasıyla birleştiririz: `[0.12,0.30,0.42,0.74,0.88]`.
 
-**Neden doğru?** Önceki kovanın aralığı sonraki kovadan önce gelir. Bu yüzden farklı kovalar arasındaki sıra bellidir. Ama 0.42 ile 0.31 aynı kovaya girdiği için aralarındaki düzeni dağıtım tek başına çözmez; iç sıralama gereklidir.
+**Neden doğru?** Önceki kovanın aralığı sonraki kovadan önce gelir. Bu yüzden farklı kovalar arasındaki sıra bellidir. Ama 0.42 ile 0.30 aynı kovaya girdiği için aralarındaki düzeni dağıtım tek başına çözmez; iç sıralama gereklidir.
 
 **Sınırlar.** 0.50 için floor(2) = 2; ikinci aralığın sağ ucu hariç olduğundan kova 2'ye gider. 1.00 bu problemde kabul edilmez: formül 4 üretir, oysa geçerli kovalar 0…3'tür. Sınırları belirsiz bırakmak indeks hatasına yol açar.
 

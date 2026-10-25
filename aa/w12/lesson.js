@@ -3,18 +3,18 @@
   const model=window.FreshWeek12;
   if(!model||typeof model.traceWalks!=='function')return;
   const $=id=>document.getElementById(id);
-  const vertices=[4,7,11,18,20,24,26,31],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,31,2],[18,24,3],[24,11,3],[24,20,4],[31,26,4],[11,31,5]];
+  const vertices=[4,7,11,18,20,24,26,32],edges=[[7,4,1],[18,7,2],[7,11,2],[4,11,2],[20,32,2],[18,24,3],[24,11,3],[24,20,4],[32,26,4],[11,32,5]];
   const independentVertices=[4,7,18,24],independentEdges=[[18,24,3],[24,7,1],[7,4,2]];
   const cases={
-    main:{vertices,edges,source:24,target:31,k:4,text:'Ana ağ; kaynak24, hedef31, tam4 kenar. İlk12 maliyetli aday son söz mü? Hedefe erken geldiğinde kalan r’ye bak.'},
-    two:{vertices,edges,source:24,target:31,k:2,text:'Aynı ağ, kaynak24/hedef31; yalnız k=2. Kâğıttaki küçük ağacın bütün sekiz terminalini karşılaştır.'},
-    none:{vertices,edges,source:24,target:31,k:3,text:'Aynı ağ, kaynak24/hedef31; k=3. Cihazlar bağlantılı olsa da bu tam kenar sayısında çözüm var mı?'},
-    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:31,k:4,text:'Aynı ağın bütün kenar bedelleri0 oldu; kaynak24/hedef31,k=4. Bir geçerli0 adaydan sonra eşit bedelli iç dalları neden atlayabiliriz?'},
-    self:{vertices,edges,source:24,target:24,k:0,text:'Kaynak ve hedef24, k=0. Hiç kenar geçmeden boş yürüyüş geçerli. Bu örnekte şeklin hedef31 açıklaması kullanılmıyor.'},
-    wrongzero:{vertices,edges,source:24,target:31,k:0,text:'Kaynak24, hedef31,k=0. Kök terminaldir ama hedefte değil. Boş yürüyüş bu hedefe cevap olabilir mi?'},
-    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===31&&b===26)),source:24,target:26,k:4,text:'31–26 kaldırıldı; kaynak24, hedef26,k=4. 26 listede var ama yalıtık. Tam arama bittiğinde sonucu açıkla.'}
+    main:{vertices,edges,source:24,target:32,k:4,text:'Ana ağ; kaynak24, hedef32, tam4 kenar. İlk12 maliyetli aday son söz mü? Hedefe erken geldiğinde kalan r’ye bak.'},
+    two:{vertices,edges,source:24,target:32,k:2,text:'Aynı ağ, kaynak24/hedef32; yalnız k=2. Kâğıttaki küçük ağacın bütün sekiz terminalini karşılaştır.'},
+    none:{vertices,edges,source:24,target:32,k:3,text:'Aynı ağ, kaynak24/hedef32; k=3. Cihazlar bağlantılı olsa da bu tam kenar sayısında çözüm var mı?'},
+    zero:{vertices,edges:edges.map(([u,v])=>[u,v,0]),source:24,target:32,k:4,text:'Aynı ağın bütün kenar bedelleri0 oldu; kaynak24/hedef32,k=4. Bir geçerli0 adaydan sonra eşit bedelli iç dalları neden atlayabiliriz?'},
+    self:{vertices,edges,source:24,target:24,k:0,text:'Kaynak ve hedef24, k=0. Hiç kenar geçmeden boş yürüyüş geçerli. Bu örnekte şeklin hedef32 açıklaması kullanılmıyor.'},
+    wrongzero:{vertices,edges,source:24,target:32,k:0,text:'Kaynak24, hedef32,k=0. Kök terminaldir ama hedefte değil. Boş yürüyüş bu hedefe cevap olabilir mi?'},
+    isolated:{vertices,edges:edges.filter(([a,b])=>!(a===32&&b===26)),source:24,target:26,k:4,text:'32–26 kaldırıldı; kaynak24, hedef26,k=4. 26 listede var ama yalıtık. Tam arama bittiğinde sonucu açıkla.'}
   };
-  Object.values(cases).forEach(task=>{task.text=task.text.replace(/(kaynak|Kaynak|hedef|hedefi|bedelleri|geçerli|adaydan sonra eşit bedelli iç dalları neden atlayabiliriz)(\d)/g,'$1 $2').replace('tam4','tam 4').replace('İlk12','İlk 12').replace('hedef24','hedef 24').replace('hedef31','hedef 31').replace('geçerli0','geçerli 0');});
+  Object.values(cases).forEach(task=>{task.text=task.text.replace(/(kaynak|Kaynak|hedef|hedefi|bedelleri|geçerli|adaydan sonra eşit bedelli iç dalları neden atlayabiliriz)(\d)/g,'$1 $2').replace('tam4','tam 4').replace('İlk12','İlk 12').replace('hedef24','hedef 24').replace('hedef32','hedef 32').replace('geçerli0','geçerli 0');});
   let task,trace,fullTrace,seen=0,solutionSeen=false;
   function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
   function pathText(ids){return ids.join(' → ');}

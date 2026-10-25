@@ -50,7 +50,7 @@ Saklanan anahtarlar: 20      30                50
                             └── ardılı ──────→ 50
 ```
 
-**Önemli ayrım.** 30'un ardılı 31 değildir; 31 kayıtlı değil. Aynı şekilde en küçük kimlikli sensörün sıcaklığı mutlaka en düşük değildir. Ağaç kimliğe göre kurulmuşsa sıcaklığa göre minimum bulmak için başka bir düzenleme veya kayıtları tarama gerekebilir.
+**Önemli ayrım.** 30'un ardılı 32 değildir; 32 kayıtlı değil. Aynı şekilde en küçük kimlikli sensörün sıcaklığı mutlaka en düşük değildir. Ağaç kimliğe göre kurulmuşsa sıcaklığa göre minimum bulmak için başka bir düzenleme veya kayıtları tarama gerekebilir.
 
 **Ne alınmalı?** Veri yapısını seçmeden önce hangi soruların sorulacağını tanımlayın. Sadece kimlikle arama ile kimlikler arasında sırayla ilerleme aynı gereksinim değildir. İşlemlerin adı tek başına ne kadar hızlı olduklarını söylemez; kullanılan yapı belirleyicidir.
 
@@ -526,29 +526,29 @@ P(en az bir çakışma) = 1 − 0,492703 ≈ 0,507297 ≈ %50,73
 
 **Problem.** `ABRACADABRA` içinde `ABRA` arıyoruz. Metin uzunluğu N = 11, desen uzunluğu M = 4. Dört harflik pencereyi birer karakter kaydırırsak `N − M + 1 = 8` aday pencere oluşur. Konumlar 0'dan başlar.
 
-| Başlangıç | Pencere | Hash (taban 31, mod 101) | Karar |
+| Başlangıç | Pencere | Hash (taban 32, mod 4861) | Karar |
 |---:|---|---:|---|
-| 0 | ABRA | 22 | Desenle harf harf aynı; eşleşme |
-| 1 | BRAC | 22 | Hash aynı, harfler farklı; çakışmayı ele |
-| 2 | RACA | 43 | Hash farklı; ele |
-| 3 | ACAD | 55 | Hash farklı; ele |
-| 4 | CADA | 33 | Hash farklı; ele |
-| 5 | ADAB | 4 | Hash farklı; ele |
-| 6 | DABR | 85 | Hash farklı; ele |
-| 7 | ABRA | 22 | Desenle harf harf aynı; eşleşme |
+| 0 | ABRA | 3021 | Desenle harf harf aynı; eşleşme |
+| 1 | BRAC | 3021 | Hash aynı, harfler farklı; çakışmayı ele |
+| 2 | RACA | 4419 | Hash farklı; ele |
+| 3 | ACAD | 3504 | Hash farklı; ele |
+| 4 | CADA | 3892 | Hash farklı; ele |
+| 5 | ADAB | 4526 | Hash farklı; ele |
+| 6 | DABR | 2586 | Hash farklı; ele |
+| 7 | ABRA | 3021 | Desenle harf harf aynı; eşleşme |
 
-**Hash nasıl hesaplanır?** ASCII kodları A = 65, B = 66, R = 82, C = 67, D = 68. Dört harf için `H = (c₀·31³ + c₁·31² + c₂·31 + c₃) mod 101`. ABRA için sonuç 22'dir. Üsler harfin konumunu ayırt eder; yalnızca karakter kodlarını toplamak sıralama bilgisini kaybeder.
+**Hash nasıl hesaplanır?** ASCII kodları A = 65, B = 66, R = 82, C = 67, D = 68. Dört harf için `H = (c₀·31³ + c₁·31² + c₂·32 + c₃) mod 4861`. ABRA için sonuç 3021'dir. Üsler harfin konumunu ayırt eder; yalnızca karakter kodlarını toplamak sıralama bilgisini kaybeder.
 
-**Her pencereyi baştan hesaplamıyoruz.** Soldan çıkan harfin katkısını çıkarır, kalan ifadeyi 31 ile çarpar ve yeni harfi ekleriz. `31³ mod 101 = 97` önceden hesaplanır:
+**Her pencereyi baştan hesaplamıyoruz.** Soldan çıkan harfin katkısını çıkarır, kalan ifadeyi 32 ile çarpar ve yeni harfi ekleriz. `31³ mod 4861 = 3602` önceden hesaplanır:
 
 ```text
-H_yeni = ((H_eski − çıkan_harf × 97) × 31 + giren_harf) mod 101
-ABRA → BRAC: ((22 − 65 × 97) × 31 + 67) mod 101 = 22
+H_yeni = ((H_eski − çıkan_harf × 3602) × 32 + giren_harf) mod 4861
+ABRA → BRAC: ((3021 − 65 × 3602) × 32 + 67) mod 4861 = 3021
 ```
 
-Bu, **rolling hash**, yani kaydırılarak güncellenen hash fikridir. Python'da pozitif modül ile `%` sonucu 0…100 aralığına getirir; başka bir dilde negatif kalan davranışına dikkat etmek gerekebilir.
+Bu, **rolling hash**, yani kaydırılarak güncellenen hash fikridir. Python'da pozitif modül ile `%` sonucu 0…4860 aralığına getirir; başka bir dilde negatif kalan davranışına dikkat etmek gerekebilir.
 
-**Neden harfleri yine kontrol ediyoruz?** Farklı hash değerleri farklı metinleri garanti eder; aynı hash değeri eşit metin garantisi vermez. Bu nedenle 22 çıkan pencerelerde gerçek karakter eşitliği doğrulanır. Özellikle BRAC de 22 verir ama ABRA değildir; daha ilk harfte B ≠ A olduğu görülür ve aday elenir. Bu örnek çakışmanın yalnızca teorik bir ihtimal olmadığını doğrudan gösterir. Böylece hash çakışması yanlış eşleşme sonucuna dönüşmez.
+**Neden harfleri yine kontrol ediyoruz?** Farklı hash değerleri farklı metinleri garanti eder; aynı hash değeri eşit metin garantisi vermez. Bu nedenle 3021 çıkan pencerelerde gerçek karakter eşitliği doğrulanır. Özellikle BRAC de 3021 verir ama ABRA değildir; daha ilk harfte B ≠ A olduğu görülür ve aday elenir. Bu örnek çakışmanın yalnızca teorik bir ihtimal olmadığını doğrudan gösterir. Böylece hash çakışması yanlış eşleşme sonucuna dönüşmez.
 
 **Maliyet.** Sabit boyutlu aritmetik varsayımıyla ilk hesap ve hazırlık O(M), her kaydırma O(1)'dir. Fakat hash eşleşmelerindeki harf kontrolü O(M) sürebilir. Bu yüzden doğrulamalı yöntemin en kötü toplam maliyeti O(NM)'ye çıkabilir; her durumda doğrusal çalışma garantisi vermez. Bu örnekte doğru eşleşmeler 0 ve 7'dir.
 

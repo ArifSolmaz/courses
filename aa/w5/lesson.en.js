@@ -5,17 +5,17 @@
   const $ = id => document.getElementById(id);
   const entries = [
     { key: 18, value: 'pump' }, { key: 7, value: 'greenhouse' }, { key: 24, value: 'warehouse' },
-    { key: 4, value: 'roof' }, { key: 11, value: 'well' }, { key: 20, value: 'garden' }, { key: 31, value: 'gate' }
+    { key: 4, value: 'roof' }, { key: 11, value: 'well' }, { key: 20, value: 'garden' }, { key: 32, value: 'gate' }
   ];
   const added = { key: 26, value: 'room' };
   const cases = {
-    found: { entries, kind: 'get', key: 31 },
+    found: { entries, kind: 'get', key: 32 },
     missing: { entries, kind: 'get', key: 16 },
     insert: { entries, kind: 'set', key: 26, value: 'room' },
     after: { entries: entries.concat([added]), kind: 'get', key: 26 },
-    update: { entries, kind: 'set', key: 31, value: 'workshop' },
-    sorted: { entries: entries.slice().sort((a, b) => a.key - b.key), kind: 'get', key: 31 },
-    empty: { entries: [], kind: 'get', key: 31 }
+    update: { entries, kind: 'set', key: 32, value: 'workshop' },
+    sorted: { entries: entries.slice().sort((a, b) => a.key - b.key), kind: 'get', key: 32 },
+    empty: { entries: [], kind: 'get', key: 32 }
   };
   let trace, task, seen = 0, solutionSeen = false;
   function el(tag, text) {
@@ -53,7 +53,7 @@
     const counts = last ? last.counts : { nodeComparisons: 0, bucketKeyChecks: 0, hashComputations: 0, recordSets: 0 };
     const selected = $('lookup-case').value;
     $('lookup-task').textContent = (task.kind === 'get' ? 'get(' + task.key + ')' : 'set(' + task.key + ', “' + task.value + '”)')
-      + '. ' + (selected === 'after' ? '26 has already been inserted; only the search is counted now.' : selected === 'sorted' ? 'The same records were inserted in ascending ID order.' : selected === 'empty' ? 'There are no records initially.' : 'Initial insertion order: 18, 7, 24, 4, 11, 20, 31.');
+      + '. ' + (selected === 'after' ? '26 has already been inserted; only the search is counted now.' : selected === 'sorted' ? 'The same records were inserted in ascending ID order.' : selected === 'empty' ? 'There are no records initially.' : 'Initial insertion order: 18, 7, 24, 4, 11, 20, 32.');
     const board = $('lookup-board'); board.replaceChildren();
     const written = last && last.op === 'set-record' ? last.key : null;
     if (trace.structure === 'bst') {
@@ -146,7 +146,7 @@
     } else {
       feedback('guided-feedback', tree.value !== model.traceGet(source, 26, 'bst').counts.nodeComparisons
         ? 'Count only the search after insertion is complete. Follow the path to the new node; the matching node is compared too.'
-        : 'Do not add the hash computation to the equality counter. Check 11, 31 and the new key in bucket order.', true);
+        : 'Do not add the hash computation to the equality counter. Check 11 and the new key in bucket order.', true);
     }
   });
   $('independent-form').addEventListener('submit', event => {
