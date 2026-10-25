@@ -53,8 +53,9 @@ new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!=
 // Keep authored explanations attached to the original code, never to shifted edited lines.
 function addLineFocus(pane,editor,i,walk){
   const original=ORIGINAL.cells[i].source.join('');
+  const change=ORIGINAL.cells[i].metadata?.cp1_guided_change;
   const controls=document.createElement('div');controls.className='focus-controls';
-  const hint=document.createElement('span');hint.textContent=CONFIG.week===14?'Select a line number; scroll the code to see more.':'Select a line number to read its explanation.';
+  const hint=document.createElement('span');hint.textContent=CONFIG.week===14?'Click a line number or code text; scroll to see more.':'Click a line number or code text to read its explanation.';
   const toggle=document.createElement('button');toggle.textContent='Edit code';toggle.setAttribute('aria-expanded','false');
   controls.append(hint,toggle);
   const listing=document.createElement('div');listing.className='numbered-code';listing.setAttribute('aria-label','Numbered code for cell '+(i+1));if(CONFIG.week===14){listing.tabIndex=0;listing.setAttribute('role','region');}
@@ -69,21 +70,40 @@ function addLineFocus(pane,editor,i,walk){
     listing.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.line)===n)));
     const title=document.createElement('strong');title.textContent='Line '+n;
     const body=document.createElement('div');
-    const text=editor.value!==original?'Code has been edited. The original explanation may no longer apply. Restore the original code to use the walkthrough.':walk.line_focus[n]||walk.comment_help?.[n]||walk.starter_help||'This line continues the statement above or separates parts of the program.';
+    const activeWalk=editor.value===original?walk:editor.value===change?.source?change.help:null;
+    const text=!activeWalk?'Custom code: run again to update output links. Restore original code to use its authored explanations.':activeWalk.line_focus[n]||activeWalk.comment_help?.[n]||activeWalk.starter_help||'This line continues the statement above or separates parts of the program.';
     body.innerHTML=DOMPurify.sanitize(marked.parse(text));explanation.replaceChildren(title,body);
   }
   function draw(){
     listing.replaceChildren();
     editor.value.replace(/\n$/,'').split('\n').forEach((text,index)=>{
       const row=document.createElement('div');row.className='numbered-line';
-      const number=document.createElement('button');number.textContent=index+1;number.dataset.line=index+1;number.setAttribute('aria-label','Explain line '+(index+1)+' in cell '+(i+1));number.onclick=()=>selectLine(index+1);
+      const number=document.createElement('button');number.textContent=index+1;number.dataset.line=index+1;number.setAttribute('aria-label','Explain line '+(index+1)+' in cell '+(i+1));row.onclick=()=>selectLine(index+1);
       const code=document.createElement('code');code.textContent=text||' ';row.append(number,code);listing.append(row);
     });selectLine(Math.min(selected,listing.children.length));
   }
   function setEditing(value){editing=value;editingPane.hidden=!editing;listing.hidden=editing;toggle.textContent=editing?'Read code':'Edit code';toggle.setAttribute('aria-expanded',String(editing));if(editing){numberEditor();fitEditor(editor);editor.focus();}else draw();}
-  toggle.onclick=()=>setEditing(!editing);editor.showForEditing=()=>setEditing(true);
-  editor.addEventListener('input',()=>{numberEditor();selectLine(selected);});
+  toggle.onclick=()=>setEditing(!editing);editor.showForEditing=()=>setEditing(true);editor.showForReading=()=>setEditing(false);
+  editor.addEventListener('input',()=>{numberEditor();if(editing)selectLine(selected);else draw();});
   pane.insertBefore(controls,editingPane);pane.append(listing,explanation);draw();
+}
+// Apply only the approved exact replacement. Never overwrite a student's custom edit.
+function addGuidedChange(pane,editor,i){
+  const original=ORIGINAL.cells[i].source.join(''),change=ORIGINAL.cells[i].metadata.cp1_guided_change;
+  const box=document.createElement('section');box.className='guided-change';
+  const title=document.createElement('h3');title.textContent='Change one thing';
+  const preview=document.createElement('pre');preview.textContent='Before: '+change.old+'\nAfter:  '+change.new;
+  const button=document.createElement('button');button.textContent='Apply suggested change';button.setAttribute('aria-label','Apply suggested change in cell '+(i+1));
+  const note=document.createElement('p');note.setAttribute('aria-live','polite');
+  function sync(){
+    button.disabled=editor.value!==original;
+    note.textContent=editor.value===change.source?'Suggested change applied. Predict again, then press Run. Undo or Restore will bring back the starting code.':editor.value===original?'Predict the new result, apply this one change, then press Run. Edit code is also available.':'You have a custom edit. Keep it, or use Restore original code before applying the suggested change.';
+  }
+  button.onclick=()=>{
+    if(editor.value!==original)return;
+    editor.value=change.source;editor.dispatchEvent(new Event('input'));editor.showForReading?.();sync();
+  };
+  editor.addEventListener('input',sync);box.append(title,preview,button,note);pane.append(box);sync();
 }
 function render(){
   $('notebook').replaceChildren();runSources.clear();selectedOutputLines.clear();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
@@ -104,7 +124,7 @@ function render(){
       bar.append(label,run);
       const editor=document.createElement('textarea');editor.value=cell.source.join('');editor.spellcheck=false;editor.setAttribute('aria-label','Code cell '+(i+1));editor.rows=Math.max(3,editor.value.split('\n').length);
       editor.oninput=()=>{cell.source=[editor.value];fitEditor(editor);syncInputs(i);markDirty();};
-      editor.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();editor.setRangeText('    ',editor.selectionStart,editor.selectionEnd,'end');editor.dispatchEvent(new Event('input'));} if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runCell(i);}};
+      editor.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();editor.setRangeText('    ',editor.selectionStart,editor.selectionEnd,'end');editor.dispatchEvent(new Event('input'));} if(CONFIG.codeHistory&&e.key==='Enter'&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();const start=editor.selectionStart,end=editor.selectionEnd;const before=editor.value.slice(0,start).split('\n').at(-1);const indent=(before.match(/^ */)||[''])[0]+(before.trimEnd().endsWith(':')?'    ':'');editor.setRangeText('\n'+indent,start,end,'end');editor.dispatchEvent(new Event('input'));} if(e.key==='Enter'&&e.shiftKey){e.preventDefault();runCell(i);}};
       const details=document.createElement('section');details.className='cell-inputs';const summary=document.createElement('h3');summary.textContent='Input values';
       const input=document.createElement('textarea');input.rows=2;input.setAttribute('aria-label','Input values for cell '+(i+1));input.placeholder='One response per line';input.value=(cell.metadata?.offline_inputs||[]).join('\n');input.oninput=()=>{cell.metadata.offline_inputs=input.value===''?[]:input.value.split('\n');fitEditor(input);markDirty();};details.hidden=!codeNeedsInput(editor.value);const help=document.createElement('p');help.className='input-help';help.textContent='One response per input() call, in order. Edit the sample values to try another case.';details.append(summary,help,input);
       const output=document.createElement('pre');output.className='output';output.setAttribute('aria-label','Output for cell '+(i+1));output.setAttribute('aria-live','polite');output.textContent=(cell.outputs||[]).filter(o=>o.output_type!=='display_data').map(o=>o.text?.join?.('')||o.text||o.traceback?.join('\n')||'').join('');
@@ -112,8 +132,9 @@ function render(){
       if(CONFIG.codeHistory)addCodeHistory(bar,editor,i);
       const layout=document.createElement('div');layout.className='cell-layout';
       const codePane=document.createElement('div');codePane.className='code-pane';const codeTitle=document.createElement('h3');codeTitle.textContent='Code';codeTitle.className='output-title';codePane.append(codeTitle,editor);
-      const walkthrough=notebook.cells[i+1]?.metadata?.cp1_line_walkthrough;
+      const walkthrough=cell.metadata?.cp1_code_help||notebook.cells[i+1]?.metadata?.cp1_line_walkthrough;
       if(walkthrough?.line_focus)addLineFocus(codePane,editor,i,walkthrough);
+      if(cell.metadata?.cp1_guided_change)addGuidedChange(codePane,editor,i);
       const resultPane=document.createElement('div');resultPane.className='result-pane';
       const outputTitle=document.createElement('h3');outputTitle.textContent='Output';outputTitle.className='output-title';
       const error=document.createElement('div');error.className='error-panel';error.hidden=true;error.setAttribute('role','alert');
@@ -150,7 +171,7 @@ function boot(){
 function runCell(i){
   if(!ready||busy)return;busy=true;active=i;controls();$('cell-'+i).classList.add('running');$('status').textContent='Running cell '+(i+1)+'…';
   const editNote=$('cell-'+i).querySelector('.code-edit-note');if(editNote)editNote.hidden=true;
-  const cell=notebook.cells[i],{editor,input}=editors.get(i);cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);if(selectedOutputLines.has(i))highlightOutput(i,selectedOutputLines.get(i));markDirty();
+  const cell=notebook.cells[i],{editor,input}=editors.get(i);editor.showForReading?.();cell.source=[editor.value];cell.outputs=[];cell.execution_count=++execution;outputs.get(i).textContent='';outputs.get(i).classList.remove('has-run');plots.get(i).replaceChildren();errors.get(i).hidden=true;errors.get(i).replaceChildren();runSources.set(i,editor.value);if(selectedOutputLines.has(i))highlightOutput(i,selectedOutputLines.get(i));markDirty();
   worker.postMessage({type:'run',id:i,realm:cell.metadata?.offline_realm||'lesson',code:editor.value,inputs:input.value===''?[]:input.value.split('\n')});
 }
 function addPlot(id,png,lines=[]){

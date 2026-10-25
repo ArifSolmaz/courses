@@ -29,7 +29,7 @@ function addCodeHistory(bar,editor,i){
   function sync(){undo.disabled=!history.canUndo;restore.disabled=history.isOriginal;}
   function apply(value,message){
     applying=true;editor.value=value;editor.dispatchEvent(new Event('input'));applying=false;
-    editor.showForEditing?.();editor.focus();
+    if(editor.getClientRects().length)editor.focus();
     note.textContent=message+' Press Run to update the output.';note.hidden=false;sync();
   }
   editor.addEventListener('input',()=>{

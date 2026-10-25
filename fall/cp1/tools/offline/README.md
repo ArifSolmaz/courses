@@ -107,9 +107,30 @@ Rebuild with `python3 fall/cp1/tools/offline/build.py --week 12`, then run
 and changed programs in isolated folders, repeat-run behavior, CSV round trips,
 raw/clean/rejected files, the English steps, and the generated HTML.
 
+### Clickable code and easier edits, Weeks 6–14
+
+All nine pages show numbered code with a selected-line explanation. Clicking the
+code text or its number also highlights the output actually produced by that line
+after Run. A line with no printed output says so; file writes are not stdout.
+
+Weeks 6–12 attach maintained English help to both the original example and its
+approved single-change variant. **Apply suggested change** performs that exact
+replacement and preserves quotes and indentation. It does not run the code.
+The control never overwrites custom edits; restore first to use it again.
+Undo and Restore keep the numbered reading view, and Run returns from the editor
+to that view. Custom edits retain output links after rerunning; authored explanations
+are suspended when they no longer match. Free editing remains available on all
+nine pages with line numbers, Tab indentation, and automatic indentation on Enter.
+Weeks 13–14 retain their existing lesson/solution walkthroughs and gain Undo/Restore.
+
+Run `python3 fall/cp1/tools/offline/verify_guided_support.py` for exact HTML parity,
+complete explanation coverage and real traced output for all original/changed
+guided examples. `verify_code_history.cjs` checks history and all nine bundles.
+`verify_guided_change.cjs` checks the apply/undo/restore path and custom-edit protection.
+
 ## Interface and persistence
 
-Weeks 6–12 provide per-cell **Undo last change** and **Restore original code**
+Weeks 6–14 provide per-cell **Undo last change** and **Restore original code**
 buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
 recent edit events in that cell. Restoring the original code can itself be undone.
 The original always comes from the page's authored example, even after opening
