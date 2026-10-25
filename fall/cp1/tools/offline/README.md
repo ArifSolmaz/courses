@@ -176,6 +176,33 @@ programs execute with their original prerequisites and seeded inputs; changed ou
 line attribution and 136 following answer-check executions are verified. The full
 `verify_content_parity.py` continues to verify all original tasks and saved outputs.
 
+### Full consistency audit, Weeks 1–14
+
+Run `python3 fall/cp1/tools/offline/verify_consistency.py` to check every embedded
+page against its maintained source, identical shared control bundles, all 806
+code/walkthrough associations, 431 exact suggested edits, and preservation/order
+of the 171 numbered exercises and 13 bridge exercises with their full answers.
+This catches older HTML bundles even when their controls still appear to work.
+
+`verify_all.py` now executes the prepared course in the same three isolated
+namespaces/folders as the browser: 457 example/lesson cells, 97 restored practice
+cells, and 252 solution/check cells. The previous test combined examples and
+practice and expected the older cell count. Run it with NumPy and Matplotlib.
+`verify_early_changes.py`, `verify_guided_support.py`, and `verify_science_changes.py`
+exercise all 862 original/changed variants. The history and guided-change JavaScript
+tests cover reversible restores and custom-edit protection. Output/plot trace tests
+check real attribution and ensure file writes are not claimed as printed output.
+
+The desktop browser audit checks one self-contained original/changed example in
+every week, all rendered code/control/exercise heading counts, number and code-text
+clicks, exact highlighted output, Undo/Restore (including undoing a restore), keyboard
+undo, and protection of custom edits. This is a desktop regression check; the
+classroom compatibility trial noted in each page still applies.
+
+After publishing, `python3 fall/cp1/tools/offline/verify_public_pages.py` streams
+all fourteen public HTML files and compares their SHA-256 values with the audited
+local builds. It does not save another copy of the downloads.
+
 ## Interface and persistence
 
 Weeks 1–14 provide per-cell **Undo last change** and **Restore original code**

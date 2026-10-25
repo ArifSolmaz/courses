@@ -2434,6 +2434,8 @@ function addGuidedChange(pane,editor,i){
   const original=ORIGINAL.cells[i].source.join(''),change=ORIGINAL.cells[i].metadata.cp1_guided_change;
   const box=document.createElement('section');box.className='guided-change';
   const title=document.createElement('h3');title.textContent='Change one thing';
+  const instruction=document.createElement('p');instruction.textContent=change.instruction||'';instruction.hidden=!change.instruction;
+  const prerequisites=document.createElement('p');prerequisites.textContent=change.prerequisites||'';prerequisites.hidden=!change.prerequisites;
   const preview=document.createElement('pre');preview.textContent='Before: '+change.old+'\nAfter:  '+change.new;
   const button=document.createElement('button');button.textContent='Apply suggested change';button.setAttribute('aria-label','Apply suggested change in cell '+(i+1));
   const note=document.createElement('p');note.setAttribute('aria-live','polite');
@@ -2445,7 +2447,7 @@ function addGuidedChange(pane,editor,i){
     if(editor.value!==original)return;
     editor.value=change.source;editor.dispatchEvent(new Event('input'));editor.showForReading?.();sync();
   };
-  editor.addEventListener('input',sync);box.append(title,preview,button,note);pane.append(box);sync();
+  editor.addEventListener('input',sync);box.append(title,preview,button,note,instruction,prerequisites);pane.append(box);sync();
 }
 function render(){
   $('notebook').replaceChildren();runSources.clear();selectedOutputLines.clear();editors.clear();outputs.clear();errors.clear();plots.clear();$('sections').replaceChildren();let lastRealm=null;
