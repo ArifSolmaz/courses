@@ -77,9 +77,25 @@ for all 28 starting programs and all 28 specified edits, optional labels, Englis
 step structure and source/HTML parity. `verify_code_history.cjs` checks undo and
 restore in all five guided editions.
 
+### Week 11 guided edition
+
+Week 11 uses the approved English draft in `week11.py`: 12 main activities and
+16 optional activities. Each independent example has Predict, Run, and Change one
+thing steps plus Undo last change and Restore original code controls. All response
+strings are supplied in code. Longer retries, processors and the temporary-file
+preview remain optional. The original Colab notebooks, solutions and web-course
+pages remain unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 11`, then run
+`python3 fall/cp1/tools/offline/verify_week11_guided.py`. It checks exact outputs
+for all 28 starting programs and all 28 specified edits, optional labels, English
+step structure and source/HTML parity. `verify_code_history.cjs` checks undo and
+restore in all six guided editions. The file preview creates and cleans up its
+own temporary directory in both runs.
+
 ## Interface and persistence
 
-Weeks 6–10 provide per-cell **Undo last change** and **Restore original code**
+Weeks 6–11 provide per-cell **Undo last change** and **Restore original code**
 buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
 recent edit events in that cell. Restoring the original code can itself be undone.
 The original always comes from the page's authored example, even after opening
