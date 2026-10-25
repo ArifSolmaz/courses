@@ -20,6 +20,20 @@ for all 24 starting programs and all 24 requested changes, optional labels,
 English-only content, step coverage and source/HTML parity. The older Week 6
 boundary and explanation verifiers still check the original notebook editions.
 
+### Week 7 guided edition
+
+Week 7 uses the approved draft in `week07.py`: 12 main activities and 13 optional
+activities, all in English. Each independent program has Predict, Run, and Change
+one thing steps. This replaces the former offline lesson/practice/solution
+sequence; the original Colab notebooks, solutions and web-course pages remain
+unchanged. Harder counting, grouping, reporting and parsing examples are optional.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 7`, then run
+`python3 fall/cp1/tools/offline/verify_week07_guided.py`. It executes all 25 starting
+programs and all 25 requested changes and verifies their exact outputs, labels,
+English step structure and source/HTML parity. The older Week 7 boundary and
+explanation checks continue to verify the original notebook editions.
+
 ## Interface and persistence
 
 The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 01–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
