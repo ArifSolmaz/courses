@@ -59,4 +59,7 @@ def prepare(week,root):
             from practice_support import english_prose
             s=english_prose(s)
         cell['source']=s.splitlines(keepends=True)
+    if week in (13,14):
+        from science_changes import attach_science_changes
+        attach_science_changes(nb,week,lesson_count)
     return nb,lesson_count

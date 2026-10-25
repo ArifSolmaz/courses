@@ -121,7 +121,7 @@ Undo and Restore keep the numbered reading view, and Run returns from the editor
 to that view. Custom edits retain output links after rerunning; authored explanations
 are suspended when they no longer match. Free editing remains available on all
 nine pages with line numbers, Tab indentation, and automatic indentation on Enter.
-Weeks 13–14 retain their existing lesson/solution walkthroughs and gain Undo/Restore.
+Weeks 13–14 retain their existing lesson/solution walkthroughs and include suggested edits plus Undo/Restore.
 
 Run `python3 fall/cp1/tools/offline/verify_guided_support.py` for exact HTML parity,
 complete explanation coverage and real traced output for all original/changed
@@ -143,6 +143,22 @@ Colab lesson/answer notebooks remain unchanged.
 is preserved across all nine pages and runs all 91 restored Weeks 6–12 answers
 against saved outputs and internal assertions. `verify_guided_support.py` checks
 numbered explanation coverage for practice and worked answers too.
+
+### Suggested scientific edits, Weeks 13–14
+
+`science_changes.py` adds **Apply suggested change** to 40 cells in Week 13
+and 14 cells in Week 14 to runnable examples, supplied starter data, and worked answers. Diagnostic
+helpers, prediction checks, and empty practice starters retain their original purpose.
+Each control previews an exact change, states its purpose, and reminds students to
+run earlier setup cells and restore/rerun before moving on. Baseline programs, exercises,
+expected results, and worked answers remain unchanged. Walkthroughs cover both the
+original and suggested variant, including updated labels for changed slices.
+
+Run `python3 fall/cp1/tools/offline/verify_science_changes.py` in an environment with
+NumPy and Matplotlib. It executes all 108 original/changed programs after their
+original prerequisites in fresh folders, keeping internal assertions active and
+checking plotted artists and PNG files. Existing guided-change/history tests cover
+Undo, Restore, saved edits, and protection of custom student code.
 
 ## Interface and persistence
 
