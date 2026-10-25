@@ -42,6 +42,13 @@ for week in range(1,15):
     embedded, _ = json.JSONDecoder().raw_decode(page.split('const ORIGINAL=', 1)[1])
     prepared, lesson_count = prepare(week, ROOT)
     assert embedded == prepared, f'Week {week}: HTML is stale; rebuild it'
+    if week == 6:
+        # This offline-only edition intentionally follows the instructor-approved
+        # guided sequence. Its actual code and changes have their own verifier.
+        from verify_week06_guided import verify
+        verify()
+        print('Week 6: guided offline source matches HTML; all starting and changed programs pass.')
+        continue
     assert lesson_count == len(lesson['cells'])
     source_cells = lesson['cells'] + solutions['cells']
     assert len(source_cells) == len(embedded['cells'])

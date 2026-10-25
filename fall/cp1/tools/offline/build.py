@@ -30,7 +30,12 @@ def build(week,assets):
     title=''.join(nb['cells'][0]['source']).splitlines()[0].lstrip('# ').split(' — PHASE')[0]
     title=re.sub(r'^(?:CP1 )?Week \d+:\s*','',title)
     page=(HERE/'template.html').read_text()
+    if week == 6:
+        page=page.replace('Read, edit a code cell, then press <strong>Run</strong>. Run lesson cells in order: later cells may use earlier variables.', 'For each example: <strong>Predict</strong>, <strong>Run</strong>, then <strong>Change one thing</strong>. Each code cell includes its own data.')
+        page=page.replace('Solutions use separate variables and files, so they do not fill in your practice. Where the notes say Colab or “play button”, use this page’s <strong>Run</strong> button.', 'Examples 1–14 are the main activities. Harder activities are marked <strong>Optional</strong>. You do not need to write a new program from scratch.')
     page=page.replace('{{WEEK}}',f'{week:02d}').replace('{{TITLE}}',html.escape(title)).replace('{{COVERAGE}}',f'The complete Week {week:02d} lesson, exercises and worked solutions are included below.')
+    if week == 6:
+        page=page.replace('The complete Week 06 lesson, exercises and worked solutions are included below.', 'All guided Week 06 examples are included below, in English.')
     scope='Includes Python and its bundled standard library'+(', NumPy and Matplotlib.' if scientific else '.')+' Notebook widgets and Colab services are not included. External links require internet. This file still needs a compatibility trial on your managed classroom PCs.'
     page=page.replace('{{SCOPE}}',scope)
     replacements={'CONFIG':js(config),'MARKED':assets['marked.js'].decode(),'PURIFY':assets['purify.js'].decode(),'NOTEBOOK':js(nb),'FILES':js(files),'WORKER':js(worker),'LICENSES':js('\n\n'.join(n+'\n'+v.decode() for n,v in assets.items() if n.startswith('LICENSE-'))),'APP':(HERE/'errors.js').read_text()+'\n'+(HERE/'app.js').read_text()}

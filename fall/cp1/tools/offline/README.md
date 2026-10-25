@@ -4,6 +4,22 @@ Build all 14 weeks with `python3 fall/cp1/tools/offline/build.py --all`, or one 
 
 Each single HTML includes the complete maintained lesson notebook and its complete worked solutions. Students can open the hosted page or download the HTML before class and open it in a normal browser. Python runs inside a worker; no Python installation, Google account, local server or classroom network is needed after downloading. The weekly pages and dashboard resource panels link to each edition.
 
+### Week 6 guided edition
+
+Week 6 is an instructor-approved offline-specific edition, authored in
+`week06.py`. It replaces the old offline lesson/practice/solution sequence with
+14 main activities and 10 optional activities (the approved 20A–C and 21A–B cards
+are individual runnable activities). All teaching content is English. Every
+activity has Predict, Run, and Change one thing steps, complete independent code,
+and a single requested edit. Harder activities are explicitly labelled Optional.
+The original Colab notebooks, solutions and web-course pages are unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 6`, then run
+`python3 fall/cp1/tools/offline/verify_week06_guided.py`. This checks exact outputs
+for all 24 starting programs and all 24 requested changes, optional labels,
+English-only content, step coverage and source/HTML parity. The older Week 6
+boundary and explanation verifiers still check the original notebook editions.
+
 ## Interface and persistence
 
 The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 01–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
@@ -70,7 +86,7 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week12_explanations.py`: checks all 60 Week 12 code blocks, 581 nonblank non-comment lines and 13 comment-only starters. File writes, printed output, append/overwrite behavior and CSV parsing limits are explained separately; 28 file/edge-case checks and all 13 exercise outputs pass.
 
-- `python3 fall/cp1/tools/offline/verify_week13_explanations.py`: checks all 46 Week 13 code blocks and 689 nonblank non-comment lines, including supplied exercise data. Array axes, masks, population standard deviation, moving-window ties, physical units and calibration assumptions are explained; all 13 exercise outputs and 46 numerical/boundary/CSV/plot checks pass.
+- `python3 fall/cp1/tools/offline/verify_week13_explanations.py`: checks all 48 Week 13 code blocks and 689 nonblank non-comment lines, including supplied exercise data. Array axes, masks, population standard deviation, moving-window ties, physical units and calibration assumptions are explained; all 13 exercise outputs and 46 numerical/boundary/CSV/plot checks pass.
 
 - `python3 fall/cp1/tools/offline/verify_week14_explanations.py`: checks all 31 Week 14 code blocks, 445 nonblank non-comment lines and 11 comment-only starters. All 12 exercise outputs and 64 pipeline/boundary/export/plot checks pass. On laptop screens, Week 14 long code and text-output panels scroll internally so explanations and plots remain alongside each other; all content remains available, with full flow on narrow screens and in print.
 
