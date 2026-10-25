@@ -34,7 +34,7 @@ LESSON = {
 37: ('balance = 5000', 'balance = 6000', 'Start with a balance of 6000. Predict the final balance.'),
 44: ('t = 3', 't = 4', 'Use a time of 4 seconds in the final-velocity calculation.'),
 48: ('print(int(3.7))', 'print(int(8.7))', 'Convert 8.7 to an integer in the first line.'),
-52: ('print(int("42"))', 'print(int("84"))', 'Convert the integer text 84 instead of 42.'),
+52: ('print(int("42"))       # 42', 'print(int("84"))       # 84', 'Convert the integer text 84 instead of 42.'),
 57: ('print(bool(0))', 'print(bool(2))', 'Test bool(2) instead of bool(0) in the first line.'),
 67: ('In 5 years you will be {age + 5}', 'In 10 years you will be {age + 10}', 'Predict the age ten years ahead instead of five. Keep the supplied input.'),
 70: ('{bmi:.2f}', '{bmi:.1f}', 'Display the calculated BMI with one decimal place.'),
