@@ -64,7 +64,11 @@ def check_links(p,s):
   if target.is_dir():target=target/'index.html'
   assert target.exists(),(p,url)
   if u.fragment and target.suffix=='.html':
-   assert fragment_exists(target,u.fragment),(p,url,'missing anchor')
+   # The current lesson forwards bookmarked earlier anchors to its reference.
+   archive=target.with_name('reference.html')
+   forwards=target.name=='index.html' and 'assets/robot-course.js' in target.read_text()
+   assert (fragment_exists(target,u.fragment)
+           or (forwards and archive.is_file() and fragment_exists(archive,u.fragment))),(p,url,'missing anchor')
  return parsed
 
 # A colon-ended English paragraph followed by its Turkish twin must be followed by the content it introduces.
@@ -108,14 +112,27 @@ s=(root/'scope/index.html').read_text();assert s.count('class="sample-question"'
 s=(root/'textbook-problems/index.html').read_text();assert len(re.findall(r'id="p2-\d+"',s))==51 and sum(map(len,textbook_articles().values()))==53
 home=(root/'index.html').read_text();check_links(root/'index.html',home)
 if (root/'tools/lessons/home.html').is_file():
- assert (root/'index.html').read_bytes()==(root/'tools/lessons/home.html').read_bytes()
  assert 'href="resources/"' in home
  for n in range(1,15):assert f'href="w{n}/"' in home,(n,'fresh route entry')
- translated=[(f'w{n}.tr.html',f'w{n}/tr/index.html') for n in range(1,15) if (root/f'tools/lessons/w{n}.tr.html').is_file()]
- for source,destination in [('resources.html','resources/index.html'),('teaching.html','resources/teaching/index.html')]+translated:
-  assert (root/destination).read_bytes()==(root/'tools/lessons'/source).read_bytes()
-  check_links(root/destination,(root/destination).read_text())
+ from robot_course.build import dashboard, lesson, legacy_lesson, resources
+ source=root/'tools/lessons'
+ assert home==dashboard((source/'home.html').read_text())
+ assert (root/'resources/teaching/index.html').read_bytes()==(source/'teaching.html').read_bytes()
+ for n in range(1,15):
+  for lang,lang_path,source_suffix in [('en','',''),('tr','tr/','.tr')]:
+   folder=root/f'w{n}'/lang_path
+   current=folder/'index.html'
+   archive=folder/'reference.html'
+   original=(source/f'w{n}{source_suffix}.html').read_text()
+   assert current.read_text()==lesson(n,lang)
+   assert archive.read_text()==legacy_lesson(original,lang)
+   check_links(current,current.read_text())
+   check_links(archive,archive.read_text())
+ for destination in ('resources/index.html','resources/teaching/index.html'):
+  page=root/destination
+  check_links(page,page.read_text())
  reference=(root/'resources/index.html').read_text()
+ assert reference==resources((source/'resources.html').read_text())
  for x in ('href="../scope/"','href="../review/"','href="../textbook-problems/"'):assert x in reference,x
  legacy=(root/'previous-home.html').read_text();check_links(root/'previous-home.html',legacy)
  for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in legacy,x

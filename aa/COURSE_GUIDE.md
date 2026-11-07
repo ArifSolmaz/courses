@@ -1,20 +1,18 @@
 # Algorithm Analysis
 
-The main route follows the supplied Skiena lecture notes. No prior Python is required.
+- Week 1: [Does my loop fit in 1 ms?](w1/) · Linear search and a control-loop budget
+- Week 2: [What happens when n grows 10×?](w2/) · Growth shapes, counts and timing
+- Week 3: [How do I read cost from code?](w3/) · Loop bounds, halving and binary search
+- Week 4: [How do I store a sensor stream?](w4/) · Arrays, linked lists, ring buffers and stacks
+- Week 5: [How do I look things up fast?](w5/) · Sorted tables and hash lookup
+- Week 6: [How do I filter noisy data?](w6/) · Median windows and sorting choices
+- Week 7: [Which task runs next?](w7/) · Priority queues and timer heaps
+- Week 8: [What route uses the fewest moves?](w8/) · Breadth-first search on an occupancy grid
+- Week 9: [What route costs least over terrain?](w9/) · Dijkstra and terrain costs
+- Week 10: [Can we get there faster?](w10/) · A* and a lower bound on remaining cost
+- Week 11: [In what order do we start the robot?](w11/) · DFS, cycles and topological order
+- Week 12: [How do we wire the stations at minimum cost?](w12/) · Kruskal and spanning trees
+- Week 13: [How can I reuse work across routes?](w13/) · Grid dynamic programming and the Bellman idea
+- Week 14: [What if I cannot find an exact tour fast enough?](w14/) · Traveling salesperson, heuristics and P versus NP
 
-- Week 1: Algorithms and correctness — document lectures 1
-- Week 2: Counting work and growth — document lectures 2
-- Week 3: Program analysis and logarithms — document lectures 3
-- Week 4: Arrays, linked lists, stacks and queues — document lectures 4
-- Week 5: Search trees and hashing — document lectures 5, 6
-- Week 6: Priority queues and heaps — document lectures 7
-- Week 7: Sorting II: mergesort, quicksort, lower bounds, linear sorting — and solving recurrences — document lectures 8, 9
-- Week 8: Graphs I: representations, BFS and its applications — document lectures 10, 11
-- Week 9: Graphs II: DFS, edge types, topological order, strongly connected components — document lectures 12
-- Week 10: Minimum spanning trees and union-find — document lectures 13
-- Week 11: Shortest paths: Dijkstra, Bellman–Ford, Floyd — document lectures 14
-- Week 12: Backtracking and the start of dynamic programming — document lectures 15, 16
-- Week 13: Dynamic programming: edit distance, partition, TSP — document lectures 17, 18
-- Week 14: Reductions and NP-completeness — document lectures 19, 20, 21, 22
-
-Current lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Exam scope: scope/. Cumulative review: review/. Additional textbook problems: textbook-problems/. Older library addresses redirect to that route.
+See [resources](resources/) for assessment and earlier editions.
