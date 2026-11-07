@@ -1,6 +1,7 @@
-name: Check deployed AA labs
+name: Check AA timing labs
 
 on:
+  pull_request:
   workflow_run:
     workflows: [pages-build-deployment]
     branches: [main]
@@ -11,9 +12,10 @@ permissions:
   contents: read
 
 jobs:
-  live-labs:
+  timing-labs:
+    name: ${{ github.event_name == 'pull_request' && 'AA labs (PR preview)' || 'AA labs (live)' }}
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
@@ -30,9 +32,15 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: .github/aa-playwright/package-lock.json
+      - uses: actions/setup-python@v6
+        if: github.event_name == 'pull_request'
+        with:
+          python-version: '3.12'
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
+        env:
+          AA_PREVIEW: ${{ github.event_name == 'pull_request' && '1' || '0' }}
       - name: Save browser traces on failure
         if: failure()
         uses: actions/upload-artifact@v4
