@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How do I store a sensor stream?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">A sensor produces data faster than the robot can sometimes consume it. Use a fixed-capacity FIFO to keep memory bounded. Choose a policy for overflow. Here the oldest sample is overwritten and a loss counter is incremented.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Size a buffer for a burst</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Size a buffer for a burst</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Separate the physical array from the logical queue</h2>
+<h3>You will be able to</h3><ul><li>Distinguish FIFO from LIFO.</li><li>Track head and size.</li><li>Trace wraparound without shifting.</li><li>Choose capacity and an overflow policy.</li></ul>
+<h3>Before you start</h3><p>An index identifies a physical slot. FIFO order can start at any slot.</p>
+<p>FIFO releases the oldest waiting item first. A stack uses LIFO and releases the newest first. An array stores indexed slots. A linked queue follows references and can add at the tail and remove at the head without moving the other nodes.</p><p>A ring buffer stores a FIFO queue in a fixed array. Head tells you where to read next. If there is space, write at (head + size) mod capacity. When removing, advance head and decrease size. Pick a policy for the next arrival when the array is full.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · capacity three, enqueue A, B, C, remove A, then enqueue D</figcaption>
+<ol class="concept-frames"><li><strong>[A, B, C] · head 0</strong><span>The queue is full and A is next.</span></li><li><strong>[A, B, C] · head 1</strong><span>After removing A, size is 2. Slot 0 is reusable.</span></li><li><strong>[D, B, C] · head 1</strong><span>D wraps into slot 0. The logical order is B, C, D.</span></li></ol>
+</figure>
+<p>An old value can remain in a physical slot until it is overwritten. Head and size say which entries are valid. In a full ring that overwrites the oldest, the next insertion replaces B and moves head to C.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Draw three slots. Push A, B and C, pop once, then push D and E. Record head, size, and the logical FIFO order after each action. Separately push A and B onto a stack and pop once.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The FIFO pop returns A. D wraps into the freed slot. E overwrites B. The final FIFO is C, D, E and one sample was lost. The stack returns B. A ring uses index arithmetic on an array. A linked queue can also enqueue and dequeue in constant work with head and tail pointers, but uses links and often allocates nodes.</p></details>
+<details><summary>Check your trace</summary><p>The FIFO pop returns A. D wraps into the freed slot. E overwrites B. The final FIFO is C, D, E and one sample was lost. The stack returns B. A ring uses index arithmetic on an array. A linked queue can also enqueue and dequeue in constant work with head and tail pointers, but uses links and often allocates nodes.</p></details><details><summary>Compare a three-sentence explanation</summary><p>After A is removed, head moves to 1 and D wraps into the freed slot. E replaces B in the full ring and head advances to C, leaving C, D, E. The stack returns B because B was pushed last.</p></details>
 
 <h3>Follow wraparound with physical slots and FIFO order</h3>
 <p>Use a capacity-three queue. Start empty at head 0. Push A and B, pop once, push C and D, then pop twice. Draw the slots and write head and size after every operation.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>A and B occupy slots 0 and 1. Popping A gives head 1 and size 1.</li><li>C goes in slot 2 and D in slot 0. The physical order is [D, B, C] and the logical FIFO order is [B, C, D].</li><li>Popping B and C leaves head 0, size 1 and D next. Track size separately to distinguish a full buffer from an empty one.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Reading slot zero on every removal.</li><li>Treating stale physical values as queued items.</li><li>Planning capacity without an overflow policy.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>FIFO / İlk giren ilk çıkar</dt><dd>Release the oldest first.</dd><dt>Head / Baş indisi</dt><dd>Next occupied slot to read.</dd><dt>Wraparound / Dairesel geçiş</dt><dd>Move from the last slot back to zero.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which grows with buffer size, shifting an array on every pop or advancing a ring index. Time repeated full-buffer push/pop cycles. Compare at both capacities and account for bytes per sample separately.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -96,7 +112,7 @@ for n in (128, 8192):
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What does FIFO mean for timestamp order?</p><details><summary>Show answer</summary><p>The oldest queued sample comes out first.</p></details></li><li><p>What does a stack pop after pushes 5, 9?</p><details><summary>Show answer</summary><p>9.</p></details></li><li><p>What slot follows index 3 in a four-slot ring?</p><details><summary>Show answer</summary><p>Index 0.</p></details></li><li><p>Why track size or a full flag?</p><details><summary>Show answer</summary><p>Equal head and tail indices can represent either a full or an empty buffer.</p></details></li><li><p>Which representation supports direct access by index?</p><details><summary>Show answer</summary><p>An array gives direct indexing. A linked list generally follows links.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>The physical array starts with D but the next FIFO output is B. Which state tells you why?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Head points to slot 1 where B is stored. Size and the wrap rule identify the rest of the queue. Slot 0 holds D, which was appended after B and C.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

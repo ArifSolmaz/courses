@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How do I read cost from code?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot converts thermistor ADC readings using a calibration table sorted by ADC value. Find the insertion index for a reading, then inspect the adjacent calibration entries if interpolation is needed.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Build an ADC lookup contract</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Build an ADC lookup contract</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Use sorted order to rule out candidates</h2>
+<h3>You will be able to</h3><ul><li>Describe a half-open interval.</li><li>Trace both boundary updates.</li><li>Interpret an insertion position at the end.</li><li>Compare additive, nested and halving work.</li></ul>
+<h3>Before you start</h3><p>Python indexes start at 0. In [lo, hi), lo is included and hi is excluded.</p>
+<p>Binary search needs sorted data. If the middle entry is below the key, every entry to its left is below the key too. Discard those entries and the middle. Otherwise the middle might be the first acceptable entry, so use its position as the new upper boundary.</p><p>The interval shrinks until the boundaries meet. The result is a position, so a caller that needs an exact match must check the value there. Roughly halving the interval gives logarithmic work. Consecutive loops add their counts, while a full inner loop for each outer step multiplies them.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · first value at least 30 in [10, 20, 30, 30, 45]</figcaption>
+<ol class="concept-frames"><li><strong>[0, 5) · mid 2</strong><span>30 is acceptable. Set hi to 2.</span></li><li><strong>[0, 2) · mid 1</strong><span>20 is too small. Set lo to 2.</span></li><li><strong>[2, 2) · stop</strong><span>Index 2 is the first acceptable position.</span></li></ol>
+</figure>
+<p>There are two equal entries, but this rule returns the first one. A key of 50 would return 5. Check the returned index before looking up its value or interpolating.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Trace a binary search for 430 in [120, 220, 330, 430, 550, 680, 790, 900]. Use zero-based indices and a half-open interval [lo, hi). Inspect the middle. If its value is smaller than the target, set lo = mid + 1. Otherwise set hi = mid. Stop at lo = hi.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The inspected indices are 4, 2, 3 and the insertion index is 3. Each comparison discards roughly half the remaining candidate elements. A loop that scans n rows and m columns uses n × m visits. Two successive scans use n + m.</p></details>
+<details><summary>Check your trace</summary><p>The inspected indices are 4, 2, 3 and the insertion index is 3. Each comparison discards roughly half the remaining candidate elements. A loop that scans n rows and m columns uses n × m visits. Two successive scans use n + m.</p></details><details><summary>Compare a three-sentence explanation</summary><p>For 430 the first midpoint is 4, so set hi to 4. Index 2 is too small, so move lo to 3. Index 3 is acceptable, so hi becomes 3 and the search returns 3.</p></details>
 
 <h3>Trace a lower bound with duplicate keys</h3>
 <p>Use the sorted ADC values [120, 220, 220, 450, 720]. Find the first index whose value is at least 220, then repeat for 221 and 900. Record lo, hi, mid and the comparison.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>For 220, inspect indices 2, 1 and 0. When the middle value equals the key, move hi left. The result is index 1.</li><li>For 221, inspect indices 2, 4 and 3. Index 3 is the first value greater than the key.</li><li>For 900, the interval ends at index 5. That index is a valid insertion position beyond the last value. Check it before reading a table entry.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Using the same update for &lt; and =.</li><li>Reading index hi when hi is the table length.</li><li>Applying binary search to unsorted data.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Lower bound / İlk uygun indis</dt><dd>First position with a value at least the key.</dd><dt>Midpoint / Orta indis</dt><dd>Position tested on this step.</dd><dt>Half-open interval / Yarı açık aralık</dt><dd>Includes lo and excludes hi.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how scan and binary lookup behave as the sorted calibration table grows. Time both with the same above-maximum target, then try a first-entry hit. Keep table construction outside the measurement.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -95,7 +111,7 @@ assert lower_bound([], 220) == 0</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>Where does a target above 900 go?</p><details><summary>Show answer</summary><p>Index 8, after the last entry. Handle that boundary before interpolating.</p></details></li><li><p>What index does an empty table return?</p><details><summary>Show answer</summary><p>0. There is no calibration pair to interpolate.</p></details></li><li><p>A loop halves 64 until it reaches 1. How many halvings?</p><details><summary>Show answer</summary><p>Six.</p></details></li><li><p>How many visits in successive scans of 12 and 8 readings?</p><details><summary>Show answer</summary><p>20.</p></details></li><li><p>Will this binary search work on unsorted ADC values?</p><details><summary>Show answer</summary><p>The result is unreliable because the discarded half can contain the correct position.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why can binary search return len(table)? Give the input condition and explain how the caller should handle it.</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>If the key is above every value, the first acceptable position would be after the last entry. The routine returns len(table). Check that boundary before reading or interpolating.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

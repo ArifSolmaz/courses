@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How do I filter noisy data?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">One range reading spikes to 200 cm near a wall. A median filter uses the middle of a small window to reduce the influence of that outlier.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Filter a dock sensor without hiding a real movement</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Filter a dock sensor without hiding a real movement</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Sort the window and read its median</h2>
+<h3>You will be able to</h3><ul><li>Explain why a median resists a spike.</li><li>Trace a sorted prefix.</li><li>Merge two sorted sequences.</li><li>Connect window size with delay.</li></ul>
+<h3>Before you start</h3><p>A trailing window holds the newest k samples. In a sorted odd-sized window, the median is the middle value.</p>
+<p>Insertion sort maintains a sorted prefix. Take the next item, shift larger values to the right and put the item in the gap. An already sorted input needs few shifts. A descending input makes each item move past the entire prefix.</p><p>The median depends on rank, so the magnitude of one extreme value usually matters less than it does for the mean. A wider window can reject more isolated spikes, but a real change must fill much of the window before the median moves. Measure response delay as well as computation time.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · build a sorted prefix from [6, 30, 5, 7, 8]</figcaption>
+<ol class="concept-frames"><li><strong>[6, 30]</strong><span>30 is already after 6.</span></li><li><strong>[5, 6, 30]</strong><span>Shift 30 and 6, then insert 5.</span></li><li><strong>[5, 6, 7, 30]</strong><span>Shift 30 to insert 7.</span></li><li><strong>[5, 6, 7, 8, 30]</strong><span>Insert 8. The median is 7.</span></li></ol>
+</figure>
+<p>To merge [5, 8] with [6, 7, 30], compare the first unconsumed item of each list. Take 5, 6, 7 and 8 in that order, then append 30. Each selection preserves sorted order.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Insertion-sort [12, 200, 11, 13, 10] on paper. After each insertion write the sorted prefix. Read the median. Then merge [10, 13] with [11, 12, 200].</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The prefixes grow to [12, 200], [11, 12, 200], [11, 12, 13, 200], then [10, 11, 12, 13, 200]. The median is 12 cm. Merge sort combines sorted halves and commonly needs temporary space. Quicksort partitions around a pivot. Poor pivots can give quadratic work.</p></details>
+<details><summary>Check your trace</summary><p>The prefixes grow to [12, 200], [11, 12, 200], [11, 12, 13, 200], then [10, 11, 12, 13, 200]. The median is 12 cm. Merge sort combines sorted halves and commonly needs temporary space. Quicksort partitions around a pivot. Poor pivots can give quadratic work.</p></details><details><summary>Compare a three-sentence explanation</summary><p>Each insertion grows the sorted prefix by one. The final order is [10, 11, 12, 13, 200], so the median is 12. Merging the two sorted lists takes the smaller front entry until one list is exhausted.</p></details>
 
 <h3>Choose a filter for spikes and real changes</h3>
 <p>Compare the mean and median of [10, 11, 12, 13, 80]. Then use sliding windows of three on the stream [10, 11, 80, 12, 13]. Trace each full window.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>The sum is 126 and the mean is 25.2. The median is 12, so one high spike barely affects the center of the sorted window.</li><li>The three full windows are [10, 11, 80], [11, 80, 12] and [80, 12, 13]. Their medians are 11, 12 and 13.</li><li>A three-sample median can delay a real change. With [10, 10, 30, 30], the two full windows output 10 and then 30.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Taking the middle element before sorting.</li><li>Counting comparisons and shifts as the same operation.</li><li>Choosing a window only by its compute time.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Median / Medyan</dt><dd>Middle rank of a sorted odd window.</dd><dt>Prefix / Ön ek</dt><dd>The processed part of the array.</dd><dt>Merge / Birleştirme</dt><dd>Combine sorted inputs in order.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare the insertion-sort median with Python’s sorted-based median for odd windows 5 and 31. Use the same unsorted input and include the copy needed to keep the sensor window intact.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -95,7 +111,7 @@ for label, window in cases:
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the median of [3, 90, 5]?</p><details><summary>Show answer</summary><p>5.</p></details></li><li><p>Merge [1, 7] and [2, 4].</p><details><summary>Show answer</summary><p>[1, 2, 4, 7].</p></details></li><li><p>What happens when insertion sort receives an already sorted window?</p><details><summary>Show answer</summary><p>Each item stays in place, with roughly one comparison per insertion.</p></details></li><li><p>What is the median of five identical readings?</p><details><summary>Show answer</summary><p>That same reading.</p></details></li><li><p>Why keep an odd window for this activity?</p><details><summary>Show answer</summary><p>There is a single middle position.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why is an all-random timing benchmark insufficient for choosing a median window on a robot?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Random data says little about spikes, steps or runs of equal readings. Test those patterns and measure detection delay separately. Choose a window that meets both response and compute budgets.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

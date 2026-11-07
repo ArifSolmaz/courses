@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="../../assets/python-runner.css">
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/heap-lesson.css?v=1">
+<script defer src="../../assets/heap-frames.js?v=1"></script>
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -20,21 +22,104 @@
 <h1 id="lesson-title">Sırada hangi görev var?</h1>
 <p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robot zamanlayıcısı tanılama ve telemetri görevlerinin hazır olma zamanlarını saklıyor. Min-öbek en erken zamanı verir. Zamanı gelen görevleri yürütmek için zamanlayıcı ayrıca bir politika uygular.</p>
-<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
+<p>Kâğıt çalışmasından önce öbek kuralını, karşılaştırma tablolarını ve ekleme–çıkarma adımlarını oku.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Çevrim bütçesiyle zamanlayıcı çalıştır</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#heap-basics">Öbek temelleri</a><a href="#robot-timers">Robotun zaman çizelgesi</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Çevrim bütçesiyle zamanlayıcı çalıştır</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a><a href="#midterm-card">Ara sınav kartı</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
-<p>[4, 9, 7] öbeğiyle başla. Önce 3’ü ekle, sonra minimumu çıkar. Sıfır tabanlı çocuk indisleri 2i + 1 ve 2i + 2’dir. Eşit zamanlarda ekleme sırasını kullan.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
-<details><summary>İzi karşılaştır</summary><p>3’ü sona ekle, 9 ve 4 ile yer değiştir. Sonuç [3, 4, 7, 9]. 3’ü çıkar, 9’u köke taşı ve 4 ile değiştir. Sonuç [4, 9, 7]. Minimumu okumak tek erişimdir. Ekleme ve çıkarma en çok bir ağaç yolu boyunca ilerler, yaklaşık log₂ n iş yapar.</p></details>
+<section id="heap-basics">
+<h2>Önce öbeği tanı</h2>
+<h3>Bu derste yapabileceklerin</h3>
+<ul>
+<li>Dizi ile ağaç görünümü arasında geçiş yapabilirsin.</li>
+<li>Bir ekleme ve bir çıkarma işlemini adım adım izleyebilirsin.</li>
+<li>Zamanlayıcı kuyruğu için sırasız listeyi, sıralı listeyi ve min-öbeği karşılaştırabilirsin.</li>
+<li>Python’da zamanı gelen görevleri seçip bir sonraki hazır olma zamanını ekleyebilirsin.</li>
+</ul>
+<h3>Başlamadan önce</h3>
+<p>6. haftadaki sıralı diziyi hatırla. Araya bir öğe eklemek için komşuları kaydırmıştık. Burada da bir dizi kullanacağız, ancak daha zayıf bir düzen kuralı yeterli.</p>
+<ul>
+<li>Öbek bir dizide saklanır. Ağaç, indis ilişkilerini görmenin bir yoludur.</li>
+<li>Min-öbekte her ebeveyn, çocuklarından küçük veya eşittir.</li>
+<li>i indisinin çocukları 2i + 1 ve 2i + 2. Kök dışındaki bir i için ebeveyn (i − 1) // 2.</li>
+</ul>
+<p>Öncelik kuyruğu, önce en öncelikli öğeyi verir. Bu derste öncelik, en erken hazır olma zamanıdır. Ağaç yukarıdan aşağıya, her katman soldan sağa doldurulur. Ebeveyn kuralı her dalda geçerli olduğundan kök tüm öğelerden küçük veya eşittir. Kardeşler arasında bir sıralama kuralı yoktur.</p>
+<h3>Neden doğrudan liste kullanmayalım?</h3>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Zamanlayıcı işlemleri"><table class="robot-table"><caption>Zamanlayıcı işlemleri</caption><thead><tr><th scope="col">Yapı</th><th scope="col">Zamanlayıcı ekle</th><th scope="col">En erken zamanı bul</th><th scope="col">En erken olanı çıkar</th></tr></thead><tbody><tr><th scope="row">Sırasız liste</th><td>Sona 1 ekleme</td><td>n kaydı tara</td><td>n kaydı tara</td></tr><tr><th scope="row">Sıralı liste</th><td>n öğeye kadar kaydır</td><td>1 erişim</td><td>Sondan 1 çıkarma</td></tr><tr><th scope="row">Min-öbek</th><td>Yaklaşık log₂ n yer değiştirme</td><td>1 erişim (kök)</td><td>Yaklaşık log₂ n yer değiştirme</td></tr></tbody></table></div><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Farklı kuyruk boyutlarında yaklaşık iş"><table class="robot-table"><caption>Farklı kuyruk boyutlarında yaklaşık iş</caption><thead><tr><th scope="col">Zamanlayıcı sayısı n</th><th scope="col">Tam taramada incelenen kayıt</th><th scope="col">Öbekte en çok yaklaşık katman</th></tr></thead><tbody><tr><th scope="row">8</th><td>8</td><td>3</td></tr><tr><th scope="row">128</th><td>128</td><td>7</td></tr><tr><th scope="row">1.000</th><td>1.000</td><td>10</td></tr><tr><th scope="row">1.000.000</th><td>1.000.000</td><td>20</td></tr></tbody></table></div><p>Sıralı listenin en erken öğesini sağ uçta tuttuğumuzu varsayıyoruz. Böylece sondan çıkarmak bir işlemdir. Sırasız listede minimumun indisini taramayla bulduktan sonra öğeyi son öğeyle değiştirebilirsin. Sona ekleme, dizinin zaman zaman büyümesi dışında bir işlem sayılır.</p>
+<p>Her yeni ağaç katmanı yaklaşık iki kat öğe barındırır. Bu yüzden 1.000 zamanlayıcıda bir öbek işlemi yaklaşık 10 katman boyunca ilerleyebilir, tam tarama ise 1.000 kayda bakar. Yer değiştirme ile karşılaştırma aynı işlem değildir. Aşağı kaydırırken küçük çocuğu seçmek için iki çocuğa da bakman gerekebilir. Süreyi laboratuvarda ölç.</p>
+<h3>Dizi ve ağaçta aynı adımlar</h3>
+<p><strong>Yukarı kaydır.</strong> Yeni öğeyi sona koy. Ebeveyniyle karşılaştır. Daha küçükse yer değiştir. Kökü bulunca veya ebeveyn daha küçük ya da eşit olunca dur.</p>
+<p><strong>Aşağı kaydır.</strong> En küçüğü kökten al. Son öğeyi köke taşı. Daha büyükse küçük çocuğuyla değiştir. Yaprağa ulaştığında veya iki çocuk da daha küçük değilse dur.</p>
+<p>Şekillerde küçük sayı dizi indisi, büyük sayı değerdir. Vurgulu hücreler o adımda karşılaştırılan veya taşınan öğeleri gösterir.</p><div class="heap-diagram">
+<h3>Ekleme · Yukarı kaydır</h3><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li><span>0</span><strong>4</strong></li><li><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>Başlangıç. Kök 4, çocukları 9 ve 7.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g class="heap-highlight"><circle cx="42" cy="139" r="18"/><text x="42" y="144">3</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li><li class="heap-highlight"><span>3</span><strong>3</strong></li></ol>
+</div><figcaption>3 sona eklenir. Ebeveyni 9 ile karşılaştır.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">3</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li class="heap-highlight"><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>3</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>3 ile 9 yer değiştirir. Şimdi 3’ün ebeveyni 4.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">3</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li class="heap-highlight"><span>0</span><strong>3</strong></li><li><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>3 ile 4 yer değiştirir. 3 kökte ve öbek hazır.</figcaption></figure>
+<div class="heap-controls" hidden>
+<button type="button" data-heap-prev>Önceki</button>
+<output aria-live="polite"></output>
+<button type="button" data-heap-next>Sonraki</button>
+</div></div><div class="heap-diagram">
+<h3>Çıkarma · Aşağı kaydır</h3><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">3</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li class="heap-highlight"><span>0</span><strong>3</strong></li><li><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>Kök 3, çıkaracağımız en erken zaman.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">9</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li class="heap-highlight"><span>0</span><strong>9</strong></li><li class="heap-highlight"><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>3’ü çıkar, son öğe 9’u köke taşı. İki çocuğa bak.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Dizi, indis ve değer"><li><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>9’u küçük çocuk 4 ile değiştir. 9 yaprakta ve işlem biter.</figcaption></figure>
+<div class="heap-controls" hidden>
+<button type="button" data-heap-prev>Önceki</button>
+<output aria-live="polite"></output>
+<button type="button" data-heap-next>Sonraki</button>
+</div></div><h3>Python heapq başvuru kartı</h3><p><code>heapq</code> sıradan bir listeyi min-öbek olarak yönetir. Öbek işlemlerini kullan ki ebeveyn kuralı korunsun.</p><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Python öbek işlemleri"><table class="robot-table"><caption>Python öbek işlemleri</caption><thead><tr><th scope="col">İşlem</th><th scope="col">Davranış</th></tr></thead><tbody><tr><th scope="row"><code>heappush(heap, item)</code></th><td>Yeni öğeyi ekler ve öbek düzenini onarır.</td></tr><tr><th scope="row"><code>heappop(heap)</code></th><td>En küçük öğeyi çıkarıp döndürür. Boşsa IndexError.</td></tr><tr><th scope="row"><code>heapreplace(heap, item)</code></th><td>En küçüğü döndürür ve yeni öğeyi ekler. Öbek boş olmamalı.</td></tr><tr><th scope="row"><code>heapify(items)</code></th><td>Mevcut listeyi yerinde öbeğe dönüştürür.</td></tr><tr><th scope="row"><code>heap[0]</code></th><td>En küçüğü çıkarmadan okur. Önce öbeğin dolu olduğunu kontrol et.</td></tr></tbody></table></div><p>Her kayıt <code>(release, seq, task)</code> olsun. Python önce hazır olma zamanını, sonra sıra numarasını karşılaştırır. Her eklemede farklı bir <code>seq</code> ver. Böylece eşit zamanlarda ilk eklenen çıkar. <code>seq</code> olmadan iki eşit zamanda Python görev nesnelerini karşılaştırmayı deneyebilir ve sıralanamayan nesnelerde <code>TypeError</code> oluşur.</p>
+<p>Örneğin <code>(2, 1, imu)</code>, <code>(2, 4, motor)</code> kaydından önce gelir. Bu sıra numarası yalnız eşitlik içindir. Görev önceliği veya son tamamlanma zamanı değildir.</p><p><a href="https://docs.python.org/3/library/heapq.html">Python heapq belgeleri</a></p></section><section id="robot-timers">
+<h2>Robotun ilk 12 milisaniyesi</h2>
+<p>Dört görev kendi periyodunun sonunda ilk kez hazır olsun. Kuyruk yalnız bir sonraki hazır olma zamanını tutar. Bu izde her tikte hazır görevlerin hepsini işliyoruz. İşleyici süreleri ve gerçek zamanlı görev öncelikleri bu küçük modelin dışında.</p>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Robot görevleri"><table class="robot-table"><caption>Robot görevleri</caption><thead><tr><th scope="col">Kod</th><th scope="col">Görev</th><th scope="col">Periyot (ms)</th><th scope="col">İlk hazır olma zamanı (ms)</th></tr></thead><tbody><tr><th scope="row">M</th><td>Motor kontrolü</td><td>1</td><td>1</td></tr><tr><th scope="row">I</th><td>IMU</td><td>2</td><td>2</td></tr><tr><th scope="row">O</th><td>Odometri</td><td>10</td><td>10</td></tr><tr><th scope="row">T</th><td>Telemetri</td><td>50</td><td>50</td></tr></tbody></table></div><p>Başlangıç öbeği <code>[(1, 0, M), (2, 1, I), (10, 2, O), (50, 3, T)]</code>. Sıra numaraları 0’dan başlıyor. Her tikte kökü oku. Hazır olma zamanı şimdiye eşit veya küçükse çıkar, görevi çalıştır ve yeni zamanı ekle. Kök ilerideyse sonraki tike geç.</p><pre class="lab-variation"><code>while heap and heap[0][0] &lt;= now:
+    release, _, task = heappop(heap)
+    run(task)
+    heappush(heap, (release + period[task], next(sequence), task))</code></pre><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Her çıkarmadan ve yeniden eklemeden sonraki öbek dizisi"><table class="robot-table"><caption>Her çıkarmadan ve yeniden eklemeden sonraki öbek dizisi</caption><thead><tr><th scope="col">Şimdi (ms)</th><th scope="col">Çıkar</th><th scope="col">Çalıştır</th><th scope="col">Yeniden ekle</th><th scope="col">Son öbek</th></tr></thead><tbody><tr><th scope="row">1</th><td><code>(1, 0, M)</code></td><td>Motor kontrolü</td><td><code>(2, 4, M)</code></td><td><code>[(2, 1, I), (2, 4, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">2</th><td><code>(2, 1, I)</code></td><td>IMU</td><td><code>(4, 5, I)</code></td><td><code>[(2, 4, M), (4, 5, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">2</th><td><code>(2, 4, M)</code></td><td>Motor kontrolü</td><td><code>(3, 6, M)</code></td><td><code>[(3, 6, M), (4, 5, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">3</th><td><code>(3, 6, M)</code></td><td>Motor kontrolü</td><td><code>(4, 7, M)</code></td><td><code>[(4, 5, I), (4, 7, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">4</th><td><code>(4, 5, I)</code></td><td>IMU</td><td><code>(6, 8, I)</code></td><td><code>[(4, 7, M), (6, 8, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">4</th><td><code>(4, 7, M)</code></td><td>Motor kontrolü</td><td><code>(5, 9, M)</code></td><td><code>[(5, 9, M), (6, 8, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">5</th><td><code>(5, 9, M)</code></td><td>Motor kontrolü</td><td><code>(6, 10, M)</code></td><td><code>[(6, 8, I), (6, 10, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">6</th><td><code>(6, 8, I)</code></td><td>IMU</td><td><code>(8, 11, I)</code></td><td><code>[(6, 10, M), (8, 11, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">6</th><td><code>(6, 10, M)</code></td><td>Motor kontrolü</td><td><code>(7, 12, M)</code></td><td><code>[(7, 12, M), (8, 11, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">7</th><td><code>(7, 12, M)</code></td><td>Motor kontrolü</td><td><code>(8, 13, M)</code></td><td><code>[(8, 11, I), (8, 13, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">8</th><td><code>(8, 11, I)</code></td><td>IMU</td><td><code>(10, 14, I)</code></td><td><code>[(8, 13, M), (10, 14, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">8</th><td><code>(8, 13, M)</code></td><td>Motor kontrolü</td><td><code>(9, 15, M)</code></td><td><code>[(9, 15, M), (10, 2, O), (50, 3, T), (10, 14, I)]</code></td></tr><tr><th scope="row">9</th><td><code>(9, 15, M)</code></td><td>Motor kontrolü</td><td><code>(10, 16, M)</code></td><td><code>[(10, 2, O), (10, 14, I), (50, 3, T), (10, 16, M)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 2, O)</code></td><td>Odometri</td><td><code>(20, 17, O)</code></td><td><code>[(10, 14, I), (10, 16, M), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 14, I)</code></td><td>IMU</td><td><code>(12, 18, I)</code></td><td><code>[(10, 16, M), (12, 18, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 16, M)</code></td><td>Motor kontrolü</td><td><code>(11, 19, M)</code></td><td><code>[(11, 19, M), (12, 18, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">11</th><td><code>(11, 19, M)</code></td><td>Motor kontrolü</td><td><code>(12, 20, M)</code></td><td><code>[(12, 18, I), (12, 20, M), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">12</th><td><code>(12, 18, I)</code></td><td>IMU</td><td><code>(14, 21, I)</code></td><td><code>[(12, 20, M), (14, 21, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">12</th><td><code>(12, 20, M)</code></td><td>Motor kontrolü</td><td><code>(13, 22, M)</code></td><td><code>[(13, 22, M), (14, 21, I), (50, 3, T), (20, 17, O)]</code></td></tr></tbody></table></div><p>2 ms’de hem I hem M hazır. I daha önce eklendiği için önce çıkar. 10 ms’de O, I, M sırası da aynı kuralla oluşur. T’nin ilk zamanı 50 ms olduğu için tabloda çalışmaz ama öbekte kalır.</p>
+<p>Sonraki zamanı <code>release + period</code> ile hesapla. Örneğin 10 ms’de çalışan O, 20 ms için yeniden eklenir. 10 ms işi 11 ms’ye sarksa bile 10 + 10 hesabı dönem çizgisini korur. Gerçek sistemde birikmiş işleri çalıştırma, atlama veya birleştirme politikasını ayrıca seçersin.</p></section><section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
+<p>[4, 9, 7] öbeğiyle başla. Önce hazır olma zamanı 3 olan kaydı ekle, sonra minimumu çıkar. Sıfır tabanlı çocuk indisleri 2i + 1 ve 2i + 2’dir. Eşit hazır olma zamanlarında ekleme sırasını kullan.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
+<details><summary>İzi karşılaştır</summary><p>3’ü sona ekle, 9 ve 4 ile yer değiştir. Sonuç [3, 4, 7, 9]. 3’ü çıkar, 9’u köke taşı ve 4 ile değiştir. Sonuç [4, 9, 7]. Minimumu okumak tek erişimdir. Ekleme ve çıkarma en çok bir ağaç yolu boyunca ilerler, yaklaşık log₂ n iş yapar.</p></details><details><summary>Üç cümlelik örnek açıklama</summary><p>Min-öbekte kök en küçük öğedir çünkü her ebeveyn çocuklarından küçük veya eşittir. Eklemede yeni öğe yalnız kendi ebeveyn yolu boyunca yukarı çıkar. Kök çıkarılınca son öğe köke gelir ve düzen sağlanana kadar küçük çocukla yer değiştirir.</p></details>
 
 <h3>Zamanlayıcı önceliklerini ve eşitlikleri izle</h3>
-<p>Min-öbek kökü (3, A), çocukları (7, B) ve (5, C). (3, D) ekle, sonra ilk iki zamanlayıcıyı çıkar. Eşit sürelerde A, B, C, D sırasını kullan.</p>
-<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>D, B’nin altına eklenir. 3 daha erken olduğu için B’yi geçer, eşitlikte A önce geldiği için A’nın altında kalır.</li><li>A’yı çıkarıp son öğe B’yi köke taşı. D ve C’yi karşılaştır. B, D ile yer değiştirir ve D ilk olur.</li><li>Sonra D çıkar. C köke gelir. B daha geç olduğundan sonraki zamanlayıcı 5 zamanındaki C’dir.</li></ol></details>
+<p>Min-öbek kökü (3, A), çocukları (7, B) ve (5, C). (3, D) ekle, sonra ilk iki zamanlayıcıyı çıkar. Eşit hazır olma zamanlarında A, B, C, D sırasını kullan.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>D, B’nin altına eklenir. 3 daha erken olduğu için B’yi geçer, eşitlikte A önce geldiği için A’nın altında kalır.</li><li>A’yı çıkarıp son öğe B’yi köke taşı. D ve C’yi karşılaştır. B, D ile yer değiştirir ve D ilk olur.</li><li>Sonra D çıkar. C köke gelir. B daha geç olduğundan kalan en erken hazır olma zamanı C’nin 5 zamanıdır.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
+<section id="heap-mistakes">
+<h2>Sık yapılan hatalar</h2>
+<ul class="heap-mistakes-list">
+<li><strong>Öbeği sıralı sanmak.</strong> [4, 9, 7] geçerli bir min-öbek. Yalnız ebeveynler ile çocukları arasında kural var.</li>
+<li><strong>İkinci en küçüğü <code>heap[1]</code> sanmak.</strong> Bu örnekte <code>heap[1]</code> 9, ikinci en küçük değer 7.</li>
+<li><strong>Boş öbekten okumak veya çıkarmak.</strong> Önce <code>if heap:</code> ile kontrol et.</li>
+<li><strong>Zamanı gelmiş ile gecikmişi karıştırmak.</strong> Şimdi 20 iken hazır olma zamanı 20 olan görev zamanı gelmiştir. İşlenmemiş 19 gecikmiştir.</li>
+<li><strong>Eşitlik kuralını unutmak.</strong> Her eklemede yeni sıra numarası kullan. Görev nesnesi karşılaştırmaya girmez.</li>
+</ul>
+<h3>Gerçek sistemler farklı yapılar kullanır</h3>
+<p>FreeRTOS, geciken görevlerin uyanma zamanını sıralı bağlı listede tutar. Linux’un yüksek çözünürlüklü zamanlayıcıları ise zaman sırası için dengeli bir kırmızı-siyah ağaç kullanır. Küçük bir kuyrukta basit bir yapı yeterli olabilir. Laboratuvarda ölçtüğün süreleri gerçek kuyruk boyutuyla karşılaştır. <a href="https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/tasks.c">FreeRTOS kaynak kodu</a> · <a href="https://docs.kernel.org/timers/hrtimers.html">Linux hrtimers belgeleri</a></p>
+<h3>İngilizce–Türkçe terimler</h3>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Zamanlayıcı terimleri"><table class="robot-table"><caption>Zamanlayıcı terimleri</caption><thead><tr><th scope="col">İngilizce</th><th scope="col">Türkçe</th><th scope="col">Bu derste anlamı</th></tr></thead><tbody><tr><th scope="row">Release time</th><td>Hazır olma zamanı</td><td>Görevin çalışmaya başlayabileceği en erken an.</td></tr><tr><th scope="row">Deadline</th><td>Son tamamlanma zamanı</td><td>İşin bitmesi gereken son an.</td></tr><tr><th scope="row">Due</th><td>Zamanı gelmiş</td><td>Hazır olma zamanı ≤ şimdi. Eşitlik dahildir.</td></tr><tr><th scope="row">Overdue</th><td>Gecikmiş</td><td>Henüz işlenmemiş ve hazır olma zamanı < şimdi.</td></tr><tr><th scope="row">Pending</th><td>Bekleyen</td><td>Kuyrukta ve henüz işlenmemiş.</td></tr><tr><th scope="row">Priority queue</th><td>Öncelik kuyruğu</td><td>En öncelikli kaydı önce veren yapı.</td></tr></tbody></table></div></section><section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Sırasız liste ve öbekte bir zamanlayıcıyı bulup değiştirme maliyetini tahmin et. İki kuyruk boyutunda çağrı başına bir değiştirmeyi ölç. Öbeği önceden kur.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -51,13 +136,13 @@ from heapq import heapify, heapreplace
 
 def list_job(timers):
     index = min(range(len(timers)), key=timers.__getitem__)
-    deadline, sequence = timers[index]
-    timers[index] = deadline + len(timers), sequence
+    release, sequence = timers[index]
+    timers[index] = release + len(timers), sequence
 
 
 def heap_job(timers):
-    deadline, sequence = timers[0]
-    heapreplace(timers, (deadline + len(timers), sequence))
+    release, sequence = timers[0]
+    heapreplace(timers, (release + len(timers), sequence))
 
 
 for n in (32, 512):
@@ -70,10 +155,10 @@ for n in (32, 512):
 </code></pre>
 <h3>Deney adımları</h3>
 <p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
-<ol class="tool-steps"><li>Özgün boyutlarda liste ve öbekte değiştirme süresini ölç. Benzetimde zamanlayıcı yükünün hangi yönünün sabit kaldığını açıkla.</li><li>Kuyruk boyutlarını 8 ve 128 yap. Süreleri karşılaştır. Listenin en küçüğü seçmek için kaç öğeye baktığını tahmin et.</li><li>Eşit süreler içeren küçük bir (zaman, sıra) öbeğinde çıkarma sırasını dene. Boş öbekte heappop çağırmadan boş durumu test et.</li></ol>
+<ol class="tool-steps"><li>Özgün boyutlarda liste ve öbekte değiştirme süresini ölç. Benzetimde zamanlayıcı yükünün hangi yönünün sabit kaldığını açıkla.</li><li>Kuyruk boyutlarını 8 ve 128 yap. Süreleri karşılaştır. Listenin en küçüğü seçmek için kaç öğeye baktığını tahmin et.</li><li>Eşit hazır olma zamanları içeren küçük bir (hazır olma zamanı, sıra) öbeğinde çıkarma sırasını dene. Boş öbekte heappop çağırmadan boş durumu test et.</li></ol>
 <details><summary>Kopyalanabilir deney kodu</summary>
 <p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
-<pre class="lab-variation"><code>from heapq import heappop
+<pre class="lab-variation"><code>from heapq import heapify, heappop
 
 timers = [(3, 1), (7, 2), (5, 3), (3, 4)]
 heapify(timers)
@@ -86,20 +171,20 @@ print(order)</code></pre>
 <p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
 <section id="studio"><p class="eyebrow">45 dk</p><h2>Çevrim bütçesiyle zamanlayıcı çalıştır</h2>
-<p>20. anda kuyrukta 18, 19, 20 ve 24 zamanları var. Kuyruk işi dahil her görev başlatma 0,07 ms. Bu çevrimde en fazla 0,15 ms harcanabilir.</p>
+<p>20. anda kuyrukta 18, 19, 20 ve 24 hazır olma zamanları var. Kuyruk işi dahil her görev başlatma 0,07 ms. Bu çevrimde en fazla 0,15 ms harcanabilir.</p>
 <p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
-<ol class="tool-steps"><li>Zamanı gelenleri, bu çevrimde çalışanları ve kalanları yaz. En eski zamanı nasıl seçtiğini belirt.</li><li>Sığmayan gecikmiş görev için kural öner. Öbekteki son tarih ile görev işleyicisinin maliyetini ayır.</li><li>Eşit zamanlı birkaç görev ve en erken görevin henüz zamanı gelmemiş bir kuyruk için kabul testleri yaz.</li></ol>
-<details><summary>Örnek çözümü karşılaştır</summary><p>Üç görevin zamanı geldi. 0,14 ms’ye iki başlatma sığar, önce 18 ve 19 çalışır. 20 gecikmiş, 24 beklemededir. Gecikme kaydedilip sonraki çevrimde yeniden denenebilir veya görevin son tarihi hata yanıtı gerektirebilir. Öbek zamanları sıralar, işleyici süresini tahmin etmez.</p></details>
+<ol class="tool-steps"><li>Zamanı gelenleri, bu çevrimde çalışanları ve kalanları yaz. En eski zamanı nasıl seçtiğini belirt.</li><li>Zamanı gelmiş ama bütçeye sığmayan görev için kural öner. Hazır olma zamanını görev işleyicisinin maliyetinden ayır.</li><li>Eşit hazır olma zamanlı birkaç görev ve en erken görevin henüz zamanı gelmemiş bir kuyruk için kabul testleri yaz.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>Üç görevin zamanı geldi. 0,14 ms’ye iki başlatma sığar, önce 18 ve 19 çalışır. 20’nin zamanı gelmiştir ve görev bekler. 21’de hâlâ bekliyorsa gecikmiştir. 24 de bekler ama henüz zamanı gelmemiştir. Gecikme sonraki tikte kaydedilebilir veya son tamamlanma zamanı hata yanıtı gerektirebilir.</p></details>
 </section>
 <section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
 <p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
-<ol class="practice-list"><li><p>Aşağı kaydırırken kökle hangi çocuk yer değiştirir?</p><details><summary>Yanıtı göster</summary><p>Küçük çocuk. Eşitlikte belirlenen kuralı uygula.</p></details></li><li><p>İki zaman aynıysa sıra nasıl belirlenir?</p><details><summary>Yanıtı göster</summary><p>Karşılaştırmada zamanın ardından sıra numarası kullanılır.</p></details></li><li><p>Çıkarma 0,03 ms, ayırabildiğin süre 0,02 ms. İşlem sığar mı?</p><details><summary>Yanıtı göster</summary><p>Ölçülen işlem bütçeyi aşıyor.</p></details></li></ol><p>Ara sınav 1–7. haftaları kapsar.</p></section>
-<section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>[4, 9, 7] için en erken zaman nedir?</p><details><summary>Yanıtı göster</summary><p>4.</p></details></li><li><p>5. indisin ebeveyni hangi indistir?</p><details><summary>Yanıtı göster</summary><p>2.</p></details></li><li><p>[4, 9, 7] dizisinin tamamı sıralı mı?</p><details><summary>Yanıtı göster</summary><p>Hayır. Her ebeveyn çocuklarından küçük veya eşittir.</p></details></li><li><p>Öbek boşsa ne yapılmalı?</p><details><summary>Yanıtı göster</summary><p>Bekleyen zamanlayıcı yok sonucu verilir. Çıkarma yapılmaz.</p></details></li><li><p>En erken zaman şu andan sonraysa öbek ne söyler?</p><details><summary>Yanıtı göster</summary><p>Henüz zamanı gelen bir görev yok.</p></details></li></ol></section>
+<ol class="practice-list"><li><p>Aşağı kaydırırken kökle hangi çocuk yer değiştirir?</p><details><summary>Yanıtı göster</summary><p>Küçük çocuk. Eşitlikte belirlenen kuralı uygula.</p></details></li><li><p>İki hazır olma zamanı aynıysa sıra nasıl belirlenir?</p><details><summary>Yanıtı göster</summary><p>Hazır olma zamanından sonra benzersiz sıra numarası karşılaştırılır.</p></details></li><li><p>Çıkarma 0,03 ms, ayırabildiğin süre 0,02 ms. İşlem sığar mı?</p><details><summary>Yanıtı göster</summary><p>Hayır: 0,03 &gt; 0,02 ms.</p></details></li></ol><p>Ara sınav 1–7. haftaları kapsar.</p></section>
+<section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>[4, 9, 7] için en erken hazır olma zamanı nedir?</p><details><summary>Yanıtı göster</summary><p>4.</p></details></li><li><p>5. indisin ebeveyni hangi indistir?</p><details><summary>Yanıtı göster</summary><p>2.</p></details></li><li><p>[4, 9, 7] dizisinin tamamı sıralı mı?</p><details><summary>Yanıtı göster</summary><p>Hayır. Her ebeveyn çocuklarından küçük veya eşittir.</p></details></li><li><p>Öbek boşsa ne yapılmalı?</p><details><summary>Yanıtı göster</summary><p>Bekleyen zamanlayıcı yok sonucu verilir. Çıkarma yapılmaz.</p></details></li><li><p>En erken zaman şu andan sonraysa öbek ne söyler?</p><details><summary>Yanıtı göster</summary><p>Henüz zamanı gelen bir görev yok.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
-<p>Öbekte çok sayıda gecikmiş görev varken çalışma bütçesini nasıl uygularsın?</p>
-<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+<p>Çok sayıda görevin zamanı gelmişken çalışma bütçesini nasıl uygularsın?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p><details><summary>Örnek çıkış yanıtı</summary><p>Başlatmadan önce görevin kalan çevrim bütçesine sığdığını kontrol et. 0,15 ms bütçede 0,07 ms’lik iki iş sığar, üçüncüsü bekler. Bekleyen işin gecikmesini sonraki tikte kaydet veya güvenlik kuralına göre bir hata bildir.</p></details>
 </section>
-<section id="topic-references"><h2>Konu kaynakları</h2>
+<section id="midterm-card"><h2>1–7. haftalara kısa bakış</h2><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Ara sınav kartı"><table class="robot-table"><caption>Ara sınav kartı</caption><thead><tr><th scope="col">Hafta ve konu</th><th scope="col">Yardımsız yap</th></tr></thead><tbody><tr><th scope="row"><a href="../../w1/tr/#exam-practice">1 · İlk eşleşme</a></th><td>İz sür, karşılaştırmaları say ve eşleşmesiz durumu dene.</td></tr><tr><th scope="row"><a href="../../w2/tr/#exam-practice">2 · Büyüme</a></th><td>n, n log₂ n ve n² için girdi büyüdüğünde ne olacağını tahmin et.</td></tr><tr><th scope="row"><a href="../../w3/tr/#exam-practice">3 · İkili arama</a></th><td>lo ve hi sınırlarını güncelle, tablo dışı indisi yorumla.</td></tr><tr><th scope="row"><a href="../../w4/tr/#exam-practice">4 · FIFO ve halka</a></th><td>Baş indisini ve boyutu izle, bellek bütçesini hesapla.</td></tr><tr><th scope="row"><a href="../../w5/tr/#exam-practice">5 · Tam arama</a></th><td>Sıralı arama ile karma tablosunu karşılaştır, çakışmayı izle.</td></tr><tr><th scope="row"><a href="../../w6/tr/#exam-practice">6 · Medyan süzgeci</a></th><td>Pencereyi sırala, medyanı bul ve tepki gecikmesini açıkla.</td></tr><tr><th scope="row"><a href="../../w7/tr/#exam-practice">7 · Zamanlayıcı öbeği</a></th><td>Bir ekleme ve çıkarma izle, zamanı geleni seç.</td></tr></tbody></table></div></section><section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w6/tr/reference.html">Önceki ders 6 · Öbekler</a></li><li><a href="../../w6/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 06</a></li></ul>
 <p><a href="../../resources/#assessment">Sınav kapsamı ve proje</a></p>

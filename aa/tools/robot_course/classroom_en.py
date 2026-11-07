@@ -141,11 +141,11 @@ WEEKS = [
     ),
     (
         "Trace timer priorities and ties",
-        "A min-heap has root (3, A), with children (7, B) and (5, C). Insert (3, D), then remove the next two timers. Equal deadlines are ordered by sequence A, B, C, D.",
+        "A min-heap has root (3, A), with children (7, B) and (5, C). Insert (3, D), then remove the next two timers. Equal release times are ordered by sequence A, B, C, D.",
         (
             "Append D under B. D moves past B because deadline 3 comes first, then stops below A because A wins the tie.",
             "Remove A and move the last element B to the root. Compare D and C. Swap B with D, leaving D first.",
-            "Remove D next. Move C to the root. B comes later, so the next due timer is C at time 5.",
+            "Remove D next. Move C to the root. B comes later, so the earliest remaining release is C at time 5.",
         ),
         (
             "Time the list scan and heap replacement at the original sizes. Explain what stays constant about the simulated timer workload.",
@@ -153,14 +153,14 @@ WEEKS = [
             "Use a small heap of (deadline, sequence) pairs with repeated deadlines and pop them in order. Test the empty case without calling heappop on an empty heap.",
         ),
         "Schedule timers with a per-cycle budget",
-        "At tick 20, the queue contains timers with deadlines 18, 19, 20 and 24. Each dispatch costs 0.07 ms including queue work. The robot can spend at most 0.15 ms on dispatch in this cycle.",
+        "At tick 20, the queue contains release times 18, 19, 20 and 24. Each dispatch costs 0.07 ms including queue work. The robot can spend at most 0.15 ms on dispatch in this cycle.",
         (
             "Trace which timers are due, which run this cycle, and what remains. State how the oldest due timer is selected.",
-            "Choose what to do with the overdue timer that does not fit. Distinguish a deadline in the heap from the cost of running its handler.",
-            "Write an acceptance test for several equal deadlines and another for a queue whose earliest timer is in the future.",
+            "Choose what to do with the due timer that does not fit. Distinguish its release time from the cost of running its handler.",
+            "Write an acceptance test for several equal release times and another for a queue whose earliest release is in the future.",
         ),
-        "Three timers are due. Two dispatches fit at 0.14 ms, so run deadlines 18 and 19 first. Deadline 20 stays overdue and deadline 24 stays pending. One policy records the lateness and retries at the next tick, unless the task’s deadline requires a fault response. The heap orders due times and does not predict handler duration.",
-        "How would you enforce an execution budget even if many timers in the heap have already expired?",
+        "Three timers are due. Two dispatches fit at 0.14 ms, so run releases 18 and 19 first. Release 20 is due now and stays pending. It becomes overdue at tick 21 if it still waits. Release 24 is pending and will be due later. One policy records lateness at the next tick, unless the task’s completion deadline requires a fault response.",
+        "How would you enforce an execution budget even if many timers are already due?",
     ),
     (
         "Build breadth-first layers on a map",

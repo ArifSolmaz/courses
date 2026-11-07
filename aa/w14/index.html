@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">What if I cannot find an exact tour fast enough?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot must visit four stations for pick-and-place and return to its dock. The route should be short and planning time matters. With many stations, trying all orders can exceed the budget.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 <p>The decision version asks whether a tour fits budget B. This version of TSP is NP-complete for integer distance tables. P is contained in NP. Checking one proposed tour quickly leaves open whether every instance can be solved quickly.</p>
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a planner under a deadline</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a planner under a deadline</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Choose what to guarantee when planning a tour</h2>
+<h3>You will be able to</h3><ul><li>Define a tour with a fixed depot.</li><li>Count candidate visit orders.</li><li>Trace nearest neighbor and 2-opt.</li><li>Distinguish feasibility from optimality.</li></ul>
+<h3>Before you start</h3><p>A route to one goal is different from a tour that visits every stop and returns to the depot.</p>
+<p>With a fixed depot and k other stops there are k! visit orders before exploiting symmetry. An exact search checks all those orders or uses a rule that can safely discard some. At larger k, a heuristic can often produce a usable tour within the available planning time.</p><p>Nearest neighbor repeatedly chooses the closest unvisited stop. It can make an early choice that forces a long final return. A 2-opt move reverses an internal segment and replaces two links. For symmetric distances, the internal links keep their lengths when reversed.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · rectangle with sides 5 and 12 and diagonal 13</figcaption>
+<ol class="concept-frames"><li><strong>A → B → C → D → A</strong><span>Perimeter cost 5 + 12 + 5 + 12 = 34.</span></li><li><strong>A → C → B → D → A</strong><span>Crossed tour cost 13 + 12 + 13 + 12 = 50.</span></li><li><strong>Reverse C → B</strong><span>Replace A–C and B–D with A–B and C–D. Save 16.</span></li></ol>
+</figure>
+<p>With a budget of 40 the improved tour is a valid witness. Verify that each stop occurs once, the tour returns to A, and the total fits. A search that has only found tours costing more than 40 has not established that none can fit.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Use dock A = (0,0), B = (3,0), C = (3,4), D = (0,4) and straight-line distance. Trace nearest neighbor starting at A. Then take the crossed tour A–C–B–D–A. Try a 2-opt swap that removes its two diagonal links.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>Nearest neighbor gives A–B–C–D–A with cost 14. The crossed tour costs 18. Reversing the segment C–B removes AC and BD and adds AB and CD, reducing the cost by 4. Nearest neighbor and 2-opt can give a quick good tour. On larger inputs they offer no general guarantee of the optimum.</p></details>
+<details><summary>Check your trace</summary><p>Nearest neighbor gives A–B–C–D–A with cost 14. The crossed tour costs 18. Reversing the segment C–B removes AC and BD and adds AB and CD, reducing the cost by 4. Nearest neighbor and 2-opt can give a quick good tour. On larger inputs they offer no general guarantee of the optimum.</p></details><details><summary>Compare a three-sentence explanation</summary><p>Nearest neighbor follows the rectangle’s perimeter and costs 14. The crossed route costs 18 because it uses two diagonals. Reversing C–B replaces both diagonals and restores the 14-cost perimeter.</p></details>
 
 <h3>Compare a feasible tour and a better tour</h3>
 <p>Use A=(0,0), B=(4,0), C=(4,3), D=(0,3). Compare A→B→C→D→A with A→C→B→D→A using Euclidean distance. Use a tour budget of 15.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Side lengths are 4 and 3, and each diagonal is 5. The perimeter costs 14. The crossed tour costs 16.</li><li>Reverse the internal segment C→B in the crossed route. That replaces the diagonals A→C and B→D with edges A→B and C→D.</li><li>The perimeter is a witness that the budget is feasible. Checking a witness requires verifying stops, the return to A and the cost.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Forgetting the leg back to the depot.</li><li>Calling a heuristic result optimal without an exact argument.</li><li>Treating a failed search as proof of infeasibility.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Tour / Tur</dt><dd>Visit every stop and return to the depot.</dd><dt>Heuristic / Sezgisel yöntem</dt><dd>Rule for finding a useful candidate quickly.</dd><dt>Witness / Tanık</dt><dd>A candidate that proves the budget can be met.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Time nearest neighbor, nearest neighbor plus 2-opt, and exhaustive search on deterministic point sets of 6 and 8 stations. Compare costs and times. Before running, predict which methods to keep for 30 stations and why.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -120,7 +136,7 @@ print(crossed, &quot;-&gt;&quot;, better)</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many orders are tried for four stations when A is fixed first?</p><details><summary>Show answer</summary><p>3! = 6. With symmetric distances, reversal pairs represent the same tour cost.</p></details></li><li><p>Which station is nearest to A?</p><details><summary>Show answer</summary><p>B at distance 3.</p></details></li><li><p>What is the crossed tour’s cost?</p><details><summary>Show answer</summary><p>5 + 4 + 5 + 4 = 18.</p></details></li><li><p>If 2-opt finds no improving swap, is the tour necessarily optimal?</p><details><summary>Show answer</summary><p>No. It is locally optimal for that swap rule.</p></details></li><li><p>Does fast verification tell you whether P equals NP?</p><details><summary>Show answer</summary><p>No. The question of whether every such decision problem also has a polynomial-time solver is open.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>What does a verified cost-28 tour prove for a budget of 30? What does it say about optimality?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>A verified tour costing 28 proves that a budget of 30 is feasible. A cheaper tour may still exist. To claim optimality, supply a lower bound of 28 or an exact search result.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

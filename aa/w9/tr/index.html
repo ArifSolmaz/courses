@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../../assets/python-runner.css">
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -20,21 +21,36 @@
 <h1 id="lesson-title">Arazide en düşük maliyetli rota hangisi?</h1>
 <p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Rakamlar artık hücreye girmenin enerji maliyetidir. Noktalar ve G bir birim tutar. S’de başlangıç maliyeti sıfırdır. En ucuz rota daha çok adım içerebilir.</p>
-<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
+<p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Enerjiye göre en iyi yolun ne zaman değiştiğini bul</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Enerjiye göre en iyi yolun ne zaman değiştiğini bul</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+</section>
+<section id="concepts">
+<h2>Hamle maliyetleri farklıyken en ucuz yolu bul</h2>
+<h3>Bu derste yapabileceklerin</h3><ul><li>Hamle ve toplam maliyeti ayır.</li><li>Geçici maliyeti ve ebeveyni güncelle.</li><li>Min-öbekten sıradaki adayı oku.</li><li>Hedefte ne zaman durulacağını açıkla.</li></ul>
+<h3>Başlamadan önce</h3><p>8. haftada BFS hamle sayısını en aza indirdi. 7. haftanın min-öbeği şimdi en küçük bilinen maliyeti önce işlememizi sağlar.</p>
+<p>Dijkstra her hücreye bilinen en küçük maliyeti tutar. Kenarı denemek için mevcut maliyete kenar maliyetini ekle ve komşunun saklanan maliyetiyle karşılaştır. Aday küçükse maliyeti ve ebeveyni güncelle, iyileşen kaydı öbeğe ekle.</p><p>Öbek aynı hücrenin eski kaydını hâlâ tutabilir. Çıkan maliyet saklanan maliyetten farklıysa atla. Negatif olmayan kenarlarda güncel minimum çıkarma o hücrenin maliyetini kesinleştirir. Hedef güncel maliyetiyle çıktığında dur.</p>
+<figure class="concept-figure">
+<figcaption>Çözümlü iz · S–A 5, S–B 2, B–A 1, A–G 3, B–G 8</figcaption>
+<ol class="concept-frames"><li><strong>S maliyet 0 ile çıkar</strong><span>A için 5, B için 2 sakla.</span></li><li><strong>B maliyet 2 ile çıkar</strong><span>A’yı 3’e iyileştir ve G’yi 10 ile keşfet.</span></li><li><strong>A maliyet 3 ile çıkar</strong><span>G’yi 6’ya iyileştir. A’nın 5 kaydı eskidir.</span></li><li><strong>G maliyet 6 ile çıkar</strong><span>Eski A’yı atladıktan sonra S–B–A–G döndür.</span></li></ol>
+</figure>
+<p>Daha az hamleli S–A–G rotası 8 tutar. B üzerinden üç hamle 6 tutar. Hamleyi ve toplam maliyeti karşılaştırmak farklı soruları yanıtlar.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <figure><pre aria-label="Robotun ortak ızgarası">S999G
 .###.
 .....</pre><figcaption>S başlangıç, G hedef, # engel. Satır ve sütunlar sıfırdan başlar.</figcaption></figure><p>Aynı haritayı kullan. Her hücre için geçici maliyet ve ebeveyn tut. En düşük maliyeti çıkar. Eşitlikte önce satıra sonra sütuna bak. Komşu için mevcut maliyete giriş maliyetini ekle. Aday daha küçükse güncelle. G güncel en iyi maliyetiyle çıkarılınca dur.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
-<details><summary>İzi karşılaştır</summary><p>Üst yol 9 + 9 + 9 + 1 = 28 tutar. Alt koridor sekiz adımda 8 maliyetle G’ye ulaşır. Kesinleşen hücrenin maliyeti en iyidir çünkü sonraki uzatmalar negatif olmayan maliyet ekler. Daha iyi maliyet varsa öbekteki eski kaydı atla.</p><table class="robot-table"><thead><tr><th scope="col">Çıkarılan</th><th scope="col">g</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>0</td></tr><tr><th scope="row">(1,0)</th><td>1</td></tr><tr><th scope="row">(2,0)</th><td>2</td></tr><tr><th scope="row">(2,1)</th><td>3</td></tr><tr><th scope="row">(2,2)</th><td>4</td></tr><tr><th scope="row">(2,3)</th><td>5</td></tr><tr><th scope="row">(2,4)</th><td>6</td></tr><tr><th scope="row">(1,4)</th><td>7</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details>
+<details><summary>İzi karşılaştır</summary><p>Üst yol 9 + 9 + 9 + 1 = 28 tutar. Alt koridor sekiz adımda 8 maliyetle G’ye ulaşır. Kesinleşen hücrenin maliyeti en iyidir çünkü sonraki uzatmalar negatif olmayan maliyet ekler. Daha iyi maliyet varsa öbekteki eski kaydı atla.</p><table class="robot-table"><thead><tr><th scope="col">Çıkarılan</th><th scope="col">g</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>0</td></tr><tr><th scope="row">(1,0)</th><td>1</td></tr><tr><th scope="row">(2,0)</th><td>2</td></tr><tr><th scope="row">(2,1)</th><td>3</td></tr><tr><th scope="row">(2,2)</th><td>4</td></tr><tr><th scope="row">(2,3)</th><td>5</td></tr><tr><th scope="row">(2,4)</th><td>6</td></tr><tr><th scope="row">(1,4)</th><td>7</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details><details><summary>Üç cümlelik örnek açıklama</summary><p>Üst yol dört hamleyle 28 tutar. Min-öbek ucuz adayları önce işler ve hedefi alt yoldan maliyet 8 ile kesinleştirir. Hareket maliyetleri negatif olmadığından bu durma kuralı geçerlidir.</p></details>
 
 <h3>Maliyeti iki kez iyileştir ve eski öbek kaydını atla</h3>
 <p>Yönsüz kenarlar S–A 4, S–B 1, B–A 2, B–G 8 ve A–G 2. Geçici maliyet ve ebeveyn tablosu tut. Her iyileştirmeden sonra öbeği çiz.</p>
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>S çıkınca A maliyet 4, B maliyet 1 ile eklenir. B çıkınca A 3’e iner, G 9 ile keşfedilir.</li><li>A 3 ile çıkınca G 5’e iner. A’nın maliyeti 4 olan eski kaydı öbekte kalır.</li><li>Eski A kaydını atla. G 5 ile çıkınca S–B–A–G yolunu kur. İki hamleli S–A–G maliyet 6 olduğundan hamle ve enerji ölçütleri farklı yollar seçer.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
+</section>
+<section id="common-mistakes">
+<h2>Sık yapılan hatalar</h2><ul><li>Hedef ilk eklendiğinde durmak.</li><li>Eski kayıtları genişletmek.</li><li>Negatif kenarlarla aynı durma kuralını kullanmak.</li></ul>
+<h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>Relaxation / Maliyet iyileştirme</dt><dd>Komşu üzerinden daha ucuz bir yol dene.</dd><dt>Tentative / Geçici</dt><dd>Şimdiye dek bulunan en iyi maliyet.</dd><dt>Settled / Kesinleşmiş</dt><dd>Güncel minimum çıkarmayla sabitlenen maliyet.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>İki haritada BFS ve Dijkstra’yı karşılaştır. Hamleyi, arazi maliyetini, genişletilen hücreleri ve süreyi yaz. Sonra her geçilebilir hücreyi bir birim yap ve yeniden dene.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir. Çıkarma sayısı hedefi içerir ve öbekteki eski kayıtları saymaz.</p>
@@ -158,7 +174,7 @@ for grid, start, goal in maps:
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>S hangi geçici maliyetle başlar?</p><details><summary>Yanıtı göster</summary><p>0.</p></details></li><li><p>İlk komşuların geçici maliyeti nedir?</p><details><summary>Yanıtı göster</summary><p>(0,1) için 9, (1,0) için 1.</p></details></li><li><p>G’nin öbeğe ilk girişi neden yeterli değil?</p><details><summary>Yanıtı göster</summary><p>Sonraki rota maliyeti düşürebilir. Güncel minimum olarak çıkarılmasını bekle.</p></details></li><li><p>Hangi rota daha az hamleli?</p><details><summary>Yanıtı göster</summary><p>Üst rota, 8 yerine 4.</p></details></li><li><p>Hangi rota daha az enerji kullanır?</p><details><summary>Yanıtı göster</summary><p>Alt rota, 28 yerine 8.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
 <p>Hedefin ilk keşfi ağırlıklı aramada neden güvenli bir durma koşulu değildir?</p>
-<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p><details><summary>Örnek çıkış yanıtı</summary><p>Keşif yalnız bir aday verir, sonra daha iyi yol çıkabilir. Örnekte G önce 10, sonra 6 ile bulunur. Güncel minimum çıkarmada dur.</p></details>
 </section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>

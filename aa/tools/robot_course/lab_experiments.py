@@ -53,7 +53,7 @@ for label, window in cases:
     measure(label, lambda: insertion_median(window))
 ''',
     '''
-from heapq import heappop
+from heapq import heapify, heappop
 
 timers = [(3, 1), (7, 2), (5, 3), (3, 4)]
 heapify(timers)

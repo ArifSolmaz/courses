@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,14 +21,25 @@
 <h1 id="lesson-title">What happens when n grows 10×?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot gets a denser range scan. A single pass checks each point. A divide-and-merge pass does about n log₂ n work, while a comparison of every ordered pair does n². Which is likely to grow beyond the budget first?</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a method for a denser scanner</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a method for a denser scanner</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Why different loops grow at different rates</h2>
+<h3>You will be able to</h3><ul><li>Define n and a unit of work.</li><li>Recognize linear, n log n and quadratic growth.</li><li>Predict the effect of doubling n.</li><li>Compare count ratios with timing ratios.</li></ul>
+<h3>Before you start</h3><p>Week 1 counted one check per visited reading. Here n still counts items, but the unit of work depends on the algorithm.</p>
+<p>A full pass visits each entry once. A divide-and-merge method can do about n work on each level of splitting, for about log₂ n levels. An ordered-pair loop does n checks for each of n entries. That includes self-pairs if the diagonal stays in the table.</p><p>A growth model describes the effect of input size. A cheap inner operation can beat a more expensive one at small n. To compare time ratios, keep the input pattern, machine and timing method the same and collect more than two input sizes.</p>
+<figure class="concept-figure">
+<figcaption>Worked comparison · double the input from 8 to 16</figcaption>
+<ol class="concept-frames"><li><strong>Single pass</strong><span>8 → 16 visits. Ratio 2.</span></li><li><strong>Divide and merge</strong><span>8 × 3 → 16 × 4 units. Ratio about 2.67.</span></li><li><strong>Ordered pairs</strong><span>8² → 16² checks. Ratio 4.</span></li></ol>
+</figure>
+<p>Doubling adds one merge level and doubles both dimensions of a pair table. At 16 items the models give 16, 64 and 256 units. Those units need not represent identical CPU instructions.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Fill the table for n = 10, 100 and 1,000. Count n, approximate n log₂ n and count n². Then trace one four-point scan, a four-point merge tree with two levels, and the 4 × 4 table of ordered pairs including self-pairs.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The four-point scan has 4 visits. The merge tree handles 4 items at each of 2 levels, or 8 item visits in the simplified model. The pair table has 16 entries. Big-O names how the work grows as input gets large. The units, constants and machine still matter for timing.</p></details>
+<details><summary>Check your trace</summary><p>The four-point scan has 4 visits. The merge tree handles 4 items at each of 2 levels, or 8 item visits in the simplified model. The pair table has 16 entries. Big-O names how the work grows as input gets large. The units, constants and machine still matter for timing.</p></details><details><summary>Compare a three-sentence explanation</summary><p>A four-entry scan performs four visits. The merge model performs four units on each of two levels, for eight. The ordered-pair table has four rows of four, for 16 checks.</p></details>
 <details><summary>Check your completed table</summary>
 <figure class="growth-figure">
 <table><thead><tr><th scope="col">n</th><th scope="col">n</th><th scope="col">n log₂ n</th><th scope="col">n²</th></tr></thead><tbody><tr><th scope="row">10</th><td>10</td><td>33</td><td>100</td></tr><tr><th scope="row">100</th><td>100</td><td>664</td><td>10000</td></tr><tr><th scope="row">1000</th><td>1000</td><td>9966</td><td>1000000</td></tr></tbody></table>
@@ -39,6 +51,10 @@
 <p>Four range samples [8, 3, 8, 5] need duplicate detection. Compare all ordered pairs, all unordered pairs of different positions, and scanning a sorted copy for neighboring equal values.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Ordered pairs make a 4 × 4 table, so there are 16 comparisons. Diagonal matches compare a sample with itself.</li><li>Unordered pairs compare positions (0,1), (0,2), (0,3), (1,2), (1,3) and (2,3). Only (0,2) matches. The count is 6, or n(n − 1)/2 in general.</li><li>The sorted copy is [3, 5, 8, 8]. A full neighbor scan uses three comparisons. Include the work of obtaining the sorted copy if it is not already available.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Reading n log n as a constant number of passes.</li><li>Confusing a 4 × 4 ordered table with six unordered pairs.</li><li>Changing the data pattern while measuring the effect of n.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Input size / Girdi boyutu</dt><dd>Number of items n.</dd><dt>Growth rate / Büyüme hızı</dt><dd>How work changes with n.</dd><dt>Ratio / Oran</dt><dd>Larger result divided by smaller result.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict the ratios before running. Compare scans, merge sort and pair loops at n = 100 and 1,000. Compare ratios within each method. Explain why Python timings need not match the operation-count ratios.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -124,7 +140,7 @@ for n in (200, 400):
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many ordered comparisons for n = 100, including self-pairs?</p><details><summary>Show answer</summary><p>10,000.</p></details></li><li><p>What happens to n in the same change?</p><details><summary>Show answer</summary><p>It grows by 10×.</p></details></li><li><p>For powers of two, which has more merge levels, 64 or 128?</p><details><summary>Show answer</summary><p>128 has 7 levels, one more than 64.</p></details></li><li><p>A scan measures 0.08 ms at n = 100. Estimate at n = 1,000.</p><details><summary>Show answer</summary><p>About 0.8 ms if the measured rate holds.</p></details></li><li><p>How large is an n × n table of one-byte entries at n = 1,000?</p><details><summary>Show answer</summary><p>1,000,000 bytes before representation overhead.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>What can you infer when a 10× input increase takes about 100× as long? What should you still check?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>A 100× rise for a 10× input is consistent with quadratic growth. Check intermediate sizes and count the nested operations. Keep the input pattern and timing setup comparable.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

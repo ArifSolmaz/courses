@@ -54,12 +54,14 @@ const languages = [
     edit: 'Edit code', minutes: 'min', plan: /^180 minutes · .*10 min break/,
     worked: 'Show the worked steps', procedure: 'Lab procedure', variation: 'Show a ready-to-run variation',
     model: 'Compare a model answer', exit: 'Exit ticket',
+    traceModel: 'Compare a three-sentence explanation', exitModel: 'Compare a sample exit answer',
   },
   {
     code: 'tr', path: 'tr/', run: 'Python 1 kodunu çalıştır', stop: 'Durdur', stopped: /^Durduruldu\./, finished: 'Tamamlandı',
     edit: 'Kodu düzenle', minutes: 'dk', plan: /^180 dakika · .*10 dk ara/,
     worked: 'Çözüm adımlarını göster', procedure: 'Deney adımları', variation: 'Kopyalanabilir deney kodu',
     model: 'Örnek çözümü karşılaştır', exit: 'Çıkış sorusu',
+    traceModel: 'Üç cümlelik örnek açıklama', exitModel: 'Örnek çıkış yanıtı',
   },
 ];
 
@@ -70,7 +72,7 @@ function measurementLabels(result) {
   });
 }
 
-async function checkClassroomSections(page, language) {
+async function checkClassroomSections(page, week, language) {
   const opening = page.locator('section[aria-labelledby="lesson-title"]');
   await expect(opening.getByText(language.plan)).toBeVisible();
   await expect(opening.locator('.eyebrow').getByText(new RegExp(`^15 ${language.minutes} ·`))).toBeVisible();
@@ -81,7 +83,22 @@ async function checkClassroomSections(page, language) {
     await expect(section.locator(':scope > .eyebrow')).toHaveText(`${minutes} ${language.minutes}`);
   }
 
+  if (week === 7) {
+    const diagrams = page.locator('#heap-basics .heap-diagram');
+    await expect(diagrams).toHaveCount(2);
+    const insert = diagrams.first();
+    await expect(insert.locator('.heap-frame:visible .heap-array strong')).toHaveText(['4', '9', '7']);
+    await insert.locator('[data-heap-next]').click();
+    await expect(insert.locator('.heap-frame:visible .heap-array strong')).toHaveText(['4', '9', '7', '3']);
+    await expect(page.locator('#robot-timers table').last().locator('tbody tr')).toHaveCount(19);
+    await expect(page.locator('#midterm-card table tbody a')).toHaveCount(7);
+  } else {
+    await expect(page.locator('#concepts .concept-frames li').nth(2)).toBeVisible();
+    await expect(page.locator('#common-mistakes .concept-glossary dt')).toHaveCount(3);
+  }
+
   const paper = page.locator('#paper');
+  await expect(paper.getByText(language.traceModel, { exact: true })).toBeVisible();
   await expect(paper.getByRole('heading', { level: 3 })).toHaveText(/\S/);
   await paper.getByText(language.worked, { exact: true }).click();
   const workedSteps = paper.locator('details[open] ol > li');
@@ -106,6 +123,10 @@ async function checkClassroomSections(page, language) {
   const exit = page.locator('#exit-ticket');
   await expect(exit.getByRole('heading', { name: language.exit, exact: true })).toBeVisible();
   await expect(exit.locator('h2 + p')).toHaveText(/\S/);
+  await exit.getByText(language.exitModel, { exact: true }).click();
+  const exitAnswer = exit.locator('details[open] > p');
+  await expect(exitAnswer).toBeVisible();
+  await expect(exitAnswer).toHaveText(/\S/);
 }
 
 async function openLab(page, week, language) {
@@ -131,7 +152,7 @@ for (const language of languages) {
       test(`Week ${week} classroom sections, timing lab and variation`, async ({ page }) => {
         const lab = await openLab(page, week, language);
         await test.step('Verify the three-hour lesson sections', async () => {
-          await checkClassroomSections(page, language);
+          await checkClassroomSections(page, week, language);
         });
         await test.step('Run the starter lab', async () => {
           await lab.run.click();

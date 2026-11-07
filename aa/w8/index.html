@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,21 +21,36 @@
 <h1 id="lesson-title">What route uses the fewest moves?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot can move one cell up, right, down or left. Each move costs one step. Find a route from S to G with the fewest moves. # cells are blocked. The digits are terrain labels we will use next week.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Route a robot with two available exits</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Route a robot with two available exits</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Explore a grid one distance layer at a time</h2>
+<h3>You will be able to</h3><ul><li>Turn a grid into a graph.</li><li>Trace a FIFO frontier.</li><li>Record parents at discovery.</li><li>Recognize when no route exists.</li></ul>
+<h3>Before you start</h3><p>Week 4’s FIFO queue returns the oldest inserted entry first. Here each free cell is a vertex and legal moves to neighboring cells are edges.</p>
+<p>BFS starts by marking the start and putting it in a queue. Pop the oldest cell, then enqueue each unseen legal neighbor. Give each neighbor its distance and parent at discovery. A cell is marked before it can be enqueued again from a different direction.</p><p>Cells leave in layers of 0, 1, 2 and more moves. That is why the first path to a cell has fewest moves when all moves count the same. Follow parents backward and reverse the list. If the queue runs out, there is no reachable goal.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · S and G on opposite corners of a free 2 × 2 grid</figcaption>
+<ol class="concept-frames"><li><strong>Queue [(0,0)]</strong><span>Distance 0. The start has no parent.</span></li><li><strong>Queue [(0,1), (1,0)]</strong><span>Pop S and discover both distance-1 neighbors.</span></li><li><strong>Queue [(1,0), (1,1)]</strong><span>Discover G from (0,1), at distance 2.</span></li><li><strong>Pop G</strong><span>Parent chain is G ← (0,1) ← S. Return S, right, down.</span></li></ol>
+</figure>
+<p>When the lower cell is popped, G is already marked, so it is not enqueued again. With both middle cells blocked the queue empties after S, and the answer is unreachable.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
 .....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>Use the grid below. Start a FIFO with S, mark cells when enqueued and record each cell’s parent. Expand neighbors in up, right, down, left order. Write the queue after each pop until G is popped. Follow parents back to S.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>From S, the top neighbor at (0,1) and the lower neighbor at (1,0) both enter at distance 1. The FIFO expands distance layers in order. G at (0,4) is reached across the top in four moves. The queue, visited cells and parents use space proportional to the reachable cells.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">FIFO after processing</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>(0,1), (1,0)</td></tr><tr><th scope="row">(0,1)</th><td>(1,0), (0,2)</td></tr><tr><th scope="row">(1,0)</th><td>(0,2), (2,0)</td></tr><tr><th scope="row">(0,2)</th><td>(2,0), (0,3)</td></tr><tr><th scope="row">(2,0)</th><td>(0,3), (2,1)</td></tr><tr><th scope="row">(0,3)</th><td>(2,1), (0,4)</td></tr><tr><th scope="row">(2,1)</th><td>(0,4), (2,2)</td></tr><tr><th scope="row">(0,4)</th><td>(2,2) · stop</td></tr></tbody></table></details>
+<details><summary>Check your trace</summary><p>From S, the top neighbor at (0,1) and the lower neighbor at (1,0) both enter at distance 1. The FIFO expands distance layers in order. G at (0,4) is reached across the top in four moves. The queue, visited cells and parents use space proportional to the reachable cells.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">FIFO after processing</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>(0,1), (1,0)</td></tr><tr><th scope="row">(0,1)</th><td>(1,0), (0,2)</td></tr><tr><th scope="row">(1,0)</th><td>(0,2), (2,0)</td></tr><tr><th scope="row">(0,2)</th><td>(2,0), (0,3)</td></tr><tr><th scope="row">(2,0)</th><td>(0,3), (2,1)</td></tr><tr><th scope="row">(0,3)</th><td>(2,1), (0,4)</td></tr><tr><th scope="row">(2,1)</th><td>(0,4), (2,2)</td></tr><tr><th scope="row">(0,4)</th><td>(2,2) · stop</td></tr></tbody></table></details><details><summary>Compare a three-sentence explanation</summary><p>The FIFO expands one distance layer before the next. Marking on enqueue records each cell’s first parent and avoids duplicate queue entries. Following G’s parents gives the four-move top path.</p></details>
 
 <h3>Build breadth-first layers on a map</h3>
 <p>Draw the three rows S#.. / .#G. / .... . The first row is row 0 and the first column is column 0. Trace BFS with four-direction movement and the same neighbor order as the main example.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>From (0,0), only (1,0) is legal and new. The next two discoveries are (2,0) and then (2,1), at distances 2 and 3.</li><li>From (2,1), discover (2,2) at distance 4. From (2,2), discover both (1,2) and (2,3) at distance 5.</li><li>Follow the parents of (1,2) back to S. The path is down, down, right, right, up. Mark on enqueue so that a cell discovered from two directions gets only one queue entry.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Marking visited only on pop and duplicating queue entries.</li><li>Counting cells on a path as moves.</li><li>Using BFS to minimize unequal terrain costs.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Frontier / Arama sınırı</dt><dd>Discovered cells waiting to be expanded.</dd><dt>Parent / Ebeveyn</dt><dd>Cell that first discovered this one.</dd><dt>Layer / Katman</dt><dd>Cells at the same move distance.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how long corridors and open areas change the number of expanded cells. Run BFS on the shared grid and a larger open grid. Record steps, popped cells and time. Try blocking the goal’s two neighbors.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
@@ -134,7 +150,7 @@ assert bfs(open_route, (0, 0), (0, 0))[0] == 0</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What goes into the initial queue?</p><details><summary>Show answer</summary><p>S alone, already marked visited.</p></details></li><li><p>When do we mark a cell visited?</p><details><summary>Show answer</summary><p>When it is enqueued, to prevent duplicate entries.</p></details></li><li><p>What if S and G are the same cell?</p><details><summary>Show answer</summary><p>Zero moves.</p></details></li><li><p>What does an empty queue mean if G has not been reached?</p><details><summary>Show answer</summary><p>There is no reachable route.</p></details></li><li><p>Does the method include diagonal moves?</p><details><summary>Show answer</summary><p>Only if the graph allows them. This map uses four neighbors.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Where should you mark a cell visited, and what extra work can happen if you wait until pop?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Mark a cell when it is enqueued. If you wait until pop, two neighbors can enqueue it before either copy is processed. That adds queue work and can confuse parent tracking.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

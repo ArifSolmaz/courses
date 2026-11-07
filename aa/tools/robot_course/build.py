@@ -4,7 +4,7 @@ from html import escape
 from math import log10, log2
 import re
 
-from . import classroom_en, classroom_tr
+from . import classroom_en, classroom_tr, concept_lesson, heap_lesson
 from .lab_experiments import EXPERIMENTS
 
 from . import foundations, planning
@@ -112,6 +112,19 @@ def lesson(week, lang):
 <link rel="stylesheet" href="{home}assets/python-runner.css">
 <script defer src="{home}assets/python-runner.js?v=3"></script>
 <script defer src="{home}assets/robot-course.js?v=1"></script>"""
+    heap_schedule = heap_midterm = ""
+    if week == 7:
+        extra += (f'\n<link rel="stylesheet" href="{home}assets/heap-lesson.css?v=1">'
+                  f'\n<script defer src="{home}assets/heap-frames.js?v=1"></script>')
+        concepts = heap_lesson.concepts(tr)
+        heap_schedule = heap_lesson.schedule(tr)
+        notes = heap_lesson.reference_notes(tr)
+        trace_model = heap_lesson.trace_answer(tr)
+        exit_model = heap_lesson.exit_answer(tr)
+        heap_midterm = heap_lesson.midterm_card(tr, home, suffix)
+    else:
+        extra += f'\n<link rel="stylesheet" href="{home}assets/concept-lesson.css?v=1">'
+        concepts, notes, trace_model, exit_model = concept_lesson.sections(week, tr)
     map_view = ""
     route_trace = ""
     if 8 <= week <= 10:
@@ -161,6 +174,15 @@ def lesson(week, lang):
         for fragment, label in (("paper", paper), ("timing", timing), ("studio", studio_title),
                                 ("exam-practice", exam), ("exit-ticket", "Çıkış sorusu" if tr else "Exit ticket"))
     )
+    if week == 7:
+        basics_label = "Öbek temelleri" if tr else "Heap basics"
+        schedule_label = "Robotun zaman çizelgesi" if tr else "Robot timer trace"
+        review_label = "Ara sınav kartı" if tr else "Midterm card"
+        lesson_nav = (f'<a href="#heap-basics">{basics_label}</a><a href="#robot-timers">{schedule_label}</a>'
+                      + lesson_nav + f'<a href="#midterm-card">{review_label}</a>')
+    else:
+        concept_label = "Önce kavramı öğren" if tr else "Understand the concept"
+        lesson_nav = f'<a href="#concepts">{concept_label}</a>' + lesson_nav
     weeks_nav = "".join(
         f'<a href="{home}w{n}/{suffix}">{arrow} {prefix} {n}</a>'
         for n, arrow, prefix in ((week - 1, "←", "Hafta" if tr else "Week"),
@@ -194,6 +216,15 @@ def lesson(week, lang):
         'Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. '
         'Use the last 10 to check answers and rewrite one explanation.'
     )
+    if week == 7 and not tr:
+        exam_intro = exam_intro.replace("extra drills", drills)
+    opening_prompt = (
+        "Kâğıt çalışmasından önce öbek kuralını, karşılaştırma tablolarını ve ekleme–çıkarma adımlarını oku."
+        if tr else "Read the heap rule, the cost comparison and the insert and remove examples before tracing on paper."
+    ) if week == 7 else (
+        "Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır."
+        if tr else "Read the concept and worked example first. Then make an individual prediction and compare it with a partner."
+    )
     minute = "dk" if tr else "min"
     body = f"""
 <section class="hero compact" aria-labelledby="lesson-title">
@@ -201,15 +232,14 @@ def lesson(week, lang):
 <h1 id="lesson-title">{escape(title)}</h1>
 <p class="eyebrow">15 {minute} · {"Mühendislik sorusu" if tr else "Engineering question"}</p>
 <p class="lead">{escape(setup)}</p>
-<p>{"Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın."
-    if tr else "Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision."}</p>
+<p>{opening_prompt}</p>
 {bridge}
 <p>{session_plan}</p>
 <nav class="robot-nav" aria-label="{"Ders akışı" if tr else "Lesson sections"}">{lesson_nav}</nav>
 </section>
-<section id="paper"><p class="eyebrow">35 {minute}</p><h2>{paper}</h2>
+{concepts}{heap_schedule}<section id="paper"><p class="eyebrow">35 {minute}</p><h2>{paper}</h2>
 {map_view}<p>{escape(trace)}</p><p>{paper_cue}</p>
-<details><summary>{"İzi karşılaştır" if tr else "Check your trace"}</summary><p>{escape(solution)}</p>{route_trace}</details>
+<details><summary>{"İzi karşılaştır" if tr else "Check your trace"}</summary><p>{escape(solution)}</p>{route_trace}</details>{trace_model}
 {growth_figure(tr) if week == 2 else ""}
 <h3>{escape(example_title)}</h3>
 <p>{escape(example_problem)}</p>
@@ -217,7 +247,7 @@ def lesson(week, lang):
 <p>{"İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver."
     if tr else "Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break."}</p>
 </section>
-<section id="timing"><p class="eyebrow">45 {minute}</p><h2>{timing}</h2>
+{notes}<section id="timing"><p class="eyebrow">45 {minute}</p><h2>{timing}</h2>
 <p>{escape(lab)}</p><p>{escape(measurement)}</p>
 <pre class="python-example" data-python="1"><code>{escape(lab_code(week))}</code></pre>
 <h3>{"Deney adımları" if tr else "Lab procedure"}</h3>
@@ -246,9 +276,9 @@ def lesson(week, lang):
 <section id="exit-ticket"><p class="eyebrow">5 {minute}</p><h2>{"Çıkış sorusu" if tr else "Exit ticket"}</h2>
 <p>{escape(exit_prompt)}</p>
 <p>{"Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan."
-    if tr else "Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace."}</p>
+    if tr else "Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace."}</p>{exit_model}
 </section>
-<section id="topic-references"><h2>{references}</h2>
+{heap_midterm}<section id="topic-references"><h2>{references}</h2>
 <p>{"Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir." if tr else "Earlier lessons can use different week numbers for the same topic."}</p>
 <ul class="plain-links">{ref_links}</ul>
 <p><a href="{home}resources/#assessment">{"Sınav kapsamı ve proje" if tr else "Exam scope and project"}</a></p>

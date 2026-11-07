@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How do we wire the stations at minimum cost?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot’s dock connects a controller and three sensors. Links have installation costs and work in either direction. We need every station connected with minimum total cable cost.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Replan wiring around a blocked cable route</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Replan wiring around a blocked cable route</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Connect every station using the least total cable</h2>
+<h3>You will be able to</h3><ul><li>Distinguish a spanning tree from a route.</li><li>Sort candidate links by cost.</li><li>Track components and reject cycles.</li><li>Interpret a disconnected result.</li></ul>
+<h3>Before you start</h3><p>A component is a set of stations already connected through accepted links. Initially each station is alone.</p>
+<p>Kruskal examines links in increasing cost. Accept a link if it joins two different components, then merge those components. If the endpoints are already connected, adding the link would create a cycle. Track the accepted link costs, rather than the costs of all inspected links.</p><p>The cheapest way to connect components can be built by taking a least-cost link that joins two groups. A connected tree with n stations uses n − 1 links. If available links cannot connect all stations, the result is a spanning forest, one tree per component.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · AB:2, AC:3, BC:4, CD:5</figcaption>
+<ol class="concept-frames"><li><strong>AB at 2</strong><span>Accept. Components AB, C, D. Total 2.</span></li><li><strong>AC at 3</strong><span>Accept. Components ABC, D. Total 5.</span></li><li><strong>BC at 4</strong><span>Skip. B and C are already connected.</span></li><li><strong>CD at 5</strong><span>Accept. One component. Total 10.</span></li></ol>
+</figure>
+<p>These three links connect all four stations. If CD is unavailable, D remains isolated and the forest’s total is only 5. That smaller number does not buy the required connectivity.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Sort the links AB:1, BC:2, AC:3, CD:4, BD:5. Start with four separate components. For each link, join its endpoints if they are in different components. Record accepted and skipped edges.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>Accept AB and BC. Skip AC because A and C are already connected. Accept CD. Total 7 with three links. Kruskal chooses the cheapest available link that joins separate groups. Sorting links often dominates the work. A component structure tracks which stations are connected.</p></details>
+<details><summary>Check your trace</summary><p>Accept AB and BC. Skip AC because A and C are already connected. Accept CD. Total 7 with three links. Kruskal chooses the cheapest available link that joins separate groups. Sorting links often dominates the work. A component structure tracks which stations are connected.</p></details><details><summary>Compare a three-sentence explanation</summary><p>Accept AB and BC to join A, B and C. Skip AC because its endpoints are already connected. Accept CD to connect D, for total cost 7.</p></details>
 
 <h3>Trace the effect of equal cable weights</h3>
 <p>Use links AB:1, AC:1, BC:1, BD:2 and CD:2. Trace Kruskal first with alphabetical ties, then with reverse alphabetical ties inside each weight.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Alphabetical ties select AB, AC and BD. BC joins the same component and is skipped.</li><li>Reversing ties selects BC, AC and CD. Both trees use three links and cost 4.</li><li>To evaluate a proposal, check total cost, connectivity and absence of cycles. Equal cost can allow different layouts.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Choosing the cheapest three links without checking components.</li><li>Counting skipped links in the total.</li><li>Interpreting a forest as full coverage.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Spanning tree / Kapsayan ağaç</dt><dd>Cycle-free links connecting every station.</dd><dt>Component / Bileşen</dt><dd>Stations currently connected together.</dd><dt>Spanning forest / Kapsayan orman</dt><dd>One tree for each disconnected group.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Time Kruskal on small and larger networks with a chain plus extra links. Report accepted edges and total cost. Remove all links touching the last station and check the component count.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -105,7 +121,7 @@ print(kruskal(4, links), kruskal(4, without_cd), kruskal(4, without_d))</code></
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many edges in a tree of four stations?</p><details><summary>Show answer</summary><p>Three.</p></details></li><li><p>What is the accepted total?</p><details><summary>Show answer</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Can equal-cost links lead to different answers?</p><details><summary>Show answer</summary><p>Yes. Different trees can have the same minimum total.</p></details></li><li><p>What does the component test tell you before accepting an edge?</p><details><summary>Show answer</summary><p>Whether the endpoints are already connected.</p></details></li><li><p>How many edges does a forest with 10 stations and 3 components have?</p><details><summary>Show answer</summary><p>7.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why is a cheap forest with two components insufficient when every station must remain connected?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Two components contain stations that cannot reach each other. The cost covers only connections inside the components. Connecting every station requires one component or a report that full coverage is impossible.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

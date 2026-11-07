@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">In what order do we start the robot?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot must boot before scanning or enabling its drive. Scan precedes map loading. Map and drive must both be ready before run. Draw each arrow from prerequisite to dependent.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Design a safe startup after a dependency is added</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Design a safe startup after a dependency is added</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Turn prerequisites into a valid startup order</h2>
+<h3>You will be able to</h3><ul><li>Draw arrows from prerequisite to dependent.</li><li>Trace unseen, active and finished states.</li><li>Reverse finish order on an acyclic graph.</li><li>Find a cycle witness.</li></ul>
+<h3>Before you start</h3><p>Grid searches follow connections. Here arrows mean that one task must finish before another can start.</p>
+<p>Depth-first search follows a branch before returning. Mark a task active when entering it and finished after all outgoing edges have been examined. An edge to an active task returns to the current chain and closes a cycle. An edge to a finished task does not by itself prove a cycle.</p><p>When the graph is acyclic, reverse the order in which tasks finish. This places each prerequisite before its dependents. Start another DFS from any still-unseen task so the result includes disconnected tasks too.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · boot → map, map → enable, boot → enable</figcaption>
+<ol class="concept-frames"><li><strong>Enter boot, then map, then enable</strong><span>All three are active along one chain.</span></li><li><strong>Finish enable, then map</strong><span>Boot’s other edge reaches an already finished task.</span></li><li><strong>Finish boot</strong><span>Reverse the finish list to get boot, map, enable.</span></li><li><strong>Add enable → boot</strong><span>The new edge returns to active boot. The startup order is impossible.</span></li></ol>
+</figure>
+<p>A valid order can be checked by writing the position of each task and testing every arrow. Even if a different tie rule changes the order, every dependency must point forward.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Use boot → scan, boot → drive, scan → map, map → run, drive → run. Run DFS, exploring scan before drive. Mark cells as unseen, active or finished. Write the finish list and reverse it. Then add run → boot and repeat.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>Without the added edge, DFS finishes run, map, scan, drive, boot. Reversing gives boot, drive, scan, map, run. An edge from run to active boot exposes a cycle, so there is no startup order for the changed graph. Independent components need their own DFS starts.</p></details>
+<details><summary>Check your trace</summary><p>Without the added edge, DFS finishes run, map, scan, drive, boot. Reversing gives boot, drive, scan, map, run. An edge from run to active boot exposes a cycle, so there is no startup order for the changed graph. Independent components need their own DFS starts.</p></details><details><summary>Compare a three-sentence explanation</summary><p>The finish list is run, map, scan, drive, boot. Reverse it to get boot, drive, scan, map, run. Adding run → boot points back to an active task and closes a cycle.</p></details>
 
 <h3>Separate a valid order from the order of a DFS walk</h3>
 <p>Tasks A and B are independent prerequisites of D. A is also a prerequisite of C, and C is a prerequisite of D. Start DFS at A, visiting C before D. Then visit B.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>A opens C, then C opens D. D finishes first, then C. A’s other edge to D finds it finished.</li><li>A finishes third. B starts after A finishes and sees D already finished. Finish order is D, C, A, B, so one valid order is B, A, C, D.</li><li>Add D→A. DFS from A then reaches the active A again through C and D. The cycle is A→C→D→A.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Reversing the discovery list instead of the finish list.</li><li>Treating all visited neighbors as evidence of a cycle.</li><li>Forgetting isolated tasks.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Prerequisite / Önkoşul</dt><dd>Task that must finish first.</dd><dt>Active / Etkin</dt><dd>Entered but not yet finished.</dd><dt>Topological order / Topolojik sıra</dt><dd>Order in which all arrows point forward.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict the work for dependency chains of 20 and 200 steps. Time the DFS with both inputs and add a final edge to the first task. Check that the cycle is reported.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -105,7 +121,7 @@ assert topological(graph) is None</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>Which task can start immediately in the original graph?</p><details><summary>Show answer</summary><p>boot.</p></details></li><li><p>Can drive start before scan?</p><details><summary>Show answer</summary><p>Yes, once boot is done.</p></details></li><li><p>Can run start after map but before drive?</p><details><summary>Show answer</summary><p>No. Both prerequisites must finish.</p></details></li><li><p>Does an edge to a finished task automatically imply a cycle?</p><details><summary>Show answer</summary><p>No.</p></details></li><li><p>What should you do with an isolated startup task?</p><details><summary>Show answer</summary><p>Include it once. Its position relative to other tasks is flexible.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>How can you check whether someone else’s topological order is valid without reproducing their DFS?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Check that every task appears exactly once. Record its position, then test that every prerequisite appears before its dependent. The DFS traversal used to find the order is irrelevant to this check.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

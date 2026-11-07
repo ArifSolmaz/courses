@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">Does my loop fit in 1 ms?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">Our mobile robot reads a batch of range sensors at 1 kHz. The cycle is 1 ms. Reading sensors and updating the motors already take 0.7 ms, leaving 0.3 ms to find the first unsafe reading.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a safe scan budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a safe scan budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>From a sensor reading to a time budget</h2>
+<h3>You will be able to</h3><ul><li>Trace a first-hit search.</li><li>Distinguish a position from a Python index.</li><li>Count comparisons for different inputs.</li><li>Estimate scan time and compare it with a cycle budget.</li></ul>
+<h3>Before you start</h3><p>Read a list from left to right. Count positions from 1 on paper and indices from 0 in Python.</p>
+<p>A linear search visits the entries in their stored order. Check each reading against the threshold. If the reading passes, return its index immediately. If the list ends without a hit, return None. This works without sorting and preserves the order of the original readings.</p><p>One comparison is one visit in this model. A first hit costs one comparison. A last hit or a miss costs n. A count describes work, while a timer measures that work on a machine. At 1 kHz the whole cycle lasts 1 ms, and the scan must share that time with sensing and motor work.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · first reading strictly below 20 cm in [33, 20, 17, 12]</figcaption>
+<ol class="concept-frames"><li><strong>Index 0 · 33</strong><span>33 &lt; 20 is false. Continue.</span></li><li><strong>Index 1 · 20</strong><span>Equality fails. Continue.</span></li><li><strong>Index 2 · 17</strong><span>17 &lt; 20 is true. Return 2.</span></li><li><strong>Index 3 · 12</strong><span>The search has stopped. This entry is never tested.</span></li></ol>
+</figure>
+<p>Three checks return index 2, the third reading. A threshold of 10 cm makes all four checks fail. If a comparable full scan takes 0.04 ms for 100 readings, doubling to 200 suggests 0.08 ms before allowing for overhead and variation.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>[72, 48, 19, 12] cm. Stop at the first reading below 20 cm. Write the position, reading, comparison and decision for each check. Repeat with a threshold of 10 cm.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>At 20 cm, the third reading is the first unsafe one, after three checks. At 10 cm the scan uses four checks and reports no match. With n readings the worst case uses n checks. Estimate time using the measured scan and keep a margin for variation.</p></details>
+<details><summary>Check your trace</summary><p>At 20 cm, the third reading is the first unsafe one, after three checks. At 10 cm the scan uses four checks and reports no match. With n readings the worst case uses n checks. Estimate time using the measured scan and keep a margin for variation.</p></details><details><summary>Compare a three-sentence explanation</summary><p>At 20 cm, 72 and 48 fail and 19 passes. The search returns index 2 after three checks. At 10 cm all four checks fail, so it returns None.</p></details>
 
 <h3>Find the first unsafe reading and keep its index</h3>
 <p>A range strip reports [35, 20, 42, 18, 12] cm. Trace the search with a strict 20 cm threshold. Then trace it with a threshold of 18 cm. Keep a column for the comparison count.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>At 20 cm, 35, 20 and 42 all fail the strict comparison. The fourth reading, 18, passes. The Python index is 3 and the count is 4.</li><li>At 18 cm, equality still fails. The fifth reading, 12, is the first hit. The index is 4 and the count is 5.</li><li>A full scan can count every unsafe reading. For the first hit, continuing after a match adds work without changing the answer.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Counting entries after the first hit.</li><li>Reporting position 3 as index 3.</li><li>Treating an observed batch average as a deadline guarantee.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Linear search / Doğrusal arama</dt><dd>Read candidates in order.</dd><dt>Threshold / Eşik</dt><dd>Boundary used in a comparison.</dd><dt>Budget / Bütçe</dt><dd>Time available for the work.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which takes longer, first hit or no hit. Run with 100 and 1,000 readings. Record the longest observed batch-average and compare with the 0.3 ms allocation. Describe how you would check the deadline on the robot.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -84,7 +100,7 @@ measure(&quot;last hit&quot;, lambda: first_unsafe(last_hit, 20))</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What period corresponds to 1 kHz?</p><details><summary>Show answer</summary><p>1/1000 s = 1 ms.</p></details></li><li><p>If other tasks take 0.7 ms, what is left?</p><details><summary>Show answer</summary><p>0.3 ms.</p></details></li><li><p>If the first reading is unsafe, how many checks?</p><details><summary>Show answer</summary><p>One.</p></details></li><li><p>If there are no readings, what should this search report?</p><details><summary>Show answer</summary><p>No match, after zero checks. Sensor failure handling is a separate system decision.</p></details></li><li><p>What input should you include to measure a long scan?</p><details><summary>Show answer</summary><p>A batch with no unsafe reading or one with the only hit at the end.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>A fast first-hit result and a slow no-hit result disagree. Which belongs in a conservative budget and why?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Budget for the no-hit or last-hit case because either can visit the whole list. The first-hit time describes the easiest input. Check the estimate on the target under realistic load.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

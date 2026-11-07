@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,21 +21,36 @@
 <h1 id="lesson-title">What route costs least over terrain?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The digits now give the energy cost of entering a cell. Dots and G cost one. S starts with cost zero. The cheapest route may take more moves.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Find when the energy-optimal route changes</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Find when the energy-optimal route changes</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Find the cheapest route when moves have different costs</h2>
+<h3>You will be able to</h3><ul><li>Distinguish move count from total cost.</li><li>Update a tentative cost and parent.</li><li>Read the next entry from a min-heap.</li><li>Explain when to stop at the goal.</li></ul>
+<h3>Before you start</h3><p>BFS minimized moves in Week 8. The min-heap from Week 7 lets us process the smallest known cost first.</p>
+<p>Dijkstra keeps the cheapest known cost for each cell. To relax an edge, add the edge cost to the current cost and compare it with the saved cost at the neighbor. If the candidate is smaller, update the cost and parent and enqueue the improved entry.</p><p>The heap may still hold an older entry for that same cell. Skip it if its cost differs from the saved cost. With nonnegative edges, a current minimum pop settles that cell’s cost. Stop when the goal is popped with its current cost.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · S–A 5, S–B 2, B–A 1, A–G 3, B–G 8</figcaption>
+<ol class="concept-frames"><li><strong>Pop S at 0</strong><span>Store A at 5 and B at 2.</span></li><li><strong>Pop B at 2</strong><span>Improve A to 3 and discover G at 10.</span></li><li><strong>Pop A at 3</strong><span>Improve G to 6. The entry A at 5 is stale.</span></li><li><strong>Pop G at 6</strong><span>After skipping stale A, return S–B–A–G.</span></li></ol>
+</figure>
+<p>The fewer-move route S–A–G costs 8. The route through B uses three moves and costs 6. Comparing the final costs answers a different question from comparing step counts.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
 .....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>Use the same grid. Keep tentative cost and parent per cell. Pop the smallest tentative cost, breaking ties by row then column. For each legal neighbor, try current cost plus its entry cost. Update only when the candidate is smaller. Stop when G is popped with its current best cost.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The top route costs 9 + 9 + 9 + 1 = 28. The lower corridor reaches G in eight moves with cost 8. A settled cell has the cheapest known cost because every future extension adds a nonnegative amount. Ignore outdated heap entries when a better cost has already been stored.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">g</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>0</td></tr><tr><th scope="row">(1,0)</th><td>1</td></tr><tr><th scope="row">(2,0)</th><td>2</td></tr><tr><th scope="row">(2,1)</th><td>3</td></tr><tr><th scope="row">(2,2)</th><td>4</td></tr><tr><th scope="row">(2,3)</th><td>5</td></tr><tr><th scope="row">(2,4)</th><td>6</td></tr><tr><th scope="row">(1,4)</th><td>7</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details>
+<details><summary>Check your trace</summary><p>The top route costs 9 + 9 + 9 + 1 = 28. The lower corridor reaches G in eight moves with cost 8. A settled cell has the cheapest known cost because every future extension adds a nonnegative amount. Ignore outdated heap entries when a better cost has already been stored.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">g</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>0</td></tr><tr><th scope="row">(1,0)</th><td>1</td></tr><tr><th scope="row">(2,0)</th><td>2</td></tr><tr><th scope="row">(2,1)</th><td>3</td></tr><tr><th scope="row">(2,2)</th><td>4</td></tr><tr><th scope="row">(2,3)</th><td>5</td></tr><tr><th scope="row">(2,4)</th><td>6</td></tr><tr><th scope="row">(1,4)</th><td>7</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details><details><summary>Compare a three-sentence explanation</summary><p>The top path uses four moves and costs 28. A min-heap processes the lower-cost candidates and settles the goal via the lower path, costing 8. That is safe here because every move has nonnegative cost.</p></details>
 
 <h3>Relax a cost twice and skip a stale heap entry</h3>
 <p>Use an undirected graph with edges S–A 4, S–B 1, B–A 2, B–G 8 and A–G 2. Keep a table of tentative costs and parents. Show the heap after each relaxation.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Popping S creates A at cost 4 and B at cost 1. Popping B improves A to 3 and discovers G at 9.</li><li>Popping A at 3 improves G to 5. The older entry A at 4 stays in the heap but is stale.</li><li>Skip A at 4. Pop G at 5 and reconstruct S–B–A–G. The shortest path in moves S–A–G costs 6, so steps and energy select different routes.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Stopping when the goal is first inserted.</li><li>Expanding stale entries.</li><li>Using the same stopping rule with negative edges.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Relaxation / Maliyet iyileştirme</dt><dd>Try a cheaper route through a neighbor.</dd><dt>Tentative / Geçici</dt><dd>Best cost found so far.</dd><dt>Settled / Kesinleşmiş</dt><dd>Cost fixed by a current minimum pop.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare BFS and Dijkstra on both maps. Record steps, terrain cost, expanded cells and time. Then make every traversable cell cost one and compare again.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
@@ -158,7 +174,7 @@ for grid, start, goal in maps:
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What tentative cost starts at S?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>What are the first tentative neighbor costs?</p><details><summary>Show answer</summary><p>(0,1) costs 9. (1,0) costs 1.</p></details></li><li><p>Why can G first appear in the heap before we know its optimum?</p><details><summary>Show answer</summary><p>A later route can improve its tentative cost. Stop on a current minimum pop.</p></details></li><li><p>Which route has fewer moves?</p><details><summary>Show answer</summary><p>The top route, 4 versus 8.</p></details></li><li><p>Which uses less energy?</p><details><summary>Show answer</summary><p>The lower route, 8 versus 28.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why does first discovering the goal fail as a stopping rule for weighted search?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Discovery gives a candidate, and a later path can improve it. In the example G is first seen at 10 and later improved to 6. Stop at a current minimum pop.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
