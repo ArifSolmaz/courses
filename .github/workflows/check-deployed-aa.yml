@@ -1,0 +1,43 @@
+name: Check deployed AA labs
+
+on:
+  workflow_run:
+    workflows: [pages-build-deployment]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-labs:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: .github/aa-playwright
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: .github/aa-playwright/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - name: Save browser traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa-playwright-traces
+          path: .github/aa-playwright/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
