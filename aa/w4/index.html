@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 04 / 14 · Arrays, linked lists, ring buffers and stacks</p>
 <h1 id="lesson-title">How do I store a sensor stream?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">A sensor produces data faster than the robot can sometimes consume it. Use a fixed-capacity FIFO to keep memory bounded. Choose a policy for overflow. Here the oldest sample is overwritten and a loss counter is incremented.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Size a buffer for a burst</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Draw three slots. Push A, B and C, pop once, then push D and E. Record head, size, and the logical FIFO order after each action. Separately push A and B onto a stack and pop once.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The FIFO pop returns A. D wraps into the freed slot. E overwrites B. The final FIFO is C, D, E and one sample was lost. The stack returns B. A ring uses index arithmetic on an array. A linked queue can also enqueue and dequeue in constant work with head and tail pointers, but uses links and often allocates nodes.</p></details>
 
+<h3>Follow wraparound with physical slots and FIFO order</h3>
+<p>Use a capacity-three queue. Start empty at head 0. Push A and B, pop once, push C and D, then pop twice. Draw the slots and write head and size after every operation.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>A and B occupy slots 0 and 1. Popping A gives head 1 and size 1.</li><li>C goes in slot 2 and D in slot 0. The physical order is [D, B, C] and the logical FIFO order is [B, C, D].</li><li>Popping B and C leaves head 0, size 1 and D next. Track size separately to distinguish a full buffer from an empty one.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which grows with buffer size, shifting an array on every pop or advancing a ring index. Time repeated full-buffer push/pop cycles. Compare at both capacities and account for bytes per sample separately.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -65,9 +71,33 @@ for n in (128, 8192):
     measure(f&quot;{n}: shift&quot;, lambda: shift_cycle(shift_buffer))
     measure(f&quot;{n}: ring&quot;, ring_job(ring_buffer))
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the shift and ring cases. Explain why the benchmark rotates a full buffer and which operations are timed.</li><li>Add capacity 1 and 1,024. Before timing, trace five ring operations at capacity 1. Compare the growth of the two approaches and record how many elements each update moves.</li><li>Design a separate three-slot correctness check for overwriting the oldest reading and incrementing a dropped counter. The timing demo cycles values, so use a paper trace or a separate small function for this policy.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>for n in (1, 1024):
+    shift_buffer = list(range(n))
+    ring_buffer = list(range(n))
+    measure(f&quot;{n}: shift&quot;, lambda: shift_cycle(shift_buffer))
+    measure(f&quot;{n}: ring&quot;, ring_job(ring_buffer))</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>How many samples remain after pushing four into an empty capacity-three overwrite ring?</p><details><summary>Show answer</summary><p>Three. One was lost.</p></details></li><li><p>How much payload fits in 128 slots of 8 bytes?</p><details><summary>Show answer</summary><p>1,024 bytes, plus indices and any representation overhead.</p></details></li><li><p>If every sample must be retained, is overwrite a fit?</p><details><summary>Show answer</summary><p>No. Reduce the production rate, increase throughput, or provide capacity for the worst expected burst.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Size a buffer for a burst</h2>
+<p>The robot receives 100 eight-byte samples per second. Its consumer can pause for 120 ms. Assume up to 12 new samples arrive during the pause and four are already queued. The payload budget is 160 bytes.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Find the minimum capacity and its payload cost. Calculate the remaining bytes for metadata and explain what still needs to be measured.</li><li>At capacity 12, trace a queue containing samples 1–4 followed by arrivals 5–16. Under the overwrite-oldest policy, list the lost samples and the first sample to dequeue.</li><li>Propose an overflow policy for telemetry and one for safety-critical events. State how a caller learns about loss.</li></ol>
+<details><summary>Compare a model answer</summary><p>Capacity 16 needs 128 payload bytes and leaves 32 bytes before metadata, alignment or runtime overhead. At capacity 12 the retained samples are 5–16, four are lost, and 5 comes out first. Overwriting old telemetry can preserve the newest view. A safety event may need separate storage, a fault flag or backpressure.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>How many samples remain after pushing four into an empty capacity-three overwrite ring?</p><details><summary>Show answer</summary><p>Three. One was lost.</p></details></li><li><p>How much payload fits in 128 slots of 8 bytes?</p><details><summary>Show answer</summary><p>1,024 bytes, plus indices and any representation overhead.</p></details></li><li><p>If every sample must be retained, is overwrite a fit?</p><details><summary>Show answer</summary><p>No. Reduce the production rate, increase throughput, or provide capacity for the worst expected burst.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What does FIFO mean for timestamp order?</p><details><summary>Show answer</summary><p>The oldest queued sample comes out first.</p></details></li><li><p>What does a stack pop after pushes 5, 9?</p><details><summary>Show answer</summary><p>9.</p></details></li><li><p>What slot follows index 3 in a four-slot ring?</p><details><summary>Show answer</summary><p>Index 0.</p></details></li><li><p>Why track size or a full flag?</p><details><summary>Show answer</summary><p>Equal head and tail indices can represent either a full or an empty buffer.</p></details></li><li><p>Which representation supports direct access by index?</p><details><summary>Show answer</summary><p>An array gives direct indexing. A linked list generally follows links.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>The physical array starts with D but the next FIFO output is B. Which state tells you why?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w4/reference.html">Earlier Week 4 · Arrays and queues</a></li><li><a href="../w4/ek-notlar/#practice">Extended question bank and notes · 04</a></li></ul>

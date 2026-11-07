@@ -18,19 +18,25 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 08 / 14 · Breadth-first search on an occupancy grid</p>
 <h1 id="lesson-title">What route uses the fewest moves?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot can move one cell up, right, down or left. Each move costs one step. Find a route from S to G with the fewest moves. # cells are blocked. The digits are terrain labels we will use next week.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Route a robot with two available exits</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
 .....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>Use the grid below. Start a FIFO with S, mark cells when enqueued and record each cell’s parent. Expand neighbors in up, right, down, left order. Write the queue after each pop until G is popped. Follow parents back to S.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>From S, the top neighbor at (0,1) and the lower neighbor at (1,0) both enter at distance 1. The FIFO expands distance layers in order. G at (0,4) is reached across the top in four moves. The queue, visited cells and parents use space proportional to the reachable cells.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">FIFO after processing</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>(0,1), (1,0)</td></tr><tr><th scope="row">(0,1)</th><td>(1,0), (0,2)</td></tr><tr><th scope="row">(1,0)</th><td>(0,2), (2,0)</td></tr><tr><th scope="row">(0,2)</th><td>(2,0), (0,3)</td></tr><tr><th scope="row">(2,0)</th><td>(0,3), (2,1)</td></tr><tr><th scope="row">(0,3)</th><td>(2,1), (0,4)</td></tr><tr><th scope="row">(2,1)</th><td>(0,4), (2,2)</td></tr><tr><th scope="row">(0,4)</th><td>(2,2) · stop</td></tr></tbody></table></details>
 
+<h3>Build breadth-first layers on a map</h3>
+<p>Draw the three rows S#.. / .#G. / .... . The first row is row 0 and the first column is column 0. Trace BFS with four-direction movement and the same neighbor order as the main example.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>From (0,0), only (1,0) is legal and new. The next two discoveries are (2,0) and then (2,1), at distances 2 and 3.</li><li>From (2,1), discover (2,2) at distance 4. From (2,2), discover both (1,2) and (2,3) at distance 5.</li><li>Follow the parents of (1,2) back to S. The path is down, down, right, right, up. Mark on enqueue so that a cell discovered from two directions gets only one queue entry.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how long corridors and open areas change the number of expanded cells. Run BFS on the shared grid and a larger open grid. Record steps, popped cells and time. Try blocking the goal’s two neighbors.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -101,9 +107,35 @@ for grid, start, goal in maps:
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the two starter maps. Record steps and cells popped separately. Explain why popping more cells does not necessarily produce a longer path.</li><li>Add the worked map to maps with start (0,0) and goal (1,2). Check that the returned path contains six cells including S and G.</li><li>Block (2,1) on that map and predict the result. Run it, then try start equal to goal on a free cell. Record how the output distinguishes no route from a zero-move route.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>open_route = (&quot;S#..&quot;, &quot;.#G.&quot;, &quot;....&quot;)
+blocked_route = (&quot;S#..&quot;, &quot;.#G.&quot;, &quot;.#..&quot;)
+for grid in (open_route, blocked_route):
+    print(bfs(grid, (0, 0), (1, 2)))
+assert bfs(open_route, (0, 0), (1, 2))[0] == 5
+assert bfs(blocked_route, (0, 0), (1, 2))[0] is None
+assert bfs(open_route, (0, 0), (0, 0))[0] == 0</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>What are the first two cells enqueued after S?</p><details><summary>Show answer</summary><p>(0,1), then (1,0).</p></details></li><li><p>How do parents give the route?</p><details><summary>Show answer</summary><p>Follow them from G to S, then reverse.</p></details></li><li><p>What if some moves cost nine units?</p><details><summary>Show answer</summary><p>BFS still minimizes steps. Compare weighted cost with Dijkstra.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Route a robot with two available exits</h2>
+<p>On rows S... / .##. / G..G, the robot may exit at either (2,0) or (2,3). All traversable moves cost one. A pallet blocks the near exit in the second scenario.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Draw BFS layers and mark both exits. Find the nearest available exit before and after blocking (2,0).</li><li>Explain how to adapt the single-goal loop to stop on any goal. Trace the stopping condition when the goals list is empty.</li><li>Write a path validation checklist. Include endpoint, legal moves, obstacles and the outcome when no exits are reachable.</li></ol>
+<details><summary>Compare a model answer</summary><p>The near exit is reached in two moves. With it blocked, the far exit is reached in five by following the top row to column 3 and moving down twice. Use membership in a goal set at the pop step. An empty goal set can immediately report no route. Check the path’s move count as well as its endpoints.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>What are the first two cells enqueued after S?</p><details><summary>Show answer</summary><p>(0,1), then (1,0).</p></details></li><li><p>How do parents give the route?</p><details><summary>Show answer</summary><p>Follow them from G to S, then reverse.</p></details></li><li><p>What if some moves cost nine units?</p><details><summary>Show answer</summary><p>BFS still minimizes steps. Compare weighted cost with Dijkstra.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What goes into the initial queue?</p><details><summary>Show answer</summary><p>S alone, already marked visited.</p></details></li><li><p>When do we mark a cell visited?</p><details><summary>Show answer</summary><p>When it is enqueued, to prevent duplicate entries.</p></details></li><li><p>What if S and G are the same cell?</p><details><summary>Show answer</summary><p>Zero moves.</p></details></li><li><p>What does an empty queue mean if G has not been reached?</p><details><summary>Show answer</summary><p>There is no reachable route.</p></details></li><li><p>Does the method include diagonal moves?</p><details><summary>Show answer</summary><p>Only if the graph allows them. This map uses four neighbors.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Where should you mark a cell visited, and what extra work can happen if you wait until pop?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w8/reference.html">Earlier Week 8 · BFS</a></li><li><a href="../w8/ek-notlar/#practice">Extended question bank and notes · 08</a></li></ul>

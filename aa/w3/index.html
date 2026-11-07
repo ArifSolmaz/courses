@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 03 / 14 · Loop bounds, halving and binary search</p>
 <h1 id="lesson-title">How do I read cost from code?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot converts thermistor ADC readings using a calibration table sorted by ADC value. Find the insertion index for a reading, then inspect the adjacent calibration entries if interpolation is needed.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Build an ADC lookup contract</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Trace a binary search for 430 in [120, 220, 330, 430, 550, 680, 790, 900]. Use zero-based indices and a half-open interval [lo, hi). Inspect the middle. If its value is smaller than the target, set lo = mid + 1. Otherwise set hi = mid. Stop at lo = hi.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The inspected indices are 4, 2, 3 and the insertion index is 3. Each comparison discards roughly half the remaining candidate elements. A loop that scans n rows and m columns uses n × m visits. Two successive scans use n + m.</p></details>
 
+<h3>Trace a lower bound with duplicate keys</h3>
+<p>Use the sorted ADC values [120, 220, 220, 450, 720]. Find the first index whose value is at least 220, then repeat for 221 and 900. Record lo, hi, mid and the comparison.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>For 220, inspect indices 2, 1 and 0. When the middle value equals the key, move hi left. The result is index 1.</li><li>For 221, inspect indices 2, 4 and 3. Index 3 is the first value greater than the key.</li><li>For 900, the interval ends at index 5. That index is a valid insertion position beyond the last value. Check it before reading a table entry.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how scan and binary lookup behave as the sorted calibration table grows. Time both with the same above-maximum target, then try a first-entry hit. Keep table construction outside the measurement.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -64,9 +70,33 @@ for n in (100, 1000):
         measure(f&quot;{n}/{key}: scan&quot;, lambda: scan_bound(values, key))
         measure(f&quot;{n}/{key}: binary&quot;, lambda: lower_bound(values, key))
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the baseline first. Explain the difference between looking for the first entry and looking beyond the largest entry.</li><li>Add three queries to the same size, the midpoint key, the final key and one past the end. Use the existing assertion to check that both methods agree.</li><li>Test a separate small list with duplicates and an empty list. Print the returned positions once outside the measurement, then count how many middle inspections each case needs on paper.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>values = [120, 220, 220, 450, 720]
+for key, expected in [(220, 1), (221, 3), (900, 5)]:
+    assert scan_bound(values, key) == lower_bound(values, key) == expected
+    print(key, &quot;-&gt;&quot;, expected)
+assert lower_bound([], 220) == 0</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Trace the insertion index for 500 in the table.</p><details><summary>Show answer</summary><p>Index 4, between 430 and 550.</p></details></li><li><p>How many visits for 12 rows and 8 columns?</p><details><summary>Show answer</summary><p>96.</p></details></li><li><p>When might a scan be a better fit?</p><details><summary>Show answer</summary><p>For a tiny unsorted table queried once, sorting and maintaining order may cost more than scanning.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Build an ADC lookup contract</h2>
+<p>The calibration pairs are (100, 0°C), (200, 20°C), (400, 60°C) and (700, 90°C). The controller receives 300, 400, 90 and 850. The team must agree how to handle values outside the table.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Trace the lower bound for each input. For 300, use the neighboring ADC values to interpolate between the two temperatures.</li><li>Specify return values for an exact key, an empty table and both out-of-range readings. Explain whether duplicate ADC keys are legal.</li><li>Write four acceptance tests and decide where the cost of sorting and checking the calibration table belongs in the program.</li></ol>
+<details><summary>Compare a model answer</summary><p>The lower-bound indices are 2, 2, 0 and 4. At 300 the fraction between 200 and 400 is one half, so the estimate is 40°C. The exact key 400 gives 60°C. One defensible contract reports out of range for 90 and 850, and configuration error for an empty or duplicate-key table. Validate the table once when loading it.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Trace the insertion index for 500 in the table.</p><details><summary>Show answer</summary><p>Index 4, between 430 and 550.</p></details></li><li><p>How many visits for 12 rows and 8 columns?</p><details><summary>Show answer</summary><p>96.</p></details></li><li><p>When might a scan be a better fit?</p><details><summary>Show answer</summary><p>For a tiny unsorted table queried once, sorting and maintaining order may cost more than scanning.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>Where does a target above 900 go?</p><details><summary>Show answer</summary><p>Index 8, after the last entry. Handle that boundary before interpolating.</p></details></li><li><p>What index does an empty table return?</p><details><summary>Show answer</summary><p>0. There is no calibration pair to interpolate.</p></details></li><li><p>A loop halves 64 until it reaches 1. How many halvings?</p><details><summary>Show answer</summary><p>Six.</p></details></li><li><p>How many visits in successive scans of 12 and 8 readings?</p><details><summary>Show answer</summary><p>20.</p></details></li><li><p>Will this binary search work on unsorted ADC values?</p><details><summary>Show answer</summary><p>The result is unreliable because the discarded half can contain the correct position.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why can binary search return len(table)? Give the input condition and explain how the caller should handle it.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w3/reference.html">Earlier Week 3 · Growth and binary search</a></li><li><a href="../w3/ek-notlar/#practice">Extended question bank and notes · 03</a></li></ul>

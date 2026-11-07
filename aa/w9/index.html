@@ -18,19 +18,25 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 09 / 14 · Dijkstra and terrain costs</p>
 <h1 id="lesson-title">What route costs least over terrain?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The digits now give the energy cost of entering a cell. Dots and G cost one. S starts with cost zero. The cheapest route may take more moves.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Find when the energy-optimal route changes</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
 .....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>Use the same grid. Keep tentative cost and parent per cell. Pop the smallest tentative cost, breaking ties by row then column. For each legal neighbor, try current cost plus its entry cost. Update only when the candidate is smaller. Stop when G is popped with its current best cost.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The top route costs 9 + 9 + 9 + 1 = 28. The lower corridor reaches G in eight moves with cost 8. A settled cell has the cheapest known cost because every future extension adds a nonnegative amount. Ignore outdated heap entries when a better cost has already been stored.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">g</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>0</td></tr><tr><th scope="row">(1,0)</th><td>1</td></tr><tr><th scope="row">(2,0)</th><td>2</td></tr><tr><th scope="row">(2,1)</th><td>3</td></tr><tr><th scope="row">(2,2)</th><td>4</td></tr><tr><th scope="row">(2,3)</th><td>5</td></tr><tr><th scope="row">(2,4)</th><td>6</td></tr><tr><th scope="row">(1,4)</th><td>7</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details>
 
+<h3>Relax a cost twice and skip a stale heap entry</h3>
+<p>Use an undirected graph with edges S–A 4, S–B 1, B–A 2, B–G 8 and A–G 2. Keep a table of tentative costs and parents. Show the heap after each relaxation.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Popping S creates A at cost 4 and B at cost 1. Popping B improves A to 3 and discovers G at 9.</li><li>Popping A at 3 improves G to 5. The older entry A at 4 stays in the heap but is stale.</li><li>Skip A at 4. Pop G at 5 and reconstruct S–B–A–G. The shortest path in moves S–A–G costs 6, so steps and energy select different routes.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare BFS and Dijkstra on both maps. Record steps, terrain cost, expanded cells and time. Then make every traversable cell cost one and compare again.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -126,9 +132,34 @@ for grid, start, goal in maps:
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run both methods on the starter grid and record moves, cost and pops. Before changing it, identify the expensive cells along the top.</li><li>Replace the three 9s in the first row with 2s. Predict each path cost, then run. Restore the 9s and change them to 1s for a uniform-cost comparison.</li><li>Print the chosen path and hand-check its cost from the returned cell list, excluding S. Record one example where equal route cost does not imply equal popped-cell count.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>for c in (1, 2, 3, 9):
+    grid = (&quot;S&quot; + str(c) * 3 + &quot;G&quot;, &quot;.###.&quot;, &quot;.....&quot;)
+    steps_route = bfs(grid, (0, 0), (0, 4))
+    energy_route = weighted(grid, (0, 0), (0, 4), zero)
+    assert energy_route[1] == min(3 * c + 1, 8)
+    print(c, &quot;-&gt;&quot;, steps_route[:2], energy_route[:2])</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Which of those two is popped first?</p><details><summary>Show answer</summary><p>(1,0).</p></details></li><li><p>A cell costs 12 so far. A cost-5 cell can enter it for 3. What changes?</p><details><summary>Show answer</summary><p>Its cost becomes 8 and its parent becomes the cost-5 cell.</p></details></li><li><p>Can we use this rule with negative movement costs?</p><details><summary>Show answer</summary><p>No. A later negative edge could improve a previously settled cost.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Find when the energy-optimal route changes</h2>
+<p>Use the starter grid with the top three costs set to a common positive integer c. G costs 1 and the lower corridor still costs 8. Compare the two routes and include the extra turns on the lower route in your recommendation.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Write the cost of each route as a formula and compare c = 1, 2, 3 and 9.</li><li>Choose the cheapest route for each input, then compare what BFS returns. Give the first integer c where the choices disagree.</li><li>If a turn consumes extra energy, describe how the planner would need to represent heading. Explain why adding the same penalty to every cell is insufficient.</li></ol>
+<details><summary>Compare a model answer</summary><p>The top costs 3c + 1 and the bottom costs 8. Dijkstra uses the top for c = 1 or 2 and the bottom for c = 3 or 9. BFS keeps the four-move top route. If turn cost matters, model a state as cell plus heading and put a nonnegative turn cost on the corresponding transition.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which of those two is popped first?</p><details><summary>Show answer</summary><p>(1,0).</p></details></li><li><p>A cell costs 12 so far. A cost-5 cell can enter it for 3. What changes?</p><details><summary>Show answer</summary><p>Its cost becomes 8 and its parent becomes the cost-5 cell.</p></details></li><li><p>Can we use this rule with negative movement costs?</p><details><summary>Show answer</summary><p>No. A later negative edge could improve a previously settled cost.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What tentative cost starts at S?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>What are the first tentative neighbor costs?</p><details><summary>Show answer</summary><p>(0,1) costs 9. (1,0) costs 1.</p></details></li><li><p>Why can G first appear in the heap before we know its optimum?</p><details><summary>Show answer</summary><p>A later route can improve its tentative cost. Stop on a current minimum pop.</p></details></li><li><p>Which route has fewer moves?</p><details><summary>Show answer</summary><p>The top route, 4 versus 8.</p></details></li><li><p>Which uses less energy?</p><details><summary>Show answer</summary><p>The lower route, 8 versus 28.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why does first discovering the goal fail as a stopping rule for weighted search?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w11/reference.html">Earlier Week 11 · Dijkstra</a></li><li><a href="../w11/ek-notlar/#practice">Extended question bank and notes · 11</a></li></ul>

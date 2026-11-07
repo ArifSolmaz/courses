@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 07 / 14 · Priority queues and timer heaps</p>
 <h1 id="lesson-title">Which task runs next?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot scheduler stores future release times for diagnostics and telemetry. A min-heap helps it find the next timer to release. Once a timer is due, the scheduler still needs a policy for running the released tasks.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Schedule timers with a per-cycle budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Start with heap [4, 9, 7]. Insert deadline 3, then remove the minimum. Use zero-based child indices 2i + 1 and 2i + 2. Break equal deadlines by insertion order.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>Append 3 and swap upward past 9 and 4 to get [3, 4, 7, 9]. Remove 3, move 9 to the root and swap down with 4 to get [4, 9, 7]. Peeking reads one entry. An insertion or removal moves along at most one tree path, so work grows roughly with log₂ n.</p></details>
 
+<h3>Trace timer priorities and ties</h3>
+<p>A min-heap has root (3, A), with children (7, B) and (5, C). Insert (3, D), then remove the next two timers. Equal deadlines are ordered by sequence A, B, C, D.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Append D under B. D moves past B because deadline 3 comes first, then stops below A because A wins the tie.</li><li>Remove A and move the last element B to the root. Compare D and C. Swap B with D, leaving D first.</li><li>Remove D next. Move C to the root. B comes later, so the next due timer is C at time 5.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how selecting and replacing one timer scales in an unsorted list and a heap. Time one replacement per call at two queue sizes. Keep initial heap construction outside the timing.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -62,9 +68,37 @@ for n in (32, 512):
     measure(f&quot;{n}: heap&quot;, lambda: heap_job(heap))
     assert min(timers) == heap[0]
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Time the list scan and heap replacement at the original sizes. Explain what stays constant about the simulated timer workload.</li><li>Change the queue sizes to 8 and 128. Compare measurements and estimate how many entries the list examines before choosing the minimum.</li><li>Use a small heap of (deadline, sequence) pairs with repeated deadlines and pop them in order. Test the empty case without calling heappop on an empty heap.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>from heapq import heappop
+
+timers = [(3, 1), (7, 2), (5, 3), (3, 4)]
+heapify(timers)
+order = []
+while timers:
+    order.append(heappop(timers))
+assert order == [(3, 1), (3, 4), (5, 3), (7, 2)]
+print(order)</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Which child should replace a larger root during a sift-down?</p><details><summary>Show answer</summary><p>The smaller child, with the chosen tie rule.</p></details></li><li><p>Two timers have the same timestamp. How can the order be deterministic?</p><details><summary>Show answer</summary><p>Use a sequence number after the deadline in the comparison.</p></details></li><li><p>If removing the next timer takes 0.03 ms and your dispatcher has 0.02 ms left, does it fit?</p><details><summary>Show answer</summary><p>The observed operation exceeds that allocation.</p></details></li></ol><p>The midterm covers Weeks 1–7.</p></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Schedule timers with a per-cycle budget</h2>
+<p>At tick 20, the queue contains timers with deadlines 18, 19, 20 and 24. Each dispatch costs 0.07 ms including queue work. The robot can spend at most 0.15 ms on dispatch in this cycle.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Trace which timers are due, which run this cycle, and what remains. State how the oldest due timer is selected.</li><li>Choose what to do with the overdue timer that does not fit. Distinguish a deadline in the heap from the cost of running its handler.</li><li>Write an acceptance test for several equal deadlines and another for a queue whose earliest timer is in the future.</li></ol>
+<details><summary>Compare a model answer</summary><p>Three timers are due. Two dispatches fit at 0.14 ms, so run deadlines 18 and 19 first. Deadline 20 stays overdue and deadline 24 stays pending. One policy records the lateness and retries at the next tick, unless the task’s deadline requires a fault response. The heap orders due times and does not predict handler duration.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which child should replace a larger root during a sift-down?</p><details><summary>Show answer</summary><p>The smaller child, with the chosen tie rule.</p></details></li><li><p>Two timers have the same timestamp. How can the order be deterministic?</p><details><summary>Show answer</summary><p>Use a sequence number after the deadline in the comparison.</p></details></li><li><p>If removing the next timer takes 0.03 ms and your dispatcher has 0.02 ms left, does it fit?</p><details><summary>Show answer</summary><p>The observed operation exceeds that allocation.</p></details></li></ol><p>The midterm covers Weeks 1–7.</p></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the next deadline in [4, 9, 7]?</p><details><summary>Show answer</summary><p>4.</p></details></li><li><p>What parent index belongs to child index 5?</p><details><summary>Show answer</summary><p>Index 2.</p></details></li><li><p>Is the whole array [4, 9, 7] sorted?</p><details><summary>Show answer</summary><p>No. Each parent is at most its children.</p></details></li><li><p>What should the scheduler do if its heap is empty?</p><details><summary>Show answer</summary><p>Report no pending timer and avoid popping.</p></details></li><li><p>What does a heap tell you when the earliest timer is later than now?</p><details><summary>Show answer</summary><p>No pending timer is due yet.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>How would you enforce an execution budget even if many timers in the heap have already expired?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w6/reference.html">Earlier Week 6 · Heaps</a></li><li><a href="../w6/ek-notlar/#practice">Extended question bank and notes · 06</a></li></ul>

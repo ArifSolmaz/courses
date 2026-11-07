@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Hafta 03 / 14 · Döngü sınırları, yarılama ve ikili arama</p>
 <h1 id="lesson-title">Kodun maliyetini nasıl okurum?</h1>
-<p class="eyebrow">10 min · Mühendislik sorusu</p>
+<p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robot termistörün ADC değerini ADC’ye göre sıralanmış kalibrasyon tablosuyla dönüştürüyor. Ölçümün ekleme indisini bul. Ara değer hesabı gerekiyorsa komşu kalibrasyon noktalarına bak.</p>
+<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
 
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#topic-references">Konu kaynakları</a></nav>
+<p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">ADC aramasının giriş ve çıkış sözleşmesini tasarla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Kâğıt üzerinde izle</h2>
+<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>[120, 220, 330, 430, 550, 680, 790, 900] dizisinde 430’u ara. İndisler sıfırdan başlar, aralık [lo, hi). Ortadaki değer küçükse lo = mid + 1, aksi halde hi = mid. lo = hi olduğunda dur.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>4, 2 ve 3 indisleri incelenir. Ekleme indisi 3’tür. Her karşılaştırma kalan adayların yaklaşık yarısını eler. n satır ve m sütun tarayan iç içe döngü n × m, ardışık iki tarama n + m ziyaret yapar.</p></details>
 
+<h3>Tekrarlı anahtarlarda ilk uygun indisi izle</h3>
+<p>[120, 220, 220, 450, 720] sıralı ADC dizisini kullan. En az 220 olan ilk indisi bul. 221 ve 900 için tekrarla. lo, hi, mid ve karşılaştırmayı yaz.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>220 için 2, 1 ve 0 indisleri incelenir. Ortadaki değer anahtara eşitse hi sola gelir. Sonuç 1’dir.</li><li>221 için 2, 4 ve 3 indisleri incelenir. 3. indis anahtardan büyük ilk değerdir.</li><li>900 için aralık 5. indiste kapanır. Bu son öğenin sonrasındaki geçerli ekleme konumudur. Tablodan okumadan önce sınırı kontrol et.</li></ol></details>
+<p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Süreyi ölç</h2>
+<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Sıralı tablo büyüyünce tarama ve ikili aramanın nasıl değişeceğini tahmin et. İkisini de aynı, en büyük değerden büyük hedefle ölç. Sonra ilk öğeyi ara. Tablo kurma süresini ölçüme katma.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -64,9 +70,33 @@ for n in (100, 1000):
         measure(f&quot;{n}/{key}: scan&quot;, lambda: scan_bound(values, key))
         measure(f&quot;{n}/{key}: binary&quot;, lambda: lower_bound(values, key))
 </code></pre>
+<h3>Deney adımları</h3>
+<p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
+<ol class="tool-steps"><li>Önce başlangıç kodunu çalıştır. İlk öğeyi bulmak ile en büyük öğenin ötesinde arama yapmak arasındaki süre farkını açıkla.</li><li>Aynı boyutta ortadaki anahtarı, son anahtarı ve sonuncudan büyük bir anahtarı sorgula. İki yöntemin eşleştiğini mevcut assert satırıyla kontrol et.</li><li>Tekrarlı öğeler içeren küçük bir dizi ve boş bir dizi dene. Sonuçları ölçüm dışında yazdır ve kâğıtta ortadaki değere kaç kez bakıldığını say.</li></ol>
+<details><summary>Kopyalanabilir deney kodu</summary>
+<p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
+<pre class="lab-variation"><code>values = [120, 220, 220, 450, 720]
+for key, expected in [(220, 1), (221, 3), (900, 5)]:
+    assert scan_bound(values, key) == lower_bound(values, key) == expected
+    print(key, &quot;-&gt;&quot;, expected)
+assert lower_bound([], 220) == 0</code></pre>
+</details>
+<p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
-<section id="exam-practice"><h2>Sınav tipi sorular</h2><ol class="practice-list"><li><p>500’ün ekleme indisini izle.</p><details><summary>Yanıtı göster</summary><p>430 ile 550 arasında, indis 4.</p></details></li><li><p>12 satır ve 8 sütunda kaç ziyaret yapılır?</p><details><summary>Yanıtı göster</summary><p>96.</p></details></li><li><p>Tarama ne zaman daha uygun olabilir?</p><details><summary>Yanıtı göster</summary><p>Küçük, sırasız bir tabloya tek sorguda sıralama yapmak taramadan pahalı olabilir.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 dk</p><h2>ADC aramasının giriş ve çıkış sözleşmesini tasarla</h2>
+<p>Kalibrasyon çiftleri (100, 0°C), (200, 20°C), (400, 60°C), (700, 90°C). Denetleyici 300, 400, 90 ve 850 okuyor. Tablo dışı girdilerin nasıl işleneceğine karar ver.</p>
+<p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
+<ol class="tool-steps"><li>Her girdi için ilk uygun indisi izle. 300 için komşu ADC değerleri arasında doğrusal ara değer hesapla.</li><li>Tam eşleşme, boş tablo ve aralık dışındaki iki değer için dönüş kuralı yaz. Tekrarlı ADC anahtarlarının geçerli olup olmadığını açıkla.</li><li>Dört kabul testi yaz. Sıralama ve tablo doğrulamasının programın neresinde yapılacağını belirle.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>İndisler 2, 2, 0 ve 4’tür. 300, 200 ile 400’ün tam ortasındadır ve tahmin 40°C olur. 400 doğrudan 60°C verir. 90 ve 850 aralık dışı, boş veya tekrarlı anahtarlı tablo yapılandırma hatası olarak bildirilebilir. Tabloyu yüklerken bir kez doğrula.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
+<p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
+<ol class="practice-list"><li><p>500’ün ekleme indisini izle.</p><details><summary>Yanıtı göster</summary><p>430 ile 550 arasında, indis 4.</p></details></li><li><p>12 satır ve 8 sütunda kaç ziyaret yapılır?</p><details><summary>Yanıtı göster</summary><p>96.</p></details></li><li><p>Tarama ne zaman daha uygun olabilir?</p><details><summary>Yanıtı göster</summary><p>Küçük, sırasız bir tabloya tek sorguda sıralama yapmak taramadan pahalı olabilir.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>900’den büyük değer nereye gider?</p><details><summary>Yanıtı göster</summary><p>Son öğenin ardına, indis 8’e. Ara değer hesabından önce bu sınırı ele al.</p></details></li><li><p>Boş tabloda hangi indis döner?</p><details><summary>Yanıtı göster</summary><p>0. Ara değer hesabına uygun kalibrasyon çifti yoktur.</p></details></li><li><p>64’ü 1’e kadar kaç kez yarılarsın?</p><details><summary>Yanıtı göster</summary><p>Altı.</p></details></li><li><p>12 ve 8 öğelik ardışık taramalarda kaç ziyaret yapılır?</p><details><summary>Yanıtı göster</summary><p>20.</p></details></li><li><p>Sırasız ADC değerlerinde bu ikili arama güvenilir mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Elenen yarı doğru konumu içerebilir.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
+<p>İkili arama neden len(table) döndürebilir? Bu durumda çağıran kod ne yapmalı?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+</section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w3/tr/reference.html">Önceki ders 3 · Büyüme ve ikili arama</a></li><li><a href="../../w3/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 03</a></li></ul>

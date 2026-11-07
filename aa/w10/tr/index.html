@@ -18,19 +18,25 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Hafta 10 / 14 · A* ve kalan maliyet için alt sınır</p>
 <h1 id="lesson-title">Hedefe daha hızlı ulaşabilir miyiz?</h1>
-<p class="eyebrow">10 min · Mühendislik sorusu</p>
+<p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robotun tek hedefi var. En düşük arazi maliyetini korurken aramayı ucuz bir uzaklık tahminiyle hedefe yönlendir.</p>
+<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
 
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#topic-references">Konu kaynakları</a></nav>
+<p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Sıfır maliyetli hücrelerde sezgiyi denetle</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Kâğıt üzerinde izle</h2>
+<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <figure><pre aria-label="Robotun ortak ızgarası">S999G
 .###.
 .....</pre><figcaption>S başlangıç, G hedef, # engel. Satır ve sütunlar sıfırdan başlar.</figcaption></figure><p>Ortak haritada f = g + h kullan. g bilinen yol maliyeti, h Manhattan uzaklığı çarpı en düşük adım maliyeti olan 1’dir. S ve ilk iki komşunun f değerini hesapla. En küçük f değerini genişlet. Rotayı ve genişletme sayısını yaz.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>S için f = 0 + 4 = 4. Üst komşu için f = 9 + 3 = 12. Alt komşu için f = 1 + 5 = 6. Engeller adım ekleyebilir. Her hareket Manhattan uzaklığını en çok bir değiştirir, bu yüzden en az birim maliyetli hareketlerde tahmin tutarlıdır. Alt rota yine 8 tutar.</p><table class="robot-table"><thead><tr><th scope="col">Çıkarılan</th><th scope="col">g + h</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>4</td></tr><tr><th scope="row">(1,0)</th><td>6</td></tr><tr><th scope="row">(2,0)</th><td>8</td></tr><tr><th scope="row">(2,1)</th><td>8</td></tr><tr><th scope="row">(2,2)</th><td>8</td></tr><tr><th scope="row">(2,3)</th><td>8</td></tr><tr><th scope="row">(2,4)</th><td>8</td></tr><tr><th scope="row">(1,4)</th><td>8</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details>
 
+<h3>Sezgi önceliklerini ve alt sınırları karşılaştır</h3>
+<p>Açık 4 × 4 ızgarada başlangıç (0,0), hedef (0,3), adım maliyeti 1. Dijkstra ve A*’ın ilk çıkarmalarını karşılaştır. Eşitlikte satır, sonra sütun küçük olanı al.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>S’nin sağ ve alt komşularında g = 1. Sağda h = 2 ve f = 3. Altta h = 4 ve f = 5.</li><li>A* üst sırayı izler ve S dahil dört çıkarmada hedefe ulaşır. h = 0 kullanan Dijkstra önce başka satırlardaki hücreleri de inceler.</li><li>Engel dolambaç gerektirebilir. Dört yönlü hamle sayısını Manhattan uzaklığının altına düşüremez. Maliyet tahmini en düşük yasal adım maliyetini kullanır.</li></ol></details>
+<p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Süreyi ölç</h2>
+<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Aynı harita, hedef ve eşitlik kuralıyla Dijkstra ve A*’ı karşılaştır. Açık haritada hedefin başlangıca yakın olması işi nasıl etkiler? Hücre sayısını ve süreyi yaz. h = 0 ile tekrarla.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir. Çıkarma sayısı hedefi içerir ve öbekteki eski kayıtları saymaz.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -117,9 +123,34 @@ for grid, start, goal in maps:
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
+<h3>Deney adımları</h3>
+<p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
+<ol class="tool-steps"><li>İki başlangıç haritasını çalıştır. İki planlayıcının aynı yol maliyetini bulup farklı sayıda hücre çıkarmasını açıkla.</li><li>Çözümlü açık 4 × 4 haritayı ekle. Manhattan ve sıfır sezgisiyle çalıştır. Maliyet, çıkarma ve bir süre ölçümü yaz.</li><li>Üst sırada başlangıç ile hedef arasına engel koy. Yeni uzunluğu tahmin et ve iki yöntemi çalıştır. Tahminin nerede düşük kaldığını ve bunun neden kabul edilebilir olduğunu yaz.</li></ol>
+<details><summary>Kopyalanabilir deney kodu</summary>
+<p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
+<pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
+start, goal = (0, 0), (0, 3)
+for heuristic in (manhattan, zero):
+    print(heuristic.__name__, weighted(grid, start, goal, heuristic))
+assert weighted(grid, start, goal, manhattan)[1] == 3
+assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
+</details>
+<p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
-<section id="exam-practice"><h2>Sınav tipi sorular</h2><ol class="practice-list"><li><p>S’nin hangi komşusu önce genişletilir?</p><details><summary>Yanıtı göster</summary><p>f = 6 olan (1,0).</p></details></li><li><p>Manhattan uzaklığını 9 ile çarpmak neden riskli?</p><details><summary>Yanıtı göster</summary><p>Bazı adımlar 1 tutar. Tahmin gerçek kalan maliyeti aşabilir.</p></details></li><li><p>A* daha az hücre genişletip daha uzun sürebilir mi?</p><details><summary>Yanıtı göster</summary><p>Evet. h hesabı ve öbek işlemleri de zaman alır.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 dk</p><h2>Sıfır maliyetli hücrelerde sezgiyi denetle</h2>
+<p>S11G / 0000 satırlarında başlangıç (0,0), hedef (0,3). G’ye giriş 1. Bazı adımlar sıfır olsa da bir ekip üyesi doğrudan Manhattan uzaklığını öneriyor.</p>
+<p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
+<ol class="tool-steps"><li>Doğrudan yolun maliyetini alttaki beş hamleli yolla karşılaştır. Önerilen sezgiyle S’nin iki komşusunun f değerini hesapla.</li><li>A* hedefi ilk çıkardığında hangi yolu döndürebilir? h = 0 ile karşılaştır ve geçerli alt sınırın hangisinde sağlandığını açıkla.</li><li>Haritayı deneye ekle. Eşit maliyetler, engeller ve sıfır maliyetli adımlar için üç satırlı kabul tablosu yaz. Sezgi geçerliyken A* ve Dijkstra maliyetlerinin eşleşmesini bekle.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>Üst yol 3, alt yol 1 tutar. Sağ komşuda f = 1 + 2 = 3. Alt komşuda f = 0 + 4 = 4, oysa en iyi rotanın kalan maliyeti 1. Ölçeklenmemiş sezgi 3 maliyetle durabilir. En düşük adım maliyeti sıfırla çarpınca h = 0 olur ve Dijkstra maliyet 1’i bulur.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
+<p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
+<ol class="practice-list"><li><p>S’nin hangi komşusu önce genişletilir?</p><details><summary>Yanıtı göster</summary><p>f = 6 olan (1,0).</p></details></li><li><p>Manhattan uzaklığını 9 ile çarpmak neden riskli?</p><details><summary>Yanıtı göster</summary><p>Bazı adımlar 1 tutar. Tahmin gerçek kalan maliyeti aşabilir.</p></details></li><li><p>A* daha az hücre genişletip daha uzun sürebilir mi?</p><details><summary>Yanıtı göster</summary><p>Evet. h hesabı ve öbek işlemleri de zaman alır.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>G’de h kaçtır?</p><details><summary>Yanıtı göster</summary><p>0.</p></details></li><li><p>Hedef (0,4) ise (2,0) konumunda h kaçtır?</p><details><summary>Yanıtı göster</summary><p>6.</p></details></li><li><p>g = 3, h = 5 ise öncelik nedir?</p><details><summary>Yanıtı göster</summary><p>8.</p></details></li><li><p>h = 0 olursa A* hangi yönteme dönüşür?</p><details><summary>Yanıtı göster</summary><p>Aynı eşitlik kuralıyla Dijkstra.</p></details></li><li><p>Bazı adımlar sıfır maliyetliyse tahmini nasıl değiştirirsin?</p><details><summary>Yanıtı göster</summary><p>En düşük maliyet olarak sıfır kullan veya başka geçerli bir alt sınır kur.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
+<p>A* önermeden önce yol maliyeti ve çıkarma sayısını neden ayrı ayrı karşılaştırırsın?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+</section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w11/tr/reference.html">Önceki ders 11 · Dijkstra</a></li><li><a href="../../w11/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 11</a></li></ul>

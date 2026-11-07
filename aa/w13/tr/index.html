@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Hafta 13 / 14 · Izgarada dinamik programlama ve Bellman fikri</p>
 <h1 id="lesson-title">Rotalar arasında hesabı nasıl yeniden kullanırım?</h1>
-<p class="eyebrow">10 min · Mühendislik sorusu</p>
+<p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robot bir düzeneği satır satır denetliyor. Yalnız sağa ve aşağı gidebiliyor. Hücrelere giriş maliyeti en aza indirilecek. Bir kısmi yol birçok aday rota tarafından kullanılabilir.</p>
+<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
 
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#topic-references">Konu kaynakları</a></nav>
+<p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Sınırlı bellekle rota maliyeti planla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Kâğıt üzerinde izle</h2>
+<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>[0,4,1] / [1,8,1] / [1,1,1] maliyet ızgarasını kullan. Sol üstte sıfırla başla. Her hücreye yukarıdaki veya soldaki erişilebilir komşunun en ucuz maliyetini ve giriş maliyetini toplayarak ulaş. Ebeveyni yaz ve rotayı kur.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>En iyi maliyet satırları [0,4,5], [1,9,6], [2,3,4]. Aşağı, aşağı, sağ, sağ rotası 4 tutar. Her hücre bir kez hesaplanır. Bellman fikri burada bir duruma en iyi maliyetin, en iyi önceki maliyet ile bir hamlenin toplamından gelmesidir. Durum ve maliyet fikirleri optimal kontrolde de kullanılır.</p></details>
 
+<h3>Izgara tablosunda erişilemezliği ve eşitliği izle</h3>
+<p>Yalnız sağa ve aşağı gidilen [0, 2, 3] / [1, #, 1] / [4, 1, 1] ızgarasını doldur. # engel. Erişilebilir her hücre için maliyet ve öncül tut.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>Üst sıra maliyetleri 0, 2, 5. Sol sütun 0, 1, 5. Merkez erişilemez.</li><li>Merkezin sağı üstten 6, altı soldan 6 tutar. İkisi de merkezi kullanamaz.</li><li>Hedef iki yoldan da 7 tutar. İki rota da geçerlidir. Tekrarlanabilir çıktı için tutarlı eşitlik kuralı seç.</li></ol></details>
+<p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Süreyi ölç</h2>
+<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>5 × 5 ve 9 × 9 ızgaralarda tekrar eden özyineleme ile tablo doldurmayı ölç. Çağrı ve doldurulan hücre sayılarını ayrı birimlerle yaz. Tek satır belleğin ne zaman yettiğini tartış.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -77,9 +83,34 @@ for n in (5, 9):
     measure(f&quot;{n}: recursion&quot;, lambda: recursive_cost(grid), repeats=3)
     measure(f&quot;{n}: table&quot;, lambda: table_cost(grid))
 </code></pre>
+<h3>Deney adımları</h3>
+<p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
+<ol class="tool-steps"><li>Başlangıçtaki iki yöntemi çalıştır. Özyinelemeli çağrıları ve tablo hücrelerini ayrı ölç. Toplam maliyetleri doğrula.</li><li>3 × 5 dikdörtgen ızgara dene. Her iki işlev için aynı girdiyi açıkça oluştur. Hücre sayısını satır × sütun ile karşılaştır.</li><li>3 × 3 kâğıt tablosunda bir satır alanıyla soldan sağa güncelleme yap. Her adımda üstten gelen eski ve soldan gelen yeni değeri göster.</li></ol>
+<details><summary>Kopyalanabilir deney kodu</summary>
+<p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
+<pre class="lab-variation"><code>grid = [[0, 2, 3, 1, 4], [1, 2, 2, 2, 1], [4, 1, 1, 1, 1]]
+recursive = recursive_cost(grid)
+table = table_cost(grid)
+assert recursive[0] == table[0]
+assert table[1] == 15
+print(recursive, table)</code></pre>
+</details>
+<p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
-<section id="exam-practice"><h2>Sınav tipi sorular</h2><ol class="practice-list"><li><p>Merkezin en düşük maliyeti nedir?</p><details><summary>Yanıtı göster</summary><p>9, soldan.</p></details></li><li><p>Yalnız maliyet gerekirse bellek nasıl azalır?</p><details><summary>Yanıtı göster</summary><p>Tek satırı soldan sağa güncelle. Üst için eski, sol için yeni değeri oku.</p></details></li><li><p>Yukarı ve sola da gidilirse tek geçiş yeter mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Bu hareketler döngü yaratabilir. Negatif maliyet yoksa Dijkstra kullanılabilir.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 dk</p><h2>Sınırlı bellekle rota maliyeti planla</h2>
+<p>Sağa ve aşağı giden inceleme ızgarası 50 satır ve 80 sütun. Her maliyet dört, her öncül yönü bir bayt. Geçici planlama bütçesi 1 KiB.</p>
+<p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
+<ol class="tool-steps"><li>Maliyet ve öncül tablolarının baytlarını hesapla. Tek satırlı güncellemenin sığıp sığmadığını belirle.</li><li>Tek satırdan hangi sonucun alınabildiğini ve rota için ne eklemek veya yeniden hesaplamak gerektiğini yaz.</li><li>Ulaşılamayan hedefi nasıl temsil edeceğini açıkla. İlk sırada engel olan küçük bir örneği kâğıtta kontrol et.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>Tam maliyet tablosu 16.000, öncüller 4.000 bayt tutar. Tek maliyet satırı 320 bayt. Son maliyeti verir ancak tüm öncülleri saklamaz. Rota için daha çok alan, yeniden hesaplama veya başka bir kurma yöntemi gerekir. Erişilemezliği ayrı bir değerle göster ve erişilemez öncülden sonlu maliyet üretme.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
+<p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
+<ol class="practice-list"><li><p>Merkezin en düşük maliyeti nedir?</p><details><summary>Yanıtı göster</summary><p>9, soldan.</p></details></li><li><p>Yalnız maliyet gerekirse bellek nasıl azalır?</p><details><summary>Yanıtı göster</summary><p>Tek satırı soldan sağa güncelle. Üst için eski, sol için yeni değeri oku.</p></details></li><li><p>Yukarı ve sola da gidilirse tek geçiş yeter mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Bu hareketler döngü yaratabilir. Negatif maliyet yoksa Dijkstra kullanılabilir.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>Başlangıcın taban maliyeti nedir?</p><details><summary>Yanıtı göster</summary><p>0.</p></details></li><li><p>Üst satırdaki sonraki bir hücre nasıl doldurulur?</p><details><summary>Yanıtı göster</summary><p>Soldaki öncülle.</p></details></li><li><p>Hedefin en düşük maliyeti nedir?</p><details><summary>Yanıtı göster</summary><p>4.</p></details></li><li><p>10 × 20 tablo kaç hücre saklar?</p><details><summary>Yanıtı göster</summary><p>200.</p></details></li><li><p>Rotayı kolayca kurmak için başka ne gerekir?</p><details><summary>Yanıtı göster</summary><p>Öncül seçimleri tablosu.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
+<p>Tek satırı sağdan sola güncellemek bu bağıntıda neden yanlış öncülü kullanır?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+</section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w13/tr/reference.html">Önceki ders 13 · Dinamik programlama</a></li><li><a href="../../w13/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 13</a></li></ul>

@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Hafta 11 / 14 · Derinlik öncelikli arama, döngüler ve topolojik sıra</p>
 <h1 id="lesson-title">Robotu hangi sırayla başlatırız?</h1>
-<p class="eyebrow">10 min · Mühendislik sorusu</p>
+<p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robot tarama veya sürüşü açmadan önce başlatılır. Harita taramadan sonra yüklenir. Çalışma için hem harita hem sürüş hazır olmalıdır. Okları önkoşuldan bağımlı göreve çiz.</p>
+<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
 
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#topic-references">Konu kaynakları</a></nav>
+<p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Eklenen bağımlılıktan sonra güvenli başlatma tasarla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Kâğıt üzerinde izle</h2>
+<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>boot → scan, boot → drive, scan → map, map → run, drive → run oklarını kullan. DFS’de scan, drive’dan önce incelensin. Görevleri görülmemiş, etkin veya tamamlanmış olarak işaretle. Bitiş sırasını ters çevir. run → boot ekleyip yeniden dene.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>Ek kenar olmadan bitiş sırası run, map, scan, drive, boot olur. Tersi boot, drive, scan, map, run. run’dan etkin boot’a ok döngü gösterir. Değişen grafta geçerli başlatma sırası yoktur. Bağımsız bileşenlerde DFS yeniden başlar.</p></details>
 
+<h3>Geçerli sırayı DFS’nin ziyaret sırasından ayır</h3>
+<p>A ve B, D’nin bağımsız önkoşulları. A ayrıca C’nin, C de D’nin önkoşulu. DFS’ye A’dan başla, C’yi D’den önce incele. Sonra B’yi ziyaret et.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>A, C’yi, C de D’yi açar. Önce D, sonra C biter. A’nın D’ye diğer kenarı tamamlanmış bir göreve gelir.</li><li>A üçüncü biter. Sonra B başlar ve D’yi bitmiş bulur. Bitiş D, C, A, B olduğundan geçerli bir sıra B, A, C, D’dir.</li><li>D→A ekle. A’dan DFS, C ve D üzerinden etkin A’ya geri döner. Döngü A→C→D→A’dır.</li></ol></details>
+<p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Süreyi ölç</h2>
+<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>20 ve 200 görevli bağımlılık zincirlerinde işi tahmin et ve DFS’yi ölç. Son görevden ilkine bir ok ekle. Döngünün bildirildiğini kontrol et.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -71,9 +77,36 @@ for n in (20, 200):
     assert topological(graph) is None
     measure(f&quot;{n}: cycle&quot;, lambda: topological(graph))
 </code></pre>
+<h3>Deney adımları</h3>
+<p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
+<ol class="tool-steps"><li>Başlangıç zinciri ve döngüyü çalıştır. DFS’nin hangi koşulda sıra vermeden döndüğünü açıkla.</li><li>Yalıtılmış bir görev içeren küçük dallanan graf dene. Sonuçtaki her kenarı doğrula ve bağımsız görevin listede olduğuna bak.</li><li>200 görevli zinciri aynı kenar sayılı 200 görevli yıldızla karşılaştır. Görev ve kenar sayısı eşitken çağrı derinliğinin neden farklı olduğunu açıkla.</li></ol>
+<details><summary>Kopyalanabilir deney kodu</summary>
+<p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
+<pre class="lab-variation"><code>graph = [[2, 3], [3], [3], [], []]
+order = topological(graph)
+assert sorted(order) == list(range(len(graph)))
+position = {task: i for i, task in enumerate(order)}
+assert all(position[a] &lt; position[b] for a, edges in enumerate(graph) for b in edges)
+print(order)
+graph[3].append(0)
+assert topological(graph) is None</code></pre>
+</details>
+<p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
-<section id="exam-practice"><h2>Sınav tipi sorular</h2><ol class="practice-list"><li><p>boot, scan, drive, map, run geçerli mi?</p><details><summary>Yanıtı göster</summary><p>Evet. Bütün oklar ileri gider.</p></details></li><li><p>Çıkış kenarında hangi DFS işareti döngü gösterir?</p><details><summary>Yanıtı göster</summary><p>Etkin.</p></details></li><li><p>Komşuluk listesiyle DFS neyi inceler?</p><details><summary>Yanıtı göster</summary><p>Sabit kayıt işi dışında her görevi ve her çıkış bağımlılığını bir kez.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 dk</p><h2>Eklenen bağımlılıktan sonra güvenli başlatma tasarla</h2>
+<p>boot, power ve diagnostics’ten önce gelir. power, actuator check’ten, diagnostics, sensor check’ten önce gelir. İki kontrol de enable’dan önce olmalı. Bir ayar hatası enable→power ekliyor.</p>
+<p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
+<ol class="tool-steps"><li>Altı görevi ve yönlü kenarları çiz. Ek kenardan önce iki geçerli sıra ver ve bütün okları kontrol et.</li><li>Ek kenardan sonra döngüyü bul. Eşitlik kuralını değiştirmenin neden çözüm olmadığını açıkla.</li><li>Denetleyicinin döngüde vereceği mesajı öner. Kısmi sıralamayla enable çalıştırmanın güvenli olup olmadığını yaz.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>Bir sıra boot, power, diagnostics, actuator check, sensor check, enable. Diğeri boot, diagnostics, sensor check, power, actuator check, enable. Hata power→actuator check→enable→power döngüsünü oluşturur. Döngüyü bildir ve ayar düzelene dek enable’ı engelle.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
+<p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
+<ol class="practice-list"><li><p>boot, scan, drive, map, run geçerli mi?</p><details><summary>Yanıtı göster</summary><p>Evet. Bütün oklar ileri gider.</p></details></li><li><p>Çıkış kenarında hangi DFS işareti döngü gösterir?</p><details><summary>Yanıtı göster</summary><p>Etkin.</p></details></li><li><p>Komşuluk listesiyle DFS neyi inceler?</p><details><summary>Yanıtı göster</summary><p>Sabit kayıt işi dışında her görevi ve her çıkış bağımlılığını bir kez.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>Başta hangi görev doğrudan çalışabilir?</p><details><summary>Yanıtı göster</summary><p>boot.</p></details></li><li><p>drive, scan’den önce başlayabilir mi?</p><details><summary>Yanıtı göster</summary><p>Evet, boot bittikten sonra.</p></details></li><li><p>run, map’ten sonra ama drive’dan önce başlayabilir mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. İki önkoşul da tamamlanmalı.</p></details></li><li><p>Tamamlanmış bir göreve kenar her zaman döngü mü gösterir?</p><details><summary>Yanıtı göster</summary><p>Hayır.</p></details></li><li><p>Bağımsız bir görevi ne yaparsın?</p><details><summary>Yanıtı göster</summary><p>Bir kez sıraya al. Diğerlerine göre konumu esnektir.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
+<p>Başka birinin topolojik sırasını onun DFS’sini tekrarlamadan nasıl denetlersin?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+</section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w9/tr/reference.html">Önceki ders 9 · DFS ve bağımlılıklar</a></li><li><a href="../../w9/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 09</a></li></ul>

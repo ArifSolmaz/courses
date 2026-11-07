@@ -18,19 +18,25 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 10 / 14 · A* and a lower bound on remaining cost</p>
 <h1 id="lesson-title">Can we get there faster?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot has one goal. Guide the search toward it using a cheap distance estimate while preserving the cheapest terrain cost.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Audit a heuristic when the floor includes zero-cost cells</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
 .....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>On the shared grid use f = g + h, with g the known cost so far and h the Manhattan distance to G multiplied by the minimum legal step cost, one. Compute f for S and its first two neighbors. Continue by expanding the lowest f and record the path and expansion count.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>At S, f = 0 + 4 = 4. The top neighbor has f = 9 + 3 = 12. The lower neighbor has f = 1 + 5 = 6. Obstacles can add steps. Each legal move changes the Manhattan distance by at most one, so this estimate stays consistent for costs of at least one. The lower route still costs 8.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">g + h</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>4</td></tr><tr><th scope="row">(1,0)</th><td>6</td></tr><tr><th scope="row">(2,0)</th><td>8</td></tr><tr><th scope="row">(2,1)</th><td>8</td></tr><tr><th scope="row">(2,2)</th><td>8</td></tr><tr><th scope="row">(2,3)</th><td>8</td></tr><tr><th scope="row">(2,4)</th><td>8</td></tr><tr><th scope="row">(1,4)</th><td>8</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details>
 
+<h3>Compare heuristic priorities and lower bounds</h3>
+<p>On an open 4 × 4 grid use start (0,0), goal (0,3) and unit move cost. Compare the first few pops for Dijkstra and A*. Break ties by row then column as in the starter.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>From S, the right and down neighbors both have g = 1. The right neighbor has h = 2 and f = 3. The down neighbor has h = 4 and f = 5.</li><li>A* keeps popping along the top row and reaches the goal after four pops including S. With h = 0, Dijkstra also considers cells off that row before reaching G.</li><li>An obstacle may force a detour, but it does not reduce the number of axis-aligned moves below Manhattan distance. The bound uses the minimum legal step cost.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare Dijkstra and A* with the same map, goal and tie rule. Predict how an open grid with the goal near the start changes the work. Log expanded cells as well as time. Try h = 0 and compare.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -117,9 +123,34 @@ for grid, start, goal in maps:
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the two starter maps and explain how two planners can return the same path cost but pop very different numbers of cells.</li><li>Add the open 4 × 4 map from the worked example. Run with Manhattan distance and with zero as the heuristic. Record cost, pops and a representative time, then compare.</li><li>Insert a blocked cell between start and goal on the top row. Predict the new length and run both methods. Record where the estimate is optimistic and why that is acceptable.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
+start, goal = (0, 0), (0, 3)
+for heuristic in (manhattan, zero):
+    print(heuristic.__name__, weighted(grid, start, goal, heuristic))
+assert weighted(grid, start, goal, manhattan)[1] == 3
+assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Which neighbor of S is expanded first?</p><details><summary>Show answer</summary><p>(1,0), with f = 6.</p></details></li><li><p>Why would multiplying Manhattan distance by 9 be risky here?</p><details><summary>Show answer</summary><p>Some moves cost 1, so that estimate can exceed the true remaining cost.</p></details></li><li><p>Can A* take longer even if it expands fewer cells?</p><details><summary>Show answer</summary><p>Yes. Computing h and managing the heap add work.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Audit a heuristic when the floor includes zero-cost cells</h2>
+<p>Consider rows S11G / 0000 with start (0,0) and goal (0,3). Entering G costs 1. A teammate proposes plain Manhattan distance even though some moves cost zero.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Compare the direct route’s cost with the five-move route along the lower row. Compute f for both neighbors of S under the proposed heuristic.</li><li>Predict which route A* may return when it stops on the first goal pop. Compare with h = 0 and explain which one has the necessary lower-bound guarantee.</li><li>Add this map to the lab and produce a three-row acceptance table for uniform costs, obstacles and zero-cost moves. Include the required equality of A* and Dijkstra path costs when the heuristic is valid.</li></ol>
+<details><summary>Compare a model answer</summary><p>The direct route costs 3 and the lower route costs 1. At the right neighbor f = 1 + 2 = 3. At the lower neighbor f = 0 + 4 = 4, although only 1 unit remains on the optimal route. The unscaled heuristic can lead to cost 3. Multiplying by minimum step cost zero makes h = 0, and Dijkstra finds cost 1.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which neighbor of S is expanded first?</p><details><summary>Show answer</summary><p>(1,0), with f = 6.</p></details></li><li><p>Why would multiplying Manhattan distance by 9 be risky here?</p><details><summary>Show answer</summary><p>Some moves cost 1, so that estimate can exceed the true remaining cost.</p></details></li><li><p>Can A* take longer even if it expands fewer cells?</p><details><summary>Show answer</summary><p>Yes. Computing h and managing the heap add work.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is h at G?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>What is h at (2,0) with goal (0,4)?</p><details><summary>Show answer</summary><p>6.</p></details></li><li><p>If g = 3 at a cell and h = 5, what is its priority?</p><details><summary>Show answer</summary><p>8.</p></details></li><li><p>What does h = 0 turn A* into?</p><details><summary>Show answer</summary><p>Dijkstra under the same tie rule.</p></details></li><li><p>How would you adapt the estimate if some moves cost zero?</p><details><summary>Show answer</summary><p>Use zero as the minimum, which gives h = 0, or derive another valid lower bound.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why compare A* and Dijkstra on both path cost and cells popped before recommending A*?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w11/reference.html">Earlier Week 11 · Dijkstra</a></li><li><a href="../w11/ek-notlar/#practice">Extended question bank and notes · 11</a></li></ul>
