@@ -28,10 +28,85 @@ const labs = [
   { week: 14, timingRows: 6, output: ['6 exact -> 26.116', '8 exact -> 30.501'] },
 ];
 
+const variations = {
+  1: { measurements: ['last hit'] },
+  2: { measurements: ['unordered pairs', 'unordered pairs'], lines: ['200 -> (19900, 0)', '400 -> (79800, 0)'] },
+  3: { lines: ['220 -> 1', '221 -> 3', '900 -> 5'] },
+  4: { measurements: ['1: shift', '1: ring', '1024: shift', '1024: ring'] },
+  5: { lines: ['0 -> 0', '5 -> None', '8 -> 8', '9 -> None'] },
+  6: { measurements: ['ordered', 'reversed', 'duplicates'] },
+  7: { lines: ['[(3, 1), (3, 4), (5, 3), (7, 2)]'] },
+  8: { lines: ['(5, 5, 6, [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (1, 2)])', '(None, None, 3, [])'] },
+  9: { lines: ['1 -> (4, 4) (4, 4)', '2 -> (4, 7) (4, 7)', '3 -> (4, 10) (8, 8)', '9 -> (4, 28) (8, 8)'] },
+  10: { lines: [
+    'manhattan (3, 3, 4, [(0, 0), (0, 1), (0, 2), (0, 3)])',
+    'zero (5, 1, 8, [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3), (0, 3)])',
+  ] },
+  11: { lines: ['[4, 1, 0, 2, 3]'] },
+  12: { lines: ['(3, 4, 1) (3, 7, 1) (2, 3, 2)'] },
+  13: { lines: ['(7, 55) (7, 15)'] },
+  14: { lines: ['[0, 2, 1, 3, 0] -> [0, 1, 2, 3, 0]'] },
+};
+
 const languages = [
-  { code: 'en', path: '', run: 'Run Python 1', stop: 'Stop', stopped: /^Stopped\./, finished: 'Finished' },
-  { code: 'tr', path: 'tr/', run: 'Python 1 kodunu çalıştır', stop: 'Durdur', stopped: /^Durduruldu\./, finished: 'Tamamlandı' },
+  {
+    code: 'en', path: '', run: 'Run Python 1', stop: 'Stop', stopped: /^Stopped\./, finished: 'Finished',
+    edit: 'Edit code', minutes: 'min', plan: /^180 minutes · .*10 min break/,
+    worked: 'Show the worked steps', procedure: 'Lab procedure', variation: 'Show a ready-to-run variation',
+    model: 'Compare a model answer', exit: 'Exit ticket',
+  },
+  {
+    code: 'tr', path: 'tr/', run: 'Python 1 kodunu çalıştır', stop: 'Durdur', stopped: /^Durduruldu\./, finished: 'Tamamlandı',
+    edit: 'Kodu düzenle', minutes: 'dk', plan: /^180 dakika · .*10 dk ara/,
+    worked: 'Çözüm adımlarını göster', procedure: 'Deney adımları', variation: 'Kopyalanabilir deney kodu',
+    model: 'Örnek çözümü karşılaştır', exit: 'Çıkış sorusu',
+  },
 ];
+
+function measurementLabels(result) {
+  return result.split('\n').flatMap(line => {
+    const match = line.match(/^(.+?)\s+\d+\.\d+ ms\s+\d+\.\d+ ms\s*$/);
+    return match ? [match[1]] : [];
+  });
+}
+
+async function checkClassroomSections(page, language) {
+  const opening = page.locator('section[aria-labelledby="lesson-title"]');
+  await expect(opening.getByText(language.plan)).toBeVisible();
+  await expect(opening.locator('.eyebrow').getByText(new RegExp(`^15 ${language.minutes} ·`))).toBeVisible();
+
+  for (const [id, minutes] of Object.entries({ paper: 35, timing: 45, studio: 45, 'exam-practice': 25, 'exit-ticket': 5 })) {
+    const section = page.locator(`#${id}`);
+    await expect(section.getByRole('heading', { level: 2 })).toHaveText(/\S/);
+    await expect(section.locator(':scope > .eyebrow')).toHaveText(`${minutes} ${language.minutes}`);
+  }
+
+  const paper = page.locator('#paper');
+  await expect(paper.getByRole('heading', { level: 3 })).toHaveText(/\S/);
+  await paper.getByText(language.worked, { exact: true }).click();
+  const workedSteps = paper.locator('details[open] ol > li');
+  await expect(workedSteps).toHaveCount(3);
+  for (const step of await workedSteps.all()) {
+    await expect(step).toBeVisible();
+    await expect(step).toHaveText(/\S/);
+  }
+
+  const timing = page.locator('#timing');
+  await expect(timing.getByRole('heading', { name: language.procedure, exact: true })).toBeVisible();
+  await expect(timing.locator(':scope > ol > li')).toHaveCount(3);
+  const studio = page.locator('#studio');
+  await expect(studio.locator('h2 + p')).toHaveText(/\S/);
+  await expect(studio.locator(':scope > ol > li')).toHaveCount(3);
+  await studio.getByText(language.model, { exact: true }).click();
+  const answer = studio.locator('details[open] > p');
+  await expect(answer).toBeVisible();
+  await expect(answer).toHaveText(/\S/);
+  await expect(page.locator('#exam-practice .practice-list > li')).toHaveCount(3);
+  await expect(page.locator('#drills .practice-list > li')).toHaveCount(5);
+  const exit = page.locator('#exit-ticket');
+  await expect(exit.getByRole('heading', { name: language.exit, exact: true })).toBeVisible();
+  await expect(exit.locator('h2 + p')).toHaveText(/\S/);
+}
 
 async function openLab(page, week, language) {
   const errors = [];
@@ -53,18 +128,45 @@ async function openLab(page, week, language) {
 for (const language of languages) {
   test.describe(language.code, () => {
     for (const { week, timingRows, output } of labs) {
-      test(`Week ${week} timing lab runs`, async ({ page }) => {
+      test(`Week ${week} classroom sections, timing lab and variation`, async ({ page }) => {
         const lab = await openLab(page, week, language);
-        await lab.run.click();
-        await expect(lab.status).toHaveText(language.finished);
-        await expect(lab.run).toBeEnabled();
-        const result = await lab.output.innerText();
-        for (const expected of output) {
-          expect(result).toContain(expected);
-        }
-        // Timings vary by machine. Verify that every expected pair of measurements was printed.
-        const measurements = result.split('\n').filter(line => /\d+\.\d+ ms\s+\d+\.\d+ ms\s*$/.test(line));
-        expect(measurements).toHaveLength(timingRows);
+        await test.step('Verify the three-hour lesson sections', async () => {
+          await checkClassroomSections(page, language);
+        });
+        await test.step('Run the starter lab', async () => {
+          await lab.run.click();
+          await expect(lab.status).toHaveText(language.finished);
+          await expect(lab.run).toBeEnabled();
+          const result = await lab.output.innerText();
+          for (const expected of output) {
+            expect(result).toContain(expected);
+          }
+          expect(measurementLabels(result)).toHaveLength(timingRows);
+        });
+        await test.step('Append and run the published variation', async () => {
+          const timing = page.locator('#timing');
+          await timing.getByText(language.variation, { exact: true }).click();
+          const snippet = timing.locator('.lab-variation code');
+          await expect(snippet).toBeVisible();
+          await expect(snippet).toHaveText(/\S/);
+          await timing.getByRole('button', { name: language.edit, exact: true }).click();
+          const editor = timing.locator('.py-editor');
+          await editor.fill(`${await editor.inputValue()}\n\n${await snippet.textContent()}`);
+          await lab.run.click();
+          await expect(lab.status).toHaveText(language.finished);
+          await expect(lab.run).toBeEnabled();
+
+          const result = await lab.output.innerText();
+          const { lines: expectedLines = [], measurements: expectedMeasurements = [] } = variations[week];
+          const lines = result.split('\n');
+          for (const line of expectedLines) {
+            expect(lines).toContain(line);
+          }
+          // Check labels and row counts while letting measured times vary by machine.
+          const measurements = measurementLabels(result);
+          expect(measurements).toHaveLength(timingRows + expectedMeasurements.length);
+          expect(measurements.slice(timingRows)).toEqual(expectedMeasurements);
+        });
         expect(lab.errors).toEqual([]);
       });
     }

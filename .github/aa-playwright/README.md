@@ -5,6 +5,11 @@ merge commit and against the live site after each successful Pages deployment
 from `main`. To run it manually against the live site, select **Run workflow**
 in **Actions → Check AA timing labs**.
 
+Each weekly test checks the three-hour class sections, runs the starter and
+appends the variation shown on the page through the lab editor. Separate
+Week 10 tests cover stopping and restarting during Python startup. Both
+languages run the same checks.
+
 Run locally from this directory with Node.js 24.
 
 ```sh
