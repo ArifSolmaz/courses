@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../../assets/python-runner.css">
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">Kesin turu zamanında bulamazsam ne yaparım?</h1>
 <p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Robot dört istasyonlu al-bırak turunu yapıp başlangıca dönmeli. Kısa rota ve planlama süresi önemli. Çok istasyon olunca bütün sıraları denemek bütçeyi aşabilir.</p>
-<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
+<p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 <p>Karar sürümü, “B bütçesine uyan bir tur var mı?” diye sorar. Tam sayı uzaklık tablolarında bu TSP karar problemi NP-tamdır. P, NP’nin içindedir. Verilen bir turun hızlı kontrolü bütün örnekleri hızlı çözmenin mümkün olduğunu göstermez.</p>
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Süre sınırı altında planlayıcı seç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Süre sınırı altında planlayıcı seç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+</section>
+<section id="concepts">
+<h2>Tur planında hangi sonucu garanti edeceğini seç</h2>
+<h3>Bu derste yapabileceklerin</h3><ul><li>Sabit depolu turu tanımla.</li><li>Aday ziyaret sıralarını say.</li><li>En yakın komşu ve 2-opt’u izle.</li><li>Uygunluk ile en iyiliği ayır.</li></ul>
+<h3>Başlamadan önce</h3><p>Tek hedefe rota, her durağı ziyaret edip depoya dönen turdan farklıdır.</p>
+<p>Sabit depo ve k başka durak için simetriyi kullanmadan önce k! ziyaret sırası vardır. Kesin arama tüm sıraları denetler veya bazılarını güvenle eleyen bir kural kullanır. Büyük k için sezgisel yöntem, planlama süresi içinde kullanılabilir bir tur üretebilir.</p><p>En yakın komşu her adımda en yakın ziyaret edilmemiş durağı seçer. Erken bir tercih, son dönüşü uzatabilir. 2-opt bir iç parçayı ters çevirip iki bağlantıyı değiştirir. Simetrik uzaklıklarda ters çevrilen iç bağlantıların uzunluğu aynı kalır.</p>
+<figure class="concept-figure">
+<figcaption>Çözümlü iz · kenarları 5 ve 12, köşegeni 13 olan dikdörtgen</figcaption>
+<ol class="concept-frames"><li><strong>A → B → C → D → A</strong><span>Çevre maliyeti 5 + 12 + 5 + 12 = 34.</span></li><li><strong>A → C → B → D → A</strong><span>Çapraz tur 13 + 12 + 13 + 12 = 50.</span></li><li><strong>C → B parçasını ters çevir</strong><span>A–C ve B–D yerine A–B ve C–D kullan. 16 birim kazan.</span></li></ol>
+</figure>
+<p>Bütçe 40 ise iyileşen tur geçerli bir tanıktır. Durakların bir kez ziyaret edildiğini, A’ya dönüşü ve toplamı denetle. Yalnız 40’tan pahalı turlar bulan bir arama, uygun turun olmadığını kanıtlamaz.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>A = (0,0) başlangıç, B = (3,0), C = (3,4), D = (0,4). Doğrusal uzaklık kullan. A’dan en yakın komşuyu izle. Sonra çapraz A–C–B–D–A turunda iki köşegeni kaldıran 2-opt değişimini bul.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
-<details><summary>İzi karşılaştır</summary><p>En yakın komşu A–B–C–D–A rotasını 14 maliyetle verir. Çapraz rota 18 tutar. C–B parçasını ters çevirmek AC ve BD yerine AB ve CD ekler, maliyeti 4 düşürür. En yakın komşu ve 2-opt hızlı ve iyi bir tur verebilir. Büyük girdilerde en iyi turu bulma garantileri yoktur.</p></details>
+<details><summary>İzi karşılaştır</summary><p>En yakın komşu A–B–C–D–A rotasını 14 maliyetle verir. Çapraz rota 18 tutar. C–B parçasını ters çevirmek AC ve BD yerine AB ve CD ekler, maliyeti 4 düşürür. En yakın komşu ve 2-opt hızlı ve iyi bir tur verebilir. Büyük girdilerde en iyi turu bulma garantileri yoktur.</p></details><details><summary>Üç cümlelik örnek açıklama</summary><p>En yakın komşu dikdörtgenin çevresini izler ve 14 tutar. İki köşegen kullanan çapraz tur 18 tutar. C–B’yi ters çevirmek köşegenleri kaldırıp 14 maliyetli çevreyi verir.</p></details>
 
 <h3>Uygun turla daha iyi turu karşılaştır</h3>
 <p>A=(0,0), B=(4,0), C=(4,3), D=(0,3). Öklid uzaklığıyla A→B→C→D→A ve A→C→B→D→A turlarını karşılaştır. Bütçe 15.</p>
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>Kenarlar 4 ve 3, köşegenler 5 birim. Çevre turu 14, çapraz tur 16 tutar.</li><li>Çapraz turdaki C→B parçasını ters çevir. A→C ve B→D köşegenleri yerine A→B ve C→D kenarları gelir.</li><li>Çevre turu bütçenin sağlanabileceğine örnektir. Adayı doğrularken durakları, A’ya dönüşü ve maliyeti kontrol et.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
+</section>
+<section id="common-mistakes">
+<h2>Sık yapılan hatalar</h2><ul><li>Depoya dönüşü unutmak.</li><li>Kesin bir gerekçe olmadan sezgisel sonucu en iyi ilan etmek.</li><li>Başarısız aramayı imkânsızlık kanıtı saymak.</li></ul>
+<h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>Tour / Tur</dt><dd>Her durağa uğra ve depoya dön.</dd><dt>Heuristic / Sezgisel yöntem</dt><dd>Hızla kullanılabilir bir aday bulma kuralı.</dd><dt>Witness / Tanık</dt><dd>Bütçenin sağlanabildiğini gösteren aday.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Belirli 6 ve 8 istasyonlu veri kümelerinde en yakın komşuyu, 2-opt eklenmiş sürümü ve tüm sıraları denemeyi ölç. Maliyetleri ve süreleri karşılaştır. Önce 30 istasyonda hangi yöntemleri tutacağını ve nedenini yaz.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
@@ -120,7 +136,7 @@ print(crossed, &quot;-&gt;&quot;, better)</code></pre>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>A başlangıçsa dört istasyonda kaç sıra denenir?</p><details><summary>Yanıtı göster</summary><p>3! = 6. Simetrik uzaklıkta ters sıralar aynı maliyeti verir.</p></details></li><li><p>A’ya en yakın istasyon hangisi?</p><details><summary>Yanıtı göster</summary><p>Uzaklığı 3 olan B.</p></details></li><li><p>Çapraz turun maliyeti kaç?</p><details><summary>Yanıtı göster</summary><p>5 + 4 + 5 + 4 = 18.</p></details></li><li><p>İyileştiren 2-opt hamlesi yoksa tur kesinlikle en iyi mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Bu değişim kuralına göre yerel en iyidir.</p></details></li><li><p>Hızlı doğrulama P = NP sorusunu çözer mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Böyle her karar probleminin polinom zamanlı çözümü olup olmadığı açık bir sorudur.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
 <p>30 bütçesi için doğrulanmış 28 maliyetli tur neyi kanıtlar? En iyi olma hakkında ne söyler?</p>
-<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p><details><summary>Örnek çıkış yanıtı</summary><p>Doğrulanmış 28 maliyetli tur, 30 bütçesinin sağlanabildiğini kanıtlar. Daha ucuz tur olabilir. En iyi sonucu göstermek için 28’lik alt sınır veya kesin arama sonucu gerekir.</p></details>
 </section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>

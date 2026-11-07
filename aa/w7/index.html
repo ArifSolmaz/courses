@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/heap-lesson.css?v=1">
+<script defer src="../assets/heap-frames.js?v=1"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,21 +22,104 @@
 <h1 id="lesson-title">Which task runs next?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot scheduler stores future release times for diagnostics and telemetry. A min-heap helps it find the next timer to release. Once a timer is due, the scheduler still needs a policy for running the released tasks.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the heap rule, the cost comparison and the insert and remove examples before tracing on paper.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Schedule timers with a per-cycle budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#heap-basics">Heap basics</a><a href="#robot-timers">Robot timer trace</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Schedule timers with a per-cycle budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a><a href="#midterm-card">Midterm card</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
-<p>Start with heap [4, 9, 7]. Insert deadline 3, then remove the minimum. Use zero-based child indices 2i + 1 and 2i + 2. Break equal deadlines by insertion order.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>Append 3 and swap upward past 9 and 4 to get [3, 4, 7, 9]. Remove 3, move 9 to the root and swap down with 4 to get [4, 9, 7]. Peeking reads one entry. An insertion or removal moves along at most one tree path, so work grows roughly with log₂ n.</p></details>
+<section id="heap-basics">
+<h2>Start with the heap</h2>
+<h3>You will be able to</h3>
+<ul>
+<li>Read the same heap as an array and as a tree.</li>
+<li>Trace an insertion and a removal one swap at a time.</li>
+<li>Compare an unsorted list, a sorted list and a min-heap for timer work.</li>
+<li>Release due tasks in Python and schedule their next release.</li>
+</ul>
+<h3>Before you start</h3>
+<p>Recall the sorted array from Week 6. Inserting into the middle meant shifting neighboring values. This week we still use an array, with a weaker ordering rule.</p>
+<ul>
+<li>A heap is stored in an array. The tree is a way to see the index relationships.</li>
+<li>In a min-heap every parent is less than or equal to its children.</li>
+<li>At index i, the children are 2i + 1 and 2i + 2. For a non-root index i, the parent is (i − 1) // 2.</li>
+</ul>
+<p>A priority queue returns the item with highest priority first. Here that means the earliest release time. Fill the tree from top to bottom and left to right at each level. The parent rule holds along every path from the root, so the root is at most every entry. Siblings can appear in either order.</p>
+<h3>Why not just a list?</h3>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Timer operations"><table class="robot-table"><caption>Timer operations</caption><thead><tr><th scope="col">Structure</th><th scope="col">Add a timer</th><th scope="col">Find the next one</th><th scope="col">Remove the next one</th></tr></thead><tbody><tr><th scope="row">Unsorted list</th><td>1 append</td><td>Scan all n</td><td>Scan all n</td></tr><tr><th scope="row">Sorted list</th><td>Shift up to n</td><td>1 read</td><td>1 pop from the end</td></tr><tr><th scope="row">Min-heap</th><td>About log₂ n swaps</td><td>1 read (root)</td><td>About log₂ n swaps</td></tr></tbody></table></div><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Approximate work at four queue sizes"><table class="robot-table"><caption>Approximate work at four queue sizes</caption><thead><tr><th scope="col">Timers n</th><th scope="col">Entries inspected in a full scan</th><th scope="col">Approximate heap levels at most</th></tr></thead><tbody><tr><th scope="row">8</th><td>8</td><td>3</td></tr><tr><th scope="row">128</th><td>128</td><td>7</td></tr><tr><th scope="row">1,000</th><td>1,000</td><td>10</td></tr><tr><th scope="row">1,000,000</th><td>1,000,000</td><td>20</td></tr></tbody></table></div><p>Assume the sorted list keeps the earliest item at its right end, so popping it takes one step. In an unsorted list, once a scan finds the minimum index, you can fill the gap with the last item. Appending usually takes one step, with occasional resizing.</p>
+<p>Each tree level holds about twice as many entries as the one above it. At 1,000 timers a heap update can travel about 10 levels, while a full scan checks 1,000 entries. A swap and a comparison are different operations. Sifting down can also require comparing both children before choosing one. Use the lab to see what that means for time.</p>
+<h3>The same steps in the tree and array</h3>
+<p><strong>Sift up.</strong> Put the new item at the end. Compare it with its parent. Swap if it is smaller. Stop at the root or when the parent is smaller or equal.</p>
+<p><strong>Sift down.</strong> Remove the root. Move the last item to the root. If it is larger than its smaller child, swap them. Stop at a leaf or when neither child is smaller.</p>
+<p>The small number in each array cell is the index. The large number is the value. Highlights show the entries compared or moved in that frame.</p><div class="heap-diagram">
+<h3>Insert · Sift up</h3><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li><span>0</span><strong>4</strong></li><li><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>Start with root 4 and children 9 and 7.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g class="heap-highlight"><circle cx="42" cy="139" r="18"/><text x="42" y="144">3</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li><li class="heap-highlight"><span>3</span><strong>3</strong></li></ol>
+</div><figcaption>Append 3. Compare it with its parent 9.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">3</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li class="heap-highlight"><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>3</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>Swap 3 and 9. Now the parent of 3 is 4.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">3</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li class="heap-highlight"><span>0</span><strong>3</strong></li><li><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>Swap 3 and 4. The new minimum is at the root.</figcaption></figure>
+<div class="heap-controls" hidden>
+<button type="button" data-heap-prev>Previous</button>
+<output aria-live="polite"></output>
+<button type="button" data-heap-next>Next</button>
+</div></div><div class="heap-diagram">
+<h3>Remove · Sift down</h3><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><line x1="78" y1="82" x2="42" y2="139"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">3</text></g><g><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g><g><circle cx="42" cy="139" r="18"/><text x="42" y="144">9</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li class="heap-highlight"><span>0</span><strong>3</strong></li><li><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li><li><span>3</span><strong>9</strong></li></ol>
+</div><figcaption>The root 3 is the earliest time to remove.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g class="heap-highlight"><circle cx="150" cy="25" r="18"/><text x="150" y="30">9</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">4</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li class="heap-highlight"><span>0</span><strong>9</strong></li><li class="heap-highlight"><span>1</span><strong>4</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>Remove 3 and move the last value 9 to the root. Compare both children.</figcaption></figure><figure class="heap-frame">
+<div class="heap-views">
+<svg class="heap-tree" viewBox="0 0 300 162" aria-hidden="true"><line x1="150" y1="25" x2="78" y2="82"/><line x1="150" y1="25" x2="222" y2="82"/><g><circle cx="150" cy="25" r="18"/><text x="150" y="30">4</text></g><g class="heap-highlight"><circle cx="78" cy="82" r="18"/><text x="78" y="87">9</text></g><g><circle cx="222" cy="82" r="18"/><text x="222" y="87">7</text></g></svg>
+<ol class="heap-array" aria-label="Array, index and value"><li><span>0</span><strong>4</strong></li><li class="heap-highlight"><span>1</span><strong>9</strong></li><li><span>2</span><strong>7</strong></li></ol>
+</div><figcaption>Swap 9 with the smaller child 4. The 9 is now a leaf, so stop.</figcaption></figure>
+<div class="heap-controls" hidden>
+<button type="button" data-heap-prev>Previous</button>
+<output aria-live="polite"></output>
+<button type="button" data-heap-next>Next</button>
+</div></div><h3>Python heapq cheat sheet</h3><p><code>heapq</code> manages an ordinary list as a min-heap. Use its operations to preserve the parent rule.</p><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Python heap operations"><table class="robot-table"><caption>Python heap operations</caption><thead><tr><th scope="col">Operation</th><th scope="col">Behavior</th></tr></thead><tbody><tr><th scope="row"><code>heappush(heap, item)</code></th><td>Insert an item and restore heap order.</td></tr><tr><th scope="row"><code>heappop(heap)</code></th><td>Remove and return the minimum. Raises IndexError on an empty heap.</td></tr><tr><th scope="row"><code>heapreplace(heap, item)</code></th><td>Return the old minimum and insert the replacement. The heap must be nonempty.</td></tr><tr><th scope="row"><code>heapify(items)</code></th><td>Rearrange an existing list into a heap in place.</td></tr><tr><th scope="row"><code>heap[0]</code></th><td>Peek at the minimum without removing it. Check that the heap is nonempty first.</td></tr></tbody></table></div><p>Store <code>(release, seq, task)</code>. Python compares the release time first and the sequence number next. Give every insertion a unique <code>seq</code> so equal release times come out in insertion order. Without it, equal release times can make Python compare task objects. Objects that have no ordering raise <code>TypeError</code>.</p>
+<p>For example, <code>(2, 1, imu)</code> comes before <code>(2, 4, motor)</code>. This sequence number breaks ties only. It does not set task priority or a completion deadline.</p><p><a href="https://docs.python.org/3/library/heapq.html">Python heapq documentation</a></p></section><section id="robot-timers">
+<h2>The robot’s first 12 milliseconds</h2>
+<p>Each task first becomes ready at the end of its own period. The queue holds the next release for each task. In this trace, each tick handles all releases due at that tick. Handler durations and operating-system task priorities are outside this small model.</p>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Robot tasks"><table class="robot-table"><caption>Robot tasks</caption><thead><tr><th scope="col">Code</th><th scope="col">Task</th><th scope="col">Period (ms)</th><th scope="col">First release (ms)</th></tr></thead><tbody><tr><th scope="row">M</th><td>Motor control</td><td>1</td><td>1</td></tr><tr><th scope="row">I</th><td>IMU</td><td>2</td><td>2</td></tr><tr><th scope="row">O</th><td>Odometry</td><td>10</td><td>10</td></tr><tr><th scope="row">T</th><td>Telemetry</td><td>50</td><td>50</td></tr></tbody></table></div><p>The initial heap is <code>[(1, 0, M), (2, 1, I), (10, 2, O), (50, 3, T)]</code>. Sequence numbers start at zero. At each tick, peek at the root. When its release time is at or before now, pop it, run the task and push its next release. If the root is in the future, wait for the next tick.</p><pre class="lab-variation"><code>while heap and heap[0][0] &lt;= now:
+    release, _, task = heappop(heap)
+    run(task)
+    heappush(heap, (release + period[task], next(sequence), task))</code></pre><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Heap array after each pop, run and push"><table class="robot-table"><caption>Heap array after each pop, run and push</caption><thead><tr><th scope="col">Now (ms)</th><th scope="col">Pop</th><th scope="col">Run</th><th scope="col">Push next</th><th scope="col">Heap after the push</th></tr></thead><tbody><tr><th scope="row">1</th><td><code>(1, 0, M)</code></td><td>Motor control</td><td><code>(2, 4, M)</code></td><td><code>[(2, 1, I), (2, 4, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">2</th><td><code>(2, 1, I)</code></td><td>IMU</td><td><code>(4, 5, I)</code></td><td><code>[(2, 4, M), (4, 5, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">2</th><td><code>(2, 4, M)</code></td><td>Motor control</td><td><code>(3, 6, M)</code></td><td><code>[(3, 6, M), (4, 5, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">3</th><td><code>(3, 6, M)</code></td><td>Motor control</td><td><code>(4, 7, M)</code></td><td><code>[(4, 5, I), (4, 7, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">4</th><td><code>(4, 5, I)</code></td><td>IMU</td><td><code>(6, 8, I)</code></td><td><code>[(4, 7, M), (6, 8, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">4</th><td><code>(4, 7, M)</code></td><td>Motor control</td><td><code>(5, 9, M)</code></td><td><code>[(5, 9, M), (6, 8, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">5</th><td><code>(5, 9, M)</code></td><td>Motor control</td><td><code>(6, 10, M)</code></td><td><code>[(6, 8, I), (6, 10, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">6</th><td><code>(6, 8, I)</code></td><td>IMU</td><td><code>(8, 11, I)</code></td><td><code>[(6, 10, M), (8, 11, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">6</th><td><code>(6, 10, M)</code></td><td>Motor control</td><td><code>(7, 12, M)</code></td><td><code>[(7, 12, M), (8, 11, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">7</th><td><code>(7, 12, M)</code></td><td>Motor control</td><td><code>(8, 13, M)</code></td><td><code>[(8, 11, I), (8, 13, M), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">8</th><td><code>(8, 11, I)</code></td><td>IMU</td><td><code>(10, 14, I)</code></td><td><code>[(8, 13, M), (10, 14, I), (10, 2, O), (50, 3, T)]</code></td></tr><tr><th scope="row">8</th><td><code>(8, 13, M)</code></td><td>Motor control</td><td><code>(9, 15, M)</code></td><td><code>[(9, 15, M), (10, 2, O), (50, 3, T), (10, 14, I)]</code></td></tr><tr><th scope="row">9</th><td><code>(9, 15, M)</code></td><td>Motor control</td><td><code>(10, 16, M)</code></td><td><code>[(10, 2, O), (10, 14, I), (50, 3, T), (10, 16, M)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 2, O)</code></td><td>Odometry</td><td><code>(20, 17, O)</code></td><td><code>[(10, 14, I), (10, 16, M), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 14, I)</code></td><td>IMU</td><td><code>(12, 18, I)</code></td><td><code>[(10, 16, M), (12, 18, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">10</th><td><code>(10, 16, M)</code></td><td>Motor control</td><td><code>(11, 19, M)</code></td><td><code>[(11, 19, M), (12, 18, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">11</th><td><code>(11, 19, M)</code></td><td>Motor control</td><td><code>(12, 20, M)</code></td><td><code>[(12, 18, I), (12, 20, M), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">12</th><td><code>(12, 18, I)</code></td><td>IMU</td><td><code>(14, 21, I)</code></td><td><code>[(12, 20, M), (14, 21, I), (50, 3, T), (20, 17, O)]</code></td></tr><tr><th scope="row">12</th><td><code>(12, 20, M)</code></td><td>Motor control</td><td><code>(13, 22, M)</code></td><td><code>[(13, 22, M), (14, 21, I), (50, 3, T), (20, 17, O)]</code></td></tr></tbody></table></div><p>At 2 ms, I and M are both due. I comes first because it was inserted earlier. At 10 ms, the same rule gives O, I, M. T stays in the heap throughout the trace because its first release is at 50 ms.</p>
+<p>Schedule the next time with <code>release + period</code>. For example, O runs at 10 ms and is pushed back for 20 ms. If its 10 ms release were handled at 11 ms, adding the period to 10 would still keep the original schedule. A real controller needs a policy for missed releases, such as catching up, skipping or coalescing them.</p></section><section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
+<p>Start with heap [4, 9, 7]. Insert release time 3, then remove the minimum. Use zero-based child indices 2i + 1 and 2i + 2. Break equal release times by insertion order.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
+<details><summary>Check your trace</summary><p>Append 3 and swap upward past 9 and 4 to get [3, 4, 7, 9]. Remove 3, move 9 to the root and swap down with 4 to get [4, 9, 7]. Peeking reads one entry. An insertion or removal moves along at most one tree path, so work grows roughly with log₂ n.</p></details><details><summary>Compare a three-sentence explanation</summary><p>The root is the minimum because each parent is no larger than its children. Insertion only needs to move the new entry up its parent path. After removing the root, move the last entry there and swap it down with the smaller child until the heap rule holds.</p></details>
 
 <h3>Trace timer priorities and ties</h3>
-<p>A min-heap has root (3, A), with children (7, B) and (5, C). Insert (3, D), then remove the next two timers. Equal deadlines are ordered by sequence A, B, C, D.</p>
-<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Append D under B. D moves past B because deadline 3 comes first, then stops below A because A wins the tie.</li><li>Remove A and move the last element B to the root. Compare D and C. Swap B with D, leaving D first.</li><li>Remove D next. Move C to the root. B comes later, so the next due timer is C at time 5.</li></ol></details>
+<p>A min-heap has root (3, A), with children (7, B) and (5, C). Insert (3, D), then remove the next two timers. Equal release times are ordered by sequence A, B, C, D.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Append D under B. D moves past B because deadline 3 comes first, then stops below A because A wins the tie.</li><li>Remove A and move the last element B to the root. Compare D and C. Swap B with D, leaving D first.</li><li>Remove D next. Move C to the root. B comes later, so the earliest remaining release is C at time 5.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
+<section id="heap-mistakes">
+<h2>Common mistakes</h2>
+<ul class="heap-mistakes-list">
+<li><strong>Treating the heap as sorted.</strong> [4, 9, 7] is a valid min-heap. The ordering rule applies between a parent and its children.</li>
+<li><strong>Reading <code>heap[1]</code> as the second smallest.</strong> Here that gives 9, while the second smallest is 7.</li>
+<li><strong>Peeking or popping when empty.</strong> Check <code>if heap:</code> first.</li>
+<li><strong>Confusing due and overdue.</strong> At tick 20, a release at 20 is due. A release at 19 that still waits is overdue.</li>
+<li><strong>Forgetting the tie-breaker.</strong> Use a fresh sequence number so the comparison never reaches the task object.</li>
+</ul>
+<h3>What real systems use</h3>
+<p>FreeRTOS keeps delayed tasks in a linked list ordered by wake time. Linux high-resolution timers use a balanced red-black tree for time ordering. For a small queue, a simple structure can be fast enough. Compare the lab timings with the queue sizes your controller actually sees. <a href="https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/tasks.c">FreeRTOS source</a> · <a href="https://docs.kernel.org/timers/hrtimers.html">Linux hrtimers documentation</a></p>
+<h3>English–Turkish glossary</h3>
+<div class="heap-table-scroll" tabindex="0" role="region" aria-label="Timer terms"><table class="robot-table"><caption>Timer terms</caption><thead><tr><th scope="col">English</th><th scope="col">Turkish</th><th scope="col">Meaning here</th></tr></thead><tbody><tr><th scope="row">Release time</th><td>Hazır olma zamanı</td><td>Earliest time a job can start.</td></tr><tr><th scope="row">Deadline</th><td>Son tamamlanma zamanı</td><td>Latest time a job should finish.</td></tr><tr><th scope="row">Due</th><td>Zamanı gelmiş</td><td>Release time ≤ now. Includes equality.</td></tr><tr><th scope="row">Overdue</th><td>Gecikmiş</td><td>Still waiting and release time < now.</td></tr><tr><th scope="row">Pending</th><td>Bekleyen</td><td>Queued and still waiting to be handled.</td></tr><tr><th scope="row">Priority queue</th><td>Öncelik kuyruğu</td><td>Returns the highest-priority entry first.</td></tr></tbody></table></div></section><section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict how selecting and replacing one timer scales in an unsorted list and a heap. Time one replacement per call at two queue sizes. Keep initial heap construction outside the timing.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -51,13 +136,13 @@ from heapq import heapify, heapreplace
 
 def list_job(timers):
     index = min(range(len(timers)), key=timers.__getitem__)
-    deadline, sequence = timers[index]
-    timers[index] = deadline + len(timers), sequence
+    release, sequence = timers[index]
+    timers[index] = release + len(timers), sequence
 
 
 def heap_job(timers):
-    deadline, sequence = timers[0]
-    heapreplace(timers, (deadline + len(timers), sequence))
+    release, sequence = timers[0]
+    heapreplace(timers, (release + len(timers), sequence))
 
 
 for n in (32, 512):
@@ -73,7 +158,7 @@ for n in (32, 512):
 <ol class="tool-steps"><li>Time the list scan and heap replacement at the original sizes. Explain what stays constant about the simulated timer workload.</li><li>Change the queue sizes to 8 and 128. Compare measurements and estimate how many entries the list examines before choosing the minimum.</li><li>Use a small heap of (deadline, sequence) pairs with repeated deadlines and pop them in order. Test the empty case without calling heappop on an empty heap.</li></ol>
 <details><summary>Show a ready-to-run variation</summary>
 <p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
-<pre class="lab-variation"><code>from heapq import heappop
+<pre class="lab-variation"><code>from heapq import heapify, heappop
 
 timers = [(3, 1), (7, 2), (5, 3), (3, 4)]
 heapify(timers)
@@ -86,20 +171,20 @@ print(order)</code></pre>
 <p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
 <section id="studio"><p class="eyebrow">45 min</p><h2>Schedule timers with a per-cycle budget</h2>
-<p>At tick 20, the queue contains timers with deadlines 18, 19, 20 and 24. Each dispatch costs 0.07 ms including queue work. The robot can spend at most 0.15 ms on dispatch in this cycle.</p>
+<p>At tick 20, the queue contains release times 18, 19, 20 and 24. Each dispatch costs 0.07 ms including queue work. The robot can spend at most 0.15 ms on dispatch in this cycle.</p>
 <p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
-<ol class="tool-steps"><li>Trace which timers are due, which run this cycle, and what remains. State how the oldest due timer is selected.</li><li>Choose what to do with the overdue timer that does not fit. Distinguish a deadline in the heap from the cost of running its handler.</li><li>Write an acceptance test for several equal deadlines and another for a queue whose earliest timer is in the future.</li></ol>
-<details><summary>Compare a model answer</summary><p>Three timers are due. Two dispatches fit at 0.14 ms, so run deadlines 18 and 19 first. Deadline 20 stays overdue and deadline 24 stays pending. One policy records the lateness and retries at the next tick, unless the task’s deadline requires a fault response. The heap orders due times and does not predict handler duration.</p></details>
+<ol class="tool-steps"><li>Trace which timers are due, which run this cycle, and what remains. State how the oldest due timer is selected.</li><li>Choose what to do with the due timer that does not fit. Distinguish its release time from the cost of running its handler.</li><li>Write an acceptance test for several equal release times and another for a queue whose earliest release is in the future.</li></ol>
+<details><summary>Compare a model answer</summary><p>Three timers are due. Two dispatches fit at 0.14 ms, so run releases 18 and 19 first. Release 20 is due now and stays pending. It becomes overdue at tick 21 if it still waits. Release 24 is pending and will be due later. One policy records lateness at the next tick, unless the task’s completion deadline requires a fault response.</p></details>
 </section>
 <section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
-<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
-<ol class="practice-list"><li><p>Which child should replace a larger root during a sift-down?</p><details><summary>Show answer</summary><p>The smaller child, with the chosen tie rule.</p></details></li><li><p>Two timers have the same timestamp. How can the order be deterministic?</p><details><summary>Show answer</summary><p>Use a sequence number after the deadline in the comparison.</p></details></li><li><p>If removing the next timer takes 0.03 ms and your dispatcher has 0.02 ms left, does it fit?</p><details><summary>Show answer</summary><p>The observed operation exceeds that allocation.</p></details></li></ol><p>The midterm covers Weeks 1–7.</p></section>
-<section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the next deadline in [4, 9, 7]?</p><details><summary>Show answer</summary><p>4.</p></details></li><li><p>What parent index belongs to child index 5?</p><details><summary>Show answer</summary><p>Index 2.</p></details></li><li><p>Is the whole array [4, 9, 7] sorted?</p><details><summary>Show answer</summary><p>No. Each parent is at most its children.</p></details></li><li><p>What should the scheduler do if its heap is empty?</p><details><summary>Show answer</summary><p>Report no pending timer and avoid popping.</p></details></li><li><p>What does a heap tell you when the earliest timer is later than now?</p><details><summary>Show answer</summary><p>No pending timer is due yet.</p></details></li></ol></section>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">More practice</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which child should replace a larger root during a sift-down?</p><details><summary>Show answer</summary><p>The smaller child, with the chosen tie rule.</p></details></li><li><p>Two timers have the same release time. How can the order be deterministic?</p><details><summary>Show answer</summary><p>Compare a unique sequence number after the release time.</p></details></li><li><p>If removing the next timer takes 0.03 ms and your dispatcher has 0.02 ms left, does it fit?</p><details><summary>Show answer</summary><p>No: 0.03 &gt; 0.02 ms.</p></details></li></ol><p>The midterm covers Weeks 1–7.</p></section>
+<section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the next release time in [4, 9, 7]?</p><details><summary>Show answer</summary><p>4.</p></details></li><li><p>What parent index belongs to child index 5?</p><details><summary>Show answer</summary><p>Index 2.</p></details></li><li><p>Is the whole array [4, 9, 7] sorted?</p><details><summary>Show answer</summary><p>No. Each parent is at most its children.</p></details></li><li><p>What should the scheduler do if its heap is empty?</p><details><summary>Show answer</summary><p>Report no pending timer and avoid popping.</p></details></li><li><p>What does a heap tell you when the earliest timer is later than now?</p><details><summary>Show answer</summary><p>No pending timer is due yet.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
-<p>How would you enforce an execution budget even if many timers in the heap have already expired?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>How would you enforce an execution budget even if many timers are already due?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Before each dispatch, check that its cost fits the remaining cycle budget. Two 0.07 ms dispatches fit in 0.15 ms, so leave the third due entry pending. At the next tick record any lateness or report a fault if the safety policy calls for it.</p></details>
 </section>
-<section id="topic-references"><h2>Topic references</h2>
+<section id="midterm-card"><h2>Weeks 1–7 at a glance</h2><div class="heap-table-scroll" tabindex="0" role="region" aria-label="Midterm review card"><table class="robot-table"><caption>Midterm review card</caption><thead><tr><th scope="col">Week and topic</th><th scope="col">Try without help</th></tr></thead><tbody><tr><th scope="row"><a href="../w1/#exam-practice">1 · First match</a></th><td>Trace a scan, count comparisons and test a miss.</td></tr><tr><th scope="row"><a href="../w2/#exam-practice">2 · Growth</a></th><td>Predict how n, n log₂ n and n² change as input grows.</td></tr><tr><th scope="row"><a href="../w3/#exam-practice">3 · Binary search</a></th><td>Update lo and hi and interpret an out-of-range index.</td></tr><tr><th scope="row"><a href="../w4/#exam-practice">4 · FIFO and ring buffers</a></th><td>Track the head and size and calculate a memory budget.</td></tr><tr><th scope="row"><a href="../w5/#exam-practice">5 · Exact lookup</a></th><td>Compare sorted and hash lookup and trace a collision.</td></tr><tr><th scope="row"><a href="../w6/#exam-practice">6 · Median filtering</a></th><td>Sort a window, find its median and explain response delay.</td></tr><tr><th scope="row"><a href="../w7/#exam-practice">7 · Timer heaps</a></th><td>Trace a push and pop and pick the next due task.</td></tr></tbody></table></div></section><section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w6/reference.html">Earlier Week 6 · Heaps</a></li><li><a href="../w6/ek-notlar/#practice">Extended question bank and notes · 06</a></li></ul>
 <p><a href="../resources/#assessment">Exam scope and project</a></p>

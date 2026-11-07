@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How do I look things up fast?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot gets a fault code and must retrieve its response. A static sorted table supports exact lookup and ordered queries. A hash table is convenient for exact keys when memory and lookup variation are acceptable.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a fault table for deployment</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a fault table for deployment</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Choose a lookup structure for the query</h2>
+<h3>You will be able to</h3><ul><li>Distinguish exact lookup from a range query.</li><li>Trace hash placement and probing.</li><li>Explain why a miss can inspect several slots.</li><li>Compare sorted and hash-based lookup.</li></ul>
+<h3>Before you start</h3><p>The search from Week 3 returns an insertion position. For an exact match, check the value there.</p>
+<p>A sorted table supports exact and range queries. Binary search finds a position and a final equality check distinguishes a hit from an interior miss. Hashing chooses a starting slot from the key. Two different keys can choose the same slot, so the table needs a collision rule.</p><p>Linear probing tries successive slots and wraps at the end. A never-used slot ends an unsuccessful search. A deleted slot marked as a tombstone keeps the search going, because earlier insertions could have placed a matching key beyond it.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · five slots, key mod 5, insert 4, 9 and 14</figcaption>
+<ol class="concept-frames"><li><strong>4 → slot 4</strong><span>The initial slot is empty.</span></li><li><strong>9 → slot 0</strong><span>Slot 4 is occupied. Wrap to slot 0.</span></li><li><strong>14 → slot 1</strong><span>Slots 4 and 0 are occupied. Use slot 1.</span></li><li><strong>Lookup 19</strong><span>Probe 4, 0, 1 and never-used 2. Return a miss.</span></li></ol>
+</figure>
+<p>Finding 14 takes three probes. If slot 0 becomes a tombstone, the lookup still reaches slot 1. With many collisions, an exact hash lookup can inspect far more than one slot.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Insert codes 7, 12 and 17 into five empty slots using code mod 5 and linear probing. Then look up 17 and the absent code 22. Compare with binary search in the sorted table [7, 12, 17].</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>All three keys start at slot 2. They occupy slots 2, 3 and 4. A lookup for 17 probes three slots. A lookup for 22 continues to empty slot 0, after four probes. This example has no deletion. A hash table needs spare slots and collisions can increase work.</p></details>
+<details><summary>Check your trace</summary><p>All three keys start at slot 2. They occupy slots 2, 3 and 4. A lookup for 17 probes three slots. A lookup for 22 continues to empty slot 0, after four probes. This example has no deletion. A hash table needs spare slots and collisions can increase work.</p></details><details><summary>Compare a three-sentence explanation</summary><p>Keys 7, 12 and 17 all start at slot 2. They settle in slots 2, 3 and 4, so finding 17 takes three probes. The missing key 22 takes four because slot 0 is the first never-used slot.</p></details>
 
 <h3>Trace a collision and an unsuccessful lookup</h3>
 <p>Put keys 2, 9 and 16 into a seven-slot table using key mod 7 and linear probing. Trace lookup of 16 and lookup of the missing key 23. No entries have been deleted.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>All three start at slot 2. Keys 2, 9 and 16 settle in slots 2, 3 and 4 respectively.</li><li>Lookup of 16 inspects three slots. Lookup of 23 inspects those three and then the empty slot 5.</li><li>If key 9 were erased by clearing slot 3, searching for 16 would stop early. A deletion-aware open-addressing table needs tombstones or a rule for reorganizing the cluster.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Assuming all keys hash to different slots.</li><li>Accepting a lower-bound index as an exact hit.</li><li>Turning a deleted slot into a never-used one.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Collision / Çakışma</dt><dd>Two keys choose the same starting slot.</dd><dt>Probe / Yoklama</dt><dd>Inspect one candidate slot.</dd><dt>Tombstone / Silindi işareti</dt><dd>A deletion marker that preserves the search chain.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which method will be quicker for repeated exact queries. Time a binary lookup and a Python dictionary lookup at both sizes. Prepare the structures before timing. Compare memory separately if choosing for a small controller.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -104,7 +120,7 @@ for key in (0, 5, 8, 9):
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is 17 mod 5?</p><details><summary>Show answer</summary><p>2.</p></details></li><li><p>Why do 7 and 12 collide?</p><details><summary>Show answer</summary><p>Both produce starting slot 2.</p></details></li><li><p>What key does exact lookup of 13 in [7, 12, 17] return?</p><details><summary>Show answer</summary><p>No match. Its insertion index alone is insufficient.</p></details></li><li><p>What happens when many keys hash to the same slot?</p><details><summary>Show answer</summary><p>Probe sequences get longer.</p></details></li><li><p>Does a single fast dictionary lookup guarantee a tight deadline?</p><details><summary>Show answer</summary><p>No. Consider collisions, possible resizing, and the target implementation.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why does a lookup stop at a never-used slot but continue through a tombstone?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>A never-used slot means insertion would have stopped there. A tombstone means the slot used to be occupied. The matching key may have been placed farther along, so continue.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

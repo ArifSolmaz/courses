@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../../assets/python-runner.css">
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">Sensör akışını nasıl saklarım?</h1>
 <p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Sensör bazen robotun tüketebileceğinden hızlı veri üretir. Sabit kapasiteli bir FIFO ile belleği sınırla. Taşma durumunda burada en eski örneğin üzerine yazıyor ve kayıp sayacını artırıyoruz.</p>
-<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
+<p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Veri patlamasına göre tampon boyutlandır</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Veri patlamasına göre tampon boyutlandır</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+</section>
+<section id="concepts">
+<h2>Fiziksel dizi ile mantıksal kuyruğu ayır</h2>
+<h3>Bu derste yapabileceklerin</h3><ul><li>FIFO ve LIFO’yu ayır.</li><li>Baş indisini ve boyutu izle.</li><li>Kaydırmadan dairesel geçişi izle.</li><li>Kapasite ve taşma kuralı seç.</li></ul>
+<h3>Başlamadan önce</h3><p>İndis fiziksel yuvayı gösterir. FIFO sırası herhangi bir yuvadan başlayabilir.</p>
+<p>FIFO en eski bekleyen öğeyi çıkarır. Yığın LIFO kullanır ve en yeniyi çıkarır. Dizi indisli yuvalar tutar. Bağlı kuyruk bağlantıları izler ve diğer düğümleri taşımadan sona ekleyip baştan çıkarabilir.</p><p>Halka tampon sabit bir dizide FIFO tutar. Baş bir sonraki okuma yuvasıdır. Yer varsa (baş + boyut) mod kapasite konumuna yaz. Çıkarırken başı ilerletip boyutu azalt. Tampon doluyken yeni örnek gelirse uygulanacak kuralı önceden seç.</p>
+<figure class="concept-figure">
+<figcaption>Çözümlü iz · kapasite üç, A, B, C ekle, A’yı çıkar, D ekle</figcaption>
+<ol class="concept-frames"><li><strong>[A, B, C] · baş 0</strong><span>Tampon dolu, sırada A var.</span></li><li><strong>[A, B, C] · baş 1</strong><span>A çıktı, boyut 2 oldu. Yuva 0 yeniden kullanılabilir.</span></li><li><strong>[D, B, C] · baş 1</strong><span>D 0’a sarar. Mantıksal sıra B, C, D.</span></li></ol>
+</figure>
+<p>Eski değer üzerine yazılana dek fiziksel yuvada kalabilir. Hangi öğelerin geçerli olduğunu baş ve boyut belirler. Dolu halkada en eskiyi değiştiren bir sonraki ekleme B’yi değiştirir ve başı C’ye ilerletir.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>Üç yuva çiz. A, B, C ekle, bir kez çıkar, sonra D ve E ekle. Her işlemden sonra baş indisini, boyutu ve FIFO sırasını yaz. Ayrı bir yığına A ve B ekleyip bir kez çıkar.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
-<details><summary>İzi karşılaştır</summary><p>FIFO’dan A çıkar. D boşalan yuvaya sarar. E, B’nin üzerine yazılır. FIFO’da C, D, E kalır ve bir örnek kaybolur. Yığından B çıkar. Halka tampon dizi indisleriyle çalışır. Baş ve son göstergeli bağlı kuyruk da sabit iş yapar, ancak bağlantı ve çoğu kez düğüm ayırma maliyeti vardır.</p></details>
+<details><summary>İzi karşılaştır</summary><p>FIFO’dan A çıkar. D boşalan yuvaya sarar. E, B’nin üzerine yazılır. FIFO’da C, D, E kalır ve bir örnek kaybolur. Yığından B çıkar. Halka tampon dizi indisleriyle çalışır. Baş ve son göstergeli bağlı kuyruk da sabit iş yapar, ancak bağlantı ve çoğu kez düğüm ayırma maliyeti vardır.</p></details><details><summary>Üç cümlelik örnek açıklama</summary><p>A çıkınca baş 1 olur ve D boşalan yuvaya sarar. Dolu halkada E, B’nin üzerine yazılır ve baş C’ye ilerler. Yığında B son eklendiği için ilk çıkar.</p></details>
 
 <h3>Dairesel geçişi fiziksel yuva ve FIFO sırasıyla izle</h3>
 <p>Kapasite üç. Boş kuyrukta baş 0. A ve B ekle, bir kez çıkar, C ve D ekle, iki kez çıkar. Her işlem sonrası yuvaları, başı ve boyutu çiz.</p>
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>A ve B, 0 ve 1. yuvalara girer. A çıkınca baş 1 ve boyut 1 olur.</li><li>C, 2. yuvaya, D ise 0. yuvaya girer. Fiziksel sıra [D, B, C], FIFO sırası [B, C, D] olur.</li><li>B ve C çıkınca baş 0, boyut 1, sıradaki örnek D’dir. Boş ve dolu durumu ayırmak için boyutu ayrıca tut.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
+</section>
+<section id="common-mistakes">
+<h2>Sık yapılan hatalar</h2><ul><li>Her çıkarmada sıfırıncı yuvayı okumak.</li><li>Eski fiziksel değeri kuyrukta sanmak.</li><li>Kapasite planında taşma kuralını unutmak.</li></ul>
+<h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>FIFO / İlk giren ilk çıkar</dt><dd>En eski öğeyi önce çıkar.</dd><dt>Head / Baş indisi</dt><dd>Bir sonraki okunacak dolu yuva.</dd><dt>Wraparound / Dairesel geçiş</dt><dd>Son yuvadan sıfıra dön.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Boyut büyüyünce hangisinin maliyeti artar, diziyi kaydırmak mı halka indisini ilerletmek mi? Dolu tamponlarda ekle-çıkar çevrimini iki kapasite için ölç. Örnek başına bayt sayısını ayrıca hesapla.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
@@ -96,7 +112,7 @@ for n in (128, 8192):
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>FIFO zaman sırası açısından ne demektir?</p><details><summary>Yanıtı göster</summary><p>Kuyruğa ilk giren örnek ilk çıkar.</p></details></li><li><p>5 ve 9 eklenen yığından ne çıkar?</p><details><summary>Yanıtı göster</summary><p>9.</p></details></li><li><p>Dört yuvalı halkada 3. indisten sonra hangisi gelir?</p><details><summary>Yanıtı göster</summary><p>0. indis.</p></details></li><li><p>Boyut veya dolu bayrağı niçin gerekir?</p><details><summary>Yanıtı göster</summary><p>Baş ve son indislerinin eşitliği hem boş hem dolu durumu gösterebilir.</p></details></li><li><p>Hangi yapı indise doğrudan erişir?</p><details><summary>Yanıtı göster</summary><p>Dizi. Bağlı liste genellikle bağlantıları izler.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
 <p>Fiziksel dizinin başında D varken FIFO’dan önce B çıkabilir. Bunu hangi durum bilgisi açıklar?</p>
-<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p><details><summary>Örnek çıkış yanıtı</summary><p>Baş, B’nin bulunduğu 1. yuvayı gösterir. Boyut ve sarma kuralı geri kalan sırayı verir. Yuva 0’daki D, B ve C’den sonra eklenmiştir.</p></details>
 </section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>

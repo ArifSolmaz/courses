@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/python-runner.css">
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
+<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,19 +21,34 @@
 <h1 id="lesson-title">How can I reuse work across routes?</h1>
 <p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot inspects a fixture row by row. It may move only right or down. The task is to minimize the cost of entering cells. A partial route can be reused by many candidate routes.</p>
-<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
+<p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Plan with a reduced memory budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Plan with a reduced memory budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="concepts">
+<h2>Build the best route from saved partial results</h2>
+<h3>You will be able to</h3><ul><li>Identify the state and base case.</li><li>Compute a cell from reachable predecessors.</li><li>Store a parent for route recovery.</li><li>Compare full-table and one-row memory.</li></ul>
+<h3>Before you start</h3><p>In a right-and-down grid, every legal predecessor is either immediately above or to the left.</p>
+<p>Dynamic programming stores the answer to each smaller problem. Here a state is a cell, and its saved value is the cheapest cost of reaching it. Start with cost zero at S. For every other cell, choose the cheaper reachable predecessor and add the cell’s entry cost.</p><p>Rows left to right and top to bottom place both predecessors before the current cell. With a full table, one parent per cell gives a route. If only the final cost is needed, a one-row array can reuse each slot after its above value has been read.</p>
+<figure class="concept-figure">
+<figcaption>Worked trace · right and down through [0, 4] / [2, 1]</figcaption>
+<ol class="concept-frames"><li><strong>S at (0,0)</strong><span>Best cost 0. No parent.</span></li><li><strong>Right at (0,1)</strong><span>Only predecessor S, so cost 4.</span></li><li><strong>Down at (1,0)</strong><span>Only predecessor S, so cost 2.</span></li><li><strong>Goal at (1,1)</strong><span>Choose 2 from the left over 4 from above. Add 1, for cost 3.</span></li></ol>
+</figure>
+<p>The parent chain gives down then right. In one-row storage, start the second row with [0, 4]. Updating the left entry gives 2. The next entry compares the new left 2 with the old above 4.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Use the 3 × 3 cost grid [0,4,1] / [1,8,1] / [1,1,1]. Start at the top left with cost zero. Fill each cell from the cheaper reachable predecessor above or to the left, plus its entry cost. Write a parent and reconstruct the goal route.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>The best-cost rows are [0,4,5], [1,9,6], [2,3,4]. Down, down, right, right costs 4. Each cell is computed once. This is the Bellman idea in this setting: the best cost to a state comes from a best predecessor cost plus a move. Related state and cost ideas also appear in optimal control.</p></details>
+<details><summary>Check your trace</summary><p>The best-cost rows are [0,4,5], [1,9,6], [2,3,4]. Down, down, right, right costs 4. Each cell is computed once. This is the Bellman idea in this setting: the best cost to a state comes from a best predecessor cost plus a move. Related state and cost ideas also appear in optimal control.</p></details><details><summary>Compare a three-sentence explanation</summary><p>The start is free and each cell uses the cheaper of its reachable upper and left predecessors. Along the left and bottom borders the costs are 0, 1, 2, 3 and 4. The goal therefore costs 4, with a route down, down, right, right.</p></details>
 
 <h3>Track reachability and ties in a grid table</h3>
 <p>Fill a right-and-down grid with rows [0, 2, 3] / [1, #, 1] / [4, 1, 1]. # is blocked. Keep both the best cost and a predecessor for each reachable cell.</p>
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Top-row costs are 0, 2, 5. Left-column costs are 0, 1, 5. The center stays unreachable.</li><li>The cell right of the center costs 6 from above. The cell below the center costs 6 from the left. Neither can use the center.</li><li>The goal costs 7 by either route. Both reconstructed paths are valid. Choose a consistent tie rule if you want reproducible output.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes</h2><ul><li>Adding the starting cell’s cost when the model starts at zero.</li><li>Reading a predecessor that has not been updated.</li><li>Expecting a final cost to include the entire route.</li></ul>
+<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>State / Durum</dt><dd>Position whose best value is saved.</dd><dt>Base case / Başlangıç durumu</dt><dd>Known value used to start the recurrence.</dd><dt>Predecessor / Öncül</dt><dd>Earlier cell that can lead to the current one.</dd></dl>
 </section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare repeated recursive calls with table filling on 5 × 5 and 9 × 9 grids. Record the call count and filled-cell count as different units. Compare timings. Discuss when a single row of storage would be enough.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
@@ -109,7 +125,7 @@ print(recursive, table)</code></pre>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the base cost at the start?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>How do you fill a cell in the top row beyond the start?</p><details><summary>Show answer</summary><p>Use the predecessor on the left.</p></details></li><li><p>What is the best cost to the goal?</p><details><summary>Show answer</summary><p>4.</p></details></li><li><p>How many cells does a 10 × 20 table store?</p><details><summary>Show answer</summary><p>200.</p></details></li><li><p>What else do you need for straightforward route reconstruction?</p><details><summary>Show answer</summary><p>A table of predecessor choices.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why does updating a one-row table from right to left give the wrong predecessor for this recurrence?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>The current cell needs a left value from the current row. A right-to-left update still sees the previous row’s left value. Left-to-right keeps the new left and the old above available at the same time.</p></details>
 </section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>

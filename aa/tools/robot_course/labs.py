@@ -272,13 +272,13 @@ from heapq import heapify, heapreplace
 
 def list_job(timers):
     index = min(range(len(timers)), key=timers.__getitem__)
-    deadline, sequence = timers[index]
-    timers[index] = deadline + len(timers), sequence
+    release, sequence = timers[index]
+    timers[index] = release + len(timers), sequence
 
 
 def heap_job(timers):
-    deadline, sequence = timers[0]
-    heapreplace(timers, (deadline + len(timers), sequence))
+    release, sequence = timers[0]
+    heapreplace(timers, (release + len(timers), sequence))
 
 
 for n in (32, 512):
