@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Hafta 04 / 14 · Diziler, bağlı listeler, halka tamponlar ve yığınlar</p>
 <h1 id="lesson-title">Sensör akışını nasıl saklarım?</h1>
-<p class="eyebrow">10 min · Mühendislik sorusu</p>
+<p class="eyebrow">15 dk · Mühendislik sorusu</p>
 <p class="lead">Sensör bazen robotun tüketebileceğinden hızlı veri üretir. Sabit kapasiteli bir FIFO ile belleği sınırla. Taşma durumunda burada en eski örneğin üzerine yazıyor ve kayıp sayacını artırıyoruz.</p>
+<p>Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın.</p>
 
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#topic-references">Konu kaynakları</a></nav>
+<p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Veri patlamasına göre tampon boyutlandır</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Kâğıt üzerinde izle</h2>
+<section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>Üç yuva çiz. A, B, C ekle, bir kez çıkar, sonra D ve E ekle. Her işlemden sonra baş indisini, boyutu ve FIFO sırasını yaz. Ayrı bir yığına A ve B ekleyip bir kez çıkar.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>FIFO’dan A çıkar. D boşalan yuvaya sarar. E, B’nin üzerine yazılır. FIFO’da C, D, E kalır ve bir örnek kaybolur. Yığından B çıkar. Halka tampon dizi indisleriyle çalışır. Baş ve son göstergeli bağlı kuyruk da sabit iş yapar, ancak bağlantı ve çoğu kez düğüm ayırma maliyeti vardır.</p></details>
 
+<h3>Dairesel geçişi fiziksel yuva ve FIFO sırasıyla izle</h3>
+<p>Kapasite üç. Boş kuyrukta baş 0. A ve B ekle, bir kez çıkar, C ve D ekle, iki kez çıkar. Her işlem sonrası yuvaları, başı ve boyutu çiz.</p>
+<details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>A ve B, 0 ve 1. yuvalara girer. A çıkınca baş 1 ve boyut 1 olur.</li><li>C, 2. yuvaya, D ise 0. yuvaya girer. Fiziksel sıra [D, B, C], FIFO sırası [B, C, D] olur.</li><li>B ve C çıkınca baş 0, boyut 1, sıradaki örnek D’dir. Boş ve dolu durumu ayırmak için boyutu ayrıca tut.</li></ol></details>
+<p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Süreyi ölç</h2>
+<section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Boyut büyüyünce hangisinin maliyeti artar, diziyi kaydırmak mı halka indisini ilerletmek mi? Dolu tamponlarda ekle-çıkar çevrimini iki kapasite için ölç. Örnek başına bayt sayısını ayrıca hesapla.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -65,9 +71,33 @@ for n in (128, 8192):
     measure(f&quot;{n}: shift&quot;, lambda: shift_cycle(shift_buffer))
     measure(f&quot;{n}: ring&quot;, ring_job(ring_buffer))
 </code></pre>
+<h3>Deney adımları</h3>
+<p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
+<ol class="tool-steps"><li>Kaydırmalı ve halka örneklerini çalıştır. Deneyin neden dolu tamponu çevirdiğini ve hangi işlemlerin ölçüldüğünü açıkla.</li><li>Kapasite 1 ve 1.024 ekle. Ölçmeden önce kapasite 1’de beş halka işlemini izle. İki yöntemin büyümesini ve taşınan öğe sayılarını karşılaştır.</li><li>En eski ölçümün üzerine yazma ve kayıp sayacı için üç yuvalı ayrı bir doğruluk testi tasarla. Süre deneyi öğeleri döndürdüğü için politikayı kâğıtta veya ayrı bir işlevde dene.</li></ol>
+<details><summary>Kopyalanabilir deney kodu</summary>
+<p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
+<pre class="lab-variation"><code>for n in (1, 1024):
+    shift_buffer = list(range(n))
+    ring_buffer = list(range(n))
+    measure(f&quot;{n}: shift&quot;, lambda: shift_cycle(shift_buffer))
+    measure(f&quot;{n}: ring&quot;, ring_job(ring_buffer))</code></pre>
+</details>
+<p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
-<section id="exam-practice"><h2>Sınav tipi sorular</h2><ol class="practice-list"><li><p>Boş, üç yuvalı ve üzerine yazan halkaya dört öğe eklenirse kaç öğe kalır?</p><details><summary>Yanıtı göster</summary><p>Üç. Bir öğe kaybolur.</p></details></li><li><p>8 baytlık 128 yuva kaç bayt veri taşır?</p><details><summary>Yanıtı göster</summary><p>1.024 bayt, indisler ve temsil maliyeti hariç.</p></details></li><li><p>Her örnek saklanacaksa üzerine yazma uygun mu?</p><details><summary>Yanıtı göster</summary><p>Hayır. Üretim hızını düşür, tüketimi hızlandır veya en büyük beklenen patlama için yer ayır.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 dk</p><h2>Veri patlamasına göre tampon boyutlandır</h2>
+<p>Robot saniyede 100 adet sekiz baytlık ölçüm alıyor. Tüketici 120 ms durabiliyor. Duraklamada 12 yeni örnek gelebiliyor ve kuyrukta dört örnek var. Veri bütçesi 160 bayt.</p>
+<p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
+<ol class="tool-steps"><li>Asgari kapasiteyi, veri boyutunu ve üstveri için kalan baytları hesapla. Ayrıca neyi ölçmen gerektiğini açıkla.</li><li>Kapasite 12 için kuyruktaki 1–4 örneklerinden sonra 5–16 gelmesini izle. En eski üzerine yazılırsa kayıpları ve sıradaki çıkışı yaz.</li><li>Telemetri ve güvenlik açısından kritik olaylar için ayrı taşma politikaları öner. Çağıran kodun kaybı nasıl öğreneceğini belirt.</li></ol>
+<details><summary>Örnek çözümü karşılaştır</summary><p>Kapasite 16 için 128 veri baytı gerekir. Üstveri, hizalama ve çalışma zamanı giderlerinden önce 32 bayt kalır. Kapasite 12’de 5–16 tutulur, dört örnek kaybolur ve önce 5 çıkar. Telemetride en yeniyi saklamak yararlı olabilir. Güvenlik olayları için ayrı alan, hata bayrağı veya üretimi yavaşlatma gerekebilir.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
+<p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
+<ol class="practice-list"><li><p>Boş, üç yuvalı ve üzerine yazan halkaya dört öğe eklenirse kaç öğe kalır?</p><details><summary>Yanıtı göster</summary><p>Üç. Bir öğe kaybolur.</p></details></li><li><p>8 baytlık 128 yuva kaç bayt veri taşır?</p><details><summary>Yanıtı göster</summary><p>1.024 bayt, indisler ve temsil maliyeti hariç.</p></details></li><li><p>Her örnek saklanacaksa üzerine yazma uygun mu?</p><details><summary>Yanıtı göster</summary><p>Hayır. Üretim hızını düşür, tüketimi hızlandır veya en büyük beklenen patlama için yer ayır.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>FIFO zaman sırası açısından ne demektir?</p><details><summary>Yanıtı göster</summary><p>Kuyruğa ilk giren örnek ilk çıkar.</p></details></li><li><p>5 ve 9 eklenen yığından ne çıkar?</p><details><summary>Yanıtı göster</summary><p>9.</p></details></li><li><p>Dört yuvalı halkada 3. indisten sonra hangisi gelir?</p><details><summary>Yanıtı göster</summary><p>0. indis.</p></details></li><li><p>Boyut veya dolu bayrağı niçin gerekir?</p><details><summary>Yanıtı göster</summary><p>Baş ve son indislerinin eşitliği hem boş hem dolu durumu gösterebilir.</p></details></li><li><p>Hangi yapı indise doğrudan erişir?</p><details><summary>Yanıtı göster</summary><p>Dizi. Bağlı liste genellikle bağlantıları izler.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
+<p>Fiziksel dizinin başında D varken FIFO’dan önce B çıkabilir. Bunu hangi durum bilgisi açıklar?</p>
+<p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p>
+</section>
 <section id="topic-references"><h2>Konu kaynakları</h2>
 <p>Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir.</p>
 <ul class="plain-links"><li><a href="../../w4/tr/reference.html">Önceki ders 4 · Diziler ve kuyruklar</a></li><li><a href="../../w4/ek-notlar/#practice">Geniş soru bankası ve ek notlar · 04</a></li></ul>

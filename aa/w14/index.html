@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 14 / 14 · Traveling salesperson, heuristics and P versus NP</p>
 <h1 id="lesson-title">What if I cannot find an exact tour fast enough?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot must visit four stations for pick-and-place and return to its dock. The route should be short and planning time matters. With many stations, trying all orders can exceed the budget.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 <p>The decision version asks whether a tour fits budget B. This version of TSP is NP-complete for integer distance tables. P is contained in NP. Checking one proposed tour quickly leaves open whether every instance can be solved quickly.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a planner under a deadline</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Use dock A = (0,0), B = (3,0), C = (3,4), D = (0,4) and straight-line distance. Trace nearest neighbor starting at A. Then take the crossed tour A–C–B–D–A. Try a 2-opt swap that removes its two diagonal links.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>Nearest neighbor gives A–B–C–D–A with cost 14. The crossed tour costs 18. Reversing the segment C–B removes AC and BD and adds AB and CD, reducing the cost by 4. Nearest neighbor and 2-opt can give a quick good tour. On larger inputs they offer no general guarantee of the optimum.</p></details>
 
+<h3>Compare a feasible tour and a better tour</h3>
+<p>Use A=(0,0), B=(4,0), C=(4,3), D=(0,3). Compare A→B→C→D→A with A→C→B→D→A using Euclidean distance. Use a tour budget of 15.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Side lengths are 4 and 3, and each diagonal is 5. The perimeter costs 14. The crossed tour costs 16.</li><li>Reverse the internal segment C→B in the crossed route. That replaces the diagonals A→C and B→D with edges A→B and C→D.</li><li>The perimeter is a witness that the budget is feasible. Checking a witness requires verifying stops, the return to A and the cost.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Time nearest neighbor, nearest neighbor plus 2-opt, and exhaustive search on deterministic point sets of 6 and 8 stations. Compare costs and times. Before running, predict which methods to keep for 30 stations and why.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -87,9 +93,35 @@ for n in (6, 8):
         print(n, name, &quot;-&gt;&quot;, round(length(points, method(points)), 3))
         measure(f&quot;{n}: {name}&quot;, lambda: method(points), repeats=3)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run nearest, 2-opt and exact search. Record each route’s cost and elapsed time, and check that every route visits all stations once before returning.</li><li>Try a small new station set or reorder the non-depot stations to change tie order. Compare the result before and after 2-opt, then use exact search at the small size as a reference.</li><li>Estimate the number of candidate orders for 9 and 10 stations. Avoid timing exhaustive search at large sizes. Explain why a heuristic still needs route validation.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>points = [(0, 0), (4, 0), (4, 3), (0, 3)]
+crossed = [0, 2, 1, 3, 0]
+better = two_opt(points, crossed)
+assert length(points, crossed) == 16
+assert length(points, better) == 14
+assert length(points, exact(points)) == 14
+print(crossed, &quot;-&gt;&quot;, better)</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Which segment do you reverse to uncross it?</p><details><summary>Show answer</summary><p>C–B becomes B–C.</p></details></li><li><p>What would you check for a proposed tour under budget B?</p><details><summary>Show answer</summary><p>Each station occurs once, the tour returns to its start, and the summed distance is at most B.</p></details></li><li><p>How do P and NP differ in the decision version?</p><details><summary>Show answer</summary><p>P means a decision can be made in polynomial time. NP means a yes answer has a certificate checkable in polynomial time.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Choose a planner under a deadline</h2>
+<p>The workcell has a fixed depot and eleven other stops. One evaluated order takes 20 microseconds. The planner has 100 ms and the tour must cost at most 30.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Estimate the number of orders and time for exhaustive search with a fixed depot. Determine how many orders fit in the allocation.</li><li>Choose a practical strategy using nearest neighbor, bounded 2-opt or both. State what you report if a candidate costs 28 and what you report if the best candidate found costs 32.</li><li>Write an acceptance checklist and one comparison on a smaller instance where exact search is practical.</li></ol>
+<details><summary>Compare a model answer</summary><p>There are 11! = 39,916,800 orders, about 798 seconds at the stated rate. Only 5,000 fit in 100 ms. A valid cost-28 tour meets the budget. A cost-32 best-so-far result gives no feasible witness and does not establish impossibility. Report the best valid candidate and the search limit.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which segment do you reverse to uncross it?</p><details><summary>Show answer</summary><p>C–B becomes B–C.</p></details></li><li><p>What would you check for a proposed tour under budget B?</p><details><summary>Show answer</summary><p>Each station occurs once, the tour returns to its start, and the summed distance is at most B.</p></details></li><li><p>How do P and NP differ in the decision version?</p><details><summary>Show answer</summary><p>P means a decision can be made in polynomial time. NP means a yes answer has a certificate checkable in polynomial time.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many orders are tried for four stations when A is fixed first?</p><details><summary>Show answer</summary><p>3! = 6. With symmetric distances, reversal pairs represent the same tour cost.</p></details></li><li><p>Which station is nearest to A?</p><details><summary>Show answer</summary><p>B at distance 3.</p></details></li><li><p>What is the crossed tour’s cost?</p><details><summary>Show answer</summary><p>5 + 4 + 5 + 4 = 18.</p></details></li><li><p>If 2-opt finds no improving swap, is the tour necessarily optimal?</p><details><summary>Show answer</summary><p>No. It is locally optimal for that swap rule.</p></details></li><li><p>Does fast verification tell you whether P equals NP?</p><details><summary>Show answer</summary><p>No. The question of whether every such decision problem also has a polynomial-time solver is open.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>What does a verified cost-28 tour prove for a budget of 30? What does it say about optimality?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w14/reference.html">Earlier Week 14 · Verification and complexity</a></li><li><a href="../w14/ek-notlar/#practice">Extended question bank and notes · 14</a></li></ul>

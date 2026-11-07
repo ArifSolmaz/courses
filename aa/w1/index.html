@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 01 / 14 · Linear search and a control-loop budget</p>
 <h1 id="lesson-title">Does my loop fit in 1 ms?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">Our mobile robot reads a batch of range sensors at 1 kHz. The cycle is 1 ms. Reading sensors and updating the motors already take 0.7 ms, leaving 0.3 ms to find the first unsafe reading.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a safe scan budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>[72, 48, 19, 12] cm. Stop at the first reading below 20 cm. Write the position, reading, comparison and decision for each check. Repeat with a threshold of 10 cm.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>At 20 cm, the third reading is the first unsafe one, after three checks. At 10 cm the scan uses four checks and reports no match. With n readings the worst case uses n checks. Estimate time using the measured scan and keep a margin for variation.</p></details>
 
+<h3>Find the first unsafe reading and keep its index</h3>
+<p>A range strip reports [35, 20, 42, 18, 12] cm. Trace the search with a strict 20 cm threshold. Then trace it with a threshold of 18 cm. Keep a column for the comparison count.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>At 20 cm, 35, 20 and 42 all fail the strict comparison. The fourth reading, 18, passes. The Python index is 3 and the count is 4.</li><li>At 18 cm, equality still fails. The fifth reading, 12, is the first hit. The index is 4 and the count is 5.</li><li>A full scan can count every unsafe reading. For the first hit, continuing after a match adds work without changing the answer.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which takes longer, first hit or no hit. Run with 100 and 1,000 readings. Record the longest observed batch-average and compare with the 0.3 ms allocation. Describe how you would check the deadline on the robot.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -53,9 +59,33 @@ for n in (100, 1000):
     measure(f&quot;{n}: first hit&quot;, lambda: first_unsafe(first_hit, 20))
     measure(f&quot;{n}: no hit&quot;, lambda: first_unsafe(no_hit, 20))
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Predict and run the starter. Make a four-column log with n, hit position, checks and measured milliseconds per call. Write 1 or n in the count column before timing.</li><li>Add a last-hit case using [30] * (n - 1) + [19]. Print the returned index once outside measure. Compare first hit, last hit and no hit at both sizes.</li><li>Change one value to exactly 20 and rerun the corresponding small test. Explain how a correctness check on the threshold differs from a timing check.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>n = 100
+last_hit = [30] * (n - 1) + [19]
+assert first_unsafe(last_hit, 20) == n - 1
+assert first_unsafe([20, 19], 20) == 1
+measure(&quot;last hit&quot;, lambda: first_unsafe(last_hit, 20))</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Trace [40, 20, 18] at threshold 20 with a strict comparison.</p><details><summary>Show answer</summary><p>Check all three. Position 3 is the first unsafe reading.</p></details></li><li><p>A scan of 100 readings takes 0.04 ms. Estimate 1,000 at the same rate.</p><details><summary>Show answer</summary><p>0.4 ms. That estimate exceeds the 0.3 ms allocation.</p></details></li><li><p>Does a 0.22 ms laptop measurement establish the robot deadline?</p><details><summary>Show answer</summary><p>No. Measure the complete cycle on the target under representative load and check the margin.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Choose a safe scan budget</h2>
+<p>An upgraded controller samples 600 readings per cycle. I/O and motor work take 0.72 ms in a 1 ms period. A target-board full scan of 200 readings took 0.08 ms. The team reserves 0.05 ms for variation.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Calculate the available time with and without the reserve. Predict the scan time at 600 readings using a linear model.</li><li>Compute the largest whole input size that fits the model with the reserve. Check a first-hit case, a last-hit case and a no-hit case separately.</li><li>Write a two-sentence release recommendation. Include what you would measure on the board and one useful response if the scan exceeds its budget.</li></ol>
+<details><summary>Compare a model answer</summary><p>The available time is 0.28 ms before the reserve and 0.23 ms after it. The linear estimate is 0.24 ms for 600 readings, so it misses the reserved allocation by 0.01 ms. The estimate allows 575 readings. Validate the full cycle on the target under representative load. Options include lowering sample count or moving work outside the critical path if the sensing requirement allows it.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Trace [40, 20, 18] at threshold 20 with a strict comparison.</p><details><summary>Show answer</summary><p>Check all three. Position 3 is the first unsafe reading.</p></details></li><li><p>A scan of 100 readings takes 0.04 ms. Estimate 1,000 at the same rate.</p><details><summary>Show answer</summary><p>0.4 ms. That estimate exceeds the 0.3 ms allocation.</p></details></li><li><p>Does a 0.22 ms laptop measurement establish the robot deadline?</p><details><summary>Show answer</summary><p>No. Measure the complete cycle on the target under representative load and check the margin.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What period corresponds to 1 kHz?</p><details><summary>Show answer</summary><p>1/1000 s = 1 ms.</p></details></li><li><p>If other tasks take 0.7 ms, what is left?</p><details><summary>Show answer</summary><p>0.3 ms.</p></details></li><li><p>If the first reading is unsafe, how many checks?</p><details><summary>Show answer</summary><p>One.</p></details></li><li><p>If there are no readings, what should this search report?</p><details><summary>Show answer</summary><p>No match, after zero checks. Sensor failure handling is a separate system decision.</p></details></li><li><p>What input should you include to measure a long scan?</p><details><summary>Show answer</summary><p>A batch with no unsafe reading or one with the only hit at the end.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>A fast first-hit result and a slow no-hit result disagree. Which belongs in a conservative budget and why?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w1/reference.html">Earlier Week 1 · Linear search</a></li><li><a href="../w1/ek-notlar/#practice">Extended question bank and notes · 01</a></li></ul>

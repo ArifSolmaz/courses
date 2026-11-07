@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 05 / 14 · Sorted tables and hash lookup</p>
 <h1 id="lesson-title">How do I look things up fast?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot gets a fault code and must retrieve its response. A static sorted table supports exact lookup and ordered queries. A hash table is convenient for exact keys when memory and lookup variation are acceptable.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a fault table for deployment</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Insert codes 7, 12 and 17 into five empty slots using code mod 5 and linear probing. Then look up 17 and the absent code 22. Compare with binary search in the sorted table [7, 12, 17].</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>All three keys start at slot 2. They occupy slots 2, 3 and 4. A lookup for 17 probes three slots. A lookup for 22 continues to empty slot 0, after four probes. This example has no deletion. A hash table needs spare slots and collisions can increase work.</p></details>
 
+<h3>Trace a collision and an unsuccessful lookup</h3>
+<p>Put keys 2, 9 and 16 into a seven-slot table using key mod 7 and linear probing. Trace lookup of 16 and lookup of the missing key 23. No entries have been deleted.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>All three start at slot 2. Keys 2, 9 and 16 settle in slots 2, 3 and 4 respectively.</li><li>Lookup of 16 inspects three slots. Lookup of 23 inspects those three and then the empty slot 5.</li><li>If key 9 were erased by clearing slot 3, searching for 16 would stop early. A deletion-aware open-addressing table needs tombstones or a rule for reorganizing the cluster.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict which method will be quicker for repeated exact queries. Time a binary lookup and a Python dictionary lookup at both sizes. Prepare the structures before timing. Compare memory separately if choosing for a small controller.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -72,9 +78,34 @@ for n in (100, 1000):
     measure(f&quot;{n}: binary pair&quot;, binary_queries)
     measure(f&quot;{n}: hash pair&quot;, hash_queries)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run both exact-lookup methods. Record the hit and miss separately and check the returned values before timing.</li><li>Change keys to four hits, then four misses, keeping the number of queries equal. Compare the two methods for both mixes at the same n.</li><li>Try lookup on a sorted table with a gap, such as [0, 2, 4, 8]. Query 5. Explain why a lower-bound position is only a candidate for exact lookup.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>values = [0, 2, 4, 8]
+table = {value: value for value in values}
+for key in (0, 5, 8, 9):
+    result = exact_lookup(values, key)
+    assert result == table.get(key)
+    print(key, &quot;-&gt;&quot;, result)</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Which slot is inspected after slot 4 in this table?</p><details><summary>Show answer</summary><p>Slot 0.</p></details></li><li><p>Which structure gives nearby smaller and larger fault codes naturally?</p><details><summary>Show answer</summary><p>A sorted table.</p></details></li><li><p>How would you compare methods for 1,000 repeated queries?</p><details><summary>Show answer</summary><p>Use the same keys and hit/miss mix, and report build time and storage separately.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Choose a fault table for deployment</h2>
+<p>The robot stores 120 fixed fault codes and updates the table only at boot. The team needs exact-code queries, a printable sorted list and an alarm when an unknown code arrives.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Design an interface with an explicit missing result and test a hit, an interior miss and a code above the maximum.</li><li>Compare a sorted array of code–message pairs with a hash table. Explain setup cost, lookup behavior, space use and the work needed to print in order.</li><li>Propose a benchmark for the target controller. Include a workload that could expose poor hashing and a way to estimate memory use.</li></ol>
+<details><summary>Compare a model answer</summary><p>A sorted array supports ordered output and bounded logarithmic search on static data. A hash table is convenient for exact queries but its overhead and collision handling depend on the implementation. Use a clear missing result, measure hit and miss workloads separately, and compare worst observed lookup costs and memory on the target.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Which slot is inspected after slot 4 in this table?</p><details><summary>Show answer</summary><p>Slot 0.</p></details></li><li><p>Which structure gives nearby smaller and larger fault codes naturally?</p><details><summary>Show answer</summary><p>A sorted table.</p></details></li><li><p>How would you compare methods for 1,000 repeated queries?</p><details><summary>Show answer</summary><p>Use the same keys and hit/miss mix, and report build time and storage separately.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is 17 mod 5?</p><details><summary>Show answer</summary><p>2.</p></details></li><li><p>Why do 7 and 12 collide?</p><details><summary>Show answer</summary><p>Both produce starting slot 2.</p></details></li><li><p>What key does exact lookup of 13 in [7, 12, 17] return?</p><details><summary>Show answer</summary><p>No match. Its insertion index alone is insufficient.</p></details></li><li><p>What happens when many keys hash to the same slot?</p><details><summary>Show answer</summary><p>Probe sequences get longer.</p></details></li><li><p>Does a single fast dictionary lookup guarantee a tight deadline?</p><details><summary>Show answer</summary><p>No. Consider collisions, possible resizing, and the target implementation.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why does a lookup stop at a never-used slot but continue through a tombstone?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w5/reference.html">Earlier Week 5 · Lookup and hashing</a></li><li><a href="../w5/ek-notlar/#practice">Extended question bank and notes · 05</a></li></ul>

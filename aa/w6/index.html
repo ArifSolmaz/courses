@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 06 / 14 · Median windows and sorting choices</p>
 <h1 id="lesson-title">How do I filter noisy data?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">One range reading spikes to 200 cm near a wall. A median filter uses the middle of a small window to reduce the influence of that outlier.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Filter a dock sensor without hiding a real movement</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Insertion-sort [12, 200, 11, 13, 10] on paper. After each insertion write the sorted prefix. Read the median. Then merge [10, 13] with [11, 12, 200].</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The prefixes grow to [12, 200], [11, 12, 200], [11, 12, 13, 200], then [10, 11, 12, 13, 200]. The median is 12 cm. Merge sort combines sorted halves and commonly needs temporary space. Quicksort partitions around a pivot. Poor pivots can give quadratic work.</p></details>
 
+<h3>Choose a filter for spikes and real changes</h3>
+<p>Compare the mean and median of [10, 11, 12, 13, 80]. Then use sliding windows of three on the stream [10, 11, 80, 12, 13]. Trace each full window.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>The sum is 126 and the mean is 25.2. The median is 12, so one high spike barely affects the center of the sorted window.</li><li>The three full windows are [10, 11, 80], [11, 80, 12] and [80, 12, 13]. Their medians are 11, 12 and 13.</li><li>A three-sample median can delay a real change. With [10, 10, 30, 30], the two full windows output 10 and then 30.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare the insertion-sort median with Python’s sorted-based median for odd windows 5 and 31. Use the same unsorted input and include the copy needed to keep the sensor window intact.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -64,9 +70,33 @@ for n in (5, 31):
     measure(f&quot;{n}: insertion&quot;, lambda: insertion_median(window))
     measure(f&quot;{n}: sorted&quot;, lambda: sorted_median(window))
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run insertion sort and built-in sorting on the same windows. Verify the medians agree before comparing their costs.</li><li>At one fixed odd size, compare a sorted window, reverse order, and a repeat-heavy window. Reset the input between tests. Explain how far insertion sort shifts each item.</li><li>Make one prediction for a window of 11 readings, run it, and explain how you would choose the window size when response delay matters too.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>ordered = list(range(11))
+cases = [(&quot;ordered&quot;, ordered), (&quot;reversed&quot;, ordered[::-1]), (&quot;duplicates&quot;, [5] * 11)]
+for label, window in cases:
+    assert insertion_median(window) == sorted_median(window)
+    measure(label, lambda: insertion_median(window))</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Insert 4 into the sorted prefix [2, 6, 8].</p><details><summary>Show answer</summary><p>[2, 4, 6, 8]. Shift 8 and 6.</p></details></li><li><p>How can bad quicksort pivots cost more?</p><details><summary>Show answer</summary><p>Each partition can leave almost all items for the next partition.</p></details></li><li><p>Why might a larger median window be undesirable?</p><details><summary>Show answer</summary><p>It adds computation and can delay the response to a real change.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Filter a dock sensor without hiding a real movement</h2>
+<p>A sensor reports [20, 21, 90, 22, 23, 40, 41, 42]. The 90 is a spike, and the last three readings are a real step. Compare a trailing median of width 3 with one of width 5.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Write the first full window and output for each width. Continue until the stream ends, recording the original sample index beside each output.</li><li>For each width, find the first full-window output of at least 40. Compare it with the sample where the step starts.</li><li>Recommend a width if detecting the step within one extra sample is a requirement. Explain what other disturbances you would test.</li></ol>
+<details><summary>Compare a model answer</summary><p>Width 3 gives 21, 22, 23, 23, 40, 41. Width 5 gives 22, 23, 40, 40. The step starts at sample 6. Both first reach 40 at sample 7 in this stream because the high spike is still in the width-5 window. Without the spike, width 5 can lag by two samples. Test clean steps as well as mixtures of noise and steps.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Insert 4 into the sorted prefix [2, 6, 8].</p><details><summary>Show answer</summary><p>[2, 4, 6, 8]. Shift 8 and 6.</p></details></li><li><p>How can bad quicksort pivots cost more?</p><details><summary>Show answer</summary><p>Each partition can leave almost all items for the next partition.</p></details></li><li><p>Why might a larger median window be undesirable?</p><details><summary>Show answer</summary><p>It adds computation and can delay the response to a real change.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the median of [3, 90, 5]?</p><details><summary>Show answer</summary><p>5.</p></details></li><li><p>Merge [1, 7] and [2, 4].</p><details><summary>Show answer</summary><p>[1, 2, 4, 7].</p></details></li><li><p>What happens when insertion sort receives an already sorted window?</p><details><summary>Show answer</summary><p>Each item stays in place, with roughly one comparison per insertion.</p></details></li><li><p>What is the median of five identical readings?</p><details><summary>Show answer</summary><p>That same reading.</p></details></li><li><p>Why keep an odd window for this activity?</p><details><summary>Show answer</summary><p>There is a single middle position.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why is an all-random timing benchmark insufficient for choosing a median window on a robot?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w7/reference.html">Earlier Week 7 · Sorting and recursion</a></li><li><a href="../w7/ek-notlar/#practice">Extended question bank and notes · 07</a></li></ul>

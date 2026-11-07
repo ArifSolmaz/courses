@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 12 / 14 · Kruskal and spanning trees</p>
 <h1 id="lesson-title">How do we wire the stations at minimum cost?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot’s dock connects a controller and three sensors. Links have installation costs and work in either direction. We need every station connected with minimum total cable cost.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Replan wiring around a blocked cable route</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Sort the links AB:1, BC:2, AC:3, CD:4, BD:5. Start with four separate components. For each link, join its endpoints if they are in different components. Record accepted and skipped edges.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>Accept AB and BC. Skip AC because A and C are already connected. Accept CD. Total 7 with three links. Kruskal chooses the cheapest available link that joins separate groups. Sorting links often dominates the work. A component structure tracks which stations are connected.</p></details>
 
+<h3>Trace the effect of equal cable weights</h3>
+<p>Use links AB:1, AC:1, BC:1, BD:2 and CD:2. Trace Kruskal first with alphabetical ties, then with reverse alphabetical ties inside each weight.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Alphabetical ties select AB, AC and BD. BC joins the same component and is skipped.</li><li>Reversing ties selects BC, AC and CD. Both trees use three links and cost 4.</li><li>To evaluate a proposal, check total cost, connectivity and absence of cycles. Equal cost can allow different layouts.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Time Kruskal on small and larger networks with a chain plus extra links. Report accepted edges and total cost. Remove all links touching the last station and check the component count.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -72,9 +78,35 @@ for n in (20, 200):
     isolated = [(cost, a, b) for cost, a, b in links if n - 1 not in (a, b)]
     assert kruskal(n, isolated)[2] == 2
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the two starter network sizes. Record accepted edges, total cost and components alongside time.</li><li>For a small test, create links for the worked example. Reverse equal-cost input order and note that the starter sorts complete tuples, so input order alone may not alter ties. To test a different rule, sort by cost and reverse endpoint order within ties.</li><li>Remove every edge touching one station and rerun. Confirm that accepted edges plus components still equals the number of stations.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>links = [(1, 0, 1), (3, 0, 2), (2, 1, 2), (4, 1, 3), (1, 2, 3)]
+assert kruskal(4, links) == (3, 4, 1)
+without_cd = [link for link in links if link[1:] != (2, 3)]
+assert kruskal(4, without_cd) == (3, 7, 1)
+without_d = [link for link in links if 3 not in link[1:]]
+assert kruskal(4, without_d) == (2, 3, 2)
+print(kruskal(4, links), kruskal(4, without_cd), kruskal(4, without_d))</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>Why skip AC?</p><details><summary>Show answer</summary><p>A and C already have a path. Adding AC creates a cycle.</p></details></li><li><p>What if D is isolated?</p><details><summary>Show answer</summary><p>There is no spanning tree. Kruskal returns a forest.</p></details></li><li><p>Will the tree minimize travel distance from A to every station?</p><details><summary>Show answer</summary><p>No. It minimizes the total installed link cost.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Replan wiring around a blocked cable route</h2>
+<p>Four docks have links AB:1, AC:3, BC:2, BD:4 and CD:1. The BD link is an alternate corridor. A blocked conduit removes CD. The cable budget is 6.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Trace Kruskal before the blockage. List the chosen links, component count and cost.</li><li>Remove CD, rerun and compare the new result with the budget. Next remove BD too and describe the output.</li><li>Explain whether a minimum spanning tree provides redundancy and what extra requirement would change the planning problem.</li></ol>
+<details><summary>Compare a model answer</summary><p>Initially AB, CD and BC cost 4. Without CD, AB, BC and BD cost 7 and exceed the budget. Removing BD as well isolates D, leaving a two-component forest. A tree has a single path between any two vertices, so a redundant layout must permit extra links and include a failure criterion.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>Why skip AC?</p><details><summary>Show answer</summary><p>A and C already have a path. Adding AC creates a cycle.</p></details></li><li><p>What if D is isolated?</p><details><summary>Show answer</summary><p>There is no spanning tree. Kruskal returns a forest.</p></details></li><li><p>Will the tree minimize travel distance from A to every station?</p><details><summary>Show answer</summary><p>No. It minimizes the total installed link cost.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many edges in a tree of four stations?</p><details><summary>Show answer</summary><p>Three.</p></details></li><li><p>What is the accepted total?</p><details><summary>Show answer</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Can equal-cost links lead to different answers?</p><details><summary>Show answer</summary><p>Yes. Different trees can have the same minimum total.</p></details></li><li><p>What does the component test tell you before accepting an edge?</p><details><summary>Show answer</summary><p>Whether the endpoints are already connected.</p></details></li><li><p>How many edges does a forest with 10 stations and 3 components have?</p><details><summary>Show answer</summary><p>7.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why is a cheap forest with two components insufficient when every station must remain connected?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w10/reference.html">Earlier Week 10 · Kruskal</a></li><li><a href="../w10/ek-notlar/#practice">Extended question bank and notes · 10</a></li></ul>

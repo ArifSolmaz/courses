@@ -3,15 +3,17 @@
 ## Engineering route
 
 The current 14-week route follows a mobile robot from sensor sampling to route
-and workcell planning. Each English and Turkish lesson contains a timed teaching
-plan, a paper trace, a runnable Python timing lab and eight practice questions.
-Three of the questions are selected for the in-class finish. Additional Resources
+and workcell planning. Each English and Turkish lesson contains a three-hour
+class plan with two paper cases, a Python lab with an input variation, a design
+task with a model answer, eight practice questions and an exit ticket. Additional Resources
 collects the earlier lessons by topic, the existing practice banks and animations,
 the assessment arrangements and the optional grid-planner project.
 
 Edit the bilingual lesson text in `tools/robot_course/foundations.py` and
 `tools/robot_course/planning.py`. Timing programs live in
-`tools/robot_course/labs.py`. Run `python -X utf8 aa/tools/build.py` from the
+`tools/robot_course/labs.py`. The extra class activities and lab variations are in
+`classroom_en.py`, `classroom_tr.py` and `lab_experiments.py` in the same directory.
+Run `python -X utf8 aa/tools/build.py` from the
 repository root to generate the main and reference pages. The earlier bilingual
 edition is built from `tools/lessons/` at each week's `reference.html` URL.
 The notes and process history below describe earlier editions.

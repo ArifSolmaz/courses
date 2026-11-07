@@ -18,17 +18,23 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 13 / 14 · Grid dynamic programming and the Bellman idea</p>
 <h1 id="lesson-title">How can I reuse work across routes?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot inspects a fixture row by row. It may move only right or down. The task is to minimize the cost of entering cells. A partial route can be reused by many candidate routes.</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Plan with a reduced memory budget</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Use the 3 × 3 cost grid [0,4,1] / [1,8,1] / [1,1,1]. Start at the top left with cost zero. Fill each cell from the cheaper reachable predecessor above or to the left, plus its entry cost. Write a parent and reconstruct the goal route.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The best-cost rows are [0,4,5], [1,9,6], [2,3,4]. Down, down, right, right costs 4. Each cell is computed once. This is the Bellman idea in this setting: the best cost to a state comes from a best predecessor cost plus a move. Related state and cost ideas also appear in optimal control.</p></details>
 
+<h3>Track reachability and ties in a grid table</h3>
+<p>Fill a right-and-down grid with rows [0, 2, 3] / [1, #, 1] / [4, 1, 1]. # is blocked. Keep both the best cost and a predecessor for each reachable cell.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Top-row costs are 0, 2, 5. Left-column costs are 0, 1, 5. The center stays unreachable.</li><li>The cell right of the center costs 6 from above. The cell below the center costs 6 from the left. Neither can use the center.</li><li>The goal costs 7 by either route. Both reconstructed paths are valid. Choose a consistent tie rule if you want reproducible output.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Compare repeated recursive calls with table filling on 5 × 5 and 9 × 9 grids. Record the call count and filled-cell count as different units. Compare timings. Discuss when a single row of storage would be enough.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -77,9 +83,34 @@ for n in (5, 9):
     measure(f&quot;{n}: recursion&quot;, lambda: recursive_cost(grid), repeats=3)
     measure(f&quot;{n}: table&quot;, lambda: table_cost(grid))
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run both starter methods. Keep recursive calls and table cells as separate measurements, and verify total costs match.</li><li>Try a rectangular 3 × 5 grid. Construct the input explicitly so both routines receive the same rectangle. Compare the cell count with rows × columns.</li><li>On a 3 × 3 paper table, use one row of storage and update it left to right. At each update identify the old value from above and the new value from the left.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>grid = [[0, 2, 3, 1, 4], [1, 2, 2, 2, 1], [4, 1, 1, 1, 1]]
+recursive = recursive_cost(grid)
+table = table_cost(grid)
+assert recursive[0] == table[0]
+assert table[1] == 15
+print(recursive, table)</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>What is the best cost to the center?</p><details><summary>Show answer</summary><p>9, from the left.</p></details></li><li><p>If only cost is needed, how can storage shrink?</p><details><summary>Show answer</summary><p>Keep one row and update it from left to right, reading the old entry above and the new entry on the left.</p></details></li><li><p>Can this one-pass fill handle moving up and left too?</p><details><summary>Show answer</summary><p>No. Those moves can create cycles. For a nonnegative grid with such moves, use a path search such as Dijkstra.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Plan with a reduced memory budget</h2>
+<p>A right-and-down inspection grid has 50 rows and 80 columns. Each stored cost needs four bytes and each stored parent direction one byte. The planning scratch budget is 1 KiB.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Estimate cost-table and parent-table bytes. Decide whether a one-row cost update fits.</li><li>Explain which result is available from one row and what would have to be added or recomputed to recover a route.</li><li>Describe how an unreachable destination should be represented. Check a first-row obstacle with a paper example.</li></ol>
+<details><summary>Compare a model answer</summary><p>The full cost and parent arrays need 16,000 and 4,000 bytes respectively before overhead. One cost row needs 320 bytes. It gives the final cost but does not retain all parents. Route recovery needs more storage, recomputation or a different reconstruction strategy. Use a separate unreachable value, and never turn an unreachable predecessor into a finite cost.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>What is the best cost to the center?</p><details><summary>Show answer</summary><p>9, from the left.</p></details></li><li><p>If only cost is needed, how can storage shrink?</p><details><summary>Show answer</summary><p>Keep one row and update it from left to right, reading the old entry above and the new entry on the left.</p></details></li><li><p>Can this one-pass fill handle moving up and left too?</p><details><summary>Show answer</summary><p>No. Those moves can create cycles. For a nonnegative grid with such moves, use a path search such as Dijkstra.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is the base cost at the start?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>How do you fill a cell in the top row beyond the start?</p><details><summary>Show answer</summary><p>Use the predecessor on the left.</p></details></li><li><p>What is the best cost to the goal?</p><details><summary>Show answer</summary><p>4.</p></details></li><li><p>How many cells does a 10 × 20 table store?</p><details><summary>Show answer</summary><p>200.</p></details></li><li><p>What else do you need for straightforward route reconstruction?</p><details><summary>Show answer</summary><p>A table of predecessor choices.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>Why does updating a one-row table from right to left give the wrong predecessor for this recurrence?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w13/reference.html">Earlier Week 13 · Dynamic programming</a></li><li><a href="../w13/ek-notlar/#practice">Extended question bank and notes · 13</a></li></ul>

@@ -4,6 +4,9 @@ from html import escape
 from math import log10, log2
 import re
 
+from . import classroom_en, classroom_tr
+from .lab_experiments import EXPERIMENTS
+
 from . import foundations, planning
 from .labs import SHARED_MAP, lab_code
 
@@ -85,9 +88,16 @@ def practice(questions, indices, answer):
     ) + '</ol>'
 
 
+def steps(items):
+    return '<ol class="tool-steps">' + ''.join(f'<li>{escape(item)}</li>' for item in items) + '</ol>'
+
+
 def lesson(week, lang):
     tr = lang == "tr"
     title, topic, setup, trace, solution, lab, questions = LESSONS[lang][week - 1]
+    example_title, example_problem, example_steps, lab_steps, studio_title, studio_problem, studio_steps, studio_answer, exit_prompt = (
+        (classroom_tr if tr else classroom_en).WEEKS[week - 1]
+    )
     home = "../../" if tr else "../"
     suffix = "tr/" if tr else ""
     answer = "Yanıtı göster" if tr else "Show answer"
@@ -148,7 +158,8 @@ def lesson(week, lang):
                         if tr else " The pop count includes the goal and excludes stale heap entries.")
     lesson_nav = "".join(
         f'<a href="#{fragment}">{label}</a>'
-        for fragment, label in (("paper", paper), ("timing", timing), ("exam-practice", exam), ("topic-references", references))
+        for fragment, label in (("paper", paper), ("timing", timing), ("studio", studio_title),
+                                ("exam-practice", exam), ("exit-ticket", "Çıkış sorusu" if tr else "Exit ticket"))
     )
     weeks_nav = "".join(
         f'<a href="{home}w{n}/{suffix}">{arrow} {prefix} {n}</a>'
@@ -169,26 +180,74 @@ def lesson(week, lang):
     ) if week == 14 else ""
     if week == 14 and tr:
         bridge = bridge.replace("Bu TSP karar problemi NP-tamdır.", "Tam sayı uzaklık tablolarında bu TSP karar problemi NP-tamdır.")
+    session_plan = (
+        "180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, "
+        "45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu."
+        if tr else
+        "180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, "
+        "45 min design task, 25 min exam practice and 5 min exit ticket."
+    )
+    exam_intro = (
+        'İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. '
+        'Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.'
+        if tr else
+        'Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. '
+        'Use the last 10 to check answers and rewrite one explanation.'
+    )
+    minute = "dk" if tr else "min"
     body = f"""
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">{"Hafta" if tr else "Week"} {week:02} / 14 · {escape(topic)}</p>
 <h1 id="lesson-title">{escape(title)}</h1>
-<p class="eyebrow">10 min · {"Mühendislik sorusu" if tr else "Engineering question"}</p>
+<p class="eyebrow">15 {minute} · {"Mühendislik sorusu" if tr else "Engineering question"}</p>
 <p class="lead">{escape(setup)}</p>
+<p>{"Önce tek başına tahmin et. Sonra eşinle karşılaştır. Karar vermek için hangi girdiye, ölçü birimine veya sınıra ihtiyacınız olduğunu yazın."
+    if tr else "Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision."}</p>
 {bridge}
+<p>{session_plan}</p>
 <nav class="robot-nav" aria-label="{"Ders akışı" if tr else "Lesson sections"}">{lesson_nav}</nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>{paper}</h2>
+<section id="paper"><p class="eyebrow">35 {minute}</p><h2>{paper}</h2>
 {map_view}<p>{escape(trace)}</p><p>{paper_cue}</p>
 <details><summary>{"İzi karşılaştır" if tr else "Check your trace"}</summary><p>{escape(solution)}</p>{route_trace}</details>
 {growth_figure(tr) if week == 2 else ""}
+<h3>{escape(example_title)}</h3>
+<p>{escape(example_problem)}</p>
+<details><summary>{"Çözüm adımlarını göster" if tr else "Show the worked steps"}</summary>{steps(example_steps)}</details>
+<p>{"İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver."
+    if tr else "Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break."}</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>{timing}</h2>
+<section id="timing"><p class="eyebrow">45 {minute}</p><h2>{timing}</h2>
 <p>{escape(lab)}</p><p>{escape(measurement)}</p>
 <pre class="python-example" data-python="1"><code>{escape(lab_code(week))}</code></pre>
+<h3>{"Deney adımları" if tr else "Lab procedure"}</h3>
+<p>{"İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan."
+    if tr else "Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter."}</p>
+{steps(lab_steps)}
+<details><summary>{"Kopyalanabilir deney kodu" if tr else "Show a ready-to-run variation"}</summary>
+<p>{"Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas."
+    if tr else "Restore the starter, select Edit code, append the snippet at the end and select Run."}</p>
+<pre class="lab-variation"><code>{escape(EXPERIMENTS[week - 1].strip())}</code></pre>
+</details>
+<p>{"Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle."
+    if tr else "Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result."}</p>
 </section>
-<section id="exam-practice"><h2>{exam}</h2>{practice(questions, chosen, answer)}{midterm}</section>
+<section id="studio"><p class="eyebrow">45 {minute}</p><h2>{escape(studio_title)}</h2>
+<p>{escape(studio_problem)}</p>
+<p>{"İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt."
+    if tr else "Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation."}</p>
+{steps(studio_steps)}
+<details><summary>{"Örnek çözümü karşılaştır" if tr else "Compare a model answer"}</summary><p>{escape(studio_answer)}</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 {minute}</p><h2>{exam}</h2>
+<p>{exam_intro}</p>
+{practice(questions, chosen, answer)}{midterm}</section>
 <section id="drills"><h2>{drills}</h2>{practice(questions, other, answer)}</section>
+<section id="exit-ticket"><p class="eyebrow">5 {minute}</p><h2>{"Çıkış sorusu" if tr else "Exit ticket"}</h2>
+<p>{escape(exit_prompt)}</p>
+<p>{"Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan."
+    if tr else "Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace."}</p>
+</section>
 <section id="topic-references"><h2>{references}</h2>
 <p>{"Önceki derslerin hafta numaraları farklı konulara karşılık gelebilir." if tr else "Earlier lessons can use different week numbers for the same topic."}</p>
 <ul class="plain-links">{ref_links}</ul>
@@ -234,8 +293,8 @@ def dashboard(template):
     template = re.sub(r'<p class="lead">.*?</p>\s*<p>.*?</p>',
                       '<p class="lead">Will this computation fit in my robot’s time and memory budget, and which method should I pick?</p>'
                       '<p>Follow one mobile robot from its first sensor reading to its route, startup and workcell tour. '
-                      'Each week opens with a 10-minute engineering question, then moves through a 25-minute paper trace, '
-                      'a 20-minute Python timing lab and three exam-style questions. No prior Python is required.</p>',
+                      'Each three-hour class includes two paper cases, a Python lab with input changes, a design task, '
+                      'exam practice and an exit ticket. No prior Python is required.</p>',
                       template, count=1)
     return re.sub(r'(<ol class="weeks"[^>]*>).*?(</ol>)', lambda match: match[1] + "\n" + "\n".join(weeks) + "\n" + match[2],
                   template, count=1, flags=re.S)

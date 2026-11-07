@@ -18,12 +18,14 @@
 <section class="hero compact" aria-labelledby="lesson-title">
 <p class="eyebrow">Week 02 / 14 · Growth shapes, counts and timing</p>
 <h1 id="lesson-title">What happens when n grows 10×?</h1>
-<p class="eyebrow">10 min · Engineering question</p>
+<p class="eyebrow">15 min · Engineering question</p>
 <p class="lead">The robot gets a denser range scan. A single pass checks each point. A divide-and-merge pass does about n log₂ n work, while a comparison of every ordered pair does n². Which is likely to grow beyond the budget first?</p>
+<p>Make an individual prediction, then compare with a partner. Write down the input, measurement unit or limit you would need to make the decision.</p>
 
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#exam-practice">Exam-style questions</a><a href="#topic-references">Topic references</a></nav>
+<p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Choose a method for a denser scanner</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
-<section id="paper"><p class="eyebrow">25 min</p><h2>Trace it on paper</h2>
+<section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Fill the table for n = 10, 100 and 1,000. Count n, approximate n log₂ n and count n². Then trace one four-point scan, a four-point merge tree with two levels, and the 4 × 4 table of ordered pairs including self-pairs.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>The four-point scan has 4 visits. The merge tree handles 4 items at each of 2 levels, or 8 item visits in the simplified model. The pair table has 16 entries. Big-O names how the work grows as input gets large. The units, constants and machine still matter for timing.</p></details>
 <details><summary>Check your completed table</summary>
@@ -33,8 +35,12 @@
 <figcaption>Approximate work counts in the models. Both axes use logarithmic scales.</figcaption>
 </figure>
 </details>
+<h3>Count the work before comparing it</h3>
+<p>Four range samples [8, 3, 8, 5] need duplicate detection. Compare all ordered pairs, all unordered pairs of different positions, and scanning a sorted copy for neighboring equal values.</p>
+<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Ordered pairs make a 4 × 4 table, so there are 16 comparisons. Diagonal matches compare a sample with itself.</li><li>Unordered pairs compare positions (0,1), (0,2), (0,3), (1,2), (1,3) and (2,3). Only (0,2) matches. The count is 6, or n(n − 1)/2 in general.</li><li>The sorted copy is [3, 5, 8, 8]. A full neighbor scan uses three comparisons. Include the work of obtaining the sorted copy if it is not already available.</li></ol></details>
+<p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
-<section id="timing"><p class="eyebrow">20 min</p><h2>Measure it</h2>
+<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict the ratios before running. Compare scans, merge sort and pair loops at n = 100 and 1,000. Compare ratios within each method. Explain why Python timings need not match the operation-count ratios.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
 <pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
@@ -85,9 +91,41 @@ for n in (100, 1000):
     measure(f&quot;{n}: merge&quot;, lambda: merge_sort(values), repeats=20)
     measure(f&quot;{n}: pairs&quot;, lambda: compare_pairs(values), repeats=2)
 </code></pre>
+<h3>Lab procedure</h3>
+<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
+<ol class="tool-steps"><li>Run the starter at 100 and 1,000. For each method, divide the larger median by the smaller median. Compare these ratios with the count model.</li><li>Try n = 200 and n = 400 with the same data pattern. Keep the number of repeats modest for pair work. Make a small table of size, predicted work and observed median.</li><li>Change the pair loop to visit each unordered pair once. Verify the comparison count on four positions before timing it. Explain why cutting about half the work still leaves quadratic growth.</li></ol>
+<details><summary>Show a ready-to-run variation</summary>
+<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
+<pre class="lab-variation"><code>def unordered_pairs(values):
+    checks = matches = 0
+    for i, left in enumerate(values):
+        for j in range(i + 1, len(values)):
+            matches += left == values[j]
+            checks += 1
+    return checks, matches
+
+assert unordered_pairs([8, 3, 8, 5]) == (6, 1)
+for n in (200, 400):
+    values = list(range(n))
+    print(n, &quot;-&gt;&quot;, unordered_pairs(values))
+    measure(&quot;unordered pairs&quot;, lambda: unordered_pairs(values), repeats=2)</code></pre>
+</details>
+<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
-<section id="exam-practice"><h2>Exam-style questions</h2><ol class="practice-list"><li><p>What happens to n² when n grows by 10×?</p><details><summary>Show answer</summary><p>It grows by 100×.</p></details></li><li><p>A pair loop measures 0.08 ms at n = 100. Estimate at n = 1,000.</p><details><summary>Show answer</summary><p>About 8 ms under the same assumption.</p></details></li><li><p>Two methods cross in your measurements. Which should you use at a fixed operating size?</p><details><summary>Show answer</summary><p>Compare measured time and memory at that size, with headroom and relevant worst inputs.</p></details></li></ol></section>
+<section id="studio"><p class="eyebrow">45 min</p><h2>Choose a method for a denser scanner</h2>
+<p>A 100-point batch takes 0.02 ms to scan, 0.07 ms to sort, and 0.10 ms for pair processing. Estimate the same three at 1,000 points. Pair processing emits a one-byte entry per ordered pair. The allocation is 2 ms and 256 KiB.</p>
+<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
+<ol class="tool-steps"><li>Scale the scan by n, sorting by n log₂ n and pair work by n². State which model applies to each measured baseline.</li><li>Compute the pair table’s size at both inputs and decide which constraints it fails at 1,000.</li><li>Distinguish a request to find a duplicate from a request to emit every pair result. Recommend a method for each and state what you need to measure next.</li></ol>
+<details><summary>Compare a model answer</summary><p>The estimates are 0.20 ms, 1.05 ms and 10 ms. A dense table grows from 10,000 to 1,000,000 bytes, beyond 256 KiB. Sorting and scanning can answer the duplicate question if the estimated costs hold. If every pair is genuinely required, changing only the search algorithm does not remove the output cost. A tiled or streamed result changes storage and needs its own timing measurement.</p></details>
+</section>
+<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
+<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
+<ol class="practice-list"><li><p>What happens to n² when n grows by 10×?</p><details><summary>Show answer</summary><p>It grows by 100×.</p></details></li><li><p>A pair loop measures 0.08 ms at n = 100. Estimate at n = 1,000.</p><details><summary>Show answer</summary><p>About 8 ms under the same assumption.</p></details></li><li><p>Two methods cross in your measurements. Which should you use at a fixed operating size?</p><details><summary>Show answer</summary><p>Compare measured time and memory at that size, with headroom and relevant worst inputs.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many ordered comparisons for n = 100, including self-pairs?</p><details><summary>Show answer</summary><p>10,000.</p></details></li><li><p>What happens to n in the same change?</p><details><summary>Show answer</summary><p>It grows by 10×.</p></details></li><li><p>For powers of two, which has more merge levels, 64 or 128?</p><details><summary>Show answer</summary><p>128 has 7 levels, one more than 64.</p></details></li><li><p>A scan measures 0.08 ms at n = 100. Estimate at n = 1,000.</p><details><summary>Show answer</summary><p>About 0.8 ms if the measured rate holds.</p></details></li><li><p>How large is an n × n table of one-byte entries at n = 1,000?</p><details><summary>Show answer</summary><p>1,000,000 bytes before representation overhead.</p></details></li></ol></section>
+<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
+<p>What can you infer when a 10× input increase takes about 100× as long? What should you still check?</p>
+<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p>
+</section>
 <section id="topic-references"><h2>Topic references</h2>
 <p>Earlier lessons can use different week numbers for the same topic.</p>
 <ul class="plain-links"><li><a href="../w2/reference.html">Earlier Week 2 · Counting work</a></li><li><a href="../w2/ek-notlar/#practice">Extended question bank and notes · 02</a></li><li><a href="../w3/reference.html">Earlier Week 3 · Growth and binary search</a></li><li><a href="../w3/ek-notlar/#practice">Extended question bank and notes · 03</a></li></ul>
