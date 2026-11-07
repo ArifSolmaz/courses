@@ -100,7 +100,7 @@ def lesson(week, lang):
               '<a href="tr/" hreflang="tr" lang="tr">Türkçe</a>')
     extra = f"""<link rel="alternate" hreflang="{"en" if tr else "tr"}" href="{"../" if tr else "tr/"}">
 <link rel="stylesheet" href="{home}assets/python-runner.css">
-<script defer src="{home}assets/python-runner.js?v=2"></script>
+<script defer src="{home}assets/python-runner.js?v=3"></script>
 <script defer src="{home}assets/robot-course.js?v=1"></script>"""
     map_view = ""
     route_trace = ""
