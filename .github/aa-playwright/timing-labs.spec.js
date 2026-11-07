@@ -55,6 +55,7 @@ const languages = [
     worked: 'Show the worked steps', procedure: 'Lab procedure', variation: 'Show a ready-to-run variation',
     model: 'Compare a model answer', exit: 'Exit ticket',
     traceModel: 'Compare a three-sentence explanation', exitModel: 'Compare a sample exit answer',
+    heapNext: 'Next', heapPrevious: 'Previous',
   },
   {
     code: 'tr', path: 'tr/', run: 'Python 1 kodunu çalıştır', stop: 'Durdur', stopped: /^Durduruldu\./, finished: 'Tamamlandı',
@@ -62,6 +63,7 @@ const languages = [
     worked: 'Çözüm adımlarını göster', procedure: 'Deney adımları', variation: 'Kopyalanabilir deney kodu',
     model: 'Örnek çözümü karşılaştır', exit: 'Çıkış sorusu',
     traceModel: 'Üç cümlelik örnek açıklama', exitModel: 'Örnek çıkış yanıtı',
+    heapNext: 'Sonraki', heapPrevious: 'Önceki',
   },
 ];
 
@@ -70,6 +72,39 @@ function measurementLabels(result) {
     const match = line.match(/^(.+?)\s+\d+\.\d+ ms\s+\d+\.\d+ ms\s*$/);
     return match ? [match[1]] : [];
   });
+}
+
+async function checkHeapDiagram(diagram, operation, frames, language) {
+  const previous = diagram.getByRole('button', { name: language.heapPrevious, exact: true });
+  const next = diagram.getByRole('button', { name: language.heapNext, exact: true });
+  const visibleFrame = diagram.locator('.heap-frame:visible');
+  const last = frames.length - 1;
+
+  async function checkFrame(index, direction) {
+    const position = `${index + 1} / ${frames.length}`;
+    await test.step(`Heap ${operation}: ${direction}, frame ${position}`, async () => {
+      await expect(visibleFrame).toHaveCount(1);
+      await expect(visibleFrame.locator('svg.heap-tree')).toBeVisible();
+      await expect(visibleFrame.locator('svg.heap-tree text')).toHaveText(frames[index]);
+      await expect(visibleFrame.locator('.heap-array strong')).toHaveText(frames[index]);
+      await expect(diagram.locator('output')).toHaveText(position);
+      if (index === 0) await expect(previous).toBeDisabled();
+      else await expect(previous).toBeEnabled();
+      if (index === last) await expect(next).toBeDisabled();
+      else await expect(next).toBeEnabled();
+    });
+  }
+
+  await expect(diagram.locator('.heap-frame')).toHaveCount(frames.length);
+  await checkFrame(0, 'initial');
+  for (let index = 1; index <= last; index++) {
+    await next.click();
+    await checkFrame(index, 'next');
+  }
+  for (let index = last - 1; index >= 0; index--) {
+    await previous.click();
+    await checkFrame(index, 'previous');
+  }
 }
 
 async function checkClassroomSections(page, week, language) {
@@ -86,10 +121,17 @@ async function checkClassroomSections(page, week, language) {
   if (week === 7) {
     const diagrams = page.locator('#heap-basics .heap-diagram');
     await expect(diagrams).toHaveCount(2);
-    const insert = diagrams.first();
-    await expect(insert.locator('.heap-frame:visible .heap-array strong')).toHaveText(['4', '9', '7']);
-    await insert.locator('[data-heap-next]').click();
-    await expect(insert.locator('.heap-frame:visible .heap-array strong')).toHaveText(['4', '9', '7', '3']);
+    await checkHeapDiagram(diagrams.first(), 'insertion', [
+      ['4', '9', '7'],
+      ['4', '9', '7', '3'],
+      ['4', '3', '7', '9'],
+      ['3', '4', '7', '9'],
+    ], language);
+    await checkHeapDiagram(diagrams.last(), 'removal', [
+      ['3', '4', '7', '9'],
+      ['9', '4', '7'],
+      ['4', '9', '7'],
+    ], language);
     await expect(page.locator('#robot-timers table').last().locator('tbody tr')).toHaveCount(19);
     await expect(page.locator('#midterm-card table tbody a')).toHaveCount(7);
   } else {
