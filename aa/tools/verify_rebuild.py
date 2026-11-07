@@ -43,6 +43,7 @@ def generated(path):
     p = Path(path)
     return (
         path in MAIN_PAGES
+        or bool(re.fullmatch(r'w\d+/(?:tr/)?reference\.html', path))
         or bool(re.fullmatch(r'w\d+/onceki-ders\.html', path))
         or path in ('COURSE_GUIDE.md', 'scope/index.html', 'review/index.html',
                     'textbook-problems/index.html', 'extensions/index.html',

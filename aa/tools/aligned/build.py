@@ -4,6 +4,7 @@ from .course import WEEKS
 from .visuals import figure, CODES
 from .sample_questions import MIDTERM,FINAL
 from .compact import animation_content, consolidate_routes, redirect
+from robot_course.build import write_route
 from . import theory, transfer, learning_paths, legacy_layout
 E=html.escape
 ROOT=Path(__file__).resolve().parents[2]
@@ -395,5 +396,5 @@ def build(B):
    target=ROOT/f'w{n}'/'tr'/'index.html';target.parent.mkdir(parents=True,exist_ok=True)
    target.write_bytes(translated.read_bytes())
  consolidate_routes()
- (ROOT/'COURSE_GUIDE.md').write_text('# Algorithm Analysis\n\nThe main route follows the supplied Skiena lecture notes. No prior Python is required.\n\n'+ '\n'.join(f'- Week {n}: {x["title"]} — document lectures {", ".join(map(str,x["lectures"]))}' for n,x in enumerate(WEEKS,1))+'\n\nCurrent lessons: w1/ through w14/. Bilingual explanations and answers are embedded in each lesson. Python help, animations and references are inside the matching weekly page. Exam scope: scope/. Cumulative review: review/. Additional textbook problems: textbook-problems/. Older library addresses redirect to that route.\n')
- print('Built 14 aligned lessons, dashboard, scope, review, textbook-problems and reference routes.')
+ write_route(ROOT)
+ print('Built the bilingual engineering route and preserved earlier course materials.')

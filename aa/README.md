@@ -1,5 +1,23 @@
 # AA Algorithm Analysis
 
+## Engineering route
+
+The current 14-week route follows a mobile robot from sensor sampling to route
+and workcell planning. Each English and Turkish lesson contains a timed teaching
+plan, a paper trace, a runnable Python timing lab and eight practice questions.
+Three of the questions are selected for the in-class finish. Additional Resources
+collects the earlier lessons by topic, the existing practice banks and animations,
+the assessment arrangements and the optional grid-planner project.
+
+Edit the bilingual lesson text in `tools/robot_course/foundations.py` and
+`tools/robot_course/planning.py`. Timing programs live in
+`tools/robot_course/labs.py`. Run `python -X utf8 aa/tools/build.py` from the
+repository root to generate the main and reference pages. The earlier bilingual
+edition is built from `tools/lessons/` at each week's `reference.html` URL.
+The notes and process history below describe earlier editions.
+
+## Earlier editions
+
 The 14-week course follows the topic order of the supplied bilingual Skiena CSE 373 notes. Document lectures 1–22 are grouped into teaching weeks; the dashboard and every weekly page identify the corresponding lectures and reading sections.
 
 No prior Python knowledge is assumed. The core route uses a specified problem, labelled figure, worked trace, correctness and cost reasoning, and an edge case. Short Python demonstrations are supporting material. Python help is embedded in each weekly Notes view; former library URLs redirect to the matching week.
