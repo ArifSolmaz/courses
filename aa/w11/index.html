@@ -11,6 +11,10 @@
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.dependency-figure{margin:28px 0}.dependency-graph{display:block;width:100%;max-width:660px;height:auto;margin:0 auto 16px}.dependency-graph text{font:17px system-ui;fill:#243d32;text-anchor:middle}.dependency-graph rect{fill:#cce7d6;stroke:#577564;stroke-width:1.5}.dependency-graph .edge{fill:none;stroke:#526d5d;stroke-width:2.5}.dependency-graph .cycle-edge{fill:none;stroke:#a24730;stroke-width:3}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:570px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.dependency-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -24,21 +28,39 @@
 <p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Design a safe startup after a dependency is added</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#dependency-model">Draw dependencies</a><a href="#small-example">Small Python example</a><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Design a safe startup after a dependency is added</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="dependency-model"><h2>Start with the rule, then draw the arrow</h2><p>A robot startup script cannot load a map before its scan is ready, and it cannot run before both map and drive are ready. We want a list containing every task exactly once, with each prerequisite earlier than its dependent. This is a <strong>topological order</strong>. A directed graph that has no directed cycle is called a <strong>DAG</strong>; exactly such graphs admit a topological order.</p><figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 370" role="img" aria-label="Prerequisites: boot to scan and drive; scan to map; map and drive to run"><defs><marker id="startup-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="edge" marker-end="url(#startup-arrow)"><path d="M275 68 L145 120"/><path d="M275 68 L405 120"/><path d="M145 168 L145 212"/><path d="M145 260 L275 310"/><path d="M405 168 L405 284 L335 330"/></g><rect x="215" y="20" width="120" height="48" rx="8"/><text x="275" y="50">boot</text><rect x="85" y="120" width="120" height="48" rx="8"/><text x="145" y="150">scan</text><rect x="345" y="120" width="120" height="48" rx="8"/><text x="405" y="150">drive</text><rect x="85" y="212" width="120" height="48" rx="8"/><text x="145" y="242">map</text><rect x="215" y="310" width="120" height="48" rx="8"/><text x="275" y="340">run</text></svg><figcaption>Read each arrow as “must finish before.” Both incoming prerequisites of run are required; one is not enough.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Task</th><th scope="col">Meaning</th><th scope="col">Direct prerequisites</th></tr></thead><tbody><tr><th scope="row">boot</th><td>Initialize the robot</td><td>—</td></tr><tr><th scope="row">scan</th><td>Acquire a scan</td><td>boot</td></tr><tr><th scope="row">drive</th><td>Prepare the drive</td><td>boot</td></tr><tr><th scope="row">map</th><td>Load/build the map</td><td>scan</td></tr><tr><th scope="row">run</th><td>Begin operation</td><td>map, drive</td></tr></tbody></table></div>
+<p>Use prerequisite → dependent: “scan must finish before map” becomes scan→map. The adjacency list graph['scan'] contains 'map', not 'boot'. Incoming arrows express what a task needs; outgoing arrows show which tasks depend on it. We assume these are strict finish-before-start requirements on a fixed graph.</p>
+<aside class="week-reminder"><h3><a href="../w8/">Remember: Week 8</a> · Connections have a new meaning</h3><p>BFS on the 2×2 map S. / .G returned a two-move route. Here boot→scan is not a move the robot drives: it is a requirement on task order. A route visits selected cells; a complete startup order must include every listed task, including disconnected ones.</p></aside>
+<aside class="week-reminder"><h3><a href="../w9/">Remember: Week 9</a> · No route-cost minimization this week</h3><p>Dijkstra chose eight moves costing 8 over four moves costing 28. Dependency ordering has no such sum to minimize: boot,drive,scan,map,run and boot,scan,map,drive,run both satisfy the original arrows.</p></aside>
+<aside class="week-reminder"><h3><a href="../w10/">Remember: Week 10</a> · A target heuristic does not enforce prerequisites</h3><p>A* used f=g+h; for g=1 and h=3 the priority was 4. A small estimate toward run would not authorize run to start before drive finishes. We need an ordering rule that respects every dependency, not a distance estimate to a goal.</p></aside>
 </section>
 <section id="concepts">
 <h2>Turn prerequisites into a valid startup order</h2>
 <h3>You will be able to</h3><ul><li>Draw arrows from prerequisite to dependent.</li><li>Trace unseen, active and finished states.</li><li>Reverse finish order on an acyclic graph.</li><li>Find a cycle witness.</li></ul>
-<h3>Before you start</h3><p>Grid searches follow connections. Here arrows mean that one task must finish before another can start.</p>
+<h3>Three marks describe the analysis</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">State</th><th scope="col">Code</th><th scope="col">Meaning in DFS</th><th scope="col">What an edge to it means</th></tr></thead><tbody><tr><th scope="row">Unseen</th><td>0</td><td>Not entered yet</td><td>Explore it recursively</td></tr><tr><th scope="row">Active</th><td>1</td><td>On the current unfinished call chain</td><td>A directed cycle is present</td></tr><tr><th scope="row">Finished</th><td>2</td><td>All outgoing edges have been examined</td><td>Already analyzed; do not recurse again</td></tr></tbody></table></div>
+<p class="lesson-note"><strong>DFS does not execute robot tasks.</strong> “Enter map” means analyze the map vertex; “finish run” means finish examining its outgoing edges. It does not mean the robot ran before boot. First compute and validate the order; only then may a separate controller execute tasks, checking that prerequisites actually succeed.</p>
 <p>Depth-first search follows a branch before returning. Mark a task active when entering it and finished after all outgoing edges have been examined. An edge to an active task returns to the current chain and closes a cycle. An edge to a finished task does not by itself prove a cycle.</p><p>When the graph is acyclic, reverse the order in which tasks finish. This places each prerequisite before its dependents. Start another DFS from any still-unseen task so the result includes disconnected tasks too.</p>
 <figure class="concept-figure">
 <figcaption>Worked trace · boot → map, map → enable, boot → enable</figcaption>
 <ol class="concept-frames"><li><strong>Enter boot, then map, then enable</strong><span>All three are active along one chain.</span></li><li><strong>Finish enable, then map</strong><span>Boot’s other edge reaches an already finished task.</span></li><li><strong>Finish boot</strong><span>Reverse the finish list to get boot, map, enable.</span></li><li><strong>Add enable → boot</strong><span>The new edge returns to active boot. The startup order is impossible.</span></li></ol>
 </figure>
 <p>A valid order can be checked by writing the position of each task and testing every arrow. Even if a different tie rule changes the order, every dependency must point forward.</p>
+<h3>Trace the full startup graph</h3>
+<p>Start at boot; examine scan before drive. The active chain below is the recursion stack, with the newest task at the right. Finished tasks leave that chain and join a separate finish list.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Event</th><th scope="col">Active chain after event</th><th scope="col">Finish list</th></tr></thead><tbody><tr><th scope="row">Enter boot</th><td>boot</td><td>[]</td></tr><tr><th scope="row">Enter scan</th><td>boot, scan</td><td>[]</td></tr><tr><th scope="row">Enter map</th><td>boot, scan, map</td><td>[]</td></tr><tr><th scope="row">Enter run</th><td>boot, scan, map, run</td><td>[]</td></tr><tr><th scope="row">Finish run</th><td>boot, scan, map</td><td>run</td></tr><tr><th scope="row">Finish map</th><td>boot, scan</td><td>run, map</td></tr><tr><th scope="row">Finish scan</th><td>boot</td><td>run, map, scan</td></tr><tr><th scope="row">Enter drive</th><td>boot, drive</td><td>run, map, scan</td></tr><tr><th scope="row">drive→run sees finished run: skip</th><td>boot, drive</td><td>run, map, scan</td></tr><tr><th scope="row">Finish drive</th><td>boot</td><td>run, map, scan, drive</td></tr><tr><th scope="row">Finish boot</th><td>[]</td><td>run, map, scan, drive, boot</td></tr></tbody></table></div>
+<p>Reverse the finish list: <strong>boot, drive, scan, map, run</strong>. The discovery order was boot, scan, map, run, drive, which is invalid as an execution order because run comes before its prerequisite drive. Reversing discovery also fails: it would put boot last.</p>
+<h3>Why reverse finishing works</h3>
+<p>Consider any edge u→v in an acyclic graph. If v is unseen, DFS finishes exploring v before it can finish u. If v is already finished, v is again earlier in the finish list. v cannot be active without forming a cycle. Therefore v always finishes before u, and reversing the list places u before v for every edge.</p>
+<aside class="week-reminder"><h3><a href="../w5/">Remember: Week 5</a> · A visited flag loses important information</h3><p>A dictionary can store state['run']=2 while state['boot']=1. Both tasks have been visited, but an edge to boot closes the current chain, whereas drive→run can safely reach a finished task. Store three states, not just membership in a visited set.</p></aside>
+<h3>Turn a back edge into an exact cycle</h3><p>Add run→boot. While analyzing run, the active chain is boot,scan,map,run. The target boot is active, so append it to close the witness: boot→scan→map→run→boot. Every arrow in that sequence exists. It would require boot to finish before itself through strict prerequisites, which is impossible. The witness proves one cycle exists; it does not list all cycles or tell us which requirement should be removed.</p>
+<aside class="week-reminder"><h3><a href="../w1/">Remember: Week 1</a> · One witness can justify an early exit</h3><p>Scanning [2,9,12] for any value above 8 may stop at 9. Similarly, finding one directed cycle is enough to answer “no complete topological order exists.” Finding no cycle in just the boot component is not enough to accept the whole graph: other components must also be checked.</p></aside>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
-<p>Use boot → scan, boot → drive, scan → map, map → run, drive → run. Run DFS, exploring scan before drive. Mark cells as unseen, active or finished. Write the finish list and reverse it. Then add run → boot and repeat.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
+<p>Use boot → scan, boot → drive, scan → map, map → run, drive → run. Run DFS, exploring scan before drive. Mark tasks as unseen, active or finished. Write the finish list and reverse it. Then add run → boot and repeat.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>Without the added edge, DFS finishes run, map, scan, drive, boot. Reversing gives boot, drive, scan, map, run. An edge from run to active boot exposes a cycle, so there is no startup order for the changed graph. Independent components need their own DFS starts.</p></details><details><summary>Compare a three-sentence explanation</summary><p>The finish list is run, map, scan, drive, boot. Reverse it to get boot, drive, scan, map, run. Adding run → boot points back to an active task and closes a cycle.</p></details>
 
 <h3>Separate a valid order from the order of a DFS walk</h3>
@@ -46,13 +68,88 @@
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>A opens C, then C opens D. D finishes first, then C. A’s other edge to D finds it finished.</li><li>A finishes third. B starts after A finishes and sees D already finished. Finish order is D, C, A, B, so one valid order is B, A, C, D.</li><li>Add D→A. DFS from A then reaches the active A again through C and D. The cycle is A→C→D→A.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
+<section id="small-example"><h2>Run a planner that explains a cycle</h2><p>This standalone example uses readable task names. The dictionary lists dependents, and every task—including a leaf with no dependents—must have a key. Dictionary and neighbor-list order make the example deterministic; another order can produce a different valid answer. The function returns either (order, []) or (None, cycle).</p>
+<pre class="python-example" data-python="2"><code>def plan_startup(graph):
+    # Keys are task names; each list contains their dependents.
+    if any(v not in graph for edges in graph.values() for v in edges):
+        raise ValueError(&quot;Every dependent must be a graph key&quot;)
+    state = {task: 0 for task in graph}
+    active = []
+    active_position = {}
+    finish = []
+
+    def visit(task):
+        state[task] = 1
+        active_position[task] = len(active)
+        active.append(task)
+        for dependent in graph[task]:
+            if state[dependent] == 1:
+                i = active_position[dependent]
+                return active[i:] + [dependent]
+            if state[dependent] == 0:
+                cycle = visit(dependent)
+                if cycle:
+                    return cycle
+        active.pop()
+        del active_position[task]
+        state[task] = 2
+        finish.append(task)
+        return []
+
+    for task in graph:
+        if state[task] == 0:
+            cycle = visit(task)
+            if cycle:
+                return None, cycle
+    return finish[::-1], []
+
+graph = {
+    &quot;boot&quot;: [&quot;scan&quot;, &quot;drive&quot;],
+    &quot;scan&quot;: [&quot;map&quot;],
+    &quot;drive&quot;: [&quot;run&quot;],
+    &quot;map&quot;: [&quot;run&quot;],
+    &quot;run&quot;: [],
+}
+order, cycle = plan_startup(graph)
+print(&quot;Order:&quot;, &quot; -&gt; &quot;.join(order))
+assert len(order) == len(graph) and set(order) == set(graph)
+position = {task: i for i, task in enumerate(order)}
+assert all(position[u] &lt; position[v] for u in graph for v in graph[u])
+
+graph[&quot;run&quot;].append(&quot;boot&quot;)
+order, cycle = plan_startup(graph)
+print(&quot;Order after change:&quot;, order)
+print(&quot;Cycle:&quot;, &quot; -&gt; &quot;.join(cycle))
+assert order is None
+assert cycle[0] == cycle[-1]
+assert all(v in graph[u] for u, v in zip(cycle, cycle[1:]))
+</code></pre>
+<p>Try adding graph['log']=[] before the first call: the isolated task must appear once, and this traversal places it first in the final order. For a second experiment, replace the line graph[&quot;run&quot;].append(&quot;boot&quot;) with graph[&quot;run&quot;]=[&quot;run&quot;]: the witness becomes run→run, a self-loop. Restore the original example between experiments. This recursive teaching version is for small graphs; long dependency chains require an explicit stack or another nonrecursive method.</p>
+<figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 320" role="img" aria-label="A to C and D, C to D, B to D; isolated I"><defs><marker id="branch-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="edge" marker-end="url(#branch-arrow)"><path d="M110 68 L110 125"/><path d="M110 173 L230 245"/><path d="M170 44 L230 245"/><path d="M320 68 L290 245"/></g><rect x="50" y="20" width="120" height="48" rx="8"/><text x="110" y="50">A</text><rect x="260" y="20" width="120" height="48" rx="8"/><text x="320" y="50">B</text><rect x="50" y="125" width="120" height="48" rx="8"/><text x="110" y="155">C</text><rect x="200" y="245" width="120" height="48" rx="8"/><text x="260" y="275">D</text><rect x="400" y="125" width="110" height="48" rx="8"/><text x="455" y="155">I</text></svg><figcaption>I has no incoming or outgoing edge. It must still appear exactly once. A→D is redundant with A→C→D, but it is not a cycle.</figcaption></figure>
+<h3>Validate any proposed order without rerunning DFS</h3>
+<p>For boot,drive,scan,map,run, positions are boot=0, drive=1, scan=2, map=3, run=4. Check every edge: 0&lt;2, 0&lt;1, 2&lt;3, 3&lt;4, 1&lt;4. Also check length and membership so missing or duplicated tasks cannot pass accidentally. On the A,B,C,D,I graph, I,B,A,C,D is valid; I can move anywhere without violating an edge.</p>
+<aside class="week-reminder"><h3><a href="../w3/">Remember: Week 3</a> · This is not sorting by task ID</h3><p>Binary search needs a sorted key sequence such as [10,20,30,40]. Topological order instead respects edges: if task 3 must precede task 1, ascending IDs [0,1,2,3] are not a valid general solution. A position dictionary makes dependency checks direct.</p></aside>
+</section>
 <section id="common-mistakes">
 <h2>Common mistakes</h2><ul><li>Reversing the discovery list instead of the finish list.</li><li>Treating all visited neighbors as evidence of a cycle.</li><li>Forgetting isolated tasks.</li></ul>
 <h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Prerequisite / Önkoşul</dt><dd>Task that must finish first.</dd><dt>Active / Etkin</dt><dd>Entered but not yet finished.</dd><dt>Topological order / Topolojik sıra</dt><dd>Order in which all arrows point forward.</dd></dl>
 </section>
+<section id="ready-tasks"><h2>A second viewpoint: which tasks are ready?</h2>
+<p>Kahn’s algorithm starts with each task’s indegree: its number of incoming prerequisites. Repeatedly remove a zero-indegree task, append it to the order, and decrement its dependents’ counts. Add a dependent to the ready queue only when its count reaches zero. If fewer than V tasks are removed and the queue is empty, a directed cycle remains. This is an alternative planning algorithm; it still does not execute the tasks.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Remove</th><th scope="col">Count changes</th><th scope="col">Ready FIFO after update</th></tr></thead><tbody><tr><th scope="row">Initial state</th><td>boot:0, scan:1, drive:1, map:1, run:2</td><td>boot</td></tr><tr><th scope="row">boot</th><td>scan:1→0, drive:1→0</td><td>scan, drive</td></tr><tr><th scope="row">scan</th><td>map:1→0</td><td>drive, map</td></tr><tr><th scope="row">drive</th><td>run:2→1</td><td>map</td></tr><tr><th scope="row">map</th><td>run:1→0</td><td>run</td></tr><tr><th scope="row">run</th><td>—</td><td>[]</td></tr></tbody></table></div>
+<p>The result boot,scan,drive,map,run differs from the DFS result but passes the same edge test. In particular, removing drive does not make run ready yet: map remains a prerequisite. With a cycle, the unremoved set may contain both cycle members and tasks blocked downstream; it is not itself an exact cycle witness.</p>
+<aside class="week-reminder"><h3><a href="../w4/">Remember: Week 4</a> · FIFO and LIFO do different work</h3><p>A FIFO containing scan,drive returns scan and leaves drive. Kahn uses a FIFO of ready tasks in this trace. Recursive DFS instead uses a LIFO call stack: entering boot,scan,map,run returns from run first. Replacing the stack with a queue without changing the algorithm is not DFS.</p></aside>
+<aside class="week-reminder"><h3><a href="../w7/">Remember: Week 7</a> · Priority may break ties only among ready tasks</h3><p>A min-heap with deadlines 3 and 7 returns 3 first. You may use a heap to choose among zero-indegree tasks, for example preferring diagnostics to power. Even the highest-priority enable task cannot be selected while its prerequisites remain. A priority policy chooses a valid order; it does not guarantee the fastest complete schedule.</p></aside>
+</section>
+<section id="work-and-memory"><h2>Count edges and stack depth separately</h2>
+<aside class="week-reminder"><h3><a href="../w2/">Remember: Week 2</a> · A nested loop is not automatically quadratic</h3><p>Comparing every pair of n items takes about n² operations. DFS’s inner loop scans graph[u], so across all vertices it scans E stored edges, not V edges for every vertex. With adjacency lists, DFS takes O(V+E) time and O(V) extra space for states, finish order and the call stack. Stored graph data takes O(V+E) space separately.</p></aside>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Graph</th><th scope="col">V</th><th scope="col">E</th><th scope="col">Maximum active tasks</th></tr></thead><tbody><tr><th scope="row">20-task chain</th><td>20</td><td>19</td><td>20</td></tr><tr><th scope="row">200-task chain</th><td>200</td><td>199</td><td>200</td></tr><tr><th scope="row">200-task outward star</th><td>200</td><td>199</td><td>2</td></tr><tr><th scope="row">200-task chain plus last→first</th><td>200</td><td>200</td><td>200</td></tr></tbody></table></div>
+<p>The chain and star have the same V and E but very different call depths. Increasing n far beyond the classroom examples can exceed Python’s recursion limit. RecursionError means the implementation ran out of call-stack capacity; it is not evidence of a graph cycle. For large graphs use iterative DFS frames that preserve the next-neighbor position, or Kahn’s algorithm. Simply pushing task IDs and reversing their discovery order does not reproduce DFS finishing order.</p>
+<aside class="week-reminder"><h3><a href="../w6/">Remember: Week 6</a> · Timing summaries are not deadline guarantees</h3><p>The median of sorted samples [2,2,3,7,100] is 3. Our lab reports a median and largest of five batch averages, not the slowest possible individual call. A cycle may stop traversal early, depending on where it is found; a cycle at the end of a long chain does not save visiting that chain.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Predict the work for dependency chains of 20 and 200 steps. Time the DFS with both inputs and add a final edge to the first task. Check that the cycle is reported.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p class="lesson-note">The compact lab uses integer task IDs 0…n−1: graph[u] lists the dependents of u. Every task gets a list, even if empty. The new validation rejects negative, out-of-range or noninteger dependent IDs before DFS. The input is an adjacency list with reusable neighbor lists, and it must not change during the search. Unlike the named example, this compact function returns only an order or None, not a cycle witness.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -63,6 +160,9 @@ def measure(label, job, repeats=200):
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
 def topological(graph):
+    n = len(graph)
+    if any(type(v) is not int or not 0 &lt;= v &lt; n for edges in graph for v in edges):
+        raise ValueError(&quot;Dependents must be integer task IDs from 0 to n-1&quot;)
     state = [0] * len(graph)
     finish = []
 
@@ -93,7 +193,9 @@ for n in (20, 200):
     assert topological(graph) is None
     measure(f&quot;{n}: cycle&quot;, lambda: topological(graph))
 </code></pre>
-<h3>Lab procedure</h3>
+<h3>Know the expected answer before measuring</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Input</th><th scope="col">Expected result</th><th scope="col">Reason</th></tr></thead><tbody><tr><th scope="row">[]</th><td>[]</td><td>An empty graph has an empty valid order</td></tr><tr><th scope="row">[[]]</th><td>[0]</td><td>One isolated task</td></tr><tr><th scope="row">[[0]]</th><td>None</td><td>Self-loop 0→0</td></tr><tr><th scope="row">[[1], [0]]</th><td>None</td><td>Two-task cycle</td></tr><tr><th scope="row">[[], [2], [1]]</th><td>None</td><td>A cycle outside task 0’s component</td></tr><tr><th scope="row">[[2,3], [3], [3], [], []]</th><td>[4,1,0,2,3]</td><td>Branching dependencies plus isolated task 4</td></tr></tbody></table></div>
+<p>Test failure with <code>order is None</code>, not <code>if not order</code>: the valid empty order [] is also false in Python. A duplicate edge such as [[1,1],[]] repeats the same requirement and is not a cycle; it adds another stored edge to inspect. Timing includes graph validation, state allocation, DFS and reversing the finish list. Graph construction and correctness assertions are outside the timed call. Validation scans all edges even if DFS later finds a cycle early.</p><h3>Lab procedure</h3>
 <p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
 <ol class="tool-steps"><li>Run the starter chain and cycle. Explain which condition sends the DFS back without an order.</li><li>Try a small branching graph with an isolated task. Verify every edge using the output order, and check that the isolated task still appears.</li><li>Compare a 200-task chain with a 200-task star of the same edge count. Explain why call depth differs even though the number of tasks and edges is equal.</li></ol>
 <details><summary>Show a ready-to-run variation</summary>
@@ -114,7 +216,11 @@ assert topological(graph) is None</code></pre>
 <p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
 <ol class="tool-steps"><li>Draw the six tasks and directed dependencies. Give two valid orders before the extra edge, and check them by marking each edge forward.</li><li>Identify a cycle after the extra edge. Explain why changing the tie rule cannot fix it.</li><li>Recommend what the controller should report when a cycle is found. Explain whether it is safe to enable on a partial order.</li></ol>
 <details><summary>Compare a model answer</summary><p>One valid order is boot, power, diagnostics, actuator check, sensor check, enable. Another is boot, diagnostics, sensor check, power, actuator check, enable. The error creates power→actuator check→enable→power. Report the loop and keep enable blocked until the configuration is corrected.</p></details>
-</section>
+<figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 260" role="img" aria-label="Cycle: power to actuator check to enable to power"><defs><marker id="cycle-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="cycle-edge" marker-end="url(#cycle-arrow)"><path d="M220 44 L95 150"/><path d="M195 174 L355 174"/><path d="M455 150 L335 44"/></g><rect x="215" y="20" width="120" height="48" rx="8"/><text x="275" y="50">power</text><rect x="15" y="150" width="180" height="48" rx="8"/><text x="105" y="180">actuator check</text><rect x="355" y="150" width="180" height="48" rx="8"/><text x="445" y="180">enable</text></svg><figcaption>power → actuator check → enable → power. Following these arrows returns to the starting task. Reordering independent tasks cannot remove this contradiction.</figcaption></figure><h3>A valid list is not yet a complete runtime scheduler</h3>
+<p>Before executing startup, validate the complete graph and order. Report a concrete loop such as power→actuator check→enable→power and leave enable blocked until an authorized configuration correction resolves it. Do not silently delete an edge or use a partial finish list as a complete plan. Whether independent diagnostics may run after rejection requires a separate, explicit operating policy.</p>
+<p>Topological order also does not model duration, resource conflicts or task failures. Return to the original five-task graph and suppose durations are boot=2, scan=3, drive=1, map=2, run=1 time units. Sequential execution totals 9. With unlimited resources and successful tasks, boot runs 0–2, scan 2–5 and drive 2–3 in parallel, map 5–7, and run 7–8. Completion takes 8 units because the boot→scan→map→run chain controls it. This timing calculation is extra information, not part of the DFS result.</p>
+<h3>Try the same model outside robotics</h3>
+<p>A data pipeline may require download→clean, clean→train, train→evaluate, and clean→report. One valid order is download,clean,report,train,evaluate. Adding evaluate→clean creates clean→train→evaluate→clean. A build system uses the same rule: compile a library before linking its dependent application. Only encode real prerequisites; unrelated tasks need no invented ordering edge.</p></section>
 <section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
 <p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
 <ol class="practice-list"><li><p>Is boot, scan, drive, map, run valid?</p><details><summary>Show answer</summary><p>Yes. Every arrow points forward.</p></details></li><li><p>Which DFS mark reveals a cycle when encountered on an outgoing edge?</p><details><summary>Show answer</summary><p>Active.</p></details></li><li><p>What does DFS inspect on a graph stored as adjacency lists?</p><details><summary>Show answer</summary><p>Each task and each outgoing dependency once, apart from constant bookkeeping.</p></details></li></ol></section>
