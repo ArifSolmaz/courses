@@ -8,7 +8,7 @@ const labs = [
   { week: 4, timingRows: 4, output: ['128: shift', '8192: ring'] },
   { week: 5, timingRows: 4, output: ['100: binary pair', '1000: hash pair'] },
   { week: 6, timingRows: 4, output: ['5 -> 16', '31 -> 23'] },
-  { week: 7, timingRows: 4, output: ['32: list', '512: heap'] },
+  { week: 7, timingRows: 8, output: ['32: list', '512: heap'] },
   { week: 8, timingRows: 2, output: ['(4, 28, 8)', '(6, 6, 73)'] },
   { week: 9, timingRows: 4, output: ['(4, 28, 8)', '(8, 8, 9)', '(6, 6, 74)'] },
   {
@@ -141,7 +141,9 @@ async function checkClassroomSections(page, week, language) {
 
   const paper = page.locator('#paper');
   await expect(paper.getByText(language.traceModel, { exact: true })).toBeVisible();
-  await expect(paper.getByRole('heading', { level: 3 })).toHaveText(/\S/);
+  for (const heading of await paper.getByRole('heading', { level: 3 }).all()) {
+    await expect(heading).toHaveText(/\S/);
+  }
   await paper.getByText(language.worked, { exact: true }).click();
   const workedSteps = paper.locator('details[open] ol > li');
   await expect(workedSteps).toHaveCount(3);
