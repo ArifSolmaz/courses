@@ -11,6 +11,10 @@
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.wiring-figure{margin:28px 0}.wiring-graph{display:block;width:100%;max-width:620px;height:auto;margin:0 auto 16px}.wiring-graph text{font:19px system-ui;fill:#243d32;text-anchor:middle}.wiring-graph circle{fill:#cce7d6;stroke:#577564;stroke-width:2}.wiring-graph .edge{fill:none;stroke:#63766c;stroke-width:3}.wiring-graph .chosen{fill:none;stroke:#286546;stroke-width:5}.wiring-graph .unused{fill:none;stroke:#a0a69e;stroke-width:2;stroke-dasharray:7 7}.wiring-graph .label{fill:#faf8ef;stroke:none}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:570px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.wiring-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -24,7 +28,13 @@
 <p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Kapanan kablo güzergâhıyla ağı yeniden planla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#wiring-model">Ağı modelle</a><a href="#components">Bileşenleri izle</a><a href="#small-example">Küçük Python örneği</a><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Kapanan kablo güzergâhıyla ağı yeniden planla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+</section>
+<section id="wiring-model"><h2>Tek yolculuk değil, bağlı bir ağ kur</h2><p>A denetleyicisi ile B,C,D istasyonları kabloyla bağlanacak. Bağlantı dolaylı olabilir: A’dan her sensöre doğrudan kablo gerekmez. Kurulan her kablonun maliyetini bir kez öderiz. Görev, mevcut yönsüz bağlantılardan tüm istasyonları bağlayan ve toplam kurulum maliyeti en düşük olanları seçmektir. Bu model negatif olmayan maliyetler kullanır; henüz yedek bağlantı gerektirmez.</p><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 290" role="img" aria-label="Aday yönsüz bağlantılar AB 1, BC 2, AC 3, CD 4, BD 5"><path class="edge" d="M90 55 L430 55 L90 235 L430 235"/><path class="edge" d="M90 55 L90 235 M430 55 L430 235"/><rect class="label" x="245" y="39" width="30" height="30" rx="5"/><text x="260" y="61">1</text><rect class="label" x="245" y="129" width="30" height="30" rx="5"/><text x="260" y="151">2</text><rect class="label" x="75" y="129" width="30" height="30" rx="5"/><text x="90" y="151">3</text><rect class="label" x="245" y="219" width="30" height="30" rx="5"/><text x="260" y="241">4</text><rect class="label" x="415" y="129" width="30" height="30" rx="5"/><text x="430" y="151">5</text><circle cx="90" cy="55" r="25"/><text x="90" y="62">A</text><circle cx="430" cy="55" r="25"/><text x="430" y="62">B</text><circle cx="90" cy="235" r="25"/><text x="90" y="242">C</text><circle cx="430" cy="235" r="25"/><text x="430" y="242">D</text></svg><figcaption>Çizgiler oksuzdur: her kablo iki yönde çalışır. Sayılar kurulum maliyetidir; görev sırası veya bir kaynaktan uzaklık değildir. Çizimdeki kesişmeler yeni istasyon oluşturmaz.</figcaption></figure>
+<p>Kapsayan ağaç tüm düğümleri içerir, bağlıdır ve döngü içermez. n≥1 için n−1 kenarı vardır. Negatif olmayan kurulum maliyetlerinde bağlı tasarımdaki döngü kenarları çıkarılarak maliyet artırılmadan bağlılık korunabilir; dolayısıyla en düşük maliyetli bağlı tasarım ağaç olarak seçilebilir. Mevcut graf bağlantısızsa tam kapsayan ağaç yoktur; Kruskal bileşenlerin içinde minimum kapsayan orman bulur.</p>
+<aside class="week-reminder"><h3><a href="../../w11/tr/">Hatırlayalım: Hafta 11</a> · Yönlü önkoşullar ile yönsüz kablolar farklıdır</h3><p>power→check→enable→power bağımlılık döngüsü başlatma sırasını imkânsız yaptı. Burada aday kablolardan oluşan yönsüz üçgen geçerli girdidir. Kabloların döngüsüz alt kümesini seçeriz; görev sıralamıyoruz ve yönlü etkin/tamamlanmış kuralını değiştirmeden uygulamamalıyız.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w9/tr/">Hatırlayalım: Hafta 9</a> · Ucuz rota, ucuz kurulu ağ demek değildir</h3><p>Dijkstra arazi haritasında 28 yerine 8 maliyetli rota buldu. Aşağıdaki üçgende A’dan Dijkstra en kısa yollar için AB=2 ve AC=3 kullanır. Bu kurulu bağlantılar 5 tutar; AB+BC ise yalnız 4 tutar. En iyileştirme soruları farklıdır.</p></aside><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 270" role="img" aria-label="Üçgende AB 2, BC 2, AC 3; minimum ağaç AB ve BC’yi alır"><path class="chosen" d="M90 210 L260 50 L430 210"/><path class="unused" d="M90 210 L430 210"/><rect class="label" x="160" y="109" width="30" height="30" rx="5"/><text x="175" y="131">2</text><rect class="label" x="330" y="109" width="30" height="30" rx="5"/><text x="345" y="131">2</text><rect class="label" x="245" y="194" width="30" height="30" rx="5"/><text x="260" y="216">3</text><circle cx="90" cy="210" r="25"/><text x="90" y="217">A</text><circle cx="260" cy="50" r="25"/><text x="260" y="57">B</text><circle cx="430" cy="210" r="25"/><text x="430" y="217">C</text></svg><figcaption>En düşük kurulum toplamı: AB+BC=4. Oluşan A→B→C yolu 4 tutar; oysa doğrudan AC adayı 3 tutar. Minimum kapsayan ağaç, en kısa yol ağacı değildir.</figcaption></figure>
+<aside class="week-reminder"><h3><a href="../../w10/tr/">Hatırlayalım: Hafta 10</a> · Yönelinecek tek hedef yoktur</h3><p>A* rota adaylarını f=g+h ile sıraladı; g=1,h=3 için f=4’tü. Kablolama tüm istasyonları kapsamalı; D’ye yönelik sezgi genel bağlılık koşulunun yerine geçmez. Aday kenar maliyetlerini ve birleştirdikleri grupları karşılaştırırız.</p></aside>
 </section>
 <section id="concepts">
 <h2>Bütün istasyonları en düşük toplam kabloyla bağla</h2>
@@ -36,6 +46,14 @@
 <ol class="concept-frames"><li><strong>AB maliyet 2</strong><span>Kabul et. Bileşenler AB, C, D. Toplam 2.</span></li><li><strong>AC maliyet 3</strong><span>Kabul et. Bileşenler ABC, D. Toplam 5.</span></li><li><strong>BC maliyet 4</strong><span>Atla. B ve C zaten bağlı.</span></li><li><strong>CD maliyet 5</strong><span>Kabul et. Tek bileşen. Toplam 10.</span></li></ol>
 </figure>
 <p>Üç kablo dört istasyonu bağlar. CD kullanılamazsa D yalıtılır ve ormanın toplamı yalnız 5 olur. Daha düşük sayı istenen bağlılığı karşılamaz.</p>
+<h3>Her aday bağlantıyı tek tek incele</h3>
+<p>Yukarıdaki beş bağlantılı ağ için AB:1, BC:2, AC:3, CD:4, BD:5 sırasını kullan. Aşağıdaki küme parantezleri seçilen ağın bileşenlerini gösterir; doğrudan bağlantı anlamına gelmez.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Aday</th><th scope="col">Karar ve gerekçe</th><th scope="col">Sonraki bileşenler</th><th scope="col">Kabul toplamı</th></tr></thead><tbody><tr><th scope="row">—</th><td>Dört istasyonla başla</td><td>{A}, {B}, {C}, {D}</td><td>0</td></tr><tr><th scope="row">AB:1</th><td>Kabul: farklı bileşenler</td><td>{A,B}, {C}, {D}</td><td>1</td></tr><tr><th scope="row">BC:2</th><td>Kabul: C’yi {A,B}’ye bağlar</td><td>{A,B,C}, {D}</td><td>3</td></tr><tr><th scope="row">AC:3</th><td>Atla: A–B–C yolu zaten var</td><td>{A,B,C}, {D}</td><td>3</td></tr><tr><th scope="row">CD:4</th><td>Kabul: D’yi bağlar</td><td>{A,B,C,D}</td><td>7</td></tr><tr><th scope="row">BD:5</th><td>İncelenirse atla: B ve D bağlı</td><td>{A,B,C,D}</td><td>7</td></tr></tbody></table></div><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 290" role="img" aria-label="Seçilen ağaç AB 1, BC 2, CD 4; kullanılmayan AC 3 ve BD 5"><path class="chosen" d="M90 55 L430 55 L90 235 L430 235"/><path class="unused" d="M90 55 L90 235 M430 55 L430 235"/><rect class="label" x="245" y="39" width="30" height="30" rx="5"/><text x="260" y="61">1</text><rect class="label" x="245" y="129" width="30" height="30" rx="5"/><text x="260" y="151">2</text><rect class="label" x="75" y="129" width="30" height="30" rx="5"/><text x="90" y="151">3</text><rect class="label" x="245" y="219" width="30" height="30" rx="5"/><text x="260" y="241">4</text><rect class="label" x="415" y="129" width="30" height="30" rx="5"/><text x="430" y="151">5</text><circle cx="90" cy="55" r="25"/><text x="90" y="62">A</text><circle cx="430" cy="55" r="25"/><text x="430" y="62">B</text><circle cx="90" cy="235" r="25"/><text x="90" y="242">C</text><circle cx="430" cy="235" r="25"/><text x="430" y="242">D</text></svg><figcaption>Düz yeşil bağlantılar kurulur: AB, BC, CD. Kesikli bağlantılar kullanılmayan adaylardır. Ağaç 1+2+4=7 tutar; seçilen bağlantılarla her istasyon diğerlerine ulaşır.</figcaption></figure>
+<p>En ucuz üç bağlantıyı körlemesine almak AB,BC,AC için 6 tutar ama D’yi yalıtır. Yalnız üç kenar bulunması dört düğümün bağlı olduğunu kanıtlamaz: burada üç düğüm üzerinde üçgen oluşur. Kenar ve maliyet yanında bileşen sayısını da kontrol et.</p>
+<aside class="week-reminder"><h3><a href="../../w8/tr/">Hatırlayalım: Hafta 8</a> · Bağlılık dolaylı olabilir</h3><p>BFS başlangıç ve hedef komşu olmasa da birden fazla yasal hareketi izleyip hedefe ulaştı. AB ve BC seçilince A ile C de B üzerinden bağlıdır. Seçilmiş doğrudan AC kablosu olmamasına rağmen AC eklemek döngü kapatır.</p></aside>
+<h3>En ucuz birleştirici kenarı almak neden güvenli?</h3>
+<p>Mevcut bir bileşeni diğer istasyonlardan ayıran sınır düşün. Tam kapsayan ağaç bu sınırı geçmelidir. Kruskal’ın sıradaki kabul ettiği e kenarı, seçilen bileşenin sınırını geçen en ucuz mevcut kenarlardan biridir. Şimdiye kadar kabul edilen kenarlarla uyumlu optimum ağaç al. Ağaçta e yoksa eklemek döngü oluşturur; döngüde başka bir sınır geçişi x bulunur. x yerine e koy. maliyet(e)≤maliyet(x) olduğundan toplam artmaz ve bağlılık korunur. Bu değiş-tokuş gerekçesi açgözlü seçimi doğrular; yalnız “ucuz iyi görünür” demek yetmez.</p>
+<p>Eşitlikler bu gerekçeyi bozmaz; aynı optimum toplamda farklı ağaçlar çıkabilir. Kanıt kapsayan ağaçla (veya mevcut her bileşende bir ağaçla) ilgilidir; en kısa rota veya yedekli ağla değil.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>AB:1, BC:2, AC:3, CD:4, BD:5 bağlantılarını sırala. Dört ayrı bileşenle başla. Uçları farklı bileşenlerdeyse bağlantıyı al ve bileşenleri birleştir. Alınan ve atlanan kenarları yaz.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
@@ -46,13 +64,79 @@
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>Alfabetik eşitlik kuralı AB, AC ve BD’yi seçer. BC aynı bileşeni bağladığı için atlanır.</li><li>Ters sıra BC, AC ve CD’yi seçer. İki ağaç da üç bağlantı kullanır ve 4 tutar.</li><li>Bir öneriyi değerlendirirken toplam maliyeti, bağlılığı ve döngüsüzlüğü denetle. Aynı maliyet farklı yerleşimlere izin verebilir.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
+<section id="components"><h2>Bilgisayar bileşeni nasıl tanır?</h2><p>Ayrık küme birleştirme yapısı (DSU, union–find olarak da bilinir) grupları tutar. <code>root(x)</code>, x’in grubunun temsilcisini verir. İki istasyon ancak temsilcileri aynıysa zaten bağlıdır. Kenarı kabul etmek için iki kökü birleştir. Temsilci iç etikettir; özel fiziksel merkez değildir.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Adım</th><th scope="col">parent[A,B,C,D]</th><th scope="col">Bileşen yorumu</th></tr></thead><tbody><tr><th scope="row">Başlat</th><td>[A,B,C,D]</td><td>Dört ayrı kök</td></tr><tr><th scope="row">AB’yi al</th><td>[A,A,C,D]</td><td>{A,B}, {C}, {D}</td></tr><tr><th scope="row">BC’yi al; root(B)=A</th><td>[A,A,A,D]</td><td>{A,B,C}, {D}</td></tr><tr><th scope="row">AC’yi atla</th><td>[A,A,A,D]</td><td>Aynı kök A</td></tr><tr><th scope="row">CD’yi al</th><td>[A,A,A,A]</td><td>Tek bileşen</td></tr></tbody></table></div>
+<p class="lesson-note"><strong>DSU ebeveynleri kurulan kablolar değildir.</strong> BC kabul edilince parent[C]=A olur ama seçilen kablo AC değil BC’dir. CD’den sonra parent[D]=A olur; AD ise mevcut aday bile değildir. Seçilen kenar listesini ayrı sakla; kablolamayı ebeveyn dizisinden çizme.</p>
+<h3>Boyuta göre birleştirme ve yolu yarılama</h3>
+<p>Kökler farklıysa küçük grubu büyük grubun kökü altına bağla. Yalnız kökün size kaydı geçerlidir; böylece ebeveyn ağaçları sığ kalır. <code>root</code> içindeki <code>parent[node] = parent[parent[node]]</code> düğümü büyük ebeveynine bağlayıp sonraki yürüyüşleri kısaltır. Olası D→C→A zincirinde root(D), D’nin ebeveynini A yapar ve A döndürür. Değişen kayıt yapısıdır; seçilmiş ağ veya maliyeti değil.</p>
+<aside class="week-reminder"><h3><a href="../../w5/tr/">Hatırlayalım: Hafta 5</a> · Kayıt arama ile grup sorgusu farklıdır</h3><p>Sözlük 'dock-C' adını 2 numarasına eşler. Numarayı bulmak, C’nin A’ya bağlı olup olmadığını söylemez. DSU ikinci soruyu root(2) ile root(0)’ı karşılaştırarak yanıtlar. Numaralar bilindikten sonra dizi indislerini kullanırız.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w4/tr/">Hatırlayalım: Hafta 4</a> · Saklama kuralları farklı işlemlere hizmet eder</h3><p>A,B içeren FIFO önce A’yı verir; halka tampon kayıtların nerede tutulduğunu değiştirir, hangi istasyonların bağlı olduğunu değil. DSU kuyruk değildir. İşlemleri grubu bul ve grupları birleştir olduğundan veri yapısını bu işlemlere göre seçeriz.</p></aside>
+</section>
+<section id="small-example"><h2>Yalnız maliyeti değil, gerçek kabloları yazdır</h2><p>Bu bağımsız örnek (seçilen bağlantılar, toplam maliyet, bileşen sayısı) döndürür. İstasyon numaraları A=0,B=1,C=2,D=3’tür. Her (maliyet,a,b) üçlüsü tek yönsüz adayı temsil eder. Öngörülebilir alfabetik eşitlikler için uçları artan numara sırasıyla gir. Kod önce maliyet, sonra a, sonra b ile sıralar.</p><pre class="python-example" data-python="2"><code>def wiring_plan(n, links):
+    if type(n) is not int or n &lt; 0:
+        raise ValueError(&quot;n must be a nonnegative integer&quot;)
+    for cost, a, b in links:
+        if type(cost) is not int or cost &lt; 0:
+            raise ValueError(&quot;Use nonnegative integer installation costs&quot;)
+        if any(type(v) is not int or not 0 &lt;= v &lt; n for v in (a, b)):
+            raise ValueError(&quot;Endpoints must be integer IDs from 0 to n-1&quot;)
+    parent = list(range(n))
+    size = [1] * n
+    chosen = []
+    total = 0
+    components = n
+
+    def root(node):
+        while node != parent[node]:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return node
+
+    for cost, a, b in sorted(links):
+        left, right = root(a), root(b)
+        if left == right:
+            continue
+        if size[left] &lt; size[right]:
+            left, right = right, left
+        parent[right] = left
+        size[left] += size[right]
+        chosen.append((cost, a, b))
+        total += cost
+        components -= 1
+    return chosen, total, components
+
+names = &quot;ABCD&quot;
+# Tuples are (cost, endpoint, endpoint), with A=0, B=1, C=2, D=3.
+links = [(1, 0, 1), (2, 1, 2), (3, 0, 2), (4, 2, 3), (5, 1, 3)]
+chosen, total, components = wiring_plan(4, links)
+print(&quot;Chosen:&quot;, &quot;, &quot;.join(names[a] + names[b] for cost, a, b in chosen))
+print(&quot;Total:&quot;, total)
+print(&quot;Components:&quot;, components)
+assert total == 7 and components == 1
+assert len(chosen) == 4 - components
+
+isolated = [edge for edge in links if 3 not in edge[1:]]
+chosen, total, components = wiring_plan(4, isolated)
+print(&quot;After isolating D:&quot;, total, components)
+assert total == 3 and components == 2
+</code></pre><p>Önce çıktıyı tahmin et. Sonra CD maliyetini 4’ten 10’a çıkar: yerine 5 maliyetli BD seçilir, tek bileşenle toplam 8 olur. Sonraki deneyden önce örneği geri yükle. Maliyet değiştirince beklenen toplam doğrulamasını da güncelle. D’ye değen her bağlantıyı kaldırmak farklıdır: tam bağlılığı imkânsız yapar.</p>
+<h3>Geçerliliği ve optimumluğu ayrı denetle</h3><p>Dönen her kenar mevcut aday olmalı; maliyetini bir kez topla. Bağlılığı ve döngüsüzlüğü denetlemek için seçilen yönsüz bağlantıları bağımsız dolaş. Ormanda kabul+bileşen=n olur. Bu kontroller yapıyı doğrular, minimum maliyeti değil: üçgenin AB+AC ağacı geçerlidir ama optimum 4 yerine 5 tutar. Küçük grafta kapsayan ağaçları sayarak optimumu kontrol edebilirsin; büyük testte bağımsız MST yöntemiyle karşılaştır.</p>
+</section>
 <section id="common-mistakes">
 <h2>Sık yapılan hatalar</h2><ul><li>Bileşenlere bakmadan en ucuz üç kabloyu almak.</li><li>Atlanan bağlantıları toplama katmak.</li><li>Ormanı tam bağlantı saymak.</li></ul>
 <h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>Spanning tree / Kapsayan ağaç</dt><dd>Bütün istasyonları bağlayan döngüsüz kenarlar.</dd><dt>Component / Bileşen</dt><dd>Şu anda birbirine bağlı istasyonlar.</dd><dt>Spanning forest / Kapsayan orman</dt><dd>Bağlantısız her grup için bir ağaç.</dd></dl>
 </section>
+<section id="work-and-order"><h2>Sıralama ve bağlılık farklı işler yapar</h2>
+<aside class="week-reminder"><h3><a href="../../w6/tr/">Hatırlayalım: Hafta 6</a> · Önce sırala, sonra sırayı kullan</h3><p>Medyan süzmede [7,2,3,2,100] sıralanınca [2,2,3,7,100] olur ve ortadaki 3 okunur. Kruskal tam kenar kayıtlarını sıralar: (3,A,C),(1,A,B),(2,B,C) sırası AB:1,BC:2,AC:3 olur. Sonra ortayı almak yerine gerektiği kadar tüm sırayı inceleriz.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w7/tr/">Hatırlayalım: Hafta 7</a> · Öbek en ucuzdan erişim sağlayabilir</h3><p>4,1,3 öncelikli min-öbek sırada 1’i verir. Benzer şekilde kenarları artan maliyetle sunabilir. Bu derste tam kenar listesi elimizde olduğundan sorted(links) daha basittir. Sıradaki kenarı öbek veya sıralama verse de aynı bileşeni reddetme kontrolü zorunludur.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w3/tr/">Hatırlayalım: Hafta 3</a> · Ucuz kenar otomatik olarak uygun değildir</h3><p>Sıralı [10,20,30,40] içinde 30’u ikili arama anahtarı bulur. AC’yi kabul etmenin mevcut A–B–C yolunu kapatıp kapatmadığını söylemez. Sıralama sıradaki adayı, DSU ise uçların zaten bağlı olup olmadığını belirler.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w2/tr/">Hatırlayalım: Hafta 2</a> · İstasyonları ve bağlantıları ayrı say</h3><p>n kaydı taramak doğrusal, tüm çiftleri karşılaştırmak karesel büyür. Burada V istasyon, E mevcut bağlantı sayısıdır. DSU başlatma O(V), sıralama O(E log E) tutar. Boyuta göre dengeleme ve yolu yarılama ile union–find işlemlerinin amortize maliyeti sabite çok yakındır; geleneksel olarak ters Ackermann fonksiyonu α(V) ile yazılır. Yararlı toplam sınır O(V + E log E + E α(V))’dir.</p></aside>
+<p>“Amortize”, işlem dizisi boyunca ortalama maliyeti anlatır; her kök yürüyüşünün tam bir adım olduğu anlamına gelmez. Python sorted kenar-listesi kopyası oluşturur; küçük örnekte dönen seçilmiş kenarlar dahil ek bellek O(V+E)’dir. Çok istasyonlu ama hiç bağlantısız ağ bile O(V) kurulum ister; bu terimi sıralamanın içinde gizleme.</p>
+<aside class="week-reminder"><h3><a href="../../w1/tr/">Hatırlayalım: Hafta 1</a> · Erken durmanın ne zaman geçerli olduğunu bil</h3><p>8’den büyük herhangi bir ölçüm arayan tarama [2,9,12] içinde ilk eşleşmede durabilir. Kruskal V≥1 için V−1 başarılı birleştirmeden sonra durabilir; tek bileşen kalmıştır. Yalnız V−1 bağlantıyı incelemek yetmez: reddedilenler bileşen birleştirmez. Öğretim kodu döngü basit kalsın diye tüm kenarları tarar.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>Zincir ve ek bağlantılar içeren küçük ve büyük ağlarda Kruskal’ı ölç. Kabul edilen kenarları ve toplamı yaz. Son istasyona değen bütün bağlantıları silip bileşen sayısını kontrol et.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p class="lesson-note">Deney (kabul edilen kenar sayısı, toplam maliyet, bileşenler) döndürür. Küçük örnek seçilen kenarları da verir. İkisi de yeniden okunabilir (maliyet,a,b) listesi, negatif olmayan tam sayı kurulum maliyetleri, tam sayı n≥0 ve 0…n−1 uç numaralarını alır. Fiziksel yönsüz aday için tek kayıt yeter; ters kopya gerekmez. Yeni girdi kontrolleri sıralamadan önce geçersiz uç ve maliyetleri reddeder.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -63,6 +147,13 @@ def measure(label, job, repeats=200):
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
 def kruskal(n, links):
+    if type(n) is not int or n &lt; 0:
+        raise ValueError(&quot;n must be a nonnegative integer&quot;)
+    for cost, a, b in links:
+        if type(cost) is not int or cost &lt; 0:
+            raise ValueError(&quot;Use nonnegative integer installation costs&quot;)
+        if any(type(v) is not int or not 0 &lt;= v &lt; n for v in (a, b)):
+            raise ValueError(&quot;Endpoints must be integer IDs from 0 to n-1&quot;)
     parent = list(range(n))
     size = [1] * n
 
@@ -94,7 +185,10 @@ for n in (20, 200):
     isolated = [(cost, a, b) for cost, a, b in links if n - 1 not in (a, b)]
     assert kruskal(n, isolated)[2] == 2
 </code></pre>
-<h3>Deney adımları</h3>
+<h3>Beklenen sayılar ve sınır durumları</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Girdi</th><th scope="col">Kabul / toplam / bileşen</th><th scope="col">Yorum</th></tr></thead><tbody><tr><th scope="row">20 istasyonlu başlangıç</th><td>19 / 54 / 1</td><td>Tam bağlı</td></tr><tr><th scope="row">200 istasyonlu başlangıç</th><td>199 / 584 / 1</td><td>Tam bağlı</td></tr><tr><th scope="row">n=0, links=[]</th><td>0 / 0 / 0</td><td>Boş orman; bağlanacak istasyon yok</td></tr><tr><th scope="row">n=1, links=[]</th><td>0 / 0 / 1</td><td>Tek istasyon zaten ağaç oluşturur</td></tr><tr><th scope="row">n=4, links=[]</th><td>0 / 0 / 4</td><td>Dört yalıtılmış istasyon</td></tr><tr><th scope="row">n=2, links=[(0,0,1)]</th><td>1 / 0 / 1</td><td>Sıfır maliyet geçerli bağlantıdır</td></tr></tbody></table></div>
+<p>Her kabul edilen kenar bileşen sayısını tam bir azaltır; dolayısıyla bileşen=V−kabul olur. (2,0,0) öz-döngüsü uçları aynı köke sahip olduğundan atlanır. Aynı istasyonlar arasında paralel adaylara izin vardır; ucuz önce incelenir, sonraki gereksizler atlanır. Girdi listesini ters çevirmek eşit maliyet işleme sırasını ters çevirmez: sorted tam üçlüleri karşılaştırır. Maliyeti artan tutup uç eşitliklerini ters çevirmek için key=lambda e: (e[0],-e[1],-e[2]) kullan.</p>
+<p>Ölçüm girdi kontrollerini, DSU belleğini, sıralamayı ve kenar taramasını içerir. Yapay ağı kurmak ve yalıtma testi ölçülen işin dışındadır. Gösterilen medyan ve maksimum beş grup ortalamasını özetler; tek çağrı için en kötü durum garantisi değildir. Maliyet yanında bağlılığı kaydet: ucuz bağlantısız yanıt özgün isteği karşılamaz.</p><h3>Deney adımları</h3>
 <p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
 <ol class="tool-steps"><li>İki başlangıç ağını çalıştır. Sürenin yanında kabul edilen kenar sayısı, maliyet ve bileşenleri yaz.</li><li>Küçük çözümlü örneğin bağlantılarını oluştur. Eşit ağırlıklı girdileri ters çevir. Başlangıç kodu üçlüleri bütünüyle sıraladığı için girdi sırası tek başına eşitliği değiştirmeyebilir. Farklı kural için önce maliyete göre, eşitlikte uçlara göre ters sırala.</li><li>Bir istasyona değen tüm kenarları kaldırıp dene. Kabul edilen kenar sayısı ile bileşen sayısının toplamı istasyon sayısına eşit mi?</li></ol>
 <details><summary>Kopyalanabilir deney kodu</summary>
@@ -114,11 +208,16 @@ print(kruskal(4, links), kruskal(4, without_cd), kruskal(4, without_d))</code></
 <p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
 <ol class="tool-steps"><li>Kapanmadan önce Kruskal’ı izle. Seçilen kenarları, bileşen sayısını ve maliyeti yaz.</li><li>CD’yi kaldır ve yeniden izle. Bütçeyle karşılaştır. BD de kaldırılırsa sonucu tanımla.</li><li>En küçük kapsayan ağacın yedeklilik sağlayıp sağlamadığını ve hangi yeni koşulun problemi değiştireceğini açıkla.</li></ol>
 <details><summary>Örnek çözümü karşılaştır</summary><p>İlk durumda AB, CD ve BC maliyet 4 tutar. CD olmadan AB, BC ve BD maliyet 7 ile bütçeyi aşar. BD de kalkarsa D yalıtılır ve iki bileşenli orman kalır. Ağaç iki düğüm arasında tek yol içerir. Yedekli ağ ek bağlantılara izin vermeli ve bir arıza ölçütü içermelidir.</p></details>
-</section>
+<h3>Bağlılık, bütçe ve dayanıklılık ayrı kararlardır</h3>
+<p>Bu tasarım görevi kâğıt izinden farklı maliyetler kullanır: CD 1, BD 4 tutar. Hesabın yanında girdiyi yazılı tut.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Mevcut bağlantılar</th><th scope="col">Seçilen plan</th><th scope="col">Toplam / bileşen</th><th scope="col">Bütçe 6 kararı</th></tr></thead><tbody><tr><th scope="row">Tüm özgün tasarım bağlantıları</th><td>AB, CD, BC</td><td>4 / 1</td><td>Bağlı ve bütçeye uygun</td></tr><tr><th scope="row">CD kaldırıldı</th><td>AB, BC, BD</td><td>7 / 1</td><td>Bağlı ama bütçeyi aşıyor</td></tr><tr><th scope="row">CD ve BD kaldırıldı</th><td>AB, BC</td><td>3 / 2</td><td>D yalıtılmış; tam çözüm değil</td></tr></tbody></table></div>
+<p>Ağaçta her düğüm çifti arasında tam bir yol vardır. Bu yüzden kurulu her ağaç kenarı köprüdür; kaybedilirse ağ ayrılır. Bir yedek kenar eklemek yalnız oluşturduğu döngünün kenarlarını korur; her istasyonu her arızaya karşı otomatik korumaz. Örneğin özgün AB,BC,CD ağacına AC eklemek ABC üçgenini korur ama CD hâlâ D’nin tek bağlantısıdır.</p>
+<p>Koşul “herhangi tek kablo arızasından sonra bağlı kal” olursa köprüsüz ağ planla ve izin verilen her tek-kenar kaldırmayı doğrula. Bu farklı en iyileştirme problemidir; yalnız MST bunu kanıtlayamaz. İnşaattan önce kullanılamayan kablo güzergâhını, inşaattan sonraki arızadan da ayır. Güncel aday kümesiyle yeniden hesapla; sonra hem yapılabilirliği hem bütçe sonucunu bildir.</p>
+<h3>Modeli başka ortamda kullan</h3><p>Aynı graf modeli kampüs binalarını fiberle veya istasyonları bakım erişim bağlantılarıyla birleştirebilir. Ağırlık gerçek amacı temsil etmelidir: inşaat maliyeti, kablo uzunluğu veya başka toplanabilir kurulum ölçüsü. Bağlantılar tek yönlü, bant genişliği sınırlı veya yedekli olmak zorundaysa Kruskal’ın bunları çözdüğünü varsaymak yerine koşulları açıkça yaz.</p></section>
 <section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
 <p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
-<ol class="practice-list"><li><p>AC neden atlanır?</p><details><summary>Yanıtı göster</summary><p>A ile C arasında zaten yol var. AC döngü oluşturur.</p></details></li><li><p>D yalıtılmışsa ne olur?</p><details><summary>Yanıtı göster</summary><p>Kapsayan ağaç yoktur. Kruskal bir orman döndürür.</p></details></li><li><p>Ağaç A’dan her istasyona yol uzunluğunu en aza indirir mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Toplam kurulum maliyetini en aza indirir.</p></details></li></ol></section>
-<section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>Dört istasyonlu ağaç kaç kenarlı?</p><details><summary>Yanıtı göster</summary><p>Üç.</p></details></li><li><p>Kabul edilen toplam nedir?</p><details><summary>Yanıtı göster</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Eşit maliyetli kenarlar farklı sonuçlara yol açar mı?</p><details><summary>Yanıtı göster</summary><p>Evet. Farklı ağaçların en düşük toplamı aynı olabilir.</p></details></li><li><p>Kenar seçmeden önce bileşen testi neyi söyler?</p><details><summary>Yanıtı göster</summary><p>Uçların önceden bağlı olup olmadığını.</p></details></li><li><p>10 istasyon ve 3 bileşen içeren ormanda kaç kenar vardır?</p><details><summary>Yanıtı göster</summary><p>7.</p></details></li></ol></section>
+<ol class="practice-list"><li><p>Kâğıt örneğinde AB ve BC kabul edildikten sonra AC neden atlanır?</p><details><summary>Yanıtı göster</summary><p>A ile C arasında zaten yol var. AC döngü oluşturur.</p></details></li><li><p>D yalıtılmışsa ne olur?</p><details><summary>Yanıtı göster</summary><p>Kapsayan ağaç yoktur. Kruskal bir orman döndürür.</p></details></li><li><p>Ağaç A’dan her istasyona yol uzunluğunu en aza indirir mi?</p><details><summary>Yanıtı göster</summary><p>Hayır. Toplam kurulum maliyetini en aza indirir.</p></details></li></ol></section>
+<section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>Dört istasyonlu ağaç kaç kenarlı?</p><details><summary>Yanıtı göster</summary><p>Üç.</p></details></li><li><p>AB:1, BC:2, AC:3, CD:4, BD:5 kâğıt örneğinde kabul edilen toplam nedir?</p><details><summary>Yanıtı göster</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Eşit maliyetli kenarlar farklı sonuçlara yol açar mı?</p><details><summary>Yanıtı göster</summary><p>Evet. Farklı ağaçların en düşük toplamı aynı olabilir.</p></details></li><li><p>Kenar seçmeden önce bileşen testi neyi söyler?</p><details><summary>Yanıtı göster</summary><p>Uçların önceden bağlı olup olmadığını.</p></details></li><li><p>10 istasyon ve 3 bileşen içeren ormanda kaç kenar vardır?</p><details><summary>Yanıtı göster</summary><p>7.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
 <p>Her istasyon bağlı kalmalıysa iki bileşenli ucuz orman neden yetersizdir?</p>
 <p>Tek başına iki veya üç cümle yaz. Bugünkü bir sayımı, ölçümü veya iz adımını gerekçe olarak kullan.</p><details><summary>Örnek çıkış yanıtı</summary><p>İki bileşende birbirine ulaşamayan istasyonlar vardır. Ödenen maliyet yalnız bileşen içi bağlantıları karşılar. Tam kapsama için tek bileşen gerekir veya bunun mümkün olmadığı bildirilmelidir.</p></details>
