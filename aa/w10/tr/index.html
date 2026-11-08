@@ -11,6 +11,10 @@
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.astar-figure{margin:28px 0}.astar-grid{display:block;width:100%;max-width:560px;height:auto;margin:0 auto 16px}.astar-grid text{font:18px system-ui;fill:#243d32;text-anchor:middle}.astar-grid rect{stroke:#577564;stroke-width:1.5}.astar-grid .small{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:580px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.astar-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -24,23 +28,40 @@
 <p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Sıfır maliyetli hücrelerde sezgiyi denetle</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#why-astar">Neden A*?</a><a href="#small-example">Küçük Python örneği</a><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Sıfır maliyetli hücrelerde sezgiyi denetle</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
 </section>
+<section id="why-astar"><h2>Aynı en iyi yol, daha az arama?</h2><p>Depo robotu hangi şarj istasyonuna gideceğini biliyor. Dijkstra her yöndeki ucuz yolları araştırıyor. Daha pahalı bir yanıtı kabul etmeden istasyona yönelen yollara öncelik verebilir miyiz? A*, aynı maliyet hedefini koruyup adayların incelenme sırasını değiştirir. Buradaki “daha hızlı”, planlama süresidir; robotun fiziksel olarak daha hızlı gitmesi değildir.</p>
+<aside class="week-reminder"><h3><a href="../../w9/tr/">Hatırlayalım: Hafta 9</a> · Maliyeti koru, önceliği değiştir</h3><p>S999G / .###. / ..... haritasında Dijkstra, maliyeti 28 olan dört hamle yerine maliyeti 8 olan sekiz hamleli alt yolu buldu. A*, geçerli sezgiyle yine maliyet 8’i bulmalıdır. Dijkstra adayları g’ye, A* ise g+h’ye göre sıralar.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w8/tr/">Hatırlayalım: Hafta 8</a> · En az hamle farklı bir amaçtır</h3><p>BFS her hamleyi eşit saydığı için dört hamleli üst yolu seçti. Her hamle 1 tutarsa en az hamle ile en düşük maliyet aynı anlama gelir. Ağırlıklı arazide farklılaşabilirler; A* Dijkstra’nın en düşük toplam maliyet amacını korur.</p></aside>
+<h3>Üç sayı, üç farklı görev</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Simge</th><th scope="col">Anlam</th><th scope="col">Bir adaydaki örnek</th></tr></thead><tbody><tr><th scope="row">g</th><td>Şimdiye dek bulunan yolun maliyeti</td><td>Şimdiye dek 3 enerji birimi ödendi</td></tr><tr><th scope="row">h</th><td>Kalan maliyetin alt sınır tahmini</td><td>En az 5 birim daha</td></tr><tr><th scope="row">f = g + h</th><td>Bu yol adayının önceliği</td><td>3 + 5 = 8</td></tr></tbody></table></div>
+<p>Daha ucuz yol bulununca kayıtlı g iyileşebilir. h hücre ve hedeften hesaplanır; o hücreye hangi yoldan gelindiğini hatırlamaz. f sıralama için kullanılan tahmindir, harcanmış enerji değildir. Hedefte h=0 olduğundan f=g olur. Hedefe varmadan f’yi son rota maliyeti olarak raporlama.</p></section>
 <section id="concepts">
 <h2>Aramayı alt sınırla hedefe yönlendir</h2>
 <h3>Bu derste yapabileceklerin</h3><ul><li>g, h ve f’yi ayır.</li><li>Dört yönlü ızgarada Manhattan uzaklığını hesapla.</li><li>h = 0 ile A* ve Dijkstra’yı karşılaştır.</li><li>Sezgiyi adım maliyetlerine karşı denetle.</li></ul>
-<h3>Başlamadan önce</h3><p>Dijkstra bilinen en küçük yol maliyetini çıkarır. A* bu maliyeti ayrı tutar ve öbek önceliğini değiştirir.</p>
+<aside class="week-reminder"><h3><a href="../../w7/tr/">Hatırlayalım: Hafta 7</a> · Öbek en küçük önceliği verir</h3><p>Öbekte 10 ve 4 öncelikleri varsa önce 4 çıkar. Burada kayıtlar (f=10, hücre=(0,1), g=9) ve (f=4, hücre=(1,0), g=1)’dir. g’yi ayrı tut: eski kayıt kontrolü f değerlerini değil, kayıtlı yol maliyetlerini karşılaştırır. Demet sırası (f, hücre, g)’dir; eşitlikte önce satır, sonra sütun kullanılır.</p></aside>
 <p>A*’ta g yolun şimdiye dek maliyeti, h kalan maliyet tahmini, f = g + h öbek önceliğidir. Manhattan uzaklığı gerekli yatay ve düşey hamleleri sayar. Bunu bir yasal hamlenin maliyeti için alt sınırla çarp.</p><p>Geçerli sezgi kalan gerçek maliyeti aşmaz. Izgarada her adım Manhattan uzaklığını en çok bir değiştirir. Ölçekli tahmin de bir hamlenin maliyetinden fazla değişmez. h sıfır olursa öncelik g olur ve aynı eşitlik kuralıyla Dijkstra sırası elde edilir.</p>
-<figure class="concept-figure">
+<figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 285 208" role="img" aria-label="İki satırlı S9G ve üç boş hücre haritası"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="73">S</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#f7e5bc"/><text x="150" y="73">9</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="73">G</text><text class="small" x="15" y="73">0</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="153">.</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="153">.</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="153">.</text><text class="small" x="15" y="153">1</text><text class="small" x="70" y="16">0</text><text class="small" x="150" y="16">1</text><text class="small" x="230" y="16">2</text></svg><figcaption>9’a giriş dokuz, nokta veya G’ye giriş bir birimdir. Başlangıç maliyeti sıfırdır. İzin verilen hareketler yukarı, sağ, aşağı ve soldur.</figcaption></figure><figure class="concept-figure">
 <figcaption>Çözümlü öncelikler · S9G / ... satırları, asgari adım maliyeti 1</figcaption>
 <ol class="concept-frames"><li><strong>S, (0,0)</strong><span>g = 0, h = 2, f = 2.</span></li><li><strong>Sağ komşu (0,1)</strong><span>g = 9, h = 1, f = 10.</span></li><li><strong>Alt komşu (1,0)</strong><span>g = 1, h = 3, f = 4. Önce bu aday çıkar.</span></li></ol>
 </figure>
 <p>Daha doğrudan görünen komşunun h’si küçük ama g’si büyüktür. Aşağı, sağ, sağ, yukarı rotası 4 tutar. Doğrudan rota 10 tutar. Başka bir haritada A* daha az hücre çıkarabilir, ancak h hesabı da iş gerektirir.</p>
+<h3>Manhattan uzaklığını hamle sayarak hesapla</h3>
+<p><strong>h(r,c) = m × (|r−r<sub>G</sub>| + |c−c<sub>G</sub>|)</strong></p>
+<p>m, her yasal hamlenin maliyeti için negatif olmayan bir alt sınırdır. (1,0)’dan G=(0,2)’ye en az bir düşey ve iki yatay hamle gerekir: uzaklık 3. m=1 iken h=3’tür. Küçük haritada bu hücrede g=1 olduğundan f=1+3=4 olur. Engel ek hamle gerektirebilir; ama engeli yok saymak bu tahmini gereğinden büyük yapmaz.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Güncel çıkarma</th><th scope="col">g</th><th scope="col">h</th><th scope="col">f</th><th scope="col">İşlem</th></tr></thead><tbody><tr><th scope="row">(0,0) S</th><td>0</td><td>2</td><td>2</td><td>Sağı f=10, altı f=4 ile keşfet</td></tr><tr><th scope="row">(1,0)</th><td>1</td><td>3</td><td>4</td><td>(1,1) için g=2 kaydet</td></tr><tr><th scope="row">(1,1)</th><td>2</td><td>2</td><td>4</td><td>(1,2) için g=3 kaydet</td></tr><tr><th scope="row">(1,2)</th><td>3</td><td>1</td><td>4</td><td>G’yi g=4 ile keşfet</td></tr><tr><th scope="row">(0,2) G</th><td>4</td><td>0</td><td>4</td><td>Dur; maliyet 4 ve dört hamle döndür</td></tr></tbody></table></div>
+<p>Pahalı (0,1) adayı durduğumuzda öbekte kalır. Alt yol beş hücre, dört hamle içerir. Yalnız h kullanan açgözlü arama önce (0,1)’i, sonra G’yi seçip bu haritada maliyet 10 döndürür. A* hem ödenen bedeli hem kalan tahmini kullanır.</p>
+<aside class="week-reminder"><h3><a href="../../w4/tr/">Hatırlayalım: Hafta 4</a> · Sıradaki hücreyi artık FIFO seçmez</h3><p>Kuyruğa önce sağ, sonra alt eklenirse FIFO önce sağı verir. Bu örnekte f değerleri 10 ve 4 olduğundan öncelik kuyruğu önce altı verir. Komşu üretme sırası ile arama sınırından çıkarma sırası ayrı kararlardır.</p></aside>
+<h3>Tahmini güvenilir yapan iki koşul</h3>
+<p><strong>Kabul edilebilir:</strong> 0≤h(v)≤gerçek en ucuz kalan maliyet ve h(G)=0. Yukarıdaki (1,0) için h=3, kalan gerçek maliyet 3’e eşittir. S’de h=2, gerçek en iyi maliyet 4’ün altındadır; iyimser tahmine izin vardır.</p>
+<p><strong>Tutarlı:</strong> her yasal u→v kenarı için h(u)≤maliyet(u,v)+h(v). Dört yönlü tek hamle Manhattan uzaklığını en çok 1 değiştirir; m ile çarpınca değişim en çok m olur ve hamle maliyetini aşmaz. (1,0)→(1,1) için 3≤1+2. h(G)=0 ile tutarlılık, G’ye giden her yol boyunca kabul edilebilirliği sağlar.</p>
+<p>Bu tutarlı sezgiyle güncel minimum-f çıkarma, hücrenin g maliyetini kesinleştirir. Hedef kontrolünden önce eski kayıtları atla; hedef ilk eklenince değil, çıkarılınca dur. Kod iyileşen hücreleri yeniden kuyruğa alır; kalıcı kapalı küme kullanmaz. Daha sonra kabul edilebilir ama tutarsız sezgi kullanırsan bu yeniden açma önem taşır. Fakat gereğinden büyük tahmin yapan sezginin erken hedefte yanlış sonuç vermesini önlemez.</p>
+<aside class="week-reminder"><h3><a href="../../w1/tr/">Hatırlayalım: Hafta 1</a> · Durma kuralının doğruluk gerekçesi olmalı</h3><p>[2,9,12] içinde 8’den büyük herhangi bir değer arayan tarama 9’da durabilir. En ucuz yol ise herhangi bir yanıtı değil, en iyi yanıtı ister. A* ancak açıklanan sezgi ve yeniden açma koşulları altında güncel hedef çıkarmasında durabilir.</p></aside>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <figure><pre aria-label="Robotun ortak ızgarası">S999G
 .###.
-.....</pre><figcaption>S başlangıç, G hedef, # engel. Satır ve sütunlar sıfırdan başlar.</figcaption></figure><p>Ortak haritada f = g + h kullan. g bilinen yol maliyeti, h Manhattan uzaklığı çarpı en düşük adım maliyeti olan 1’dir. S ve ilk iki komşunun f değerini hesapla. En küçük f değerini genişlet. Rotayı ve genişletme sayısını yaz.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
+.....</pre><figcaption>S başlangıç, G hedef, # engel. Satır ve sütunlar sıfırdan başlar.</figcaption></figure><p>Ortak haritada f = g + h kullan. g bilinen yol maliyeti, h Manhattan uzaklığı çarpı en düşük adım maliyeti olan 1’dir. S ve ilk iki komşunun f değerini hesapla. En küçük f değerini genişlet. Rotayı ve güncel çıkarma sayısını yaz.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
 <details><summary>İzi karşılaştır</summary><p>S için f = 0 + 4 = 4. Üst komşu için f = 9 + 3 = 12. Alt komşu için f = 1 + 5 = 6. Engeller adım ekleyebilir. Her hareket Manhattan uzaklığını en çok bir değiştirir, bu yüzden en az birim maliyetli hareketlerde tahmin tutarlıdır. Alt rota yine 8 tutar.</p><table class="robot-table"><thead><tr><th scope="col">Çıkarılan</th><th scope="col">g + h</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>4</td></tr><tr><th scope="row">(1,0)</th><td>6</td></tr><tr><th scope="row">(2,0)</th><td>8</td></tr><tr><th scope="row">(2,1)</th><td>8</td></tr><tr><th scope="row">(2,2)</th><td>8</td></tr><tr><th scope="row">(2,3)</th><td>8</td></tr><tr><th scope="row">(2,4)</th><td>8</td></tr><tr><th scope="row">(1,4)</th><td>8</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details><details><summary>Üç cümlelik örnek açıklama</summary><p>S’de f 4’tür. Sağ komşuda f = 12, alt komşuda f = 6 olduğundan önce alt komşu genişletilir. Ölçekli Manhattan burada geçerlidir ve bulunan rota 8 tutar.</p></details>
 
 <h3>Sezgi önceliklerini ve alt sınırları karşılaştır</h3>
@@ -48,13 +69,68 @@
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>S’nin sağ ve alt komşularında g = 1. Sağda h = 2 ve f = 3. Altta h = 4 ve f = 5.</li><li>A* üst sırayı izler ve S dahil dört çıkarmada hedefe ulaşır. h = 0 kullanan Dijkstra önce başka satırlardaki hücreleri de inceler.</li><li>Engel dolambaç gerektirebilir. Dört yönlü hamle sayısını Manhattan uzaklığının altına düşüremez. Maliyet tahmini en düşük yasal adım maliyetini kullanır.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
+<section id="small-example"><h2>A* gereksiz yönleri nasıl eliyor?</h2>
+<figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 365 368" role="img" aria-label="Hedefi sıfır üç olan açık dört çarpı dört ızgarada Manhattan değerleri"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="57">S</text><text class="small" x="70" y="82">h=3</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="57">.</text><text class="small" x="150" y="82">h=2</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="57">.</text><text class="small" x="230" y="82">h=1</text><rect x="275" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="57">G</text><text class="small" x="310" y="82">h=0</text><text class="small" x="15" y="73">0</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="137">.</text><text class="small" x="70" y="162">h=4</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="137">.</text><text class="small" x="150" y="162">h=3</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="137">.</text><text class="small" x="230" y="162">h=2</text><rect x="275" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="137">.</text><text class="small" x="310" y="162">h=1</text><text class="small" x="15" y="153">1</text><rect x="35" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="217">.</text><text class="small" x="70" y="242">h=5</text><rect x="115" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="217">.</text><text class="small" x="150" y="242">h=4</text><rect x="195" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="217">.</text><text class="small" x="230" y="242">h=3</text><rect x="275" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="217">.</text><text class="small" x="310" y="242">h=2</text><text class="small" x="15" y="233">2</text><rect x="35" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="297">.</text><text class="small" x="70" y="322">h=6</text><rect x="115" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="297">.</text><text class="small" x="150" y="322">h=5</text><rect x="195" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="297">.</text><text class="small" x="230" y="322">h=4</text><rect x="275" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="297">.</text><text class="small" x="310" y="322">h=3</text><text class="small" x="15" y="313">3</text><text class="small" x="70" y="16">0</text><text class="small" x="150" y="16">1</text><text class="small" x="230" y="16">2</text><text class="small" x="310" y="16">3</text></svg><figcaption>h sayıları kalan maliyet tahminidir, giriş maliyeti değildir. Her hamle 1 tutar. Satır ve sütun sıfırdan başlar.</figcaption></figure>
+<p>İki yöntem de maliyet 3 bulur. Dijkstra durmadan önce yedi hücre çıkarır; A* yalnız üst sıradaki dört hücreyi çıkarır. Sıra belirtilen eşitlik kuralına bağlıdır. Bu bağımsız örneği çalıştır; sonra hedefi (3,3) yapıp kazancın korunup korunmayacağını tahmin et. Hedefi değiştirirken sondaki doğrulamaları kaldır veya güncelle.</p>
+<pre class="python-example" data-python="2"><code>from heapq import heappop, heappush
+
+def search(use_heuristic):
+    # A fixed, open 4 x 4 grid: every move costs 1.
+    start, goal = (0, 0), (0, 3)
+    def h(cell):
+        distance = abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
+        return distance if use_heuristic else 0
+
+    heap = [(h(start), start, 0)]
+    costs = {start: 0}
+    parents = {start: None}
+    popped = []
+    while heap:
+        priority, cell, cost = heappop(heap)
+        if cost != costs[cell]:
+            continue
+        popped.append(cell)
+        if cell == goal:
+            path = []
+            while cell is not None:
+                path.append(cell)
+                cell = parents[cell]
+            return cost, popped, path[::-1]
+        r, c = cell
+        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            neighbor = (r + dr, c + dc)
+            nr, nc = neighbor
+            if 0 &lt;= nr &lt; 4 and 0 &lt;= nc &lt; 4:
+                candidate = cost + 1
+                if candidate &lt; costs.get(neighbor, float(&quot;inf&quot;)):
+                    costs[neighbor] = candidate
+                    parents[neighbor] = cell
+                    heappush(heap, (candidate + h(neighbor), neighbor, candidate))
+
+for name, enabled in [(&quot;Dijkstra&quot;, False), (&quot;A*&quot;, True)]:
+    cost, pops, path = search(enabled)
+    print(name, &quot;cost:&quot;, cost, &quot;pops:&quot;, len(pops))
+    print(&quot;Order:&quot;, pops)
+    print(&quot;Path:&quot;, path)
+    assert cost == 3
+    assert len(pops) == (4 if enabled else 7)
+</code></pre>
+<p>Aynı açık haritada hedef (3,3) ise en iyi yoldan ulaşılan her hücrede g+h=6 olur. Eşitlikte satır-sütun sırası kullanıldığında iki yöntem de hedefe kadar 16 hücrenin tamamını çıkarır. Kalan uzaklığı tam bilmek, eşit-f adayları arasındaki tüm işi ortadan kaldırmaz. Farklı eşitlik kuralı, en iyi maliyeti değiştirmeden sayıyı değiştirebilir.</p>
+<aside class="week-reminder"><h3><a href="../../w5/tr/">Hatırlayalım: Hafta 5</a> · İki sözlük yolu korur</h3><p>costs[(0,2)] = 2 bilinen en iyi g’yi, parents[(0,2)] = (0,1) ise önceki hücreyi saklar. Daha sonra g=3 adayı gelirse 3, 2’den küçük olmadığı için reddet. G’den ebeveynleri takip edip zinciri ters çevir; öbeğin kendisi yol değildir.</p></aside>
+</section>
 <section id="common-mistakes">
 <h2>Sık yapılan hatalar</h2><ul><li>Yalnız h’ye göre sıralamak.</li><li>f’yi harcanan maliyet diye raporlamak.</li><li>Sıfır maliyetli adım varken ölçeklenmemiş Manhattan kullanmak.</li></ul>
 <h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>Heuristic / Sezgi</dt><dd>Kalan maliyetin tahmini.</dd><dt>Lower bound / Alt sınır</dt><dd>Gerçek maliyeti aşamayan değer.</dd><dt>Priority / Öncelik</dt><dd>Adayları sıralayan f değeri.</dd></dl>
 </section>
+<section id="search-work"><h2>Az arama yararlıdır; işin tamamını ölç</h2>
+<aside class="week-reminder"><h3><a href="../../w2/tr/">Hatırlayalım: Hafta 2</a> · Büyümeyi tek ölçümden ayır</h3><p>n kaydı taramak doğrusal, tüm çiftleri denemek karesel büyür. Bu dört komşulu ızgarada E≤4V’dir. Tutarlı sezgi, sabit zamanda h hesabı ve beklenen sabit zamanda sözlük erişimiyle, eski kayıtları öbekte bırakan aramanın en kötü süre sınırı O(V log V), ek belleği O(V)’dir. A* pratikte daha az hücre inceleyebilir; burada Dijkstra’dan daha iyi bir en kötü durum sınıfı vaat etmez.</p></aside>
+<p>V boş hücreleri, E yasal yönlü hareketleri sayar. Girdi doğrulama ve en düşük giriş maliyetini bulmak R×C hücrenin tamamını tarar; O(RC) ön işlemi de hesaba kat. Öbek aynı hücrenin birkaç kaydını tutabilir; dönen yolda olmayan hücreler için de ebeveyn/maliyet belleği kullanılır. Tutarsız sezgi yeniden genişletmelere yol açabilir; yukarıdaki tutarlı-sezgi sınırı ek analiz olmadan o duruma uygulanmamalıdır.</p>
+<aside class="week-reminder"><h3><a href="../../w3/tr/">Hatırlayalım: Hafta 3</a> · Öbeğin logaritması haritada ikili arama değildir</h3><p>[10,20,30,40,50,60,70,80] üzerinde ikili arama sıralı aralığı tekrar tekrar yarılar. Öbek ekleme/çıkarma ise en küçük önceliği korumak için logaritmik yükseklikte ağaç izler. A* öbek işlemini kullanır; harita hücrelerinin uzaklığa göre sıralı olduğunu varsaymaz.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w6/tr/">Hatırlayalım: Hafta 6</a> · Medyan süre örneklerini özetler</h3><p>[7,2,3,2,100] sıralanınca [2,2,3,7,100] olur; medyan 3’tür. Deney beş grup ortalamasının medyanını ve en büyük grup ortalamasını raporlar. İkisi de tek çağrının en kötü süre sınırını garanti etmez. Önce doğruluğu, sonra arama sayılarını ve geçen süreyi karşılaştır.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
-<p>Aynı harita, hedef ve eşitlik kuralıyla Dijkstra ve A*’ı karşılaştır. Açık haritada hedefin başlangıca yakın olması işi nasıl etkiler? Hücre sayısını ve süreyi yaz. h = 0 ile tekrarla.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir. Çıkarma sayısı hedefi içerir ve öbekteki eski kayıtları saymaz.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p>Aynı harita, hedef ve eşitlik kuralıyla Dijkstra ve A*’ı karşılaştır. Açık haritada hedefin başlangıca yakın olması işi nasıl etkiler? Güncel çıkarma sayısını ve süreyi yaz. h = 0 ile tekrarla.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir. Çıkarma sayısı hedefi içerir ve öbekteki eski kayıtları saymaz.</p>
+<p class="lesson-note">Standart astar sarmalayıcısı Manhattan uzaklığını geçilebilir hücrelerin en küçük giriş maliyetiyle otomatik ölçekler. Haritada sıfır varsa bu güvenli sınır h=0 olur. Ortak weighted fonksiyonu açıkça verilen sezgiyi de kabul eder; böylece deney varyasyonu kasıtlı olarak hatalı sezgiyi gösterebilir. Adı ağırlıklı graf araması anlamındadır; Weighted A* adlı ayrı yaklaşık algoritma değildir. Girdi sabit, boş olmayan dikdörtgen harita, sınırlar içinde boş uç noktalar ve . S G # veya 0–9 basamaklarından oluşmalıdır.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -64,10 +140,21 @@ def measure(label, job, repeats=200):
     longest = max(samples) * 1000 / repeats
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
-from collections import deque
 from heapq import heappop, heappush
 
 DIRECTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+
+def validate_grid(grid, start, goal):
+    if not grid or not grid[0] or any(len(row) != len(grid[0]) for row in grid):
+        raise ValueError(&quot;Use a nonempty rectangular grid&quot;)
+    if any(symbol not in &quot;.SG#0123456789&quot; for row in grid for symbol in row):
+        raise ValueError(&quot;Use only . S G # and single digits 0-9&quot;)
+    for row, col in (start, goal):
+        if not (0 &lt;= row &lt; len(grid) and 0 &lt;= col &lt; len(grid[0])):
+            raise ValueError(&quot;Endpoint outside grid&quot;)
+        if grid[row][col] == &quot;#&quot;:
+            raise ValueError(&quot;Endpoint is blocked&quot;)
 
 
 def neighbors(grid, cell):
@@ -81,7 +168,7 @@ def neighbors(grid, cell):
 def entry_cost(grid, cell):
     row, col = cell
     symbol = grid[row][col]
-    return int(symbol) if symbol.isdigit() else 1
+    return int(symbol) if symbol in &quot;0123456789&quot; else 1
 
 
 def result(grid, parents, goal, popped):
@@ -92,6 +179,9 @@ def result(grid, parents, goal, popped):
     return len(path) - 1, sum(entry_cost(grid, cell) for cell in path[1:]), popped, path
 
 def weighted(grid, start, goal, heuristic):
+    validate_grid(grid, start, goal)
+    if heuristic is None:
+        heuristic = scaled_manhattan(grid)
     frontier = [(heuristic(start, goal), start, 0)]
     costs = {start: 0}
     parents = {start: None}
@@ -119,14 +209,42 @@ def zero(cell, goal):
 def manhattan(cell, goal):
     return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
 
+def scaled_manhattan(grid):
+    minimum = min(
+        entry_cost(grid, (r, c))
+        for r, row in enumerate(grid)
+        for c, symbol in enumerate(row)
+        if symbol != &quot;#&quot;
+    )
+    def heuristic(cell, goal):
+        return minimum * manhattan(cell, goal)
+    return heuristic
+
+
+def astar(grid, start, goal):
+    return weighted(grid, start, goal, None)
+
+
+def check_path(grid, start, goal, answer):
+    moves, cost, popped, path = answer
+    if not path:
+        assert moves is None and cost is None
+        return
+    assert path[0] == start and path[-1] == goal
+    assert moves == len(path) - 1
+    for a, b in zip(path, path[1:]):
+        assert b in neighbors(grid, a)
+    assert cost == sum(entry_cost(grid, cell) for cell in path[1:])
+
+
 maps = [
-    ((&#x27;S999G&#x27;, &#x27;.###.&#x27;, &#x27;.....&#x27;), (0, 0), (0, 4)),
+    (('S999G', '.###.', '.....'), (0, 0), (0, 4)),
     ([&quot;.&quot; * 25] * 25, (12, 12), (12, 18)),
 ]
 
 planners = [
     (&quot;Dijkstra&quot;, lambda grid, s, g: weighted(grid, s, g, zero)),
-    (&quot;A*&quot;, lambda grid, s, g: weighted(grid, s, g, manhattan)),
+    (&quot;A*&quot;, astar),
 ]
 
 for grid, start, goal in maps:
@@ -134,22 +252,30 @@ for grid, start, goal in maps:
         def job():
             return planner(grid, start, goal)
 
-        moves, cost, popped, path = job()
+        answer = job()
+        check_path(grid, start, goal, answer)
+        moves, cost, popped, path = answer
         print(name, &quot;-&gt; (moves, terrain cost, popped):&quot;, (moves, cost, popped))
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
-<h3>Deney adımları</h3>
+<h3>Süre ölçmeden önce beklenen sonuçlar</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Harita</th><th scope="col">Yöntem</th><th scope="col">Hamle / maliyet</th><th scope="col">Güncel çıkarma</th></tr></thead><tbody><tr><th scope="row">S999G / .###. / .....</th><td>Dijkstra</td><td>8 / 8</td><td>9</td></tr><tr><th scope="row">S999G / .###. / .....</th><td>A*</td><td>8 / 8</td><td>9</td></tr><tr><th scope="row">Açık 25×25; (12,12) → (12,18)</th><td>Dijkstra</td><td>6 / 6</td><td>74</td></tr><tr><th scope="row">Açık 25×25; (12,12) → (12,18)</th><td>A*</td><td>6 / 6</td><td>7</td></tr></tbody></table></div>
+<p>Dar koridorda çıkarma sayısı azalmaz; açık haritada azalır. Güncel çıkarma eski kayıtları dışlar, hedefi içerir. Genişletme ise gerçekten komşuları tarar; bu yüzden hedef çıkarması genişletme değildir. Sayılar eşitlik kuralına bağlıdır; geçerli bir yöntem eşit ucuzlukta başka yol seçebilir. Dönen maliyet Dijkstra ile eşleşmelidir; geçen süre makineye bağlıdır.</p>
+<p>Süre ölçümü doğrulama, arama, yol oluşturma ve maliyet toplamını içerir. A* için en düşük giriş maliyetini bulmak da dahildir. Harita oluşturma, yazdırma ve ayrı yol kontrolü ölçülen işin dışındadır. Değişmeyen haritada tekrarlı sorgular için doğrulama ve minimum hesabını bir kez yapıp kurulum maliyetini ayrı raporlayabilirsin. Arazi değişince bu bilgiyi güncellemeden tekrar kullanma.</p>
+<h3>Sınır durumları farklı anlamlar taşır</h3><p>('S',) haritasında başlangıç=hedef=(0,0) için astar (0,0,1,[(0,0)]) döndürür: geçerli sıfır hamleli yol. ('S#G',) haritasında başlangıç=(0,0), hedef=(0,2) için (None,None,1,[]) döner: boş ama ulaşılamayan hedef. Engelli veya sınır dışı uç nokta hatalı girdidir ve ValueError üretir. Yol kontrolü geçerliliği ve hesabı denetler; bilinen en iyi sonuç veya Dijkstra karşılaştırması en iyi maliyeti denetler.</p><h3>Deney adımları</h3>
 <p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
 <ol class="tool-steps"><li>İki başlangıç haritasını çalıştır. İki planlayıcının aynı yol maliyetini bulup farklı sayıda hücre çıkarmasını açıkla.</li><li>Çözümlü açık 4 × 4 haritayı ekle. Manhattan ve sıfır sezgisiyle çalıştır. Maliyet, çıkarma ve bir süre ölçümü yaz.</li><li>Üst sırada başlangıç ile hedef arasına engel koy. Yeni uzunluğu tahmin et ve iki yöntemi çalıştır. Tahminin nerede düşük kaldığını ve bunun neden kabul edilebilir olduğunu yaz.</li></ol>
 <details><summary>Kopyalanabilir deney kodu</summary>
 <p>Örneği yükle ile başlangıç koduna dön. Kodu düzenle, aşağıdaki parçayı kodun sonuna ekle ve Çalıştır’a bas.</p>
-<pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
+<p><strong>Kasıtlı olarak geçersiz sezgi:</strong> Aşağıdaki ilk sonuç minimum enerji için yanlıştır. Bunu sıfır sezgisi ve güvenli astar sarmalayıcısıyla karşılaştır; örnek önerilen ayarı değil, bir hatayı gösterir.</p><pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
 start, goal = (0, 0), (0, 3)
 for heuristic in (manhattan, zero):
     print(heuristic.__name__, weighted(grid, start, goal, heuristic))
 assert weighted(grid, start, goal, manhattan)[1] == 3
-assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
+assert weighted(grid, start, goal, zero)[1] == 1
+print(&quot;safe A*&quot;, astar(grid, start, goal))
+assert astar(grid, start, goal)[1] == 1</code></pre>
 </details>
 <p>Teslim edilecek kayıt: tahmin, değiştirilen girdi, doğruluk kontrolü, süre ve sonucu açıklayan bir cümle.</p>
 </section>
@@ -158,10 +284,15 @@ assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
 <p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
 <ol class="tool-steps"><li>Doğrudan yolun maliyetini alttaki beş hamleli yolla karşılaştır. Önerilen sezgiyle S’nin iki komşusunun f değerini hesapla.</li><li>A* hedefi ilk çıkardığında hangi yolu döndürebilir? h = 0 ile karşılaştır ve geçerli alt sınırın hangisinde sağlandığını açıkla.</li><li>Haritayı deneye ekle. Eşit maliyetler, engeller ve sıfır maliyetli adımlar için üç satırlı kabul tablosu yaz. Sezgi geçerliyken A* ve Dijkstra maliyetlerinin eşleşmesini bekle.</li></ol>
 <details><summary>Örnek çözümü karşılaştır</summary><p>Üst yol 3, alt yol 1 tutar. Sağ komşuda f = 1 + 2 = 3. Alt komşuda f = 0 + 4 = 4, oysa en iyi rotanın kalan maliyeti 1. Ölçeklenmemiş sezgi 3 maliyetle durabilir. En düşük adım maliyeti sıfırla çarpınca h = 0 olur ve Dijkstra maliyet 1’i bulur.</p></details>
+<h3>Hatayı izle, sonra alt sınırı düzelt</h3><figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 365 208" role="img" aria-label="Sıfır maliyetli karşı örnek: üstte S11G altta 0000"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="73">S</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="73">1</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="73">1</text><rect x="275" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="73">G</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="70" y="153">0</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="150" y="153">0</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="230" y="153">0</text><rect x="275" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="310" y="153">0</text></svg><figcaption>Mavi 0 hücrelerine giriş ücretsizdir. Üst yol 1+1+1=3 tutar. Alt dolambaç 0+0+0+0+1=1 tutar.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Aday</th><th scope="col">g</th><th scope="col">Ölçeklenmemiş h</th><th scope="col">f</th><th scope="col">Sonuç</th></tr></thead><tbody><tr><th scope="row">(0,1)</th><td>1</td><td>2</td><td>3</td><td>Alt sıradan önce çıkar</td></tr><tr><th scope="row">(1,0)</th><td>0</td><td>4</td><td>4</td><td>Üst sırada f=3 kalırken bekler</td></tr><tr><th scope="row">(0,2)</th><td>2</td><td>1</td><td>3</td><td>G’yi g=3 ile keşfeder</td></tr><tr><th scope="row">(0,3) G</th><td>3</td><td>0</td><td>3</td><td>Maliyet 3 ile erken durur</td></tr></tbody></table></div>
+<p>(1,0)’da kalan yol yalnız 1 tutarken ölçeklenmemiş Manhattan 4 söyler. Sezgi fazla tahmin ettiği için hedef çıkarılınca durmanın güvencesi kaybolur. m=0 ile çarpmak geçerli alt sınırı geri getirir: A* Dijkstra’ya dönüşür ve maliyet 1 bulur. Haritanın herhangi bir yerindeki sıfır, en iyi yolla ilgisiz olsa bile bu basit küresel ölçeklemeyi ihtiyatlı yapar. Bu, mümkün olan her yararlı sezginin sıfır olması gerektiğini kanıtlamaz.</p>
+<h3>h’yi yeniden kullanmadan hareket modelini denetle</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Model değişikliği</th><th scope="col">Kısa kontrol</th><th scope="col">Sonuç</th></tr></thead><tbody><tr><th scope="row">Çapraz hamle 1 tutuyor</th><td>(0,0)→(1,1) 1 tutar, Manhattan 2 söyler</td><td>Uygun sınır kullan; sekiz yönlü birim maliyette örneğin max(|Δr|,|Δc|)</td></tr><tr><th scope="row">Ek negatif olmayan dönüş cezaları</th><td>Dönüşleri yok saymak tahmini ancak azaltır</td><td>Ölçekli Manhattan alt sınır kalır; gelecek maliyet yöne bağlıysa durum yönü içermeli</td></tr><tr><th scope="row">Ucuz ışınlanma veya uzun sıçrama</th><td>Bir hamle çok sayıda koordinat adımını kaldırabilir</td><td>Alt sınırı yeniden türet; dört yön gerekçesi artık geçerli değildir</td></tr></tbody></table></div>
 </section>
 <section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
 <p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
-<ol class="practice-list"><li><p>S’nin hangi komşusu önce genişletilir?</p><details><summary>Yanıtı göster</summary><p>f = 6 olan (1,0).</p></details></li><li><p>Manhattan uzaklığını 9 ile çarpmak neden riskli?</p><details><summary>Yanıtı göster</summary><p>Bazı adımlar 1 tutar. Tahmin gerçek kalan maliyeti aşabilir.</p></details></li><li><p>A* daha az hücre genişletip daha uzun sürebilir mi?</p><details><summary>Yanıtı göster</summary><p>Evet. h hesabı ve öbek işlemleri de zaman alır.</p></details></li></ol></section>
+<ol class="practice-list"><li><p>Ortak S999G haritasında S’nin hangi komşusu önce genişletilir?</p><details><summary>Yanıtı göster</summary><p>f = 6 olan (1,0).</p></details></li><li><p>Manhattan uzaklığını 9 ile çarpmak neden riskli?</p><details><summary>Yanıtı göster</summary><p>Bazı adımlar 1 tutar. Tahmin gerçek kalan maliyeti aşabilir.</p></details></li><li><p>A* daha az hücre genişletip daha uzun sürebilir mi?</p><details><summary>Yanıtı göster</summary><p>Evet. h hesabı ve öbek işlemleri de zaman alır.</p></details></li></ol></section>
 <section id="drills"><h2>Ek alıştırmalar</h2><ol class="practice-list"><li><p>G’de h kaçtır?</p><details><summary>Yanıtı göster</summary><p>0.</p></details></li><li><p>Hedef (0,4) ise (2,0) konumunda h kaçtır?</p><details><summary>Yanıtı göster</summary><p>6.</p></details></li><li><p>g = 3, h = 5 ise öncelik nedir?</p><details><summary>Yanıtı göster</summary><p>8.</p></details></li><li><p>h = 0 olursa A* hangi yönteme dönüşür?</p><details><summary>Yanıtı göster</summary><p>Aynı eşitlik kuralıyla Dijkstra.</p></details></li><li><p>Bazı adımlar sıfır maliyetliyse tahmini nasıl değiştirirsin?</p><details><summary>Yanıtı göster</summary><p>En düşük maliyet olarak sıfır kullan veya başka geçerli bir alt sınır kur.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 dk</p><h2>Çıkış sorusu</h2>
 <p>A* önermeden önce yol maliyeti ve çıkarma sayısını neden ayrı ayrı karşılaştırırsın?</p>

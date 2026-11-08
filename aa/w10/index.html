@@ -11,6 +11,10 @@
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.astar-figure{margin:28px 0}.astar-grid{display:block;width:100%;max-width:560px;height:auto;margin:0 auto 16px}.astar-grid text{font:18px system-ui;fill:#243d32;text-anchor:middle}.astar-grid rect{stroke:#577564;stroke-width:1.5}.astar-grid .small{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:580px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.astar-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -24,23 +28,40 @@
 <p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Audit a heuristic when the floor includes zero-cost cells</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#why-astar">Why A*?</a><a href="#small-example">Small Python example</a><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Audit a heuristic when the floor includes zero-cost cells</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
 </section>
+<section id="why-astar"><h2>Same best route, less searching?</h2><p>A warehouse robot knows which charging station it wants. Dijkstra explores cheap routes in every direction. Can we give useful preference to routes heading toward that station without accepting a more expensive answer? A* keeps the same cost objective and changes the order in which candidates are examined. Here “faster” means planning time; it does not mean the robot physically drives faster.</p>
+<aside class="week-reminder"><h3><a href="../w9/">Remember: Week 9</a> · Keep the cost, change the priority</h3><p>On S999G / .###. / ....., Dijkstra found the lower route: eight moves, cost 8, instead of four moves costing 28. A* must still find cost 8 when its heuristic is valid. Dijkstra orders candidates by g; A* orders them by g+h.</p></aside>
+<aside class="week-reminder"><h3><a href="../w8/">Remember: Week 8</a> · Fewest moves is a different objective</h3><p>BFS chose the four-move top route because each move counted equally. If every move costs 1, fewest moves and minimum cost agree. On weighted terrain they can disagree; A* keeps Dijkstra’s minimum-total-cost objective.</p></aside>
+<h3>Three numbers with three different jobs</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Symbol</th><th scope="col">Meaning</th><th scope="col">Example at a candidate</th></tr></thead><tbody><tr><th scope="row">g</th><td>Cost of the route found so far</td><td>Already paid 3 energy units</td></tr><tr><th scope="row">h</th><td>Lower-bound estimate of the cost still needed</td><td>At least 5 more units</td></tr><tr><th scope="row">f = g + h</th><td>Priority for this route candidate</td><td>3 + 5 = 8</td></tr></tbody></table></div>
+<p>The stored g may improve when a cheaper route is found. h is computed from the cell and goal; it does not remember the route taken. f is a prediction used for ordering, not energy already spent. At the goal h=0, so f=g. Before reaching the goal, do not report f as the final route cost.</p></section>
 <section id="concepts">
 <h2>Use a lower bound to aim the search</h2>
 <h3>You will be able to</h3><ul><li>Distinguish g, h and f.</li><li>Compute Manhattan distance on a four-neighbor grid.</li><li>Compare A* with Dijkstra using h = 0.</li><li>Check a heuristic against movement costs.</li></ul>
-<h3>Before you start</h3><p>Dijkstra pops the smallest known route cost. A* changes the queue priority while keeping that known cost in a separate field.</p>
+<aside class="week-reminder"><h3><a href="../w7/">Remember: Week 7</a> · The heap returns the smallest priority</h3><p>A heap containing priorities 10 and 4 returns 4 first. Here these are (f=10, cell=(0,1), g=9) and (f=4, cell=(1,0), g=1). Keep g separately: the stale-entry check compares stored route costs, not f values. Our tuple order is (f, cell, g); ties use row then column.</p></aside>
 <p>In A*, g is what the path has already cost, h is an estimate of the cost still needed, and f = g + h is the queue priority. Manhattan distance counts the required horizontal and vertical moves. Multiply it by a lower bound on the cost of one legal move.</p><p>A valid heuristic never overstates the true remaining cost. In this grid each move changes Manhattan distance by at most one, and the scaled estimate changes by no more than the cost of a move. Setting h to zero makes the priority g and recovers Dijkstra’s order with the same tie rule.</p>
-<figure class="concept-figure">
+<figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 285 208" role="img" aria-label="Two-row map S9G and three free cells"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="73">S</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#f7e5bc"/><text x="150" y="73">9</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="73">G</text><text class="small" x="15" y="73">0</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="153">.</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="153">.</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="153">.</text><text class="small" x="15" y="153">1</text><text class="small" x="70" y="16">0</text><text class="small" x="150" y="16">1</text><text class="small" x="230" y="16">2</text></svg><figcaption>Entering 9 costs nine units; entering a dot or G costs one. Start at zero cost. Legal moves are up, right, down and left.</figcaption></figure><figure class="concept-figure">
 <figcaption>Worked priorities · two rows S9G / ..., minimum step cost 1</figcaption>
 <ol class="concept-frames"><li><strong>S at (0,0)</strong><span>g = 0, h = 2, f = 2.</span></li><li><strong>Right neighbor (0,1)</strong><span>g = 9, h = 1, f = 10.</span></li><li><strong>Lower neighbor (1,0)</strong><span>g = 1, h = 3, f = 4. Pop this candidate first.</span></li></ol>
 </figure>
 <p>The direct-looking neighbor has a smaller h but a much larger g. The lower route goes down, right, right and up for cost 4, while the direct route costs 10. On another map A* may pop fewer cells than Dijkstra, while computing h still has a cost.</p>
+<h3>Calculate Manhattan distance by counting moves</h3>
+<p><strong>h(r,c) = m × (|r−r<sub>G</sub>| + |c−c<sub>G</sub>|)</strong></p>
+<p>m is a nonnegative lower bound on every legal move cost. From (1,0) to G=(0,2), at least one vertical move and two horizontal moves are necessary: distance 3. With m=1, h=3. On the small map, g=1 at that cell, so f=1+3=4. An obstacle may force extra moves, but ignoring it cannot make this estimate too large.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Current pop</th><th scope="col">g</th><th scope="col">h</th><th scope="col">f</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">(0,0) S</th><td>0</td><td>2</td><td>2</td><td>Discover right at f=10 and down at f=4</td></tr><tr><th scope="row">(1,0)</th><td>1</td><td>3</td><td>4</td><td>Improve (1,1) to g=2</td></tr><tr><th scope="row">(1,1)</th><td>2</td><td>2</td><td>4</td><td>Improve (1,2) to g=3</td></tr><tr><th scope="row">(1,2)</th><td>3</td><td>1</td><td>4</td><td>Discover G at g=4</td></tr><tr><th scope="row">(0,2) G</th><td>4</td><td>0</td><td>4</td><td>Stop; return cost 4 and four moves</td></tr></tbody></table></div>
+<p>The expensive (0,1) candidate remains in the heap when we stop. The lower route has five cells but four moves. A greedy search using h alone would prefer (0,1), then G, returning cost 10 on this map. A* uses both the price already paid and the estimate still ahead.</p>
+<aside class="week-reminder"><h3><a href="../w4/">Remember: Week 4</a> · FIFO no longer chooses the next cell</h3><p>If a queue receives right then down, FIFO returns right first. In this example their f values are 10 and 4, so the priority queue returns down first. Neighbor generation order and frontier extraction order are separate choices.</p></aside>
+<h3>Two conditions that make the estimate trustworthy</h3>
+<p><strong>Admissible:</strong> 0≤h(v)≤the true cheapest remaining cost, with h(G)=0. For (1,0) above, h=3 equals the remaining cost 3. At S, h=2 is below the actual best cost 4; being optimistic is allowed.</p>
+<p><strong>Consistent:</strong> for every legal edge u→v, h(u)≤cost(u,v)+h(v). One four-direction move changes Manhattan distance by at most 1, so multiplying by m changes the estimate by at most m, which is no larger than the move’s cost. For (1,0)→(1,1): 3≤1+2. Consistency with h(G)=0 implies admissibility along every path to G.</p>
+<p>With this consistent heuristic, a current minimum-f pop settles that cell’s g. Skip stale entries before checking the goal, and stop when the goal is popped, not when first inserted. The code allows improved cells to be queued again; it has no permanent closed set. That reopening matters if you later use an admissible but inconsistent heuristic. It does not rescue an overestimating heuristic from an incorrect early goal result.</p>
+<aside class="week-reminder"><h3><a href="../w1/">Remember: Week 1</a> · A stopping rule needs a correctness argument</h3><p>A scan of [2,9,12] for any value above 8 may stop at 9. Finding the cheapest route asks for the best answer, not any answer. A* may stop on a current goal pop only under the heuristic and reopening conditions just described.</p></aside>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <figure><pre aria-label="The shared robot grid">S999G
 .###.
-.....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>On the shared grid use f = g + h, with g the known cost so far and h the Manhattan distance to G multiplied by the minimum legal step cost, one. Compute f for S and its first two neighbors. Continue by expanding the lowest f and record the path and expansion count.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
+.....</pre><figcaption>S is the start, G is the goal and # is blocked. Rows and columns start at zero.</figcaption></figure><p>On the shared grid use f = g + h, with g the known cost so far and h the Manhattan distance to G multiplied by the minimum legal step cost, one. Compute f for S and its first two neighbors. Continue by expanding the lowest f and record the path and current-pop count.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
 <details><summary>Check your trace</summary><p>At S, f = 0 + 4 = 4. The top neighbor has f = 9 + 3 = 12. The lower neighbor has f = 1 + 5 = 6. Obstacles can add steps. Each legal move changes the Manhattan distance by at most one, so this estimate stays consistent for costs of at least one. The lower route still costs 8.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">g + h</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>4</td></tr><tr><th scope="row">(1,0)</th><td>6</td></tr><tr><th scope="row">(2,0)</th><td>8</td></tr><tr><th scope="row">(2,1)</th><td>8</td></tr><tr><th scope="row">(2,2)</th><td>8</td></tr><tr><th scope="row">(2,3)</th><td>8</td></tr><tr><th scope="row">(2,4)</th><td>8</td></tr><tr><th scope="row">(1,4)</th><td>8</td></tr><tr><th scope="row">(0,4)</th><td>8</td></tr></tbody></table></details><details><summary>Compare a three-sentence explanation</summary><p>At S, f is 4. The right neighbor has f = 12 and the lower neighbor has f = 6, so the lower one is expanded first. The scaled Manhattan estimate is valid here and the resulting route costs 8.</p></details>
 
 <h3>Compare heuristic priorities and lower bounds</h3>
@@ -48,13 +69,68 @@
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>From S, the right and down neighbors both have g = 1. The right neighbor has h = 2 and f = 3. The down neighbor has h = 4 and f = 5.</li><li>A* keeps popping along the top row and reaches the goal after four pops including S. With h = 0, Dijkstra also considers cells off that row before reaching G.</li><li>An obstacle may force a detour, but it does not reduce the number of axis-aligned moves below Manhattan distance. The bound uses the minimum legal step cost.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
+<section id="small-example"><h2>Watch A* avoid unnecessary directions</h2>
+<figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 365 368" role="img" aria-label="Open four by four grid with Manhattan values to goal zero three"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="57">S</text><text class="small" x="70" y="82">h=3</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="57">.</text><text class="small" x="150" y="82">h=2</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="57">.</text><text class="small" x="230" y="82">h=1</text><rect x="275" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="57">G</text><text class="small" x="310" y="82">h=0</text><text class="small" x="15" y="73">0</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="137">.</text><text class="small" x="70" y="162">h=4</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="137">.</text><text class="small" x="150" y="162">h=3</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="137">.</text><text class="small" x="230" y="162">h=2</text><rect x="275" y="110" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="137">.</text><text class="small" x="310" y="162">h=1</text><text class="small" x="15" y="153">1</text><rect x="35" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="217">.</text><text class="small" x="70" y="242">h=5</text><rect x="115" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="217">.</text><text class="small" x="150" y="242">h=4</text><rect x="195" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="217">.</text><text class="small" x="230" y="242">h=3</text><rect x="275" y="190" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="217">.</text><text class="small" x="310" y="242">h=2</text><text class="small" x="15" y="233">2</text><rect x="35" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="297">.</text><text class="small" x="70" y="322">h=6</text><rect x="115" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="297">.</text><text class="small" x="150" y="322">h=5</text><rect x="195" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="297">.</text><text class="small" x="230" y="322">h=4</text><rect x="275" y="270" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="297">.</text><text class="small" x="310" y="322">h=3</text><text class="small" x="15" y="313">3</text><text class="small" x="70" y="16">0</text><text class="small" x="150" y="16">1</text><text class="small" x="230" y="16">2</text><text class="small" x="310" y="16">3</text></svg><figcaption>Numbers h are remaining-cost estimates, not entry costs. Every move costs 1. Rows and columns start at zero.</figcaption></figure>
+<p>Both methods find cost 3. Dijkstra pops seven cells before stopping; A* pops only the four cells on the top row. The order depends on the specified tie rule. Run this standalone example, then set goal to (3,3) and predict whether the saving remains. Remove or revise the final assertions when changing the goal.</p>
+<pre class="python-example" data-python="2"><code>from heapq import heappop, heappush
+
+def search(use_heuristic):
+    # A fixed, open 4 x 4 grid: every move costs 1.
+    start, goal = (0, 0), (0, 3)
+    def h(cell):
+        distance = abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
+        return distance if use_heuristic else 0
+
+    heap = [(h(start), start, 0)]
+    costs = {start: 0}
+    parents = {start: None}
+    popped = []
+    while heap:
+        priority, cell, cost = heappop(heap)
+        if cost != costs[cell]:
+            continue
+        popped.append(cell)
+        if cell == goal:
+            path = []
+            while cell is not None:
+                path.append(cell)
+                cell = parents[cell]
+            return cost, popped, path[::-1]
+        r, c = cell
+        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            neighbor = (r + dr, c + dc)
+            nr, nc = neighbor
+            if 0 &lt;= nr &lt; 4 and 0 &lt;= nc &lt; 4:
+                candidate = cost + 1
+                if candidate &lt; costs.get(neighbor, float(&quot;inf&quot;)):
+                    costs[neighbor] = candidate
+                    parents[neighbor] = cell
+                    heappush(heap, (candidate + h(neighbor), neighbor, candidate))
+
+for name, enabled in [(&quot;Dijkstra&quot;, False), (&quot;A*&quot;, True)]:
+    cost, pops, path = search(enabled)
+    print(name, &quot;cost:&quot;, cost, &quot;pops:&quot;, len(pops))
+    print(&quot;Order:&quot;, pops)
+    print(&quot;Path:&quot;, path)
+    assert cost == 3
+    assert len(pops) == (4 if enabled else 7)
+</code></pre>
+<p>For goal (3,3) on the same open grid, every cell has g+h=6 when reached optimally. With row-then-column ties, both methods pop all 16 cells before that goal. A perfect remaining-distance estimate does not eliminate all work among equal-f candidates. A different tie rule can change the count without changing the optimal cost.</p>
+<aside class="week-reminder"><h3><a href="../w5/">Remember: Week 5</a> · Two dictionaries preserve the route</h3><p>costs[(0,2)] = 2 stores the best known g, while parents[(0,2)] = (0,1) records its predecessor. If a candidate g=3 arrives later, reject it because 3 is not smaller than 2. Follow parents from G and reverse the chain; the heap itself is not the path.</p></aside>
+</section>
 <section id="common-mistakes">
 <h2>Common mistakes</h2><ul><li>Sorting by h alone.</li><li>Reporting f as the cost already paid.</li><li>Using unscaled Manhattan distance when zero-cost steps are legal.</li></ul>
 <h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Heuristic / Sezgi</dt><dd>Estimate of the remaining cost.</dd><dt>Lower bound / Alt sınır</dt><dd>A value that cannot exceed the true cost.</dd><dt>Priority / Öncelik</dt><dd>Value f used to order candidates.</dd></dl>
 </section>
+<section id="search-work"><h2>Less search is useful; measure the whole job</h2>
+<aside class="week-reminder"><h3><a href="../w2/">Remember: Week 2</a> · Separate growth from one measurement</h3><p>A scan over n entries grows linearly, while checking every pair grows quadratically. On this four-neighbor grid E≤4V. With a consistent heuristic, constant-time h, and expected constant-time dictionary lookup, the lazy-heap search has an O(V log V) worst-case time bound and O(V) auxiliary space. A* may inspect fewer cells in practice; it does not promise a better worst-case class than Dijkstra here.</p></aside>
+<p>V counts free cells and E legal directed moves. Input validation and finding the minimum entry cost also scan all R×C cells, so include O(RC) preprocessing. The heap can hold several entries for one cell, and parents/costs consume memory even for cells absent from the returned path. Inconsistent heuristics can cause re-expansions; the consistent-heuristic bound above must not be applied to that case without further analysis.</p>
+<aside class="week-reminder"><h3><a href="../w3/">Remember: Week 3</a> · A heap logarithm is not binary search on the map</h3><p>Binary search in [10,20,30,40,50,60,70,80] repeatedly halves a sorted interval. A heap push/pop follows a logarithmic-height tree to maintain the smallest priority. A* uses the heap operation; it never assumes the map’s cells are sorted by distance.</p></aside>
+<aside class="week-reminder"><h3><a href="../w6/">Remember: Week 6</a> · The median summarizes timing samples</h3><p>Sorting [7,2,3,2,100] gives [2,2,3,7,100], whose median is 3. The lab reports the median of five batch-average times and the largest batch average. Neither statistic guarantees a worst-case deadline for an individual call. Always compare correctness first, then search counts and elapsed time.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
-<p>Compare Dijkstra and A* with the same map, goal and tie rule. Predict how an open grid with the goal near the start changes the work. Log expanded cells as well as time. Try h = 0 and compare.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p>Compare Dijkstra and A* with the same map, goal and tie rule. Predict how an open grid with the goal near the start changes the work. Log current pops as well as time. Try h = 0 and compare.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal and excludes stale heap entries.</p>
+<p class="lesson-note">The standard astar wrapper automatically scales Manhattan distance by the smallest traversable entry cost. If the map contains a zero, this safe bound becomes h=0. The shared weighted function also accepts an explicit heuristic so the variation can deliberately demonstrate a bad one. Its name means weighted graph search, not the separate approximation algorithm called Weighted A*. Inputs must be a fixed, nonempty rectangular grid with free in-bounds endpoints and symbols . S G # or digits 0–9.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -64,10 +140,21 @@ def measure(label, job, repeats=200):
     longest = max(samples) * 1000 / repeats
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
-from collections import deque
 from heapq import heappop, heappush
 
 DIRECTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+
+def validate_grid(grid, start, goal):
+    if not grid or not grid[0] or any(len(row) != len(grid[0]) for row in grid):
+        raise ValueError(&quot;Use a nonempty rectangular grid&quot;)
+    if any(symbol not in &quot;.SG#0123456789&quot; for row in grid for symbol in row):
+        raise ValueError(&quot;Use only . S G # and single digits 0-9&quot;)
+    for row, col in (start, goal):
+        if not (0 &lt;= row &lt; len(grid) and 0 &lt;= col &lt; len(grid[0])):
+            raise ValueError(&quot;Endpoint outside grid&quot;)
+        if grid[row][col] == &quot;#&quot;:
+            raise ValueError(&quot;Endpoint is blocked&quot;)
 
 
 def neighbors(grid, cell):
@@ -81,7 +168,7 @@ def neighbors(grid, cell):
 def entry_cost(grid, cell):
     row, col = cell
     symbol = grid[row][col]
-    return int(symbol) if symbol.isdigit() else 1
+    return int(symbol) if symbol in &quot;0123456789&quot; else 1
 
 
 def result(grid, parents, goal, popped):
@@ -92,6 +179,9 @@ def result(grid, parents, goal, popped):
     return len(path) - 1, sum(entry_cost(grid, cell) for cell in path[1:]), popped, path
 
 def weighted(grid, start, goal, heuristic):
+    validate_grid(grid, start, goal)
+    if heuristic is None:
+        heuristic = scaled_manhattan(grid)
     frontier = [(heuristic(start, goal), start, 0)]
     costs = {start: 0}
     parents = {start: None}
@@ -119,14 +209,42 @@ def zero(cell, goal):
 def manhattan(cell, goal):
     return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
 
+def scaled_manhattan(grid):
+    minimum = min(
+        entry_cost(grid, (r, c))
+        for r, row in enumerate(grid)
+        for c, symbol in enumerate(row)
+        if symbol != &quot;#&quot;
+    )
+    def heuristic(cell, goal):
+        return minimum * manhattan(cell, goal)
+    return heuristic
+
+
+def astar(grid, start, goal):
+    return weighted(grid, start, goal, None)
+
+
+def check_path(grid, start, goal, answer):
+    moves, cost, popped, path = answer
+    if not path:
+        assert moves is None and cost is None
+        return
+    assert path[0] == start and path[-1] == goal
+    assert moves == len(path) - 1
+    for a, b in zip(path, path[1:]):
+        assert b in neighbors(grid, a)
+    assert cost == sum(entry_cost(grid, cell) for cell in path[1:])
+
+
 maps = [
-    ((&#x27;S999G&#x27;, &#x27;.###.&#x27;, &#x27;.....&#x27;), (0, 0), (0, 4)),
+    (('S999G', '.###.', '.....'), (0, 0), (0, 4)),
     ([&quot;.&quot; * 25] * 25, (12, 12), (12, 18)),
 ]
 
 planners = [
     (&quot;Dijkstra&quot;, lambda grid, s, g: weighted(grid, s, g, zero)),
-    (&quot;A*&quot;, lambda grid, s, g: weighted(grid, s, g, manhattan)),
+    (&quot;A*&quot;, astar),
 ]
 
 for grid, start, goal in maps:
@@ -134,22 +252,30 @@ for grid, start, goal in maps:
         def job():
             return planner(grid, start, goal)
 
-        moves, cost, popped, path = job()
+        answer = job()
+        check_path(grid, start, goal, answer)
+        moves, cost, popped, path = answer
         print(name, &quot;-&gt; (moves, terrain cost, popped):&quot;, (moves, cost, popped))
         print(&quot;Path:&quot;, path)
         measure(name, job, repeats=30)
 </code></pre>
-<h3>Lab procedure</h3>
+<h3>Expected results before you time anything</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Map</th><th scope="col">Method</th><th scope="col">Moves / cost</th><th scope="col">Current pops</th></tr></thead><tbody><tr><th scope="row">S999G / .###. / .....</th><td>Dijkstra</td><td>8 / 8</td><td>9</td></tr><tr><th scope="row">S999G / .###. / .....</th><td>A*</td><td>8 / 8</td><td>9</td></tr><tr><th scope="row">Open 25×25; (12,12) → (12,18)</th><td>Dijkstra</td><td>6 / 6</td><td>74</td></tr><tr><th scope="row">Open 25×25; (12,12) → (12,18)</th><td>A*</td><td>6 / 6</td><td>7</td></tr></tbody></table></div>
+<p>The narrow corridor gives no pop-count saving; the open grid does. A current pop excludes stale entries and includes the goal. An expansion actually scans neighbors, so the goal pop is not an expansion. The reported counts depend on the tie rule; a valid method may choose another equally cheap path. The returned cost must match Dijkstra, but elapsed time is machine-dependent.</p>
+<p>Timing includes validation, search, path reconstruction and cost summation. A* also includes finding the minimum entry cost. Map construction, printing and the separate path check are outside the timed job. For repeated queries on an unchanged map, validate and precompute the minimum once; report that setup cost separately. Do not reuse it after changing the terrain without updating it.</p>
+<h3>Boundary cases have different meanings</h3><p>For ('S',) with start=goal=(0,0), astar returns (0,0,1,[(0,0)]): a valid zero-move route. For ('S#G',), start=(0,0), goal=(0,2), it returns (None,None,1,[]): a free but unreachable goal. A blocked or out-of-bounds endpoint is invalid input and raises ValueError. The path check tests feasibility and arithmetic; known optima or a Dijkstra comparison test optimal cost.</p><h3>Lab procedure</h3>
 <p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
 <ol class="tool-steps"><li>Run the two starter maps and explain how two planners can return the same path cost but pop very different numbers of cells.</li><li>Add the open 4 × 4 map from the worked example. Run with Manhattan distance and with zero as the heuristic. Record cost, pops and a representative time, then compare.</li><li>Insert a blocked cell between start and goal on the top row. Predict the new length and run both methods. Record where the estimate is optimistic and why that is acceptable.</li></ol>
 <details><summary>Show a ready-to-run variation</summary>
 <p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
-<pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
+<p><strong>Deliberately invalid heuristic:</strong> The first result below is wrong for minimum energy. Compare it with zero and with the safe astar wrapper; the example demonstrates a failure, not a recommended configuration.</p><pre class="lab-variation"><code>grid = (&quot;S11G&quot;, &quot;0000&quot;)
 start, goal = (0, 0), (0, 3)
 for heuristic in (manhattan, zero):
     print(heuristic.__name__, weighted(grid, start, goal, heuristic))
 assert weighted(grid, start, goal, manhattan)[1] == 3
-assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
+assert weighted(grid, start, goal, zero)[1] == 1
+print(&quot;safe A*&quot;, astar(grid, start, goal))
+assert astar(grid, start, goal)[1] == 1</code></pre>
 </details>
 <p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
 </section>
@@ -158,10 +284,15 @@ assert weighted(grid, start, goal, zero)[1] == 1</code></pre>
 <p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
 <ol class="tool-steps"><li>Compare the direct route’s cost with the five-move route along the lower row. Compute f for both neighbors of S under the proposed heuristic.</li><li>Predict which route A* may return when it stops on the first goal pop. Compare with h = 0 and explain which one has the necessary lower-bound guarantee.</li><li>Add this map to the lab and produce a three-row acceptance table for uniform costs, obstacles and zero-cost moves. Include the required equality of A* and Dijkstra path costs when the heuristic is valid.</li></ol>
 <details><summary>Compare a model answer</summary><p>The direct route costs 3 and the lower route costs 1. At the right neighbor f = 1 + 2 = 3. At the lower neighbor f = 0 + 4 = 4, although only 1 unit remains on the optimal route. The unscaled heuristic can lead to cost 3. Multiplying by minimum step cost zero makes h = 0, and Dijkstra finds cost 1.</p></details>
+<h3>Trace the failure, then repair the bound</h3><figure class="astar-figure"><svg class="astar-grid" viewBox="0 0 365 208" role="img" aria-label="Zero-cost counterexample: S11G above 0000"><rect x="35" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="70" y="73">S</text><rect x="115" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="150" y="73">1</text><rect x="195" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="230" y="73">1</text><rect x="275" y="30" width="70" height="70" rx="7" fill="#cce7d6"/><text x="310" y="73">G</text><rect x="35" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="70" y="153">0</text><rect x="115" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="150" y="153">0</text><rect x="195" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="230" y="153">0</text><rect x="275" y="110" width="70" height="70" rx="7" fill="#e5edf6"/><text x="310" y="153">0</text></svg><figcaption>Blue 0 cells cost nothing to enter. The upper route costs 1+1+1=3. The lower detour costs 0+0+0+0+1=1.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Candidate</th><th scope="col">g</th><th scope="col">Unscaled h</th><th scope="col">f</th><th scope="col">What follows</th></tr></thead><tbody><tr><th scope="row">(0,1)</th><td>1</td><td>2</td><td>3</td><td>Popped before the lower row</td></tr><tr><th scope="row">(1,0)</th><td>0</td><td>4</td><td>4</td><td>Waits while top-row f stays 3</td></tr><tr><th scope="row">(0,2)</th><td>2</td><td>1</td><td>3</td><td>Discovers G at g=3</td></tr><tr><th scope="row">(0,3) G</th><td>3</td><td>0</td><td>3</td><td>Stops too early with cost 3</td></tr></tbody></table></div>
+<p>At (1,0), the remaining route costs only 1, yet unscaled Manhattan says 4. The heuristic overestimates, so the goal-pop guarantee is lost. Multiplying by m=0 restores a valid bound: A* becomes Dijkstra and finds cost 1. A zero anywhere in the map makes this simple global scaling conservative, even if the zero is irrelevant to the best route. It does not prove that every possible useful heuristic must be zero.</p>
+<h3>Check the movement model before reusing h</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Model change</th><th scope="col">Short check</th><th scope="col">Consequence</th></tr></thead><tbody><tr><th scope="row">Diagonal moves cost 1</th><td>(0,0)→(1,1) costs 1, Manhattan says 2</td><td>Use a suitable bound, e.g. max(|Δr|,|Δc|) for unit-cost eight-direction motion</td></tr><tr><th scope="row">Extra nonnegative turn penalties</th><td>Ignoring turns can only reduce estimated cost</td><td>Scaled Manhattan remains a bound; search state must include heading if future costs depend on it</td></tr><tr><th scope="row">Cheap teleport or long jump</th><td>One move may remove many coordinate steps</td><td>Re-derive the bound; the four-direction argument no longer applies</td></tr></tbody></table></div>
 </section>
 <section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
 <p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
-<ol class="practice-list"><li><p>Which neighbor of S is expanded first?</p><details><summary>Show answer</summary><p>(1,0), with f = 6.</p></details></li><li><p>Why would multiplying Manhattan distance by 9 be risky here?</p><details><summary>Show answer</summary><p>Some moves cost 1, so that estimate can exceed the true remaining cost.</p></details></li><li><p>Can A* take longer even if it expands fewer cells?</p><details><summary>Show answer</summary><p>Yes. Computing h and managing the heap add work.</p></details></li></ol></section>
+<ol class="practice-list"><li><p>On the shared S999G map, which neighbor of S is expanded first?</p><details><summary>Show answer</summary><p>(1,0), with f = 6.</p></details></li><li><p>Why would multiplying Manhattan distance by 9 be risky here?</p><details><summary>Show answer</summary><p>Some moves cost 1, so that estimate can exceed the true remaining cost.</p></details></li><li><p>Can A* take longer even if it expands fewer cells?</p><details><summary>Show answer</summary><p>Yes. Computing h and managing the heap add work.</p></details></li></ol></section>
 <section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What is h at G?</p><details><summary>Show answer</summary><p>0.</p></details></li><li><p>What is h at (2,0) with goal (0,4)?</p><details><summary>Show answer</summary><p>6.</p></details></li><li><p>If g = 3 at a cell and h = 5, what is its priority?</p><details><summary>Show answer</summary><p>8.</p></details></li><li><p>What does h = 0 turn A* into?</p><details><summary>Show answer</summary><p>Dijkstra under the same tie rule.</p></details></li><li><p>How would you adapt the estimate if some moves cost zero?</p><details><summary>Show answer</summary><p>Use zero as the minimum, which gives h = 0, or derive another valid lower bound.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why compare A* and Dijkstra on both path cost and cells popped before recommending A*?</p>
