@@ -11,6 +11,10 @@
 <script defer src="../assets/python-runner.js?v=3"></script>
 <script defer src="../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.wiring-figure{margin:28px 0}.wiring-graph{display:block;width:100%;max-width:620px;height:auto;margin:0 auto 16px}.wiring-graph text{font:19px system-ui;fill:#243d32;text-anchor:middle}.wiring-graph circle{fill:#cce7d6;stroke:#577564;stroke-width:2}.wiring-graph .edge{fill:none;stroke:#63766c;stroke-width:3}.wiring-graph .chosen{fill:none;stroke:#286546;stroke-width:5}.wiring-graph .unused{fill:none;stroke:#a0a69e;stroke-width:2;stroke-dasharray:7 7}.wiring-graph .label{fill:#faf8ef;stroke:none}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:570px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.wiring-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -24,7 +28,13 @@
 <p>Read the concept and worked example first. Then make an individual prediction and compare it with a partner.</p>
 
 <p>180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p>
-<nav class="robot-nav" aria-label="Lesson sections"><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Replan wiring around a blocked cable route</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+<nav class="robot-nav" aria-label="Lesson sections"><a href="#wiring-model">Model the network</a><a href="#components">Track components</a><a href="#small-example">Small Python example</a><a href="#concepts">Understand the concept</a><a href="#paper">Trace it on paper</a><a href="#timing">Measure it</a><a href="#studio">Replan wiring around a blocked cable route</a><a href="#exam-practice">Exam-style questions</a><a href="#exit-ticket">Exit ticket</a></nav>
+</section>
+<section id="wiring-model"><h2>Buy a connected network, not one journey</h2><p>A controller A and three stations B,C,D need cables. A cable may connect them indirectly: A need not have a direct cable to every sensor. We pay each installed cable’s cost once. The task is to select available undirected links so every station is connected and the total installation cost is minimum. This model uses nonnegative costs and does not yet require backup connections.</p><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 290" role="img" aria-label="Candidate undirected links AB 1, BC 2, AC 3, CD 4, BD 5"><path class="edge" d="M90 55 L430 55 L90 235 L430 235"/><path class="edge" d="M90 55 L90 235 M430 55 L430 235"/><rect class="label" x="245" y="39" width="30" height="30" rx="5"/><text x="260" y="61">1</text><rect class="label" x="245" y="129" width="30" height="30" rx="5"/><text x="260" y="151">2</text><rect class="label" x="75" y="129" width="30" height="30" rx="5"/><text x="90" y="151">3</text><rect class="label" x="245" y="219" width="30" height="30" rx="5"/><text x="260" y="241">4</text><rect class="label" x="415" y="129" width="30" height="30" rx="5"/><text x="430" y="151">5</text><circle cx="90" cy="55" r="25"/><text x="90" y="62">A</text><circle cx="430" cy="55" r="25"/><text x="430" y="62">B</text><circle cx="90" cy="235" r="25"/><text x="90" y="242">C</text><circle cx="430" cy="235" r="25"/><text x="430" y="242">D</text></svg><figcaption>Lines have no arrows: each cable works in both directions. Numbers are installation costs, not required task order or distances from a source. Crossings in the drawing do not create additional stations.</figcaption></figure>
+<p>A spanning tree includes all vertices, is connected and contains no cycle. For n≥1 it has n−1 edges. With nonnegative installation costs, any connected design with cycles can lose cycle edges without increasing cost, so a minimum-cost connected design can be chosen as a tree. If the available graph is disconnected, no full spanning tree exists; Kruskal finds a minimum spanning forest within its components.</p>
+<aside class="week-reminder"><h3><a href="../w11/">Remember: Week 11</a> · Directed dependencies and undirected cables differ</h3><p>The dependency cycle power→check→enable→power made a startup order impossible. Here an undirected triangle of candidate cables is allowed input. We choose a cycle-free subset of cables; we are not ordering tasks and must not apply the directed active/finished rule unchanged.</p></aside>
+<aside class="week-reminder"><h3><a href="../w9/">Remember: Week 9</a> · A cheap route is not a cheap installed network</h3><p>Dijkstra found a route costing 8 instead of 28 on the terrain map. In the triangle below, Dijkstra from A uses AB=2 and AC=3 for shortest routes. Those installed links total 5, whereas AB+BC total only 4. The optimization questions differ.</p></aside><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 270" role="img" aria-label="Triangle AB costs 2, BC costs 2, AC costs 3; minimum tree takes AB and BC"><path class="chosen" d="M90 210 L260 50 L430 210"/><path class="unused" d="M90 210 L430 210"/><rect class="label" x="160" y="109" width="30" height="30" rx="5"/><text x="175" y="131">2</text><rect class="label" x="330" y="109" width="30" height="30" rx="5"/><text x="345" y="131">2</text><rect class="label" x="245" y="194" width="30" height="30" rx="5"/><text x="260" y="216">3</text><circle cx="90" cy="210" r="25"/><text x="90" y="217">A</text><circle cx="260" cy="50" r="25"/><text x="260" y="57">B</text><circle cx="430" cy="210" r="25"/><text x="430" y="217">C</text></svg><figcaption>Minimum installed total: AB+BC=4. The resulting route A→B→C costs 4, although the direct candidate AC costs 3. A minimum spanning tree is not a shortest-path tree.</figcaption></figure>
+<aside class="week-reminder"><h3><a href="../w10/">Remember: Week 10</a> · There is no single destination to aim toward</h3><p>A* ordered route candidates by f=g+h; for g=1,h=3, f was 4. Wiring must span every station, so a heuristic toward D would not replace the global connectivity requirement. We compare candidate edge costs and the groups they join.</p></aside>
 </section>
 <section id="concepts">
 <h2>Connect every station using the least total cable</h2>
@@ -36,6 +46,14 @@
 <ol class="concept-frames"><li><strong>AB at 2</strong><span>Accept. Components AB, C, D. Total 2.</span></li><li><strong>AC at 3</strong><span>Accept. Components ABC, D. Total 5.</span></li><li><strong>BC at 4</strong><span>Skip. B and C are already connected.</span></li><li><strong>CD at 5</strong><span>Accept. One component. Total 10.</span></li></ol>
 </figure>
 <p>These three links connect all four stations. If CD is unavailable, D remains isolated and the forest’s total is only 5. That smaller number does not buy the required connectivity.</p>
+<h3>Work through every candidate link</h3>
+<p>For the five-link network above, sort AB:1, BC:2, AC:3, CD:4, BD:5. Braces below denote components of the selected network, not necessarily direct connections.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Candidate</th><th scope="col">Decision and reason</th><th scope="col">Components afterward</th><th scope="col">Accepted total</th></tr></thead><tbody><tr><th scope="row">—</th><td>Start with four stations</td><td>{A}, {B}, {C}, {D}</td><td>0</td></tr><tr><th scope="row">AB:1</th><td>Accept: different components</td><td>{A,B}, {C}, {D}</td><td>1</td></tr><tr><th scope="row">BC:2</th><td>Accept: connects C to {A,B}</td><td>{A,B,C}, {D}</td><td>3</td></tr><tr><th scope="row">AC:3</th><td>Skip: path A–B–C already exists</td><td>{A,B,C}, {D}</td><td>3</td></tr><tr><th scope="row">CD:4</th><td>Accept: connects D</td><td>{A,B,C,D}</td><td>7</td></tr><tr><th scope="row">BD:5</th><td>Skip if examined: B and D are connected</td><td>{A,B,C,D}</td><td>7</td></tr></tbody></table></div><figure class="wiring-figure"><svg class="wiring-graph" viewBox="0 0 520 290" role="img" aria-label="Selected tree AB 1, BC 2, CD 4; unused AC 3 and BD 5"><path class="chosen" d="M90 55 L430 55 L90 235 L430 235"/><path class="unused" d="M90 55 L90 235 M430 55 L430 235"/><rect class="label" x="245" y="39" width="30" height="30" rx="5"/><text x="260" y="61">1</text><rect class="label" x="245" y="129" width="30" height="30" rx="5"/><text x="260" y="151">2</text><rect class="label" x="75" y="129" width="30" height="30" rx="5"/><text x="90" y="151">3</text><rect class="label" x="245" y="219" width="30" height="30" rx="5"/><text x="260" y="241">4</text><rect class="label" x="415" y="129" width="30" height="30" rx="5"/><text x="430" y="151">5</text><circle cx="90" cy="55" r="25"/><text x="90" y="62">A</text><circle cx="430" cy="55" r="25"/><text x="430" y="62">B</text><circle cx="90" cy="235" r="25"/><text x="90" y="242">C</text><circle cx="430" cy="235" r="25"/><text x="430" y="242">D</text></svg><figcaption>Solid green links are installed: AB, BC, CD. Dashed links are unused candidates. The tree costs 1+2+4=7; any station can reach every other through the selected links.</figcaption></figure>
+<p>Blindly buying the three cheapest links AB,BC,AC would cost 6 but leave D isolated. Three edges alone do not prove that four vertices are connected: here they form a triangle on only three vertices. Count components as well as edges and cost.</p>
+<aside class="week-reminder"><h3><a href="../w8/">Remember: Week 8</a> · Connectivity can be indirect</h3><p>BFS reached a target by following several legal moves, even when start and goal were not adjacent. After choosing AB and BC, A and C are likewise connected through B. Adding AC would close a cycle despite there being no selected direct AC cable.</p></aside>
+<h3>Why taking a cheapest connecting link is safe</h3>
+<p>Imagine a boundary separating one current component from the other stations. Any full spanning tree must cross that boundary. Kruskal’s next accepted edge e is a cheapest available edge crossing the chosen component boundary. Take an optimal tree compatible with the edges accepted so far. If it lacks e, adding e creates a cycle; that cycle contains another crossing edge x. Replace x with e. Since cost(e)≤cost(x), the total does not increase and connectivity is preserved. This exchange argument justifies the greedy choice; “cheap looks good” alone would not.</p>
+<p>Ties do not break this argument. They may give different trees with the same optimum total. This proof concerns a spanning tree (or one tree per available component), not a shortest route or a redundant network.</p>
 </section>
 <section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
 <p>Sort the links AB:1, BC:2, AC:3, CD:4, BD:5. Start with four separate components. For each link, join its endpoints if they are in different components. Record accepted and skipped edges.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
@@ -46,13 +64,79 @@
 <details><summary>Show the worked steps</summary><ol class="tool-steps"><li>Alphabetical ties select AB, AC and BD. BC joins the same component and is skipped.</li><li>Reversing ties selects BC, AC and CD. Both trees use three links and cost 4.</li><li>To evaluate a proposal, check total cost, connectivity and absence of cycles. Equal cost can allow different layouts.</li></ol></details>
 <p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
 </section>
+<section id="components"><h2>How does the computer recognize a component?</h2><p>A disjoint-set union structure (DSU, also called union–find) maintains groups. <code>root(x)</code> returns a representative of x’s group. Two stations are already connected exactly when their representatives are equal. To accept an edge, merge the two roots. The representative is an internal label, not a special physical hub.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Worked comparison table"><table class="robot-table"><thead><tr><th scope="col">Step</th><th scope="col">parent[A,B,C,D]</th><th scope="col">Component interpretation</th></tr></thead><tbody><tr><th scope="row">Initialize</th><td>[A,B,C,D]</td><td>Four separate roots</td></tr><tr><th scope="row">Accept AB</th><td>[A,A,C,D]</td><td>{A,B}, {C}, {D}</td></tr><tr><th scope="row">Accept BC; root(B)=A</th><td>[A,A,A,D]</td><td>{A,B,C}, {D}</td></tr><tr><th scope="row">Skip AC</th><td>[A,A,A,D]</td><td>Same root A</td></tr><tr><th scope="row">Accept CD</th><td>[A,A,A,A]</td><td>One component</td></tr></tbody></table></div>
+<p class="lesson-note"><strong>DSU parents are not installed cables.</strong> After accepting BC, parent[C]=A even though the selected cable is BC, not AC. After CD, parent[D]=A even though AD is not even an available edge. Keep the chosen edge list separately; never draw the wiring from the parent array.</p>
+<h3>Union by size and path halving</h3>
+<p>When roots differ, attach the smaller group under the larger group’s root. Only a root’s size entry is authoritative; this keeps the parent trees shallow. In <code>root</code>, <code>parent[node] = parent[parent[node]]</code> makes a node point to its grandparent, shortening future walks. For a possible parent chain D→C→A, a call root(D) changes D’s parent to A and returns A. This changes the bookkeeping, not the selected network or its cost.</p>
+<aside class="week-reminder"><h3><a href="../w5/">Remember: Week 5</a> · Lookups and group queries are different</h3><p>A dictionary maps 'dock-C' to integer ID 2. Looking up that ID does not say whether C is connected to A. DSU answers the second question by comparing root(2) with root(0). We use array indices once IDs are known.</p></aside>
+<aside class="week-reminder"><h3><a href="../w4/">Remember: Week 4</a> · Storage rules serve different operations</h3><p>A FIFO containing A,B returns A first; a ring buffer changes where entries are stored, not which stations are connected. DSU is not a queue. Its operations are find-a-group and merge-groups, so the data structure should match those operations.</p></aside>
+</section>
+<section id="small-example"><h2>Print the actual wiring, not just its cost</h2><p>This standalone example returns (chosen links, total cost, component count). Stations use IDs A=0,B=1,C=2,D=3. Each tuple is (cost,a,b), representing one undirected candidate. For predictable alphabetical ties, enter endpoints in ascending ID order. The code sorts by cost, then a, then b.</p><pre class="python-example" data-python="2"><code>def wiring_plan(n, links):
+    if type(n) is not int or n &lt; 0:
+        raise ValueError(&quot;n must be a nonnegative integer&quot;)
+    for cost, a, b in links:
+        if type(cost) is not int or cost &lt; 0:
+            raise ValueError(&quot;Use nonnegative integer installation costs&quot;)
+        if any(type(v) is not int or not 0 &lt;= v &lt; n for v in (a, b)):
+            raise ValueError(&quot;Endpoints must be integer IDs from 0 to n-1&quot;)
+    parent = list(range(n))
+    size = [1] * n
+    chosen = []
+    total = 0
+    components = n
+
+    def root(node):
+        while node != parent[node]:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return node
+
+    for cost, a, b in sorted(links):
+        left, right = root(a), root(b)
+        if left == right:
+            continue
+        if size[left] &lt; size[right]:
+            left, right = right, left
+        parent[right] = left
+        size[left] += size[right]
+        chosen.append((cost, a, b))
+        total += cost
+        components -= 1
+    return chosen, total, components
+
+names = &quot;ABCD&quot;
+# Tuples are (cost, endpoint, endpoint), with A=0, B=1, C=2, D=3.
+links = [(1, 0, 1), (2, 1, 2), (3, 0, 2), (4, 2, 3), (5, 1, 3)]
+chosen, total, components = wiring_plan(4, links)
+print(&quot;Chosen:&quot;, &quot;, &quot;.join(names[a] + names[b] for cost, a, b in chosen))
+print(&quot;Total:&quot;, total)
+print(&quot;Components:&quot;, components)
+assert total == 7 and components == 1
+assert len(chosen) == 4 - components
+
+isolated = [edge for edge in links if 3 not in edge[1:]]
+chosen, total, components = wiring_plan(4, isolated)
+print(&quot;After isolating D:&quot;, total, components)
+assert total == 3 and components == 2
+</code></pre><p>First predict the printed result. Then change CD’s cost from 4 to 10: BD at 5 replaces it, making total 8 with one component. Restore the example before the next experiment. Update the expected total assertion when you change a cost. Removing every link touching D is a different operation: it makes full connectivity impossible.</p>
+<h3>Check feasibility and optimality separately</h3><p>Every returned edge must be an available candidate; sum its cost once. Independently traverse the chosen undirected links to check connectivity and absence of cycles. For a forest, accepted+components=n. These checks establish structure, not minimum cost: the triangle’s AB+AC tree is valid but costs 5 instead of the optimum 4. For a tiny graph, enumerate spanning trees to verify the optimum; for larger tests compare with an independent MST method.</p>
+</section>
 <section id="common-mistakes">
 <h2>Common mistakes</h2><ul><li>Choosing the cheapest three links without checking components.</li><li>Counting skipped links in the total.</li><li>Interpreting a forest as full coverage.</li></ul>
 <h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Spanning tree / Kapsayan ağaç</dt><dd>Cycle-free links connecting every station.</dd><dt>Component / Bileşen</dt><dd>Stations currently connected together.</dd><dt>Spanning forest / Kapsayan orman</dt><dd>One tree for each disconnected group.</dd></dl>
 </section>
+<section id="work-and-order"><h2>Sorting and connectivity do different jobs</h2>
+<aside class="week-reminder"><h3><a href="../w6/">Remember: Week 6</a> · Sort first, then use the ordering</h3><p>For median filtering, sorting [7,2,3,2,100] gives [2,2,3,7,100], and we read the middle value 3. Kruskal sorts complete edge records instead: (3,A,C),(1,A,B),(2,B,C) become AB:1,BC:2,AC:3. We then inspect the whole sequence as needed, rather than taking its middle.</p></aside>
+<aside class="week-reminder"><h3><a href="../w7/">Remember: Week 7</a> · A heap can provide cheapest-first access</h3><p>A min-heap of priorities 4,1,3 returns 1 next. It could likewise supply edges in increasing cost. This lesson already has the complete edge list, so sorted(links) is simpler. Whether a heap or sorting supplies the next edge, the same-component rejection is still essential.</p></aside>
+<aside class="week-reminder"><h3><a href="../w3/">Remember: Week 3</a> · A cheap edge is not automatically acceptable</h3><p>Binary search for 30 in sorted [10,20,30,40] locates a key. It cannot answer whether accepting AC closes the existing A–B–C path. Sorting determines which candidate to inspect next; DSU determines whether its endpoints are already connected.</p></aside>
+<aside class="week-reminder"><h3><a href="../w2/">Remember: Week 2</a> · Count stations and links separately</h3><p>A scan of n records grows linearly; comparing every pair grows quadratically. Here V is stations and E is available links. Initializing DSU costs O(V), sorting costs O(E log E), and union–find with size balancing plus path halving has near-constant amortized operation cost, conventionally expressed using α(V), the inverse Ackermann function. A useful overall bound is O(V + E log E + E α(V)).</p></aside>
+<p>“Amortized” describes the average over a sequence of operations; it does not mean every root walk has exactly one step. Python’s sorted creates an edge-list copy, so auxiliary memory is O(V+E), including the returned chosen edges in the small example. A network with many stations but no links still requires O(V) setup; do not hide that term inside sorting.</p>
+<aside class="week-reminder"><h3><a href="../w1/">Remember: Week 1</a> · Know when an early exit is justified</h3><p>A scan seeking any reading above 8 can stop at the first match in [2,9,12]. Kruskal may stop after V−1 successful merges for V≥1, because one component remains. It cannot stop after merely inspecting V−1 links: rejected links do not merge components. The teaching code scans all edges to keep the loop simple.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2>
 <p>Time Kruskal on small and larger networks with a chain plus extra links. Report accepted edges and total cost. Remove all links touching the last station and check the component count.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p class="lesson-note">The laboratory returns (accepted edge count, total cost, components). The named small example returns the chosen edges as well. Both take a reusable list of (cost,a,b) tuples, nonnegative integer installation costs, integer n≥0, and endpoints from 0 to n−1. A physical undirected candidate needs only one record; no reverse copy is required. The new input checks reject invalid endpoints and costs before sorting.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -63,6 +147,13 @@ def measure(label, job, repeats=200):
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
 def kruskal(n, links):
+    if type(n) is not int or n &lt; 0:
+        raise ValueError(&quot;n must be a nonnegative integer&quot;)
+    for cost, a, b in links:
+        if type(cost) is not int or cost &lt; 0:
+            raise ValueError(&quot;Use nonnegative integer installation costs&quot;)
+        if any(type(v) is not int or not 0 &lt;= v &lt; n for v in (a, b)):
+            raise ValueError(&quot;Endpoints must be integer IDs from 0 to n-1&quot;)
     parent = list(range(n))
     size = [1] * n
 
@@ -94,7 +185,10 @@ for n in (20, 200):
     isolated = [(cost, a, b) for cost, a, b in links if n - 1 not in (a, b)]
     assert kruskal(n, isolated)[2] == 2
 </code></pre>
-<h3>Lab procedure</h3>
+<h3>Expected counts and boundary cases</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Input</th><th scope="col">Accepted / total / components</th><th scope="col">Interpretation</th></tr></thead><tbody><tr><th scope="row">20-station starter</th><td>19 / 54 / 1</td><td>Fully connected</td></tr><tr><th scope="row">200-station starter</th><td>199 / 584 / 1</td><td>Fully connected</td></tr><tr><th scope="row">n=0, links=[]</th><td>0 / 0 / 0</td><td>Empty forest; no stations to connect</td></tr><tr><th scope="row">n=1, links=[]</th><td>0 / 0 / 1</td><td>One station already forms a tree</td></tr><tr><th scope="row">n=4, links=[]</th><td>0 / 0 / 4</td><td>Four isolated stations</td></tr><tr><th scope="row">n=2, links=[(0,0,1)]</th><td>1 / 0 / 1</td><td>Zero cost is a valid connection</td></tr></tbody></table></div>
+<p>Each accepted edge reduces the component count by exactly one, so components=V−accepted. A self-loop (2,0,0) is skipped because both endpoints have the same root. Parallel candidates between the same stations are permitted; the cheaper one is considered first, and later redundant ones are skipped. Reversing the input list does not reverse equal-cost processing: sorted compares complete tuples. To reverse endpoint ties while keeping cost ascending, use key=lambda e: (e[0],-e[1],-e[2]).</p>
+<p>Timing includes input checks, DSU allocation, sorting and the edge scan. Constructing the synthetic network and the isolation test are outside the timed job. The median and maximum shown summarize five batch averages; neither is an individual worst-case guarantee. Record connectivity alongside cost: a cheap disconnected answer has not satisfied the original request.</p><h3>Lab procedure</h3>
 <p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
 <ol class="tool-steps"><li>Run the two starter network sizes. Record accepted edges, total cost and components alongside time.</li><li>For a small test, create links for the worked example. Reverse equal-cost input order and note that the starter sorts complete tuples, so input order alone may not alter ties. To test a different rule, sort by cost and reverse endpoint order within ties.</li><li>Remove every edge touching one station and rerun. Confirm that accepted edges plus components still equals the number of stations.</li></ol>
 <details><summary>Show a ready-to-run variation</summary>
@@ -114,11 +208,16 @@ print(kruskal(4, links), kruskal(4, without_cd), kruskal(4, without_d))</code></
 <p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
 <ol class="tool-steps"><li>Trace Kruskal before the blockage. List the chosen links, component count and cost.</li><li>Remove CD, rerun and compare the new result with the budget. Next remove BD too and describe the output.</li><li>Explain whether a minimum spanning tree provides redundancy and what extra requirement would change the planning problem.</li></ol>
 <details><summary>Compare a model answer</summary><p>Initially AB, CD and BC cost 4. Without CD, AB, BC and BD cost 7 and exceed the budget. Removing BD as well isolates D, leaving a two-component forest. A tree has a single path between any two vertices, so a redundant layout must permit extra links and include a failure criterion.</p></details>
-</section>
+<h3>Connectivity, budget and resilience are separate decisions</h3>
+<p>This design task uses a different cost set from the paper trace: CD costs 1 and BD costs 4. Keep the input written beside your calculation.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison table"><table class="robot-table"><thead><tr><th scope="col">Available links</th><th scope="col">Chosen plan</th><th scope="col">Total / components</th><th scope="col">Budget 6 decision</th></tr></thead><tbody><tr><th scope="row">All original design links</th><td>AB, CD, BC</td><td>4 / 1</td><td>Connected and affordable</td></tr><tr><th scope="row">CD removed</th><td>AB, BC, BD</td><td>7 / 1</td><td>Connected but over budget</td></tr><tr><th scope="row">CD and BD removed</th><td>AB, BC</td><td>3 / 2</td><td>D is isolated; not a complete solution</td></tr></tbody></table></div>
+<p>A tree has exactly one path between each pair of vertices. Every installed tree edge is therefore a bridge: losing it disconnects the network. Adding one spare link only protects the edges on the cycle that it creates, not automatically every station against every failure. For example, adding AC to the original AB,BC,CD tree protects the triangle ABC, but CD is still D’s only link.</p>
+<p>If the requirement becomes “stay connected after any one cable failure,” plan a network with no bridges and verify each allowed single-edge removal. That is a different optimization problem; an MST alone cannot certify it. Also distinguish a cable route that is unavailable before construction from a failure after construction. Recompute with the current candidate set, then report both the feasibility and budget result.</p>
+<h3>Use the model in another setting</h3><p>The same graph model can connect campus buildings with fiber or stations with maintenance access links. The weights must represent the actual objective: construction cost, cable length or another additive installation measure. If links are one-way, bandwidth-limited, or required to provide redundancy, write those constraints explicitly instead of assuming Kruskal solves them.</p></section>
 <section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
 <p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
-<ol class="practice-list"><li><p>Why skip AC?</p><details><summary>Show answer</summary><p>A and C already have a path. Adding AC creates a cycle.</p></details></li><li><p>What if D is isolated?</p><details><summary>Show answer</summary><p>There is no spanning tree. Kruskal returns a forest.</p></details></li><li><p>Will the tree minimize travel distance from A to every station?</p><details><summary>Show answer</summary><p>No. It minimizes the total installed link cost.</p></details></li></ol></section>
-<section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many edges in a tree of four stations?</p><details><summary>Show answer</summary><p>Three.</p></details></li><li><p>What is the accepted total?</p><details><summary>Show answer</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Can equal-cost links lead to different answers?</p><details><summary>Show answer</summary><p>Yes. Different trees can have the same minimum total.</p></details></li><li><p>What does the component test tell you before accepting an edge?</p><details><summary>Show answer</summary><p>Whether the endpoints are already connected.</p></details></li><li><p>How many edges does a forest with 10 stations and 3 components have?</p><details><summary>Show answer</summary><p>7.</p></details></li></ol></section>
+<ol class="practice-list"><li><p>In the paper example, why skip AC after accepting AB and BC?</p><details><summary>Show answer</summary><p>A and C already have a path. Adding AC creates a cycle.</p></details></li><li><p>What if D is isolated?</p><details><summary>Show answer</summary><p>There is no spanning tree. Kruskal returns a forest.</p></details></li><li><p>Will the tree minimize travel distance from A to every station?</p><details><summary>Show answer</summary><p>No. It minimizes the total installed link cost.</p></details></li></ol></section>
+<section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>How many edges in a tree of four stations?</p><details><summary>Show answer</summary><p>Three.</p></details></li><li><p>In the paper example AB:1, BC:2, AC:3, CD:4, BD:5, what is the accepted total?</p><details><summary>Show answer</summary><p>1 + 2 + 4 = 7.</p></details></li><li><p>Can equal-cost links lead to different answers?</p><details><summary>Show answer</summary><p>Yes. Different trees can have the same minimum total.</p></details></li><li><p>What does the component test tell you before accepting an edge?</p><details><summary>Show answer</summary><p>Whether the endpoints are already connected.</p></details></li><li><p>How many edges does a forest with 10 stations and 3 components have?</p><details><summary>Show answer</summary><p>7.</p></details></li></ol></section>
 <section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
 <p>Why is a cheap forest with two components insufficient when every station must remain connected?</p>
 <p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Two components contain stations that cannot reach each other. The cost covers only connections inside the components. Connecting every station requires one component or a report that full coverage is impossible.</p></details>
