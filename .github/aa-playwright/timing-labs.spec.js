@@ -355,6 +355,26 @@ for (const language of languages) {
       }
     });
 
+
+    test('Week 14 tour reminders, validation and heuristic counterexample', async ({ page }) => {
+      await page.goto(`w14/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('.week-reminder')).toHaveCount(13);
+      await expect(page.locator('svg.tour-svg')).toHaveCount(3);
+      const cell = page.locator('#python-example-2');
+      await cell.getByRole('button', {
+        name: language.code === 'en' ? 'Run Python 2' : 'Python 2 kodunu çalıştır',
+        exact: true,
+      }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toHaveText(
+        'Crossed: 18\nImproved: [0, 1, 2, 3, 0] 14\nNearest: 14\nExact: 14\nBudget 14: True\nDuplicate valid: False\nLine nearest: [0, 1, 2, 3, 0] 16\nLine improved: 14\nLine exact: 14\n'
+      );
+      const links = page.locator('.week-reminder h3 a');
+      for (let week = 1; week <= 13; week++) {
+        await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
+      }
+    });
+
     test('Week 10 restarts while Python is still loading', async ({ page }) => {
       const lab = await openLab(page, 10, language);
       const runtimeRequested = Promise.withResolvers();
