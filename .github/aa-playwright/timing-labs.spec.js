@@ -336,6 +336,56 @@ for (const language of languages) {
       }
     });
 
+
+    test('Week 13 grid reminders and cost versus route storage', async ({ page }) => {
+      await page.goto(`w13/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('.week-reminder')).toHaveCount(12);
+      await expect(page.locator('svg.dp-grid')).toHaveCount(2);
+      const cell = page.locator('#python-example-2');
+      await cell.getByRole('button', {
+        name: language.code === 'en' ? 'Run Python 2' : 'Python 2 kodunu çalıştır',
+        exact: true,
+      }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toHaveText(
+        'Cost: 4\nPath: [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]\nOne row: 4\nObstacle: 7\nNo route: (None, [])\n'
+      );
+      const links = page.locator('.week-reminder h3 a');
+      for (let week = 1; week <= 12; week++) {
+        await expect(links.filter({ hasText: new RegExp(' ' + week + ' while Python is still loading', async ({ page }) => {
+      const lab = await openLab(page, 10, language);
+      const runtimeRequested = Promise.withResolvers();
+      const releaseRuntime = Promise.withResolvers();
+      // Hold the real download until the second run starts, so both attempts share the pending load.
+      await page.route('**/python-runtime.js', async route => {
+        runtimeRequested.resolve();
+        await releaseRuntime.promise;
+        await route.continue();
+      }, { times: 1 });
+
+      try {
+        await lab.run.click();
+        await runtimeRequested.promise;
+        await lab.stop.click();
+        await expect(lab.status).toHaveText(language.stopped);
+        await expect(lab.run).toBeEnabled();
+        await lab.run.click();
+      } finally {
+        releaseRuntime.resolve();
+      }
+
+      await expect(lab.status).toHaveText(language.finished);
+      await expect(lab.output).toContainText(openGridAStar);
+      await expect(lab.run).toBeEnabled();
+      await expect(lab.stop).toBeDisabled();
+      expect(lab.errors).toEqual([]);
+    });
+  });
+}
+) })).toHaveCount(1);
+      }
+    });
+
     test('Week 10 restarts while Python is still loading', async ({ page }) => {
       const lab = await openLab(page, 10, language);
       const runtimeRequested = Promise.withResolvers();
