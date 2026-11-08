@@ -41,6 +41,7 @@ const variations = {
   10: { lines: [
     'manhattan (3, 3, 4, [(0, 0), (0, 1), (0, 2), (0, 3)])',
     'zero (5, 1, 8, [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3), (0, 3)])',
+    'safe A* (5, 1, 8, [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3), (0, 3)])',
   ] },
   11: { lines: ['[4, 1, 0, 2, 3]'] },
   12: { lines: ['(3, 4, 1) (3, 7, 1) (2, 3, 2)'] },
@@ -271,6 +272,26 @@ for (const language of languages) {
       );
       const links = page.locator('.week-reminder h3 a');
       for (let week = 1; week <= 8; week++) {
+        await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
+      }
+    });
+
+
+    test('Week 10 worked reminders and A-star comparison', async ({ page }) => {
+      await page.goto(`w10/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('.week-reminder')).toHaveCount(9);
+      await expect(page.locator('svg.astar-grid')).toHaveCount(3);
+      const cell = page.locator('#python-example-2');
+      await cell.getByRole('button', {
+        name: language.code === 'en' ? 'Run Python 2' : 'Python 2 kodunu çalıştır',
+        exact: true,
+      }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toContainText('Dijkstra cost: 3 pops: 7');
+      await expect(cell.locator('.py-output')).toContainText('A* cost: 3 pops: 4');
+      await expect(cell.locator('.py-output')).toContainText('Path: [(0, 0), (0, 1), (0, 2), (0, 3)]');
+      const links = page.locator('.week-reminder h3 a');
+      for (let week = 1; week <= 9; week++) {
         await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
       }
     });
