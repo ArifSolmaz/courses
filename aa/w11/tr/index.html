@@ -11,6 +11,10 @@
 <script defer src="../../assets/python-runner.js?v=3"></script>
 <script defer src="../../assets/robot-course.js?v=1"></script>
 <link rel="stylesheet" href="../../assets/concept-lesson.css?v=1">
+<style>
+.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
+section>h3{margin-top:30px}.dependency-figure{margin:28px 0}.dependency-graph{display:block;width:100%;max-width:660px;height:auto;margin:0 auto 16px}.dependency-graph text{font:17px system-ui;fill:#243d32;text-anchor:middle}.dependency-graph rect{fill:#cce7d6;stroke:#577564;stroke-width:1.5}.dependency-graph .edge{fill:none;stroke:#526d5d;stroke-width:2.5}.dependency-graph .cycle-edge{fill:none;stroke:#a24730;stroke-width:3}.table-scroll{overflow-x:auto;margin:22px 0}.table-scroll table{min-width:570px}.table-scroll:focus-visible{outline:3px solid #b16d13}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}pre{overflow-x:auto}@media print{.week-reminder,.dependency-figure{break-inside:avoid}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">İçeriğe geç</a>
@@ -24,18 +28,36 @@
 <p>Kâğıt çalışmasından önce kavramı ve çözümlü örneği oku. Ardından tek başına tahmin et ve eşinle karşılaştır.</p>
 
 <p>180 dakika · 15 dk başlangıç, 35 dk kâğıt çalışması, 10 dk ara, 45 dk laboratuvar, 45 dk tasarım görevi, 25 dk sınav alıştırması ve 5 dk çıkış sorusu.</p>
-<nav class="robot-nav" aria-label="Ders akışı"><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Eklenen bağımlılıktan sonra güvenli başlatma tasarla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+<nav class="robot-nav" aria-label="Ders akışı"><a href="#dependency-model">Bağımlılıkları çiz</a><a href="#small-example">Küçük Python örneği</a><a href="#concepts">Önce kavramı öğren</a><a href="#paper">Kâğıt üzerinde izle</a><a href="#timing">Süreyi ölç</a><a href="#studio">Eklenen bağımlılıktan sonra güvenli başlatma tasarla</a><a href="#exam-practice">Sınav tipi sorular</a><a href="#exit-ticket">Çıkış sorusu</a></nav>
+</section>
+<section id="dependency-model"><h2>Önce kuralı söyle, sonra oku çiz</h2><p>Robotun başlatma betiği tarama hazır olmadan harita yükleyemez; hem harita hem sürüş hazır olmadan çalışmaya geçemez. Her görevi tam bir kez içeren, her önkoşulu ona bağımlı görevden önce yerleştiren liste istiyoruz. Buna <strong>topolojik sıra</strong> denir. Yönlü döngü içermeyen yönlü grafa <strong>DAG</strong> denir; topolojik sıra tam olarak bu graflarda vardır.</p><figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 370" role="img" aria-label="Önkoşullar: boot scan ve drive için; scan map için; map ve drive run için"><defs><marker id="startup-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="edge" marker-end="url(#startup-arrow)"><path d="M275 68 L145 120"/><path d="M275 68 L405 120"/><path d="M145 168 L145 212"/><path d="M145 260 L275 310"/><path d="M405 168 L405 284 L335 330"/></g><rect x="215" y="20" width="120" height="48" rx="8"/><text x="275" y="50">boot</text><rect x="85" y="120" width="120" height="48" rx="8"/><text x="145" y="150">scan</text><rect x="345" y="120" width="120" height="48" rx="8"/><text x="405" y="150">drive</text><rect x="85" y="212" width="120" height="48" rx="8"/><text x="145" y="242">map</text><rect x="215" y="310" width="120" height="48" rx="8"/><text x="275" y="340">run</text></svg><figcaption>Her oku “önce bitmeli” diye oku. run’a gelen iki önkoşulun da sağlanması gerekir; biri yetmez.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Görev</th><th scope="col">Anlam</th><th scope="col">Doğrudan önkoşullar</th></tr></thead><tbody><tr><th scope="row">boot</th><td>Robotu başlat</td><td>—</td></tr><tr><th scope="row">scan</th><td>Tarama al</td><td>boot</td></tr><tr><th scope="row">drive</th><td>Sürüşü hazırla</td><td>boot</td></tr><tr><th scope="row">map</th><td>Haritayı yükle/oluştur</td><td>scan</td></tr><tr><th scope="row">run</th><td>Çalışmaya başla</td><td>map, drive</td></tr></tbody></table></div>
+<p>Önkoşul → bağımlı görev yönünü kullan: “map’ten önce scan bitmeli” kuralı scan→map olur. graph['scan'] komşuluk listesi 'boot' değil, 'map' içerir. Gelen oklar görevin neye ihtiyaç duyduğunu, giden oklar ona hangi görevlerin bağlı olduğunu gösterir. Sabit bir grafta kesin bitmeden-başlamama koşulları varsayıyoruz.</p>
+<aside class="week-reminder"><h3><a href="../../w8/tr/">Hatırlayalım: Hafta 8</a> · Bağlantıların anlamı değişti</h3><p>BFS, S. / .G biçimindeki 2×2 haritada iki hamleli yol buldu. Burada boot→scan robotun yaptığı bir hareket değil, görev sırasının koşuludur. Rota seçilen hücreleri ziyaret eder; tam başlatma sırası bağlantısızlar dahil listedeki tüm görevleri içermelidir.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w9/tr/">Hatırlayalım: Hafta 9</a> · Bu hafta rota maliyetini küçültmüyoruz</h3><p>Dijkstra, maliyeti 28 olan dört hamle yerine maliyeti 8 olan sekiz hamleyi seçti. Bağımlılık sıralamasında küçültülecek böyle bir toplam yoktur: boot,drive,scan,map,run ile boot,scan,map,drive,run özgün okları sağlar.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w10/tr/">Hatırlayalım: Hafta 10</a> · Hedef sezgisi önkoşulları sağlamaz</h3><p>A*, f=g+h kullandı; g=1 ve h=3 için öncelik 4’tü. run’a küçük bir tahmini uzaklık, drive bitmeden run’ın başlamasına izin vermez. Hedefe uzaklık tahmini yerine her bağımlılığı sağlayan sıralama kuralına ihtiyacımız var.</p></aside>
 </section>
 <section id="concepts">
 <h2>Önkoşullardan geçerli bir başlatma sırası kur</h2>
 <h3>Bu derste yapabileceklerin</h3><ul><li>Okları önkoşuldan bağımlı göreve çiz.</li><li>Görülmemiş, etkin ve tamamlanmış durumları izle.</li><li>Döngüsüz grafta bitiş sırasını ters çevir.</li><li>Döngüye örnek bir yol göster.</li></ul>
-<h3>Başlamadan önce</h3><p>Izgara aramasında bağlantıları izledik. Burada ok, bir görev bitmeden diğerinin başlayamayacağı anlamına gelir.</p>
+<h3>Üç işaret analizin durumunu gösterir</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Durum</th><th scope="col">Kod</th><th scope="col">DFS’de anlamı</th><th scope="col">Bu duruma kenar ne demek?</th></tr></thead><tbody><tr><th scope="row">Görülmemiş</th><td>0</td><td>Henüz girilmedi</td><td>Özyinelemeli olarak araştır</td></tr><tr><th scope="row">Etkin</th><td>1</td><td>Mevcut tamamlanmamış çağrı zincirinde</td><td>Yönlü döngü var</td></tr><tr><th scope="row">Tamamlanmış</th><td>2</td><td>Tüm çıkış kenarları incelendi</td><td>Zaten incelendi; yeniden derine inme</td></tr></tbody></table></div>
+<p class="lesson-note"><strong>DFS robot görevlerini çalıştırmaz.</strong> “map’e gir” map düğümünü incele demektir; “run bitti” onun çıkış kenarlarını inceleme işinin bittiği anlamına gelir. Robotun boot’tan önce çalıştığı anlamına gelmez. Önce sırayı hesaplayıp doğrula; sonra ayrı bir denetleyici önkoşulların gerçekten başarıyla tamamlandığını kontrol ederek görevleri çalıştırabilir.</p>
 <p>Derinlik öncelikli arama geri dönmeden bir dalı izler. Göreve girince etkin, çıkış kenarlarının hepsi incelenince tamamlanmış olarak işaretle. Etkin göreve kenar mevcut zincire dönüp döngü oluşturur. Tamamlanmış göreve kenar tek başına döngü kanıtı değildir.</p><p>Graf döngüsüzse bitiş sırasını ters çevir. Her önkoşul bağımlı görevlerinden önce gelir. Sonucun bağımsız görevleri de içermesi için görülmemiş her görevden yeni bir DFS başlat.</p>
 <figure class="concept-figure">
 <figcaption>Çözümlü iz · boot → map, map → enable, boot → enable</figcaption>
 <ol class="concept-frames"><li><strong>boot, sonra map, sonra enable</strong><span>Üçü aynı zincirde etkin.</span></li><li><strong>Önce enable, sonra map biter</strong><span>boot’un diğer kenarı tamamlanmış göreve gelir.</span></li><li><strong>boot biter</strong><span>Bitişi ters çevirince boot, map, enable.</span></li><li><strong>enable → boot ekle</strong><span>Yeni kenar etkin boot’a döner. Başlatma sırası yoktur.</span></li></ol>
 </figure>
 <p>Geçerli sırayı doğrulamak için her görevin konumunu yaz ve her oku kontrol et. Başka bir eşitlik kuralı sırayı değiştirse de bütün oklar ileri gitmelidir.</p>
+<h3>Tam başlatma grafını izle</h3>
+<p>boot’tan başla; scan’i drive’dan önce incele. Aşağıdaki etkin zincir özyineleme yığınıdır; en yeni görev sağdadır. Tamamlanan görev zincirden çıkar, ayrı bitiş listesine eklenir.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Çözümlü karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Olay</th><th scope="col">Olay sonrası etkin zincir</th><th scope="col">Bitiş listesi</th></tr></thead><tbody><tr><th scope="row">boot’a gir</th><td>boot</td><td>[]</td></tr><tr><th scope="row">scan’e gir</th><td>boot, scan</td><td>[]</td></tr><tr><th scope="row">map’e gir</th><td>boot, scan, map</td><td>[]</td></tr><tr><th scope="row">run’a gir</th><td>boot, scan, map, run</td><td>[]</td></tr><tr><th scope="row">run’ı tamamla</th><td>boot, scan, map</td><td>run</td></tr><tr><th scope="row">map’i tamamla</th><td>boot, scan</td><td>run, map</td></tr><tr><th scope="row">scan’i tamamla</th><td>boot</td><td>run, map, scan</td></tr><tr><th scope="row">drive’a gir</th><td>boot, drive</td><td>run, map, scan</td></tr><tr><th scope="row">drive→run tamamlanmış run görür: atla</th><td>boot, drive</td><td>run, map, scan</td></tr><tr><th scope="row">drive’ı tamamla</th><td>boot</td><td>run, map, scan, drive</td></tr><tr><th scope="row">boot’u tamamla</th><td>[]</td><td>run, map, scan, drive, boot</td></tr></tbody></table></div>
+<p>Bitiş listesini ters çevir: <strong>boot, drive, scan, map, run</strong>. Keşif sırası boot, scan, map, run, drive idi; yürütme sırası olarak geçersizdir çünkü run, önkoşulu drive’dan önce gelir. Keşfi ters çevirmek de yanlıştır; boot’u sona koyar.</p>
+<h3>Bitişi ters çevirmek neden işe yarar?</h3>
+<p>Döngüsüz grafta herhangi bir u→v kenarını düşün. v görülmemişse DFS, u’yu tamamlamadan önce v’yi araştırıp tamamlar. v zaten tamamlanmışsa yine bitiş listesinde önce yer alır. v etkin olsaydı döngü oluşurdu. Demek ki v her zaman u’dan önce biter; listeyi ters çevirmek her kenarda u’yu v’den önceye koyar.</p>
+<aside class="week-reminder"><h3><a href="../../w5/tr/">Hatırlayalım: Hafta 5</a> · Tek ziyaret işareti önemli bilgiyi kaybeder</h3><p>Sözlük state['run']=2 ve state['boot']=1 saklayabilir. İki görev de ziyaret edildi; ama boot’a kenar mevcut zinciri kapatırken drive→run güvenle tamamlanmış göreve ulaşabilir. Yalnız ziyaret kümesi üyeliği değil, üç durum sakla.</p></aside>
+<h3>Geri kenardan kesin döngüyü çıkar</h3><p>run→boot ekle. run incelenirken etkin zincir boot,scan,map,run’dır. Hedef boot etkindir; döngü tanığını kapatmak için onu sona ekle: boot→scan→map→run→boot. Bu dizideki her ok grafta vardır. Kesin önkoşullar üzerinden boot’un kendisinden önce bitmesi gerekir; bu imkânsızdır. Tanık bir döngü olduğunu kanıtlar; tüm döngüleri veya hangi kuralın kaldırılması gerektiğini söylemez.</p>
+<aside class="week-reminder"><h3><a href="../../w1/tr/">Hatırlayalım: Hafta 1</a> · Tek tanık erken durmayı gerekçelendirebilir</h3><p>[2,9,12] içinde 8’den büyük herhangi bir değer arayan tarama 9’da durabilir. Benzer şekilde tek yönlü döngü bulmak “tam topolojik sıra yok” demeye yeter. Yalnız boot bileşeninde döngü bulamamak tüm grafı kabul etmeye yetmez; diğer bileşenler de denetlenmelidir.</p></aside>
 </section>
 <section id="paper"><p class="eyebrow">35 dk</p><h2>Kâğıt üzerinde izle</h2>
 <p>boot → scan, boot → drive, scan → map, map → run, drive → run oklarını kullan. DFS’de scan, drive’dan önce incelensin. Görevleri görülmemiş, etkin veya tamamlanmış olarak işaretle. Bitiş sırasını ters çevir. run → boot ekleyip yeniden dene.</p><p>Önce kendi izini yaz. Sonra adımları karşılaştır ve yöntemin neden işe yaradığını üç cümleyle açıkla.</p>
@@ -46,13 +68,88 @@
 <details><summary>Çözüm adımlarını göster</summary><ol class="tool-steps"><li>A, C’yi, C de D’yi açar. Önce D, sonra C biter. A’nın D’ye diğer kenarı tamamlanmış bir göreve gelir.</li><li>A üçüncü biter. Sonra B başlar ve D’yi bitmiş bulur. Bitiş D, C, A, B olduğundan geçerli bir sıra B, A, C, D’dir.</li><li>D→A ekle. A’dan DFS, C ve D üzerinden etkin A’ya geri döner. Döngü A→C→D→A’dır.</li></ol></details>
 <p>İki örneği karşılaştır. Bir sınır durumunu ve yanlış bir çözümü ele verecek bir işareti yaz. Ardından 10 dakika ara ver.</p>
 </section>
+<section id="small-example"><h2>Döngüyü açıklayan planlayıcıyı çalıştır</h2><p>Bu bağımsız örnek okunabilir görev adları kullanır. Sözlük bağımlı görevleri listeler; bağımlısı olmayan yaprak dahil her görevin anahtarı bulunmalıdır. Sözlük ve komşu-listesi sırası örneği belirli kılar; başka sıra başka geçerli yanıt üretebilir. Fonksiyon ya (sıra, []) ya da (None, döngü) döndürür.</p>
+<pre class="python-example" data-python="2"><code>def plan_startup(graph):
+    # Keys are task names; each list contains their dependents.
+    if any(v not in graph for edges in graph.values() for v in edges):
+        raise ValueError(&quot;Every dependent must be a graph key&quot;)
+    state = {task: 0 for task in graph}
+    active = []
+    active_position = {}
+    finish = []
+
+    def visit(task):
+        state[task] = 1
+        active_position[task] = len(active)
+        active.append(task)
+        for dependent in graph[task]:
+            if state[dependent] == 1:
+                i = active_position[dependent]
+                return active[i:] + [dependent]
+            if state[dependent] == 0:
+                cycle = visit(dependent)
+                if cycle:
+                    return cycle
+        active.pop()
+        del active_position[task]
+        state[task] = 2
+        finish.append(task)
+        return []
+
+    for task in graph:
+        if state[task] == 0:
+            cycle = visit(task)
+            if cycle:
+                return None, cycle
+    return finish[::-1], []
+
+graph = {
+    &quot;boot&quot;: [&quot;scan&quot;, &quot;drive&quot;],
+    &quot;scan&quot;: [&quot;map&quot;],
+    &quot;drive&quot;: [&quot;run&quot;],
+    &quot;map&quot;: [&quot;run&quot;],
+    &quot;run&quot;: [],
+}
+order, cycle = plan_startup(graph)
+print(&quot;Order:&quot;, &quot; -&gt; &quot;.join(order))
+assert len(order) == len(graph) and set(order) == set(graph)
+position = {task: i for i, task in enumerate(order)}
+assert all(position[u] &lt; position[v] for u in graph for v in graph[u])
+
+graph[&quot;run&quot;].append(&quot;boot&quot;)
+order, cycle = plan_startup(graph)
+print(&quot;Order after change:&quot;, order)
+print(&quot;Cycle:&quot;, &quot; -&gt; &quot;.join(cycle))
+assert order is None
+assert cycle[0] == cycle[-1]
+assert all(v in graph[u] for u, v in zip(cycle, cycle[1:]))
+</code></pre>
+<p>İlk çağrıdan önce graph['log']=[] ekle: yalıtılmış görev bir kez görünmeli; bu dolaşım onu son sıranın başına koyar. Sonra graph['run']=['run'] dene: tanık run→run olur, yani öz-döngü. Deneyler arasında özgün örneği geri yükle. Bu özyinelemeli öğretim sürümü küçük graflar içindir; uzun bağımlılık zincirleri açık yığın veya başka özyinelemesiz yöntem gerektirir.</p>
+<figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 320" role="img" aria-label="A C ve D’ye, C D’ye, B D’ye gider; I yalıtılmıştır"><defs><marker id="branch-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="edge" marker-end="url(#branch-arrow)"><path d="M110 68 L110 125"/><path d="M110 173 L230 245"/><path d="M170 44 L230 245"/><path d="M320 68 L290 245"/></g><rect x="50" y="20" width="120" height="48" rx="8"/><text x="110" y="50">A</text><rect x="260" y="20" width="120" height="48" rx="8"/><text x="320" y="50">B</text><rect x="50" y="125" width="120" height="48" rx="8"/><text x="110" y="155">C</text><rect x="200" y="245" width="120" height="48" rx="8"/><text x="260" y="275">D</text><rect x="400" y="125" width="110" height="48" rx="8"/><text x="455" y="155">I</text></svg><figcaption>I’nın gelen veya giden kenarı yoktur. Yine de sırada tam bir kez bulunmalıdır. A→D, A→C→D yanında fazladan kısıttır; döngü değildir.</figcaption></figure>
+<h3>DFS’yi tekrarlamadan önerilen sırayı doğrula</h3>
+<p>boot,drive,scan,map,run için konumlar boot=0, drive=1, scan=2, map=3, run=4’tür. Her kenarı denetle: 0&lt;2, 0&lt;1, 2&lt;3, 3&lt;4, 1&lt;4. Eksik veya yinelenen görev yanlışlıkla geçmesin diye uzunluğu ve üyeliği de kontrol et. A,B,C,D,I grafında I,B,A,C,D geçerlidir; I hiçbir kenarı bozmadan herhangi bir konuma taşınabilir.</p>
+<aside class="week-reminder"><h3><a href="../../w3/tr/">Hatırlayalım: Hafta 3</a> · Bu, görev numarasına göre sıralama değildir</h3><p>İkili arama [10,20,30,40] gibi anahtara göre sıralı dizi ister. Topolojik sıra ise kenarları sağlar: görev 3, görev 1’den önce gelmeliyse artan numaralar [0,1,2,3] genel geçerli çözüm değildir. Konum sözlüğü bağımlılık kontrollerini doğrudan yapar.</p></aside>
+</section>
 <section id="common-mistakes">
 <h2>Sık yapılan hatalar</h2><ul><li>Bitiş yerine keşif sırasını ters çevirmek.</li><li>Ziyaret edilmiş her komşuyu döngü kanıtı saymak.</li><li>Yalıtılmış görevleri unutmak.</li></ul>
 <h3>İngilizce–Türkçe terimler</h3><dl class="concept-glossary"><dt>Prerequisite / Önkoşul</dt><dd>Önce bitmesi gereken görev.</dd><dt>Active / Etkin</dt><dd>Girilmiş ama henüz tamamlanmamış görev.</dd><dt>Topological order / Topolojik sıra</dt><dd>Bütün okların ileri gittiği sıra.</dd></dl>
 </section>
+<section id="ready-tasks"><h2>İkinci bakış: hangi görevler hazır?</h2>
+<p>Kahn algoritması her görevin giriş derecesiyle, yani gelen önkoşul sayısıyla başlar. Giriş derecesi sıfır görevi çıkar, sıraya ekle ve bağımlılarının sayılarını azalt. Bir bağımlıyı ancak sayısı sıfıra düşünce hazır kuyruğuna ekle. V’den az görev çıkarılmışken kuyruk boşalırsa yönlü döngü kalmıştır. Bu alternatif bir planlama algoritmasıdır; görevleri yine gerçekten çalıştırmaz.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Çıkar</th><th scope="col">Sayı değişimleri</th><th scope="col">Güncelleme sonrası hazır FIFO</th></tr></thead><tbody><tr><th scope="row">Başlangıç</th><td>boot:0, scan:1, drive:1, map:1, run:2</td><td>boot</td></tr><tr><th scope="row">boot</th><td>scan:1→0, drive:1→0</td><td>scan, drive</td></tr><tr><th scope="row">scan</th><td>map:1→0</td><td>drive, map</td></tr><tr><th scope="row">drive</th><td>run:2→1</td><td>map</td></tr><tr><th scope="row">map</th><td>run:1→0</td><td>run</td></tr><tr><th scope="row">run</th><td>—</td><td>[]</td></tr></tbody></table></div>
+<p>Sonuç boot,scan,drive,map,run, DFS sonucundan farklıdır ama aynı kenar kontrolünden geçer. Özellikle drive’ın çıkarılması run’ı henüz hazır yapmaz: map önkoşulu kalmıştır. Döngü varsa çıkarılmayan kümede hem döngü üyeleri hem onların engellediği sonraki görevler bulunabilir; bu küme tek başına kesin döngü tanığı değildir.</p>
+<aside class="week-reminder"><h3><a href="../../w4/tr/">Hatırlayalım: Hafta 4</a> · FIFO ve LIFO farklı işler yapar</h3><p>scan,drive içeren FIFO önce scan’i verir ve drive’ı bırakır. Bu izde Kahn hazır görevler için FIFO kullanır. Özyinelemeli DFS ise LIFO çağrı yığını kullanır: boot,scan,map,run girişlerinden sonra önce run’dan dönülür. Algoritmayı değiştirmeden yığın yerine kuyruk koymak DFS değildir.</p></aside>
+<aside class="week-reminder"><h3><a href="../../w7/tr/">Hatırlayalım: Hafta 7</a> · Öncelik yalnız hazır görevler arasında seçim yapabilir</h3><p>Son tarihleri 3 ve 7 olan min-öbek önce 3’ü verir. Giriş derecesi sıfır görevler arasında seçim için öbek kullanabilir, örneğin diagnostics’i power’a tercih edebilirsin. En yüksek öncelikli enable bile önkoşulları kalırken seçilemez. Öncelik politikası geçerli sıra seçer; tüm programın en hızlı bitmesini garanti etmez.</p></aside>
+</section>
+<section id="work-and-memory"><h2>Kenarları ve yığın derinliğini ayrı say</h2>
+<aside class="week-reminder"><h3><a href="../../w2/tr/">Hatırlayalım: Hafta 2</a> · İç içe döngü otomatik olarak karesel değildir</h3><p>n öğenin tüm çiftlerini karşılaştırmak yaklaşık n² işlem gerektirir. DFS’nin iç döngüsü graph[u] listesini tarar; tüm düğümler boyunca her düğüm için V kenar değil, toplam E kayıtlı kenar taranır. Komşuluk listesinde DFS O(V+E) süre ve durumlar, bitiş sırası, çağrı yığını için O(V) ek bellek kullanır. Saklanan graf ayrıca O(V+E) yer kaplar.</p></aside>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Graf</th><th scope="col">V</th><th scope="col">E</th><th scope="col">En fazla etkin görev</th></tr></thead><tbody><tr><th scope="row">20 görevli zincir</th><td>20</td><td>19</td><td>20</td></tr><tr><th scope="row">200 görevli zincir</th><td>200</td><td>199</td><td>200</td></tr><tr><th scope="row">200 görevli dışa yönlü yıldız</th><td>200</td><td>199</td><td>2</td></tr><tr><th scope="row">200 görevli zincir ve son→ilk</th><td>200</td><td>200</td><td>200</td></tr></tbody></table></div>
+<p>Zincir ve yıldız aynı V ve E’ye sahipken çağrı derinlikleri çok farklıdır. n’yi ders örneklerinin çok ötesine büyütmek Python özyineleme sınırını aşabilir. RecursionError, uygulamanın çağrı-yığını kapasitesinin tükendiğini gösterir; graf döngüsünün kanıtı değildir. Büyük graflarda sıradaki komşu konumunu koruyan yinelemeli DFS çerçeveleri veya Kahn kullan. Yalnız görev numaralarını yığına atıp keşif sırasını ters çevirmek DFS bitiş sırasını üretmez.</p>
+<aside class="week-reminder"><h3><a href="../../w6/tr/">Hatırlayalım: Hafta 6</a> · Süre özetleri son süre garantisi değildir</h3><p>Sıralı [2,2,3,7,100] örneklerinin medyanı 3’tür. Deney beş grup ortalamasının medyanını ve en büyüğünü verir; mümkün olan en yavaş tek çağrıyı değil. Döngünün bulunduğu yere göre dolaşım erken durabilir; uzun zincirin sonundaki döngü o zincirin ziyaretlerini azaltmaz.</p></aside>
+</section>
 <section id="timing"><p class="eyebrow">45 dk</p><h2>Süreyi ölç</h2>
 <p>20 ve 200 görevli bağımlılık zincirlerinde işi tahmin et ve DFS’yi ölç. Son görevden ilkine bir ok ekle. Döngünün bildirildiğini kontrol et.</p><p>Çalıştır’a bas veya kodu Python 3’e kopyala. Çıktıdaki iki süre, beş grup ortalamasının medyanı ve en büyüğüdür. Her biri çağrı başına milisaniye cinsindendir. Gözlenen en büyük grup ortalaması tek bir çağrının üst sınırı değildir.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
+<p class="lesson-note">Kısa deneyde görev numaraları 0…n−1’dir: graph[u], u’ya bağımlı görevleri listeler. Boş olsa da her görevin listesi bulunur. Yeni doğrulama negatif, sınır dışı veya tam sayı olmayan bağımlı numaralarını DFS’den önce reddeder. Girdi yeniden okunabilir komşu listelerinden oluşmalı ve arama sırasında değişmemelidir. Adlı örnekten farklı olarak bu kısa fonksiyon döngü tanığı değil, yalnız sıra veya None döndürür.</p><pre class="python-example" data-python="1"><code>from statistics import median
 from timeit import repeat
 
 
@@ -63,6 +160,9 @@ def measure(label, job, repeats=200):
     print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
 
 def topological(graph):
+    n = len(graph)
+    if any(type(v) is not int or not 0 &lt;= v &lt; n for edges in graph for v in edges):
+        raise ValueError(&quot;Dependents must be integer task IDs from 0 to n-1&quot;)
     state = [0] * len(graph)
     finish = []
 
@@ -93,7 +193,9 @@ for n in (20, 200):
     assert topological(graph) is None
     measure(f&quot;{n}: cycle&quot;, lambda: topological(graph))
 </code></pre>
-<h3>Deney adımları</h3>
+<h3>Ölçmeden önce beklenen yanıtı bil</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Karşılaştırma tablosu"><table class="robot-table"><thead><tr><th scope="col">Girdi</th><th scope="col">Beklenen sonuç</th><th scope="col">Gerekçe</th></tr></thead><tbody><tr><th scope="row">[]</th><td>[]</td><td>Boş grafın geçerli sırası boştur</td></tr><tr><th scope="row">[[]]</th><td>[0]</td><td>Tek yalıtılmış görev</td></tr><tr><th scope="row">[[0]]</th><td>None</td><td>Öz-döngü 0→0</td></tr><tr><th scope="row">[[1], [0]]</th><td>None</td><td>İki görevli döngü</td></tr><tr><th scope="row">[[], [2], [1]]</th><td>None</td><td>Görev 0’ın bileşeni dışında döngü</td></tr><tr><th scope="row">[[2,3], [3], [3], [], []]</th><td>[4,1,0,2,3]</td><td>Dallanan bağımlılıklar ve yalıtılmış görev 4</td></tr></tbody></table></div>
+<p>Başarısızlığı <code>order is None</code> ile kontrol et; <code>if not order</code> kullanma: geçerli boş sıra [] da Python’da yanlış değer sayılır. [[1,1],[]] gibi yinelenen kenar aynı koşulu tekrarlar ve döngü değildir; incelenecek bir kayıtlı kenar daha ekler. Ölçüm graf doğrulama, durum belleği ayırma, DFS ve bitişi ters çevirmeyi içerir. Graf kurma ve doğruluk doğrulamaları ölçülen çağrının dışındadır. DFS daha sonra döngüyü erken bulsa bile doğrulama tüm kenarları tarar.</p><h3>Deney adımları</h3>
 <p>İlk 10 dakikada özgün kodu çalıştır, sonraki 20 dakikada girdileri değiştir ve son 15 dakikada bulguları karşılaştır. Başlangıç koduna dönmek için Örneği yükle düğmesini kullan.</p>
 <ol class="tool-steps"><li>Başlangıç zinciri ve döngüyü çalıştır. DFS’nin hangi koşulda sıra vermeden döndüğünü açıkla.</li><li>Yalıtılmış bir görev içeren küçük dallanan graf dene. Sonuçtaki her kenarı doğrula ve bağımsız görevin listede olduğuna bak.</li><li>200 görevli zinciri aynı kenar sayılı 200 görevli yıldızla karşılaştır. Görev ve kenar sayısı eşitken çağrı derinliğinin neden farklı olduğunu açıkla.</li></ol>
 <details><summary>Kopyalanabilir deney kodu</summary>
@@ -114,7 +216,11 @@ assert topological(graph) is None</code></pre>
 <p>İlk 10 dakikada tek başına başla. 20 dakika eşinle çalış. Son 15 dakikada başka bir ekiple sonuçları karşılaştır ve önerini düzelt.</p>
 <ol class="tool-steps"><li>Altı görevi ve yönlü kenarları çiz. Ek kenardan önce iki geçerli sıra ver ve bütün okları kontrol et.</li><li>Ek kenardan sonra döngüyü bul. Eşitlik kuralını değiştirmenin neden çözüm olmadığını açıkla.</li><li>Denetleyicinin döngüde vereceği mesajı öner. Kısmi sıralamayla enable çalıştırmanın güvenli olup olmadığını yaz.</li></ol>
 <details><summary>Örnek çözümü karşılaştır</summary><p>Bir sıra boot, power, diagnostics, actuator check, sensor check, enable. Diğeri boot, diagnostics, sensor check, power, actuator check, enable. Hata power→actuator check→enable→power döngüsünü oluşturur. Döngüyü bildir ve ayar düzelene dek enable’ı engelle.</p></details>
-</section>
+<figure class="dependency-figure"><svg class="dependency-graph" viewBox="0 0 550 260" role="img" aria-label="Döngü: power actuator check enable power"><defs><marker id="cycle-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#526d5d"/></marker></defs><g class="cycle-edge" marker-end="url(#cycle-arrow)"><path d="M220 44 L95 150"/><path d="M195 174 L355 174"/><path d="M455 150 L335 44"/></g><rect x="215" y="20" width="120" height="48" rx="8"/><text x="275" y="50">power</text><rect x="15" y="150" width="180" height="48" rx="8"/><text x="105" y="180">actuator check</text><rect x="355" y="150" width="180" height="48" rx="8"/><text x="445" y="180">enable</text></svg><figcaption>power → actuator check → enable → power. Okları takip etmek başlangıç görevine döndürür. Bağımsız görevleri yeniden sıralamak bu çelişkiyi kaldıramaz.</figcaption></figure><h3>Geçerli liste henüz tam bir çalışma zamanı zamanlayıcısı değildir</h3>
+<p>Başlatmayı yürütmeden önce tüm grafı ve sırayı doğrula. power→actuator check→enable→power gibi somut döngüyü bildir; yetkili yapılandırma düzeltmesi çözene dek enable’ı engelle. Sessizce kenar silme veya kısmi bitiş listesini tam plan sayma. Reddedilmeden sonra bağımsız tanı görevlerinin çalışıp çalışamayacağı ayrı, açık işletim politikasına bağlıdır.</p>
+<p>Topolojik sıra süreyi, kaynak çatışmalarını veya görev başarısızlıklarını da modellemez. Özgün beş görevli grafa dön: süreler boot=2, scan=3, drive=1, map=2, run=1 birim olsun. Ardışık yürütme toplam 9 tutar. Sınırsız kaynak ve başarılı görevlerle boot 0–2, scan 2–5 ve drive 2–3 paralel, map 5–7, run 7–8 çalışır. boot→scan→map→run zinciri belirleyici olduğundan tamamlanma 8 birimdir. Bu zaman hesabı ek bilgidir; DFS sonucunun parçası değildir.</p>
+<h3>Aynı modeli robot dışında dene</h3>
+<p>Veri işleme hattında download→clean, clean→train, train→evaluate ve clean→report gerekebilir. Geçerli bir sıra download,clean,report,train,evaluate’dir. evaluate→clean eklemek clean→train→evaluate→clean döngüsünü oluşturur. Derleme sistemi de aynı kuralı kullanır: bağımlı uygulamayı bağlamadan önce kütüphaneyi derle. Yalnız gerçek önkoşulları kodla; ilgisiz görevler için yapay sıra kenarı ekleme.</p></section>
 <section id="exam-practice"><p class="eyebrow">25 dk</p><h2>Sınav tipi sorular</h2>
 <p>İlk 15 dakikada üç soruyu ve <a href="#drills">ek alıştırmalardan</a> ikisini yardımsız çöz. Son 10 dakikada yanıtları kontrol et ve bir gerekçeyi yeniden yaz.</p>
 <ol class="practice-list"><li><p>boot, scan, drive, map, run geçerli mi?</p><details><summary>Yanıtı göster</summary><p>Evet. Bütün oklar ileri gider.</p></details></li><li><p>Çıkış kenarında hangi DFS işareti döngü gösterir?</p><details><summary>Yanıtı göster</summary><p>Etkin.</p></details></li><li><p>Komşuluk listesiyle DFS neyi inceler?</p><details><summary>Yanıtı göster</summary><p>Sabit kayıt işi dışında her görevi ve her çıkış bağımlılığını bir kez.</p></details></li></ol></section>

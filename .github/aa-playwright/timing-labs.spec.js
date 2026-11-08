@@ -296,6 +296,26 @@ for (const language of languages) {
       }
     });
 
+
+    test('Week 11 dependency reminders and exact cycle witness', async ({ page }) => {
+      await page.goto(`w11/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('.week-reminder')).toHaveCount(10);
+      await expect(page.locator('svg.dependency-graph')).toHaveCount(3);
+      const cell = page.locator('#python-example-2');
+      await cell.getByRole('button', {
+        name: language.code === 'en' ? 'Run Python 2' : 'Python 2 kodunu çalıştır',
+        exact: true,
+      }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toHaveText(
+        'Order: boot -> drive -> scan -> map -> run\nOrder after change: None\nCycle: boot -> scan -> map -> run -> boot\n'
+      );
+      const links = page.locator('.week-reminder h3 a');
+      for (let week = 1; week <= 10; week++) {
+        await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
+      }
+    });
+
     test('Week 10 restarts while Python is still loading', async ({ page }) => {
       const lab = await openLab(page, 10, language);
       const runtimeRequested = Promise.withResolvers();
