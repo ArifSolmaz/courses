@@ -336,7 +336,6 @@ for (const language of languages) {
       }
     });
 
-
     test('Week 13 grid reminders and cost versus route storage', async ({ page }) => {
       await page.goto(`w13/${language.path}`, { waitUntil: 'domcontentloaded' });
       await expect(page.locator('.week-reminder')).toHaveCount(12);
@@ -352,37 +351,7 @@ for (const language of languages) {
       );
       const links = page.locator('.week-reminder h3 a');
       for (let week = 1; week <= 12; week++) {
-        await expect(links.filter({ hasText: new RegExp(' ' + week + ' while Python is still loading', async ({ page }) => {
-      const lab = await openLab(page, 10, language);
-      const runtimeRequested = Promise.withResolvers();
-      const releaseRuntime = Promise.withResolvers();
-      // Hold the real download until the second run starts, so both attempts share the pending load.
-      await page.route('**/python-runtime.js', async route => {
-        runtimeRequested.resolve();
-        await releaseRuntime.promise;
-        await route.continue();
-      }, { times: 1 });
-
-      try {
-        await lab.run.click();
-        await runtimeRequested.promise;
-        await lab.stop.click();
-        await expect(lab.status).toHaveText(language.stopped);
-        await expect(lab.run).toBeEnabled();
-        await lab.run.click();
-      } finally {
-        releaseRuntime.resolve();
-      }
-
-      await expect(lab.status).toHaveText(language.finished);
-      await expect(lab.output).toContainText(openGridAStar);
-      await expect(lab.run).toBeEnabled();
-      await expect(lab.stop).toBeDisabled();
-      expect(lab.errors).toEqual([]);
-    });
-  });
-}
-) })).toHaveCount(1);
+        await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
       }
     });
 
