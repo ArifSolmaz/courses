@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Newton’s Laws of Motion — Interactive lesson</title>
+<meta name="description" content="Predict, run and explain: live simulations, free-body diagrams, worked examples and self-checks for Newton’s three laws of motion. Physics I.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FA; --surface:#FFFFFF; --surface-2:#EAEEF5; --ink:#15223B; --muted:#5B6780; --line:#CBD3E1;
+  --grid:rgba(21,34,59,.08);
+  --accent:#1D4ED8; --accent-ink:#FFFFFF; --accent-soft:rgba(29,78,216,.10);
+  --force:#E4572E; --weight:#C07A00; --normal:#0E8F7D; --friction:#B5179E; --tension:#7C3AED; --accel:#2A9D3F; --vel:#0284C7;
+  --good:#2A9D3F; --good-soft:rgba(42,157,63,.12); --bad:#D7263D; --bad-soft:rgba(215,38,61,.10); --warn:#B86E00;
+  --teach:rgba(255,196,61,.16); --teach-ink:#6B4A00;
+  --ui:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Literata",Georgia,"Times New Roman",serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1730; --surface:#12213F; --surface-2:#1A2C50; --ink:#E6ECF7; --muted:#9FB0CC; --line:#2B3E66;
+    --grid:rgba(230,236,247,.07);
+    --accent:#7FA7FF; --accent-ink:#0B1730; --accent-soft:rgba(127,167,255,.14);
+    --force:#FF7A55; --weight:#F2B94B; --normal:#3FD1BC; --friction:#E86DD3; --tension:#B79CFF; --accel:#5FD37A; --vel:#5CC8FF;
+    --good:#5FD37A; --good-soft:rgba(95,211,122,.14); --bad:#FF6B7A; --bad-soft:rgba(255,107,122,.14); --warn:#F2B94B;
+    --teach:rgba(242,185,75,.12); --teach-ink:#F2B94B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1730; --surface:#12213F; --surface-2:#1A2C50; --ink:#E6ECF7; --muted:#9FB0CC; --line:#2B3E66;
+  --grid:rgba(230,236,247,.07);
+  --accent:#7FA7FF; --accent-ink:#0B1730; --accent-soft:rgba(127,167,255,.14);
+  --force:#FF7A55; --weight:#F2B94B; --normal:#3FD1BC; --friction:#E86DD3; --tension:#B79CFF; --accel:#5FD37A; --vel:#5CC8FF;
+  --good:#5FD37A; --good-soft:rgba(95,211,122,.14); --bad:#FF6B7A; --bad-soft:rgba(255,107,122,.14); --warn:#F2B94B;
+  --teach:rgba(242,185,75,.12); --teach-ink:#F2B94B;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 7rem);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.65 var(--body);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+img,canvas{max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+h1,h2,h3,h4{font-family:var(--ui);line-height:1.15;margin:0 0 .5rem;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,4.5vw,3.1rem);font-weight:700;font-variation-settings:"opsz" 96}
+h2{font-size:clamp(1.35rem,2.6vw,1.75rem);font-weight:650;margin-top:2.75rem}
+h3{font-size:1.15rem;font-weight:600;margin-top:1.75rem}
+p,ul,ol{max-width:68ch}
+li{margin:.25rem 0}
+var,.eq i{font-family:var(--body);font-style:italic}
+.eq{font-family:var(--body);font-size:1.1em;white-space:nowrap}
+.eq.big{display:block;font-size:1.6rem;margin:.9rem 0 .5rem;text-align:left}
+sub,sup{line-height:0}
+small,.small{font-size:.875rem}
+.muted{color:var(--muted)}
+.kicker{font:500 .95rem/1.3 var(--ui);color:var(--muted);margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.55;color:var(--ink);max-width:62ch}
+
+/* header + tabs (sticky) */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:980px;margin:0 auto;padding:.7rem 1rem .25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{font:600 1rem/1.2 var(--ui);color:var(--ink);text-decoration:none}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.switch{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.3rem .75rem .3rem .35rem;font:500 .85rem/1 var(--ui);cursor:pointer;white-space:nowrap}
+.switch .knob{width:30px;height:18px;border-radius:999px;background:var(--line);position:relative;transition:background .2s}
+.switch .knob::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--surface);transition:transform .2s}
+.switch[aria-pressed="true"] .knob{background:var(--teach-ink)}
+.switch[aria-pressed="true"] .knob::after{transform:translateX(12px)}
+.back{margin-left:auto;margin-right:.9rem;font:500 .85rem/1.2 var(--ui);color:var(--muted);text-decoration:none;white-space:nowrap}
+.back:hover{color:var(--ink)}
+.tabs{max-width:980px;margin:0 auto;padding:0 .5rem;display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;display:inline-flex;align-items:baseline;gap:.4rem;padding:.6rem .7rem;color:var(--muted);text-decoration:none;font:500 .9rem/1.2 var(--ui);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a b{font-weight:700;color:var(--ink)}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs a:hover{color:var(--ink)}
+
+main{max-width:980px;margin:0 auto;padding:1.5rem 1rem 5rem}
+section.view{display:none}
+section.view.active{display:block}
+.view-head{margin:1rem 0 1.5rem}
+
+/* sim plate */
+.sim{border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:1.5rem 0;overflow:hidden}
+.sim-title{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.7rem 1rem .4rem;font:600 .95rem/1.3 var(--ui)}
+.sim-title span{font-weight:400;color:var(--muted);font-size:.85rem}
+.sim canvas{display:block;width:100%;height:auto}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.9rem 1.5rem;padding:.9rem 1rem;border-top:1px solid var(--line);align-items:end}
+.ctrl label{display:flex;justify-content:flex-start;align-items:baseline;gap:.3rem;font:500 .85rem/1.3 var(--ui);color:var(--muted);margin-bottom:.15rem}
+.ctrl output{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto;padding-left:.5rem;white-space:nowrap}
+.ctrl input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:600 .9rem/1 var(--ui);padding:.65rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.warn{background:transparent;color:var(--warn);border-color:var(--warn)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chip{font:500 .8rem/1 var(--ui);padding:.4rem .6rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.readouts{display:flex;flex-wrap:wrap;gap:.6rem 1.75rem;padding:.75rem 1rem .9rem;border-top:1px solid var(--line);background:var(--surface-2)}
+.ro b{display:block;font:600 1.3rem/1.1 var(--ui);font-variant-numeric:tabular-nums;color:var(--ink)}
+.ro span{font:400 .78rem/1.2 var(--ui);color:var(--muted)}
+.ro.force b{color:var(--force)}.ro.accel b{color:var(--accel)}.ro.vel b{color:var(--vel)}.ro.normal b{color:var(--normal)}.ro.friction b{color:var(--friction)}.ro.weight b{color:var(--weight)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem .9rem;padding:.4rem 1rem .6rem;font:500 .78rem/1.2 var(--ui);color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:.35rem}
+.caption{font:400 .85rem/1.45 var(--ui);color:var(--muted);padding:0 1rem .8rem;margin:0;max-width:none}
+.status{padding:.6rem 1rem;font:400 .95rem/1.5 var(--body);border-top:1px solid var(--line)}
+.status .eq{font-size:1em}
+.live{font-variant-numeric:tabular-nums}
+
+/* notes */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1.4rem 0;border-radius:0 6px 6px 0}
+.note>:first-child{margin-top:0}.note>:last-child{margin-bottom:0}
+.note .label{font:600 .85rem/1.2 var(--ui);display:block;margin-bottom:.25rem}
+.note.misconception{border-left-color:var(--bad);background:var(--bad-soft)}
+.note.law{border-left-color:var(--ink);background:var(--surface);border:1px solid var(--line);border-left-width:3px;padding:1rem 1.25rem}
+.note.law p{font-size:1.15rem;line-height:1.5}
+.teach{display:none;border:1px dashed var(--teach-ink);background:var(--teach);color:var(--ink);padding:.8rem 1.1rem;margin:1.4rem 0;border-radius:6px}
+.teach .label{color:var(--teach-ink)}
+.teach>:last-child{margin-bottom:0}
+body.show-teach .teach{display:block}
+.teach-hint{display:none;font:400 .85rem/1.4 var(--ui);color:var(--teach-ink);margin:.5rem 0 0}
+body.show-teach .teach-hint{display:block}
+
+/* law cards on overview */
+.laws{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0}
+.laws a{display:block;color:inherit;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem;background:var(--surface)}
+.laws a:hover{border-color:var(--accent)}
+.laws .n{font:700 2.2rem/1 var(--ui);color:var(--accent);display:block;margin-bottom:.4rem}
+.laws h3{margin:.1rem 0 .35rem;font-size:1.05rem}
+.laws p{margin:0;font-size:.95rem;color:var(--muted);line-height:1.5}
+
+/* worked examples */
+.example{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:1rem 1.25rem;margin:1.4rem 0}
+.example h3{margin-top:0}
+.steps{list-style:none;padding:0;margin:.75rem 0 0;max-width:none}
+.steps li{display:none;padding:.6rem 0;border-top:1px solid var(--line)}
+.steps li.shown{display:block}
+.steps li b{font-family:var(--ui);font-weight:600;display:block;margin-bottom:.15rem}
+details{border:1px solid var(--line);border-radius:6px;padding:.5rem .9rem;margin:.6rem 0;background:var(--surface)}
+summary{cursor:pointer;font:600 .95rem/1.3 var(--ui)}
+details p{margin:.5rem 0 .2rem}
+
+/* quiz */
+.quiz{margin:1rem 0}
+.q{padding:1rem 0;border-top:1px solid var(--line)}
+.q:first-child{border-top:0}
+.q-text{margin:0 0 .6rem;font-weight:500}
+.opts{display:grid;gap:.45rem;margin:.5rem 0 .6rem;max-width:68ch}
+.opt{text-align:left;padding:.6rem .85rem;border:1px solid var(--line);border-radius:6px;background:var(--surface);font:500 .95rem/1.4 var(--ui);color:var(--ink);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.why{display:none;background:var(--surface-2);padding:.65rem .9rem;border-radius:6px;max-width:68ch;font-size:.98rem}
+.why.shown{display:block}
+.why b{font-family:var(--ui)}
+.score{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;padding:1rem 1.1rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:1rem 0;font:500 1rem/1.4 var(--ui)}
+.score .big{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.predict{margin:1.25rem 0 .5rem}
+.predict .q{border:1px dashed var(--line);border-radius:8px;padding:.9rem 1rem}
+.predict .q-text::before{content:"Predict first: ";font-family:var(--ui);font-weight:700;color:var(--accent)}
+
+table{border-collapse:collapse;margin:1rem 0;font-family:var(--ui);font-size:.95rem}
+th,td{text-align:left;padding:.45rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem 2rem}
+.ref{border-top:1px solid var(--line);margin-top:3rem;padding-top:1rem;font:400 .85rem/1.5 var(--ui);color:var(--muted)}
+@media (max-width:640px){
+  body{font-size:1rem}
+  .top-inner{padding:.6rem .8rem .2rem}
+  .switch span.txt{display:none}
+  .back{display:none}
+  main{padding:1rem .8rem 4rem}
+  .sim-title{flex-direction:column;align-items:flex-start;gap:.15rem}
+  .tabs{-webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}
+}
+@media (prefers-reduced-motion: reduce){
+  .switch .knob,.switch .knob::after{transition:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#overview">Newton’s laws of motion<small>Interactive lesson for PHY101 Physics I</small></a>
+    <a class="back" href="https://arifsolmaz.github.io/courses/fall/phy101/w3/">Week 03 notes</a>
+    <button id="teachToggle" class="switch" type="button" aria-pressed="false" aria-label="Instructor notes"><span class="knob"></span><span class="txt">Instructor notes</span></button>
+  </div>
+  <nav class="tabs" aria-label="Lesson sections">
+    <a href="#overview">Overview</a>
+    <a href="#first-law"><b>1</b> Inertia</a>
+    <a href="#second-law"><b>2</b> Force and acceleration</a>
+    <a href="#third-law"><b>3</b> Action and reaction</a>
+    <a href="#applications">Applications</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============================ OVERVIEW ============================ -->
+<section class="view" id="overview" data-view="overview">
+  <div class="view-head">
+    <p class="kicker">Physics I, mechanics</p>
+    <h1>Newton’s laws of motion</h1>
+    <p class="lede">Three statements published in 1687 still describe how every car, planet and thrown ball moves. This lesson lets you push on things and watch the laws work: predict what will happen, run the simulation, then explain what you saw.</p>
+  </div>
+
+  <div class="sim" id="sim-sandbox">
+    <div class="sim-title">Playground: push a block <span>Set a force, a mass and a surface, then watch the vectors.</span></div>
+    <canvas id="cv-sandbox" role="img" aria-label="Simulation of a block pushed along a surface, showing force, acceleration and velocity vectors"></canvas>
+    <div class="legend"><span><i style="background:var(--force)"></i>applied force</span><span><i style="background:var(--friction)"></i>friction</span><span><i style="background:var(--weight)"></i>weight</span><span><i style="background:var(--normal)"></i>normal force</span><span><i style="background:var(--accel)"></i>acceleration</span><span><i style="background:var(--vel)"></i>velocity</span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Applied force <var>F</var> <output id="sb-F">5.0 N</output></label><input type="range" id="sb-F-in" min="-20" max="20" step="0.5" value="5"></div>
+      <div class="ctrl"><label>Mass <var>m</var> <output id="sb-m">2.0 kg</output></label><input type="range" id="sb-m-in" min="0.5" max="10" step="0.5" value="2"></div>
+      <div class="ctrl"><label>Friction coefficient <var>μ</var> <output id="sb-mu">0.00</output></label><input type="range" id="sb-mu-in" min="0" max="0.6" step="0.01" value="0"></div>
+      <div class="ctrl btns"><button class="btn ghost" type="button" data-pause="sandbox" aria-pressed="false">Pause</button><button class="btn ghost" type="button" id="sb-reset">Reset</button></div>
+    </div>
+    <div class="readouts">
+      <div class="ro force"><b id="sb-ro-F">5.0 N</b><span>net force Σ<var>F</var></span></div>
+      <div class="ro accel"><b id="sb-ro-a">2.5 m/s²</b><span>acceleration <var>a</var> = Σ<var>F</var>/<var>m</var></span></div>
+      <div class="ro vel"><b id="sb-ro-v">0.0 m/s</b><span>velocity <var>v</var></span></div>
+      <div class="ro"><b id="sb-ro-x">0.0 m</b><span>position <var>x</var></span></div>
+    </div>
+    <p class="caption">Weight and normal force are drawn at a fixed length because they always balance here; horizontal forces are to scale. Try this: turn friction up, then find the force that keeps the block moving at constant velocity.</p>
+  </div>
+
+  <h2>Four ideas you need first</h2>
+  <p><strong>A force is a push or a pull</strong> that one object exerts on another. It has a magnitude (measured in newtons, N) and a direction, so it is a vector. Every force has an agent: if you cannot name what is pushing or pulling, it is not a force.</p>
+  <p><strong>The net force</strong> Σ<var>F</var> is the vector sum of all forces acting on one object. Newton’s laws are statements about the net force, never about a single force in isolation.</p>
+  <p><strong>Mass is not weight.</strong> Mass <var>m</var> (kg) measures how much an object resists changes in its motion; it is the same everywhere. Weight <var>w</var> = <var>mg</var> is the gravitational force on the object; it changes with <var>g</var>.</p>
+  <table>
+    <thead><tr><th></th><th>Mass</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>What it is</td><td>Amount of inertia</td><td>Gravitational force</td></tr>
+      <tr><td>Unit</td><td>kg</td><td>N</td></tr>
+      <tr><td>Kind of quantity</td><td>Scalar</td><td>Vector (points down)</td></tr>
+      <tr><td>On the Moon (<var>g</var> ≈ 1.6 m/s²)</td><td>Unchanged</td><td>About 1/6 of Earth value</td></tr>
+    </tbody>
+  </table>
+  <p><strong>A free-body diagram</strong> isolates one object and draws every force acting <em>on</em> it as an arrow from a single point. It is the most important tool in this course; the simulations draw one for you, and you will draw your own in the second section.</p>
+
+  <h2>The three laws at a glance</h2>
+  <div class="laws">
+    <a href="#first-law"><span class="n">1</span><h3>Inertia</h3><p>With zero net force, velocity stays constant. Motion does not need a cause; <em>change</em> of motion does.</p></a>
+    <a href="#second-law"><span class="n">2</span><h3>Σ<var>F</var> = <var>ma</var></h3><p>Net force produces acceleration in its own direction, in proportion to the force and in inverse proportion to the mass.</p></a>
+    <a href="#third-law"><span class="n">3</span><h3>Action and reaction</h3><p>Forces come in pairs acting on different bodies: equal in magnitude, opposite in direction, same type.</p></a>
+  </div>
+
+  <h2>How to use this lesson</h2>
+  <ul>
+    <li>Each law has a simulation. Make a prediction first (there is a prompt), run the simulation, and then read the explanation. Getting a prediction wrong is the useful part. Every simulation can be paused to study a frozen frame.</li>
+    <li>Short checks follow each section; the final quiz at the end covers everything. Your best score is kept on this device.</li>
+    <li>Readouts show the numbers that matter (<var>a</var>, <var>v</var>, Σ<var>F</var>). The arrows on the canvas use one colour per quantity throughout the lesson.</li>
+  </ul>
+  <p class="teach-hint">Instructor notes are on. Dashed boxes like the one below hold demos, discussion prompts and timing.</p>
+  <div class="teach">
+    <span class="label">Instructor notes: running this lesson</span>
+    <p><strong>Time.</strong> About 75–90 minutes for all three laws with discussion; each law section is a self-contained 20–25 minute block if you prefer three shorter sessions.</p>
+    <p><strong>Learning objectives.</strong> Students should be able to (1) state the three laws in words and symbols; (2) draw a free-body diagram and translate it into Σ<var>F</var> = <var>ma</var> component equations; (3) distinguish mass from weight and net force from an individual force; (4) identify third-law pairs and explain why they never cancel; (5) solve single-object problems with friction, inclines and apparent weight.</p>
+    <p><strong>Warm-up with the playground.</strong> Ask students to make the block move at constant velocity with μ = 0.3. They must first exceed static friction, then reduce <var>F</var> to exactly μ<var>mg</var>. The readout showing Σ<var>F</var> = 0 while the block keeps moving is the first law in one picture.</p>
+  </div>
+</section>
+
+<!-- ============================ FIRST LAW ============================ -->
+<section class="view" id="first-law" data-view="first-law">
+  <div class="view-head">
+    <p class="kicker">Newton’s first law</p>
+    <h1>Inertia: motion needs no cause</h1>
+    <p class="lede">A body keeps doing what it is already doing—resting, or moving in a straight line at constant speed—until a net force makes it change. The surprising half is the second one: moving does not require a push.</p>
+  </div>
+
+  <div class="note law"><span class="label">The law</span>
+    <p>If the net external force on a body is zero, its velocity is constant: a body at rest stays at rest, and a body in motion keeps moving in a straight line at constant speed.</p>
+    <p class="small muted">In symbols: Σ<var>F</var> = 0 if and only if <var>a</var> = 0, in an inertial reference frame.</p>
+  </div>
+
+  <h2>Predict, then run</h2>
+  <div class="predict quiz" id="predict-1"></div>
+
+  <div class="sim" id="sim-inertia">
+    <div class="sim-title">A puck on four surfaces <span>Give it one push. Then change the surface.</span></div>
+    <canvas id="cv-inertia" role="img" aria-label="Simulation of a puck sliding on a surface with adjustable friction, with a velocity–time graph"></canvas>
+    <div class="legend"><span><i style="background:var(--force)"></i>push</span><span><i style="background:var(--friction)"></i>friction</span><span><i style="background:var(--weight)"></i>weight</span><span><i style="background:var(--normal)"></i>normal force</span><span><i style="background:var(--vel)"></i>velocity</span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Surface</label>
+        <div class="chips" id="in-surfaces">
+          <button class="chip" type="button" data-mu="0" aria-pressed="true">Frictionless</button>
+          <button class="chip" type="button" data-mu="0.03">Ice</button>
+          <button class="chip" type="button" data-mu="0.3">Wood</button>
+          <button class="chip" type="button" data-mu="0.6">Carpet</button>
+        </div>
+      </div>
+      <div class="ctrl"><label>Friction coefficient <var>μ</var> <output id="in-mu">0.00</output></label><input type="range" id="in-mu-in" min="0" max="0.6" step="0.01" value="0"></div>
+      <div class="ctrl btns"><button class="btn" type="button" id="in-push">Push (10 N for 0.4 s)</button><button class="btn ghost" type="button" data-pause="inertia" aria-pressed="false">Pause</button><button class="btn ghost" type="button" id="in-reset">Reset</button></div>
+    </div>
+    <div class="readouts">
+      <div class="ro vel"><b id="in-ro-v">0.0 m/s</b><span>velocity</span></div>
+      <div class="ro force"><b id="in-ro-F">0.0 N</b><span>net force on the puck</span></div>
+      <div class="ro friction"><b id="in-ro-f">0.0 N</b><span>friction <var>f</var> = <var>μmg</var> (<var>m</var> = 1 kg)</span></div>
+      <div class="ro"><b id="in-ro-x">0.0 m</b><span>distance travelled</span></div>
+    </div>
+    <p class="caption">The graph shows velocity against time. On the frictionless surface the line stays flat after the push: no force, no change. On carpet the line slopes down at a constant rate because kinetic friction is a constant force.</p>
+  </div>
+
+  <h2>What the law really says</h2>
+  <p>For two thousand years the common-sense view, going back to Aristotle, was that moving things need something to keep them moving: stop pushing a cart and it stops. Galileo saw through this. The cart stops because friction acts on it, not because its motion “runs out”. Remove the friction and the cart would roll forever. Newton made this the starting point of mechanics: the natural state of a body is not rest, it is constant velocity, and rest is just the special case <var>v</var> = 0.</p>
+  <p>The property that makes a body resist changes in its velocity is called <strong>inertia</strong>, and mass is its measure. A full shopping trolley is harder to start, harder to stop and harder to steer than an empty one. Nothing about this involves gravity: the same trolley would be just as hard to start in orbit.</p>
+  <p>Read the law as a test rather than a description: <em>if you see velocity changing, in magnitude or in direction, a net force is acting; if velocity is constant, the forces balance.</em> A car turning a corner at a steady 50 km/h is accelerating, because its direction changes, so a net force (friction from the road) must be acting on it.</p>
+  <p>One fine print: the law holds in <strong>inertial reference frames</strong>, frames that are not themselves accelerating. Inside a braking bus you seem to be thrown forward with no force acting on you. Seen from the pavement, nothing pushes you forward: you simply keep your velocity while the bus slows beneath you.</p>
+
+  <div class="note misconception"><span class="label">Misconception to unlearn</span>
+    <p>“A moving object must have a force acting in the direction of motion.” No. A coasting bicycle, a puck on ice and a spacecraft between planets all move with no forward force on them. If you ever write “force of motion” on a free-body diagram, cross it out: there is no agent exerting it.</p>
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" id="quiz-first"></div>
+
+  <div class="teach">
+    <span class="label">Instructor notes: first law (20 min)</span>
+    <p><strong>Demos.</strong> The tablecloth pull; a coin on a card over a glass (flick the card, the coin drops in); a ball resting on a cart that you stop abruptly (the ball keeps going). Ask “what force moved the coin?” until someone says none did.</p>
+    <p><strong>Discussion prompts.</strong> Why do seat belts exist? Why does a stopped bus throw you forward? A passenger says “the bus pushed me”: who is right, and from which frame?</p>
+    <p><strong>With the simulation.</strong> Run the frictionless case first and let the puck travel for a long time; students expect it to slow down. Then ask what the <var>v</var>–<var>t</var> graph will look like on carpet before switching. The constant slope on carpet is a preview of the second law.</p>
+  </div>
+</section>
+
+<!-- ============================ SECOND LAW ============================ -->
+<section class="view" id="second-law" data-view="second-law">
+  <div class="view-head">
+    <p class="kicker">Newton’s second law</p>
+    <h1>Force changes motion: Σ<var>F</var> = <var>ma</var></h1>
+    <p class="lede">The first law says a net force changes velocity. The second law says by how much, and in which direction: the acceleration points along the net force, grows with the force and shrinks with the mass.</p>
+  </div>
+
+  <div class="note law"><span class="label">The law</span>
+    <p>The acceleration of a body is directly proportional to the net force acting on it, inversely proportional to its mass, and in the direction of the net force.</p>
+    <span class="eq big">Σ<var>F</var> = <var>m</var><var>a</var> &nbsp;&nbsp;⇔&nbsp;&nbsp; Σ<var>F<sub>x</sub></var> = <var>ma<sub>x</sub></var>, &nbsp;Σ<var>F<sub>y</sub></var> = <var>ma<sub>y</sub></var></span>
+    <p class="small muted">The newton is defined by this law: 1 N is the net force that gives 1 kg an acceleration of 1 m/s², so 1 N = 1 kg·m/s².</p>
+  </div>
+
+  <h2>Predict, then run</h2>
+  <div class="predict quiz" id="predict-2"></div>
+
+  <div class="sim" id="sim-race">
+    <div class="sim-title">Same force, different masses <span>Two carts on frictionless tracks, pushed with the same force.</span></div>
+    <canvas id="cv-race" role="img" aria-label="Simulation of two carts of different mass pushed by the same force along a 20 metre track, with a velocity–time graph"></canvas>
+    <div class="legend"><span><i style="background:var(--force)"></i>applied force</span><span><i style="background:var(--accel)"></i>acceleration</span><span><i style="background:var(--vel)"></i>velocity</span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Force on both carts <var>F</var> <output id="rc-F">6.0 N</output></label><input type="range" id="rc-F-in" min="0" max="20" step="0.5" value="6"></div>
+      <div class="ctrl"><label>Mass of cart A <output id="rc-mA">2.0 kg</output></label><input type="range" id="rc-mA-in" min="1" max="10" step="0.5" value="2"></div>
+      <div class="ctrl"><label>Mass of cart B <output id="rc-mB">4.0 kg</output></label><input type="range" id="rc-mB-in" min="1" max="10" step="0.5" value="4"></div>
+      <div class="ctrl btns"><button class="btn" type="button" id="rc-start">Start</button><button class="btn ghost" type="button" data-pause="race" aria-pressed="false">Pause</button><button class="btn ghost" type="button" id="rc-reset">Reset</button></div>
+    </div>
+    <div class="readouts">
+      <div class="ro accel"><b id="rc-aA">3.00 m/s²</b><span>cart A: <var>a</var> = <var>F</var>/<var>m</var><sub>A</sub></span></div>
+      <div class="ro accel"><b id="rc-aB">1.50 m/s²</b><span>cart B: <var>a</var> = <var>F</var>/<var>m</var><sub>B</sub></span></div>
+      <div class="ro vel"><b id="rc-vA">0.0 m/s</b><span>velocity of A</span></div>
+      <div class="ro vel"><b id="rc-vB">0.0 m/s</b><span>velocity of B</span></div>
+      <div class="ro"><b id="rc-t">0.0 s</b><span>time</span></div>
+    </div>
+    <div class="status" id="rc-status">Press Start. The track is 20 m long and ends at the flag.</div>
+    <p class="caption">Keep the force fixed and double one mass: that cart’s acceleration halves and its finishing time grows by a factor of √2 (from <var>x</var> = ½<var>at</var>²). Drag <var>F</var> to zero while the carts are moving and you are back at the first law.</p>
+  </div>
+
+  <h2>Reading the equation</h2>
+  <p><strong>It is a vector equation.</strong> The acceleration has the direction of the <em>net</em> force, not of any single force and not of the velocity. A ball thrown upward is slowing down because its acceleration (down, from gravity) points opposite to its velocity (up). The two directions agree only when something speeds up along a straight line.</p>
+  <p><strong>Mass is the constant of proportionality.</strong> Push with twice the force and you get twice the acceleration; push the same force on twice the mass and you get half. The simulation above lets you test both statements with numbers, and the ratio <var>F</var>/<var>a</var> is the same for a cart whatever force you use. That ratio <em>is</em> the mass.</p>
+  <p><strong>Weight is a force, so it obeys the law too.</strong> Near Earth’s surface the only force on a freely falling object is gravity, and all objects fall with the same acceleration <var>g</var> ≈ 9.81 m/s². Hence the gravitational force on a mass <var>m</var> must be <var>w</var> = <var>mg</var>. A heavier object is pulled harder, but it also has more inertia, and the two effects cancel exactly.</p>
+  <p><strong>Where it comes from.</strong> Newton actually wrote the law in terms of momentum, <var>p</var> = <var>mv</var>: the net force equals the rate of change of momentum, Σ<var>F</var> = d<var>p</var>/d<var>t</var>. For constant mass this reduces to Σ<var>F</var> = <var>ma</var>; the general form is what you need for rockets, which lose mass as they burn fuel.</p>
+
+  <h2>Free-body diagrams: from picture to equations</h2>
+  <p>Every second-law problem follows the same path. Isolate one object. Draw each force acting on it (and only on it) from a point: name the force, its agent and its direction. Choose axes so that the acceleration lies along one of them. Write Σ<var>F</var> = <var>ma</var> for each axis. Solve. Then check: do the units work, and does the answer behave sensibly in limiting cases?</p>
+  <p>The incline below is the classic example. Tilting the axes to run along the slope and perpendicular to it means the acceleration is purely along <var>x</var>, and only the weight needs to be split into components.</p>
+
+  <div class="sim" id="sim-incline">
+    <div class="sim-title">Block on an incline <span>Tilt the plane and watch the forces rearrange.</span></div>
+    <canvas id="cv-incline" role="img" aria-label="Free-body diagram of a block on an inclined plane: weight, normal force, friction, components of weight and acceleration"></canvas>
+    <div class="legend"><span><i style="background:var(--weight)"></i>weight</span><span><i style="background:var(--normal)"></i>normal force</span><span><i style="background:var(--friction)"></i>friction</span><span><i style="background:var(--accel)"></i>acceleration</span><span><i style="background:var(--muted);opacity:.7"></i>components of weight (dashed)</span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Angle <var>θ</var> <output id="ic-th">25°</output></label><input type="range" id="ic-th-in" min="0" max="70" step="1" value="25"></div>
+      <div class="ctrl"><label>Mass <var>m</var> <output id="ic-m">5.0 kg</output></label><input type="range" id="ic-m-in" min="1" max="20" step="0.5" value="5"></div>
+      <div class="ctrl"><label>Static friction <var>μ<sub>s</sub></var> <output id="ic-mus">0.50</output></label><input type="range" id="ic-mus-in" min="0" max="1" step="0.01" value="0.5"></div>
+      <div class="ctrl"><label>Kinetic friction <var>μ<sub>k</sub></var> <output id="ic-muk">0.30</output></label><input type="range" id="ic-muk-in" min="0" max="1" step="0.01" value="0.3"></div>
+      <div class="ctrl"><label style="justify-content:flex-start;gap:.5rem;align-items:center;color:var(--ink)"><input type="checkbox" id="ic-comp" checked> Show components of weight</label></div>
+      <div class="ctrl btns"><button class="btn" type="button" id="ic-release">Release block</button><button class="btn ghost" type="button" data-pause="incline" aria-pressed="false">Pause</button><button class="btn ghost" type="button" id="ic-reset">Reset</button></div>
+    </div>
+    <div class="status" id="ic-status"></div>
+    <div class="readouts">
+      <div class="ro weight"><b id="ic-ro-W">49.1 N</b><span>weight <var>mg</var></span></div>
+      <div class="ro normal"><b id="ic-ro-N">44.5 N</b><span>normal force <var>N</var> = <var>mg</var> cos <var>θ</var></span></div>
+      <div class="ro"><b id="ic-ro-Wp">20.7 N</b><span>down-slope pull <var>mg</var> sin <var>θ</var></span></div>
+      <div class="ro friction"><b id="ic-ro-f">20.7 N</b><span>friction <var>f</var></span></div>
+      <div class="ro accel"><b id="ic-ro-a">0.00 m/s²</b><span>acceleration down the slope</span></div>
+    </div>
+    <p class="caption">The block starts to slide when <var>mg</var> sin <var>θ</var> exceeds the maximum static friction <var>μ<sub>s</sub></var><var>mg</var> cos <var>θ</var>, that is when tan <var>θ</var> &gt; <var>μ<sub>s</sub></var>. Notice that the mass cancels: a heavy block and a light one let go at the same angle.</p>
+  </div>
+
+  <div class="note misconception"><span class="label">Two misconceptions to unlearn</span>
+    <p>“The force points the way the object is moving.” Force points the way the <em>acceleration</em> does. At the top of its flight a thrown ball is momentarily at rest, yet the net force on it is its full weight, pointing down. If the force were zero there, the ball would stay up.</p>
+    <p>“Heavier things fall faster.” In air, sometimes, because of drag. Without air, every mass falls with the same <var>g</var>: the extra pull on a heavier object is exactly used up overcoming its extra inertia.</p>
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" id="quiz-second"></div>
+
+  <div class="teach">
+    <span class="label">Instructor notes: second law (30 min)</span>
+    <p><strong>Quantitative prediction before the race.</strong> With <var>m</var><sub>A</sub> = 2 kg and <var>m</var><sub>B</sub> = 4 kg, ask for the ratio of finishing times before pressing Start. From <var>x</var> = ½(<var>F</var>/<var>m</var>)<var>t</var>², <var>t</var><sub>B</sub>/<var>t</var><sub>A</sub> = √2 ≈ 1.41. Students can check it against the timer, then repeat with 1 kg and 9 kg (ratio 3).</p>
+    <p><strong>Demo.</strong> A fan cart or a cart pulled by a hanging mass over a pulley; add bricks to the cart to show <var>a</var> ∝ 1/<var>m</var> while the force stays fixed.</p>
+    <p><strong>Incline.</strong> Give μ<sub>s</sub> and ask for the critical angle (tan θ<sub>c</sub> = μ<sub>s</sub>, so 0.50 gives 26.6°). Students find it with the slider: the status line switches from “stays at rest” to “slides” at 27°. Then ask why the mass slider changes nothing about that angle.</p>
+    <p><strong>Common trouble spot.</strong> Students set the normal force equal to <var>mg</var> on the incline. Have them read <var>N</var> from the readout at θ = 60° and reconcile it with the perpendicular equation.</p>
+  </div>
+</section>
+
+<!-- ============================ THIRD LAW ============================ -->
+<section class="view" id="third-law" data-view="third-law">
+  <div class="view-head">
+    <p class="kicker">Newton’s third law</p>
+    <h1>Forces come in pairs</h1>
+    <p class="lede">You cannot touch without being touched. Whenever one body pushes or pulls on another, the second pushes or pulls back on the first with a force of exactly the same size in the opposite direction. The two forces act on different bodies, which is why they never cancel.</p>
+  </div>
+
+  <div class="note law"><span class="label">The law</span>
+    <p>If body A exerts a force on body B, then body B exerts a force on body A that is equal in magnitude and opposite in direction.</p>
+    <span class="eq big"><var>F</var><sub>A on B</sub> = −<var>F</var><sub>B on A</sub></span>
+  </div>
+
+  <h2>Predict, then run</h2>
+  <div class="predict quiz" id="predict-3"></div>
+
+  <div class="sim" id="sim-skaters">
+    <div class="sim-title">Two skaters push off <span>Frictionless ice. Both feel the same force; only the masses differ.</span></div>
+    <canvas id="cv-skaters" role="img" aria-label="Simulation of two skaters of different mass pushing off each other on frictionless ice, showing equal and opposite forces and the resulting velocities"></canvas>
+    <div class="legend"><span><i style="background:var(--force)"></i>force during the push</span><span><i style="background:var(--vel)"></i>velocity</span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Mass of skater A <output id="sk-m1">60 kg</output></label><input type="range" id="sk-m1-in" min="30" max="120" step="5" value="60"></div>
+      <div class="ctrl"><label>Mass of skater B <output id="sk-m2">90 kg</output></label><input type="range" id="sk-m2-in" min="30" max="120" step="5" value="90"></div>
+      <div class="ctrl"><label>Push force <var>F</var> (lasts 0.5 s) <output id="sk-F">150 N</output></label><input type="range" id="sk-F-in" min="50" max="300" step="10" value="150"></div>
+      <div class="ctrl btns"><button class="btn" type="button" id="sk-push">Push off</button><button class="btn ghost" type="button" data-pause="skaters" aria-pressed="false">Pause</button><button class="btn ghost" type="button" id="sk-reset">Reset</button></div>
+    </div>
+    <div class="readouts">
+      <div class="ro force"><b id="sk-FA">0 N</b><span>force on A (from B)</span></div>
+      <div class="ro force"><b id="sk-FB">0 N</b><span>force on B (from A)</span></div>
+      <div class="ro accel"><b id="sk-aA">0.00 m/s²</b><span>acceleration of A</span></div>
+      <div class="ro accel"><b id="sk-aB">0.00 m/s²</b><span>acceleration of B</span></div>
+      <div class="ro vel"><b id="sk-vA">0.00 m/s</b><span>velocity of A</span></div>
+      <div class="ro vel"><b id="sk-vB">0.00 m/s</b><span>velocity of B</span></div>
+      <div class="ro"><b id="sk-p">0.0 kg·m/s</b><span>total momentum <var>m</var><sub>A</sub><var>v</var><sub>A</sub> + <var>m</var><sub>B</sub><var>v</var><sub>B</sub></span></div>
+    </div>
+    <p class="caption">The force arrows always have the same length. The velocities do not: each skater’s speed is <var>F</var>Δ<var>t</var>/<var>m</var>, so the lighter skater moves faster, in exactly the inverse ratio of the masses. The total momentum stays at zero, a first glimpse of momentum conservation.</p>
+  </div>
+
+  <h2>How to identify a pair</h2>
+  <p>Name every force with the sentence “<em>A</em> exerts a force on <em>B</em>”. Its third-law partner is the force you get by swapping the names: “<em>B</em> exerts a force on <em>A</em>”. If the partner you have written down does not fit this swap, it is not the partner.</p>
+  <ul>
+    <li>Equal in magnitude and opposite in direction, at every instant.</li>
+    <li>Same type: gravity pairs with gravity, contact with contact, tension with tension.</li>
+    <li>They act on <strong>different</strong> bodies, so they never appear together on one free-body diagram, and they can never cancel each other.</li>
+  </ul>
+  <p>The last point resolves the classic puzzle. A horse pulls a cart forward; the cart pulls the horse backward with equal force. Why does anything move? Because the horse’s motion is decided only by the forces <em>on the horse</em>: the cart’s backward pull and the ground’s forward push on its hooves. If the ground pushes harder than the cart pulls, the horse accelerates. The cart’s motion likewise depends only on the forces on the cart.</p>
+
+  <h3>Find the partner</h3>
+  <div class="quiz" id="quiz-pairs"></div>
+
+  <div class="note misconception"><span class="label">The most common wrong pair</span>
+    <p>A book rests on a table. Its weight (Earth pulls the book down) and the normal force (the table pushes the book up) are equal and opposite, <em>but they are not a third-law pair</em>: both act on the book, and one is gravitational while the other is a contact force. They are balanced because the book is in equilibrium, which is the first law, not the third. The true partners are: the book pulls Earth up; the book pushes the table down.</p>
+  </div>
+
+  <h2>Why anything moves at all</h2>
+  <p>Every form of propulsion is a third-law story. You walk by pushing the ground backward; the ground pushes you forward. A car’s tires push backward on the road and the road pushes the car forward: the engine turns the wheels, but it is friction from the road that accelerates the car. A swimmer pushes water backward. A rocket throws exhaust gas backward at high speed, and the gas pushes the rocket forward; no air is needed to “push against”, which is why rockets work in empty space.</p>
+  <p>The law also says that a heavy truck and a small car exert equal forces on each other during a collision. The car suffers more because the same force produces a much larger acceleration on the smaller mass, Σ<var>F</var> = <var>ma</var> again.</p>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" id="quiz-third"></div>
+
+  <div class="teach">
+    <span class="label">Instructor notes: third law (25 min)</span>
+    <p><strong>Demos.</strong> Two spring scales hooked together: whoever pulls, both read the same. Two students on skateboards push off (and one pushes while the other keeps hands at sides, which still moves both). A balloon rocket on a string.</p>
+    <p><strong>Discussion prompts.</strong> In a tug-of-war with a massless rope, is the winning team pulling harder on the rope? What actually decides it? When you jump, what pushes you up? What is the partner of your weight, and why have you never noticed Earth accelerating toward you?</p>
+    <p><strong>Routine to insist on.</strong> Every force gets written as “A on B”; partners are found by swapping. Students who skip this step reliably pair weight with the normal force.</p>
+  </div>
+</section>
+
+<!-- ============================ APPLICATIONS ============================ -->
+<section class="view" id="applications" data-view="applications">
+  <div class="view-head">
+    <p class="kicker">Putting the laws to work</p>
+    <h1>Applications and problem solving</h1>
+    <p class="lede">The laws are short; using them well is a routine. This section fixes the routine, then applies it to an elevator ride, a crate on a rope and an Atwood machine, with practice problems to finish.</p>
+  </div>
+
+  <h2>The routine</h2>
+  <ol>
+    <li><strong>Pick one object</strong> and sketch it alone. Decide what it touches (contact forces) and what pulls on it at a distance (gravity).</li>
+    <li><strong>Draw the free-body diagram.</strong> One arrow per force, each labelled with type and agent: “normal force from floor”, “tension from rope”. No “force of motion”, no partner forces (they act on other objects).</li>
+    <li><strong>Choose axes</strong> so that the acceleration lies along one axis, and state the direction you call positive.</li>
+    <li><strong>Write Σ<var>F</var> = <var>ma</var> per axis</strong>, resolving any force that is not along an axis into components.</li>
+    <li><strong>Solve</strong> algebraically first, then substitute numbers.</li>
+    <li><strong>Check</strong>: units, sign, and the limiting cases (angle to zero, friction to zero, equal masses).</li>
+  </ol>
+
+  <h2>Apparent weight: predict, then ride</h2>
+  <p>A bathroom scale reads the normal force it exerts on you, not your weight. Standing in an accelerating elevator, the two differ. With “up” positive, Σ<var>F<sub>y</sub></var> = <var>N</var> − <var>mg</var> = <var>ma</var>, so the scale reads <var>N</var> = <var>m</var>(<var>g</var> + <var>a</var>). What matters is the acceleration, not the direction of travel.</p>
+  <div class="predict quiz" id="predict-4"></div>
+
+  <div class="sim" id="sim-elevator">
+    <div class="sim-title">A ride with a scale underfoot <span>Rest, speed up, cruise, slow down, stop.</span></div>
+    <canvas id="cv-elevator" role="img" aria-label="Simulation of a passenger standing on a scale in a moving elevator, with a free-body diagram and a graph of the scale reading against time"></canvas>
+    <div class="legend"><span><i style="background:var(--normal)"></i>normal force from the scale (what the scale reads)</span><span><i style="background:var(--weight)"></i>weight <var>mg</var></span></div>
+    <div class="controls">
+      <div class="ctrl"><label>Direction of the trip</label>
+        <div class="chips" id="el-dir"><button class="chip" type="button" data-dir="1" aria-pressed="true">Up</button><button class="chip" type="button" data-dir="-1">Down</button></div>
+      </div>
+      <div class="ctrl"><label>Acceleration magnitude <output id="el-a">2.0 m/s²</output></label><input type="range" id="el-a-in" min="0.5" max="6" step="0.5" value="2"></div>
+      <div class="ctrl"><label>Passenger mass <output id="el-m">70 kg</output></label><input type="range" id="el-m-in" min="40" max="120" step="5" value="70"></div>
+      <div class="ctrl btns"><button class="btn" type="button" id="el-start">Start the trip</button><button class="btn ghost" type="button" data-pause="elevator" aria-pressed="false">Pause</button><button class="btn warn" type="button" id="el-cut">Cut the cable</button><button class="btn ghost" type="button" id="el-reset">Reset</button></div>
+    </div>
+    <div class="readouts">
+      <div class="ro normal"><b id="el-ro-N">687 N</b><span>scale reading <var>N</var> = <var>m</var>(<var>g</var> + <var>a</var>)</span></div>
+      <div class="ro weight"><b id="el-ro-W">687 N</b><span>true weight <var>mg</var></span></div>
+      <div class="ro accel"><b id="el-ro-a">0.0 m/s²</b><span>acceleration (up positive)</span></div>
+      <div class="ro vel"><b id="el-ro-v">0.0 m/s</b><span>velocity (up positive)</span></div>
+      <div class="ro"><b id="el-ro-phase">At rest</b><span>phase</span></div>
+    </div>
+    <p class="caption">During the cruise the reading returns to <var>mg</var> even though the cabin is moving fast: constant velocity means zero net force (first law). Cutting the cable makes <var>a</var> = −<var>g</var>, the normal force vanishes, and the scale reads zero: weightlessness without leaving Earth.</p>
+  </div>
+
+  <h2>Worked examples</h2>
+  <p>Reveal the steps one at a time and try to write the next one before you show it.</p>
+
+  <div class="example" id="ex1">
+    <h3>Example 1: a crate pulled by a rope at an angle</h3>
+    <p>A 10.0 kg crate is dragged along a horizontal floor by a rope that makes 30° with the floor. The tension in the rope is 40.0 N and the coefficient of kinetic friction is 0.20. Find the crate’s acceleration.</p>
+    <ol class="steps">
+      <li><b>Free-body diagram</b> Four forces on the crate: weight <var>mg</var> = 98.1 N straight down; normal force <var>N</var> straight up; tension <var>T</var> = 40.0 N at 30° above the floor; kinetic friction <var>f<sub>k</sub></var> along the floor, opposite the motion.</li>
+      <li><b>Axes</b> <var>x</var> along the floor in the direction of motion, <var>y</var> upward. The crate stays on the floor, so <var>a<sub>y</sub></var> = 0 and the only unknown acceleration is <var>a<sub>x</sub></var> = <var>a</var>.</li>
+      <li><b>Vertical equation</b> Σ<var>F<sub>y</sub></var> = <var>N</var> + <var>T</var> sin 30° − <var>mg</var> = 0, so <var>N</var> = 98.1 N − 20.0 N = 78.1 N. The rope carries part of the weight, so the floor pushes up less than <var>mg</var>.</li>
+      <li><b>Friction</b> <var>f<sub>k</sub></var> = <var>μ<sub>k</sub>N</var> = 0.20 × 78.1 N = 15.6 N. Using <var>mg</var> instead of <var>N</var> here is the most common error in this problem.</li>
+      <li><b>Horizontal equation</b> Σ<var>F<sub>x</sub></var> = <var>T</var> cos 30° − <var>f<sub>k</sub></var> = 34.6 N − 15.6 N = 19.0 N = <var>ma</var>, so <var>a</var> = 19.0 N / 10.0 kg = <strong>1.90 m/s²</strong>.</li>
+      <li><b>Check</b> N/kg is m/s². With no friction the result would be <var>T</var> cos 30°/<var>m</var> = 3.46 m/s², larger, as it should be. With the rope horizontal, <var>N</var> = <var>mg</var>, friction rises to 19.6 N and <var>a</var> = 2.04 m/s²: pulling at an angle trades horizontal pull for reduced friction.</li>
+    </ol>
+    <div class="btns" style="margin-top:.8rem"><button class="btn" type="button" data-steps="ex1">Show next step</button><button class="btn ghost" type="button" data-steps-reset="ex1">Hide steps</button></div>
+  </div>
+
+  <div class="example" id="ex2">
+    <h3>Example 2: the Atwood machine</h3>
+    <p>Blocks of 2.00 kg and 3.00 kg hang from the two ends of a light string passing over a frictionless, massless pulley. Find the acceleration of the blocks and the tension in the string.</p>
+    <ol class="steps">
+      <li><b>Two free-body diagrams</b> Each block feels its weight downward and the tension <var>T</var> upward. A light string over a frictionless, massless pulley has the same tension throughout, so the same <var>T</var> appears in both diagrams.</li>
+      <li><b>Coordinates</b> The heavier block goes down and the lighter one up. Take “positive” as the direction each block actually moves: up for <var>m</var><sub>1</sub> = 2.00 kg, down for <var>m</var><sub>2</sub> = 3.00 kg. Because the string does not stretch, both have the same acceleration magnitude <var>a</var>.</li>
+      <li><b>Second law for each block</b> Block 1: <var>T</var> − <var>m</var><sub>1</sub><var>g</var> = <var>m</var><sub>1</sub><var>a</var>. Block 2: <var>m</var><sub>2</sub><var>g</var> − <var>T</var> = <var>m</var><sub>2</sub><var>a</var>.</li>
+      <li><b>Eliminate the tension</b> Adding the two equations: (<var>m</var><sub>2</sub> − <var>m</var><sub>1</sub>)<var>g</var> = (<var>m</var><sub>1</sub> + <var>m</var><sub>2</sub>)<var>a</var>, so <var>a</var> = (1.00 kg)(9.81 m/s²)/(5.00 kg) = <strong>1.96 m/s²</strong>.</li>
+      <li><b>Find the tension</b> From block 1: <var>T</var> = <var>m</var><sub>1</sub>(<var>g</var> + <var>a</var>) = 2.00 kg × 11.77 m/s² = <strong>23.5 N</strong>. (The symbolic result is <var>T</var> = 2<var>m</var><sub>1</sub><var>m</var><sub>2</sub><var>g</var>/(<var>m</var><sub>1</sub> + <var>m</var><sub>2</sub>).)</li>
+      <li><b>Check</b> The tension lies between the two weights, 19.6 N and 29.4 N; it must, to pull the light block up and let the heavy one down. If the masses were equal the formulas give <var>a</var> = 0 and <var>T</var> = <var>mg</var>, which is the equilibrium you would expect.</li>
+    </ol>
+    <div class="btns" style="margin-top:.8rem"><button class="btn" type="button" data-steps="ex2">Show next step</button><button class="btn ghost" type="button" data-steps-reset="ex2">Hide steps</button></div>
+  </div>
+
+  <h2>Practice</h2>
+  <p>Work each one on paper with a free-body diagram before opening the answer. Use <var>g</var> = 9.81 m/s².</p>
+  <details><summary>1. A 1200 kg car accelerates uniformly from rest to 20.0 m/s in 8.00 s on a level road. What net force acts on it?</summary>
+    <p><var>a</var> = Δ<var>v</var>/Δ<var>t</var> = 2.50 m/s², so Σ<var>F</var> = <var>ma</var> = 1200 kg × 2.50 m/s² = 3.00 × 10³ N, forward. This is the net force; it is supplied by friction from the road on the tires.</p></details>
+  <details><summary>2. A 60.0 kg student stands on a scale in an elevator that accelerates downward at 1.50 m/s². What does the scale read?</summary>
+    <p>With up positive, <var>a</var> = −1.50 m/s²: <var>N</var> = <var>m</var>(<var>g</var> + <var>a</var>) = 60.0 kg × 8.31 m/s² = 499 N. The scale dial, which is calibrated in kilograms by dividing by <var>g</var>, would show about 50.8 kg. The same reading occurs whether the elevator is moving down and speeding up or moving up and slowing down.</p></details>
+  <details><summary>3. A block is already sliding down a 25.0° incline where the coefficient of kinetic friction is 0.300. Find its acceleration.</summary>
+    <p>Along the slope: <var>mg</var> sin θ − <var>μ<sub>k</sub>mg</var> cos θ = <var>ma</var>, so <var>a</var> = <var>g</var>(sin 25.0° − 0.300 cos 25.0°) = 9.81 × (0.4226 − 0.2719) = 1.48 m/s², down the slope. The mass cancels. You can check this value with the incline simulation in the second-law section.</p></details>
+  <details><summary>4. Two boxes of 3.00 kg and 5.00 kg sit side by side, touching, on a frictionless floor. A horizontal 16.0 N push is applied to the 3.00 kg box. Find the acceleration of the boxes and the force the 3.00 kg box exerts on the 5.00 kg box.</summary>
+    <p>Treat both boxes as one 8.00 kg object: <var>a</var> = 16.0 N / 8.00 kg = 2.00 m/s². Now isolate the 5.00 kg box: the only horizontal force on it is the push from the 3.00 kg box, so that contact force is 5.00 kg × 2.00 m/s² = 10.0 N. Check with the 3.00 kg box: 16.0 N − 10.0 N = 6.00 N = 3.00 kg × 2.00 m/s². The 5.00 kg box pushes back on the 3.00 kg box with 10.0 N: a third-law pair.</p></details>
+
+  <div class="teach">
+    <span class="label">Instructor notes: applications (25 min)</span>
+    <p><strong>Elevator.</strong> Before running the trip, have students sketch the scale reading against time for an upward trip, then compare with the graph. Most draw the reading above <var>mg</var> for the whole upward ride; the cruise phase corrects this. Follow with the downward trip and the cable cut.</p>
+    <p><strong>Worked examples.</strong> Reveal one step, hide the screen, and ask the class to produce the next step on paper. The two deliberate traps are <var>N</var> = <var>mg</var> in Example 1 and “the heavier block has a larger acceleration” in Example 2.</p>
+    <p><strong>Practice problem 4</strong> is a good exit ticket: it needs the second law twice (system, then subsystem) and the third law once.</p>
+  </div>
+</section>
+
+<!-- ============================ QUIZ ============================ -->
+<section class="view" id="quiz" data-view="quiz">
+  <div class="view-head">
+    <p class="kicker">Self-assessment</p>
+    <h1>Final quiz</h1>
+    <p class="lede">Ten conceptual questions across all three laws. Each one explains itself after you answer. Aim for the reasoning, not the score; the explanations are where the learning is.</p>
+  </div>
+  <div class="score" id="final-score"><span>Answered <b class="big live" id="fq-count">0</b> of 10</span><span>Correct <b class="big live" id="fq-correct">0</b></span><span id="fq-best" class="muted"></span><button class="btn ghost" type="button" id="fq-retry">Start over</button></div>
+  <div class="quiz" id="quiz-final"></div>
+  <div class="teach">
+    <span class="label">Instructor notes: using the quiz</span>
+    <p>Use it as an exit ticket or as the opener of the next session. The questions that usually split the class are the constant-speed push (equal forces), the elevator slowing on the way up (reading below <var>mg</var>) and what accelerates a car (friction from the road). Each pairs with a simulation on the relevant page if you want to revisit.</p>
+  </div>
+</section>
+
+<p class="ref">Simulations use <var>g</var> = 9.81 m/s², ignore air resistance and treat strings and pulleys as ideal. Your quiz progress and the instructor-notes setting are stored only in this browser. Part of PHY101 Week 03: <a href="https://arifsolmaz.github.io/courses/fall/phy101/w3/">back to the notes</a>.</p>
+</main>
+
+<script>
+(function(){
+'use strict';
+var G = 9.81;
+var $ = function(s, r){ return (r || document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var clamp = function(v, a, b){ return Math.max(a, Math.min(b, v)); };
+function fmt(v, d){ if (d === undefined) d = 1; var s = v.toFixed(d); if (/^-0(\.0+)?$/.test(s)) s = s.slice(1); return s; }
+var UI_FONT = '"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif';
+
+/* ---------- per-viewer storage (may be unavailable) ---------- */
+var store = {
+  get: function(k, fb){ try { var v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); } catch (e) { return fb; } },
+  set: function(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ---------- palette read from CSS tokens so canvases follow the theme ---------- */
+var P = {};
+var TOKENS = ['bg','surface','surface-2','ink','muted','line','grid','accent','accent-ink','force','weight','normal','friction','tension','accel','vel','good','bad','warn'];
+function refreshPalette(){
+  var cs = getComputedStyle(document.documentElement);
+  TOKENS.forEach(function(t){ P[t.replace(/-2$/, '2').replace('accent-ink', 'accentInk')] = cs.getPropertyValue('--' + t).trim(); });
+}
+refreshPalette();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refreshPalette); } catch (e) {}
+try { new MutationObserver(refreshPalette).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme', 'class', 'style']}); } catch (e) {}
+
+/* ---------- canvas helpers ---------- */
+function Board(canvas, aspectFn){ this.c = canvas; this.aspectFn = aspectFn; this.ctx = canvas.getContext('2d'); this.w = 0; this.h = 0; }
+Board.prototype.fit = function(){
+  var cw = this.c.clientWidth; if (!cw) return false;
+  var h = Math.round(cw * this.aspectFn(cw));
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var pw = Math.round(cw * dpr), ph = Math.round(h * dpr);
+  if (this.c.width !== pw || this.c.height !== ph){ this.c.width = pw; this.c.height = ph; this.c.style.height = h + 'px'; }
+  this.w = cw; this.h = h; this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return true;
+};
+Board.prototype.clear = function(){ this.ctx.clearRect(0, 0, this.w, this.h); };
+Board.prototype.grid = function(step){
+  step = step || 28; var ctx = this.ctx, w = this.w, h = this.h;
+  ctx.save(); ctx.strokeStyle = P.grid; ctx.lineWidth = 1; ctx.beginPath();
+  for (var x = step; x < w; x += step){ ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, h); }
+  for (var y = step; y < h; y += step){ ctx.moveTo(0, y + .5); ctx.lineTo(w, y + .5); }
+  ctx.stroke(); ctx.restore();
+};
+function roundRect(ctx, x, y, w, h, r){
+  r = Math.min(r, w / 2, h / 2); ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function text(ctx, str, x, y, o){
+  o = o || {}; ctx.save();
+  ctx.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px ' + UI_FONT;
+  ctx.textAlign = o.align || 'left'; ctx.textBaseline = o.base || 'middle';
+  if (o.halo !== false){ ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.strokeStyle = P.surface; ctx.strokeText(str, x, y); }
+  ctx.fillStyle = o.color || P.ink; ctx.fillText(str, x, y); ctx.restore();
+}
+function arrow(ctx, x1, y1, x2, y2, color, o){
+  o = o || {}; var width = o.width || 3, head = o.head || 9;
+  var dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy); if (len < 0.5) return;
+  var ang = Math.atan2(dy, dx), hb = Math.min(head, len);
+  ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
+  if (o.dash) ctx.setLineDash(o.dash);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - Math.cos(ang) * hb * .7, y2 - Math.sin(ang) * hb * .7); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - hb * Math.cos(ang - .45), y2 - hb * Math.sin(ang - .45));
+  ctx.lineTo(x2 - hb * Math.cos(ang + .45), y2 - hb * Math.sin(ang + .45)); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  if (o.label){
+    var lx, ly, align;
+    if (Math.abs(dx) >= Math.abs(dy)){ align = dx > 0 ? 'left' : 'right'; lx = x2 + (dx > 0 ? 7 : -7); ly = y2; }
+    else if (o.labelSide === -1){ align = 'right'; lx = x2 - 9; ly = y2 + (dy > 0 ? 8 : -8); }
+    else { align = 'left'; lx = x2 + 9; ly = y2 + (dy > 0 ? 8 : -8); }
+    if (o.labelAt){ lx = o.labelAt[0]; ly = o.labelAt[1]; align = o.labelAlign || 'left'; }
+    text(ctx, o.label, lx, ly, {color: color, align: align, weight: 600, size: o.size || 12});
+  }
+}
+/* time series graph; series = [{data:[[t,y],...], color, label}] */
+function drawGraph(ctx, box, series, o){
+  var pad = {l: 46, r: 12, t: 18, b: 22};
+  var gx = box.x + pad.l, gy = box.y + pad.t, gw = box.w - pad.l - pad.r, gh = box.h - pad.t - pad.b;
+  var tWin = o.tWindow || 12, tMax = Math.max(o.tNow || 0, tWin), tMin = tMax - tWin;
+  var yMin = o.yMin, yMax = o.yMax;
+  if (yMin === undefined || yMax === undefined){
+    var lo = 0, hi = 0;
+    series.forEach(function(s){ s.data.forEach(function(p){ if (p[0] >= tMin){ lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); } }); });
+    (o.ref || []).forEach(function(r){ lo = Math.min(lo, r.y); hi = Math.max(hi, r.y); });
+    if (hi - lo < 1e-6) hi = lo + 1;
+    var span = hi - lo;
+    if (yMin === undefined) yMin = lo < 0 ? lo - span * .1 : 0;
+    if (yMax === undefined) yMax = hi + span * .2;
+  }
+  var X = function(t){ return gx + (t - tMin) / tWin * gw; };
+  var Y = function(v){ return gy + gh - (v - yMin) / (yMax - yMin) * gh; };
+  ctx.save();
+  ctx.strokeStyle = P.line; ctx.lineWidth = 1; ctx.beginPath();
+  ctx.moveTo(gx + .5, gy); ctx.lineTo(gx + .5, gy + gh + .5); ctx.lineTo(gx + gw, gy + gh + .5); ctx.stroke();
+  if (yMin < 0 && yMax > 0){ ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx, Y(0) + .5); ctx.lineTo(gx + gw, Y(0) + .5); ctx.stroke(); ctx.setLineDash([]); }
+  var dec = (yMax - yMin) < 6 ? 1 : 0;
+  [yMax, (yMax + yMin) / 2, yMin].forEach(function(v){ text(ctx, fmt(v, dec), gx - 6, Y(v), {align: 'right', size: 10, color: P.muted, halo: false}); });
+  text(ctx, o.yLabel || '', gx + 6, gy - 7, {size: 11, weight: 600, color: P.muted, halo: false, base: 'bottom'});
+  text(ctx, 't (s)', gx + gw, gy + gh + 14, {align: 'right', size: 10, color: P.muted, halo: false});
+  ctx.strokeStyle = P.line;
+  for (var tk = Math.ceil(tMin); tk <= tMax; tk++){ var tx = X(tk); ctx.beginPath(); ctx.moveTo(tx + .5, gy + gh); ctx.lineTo(tx + .5, gy + gh + (tk % 2 === 0 ? 5 : 3)); ctx.stroke(); if (tk % 2 === 0 && tx < gx + gw - 24) text(ctx, String(tk), tx, gy + gh + 13, {align: 'center', size: 10, color: P.muted, halo: false}); }
+  (o.ref || []).forEach(function(r){
+    ctx.strokeStyle = r.color || P.muted; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(gx, Y(r.y) + .5); ctx.lineTo(gx + gw, Y(r.y) + .5); ctx.stroke(); ctx.setLineDash([]);
+    if (r.label) text(ctx, r.label, gx + gw - 4, Y(r.y) + 10, {align: 'right', size: 10, weight: 600, color: r.color || P.muted, halo: false});
+  });
+  ctx.lineWidth = 2; ctx.lineJoin = 'round';
+  series.forEach(function(s){
+    ctx.strokeStyle = s.color; ctx.beginPath(); var started = false;
+    s.data.forEach(function(p){ if (p[0] < tMin) return; var x = X(p[0]), y = clamp(Y(p[1]), gy, gy + gh); if (!started){ ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y); });
+    ctx.stroke();
+  });
+  var lx = gx + gw - 4; ctx.font = '600 10px ' + UI_FONT;
+  series.forEach(function(s){ if (!s.label) return; text(ctx, s.label, lx, gy + 6, {align: 'right', size: 10, weight: 600, color: s.color, halo: false}); lx -= ctx.measureText(s.label).width + 14; });
+  ctx.restore();
+}
+
+/* ============================================================
+   TrackSim: blocks or carts on a horizontal surface.
+   mode 'steady' (force from a slider) or 'push' (short impulse);
+   trackLen set => fixed-camera race to a finish line.
+   ============================================================ */
+function TrackSim(cfg){
+  this.cfg = cfg; this.board = new Board(cfg.canvas, cfg.aspect);
+  this.carts = cfg.carts.map(function(c){ return Object.assign({x: 0, v: 0, a: 0, F: 0, f: 0, N: 0, done: null}, c); });
+  this.series = []; this.reset();
+}
+TrackSim.prototype.reset = function(){
+  var self = this;
+  this.carts.forEach(function(c){ c.x = 0; c.v = 0; c.a = 0; c.F = 0; c.f = 0; c.done = null; });
+  this.t = 0; this.pushTimer = 0; this.paused = false; this.running = this.cfg.autoRun !== false;
+  this.series = this.carts.map(function(){ return []; });
+  this.carts.forEach(function(c, i){ if (self.cfg.getMass) c.m = self.cfg.getMass(i); c.N = c.m * G; });
+};
+TrackSim.prototype.push = function(){ this.pushTimer = this.cfg.pushDuration || 0.4; };
+TrackSim.prototype.step = function(dt){
+  var self = this;
+  if (!this.running) return;
+  this.t += dt;
+  var pushing = this.pushTimer > 0; if (pushing) this.pushTimer -= dt;
+  var mu = this.cfg.getMu ? this.cfg.getMu() : 0;
+  var Fset = this.cfg.getF ? this.cfg.getF() : 0;
+  this.carts.forEach(function(c, i){
+    if (self.cfg.getMass) c.m = self.cfg.getMass(i);
+    var Fapp = self.cfg.mode === 'push' ? (pushing ? self.cfg.pushForce : 0) : Fset;
+    if (c.done !== null) Fapp = 0;
+    var N = c.m * G, f = 0;
+    if (mu > 0){
+      if (Math.abs(c.v) > 1e-9) f = -Math.sign(c.v) * mu * N;
+      else if (Math.abs(Fapp) <= mu * N) f = -Fapp;            /* static friction holds */
+      else f = -Math.sign(Fapp) * mu * N;
+    }
+    var a = c.done !== null ? 0 : (Fapp + f) / c.m;
+    var v0 = c.v, v = v0 + a * dt;
+    if (mu > 0 && v0 !== 0 && Math.sign(v) !== Math.sign(v0) && Math.abs(Fapp) <= mu * N){ v = 0; a = 0; f = -Fapp; }  /* friction brings it to rest */
+    c.v = v; c.a = a; c.x += v * dt; c.F = Fapp; c.f = f; c.N = N;
+    if (self.cfg.trackLen && c.done === null && c.x >= self.cfg.trackLen){ c.x = self.cfg.trackLen; c.v = 0; c.a = 0; c.F = 0; c.done = self.t; }
+    var s = self.series[i]; s.push([self.t, c.v]); while (s.length && s[0][0] < self.t - 12) s.shift();
+  });
+  if (this.cfg.trackLen && this.carts.every(function(c){ return c.done !== null; })) this.running = false;
+};
+TrackSim.prototype.draw = function(){
+  if (!this.board.fit()) return;
+  var ctx = this.board.ctx, w = this.board.w, h = this.board.h;
+  this.board.clear(); this.board.grid();
+  if (this.cfg.trackLen) return this.drawRace(ctx, w, h);
+  var c = this.carts[0];
+  var hasGraph = !!this.cfg.graph, sceneH = hasGraph ? Math.round(h * .64) : h;
+  var groundY = Math.round(sceneH * (hasGraph ? .74 : .78));
+  var pxm = clamp(w / 14, 44, 70), cx = Math.round(w * .36);
+  /* ground with metre marks that scroll past the body */
+  ctx.save(); ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, groundY + .5); ctx.lineTo(w, groundY + .5); ctx.stroke();
+  ctx.lineWidth = 1; ctx.strokeStyle = P.muted;
+  var k0 = Math.floor(c.x - cx / pxm) - 1, k1 = Math.ceil(c.x + (w - cx) / pxm) + 1;
+  for (var k = k0; k <= k1; k++){
+    var sx = cx + (k - c.x) * pxm; ctx.beginPath(); ctx.moveTo(sx + .5, groundY); ctx.lineTo(sx + .5, groundY + (k % 5 === 0 ? 10 : 5)); ctx.stroke();
+    if (k % 5 === 0) text(ctx, k + ' m', sx, groundY + 30, {align: 'center', size: 10, color: P.muted, halo: false});
+  }
+  ctx.restore();
+  /* body */
+  var puck = this.cfg.style === 'puck';
+  var bw = puck ? 54 : 72, bh = puck ? 16 : 34, wheelR = puck ? 0 : 8;
+  var bodyBottom = groundY - 2 * wheelR, bodyTop = bodyBottom - bh, cy = (bodyTop + bodyBottom) / 2;
+  ctx.save(); ctx.fillStyle = P[c.color] || P.ink; roundRect(ctx, cx - bw / 2, bodyTop, bw, bh, puck ? 7 : 5); ctx.fill();
+  if (wheelR){ ctx.fillStyle = P.muted; [cx - bw / 2 + 14, cx + bw / 2 - 14].forEach(function(x){ ctx.beginPath(); ctx.arc(x, groundY - wheelR, wheelR, 0, Math.PI * 2); ctx.fill(); }); }
+  ctx.restore();
+  /* vertical forces, fixed length (they balance) */
+  var vLen = Math.min(54, sceneH * .2);
+  arrow(ctx, cx, cy, cx, cy + vLen, P.weight, {label: 'mg = ' + fmt(c.m * G) + ' N'});
+  arrow(ctx, cx, cy, cx, cy - vLen, P.normal, {label: 'N = ' + fmt(c.N) + ' N'});
+  /* horizontal forces to scale */
+  var hs = clamp(w / 130, 4, 7);
+  if (Math.abs(c.F) > .01) arrow(ctx, cx, cy, cx + c.F * hs, cy, P.force, {label: (this.cfg.mode === 'push' ? 'push ' : 'F = ') + fmt(c.F) + ' N'});
+  if (Math.abs(c.f) > .01) arrow(ctx, cx, cy, cx + c.f * hs, cy, P.friction, {label: 'f = ' + fmt(Math.abs(c.f)) + ' N'});
+  /* acceleration and velocity above the body */
+  var aY = cy - vLen - 24, vY = aY - 28;
+  if (this.cfg.showAccel !== false && Math.abs(c.a) > .01) arrow(ctx, cx, aY, cx + c.a * 16, aY, P.accel, {label: 'a = ' + fmt(c.a, 2) + ' m/s²'});
+  if (Math.abs(c.v) > .01) arrow(ctx, cx, vY, cx + c.v * 12, vY, P.vel, {label: 'v = ' + fmt(c.v) + ' m/s'});
+  /* one-line reading of the situation */
+  var Fnet = c.F + c.f, msg;
+  if (Math.abs(Fnet) < .01 && Math.abs(c.v) > .01) msg = 'ΣF = 0, so the velocity stays constant';
+  else if (Math.abs(Fnet) < .01) msg = 'ΣF = 0, at rest' + (Math.abs(c.F) > .01 ? ' (static friction balances the push)' : '');
+  else msg = 'ΣF = ' + fmt(Fnet) + ' N, so a = ΣF/m = ' + fmt(c.a, 2) + ' m/s²';
+  text(ctx, msg, 12, sceneH - 14, {size: 12, weight: 600, color: P.ink, halo: false});
+  if (hasGraph){
+    var vmax = 0; this.series[0].forEach(function(p){ vmax = Math.max(vmax, p[1]); });
+    drawGraph(ctx, {x: 0, y: sceneH, w: w, h: h - sceneH}, [{data: this.series[0], color: P.vel, label: 'v'}], {tNow: this.t, tWindow: 12, yLabel: 'v (m/s)', yMin: 0, yMax: Math.max(5, Math.ceil(vmax + 1))});
+  }
+};
+TrackSim.prototype.drawRace = function(ctx, w, h){
+  var self = this, sceneH = Math.round(h * .6), laneH = sceneH / 2;
+  var L = this.cfg.trackLen, x0 = 56, x1 = w - 40, pxm = (x1 - x0) / L;
+  this.carts.forEach(function(c, i){
+    var groundY = Math.round(laneH * (i + 1) - 26);
+    ctx.save(); ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0 - 40, groundY + .5); ctx.lineTo(x1 + 10, groundY + .5); ctx.stroke();
+    ctx.strokeStyle = P.muted; ctx.lineWidth = 1;
+    for (var k = 0; k <= L; k += 5){ var sx = x0 + k * pxm; ctx.beginPath(); ctx.moveTo(sx + .5, groundY); ctx.lineTo(sx + .5, groundY + 6); ctx.stroke(); text(ctx, k + ' m', sx, groundY + 14, {align: 'center', size: 10, color: P.muted, halo: false}); }
+    ctx.strokeStyle = P.ink; ctx.beginPath(); ctx.moveTo(x1 + .5, groundY); ctx.lineTo(x1 + .5, groundY - 34); ctx.stroke();
+    ctx.fillStyle = P.bad; ctx.beginPath(); ctx.moveTo(x1, groundY - 34); ctx.lineTo(x1 + 16, groundY - 29); ctx.lineTo(x1, groundY - 24); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    var bw = 30 + c.m * 4, bh = 20 + c.m * 1.4, wheelR = 6;
+    var cx = x0 + c.x * pxm, bodyBottom = groundY - 2 * wheelR, bodyTop = bodyBottom - bh, cy = (bodyTop + bodyBottom) / 2;
+    ctx.save(); ctx.fillStyle = P[c.color] || P.ink; roundRect(ctx, cx - bw / 2, bodyTop, bw, bh, 4); ctx.fill();
+    ctx.fillStyle = P.muted; [cx - bw / 2 + 8, cx + bw / 2 - 8].forEach(function(x){ ctx.beginPath(); ctx.arc(x, groundY - wheelR, wheelR, 0, Math.PI * 2); ctx.fill(); });
+    ctx.restore();
+    if (Math.abs(c.F) > .01) arrow(ctx, cx, cy, cx + Math.min(c.F * 6, w * .3), cy, P.force, {label: 'F = ' + fmt(c.F) + ' N'});
+    if (Math.abs(c.a) > .01) arrow(ctx, cx, bodyTop - 18, cx + Math.min(c.a * 14, w * .3), bodyTop - 18, P.accel, {label: 'a = ' + fmt(c.a, 2) + ' m/s²'});
+    text(ctx, 'Cart ' + c.name + ', ' + fmt(c.m) + ' kg', x0 - 36, groundY - 86, {size: 11, weight: 700, color: P[c.color], halo: false});
+    if (c.done !== null) text(ctx, 'finished at ' + fmt(c.done, 2) + ' s', x1 - 12, groundY - 48, {align: 'right', size: 11, weight: 600, color: P.ink});
+  });
+  drawGraph(ctx, {x: 0, y: sceneH, w: w, h: h - sceneH}, this.carts.map(function(c, i){ return {data: self.series[i], color: P[c.color], label: c.name}; }), {tNow: this.t, tWindow: 12, yLabel: 'v (m/s)', yMin: 0});
+};
+
+/* ============================================================
+   InclineSim: free-body diagram of a block on a slope.
+   ============================================================ */
+function InclineSim(canvas, ui){ this.board = new Board(canvas, function(w){ return w < 600 ? 0.95 : 0.52; }); this.ui = ui; this.L = 4; this.reset(); }
+InclineSim.prototype.reset = function(){ this.sPos = 0; this.v = 0; this.released = false; this.atBottom = false; this.paused = false; };
+InclineSim.prototype.release = function(){ if (!this.atBottom) this.released = true; };
+InclineSim.prototype.params = function(){
+  var ui = this.ui, th = (+ui.th.value) * Math.PI / 180, m = +ui.m.value, mus = +ui.mus.value, muk = +ui.muk.value;
+  if (muk > mus){ muk = mus; ui.muk.value = muk; }
+  var W = m * G, Wpar = W * Math.sin(th), Wperp = W * Math.cos(th), N = Wperp, fsmax = mus * N;
+  var wouldSlide = Wpar > fsmax + 1e-9;
+  var kinetic = this.released ? (this.v > 1e-6 || wouldSlide) : wouldSlide;
+  var f = kinetic ? muk * N : Wpar, a = kinetic ? (Wpar - muk * N) / m : 0;
+  return {th: th, deg: +ui.th.value, m: m, mus: mus, muk: muk, W: W, Wpar: Wpar, Wperp: Wperp, N: N, fsmax: fsmax, wouldSlide: wouldSlide, kinetic: kinetic, f: f, a: a, thc: Math.atan(mus) * 180 / Math.PI, moving: this.released && this.v > 1e-6};
+};
+InclineSim.prototype.step = function(dt){
+  var p = this.params(); this.p = p;
+  if (this.released && !this.atBottom && p.kinetic){
+    this.v += p.a * dt;
+    if (this.v <= 0){ this.v = 0; this.released = false; }        /* decelerated to rest: static friction takes over */
+    this.sPos += this.v * dt;
+    if (this.sPos >= this.L){ this.sPos = this.L; this.v = 0; this.atBottom = true; }
+  }
+};
+InclineSim.prototype.draw = function(){
+  if (!this.board.fit()) return;
+  var ctx = this.board.ctx, w = this.board.w, h = this.board.h; this.board.clear(); this.board.grid();
+  var p = this.p || this.params(), th = p.th;
+  var baseY = h * .86, rightX = w * .84;
+  var Lpx = Math.min(.68 * w / Math.max(Math.cos(th), .2), .74 * h / Math.max(Math.sin(th), .2));
+  var topX = rightX - Lpx * Math.cos(th), topY = baseY - Lpx * Math.sin(th);
+  ctx.save(); ctx.fillStyle = P.surface2; ctx.strokeStyle = P.ink; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(topX, topY); ctx.lineTo(rightX, baseY); ctx.lineTo(topX, baseY); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  if (th > .03){ ctx.save(); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(rightX, baseY, 44, Math.PI, Math.PI + th, false); ctx.stroke(); ctx.restore();
+    text(ctx, 'θ = ' + p.deg + '°', rightX - 54, baseY - 12, {align: 'right', size: 12, color: P.muted}); }
+  /* unit vectors: d down the slope, n outward normal */
+  var d = [Math.cos(th), Math.sin(th)], n = [Math.sin(th), -Math.cos(th)];
+  var size = Math.min(40, Lpx * .22), sMax = Lpx - size * 1.1, s0 = Lpx * .3;
+  var sPx = s0 + clamp(this.sPos / this.L, 0, 1) * (sMax - s0);
+  var Cx = topX + d[0] * sPx, Cy = topY + d[1] * sPx;          /* contact point under the block centre */
+  var Bx = Cx + n[0] * size / 2, By = Cy + n[1] * size / 2;    /* block centre */
+  ctx.save(); ctx.translate(Bx, By); ctx.rotate(th); ctx.fillStyle = P.accent; roundRect(ctx, -size / 2, -size / 2, size, size, 4); ctx.fill(); ctx.restore();
+  /* forces, drawn to a common scale (weight = 90 px) */
+  var fs = Math.min(110, h * .32) / p.W;
+  if (this.ui.comp.checked){
+    arrow(ctx, Bx, By, Bx + d[0] * p.Wpar * fs, By + d[1] * p.Wpar * fs, P.muted, {dash: [5, 4], width: 2, label: 'mg sin θ'});
+    arrow(ctx, Bx, By, Bx - n[0] * p.Wperp * fs, By - n[1] * p.Wperp * fs, P.muted, {dash: [5, 4], width: 2, label: 'mg cos θ', labelSide: -1});
+  }
+  arrow(ctx, Bx, By, Bx, By + p.W * fs, P.weight, {label: 'mg'});
+  arrow(ctx, Bx, By, Bx + n[0] * p.N * fs, By + n[1] * p.N * fs, P.normal, {label: 'N'});
+  if (p.f > .05) arrow(ctx, Bx, By, Bx - d[0] * p.f * fs, By - d[1] * p.f * fs, P.friction, {label: 'f'});
+  if (Math.abs(p.a) > .01){ var ox = Bx + n[0] * (size / 2 + 26), oy = By + n[1] * (size / 2 + 26);
+    arrow(ctx, ox, oy, ox + d[0] * p.a * 22, oy + d[1] * p.a * 22, P.accel, {label: 'a = ' + fmt(p.a, 2) + ' m/s²'}); }
+  /* tilted axes in the top-left corner */
+  var ax = 44, ay = 72;
+  arrow(ctx, ax, ay, ax + d[0] * 40, ay + d[1] * 40, P.muted, {width: 1.5, head: 6, label: 'x', size: 11});
+  arrow(ctx, ax, ay, ax + n[0] * 40, ay + n[1] * 40, P.muted, {width: 1.5, head: 6, label: 'y', size: 11});
+  var state = p.moving ? 'sliding' : (this.atBottom ? 'at the bottom' : (p.wouldSlide ? (this.released ? 'starting to slide' : 'held; will slide when released') : 'at rest, held by static friction'));
+  text(ctx, state, w - 12, 18, {align: 'right', size: 12, weight: 600, color: P.ink, halo: false});
+};
+
+/* ============================================================
+   SkaterSim: two skaters push off on frictionless ice.
+   ============================================================ */
+function SkaterSim(canvas, ui){ this.board = new Board(canvas, function(w){ return w < 600 ? 0.8 : 0.42; }); this.ui = ui; this.reset(); }
+SkaterSim.prototype.reset = function(){ this.x1 = -.45; this.x2 = .45; this.v1 = 0; this.v2 = 0; this.pushT = 0; this.pushed = false; this.F = 0; this.a1 = 0; this.a2 = 0; this.paused = false; };
+SkaterSim.prototype.push = function(){ if (this.pushed) return; this.pushT = .5; this.pushed = true; };
+SkaterSim.prototype.step = function(dt){
+  var m1 = +this.ui.m1.value, m2 = +this.ui.m2.value, F = +this.ui.F.value; this.m1 = m1; this.m2 = m2;
+  if (this.pushT > 0){ var hdt = Math.min(dt, this.pushT); this.pushT -= dt; this.F = F; this.a1 = -F / m1; this.a2 = F / m2; this.v1 += this.a1 * hdt; this.v2 += this.a2 * hdt; }
+  else { this.F = 0; this.a1 = 0; this.a2 = 0; }
+  this.x1 += this.v1 * dt; this.x2 += this.v2 * dt;
+  var edge = 6.4; if (this.x1 < -edge){ this.x1 = -edge; this.v1 = 0; } if (this.x2 > edge){ this.x2 = edge; this.v2 = 0; }
+};
+SkaterSim.prototype.draw = function(){
+  if (!this.board.fit()) return;
+  var ctx = this.board.ctx, w = this.board.w, h = this.board.h; this.board.clear(); this.board.grid();
+  var iceY = Math.round(h * .8), pxm = (w - 40) / 14, X = function(x){ return w / 2 + x * pxm; };
+  ctx.save(); ctx.fillStyle = P.surface2; ctx.fillRect(0, iceY, w, h - iceY); ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, iceY + .5); ctx.lineTo(w, iceY + .5); ctx.stroke(); ctx.restore();
+  text(ctx, 'frictionless ice', 12, iceY + 16, {size: 11, color: P.muted, halo: false});
+  var self = this;
+  function skater(x, m, color, name){
+    var bw = 14 + m / 5, bodyTop = iceY - 74, bodyH = 52, headY = bodyTop - 12;
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x - bw * .35, iceY - 22); ctx.lineTo(x - bw * .45, iceY - 2); ctx.moveTo(x + bw * .35, iceY - 22); ctx.lineTo(x + bw * .45, iceY - 2); ctx.stroke();
+    ctx.fillStyle = color; roundRect(ctx, x - bw / 2, bodyTop, bw, bodyH, bw / 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, headY, 10, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    text(ctx, name + ' ' + m + ' kg', x, iceY + 32, {align: 'center', size: 11, weight: 600, color: color, halo: false});
+  }
+  skater(X(this.x1), this.m1 || 60, P.accent, 'A');
+  skater(X(this.x2), this.m2 || 90, P.normal, 'B');
+  var chestY = iceY - 52, headTop = iceY - 100;
+  if (this.F > 0){
+    var len = this.F * .4;
+    arrow(ctx, X(this.x1), chestY, X(this.x1) - len, chestY, P.force, {label: 'F on A = ' + this.F + ' N'});
+    arrow(ctx, X(this.x2), chestY, X(this.x2) + len, chestY, P.force, {label: 'F on B = ' + this.F + ' N'});
+  }
+  if (Math.abs(this.v1) > .005) arrow(ctx, X(this.x1), headTop, X(this.x1) + this.v1 * 40, headTop, P.vel, {label: fmt(Math.abs(this.v1), 2) + ' m/s'});
+  if (Math.abs(this.v2) > .005) arrow(ctx, X(this.x2), headTop, X(this.x2) + this.v2 * 40, headTop, P.vel, {label: fmt(Math.abs(this.v2), 2) + ' m/s'});
+  var msg = this.F > 0 ? 'Pushing: equal and opposite forces on two different bodies' : (this.pushed ? 'Coasting: no forces, constant velocities, total momentum zero' : 'Press “Push off”');
+  text(ctx, msg, 12, 18, {size: 12, weight: 600, color: P.ink, halo: false});
+};
+
+/* ============================================================
+   ElevatorSim: passenger on a scale during a programmed trip.
+   ============================================================ */
+function ElevatorSim(canvas, ui){ this.board = new Board(canvas, function(w){ return w < 600 ? 1.2 : 0.56; }); this.ui = ui; this.dir = 1; this.reset(); }
+ElevatorSim.prototype.reset = function(){ this.mode = 'idle'; this.paused = false; this.t = 0; this.v = 0; this.a = 0; this.phase = 'At rest'; this.series = []; this.cableCut = false; var A = +this.ui.a.value; this.H = 8 * A + 2; this.y = this.dir > 0 ? 1 : this.H - 1; this.N = (+this.ui.m.value) * G; };
+ElevatorSim.prototype.start = function(){
+  this.reset(); this.mode = 'trip'; var A = (+this.ui.a.value) * this.dir;
+  this.phases = [[1, 0, 'At rest'], [2, A, 'Speeding up'], [2, 0, 'Constant velocity'], [2, -A, 'Slowing down'], [1.5, 0, 'At rest']]; this.pi = 0; this.pt = 0;
+};
+ElevatorSim.prototype.cut = function(){ if (this.mode === 'done' && this.cableCut) return; this.cableCut = true; this.mode = 'fall'; this.phase = 'Free fall'; if (!this.series.length) this.t = 0; };
+ElevatorSim.prototype.step = function(dt){
+  var active = this.mode === 'trip' || this.mode === 'fall';
+  if (this.mode === 'trip'){
+    this.t += dt; this.pt += dt;
+    while (this.pi < this.phases.length && this.pt > this.phases[this.pi][0]){ this.pt -= this.phases[this.pi][0]; this.pi++; }
+    if (this.pi >= this.phases.length){ this.mode = 'done'; this.a = 0; this.v = 0; this.phase = 'At rest'; }
+    else { this.a = this.phases[this.pi][1]; this.phase = this.phases[this.pi][2]; this.v += this.a * dt; this.y += this.v * dt; }
+  } else if (this.mode === 'fall'){
+    this.t += dt; this.a = -G; this.v += this.a * dt; this.y += this.v * dt;
+    if (this.y <= .3){ this.y = .3; this.v = 0; this.a = 0; this.mode = 'done'; this.phase = 'Stopped at the bottom'; }
+  } else { this.a = 0; }
+  var m = +this.ui.m.value; this.N = Math.max(0, m * (G + this.a));
+  if (active){ this.series.push([this.t, this.N]); while (this.series.length && this.series[0][0] < this.t - 12) this.series.shift(); }
+};
+ElevatorSim.prototype.draw = function(){
+  if (!this.board.fit()) return;
+  var ctx = this.board.ctx, w = this.board.w, h = this.board.h; this.board.clear(); this.board.grid();
+  var m = +this.ui.m.value, topH = Math.round(h * .62);
+  var shaftX = 18, shaftW = Math.min(150, w * .27), shaftTop = 14, shaftBot = topH - 8;
+  var cabH = Math.min(112, (shaftBot - shaftTop) * .5), cabW = shaftW - 16, cabX = shaftX + 8;
+  var Ypx = function(y){ return shaftBot - (y / this.H) * (shaftBot - shaftTop - cabH); }.bind(this);
+  var cabBottom = Ypx(clamp(this.y, 0, this.H)), cabTop = cabBottom - cabH;
+  ctx.save();
+  ctx.strokeStyle = P.line; ctx.lineWidth = 2; ctx.strokeRect(shaftX + .5, shaftTop + .5, shaftW, shaftBot - shaftTop);
+  if (!this.cableCut){ ctx.strokeStyle = P.muted; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cabX + cabW / 2, shaftTop); ctx.lineTo(cabX + cabW / 2, cabTop); ctx.stroke(); }
+  ctx.fillStyle = P.surface; ctx.strokeStyle = P.ink; ctx.lineWidth = 2; roundRect(ctx, cabX, cabTop, cabW, cabH, 4); ctx.fill(); ctx.stroke();
+  var scaleW = 34, scaleH = 8, sx = cabX + cabW / 2 - scaleW / 2, sy = cabBottom - scaleH - 5;
+  ctx.fillStyle = P.normal; ctx.fillRect(sx, sy, scaleW, scaleH);
+  var px = cabX + cabW / 2, feetY = sy, bodyTop = feetY - 46, headY = bodyTop - 9;
+  ctx.strokeStyle = P.ink; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.beginPath();
+  ctx.moveTo(px, bodyTop); ctx.lineTo(px, feetY - 18); ctx.moveTo(px, feetY - 18); ctx.lineTo(px - 9, feetY); ctx.moveTo(px, feetY - 18); ctx.lineTo(px + 9, feetY);
+  ctx.moveTo(px, bodyTop + 8); ctx.lineTo(px - 10, bodyTop + 24); ctx.moveTo(px, bodyTop + 8); ctx.lineTo(px + 10, bodyTop + 24); ctx.stroke();
+  ctx.beginPath(); ctx.arc(px, headY, 7, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+  text(ctx, Math.round(this.N) + ' N', cabX + cabW / 2, cabTop + 14, {align: 'center', size: 12, weight: 700, color: P.normal});
+  /* acceleration and velocity indicators beside the cabin */
+  var ix = shaftX + shaftW + 26, iy = (cabTop + cabBottom) / 2;
+  if (Math.abs(this.a) > .01) arrow(ctx, ix, iy, ix, iy - this.a * 9, P.accel, {label: 'a'});
+  if (Math.abs(this.v) > .01) arrow(ctx, ix + 34, iy, ix + 34, iy - this.v * 6, P.vel, {label: 'v'});
+  /* free-body diagram of the passenger */
+  var fx = shaftX + shaftW + (w - shaftX - shaftW) * .62, fy = topH * .56;
+  var mgLen = Math.min(78, (fy - 34) / 1.7), fs = mgLen / (m * G);
+  text(ctx, 'Forces on the passenger', fx, 20, {align: 'center', size: 12, weight: 600, color: P.muted, halo: false});
+  ctx.save(); ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(fx, fy, 6, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  arrow(ctx, fx, fy, fx, fy + mgLen, P.weight, {label: 'mg = ' + Math.round(m * G) + ' N'});
+  if (this.N > .5) arrow(ctx, fx, fy, fx, fy - this.N * fs, P.normal, {label: 'N = ' + Math.round(this.N) + ' N'});
+  var rel = this.N > m * G + .5 ? 'heavier than usual' : (this.N < m * G - .5 ? (this.N < .5 ? 'weightless' : 'lighter than usual') : 'normal weight');
+  text(ctx, this.phase + ': feels ' + rel, fx, topH - 16, {align: 'center', size: 12, weight: 600, color: P.ink, halo: false});
+  drawGraph(ctx, {x: 0, y: topH, w: w, h: h - topH}, [{data: this.series, color: P.normal, label: 'scale reading N'}], {tNow: this.t, tWindow: 12, yLabel: 'N (newtons)', yMin: 0, yMax: Math.ceil(m * G * 1.75 / 200) * 200, ref: [{y: m * G, label: 'true weight mg', color: P.weight}]});
+};
+
+/* ============================================================
+   Question bank: predictions, section checks, final quiz.
+   ============================================================ */
+var BANK = {
+  p1: {q: 'With friction set to zero, you give the puck one quick push. After the push ends, the puck will…', opts: ['slow down and eventually stop', 'move at a constant velocity', 'keep speeding up'], ans: 1,
+       why: 'Once the push ends no horizontal force acts on the puck, so nothing changes its velocity. Weight and the normal force cancel. Constant velocity is what “no net force” looks like.'},
+  p2: {q: 'Cart A (2 kg) and cart B (4 kg) are pushed with the same force. Which reaches the finish line first?', opts: ['Cart A', 'Cart B', 'They tie'], ans: 0,
+       why: 'The same force gives the lighter cart twice the acceleration (<var>a</var> = <var>F</var>/<var>m</var>), so it covers the track in less time, by a factor of √2.'},
+  p3: {q: 'A 60 kg skater and a 90 kg skater push off each other. During the push, who experiences the larger force?', opts: ['The 60 kg skater', 'The 90 kg skater', 'Both experience the same force'], ans: 2,
+       why: 'The push is a single interaction between the two skaters, and the third law says the two forces are equal in magnitude. What differs is the acceleration: the lighter skater gets more of it.'},
+  p4: {q: 'During an upward trip, when is the scale reading largest?', opts: ['While the elevator is speeding up', 'While it moves at constant speed', 'While it is slowing down'], ans: 0,
+       why: 'The scale reads <var>N</var> = <var>m</var>(<var>g</var> + <var>a</var>). Only an upward acceleration makes it exceed <var>mg</var>, and that happens while the cabin is speeding up on the way up (or slowing down on the way down).'},
+
+  f1: {q: 'A spacecraft far from any star or planet switches off its engines. What happens to it?', opts: ['It gradually slows down and stops.', 'It keeps moving at constant velocity.', 'It speeds up, because nothing resists it.', 'It stops as soon as the engines are off.'], ans: 1,
+       why: 'With no net force acting, velocity does not change. Motion needs no force to continue; only a change of motion needs one.'},
+  f2: {q: 'You are standing in a bus that brakes suddenly, and you lurch forward. Why?', opts: ['A forward force pushes you.', 'Your body keeps its forward velocity while the bus slows beneath you.', 'The brakes act on you as well as on the bus.', 'Gravity tilts forward while braking.'], ans: 1,
+       why: 'Seen from the pavement there is no forward force on you. You simply continue at the bus’s old speed while the bus decelerates. The “throw” is inertia, viewed from a non-inertial frame.'},
+  f3: {q: 'A box is pushed across a rough floor at constant velocity. What is true about the net force on the box?', opts: ['It points in the direction of motion.', 'It is zero.', 'It points opposite to the motion.', 'It equals the force of the push.'], ans: 1,
+       why: 'Constant velocity means zero acceleration, so by the first law the net force is zero: the push and kinetic friction are equal in magnitude. The push does not need to exceed friction to keep the box moving.'},
+
+  s1: {q: 'The same net force acts on a 2 kg cart and on a 6 kg cart. How do their accelerations compare?', opts: ['They are the same.', 'The 2 kg cart has three times the acceleration.', 'The 6 kg cart has three times the acceleration.', 'The 2 kg cart has nine times the acceleration.'], ans: 1,
+       why: '<var>a</var> = <var>F</var>/<var>m</var>: with the same force, acceleration is inversely proportional to mass. One third of the mass means three times the acceleration.'},
+  s2: {q: 'A ball is thrown straight up. At the highest point of its flight (ignoring air resistance) the net force on it is…', opts: ['zero, because the ball is momentarily at rest.', 'upward, because it was moving upward.', 'downward and equal to the ball’s weight.', 'downward but smaller than the ball’s weight.'], ans: 2,
+       why: 'Gravity acts the whole time, so the net force is <var>mg</var> downward at every point, including the top. Zero velocity for an instant does not mean zero force; if it did, the ball would stay up.'},
+  s3: {q: 'A 5 kg object has two forces on it: 10 N east and 10 N north. The magnitude of its acceleration is about…', opts: ['4 m/s²', '2.8 m/s²', '2 m/s²', '20 m/s²'], ans: 1,
+       why: 'Forces add as vectors: the net force is √(10² + 10²) ≈ 14.1 N, pointing north-east, so <var>a</var> = 14.1 N / 5 kg ≈ 2.8 m/s² in that direction.'},
+
+  r1: {q: 'You lean on a wall, pushing it with 50 N. What is the third-law partner of your push?', opts: ['The floor’s friction on your shoes.', 'The wall pushing on you with 50 N.', 'Your weight.', 'The wall’s weight.'], ans: 1,
+       why: 'Swap the names: “you push the wall” pairs with “the wall pushes you”, same size, opposite direction, same type (contact). Friction from the floor is a separate force that keeps you from sliding.'},
+  r2: {q: 'Earth pulls an apple downward with a gravitational force of 1 N. The partner force is…', opts: ['the branch pulling the apple up.', 'the apple pulling Earth upward with 1 N.', 'the apple pushing on the branch.', 'air pushing the apple up.'], ans: 1,
+       why: 'Gravity pairs with gravity: the apple attracts Earth with 1 N. Earth’s acceleration from that force is immeasurably small because its mass is enormous. The branch force is a different interaction.'},
+  r3: {q: 'A car’s tires push backward on the road. The partner force is…', opts: ['the road pushing the tires forward.', 'the engine pushing the car forward.', 'air resistance on the car.', 'the car’s weight.'], ans: 0,
+       why: '“Tires push road backward” pairs with “road pushes tires forward”. That forward friction force is what actually accelerates the car; the engine only turns the wheels.'},
+
+  t1: {q: 'A truck collides head-on with a small car. During the collision, the force the truck exerts on the car is…', opts: ['much larger than the force the car exerts on the truck.', 'slightly larger.', 'equal in magnitude to the force the car exerts on the truck.', 'smaller, because the car is lighter.'], ans: 2,
+       why: 'Third law: the two forces are equal. The car is damaged more because the same force gives its smaller mass a much larger acceleration.'},
+  t2: {q: 'A book rests on a table, and the table pushes up on the book with a normal force. What is the third-law partner of this normal force?', opts: ['The weight of the book.', 'The book pushing down on the table.', 'Earth pulling the book down.', 'The table pushing on the floor.'], ans: 1,
+       why: '“Table pushes book” pairs with “book pushes table”. The weight is equal and opposite to the normal force here, but both act on the book and they are different kinds of force, so they are not partners.'},
+  t3: {q: 'A horse pulls a cart, and the cart pulls back on the horse with equal force. The horse and cart accelerate forward because…', opts: ['the horse pulls a little harder than the cart.', 'the two forces act on different bodies; the horse accelerates when the ground pushes it forward harder than the cart pulls it back.', 'the third law does not apply to living things.', 'the wheels of the cart reduce the reaction force.'], ans: 1,
+       why: 'Partner forces never cancel because they act on different objects. For the horse alone, the forward push of the ground competes with the backward pull of the cart; for the cart alone, the horse’s pull competes with friction and drag.'},
+
+  q1: {q: 'Which quantity measures an object’s inertia?', opts: ['Its weight', 'Its mass', 'Its velocity', 'The net force on it'], ans: 1,
+       why: 'Mass is the measure of inertia: the resistance to a change in velocity. Weight is a force and depends on where the object is.'},
+  q2: {q: 'A hockey puck slides across frictionless ice at 5 m/s. Which statement is correct?', opts: ['A 5 N forward force keeps it moving.', 'The net force on it is zero.', 'It will gradually slow to a stop.', 'Its acceleration is 5 m/s².'], ans: 1,
+       why: 'Constant velocity means zero net force. The puck needs nothing to keep going; it would need a force to stop.'},
+  q3: {q: 'You push a stalled car along a level road at constant speed. Compared with the friction and drag opposing the car, your push is…', opts: ['greater.', 'equal in magnitude.', 'smaller.', 'zero.'], ans: 1,
+       why: 'Constant speed in a straight line is zero acceleration, so the forces balance exactly. Pushing harder than the resistance would make the car speed up.'},
+  q4: {q: 'The net force on an object is doubled while its mass is halved. Its acceleration…', opts: ['stays the same.', 'doubles.', 'becomes four times larger.', 'halves.'], ans: 2,
+       why: '<var>a</var> = <var>F</var>/<var>m</var>: doubling the numerator and halving the denominator multiplies the result by four.'},
+  q5: {q: 'On the Moon, where <var>g</var> ≈ 1.6 m/s², a 10 kg object has…', opts: ['mass 10 kg and weight about 16 N.', 'mass 1.6 kg and weight 98 N.', 'mass 10 kg and weight 98 N.', 'mass 16 kg and weight 16 N.'], ans: 0,
+       why: 'Mass does not change with location. Weight is <var>mg</var>, so it drops to 10 kg × 1.6 m/s² = 16 N, about one sixth of its value on Earth.'},
+  q6: {q: 'An astronaut floating in a space station pushes a 100 kg cargo crate. Compared with giving the same crate the same acceleration on a frictionless cart on Earth, the force needed is…', opts: ['much smaller, because the crate is weightless.', 'the same, because its mass is the same.', 'zero.', 'larger, because there is no floor to help.'], ans: 1,
+       why: 'The second law involves mass, not weight. The crate has the same inertia in orbit as on the ground, so the same horizontal force produces the same acceleration.'},
+  q7: {q: 'You stand on a bathroom scale in an elevator that is moving upward but slowing down. The scale reads…', opts: ['more than your weight.', 'less than your weight.', 'exactly your weight.', 'zero.'], ans: 1,
+       why: 'Moving up and slowing down means the acceleration points down. From <var>N</var> − <var>mg</var> = <var>ma</var> with a negative <var>a</var>, the normal force, which is what the scale reads, is less than <var>mg</var>. Direction of travel does not matter; direction of acceleration does.'},
+  q8: {q: 'A car accelerates forward from rest. Which force is responsible for the car’s forward acceleration?', opts: ['The engine’s force on the wheels.', 'Friction from the road on the tires, pointing forward.', 'Air pushing on the back of the car.', 'The driver pressing the pedal.'], ans: 1,
+       why: 'Internal forces (engine on wheels) cannot accelerate the car as a whole. The tires push the road backward; the road’s friction pushes the tires forward. On ice, with no friction, the wheels spin and the car stays put.'},
+  q9: {q: 'A rocket in empty space fires its engine and speeds up. What pushes the rocket forward?', opts: ['The exhaust gases push against space.', 'The rocket pushes gas backward, and the gas pushes the rocket forward.', 'Nothing; rockets cannot accelerate in a vacuum.', 'The rocket pushes against its own exhaust trail far behind it.'], ans: 1,
+       why: 'The rocket exerts a force on the expelled gas; the gas exerts an equal and opposite force on the rocket. No external medium is needed, which is why rockets work better in a vacuum than in air.'},
+  q10: {q: 'Two teams play tug-of-war with a light rope that does not stretch. Which statement is true while the rope moves toward team A?', opts: ['Team A pulls harder on the rope than team B does.', 'The rope pulls on both teams with equal force; team A wins because the ground pushes harder on team A.', 'Team B pulls harder but loses its grip.', 'The tension is larger near team A.'], ans: 1,
+       why: 'A light rope has the same tension throughout, so it pulls equally on both teams. Each team’s acceleration is set by the net force on it: tension from the rope versus friction from the ground. The team that pushes the ground harder is the one the ground pushes harder, and it wins.'}
+};
+
+function renderQuiz(container, ids, o){
+  o = o || {}; container.innerHTML = ''; var results = {};
+  ids.forEach(function(id, qi){
+    var item = BANK[id], qEl = document.createElement('div'); qEl.className = 'q';
+    var pq = document.createElement('p'); pq.className = 'q-text'; pq.innerHTML = (o.numbered ? (qi + 1) + '. ' : '') + item.q; qEl.appendChild(pq);
+    var optsEl = document.createElement('div'); optsEl.className = 'opts';
+    var why = document.createElement('div'); why.className = 'why';
+    item.opts.forEach(function(label, oi){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.innerHTML = label;
+      b.addEventListener('click', function(){
+        var correct = oi === item.ans;
+        $$('.opt', optsEl).forEach(function(x, xi){ x.disabled = true; if (xi === item.ans) x.classList.add('correct'); });
+        if (!correct) b.classList.add('wrong');
+        var lead = o.predict ? (correct ? 'Good prediction. ' : 'Not what happens. ') : (correct ? 'Correct. ' : 'Not quite. ');
+        why.innerHTML = '<b>' + lead + '</b>' + item.why + (o.predict ? ' Now run the simulation and watch for it.' : '');
+        why.classList.add('shown');
+        results[id] = correct; if (o.onAnswer) o.onAnswer(results);
+      });
+      optsEl.appendChild(b);
+    });
+    qEl.appendChild(optsEl); qEl.appendChild(why); container.appendChild(qEl);
+  });
+}
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+function set(sel, val){ var el = $(sel); if (el && el.textContent !== String(val)) el.textContent = val; }
+function bindRange(input, output, f){ var upd = function(){ output.textContent = f(+input.value); }; input.addEventListener('input', upd); upd(); }
+
+/* playground */
+var sbF = $('#sb-F-in'), sbM = $('#sb-m-in'), sbMu = $('#sb-mu-in');
+var sandbox = new TrackSim({canvas: $('#cv-sandbox'), aspect: function(w){ return w < 600 ? 0.72 : 0.36; }, carts: [{m: 2, color: 'accent'}], mode: 'steady',
+  getF: function(){ return +sbF.value; }, getMu: function(){ return +sbMu.value; }, getMass: function(){ return +sbM.value; }});
+bindRange(sbF, $('#sb-F'), function(v){ return fmt(v) + ' N'; });
+bindRange(sbM, $('#sb-m'), function(v){ return fmt(v) + ' kg'; });
+bindRange(sbMu, $('#sb-mu'), function(v){ return fmt(v, 2); });
+$('#sb-reset').addEventListener('click', function(){ sandbox.reset(); });
+
+/* inertia puck */
+var inMu = $('#in-mu-in');
+var inertia = new TrackSim({canvas: $('#cv-inertia'), aspect: function(w){ return w < 600 ? 1.0 : 0.5; }, carts: [{m: 1, color: 'accent'}], mode: 'push', pushForce: 10, pushDuration: 0.4, style: 'puck',
+  getMu: function(){ return +inMu.value; }, graph: true, showAccel: false});
+bindRange(inMu, $('#in-mu'), function(v){ return fmt(v, 2); });
+var chips = $$('#in-surfaces .chip');
+function syncChips(){ chips.forEach(function(ch){ ch.setAttribute('aria-pressed', Math.abs(+ch.dataset.mu - +inMu.value) < 1e-9 ? 'true' : 'false'); }); }
+chips.forEach(function(ch){ ch.addEventListener('click', function(){ inMu.value = ch.dataset.mu; inMu.dispatchEvent(new Event('input')); }); });
+inMu.addEventListener('input', syncChips); syncChips();
+$('#in-push').addEventListener('click', function(){ inertia.paused = false; inertia.push(); });
+$('#in-reset').addEventListener('click', function(){ inertia.reset(); });
+
+/* two-cart race */
+var rcF = $('#rc-F-in'), rcA = $('#rc-mA-in'), rcB = $('#rc-mB-in');
+var race = new TrackSim({canvas: $('#cv-race'), aspect: function(w){ return w < 600 ? 1.15 : 0.56; }, carts: [{m: 2, color: 'accent', name: 'A'}, {m: 4, color: 'tension', name: 'B'}], mode: 'steady', trackLen: 20, autoRun: false,
+  getF: function(){ return +rcF.value; }, getMass: function(i){ return i === 0 ? +rcA.value : +rcB.value; }});
+bindRange(rcF, $('#rc-F'), function(v){ return fmt(v) + ' N'; });
+bindRange(rcA, $('#rc-mA'), function(v){ return fmt(v) + ' kg'; });
+bindRange(rcB, $('#rc-mB'), function(v){ return fmt(v) + ' kg'; });
+$('#rc-start').addEventListener('click', function(){ race.reset(); race.running = true; });
+$('#rc-reset').addEventListener('click', function(){ race.reset(); });
+function raceStatus(){
+  var A = race.carts[0], B = race.carts[1], el = $('#rc-status');
+  if (A.done !== null && B.done !== null){
+    var big = Math.max(A.m, B.m), small = Math.min(A.m, B.m);
+    el.innerHTML = 'A finished at ' + fmt(A.done, 2) + ' s, B at ' + fmt(B.done, 2) + ' s. Ratio of the times: ' + fmt(Math.max(A.done, B.done) / Math.min(A.done, B.done), 2) +
+      '. For a constant force the second law predicts √(' + fmt(big) + '/' + fmt(small) + ') = ' + fmt(Math.sqrt(big / small), 2) + '.';
+  } else if (race.running) el.textContent = 'Running. Both carts feel the same force; compare the acceleration arrows and the slopes of the two velocity lines.';
+  else el.textContent = 'Press Start. The track is 20 m long and ends at the flag.';
+}
+
+/* incline */
+var icUI = {th: $('#ic-th-in'), m: $('#ic-m-in'), mus: $('#ic-mus-in'), muk: $('#ic-muk-in'), comp: $('#ic-comp')};
+var incline = new InclineSim($('#cv-incline'), icUI);
+bindRange(icUI.th, $('#ic-th'), function(v){ return v + '°'; });
+bindRange(icUI.m, $('#ic-m'), function(v){ return fmt(v) + ' kg'; });
+bindRange(icUI.mus, $('#ic-mus'), function(v){ return fmt(v, 2); });
+bindRange(icUI.muk, $('#ic-muk'), function(v){ return fmt(v, 2); });
+$('#ic-release').addEventListener('click', function(){ incline.paused = false; incline.release(); });
+$('#ic-reset').addEventListener('click', function(){ incline.reset(); });
+function inclineStatus(p){
+  $('#ic-muk').textContent = fmt(p.muk, 2);
+  var s = '<span class="eq">Perpendicular to the slope: <i>N</i> − <i>mg</i> cos <i>θ</i> = 0, so <i>N</i> = ' + fmt(p.N) + ' N.</span> ';
+  s += '<span class="eq">Along the slope: <i>mg</i> sin <i>θ</i> = ' + fmt(p.Wpar) + ' N</span> against a maximum static friction of <span class="eq"><i>μ</i><sub>s</sub><i>N</i> = ' + fmt(p.fsmax) + ' N</span>. ';
+  if (p.kinetic) s += (p.moving ? 'Sliding, so kinetic friction acts: ' : 'The pull wins, so it slides with kinetic friction: ') + '<span class="eq">Σ<i>F</i> = ' + fmt(p.Wpar) + ' − ' + fmt(p.muk * p.N) + ' = ' + fmt(p.Wpar - p.muk * p.N) + ' N, <i>a</i> = ' + fmt(p.a, 2) + ' m/s²</span>.';
+  else s += 'Static friction can hold it: <span class="eq"><i>f</i><sub>s</sub> = ' + fmt(p.Wpar) + ' N, <i>a</i> = 0</span>.';
+  s += ' <span class="muted">Critical angle: tan <i>θ</i><sub>c</sub> = <i>μ</i><sub>s</sub> gives <i>θ</i><sub>c</sub> = ' + fmt(p.thc) + '°.</span>';
+  var el = $('#ic-status'); if (el.dataset.last !== s){ el.innerHTML = s; el.dataset.last = s; }
+  set('#ic-ro-W', fmt(p.W) + ' N'); set('#ic-ro-N', fmt(p.N) + ' N'); set('#ic-ro-Wp', fmt(p.Wpar) + ' N'); set('#ic-ro-f', fmt(p.f) + ' N'); set('#ic-ro-a', fmt(p.a, 2) + ' m/s²');
+}
+
+/* skaters */
+var skUI = {m1: $('#sk-m1-in'), m2: $('#sk-m2-in'), F: $('#sk-F-in')};
+var skaters = new SkaterSim($('#cv-skaters'), skUI);
+bindRange(skUI.m1, $('#sk-m1'), function(v){ return v + ' kg'; });
+bindRange(skUI.m2, $('#sk-m2'), function(v){ return v + ' kg'; });
+bindRange(skUI.F, $('#sk-F'), function(v){ return v + ' N'; });
+$('#sk-push').addEventListener('click', function(){ skaters.paused = false; skaters.push(); });
+$('#sk-reset').addEventListener('click', function(){ skaters.reset(); });
+
+/* elevator */
+var elUI = {a: $('#el-a-in'), m: $('#el-m-in')};
+var elevator = new ElevatorSim($('#cv-elevator'), elUI);
+bindRange(elUI.a, $('#el-a'), function(v){ return fmt(v) + ' m/s²'; });
+bindRange(elUI.m, $('#el-m'), function(v){ return v + ' kg'; });
+elUI.a.addEventListener('input', function(){ if (elevator.mode !== 'trip' && elevator.mode !== 'fall') elevator.reset(); });
+$$('#el-dir .chip').forEach(function(ch){ ch.addEventListener('click', function(){
+  $$('#el-dir .chip').forEach(function(x){ x.setAttribute('aria-pressed', x === ch ? 'true' : 'false'); });
+  elevator.dir = +ch.dataset.dir; elevator.reset();
+}); });
+$('#el-start').addEventListener('click', function(){ elevator.start(); });
+$('#el-cut').addEventListener('click', function(){ elevator.paused = false; elevator.cut(); });
+$('#el-reset').addEventListener('click', function(){ elevator.reset(); });
+
+/* pause / resume, one button per simulation */
+var simByName = {sandbox: sandbox, inertia: inertia, race: race, incline: incline, skaters: skaters, elevator: elevator};
+$$('[data-pause]').forEach(function(btn){ btn.addEventListener('click', function(){ var s = simByName[btn.dataset.pause]; s.paused = !s.paused; syncPauseButtons(); }); });
+function syncPauseButtons(){
+  $$('[data-pause]').forEach(function(btn){
+    var s = simByName[btn.dataset.pause], label = s.paused ? 'Resume' : 'Pause';
+    if (btn.textContent !== label) btn.textContent = label;
+    btn.setAttribute('aria-pressed', s.paused ? 'true' : 'false');
+  });
+}
+
+/* readouts, refreshed a few times a second for the visible page */
+function updateReadouts(){
+  syncPauseButtons();
+  var c, m;
+  if (activeView === 'overview'){
+    c = sandbox.carts[0];
+    set('#sb-ro-F', fmt(c.F + c.f) + ' N'); set('#sb-ro-a', fmt(c.a, 2) + ' m/s²'); set('#sb-ro-v', fmt(c.v) + ' m/s'); set('#sb-ro-x', fmt(c.x) + ' m');
+  } else if (activeView === 'first-law'){
+    c = inertia.carts[0];
+    set('#in-ro-v', fmt(c.v) + ' m/s'); set('#in-ro-F', fmt(c.F + c.f) + ' N'); set('#in-ro-f', fmt(Math.abs(c.f)) + ' N'); set('#in-ro-x', fmt(c.x) + ' m');
+  } else if (activeView === 'second-law'){
+    var F = +rcF.value, A = race.carts[0], B = race.carts[1];
+    set('#rc-aA', fmt(A.done !== null ? 0 : F / (+rcA.value), 2) + ' m/s²'); set('#rc-aB', fmt(B.done !== null ? 0 : F / (+rcB.value), 2) + ' m/s²');
+    set('#rc-vA', fmt(A.v) + ' m/s'); set('#rc-vB', fmt(B.v) + ' m/s'); set('#rc-t', fmt(race.t) + ' s'); raceStatus();
+    inclineStatus(incline.p || incline.params());
+  } else if (activeView === 'third-law'){
+    var s = skaters;
+    set('#sk-FA', s.F + ' N'); set('#sk-FB', s.F + ' N'); set('#sk-aA', fmt(Math.abs(s.a1), 2) + ' m/s²'); set('#sk-aB', fmt(s.a2, 2) + ' m/s²');
+    set('#sk-vA', fmt(s.v1, 2) + ' m/s'); set('#sk-vB', fmt(s.v2, 2) + ' m/s'); set('#sk-p', fmt((s.m1 || 60) * s.v1 + (s.m2 || 90) * s.v2) + ' kg·m/s');
+  } else if (activeView === 'applications'){
+    m = +elUI.m.value;
+    set('#el-ro-N', Math.round(elevator.N) + ' N'); set('#el-ro-W', Math.round(m * G) + ' N'); set('#el-ro-a', fmt(elevator.a) + ' m/s²'); set('#el-ro-v', fmt(elevator.v) + ' m/s'); set('#el-ro-phase', elevator.phase);
+  }
+}
+
+/* quizzes */
+renderQuiz($('#predict-1'), ['p1'], {predict: true});
+renderQuiz($('#predict-2'), ['p2'], {predict: true});
+renderQuiz($('#predict-3'), ['p3'], {predict: true});
+renderQuiz($('#predict-4'), ['p4'], {predict: true});
+renderQuiz($('#quiz-first'), ['f1', 'f2', 'f3'], {numbered: true});
+renderQuiz($('#quiz-second'), ['s1', 's2', 's3'], {numbered: true});
+renderQuiz($('#quiz-pairs'), ['r1', 'r2', 'r3'], {numbered: true});
+renderQuiz($('#quiz-third'), ['t1', 't2', 't3'], {numbered: true});
+var FINAL_IDS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'], finalResults = {};
+function updateScore(){
+  var keys = Object.keys(finalResults), n = keys.length, c = keys.filter(function(k){ return finalResults[k]; }).length;
+  set('#fq-count', n); set('#fq-correct', c);
+  var best = store.get('nl-best', null);
+  if (n === FINAL_IDS.length && (best === null || c > best)){ best = c; store.set('nl-best', best); }
+  $('#fq-best').textContent = best === null ? '' : 'Best on this device: ' + best + ' of 10';
+}
+function renderFinal(){ finalResults = {}; renderQuiz($('#quiz-final'), FINAL_IDS, {numbered: true, onAnswer: function(res){ finalResults = res; updateScore(); }}); updateScore(); }
+$('#fq-retry').addEventListener('click', renderFinal); renderFinal();
+
+/* worked-example steps */
+$$('[data-steps]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var items = $$('#' + btn.dataset.steps + ' .steps li');
+    var next = items.filter(function(li){ return !li.classList.contains('shown'); })[0];
+    if (next) next.classList.add('shown');
+    if (!items.some(function(li){ return !li.classList.contains('shown'); })){ btn.disabled = true; btn.textContent = 'All steps shown'; }
+  });
+});
+$$('[data-steps-reset]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var id = btn.dataset.stepsReset; $$('#' + id + ' .steps li').forEach(function(li){ li.classList.remove('shown'); });
+    var b = $('[data-steps="' + id + '"]'); b.disabled = false; b.textContent = 'Show next step';
+  });
+});
+
+/* instructor notes toggle */
+var teachBtn = $('#teachToggle');
+function setTeach(on){ document.body.classList.toggle('show-teach', on); teachBtn.setAttribute('aria-pressed', on ? 'true' : 'false'); store.set('nl-teach', on); }
+teachBtn.addEventListener('click', function(){ setTeach(!document.body.classList.contains('show-teach')); });
+setTeach(!!store.get('nl-teach', false));
+
+/* views: one per hash */
+var VIEWS = ['overview', 'first-law', 'second-law', 'third-law', 'applications', 'quiz'], activeView = 'overview';
+function showView(){
+  var id = (location.hash || '').replace(/^#/, ''); if (VIEWS.indexOf(id) < 0) id = 'overview';
+  activeView = id;
+  $$('section.view').forEach(function(s){ s.classList.toggle('active', s.dataset.view === id); });
+  $$('.tabs a').forEach(function(a){
+    var on = a.getAttribute('href') === '#' + id;
+    if (on){ a.setAttribute('aria-current', 'page'); try { a.scrollIntoView({block: 'nearest', inline: 'nearest'}); } catch (e) {} } else a.removeAttribute('aria-current');
+  });
+  window.scrollTo(0, 0);
+  updateReadouts();
+}
+window.addEventListener('hashchange', showView);
+showView();
+
+/* animation loop: only the visible page's simulations run */
+var sims = [{view: 'overview', s: sandbox}, {view: 'first-law', s: inertia}, {view: 'second-law', s: race}, {view: 'second-law', s: incline}, {view: 'third-law', s: skaters}, {view: 'applications', s: elevator}];
+var last = performance.now(), frame = 0;
+function loop(now){
+  var dt = Math.min(0.05, (now - last) / 1000); last = now; frame++;
+  sims.forEach(function(e){ if (e.view === activeView){ if (!e.s.paused) e.s.step(dt); e.s.draw(); } });
+  if (frame % 2 === 0) updateReadouts();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+window.addEventListener('resize', function(){ sims.forEach(function(e){ if (e.view === activeView) e.s.draw(); }); });
+})();
+</script>
+</body>
+</html>
