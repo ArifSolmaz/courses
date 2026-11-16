@@ -289,6 +289,14 @@ for (const language of languages) {
       await expect(first.locator('.fb').nth(0)).toHaveClass(/\bno\b/);
       await expect(first.locator('.fb').nth(0)).toContainText('1');
       await expect(first.locator('.fb').nth(1)).toHaveClass(/\bok\b/);
+      // The "i" button appears with the feedback and opens the worked explanation.
+      const info = first.locator('button.ibtn');
+      await expect(first.locator('.explain:visible')).toHaveCount(0);
+      await info.nth(1).click();
+      await expect(first.locator('.explain:visible')).toHaveCount(1);
+      await expect(first.locator('.explain:visible .calc')).toContainText('16');
+      await info.nth(2).click();
+      await expect(first.locator('.explain:visible')).toHaveCount(0);
       await page.locator('#count .chkall button').click();
       await expect(page.locator('#count .score')).toContainText('23');
 
