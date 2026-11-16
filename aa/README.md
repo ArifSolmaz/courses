@@ -21,6 +21,11 @@ repository root to generate the main and reference pages. The earlier bilingual
 edition is built from `tools/lessons/` at each week's `reference.html` URL.
 The notes and process history below describe earlier editions.
 
+Week 8 is the exception: `w8/index.html` and `w8/tr/index.html` are a short, hand-written paper-first lesson
+(counting steps, then the ring method for the fewest-move route). Both files hold the Turkish and English text;
+the `data-lang` attribute on `<html>` selects which one is shown. The fuller lesson with the timing lab is
+`w8/full.html` and `w8/tr/full.html`. `tools/build.py` does not know about this split, so do not run it over Week 8.
+
 ## Earlier editions
 
 The 14-week course follows the topic order of the supplied bilingual Skiena CSE 373 notes. Document lectures 1–22 are grouped into teaching weeks; the dashboard and every weekly page identify the corresponding lectures and reading sections.

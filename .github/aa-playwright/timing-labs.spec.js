@@ -68,6 +68,11 @@ const languages = [
   },
 ];
 
+// Week 8 opens with the short paper-first lesson; the full lesson with the timing lab is full.html.
+function lessonPath(week, language) {
+  return `w${week}/${language.path}${week === 8 ? 'full.html' : ''}`;
+}
+
 function measurementLabels(result) {
   return result.split('\n').flatMap(line => {
     const match = line.match(/^(.+?)\s+\d+\.\d+ ms\s+\d+\.\d+ ms\s*$/);
@@ -177,7 +182,7 @@ async function checkClassroomSections(page, week, language) {
 async function openLab(page, week, language) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  const response = await page.goto(`w${week}/${language.path}`, { waitUntil: 'domcontentloaded' });
+  const response = await page.goto(lessonPath(week, language), { waitUntil: 'domcontentloaded' });
   expect(response?.ok(), `Week ${week} page should respond successfully`).toBe(true);
   await expect(page.locator('html')).toHaveAttribute('lang', language.code);
 
@@ -238,7 +243,7 @@ for (const language of languages) {
     }
 
     test('Week 8 worked reminders and small route example', async ({ page }) => {
-      await page.goto(`w8/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await page.goto(lessonPath(8, language), { waitUntil: 'domcontentloaded' });
       await expect(page.locator('.week-reminder')).toHaveCount(7);
       await expect(page.locator('svg.bfs-grid')).toHaveCount(5);
       const cell = page.locator('#python-example-2');
@@ -254,6 +259,26 @@ for (const language of languages) {
       for (let week = 1; week <= 7; week++) {
         await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
       }
+    });
+
+
+    test('Week 8 short lesson ring walk-through', async ({ page }) => {
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      const response = await page.goto(`w8/${language.path}`, { waitUntil: 'domcontentloaded' });
+      expect(response?.ok()).toBe(true);
+      await expect(page.locator('html')).toHaveAttribute('lang', language.code);
+      await expect(page.locator(language.code === 'en' ? '.tr:visible' : '.en:visible')).toHaveCount(0);
+      await expect(page.locator('a[href="full.html"]')).toBeVisible();
+
+      const advance = page.locator('#wlayer');
+      await expect(page.locator('#wgrid .cell')).toHaveCount(25);
+      for (let ring = 0; ring < 9; ring++) await advance.click();
+      await expect(advance).toBeDisabled();
+      await expect(page.locator('#wgrid .cell.goal')).toHaveText(/^8\s*S$/);
+      await expect(page.locator('#wgrid .cell.path')).toHaveCount(9);
+      await expect(page.locator('#wstatus')).toContainText('18');
+      expect(errors).toEqual([]);
     });
 
 

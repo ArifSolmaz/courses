@@ -1,275 +1,1030 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>What route uses the fewest moves? · AA</title>
-<link rel="stylesheet" href="../assets/route.css?v=2">
-<link rel="stylesheet" href="../assets/robot-course.css?v=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can the robot reach the charger? · AA Week 8</title>
 <link rel="alternate" hreflang="tr" href="tr/">
-<link rel="stylesheet" href="../assets/python-runner.css">
-<script defer src="../assets/python-runner.js?v=3"></script>
-<script defer src="../assets/robot-course.js?v=1"></script>
-<link rel="stylesheet" href="../assets/concept-lesson.css?v=1">
 <style>
-.week-reminder{border-left:4px solid var(--green);background:var(--tint);padding:20px 24px;margin:26px 0;border-radius:0 10px 10px 0}
-section>h3{margin-top:30px}.bfs-figure{margin:25px 0}.bfs-grid{display:block;width:100%;max-width:550px;height:auto;margin:0 auto 14px}.bfs-grid text{font:19px system-ui;fill:var(--ink);text-anchor:middle}.bfs-grid .distance{font-size:14px}.bfs-grid rect{stroke:#577564;stroke-width:1.5}.bfs-grid .free{fill:#fffefa}.bfs-grid .endpoint{fill:#cce7d6}.bfs-grid .terrain{fill:#f7e5bc}.bfs-grid .blocked{fill:#354e43}.bfs-grid .blocked+text{fill:white}
-.bfs-figure figcaption{font-size:15px;color:var(--muted);line-height:1.6}.bfs-table-scroll{overflow-x:auto;margin:22px 0}.bfs-table-scroll:focus-visible{outline:3px solid #b16d13}.bfs-table-scroll table{min-width:520px}pre.lab-variation{overflow-x:auto}.lesson-note{padding:18px 22px;background:var(--tint);border-radius:10px}
-@media print{.week-reminder,.bfs-figure{break-inside:avoid}}
-</style><style id="w8-pilot-style">
-:root{--paper:#f4f7f8;--white:#fff;--ink:#172b39;--muted:#506675;--line:#d8e3e8;--green:#0d635b;--tint:#e6f3ef}
-main{max-width:1120px}h1,h2{font-family:system-ui,sans-serif;font-weight:800;letter-spacing:-.035em}h1{font-size:clamp(38px,6vw,69px);max-width:22ch;margin-bottom:15px}h2{font-size:clamp(28px,4vw,42px)}section{padding:42px 0;scroll-margin-top:80px}.pilot-hero{padding:28px 0 22px}.pilot-kicker{font-size:13px;letter-spacing:.13em;font-weight:800;text-transform:uppercase;color:#70dfcb}.pilot-dark{background:#112b3a;color:#f1f9fa;border-radius:20px;padding:clamp(16px,4vw,32px);box-shadow:0 12px 30px #17334718}.pilot-dark h1,.pilot-dark h2{color:#fff}.pilot-dark p{color:#d8e8ed}.pilot-dark a{color:#85e8d8}.pilot-cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}.pilot-panel{border:1px solid #3d5a69;border-radius:14px;padding:16px;background:#183747;min-width:0}.pilot-panel h3{color:#dbeff1}.pilot-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.pilot-button,.pilot-controls button,.pilot-quiz button{font:inherit;font-weight:650;min-height:44px;padding:8px 14px;border:1px solid #50828b;background:#f3faf9;color:#143c44;border-radius:9px;cursor:pointer}.pilot-dark .pilot-primary{background:#64dbc4;color:#093c36;border-color:#64dbc4}.pilot-controls button:disabled,.pilot-button:disabled{opacity:.5;cursor:default}.pilot-button:focus-visible,.pilot-controls button:focus-visible,.pilot-grid button:focus-visible,.pilot-quiz button:focus-visible{outline:3px solid #f2ab40;outline-offset:2px}.pilot-grid{display:grid;gap:5px;margin:12px 0;max-width:520px}.pilot-grid button,.pilot-grid .mission-cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;position:relative;border:1px solid #73939c;border-radius:7px;background:#244858;color:#ecf7fa;font:700 clamp(12px,2.1vw,19px)/1 system-ui;padding:0}.pilot-grid .wall{background:repeating-linear-gradient(135deg,#344550,#344550 6px,#263945 6px,#263945 12px);color:#b2bec5}.pilot-grid .waiting{background:#efb54c;color:#30220b}.pilot-grid .processed{background:#82bee9;color:#12394f}.pilot-grid .final{background:#65dfb3;color:#0a4534}.pilot-grid .goal{box-shadow:inset 0 0 0 3px #79e6b8}.pilot-grid .robot{background:#73d9e7;color:#10313c;box-shadow:inset 0 0 0 3px #fff}.pilot-grid .trail{background:#325f76}.pilot-grid small{position:absolute;bottom:3px;right:4px;font-size:10px}.pilot-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.pilot-stat{border:1px solid #426575;border-radius:9px;padding:9px;line-height:1.35}.pilot-stat span{display:block;font-size:12px;color:#c0d7dd}.pilot-stat strong{display:block;font-size:23px;color:#fff;font-variant-numeric:tabular-nums}.pilot-battery{height:12px;border-radius:99px;background:#3f5360;overflow:hidden;margin:10px 0}.pilot-battery i{height:100%;display:block;background:#6be0be;transition:width .18s ease}.pilot-queue{display:flex;gap:5px;flex-wrap:wrap;min-height:44px;margin:6px 0 16px;align-items:center}.pilot-token{font:650 14px/1.25 ui-monospace,monospace;background:#efb54c;color:#30220b;padding:7px;border-radius:5px}.pilot-code{font:14px/1.55 ui-monospace,monospace;white-space:pre-wrap;margin:10px 0;background:#0d202d;border-radius:10px;padding:12px;overflow-wrap:anywhere}.pilot-code span{display:block;padding:2px 6px}.pilot-code .active{background:#35687a;border-left:3px solid #80e8d1}.pilot-parent{max-height:124px;overflow:auto;font:13px/1.6 ui-monospace,monospace;color:#e3f0f3}.pilot-phase{display:inline-flex;border-radius:5px;background:#d9efe9;color:#07564b;font-size:12px;font-weight:800;padding:5px 9px;letter-spacing:.05em}.pilot-nav{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0}.pilot-nav a{background:white;border:1px solid var(--line);border-radius:8px;min-height:44px;display:flex;align-items:center;text-decoration:none;padding:6px 12px;font-size:14px}.pilot-nav a:hover{text-decoration:underline}.pilot-modebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}.pilot-modebar button[aria-pressed=true]{background:#0d635b;color:white}.pilot-teacher{display:none;background:#fff4d9;border:1px solid #e2b966;border-radius:10px;padding:16px;margin:16px 0;color:#563d18}.pilot-instructor .pilot-teacher{display:block}.pilot-instructor main{max-width:1380px;font-size:20px}.pilot-instructor .pilot-grid{max-width:650px}.pilot-instructor .pilot-panel{font-size:19px}.pilot-quiz{background:white;border:1px solid var(--line);border-left:5px solid #188979;border-radius:12px;margin:20px 0;padding:18px}.pilot-quiz button{display:block;width:100%;text-align:left;margin:8px 0}.pilot-quiz button[aria-pressed=true]{border-color:#0d635b;box-shadow:inset 0 0 0 1px #0d635b}.pilot-feedback{font-weight:650;margin-top:10px}.pilot-progress{display:flex;flex-wrap:wrap;gap:8px}.pilot-progress label{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:6px 9px;border-radius:7px;font-size:14px}.pilot-progress input{width:20px;height:20px}.pilot-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}.pilot-metrics>div{background:white;border:1px solid var(--line);padding:16px;border-radius:12px}.pilot-metrics strong{font-size:25px;display:block}.pilot-dark .pilot-feedback{color:#f8e2a5}.pilot-bridge{border-left:4px solid #178a7e;padding:12px 16px;background:#e6f3ef;border-radius:8px;margin:16px 0}.pilot-reference details{margin:14px 0}.pilot-legend{font-size:13px;color:#d3e7eb}.pilot-dark .pilot-legend{color:#d3e7eb}.pilot-dpad{display:grid;grid-template-columns:repeat(3,48px);gap:5px;justify-content:center}.pilot-dpad button{min-height:44px;font:700 22px system-ui;border:1px solid #668b97;border-radius:8px;background:#edf7f8;color:#183747;cursor:pointer}.pilot-dpad button:disabled{opacity:.5}.pilot-dpad button:focus-visible{outline:3px solid #f2ab40}.pilot-dpad button:first-child{grid-column:2}.pilot-dpad button:nth-child(2){grid-column:1}.pilot-hero h1{max-width:none}.pilot-chapter{display:flex;gap:10px;align-items:center;margin-bottom:10px}.pilot-chapter span:last-child{font-size:13px;color:var(--muted)}@media(max-width:720px){.pilot-cols{grid-template-columns:1fr;gap:16px}.pilot-dark{border-radius:14px}.pilot-stats{gap:5px}.pilot-stat strong{font-size:19px}.pilot-grid small{display:none}.pilot-instructor main{font-size:17px}main{padding:0 16px}}@media(prefers-reduced-motion:reduce){.pilot-battery i{transition:none}}@media print{.pilot-modebar,.pilot-controls,.pilot-dpad,.pilot-progress,.pilot-nav{display:none}.pilot-dark,.pilot-panel{background:white;color:black;border:1px solid #aaa;box-shadow:none}.pilot-dark h1,.pilot-dark h2,.pilot-dark h3,.pilot-dark p,.pilot-dark .pilot-stat strong,.pilot-dark .pilot-stat span,.pilot-parent,.pilot-dark .pilot-legend{color:black}.pilot-teacher{display:none!important}.pilot-code{background:#eee;color:black}}
-</style><style id="w8-responsive-teaching">
-main,.pilot-instructor main{max-width:none;width:100%;padding-inline:clamp(12px,2.6vw,48px)}.site-header,footer{max-width:none;padding-inline:clamp(12px,2.6vw,48px)}section{min-width:0}main>section>p{max-width:90ch}.pilot-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pilot-grid{width:100%;max-width:400px;margin:12px auto}.pilot-instructor .pilot-grid{max-width:500px}.pilot-grid button,.pilot-grid .mission-cell{min-height:0;aspect-ratio:1}.teach-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(16px,3vw,48px);align-items:start;margin:20px 0}.teach-split.reverse>.teach-game{grid-column:2;grid-row:1}.teach-split.reverse>.teach-note{grid-column:1;grid-row:1}.teach-game,.teach-note{min-width:0}.teach-note{padding:clamp(12px,2vw,24px);border-left:3px solid #178a7e;background:#fff;border-radius:10px;line-height:1.75}.teach-note h3{font-size:clamp(18px,2vw,24px);margin-top:0}.teach-note p{max-width:72ch}.teach-game{background:#112b3a;color:#edf6f8;padding:clamp(12px,2vw,24px);border-radius:16px}.teach-game h3,.teach-game p{color:inherit}.teach-game button{font:inherit;min-height:44px;border:1px solid #73939c;border-radius:7px;background:#edf7f8;color:#143c44;padding:7px 12px;cursor:pointer}.teach-game button:disabled{opacity:.55}.teach-game button:focus-visible,.teach-game input:focus-visible{outline:3px solid #ffc26e;outline-offset:2px}.teach-game .teach-cell{display:grid;place-items:center;aspect-ratio:1;padding:0;min-height:0;min-width:0;font-weight:700;border-radius:6px;background:#244858;color:#f1f9fa}.teach-game .teach-cell.wall{background:#344550;color:#bfcbd1}.teach-game .teach-cell.good{background:#65dfb3;color:#0b4535}.teach-game .teach-cell.wait{background:#efb54c;color:#30220b}.teach-game .teach-cell.seen{background:#82bee9;color:#12394f}.teach-board{display:grid;gap:5px;width:100%;max-width:340px;margin:12px auto}.teach-result{min-height:3em;background:#183747;border-radius:8px;padding:10px 12px;overflow-wrap:anywhere}.teach-game label{display:block;margin:6px 0}.teach-game input[type=range]{width:100%;accent-color:#65dfb3}.teach-note code{overflow-wrap:anywhere}.pilot-parent{max-height:170px;overflow-wrap:anywhere}.pilot-token{white-space:nowrap}.pilot-code{font-size:clamp(11px,1.15vw,15px)}.pilot-hero .pilot-cols svg{max-width:440px;justify-self:center}.pilot-instructor .teach-note{font-size:20px}.bfs-table-scroll{max-width:100%}.pilot-quiz button{white-space:normal}#layer-lab>.teach-split{grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr)}#layer-lab .pilot-grid{max-width:340px}#layer-lab .pilot-panel{padding:12px}.teach-tokens{display:flex;gap:6px;flex-wrap:wrap;min-height:44px;margin:8px 0}.teach-token{background:#efb54c;color:#30220b;padding:8px 10px;border-radius:6px;font:700 15px ui-monospace,monospace}
-@media(max-width:1100px){#layer-lab>.teach-split{grid-template-columns:1fr}}@media(max-width:760px){.teach-split,.pilot-cols,#layer-lab .pilot-cols{grid-template-columns:1fr}.teach-split.reverse>.teach-game,.teach-split.reverse>.teach-note{grid-column:auto;grid-row:auto}.pilot-grid,.pilot-instructor .pilot-grid,.teach-board{max-width:320px}.teach-note{padding:12px}.pilot-instructor .teach-note{font-size:17px}.pilot-code{font-size:12px}.pilot-parent{max-height:110px}.pilot-nav{gap:5px}.pilot-nav a{padding:5px 8px;font-size:12px}.pilot-dark,.teach-game{border-radius:12px}.pilot-hero h1{font-size:clamp(35px,9vw,52px)}section{padding:26px 0}}@media(max-width:380px){.pilot-dark,.teach-game{padding:10px}.pilot-grid,.teach-board{gap:3px}.pilot-grid button,.pilot-grid .mission-cell{font-size:12px}.pilot-stat{padding:5px}.pilot-stat strong{font-size:17px}.pilot-controls button{font-size:14px;padding:7px 9px}.pilot-dpad{grid-template-columns:repeat(3,44px)}}@media print{.teach-split,.teach-split.reverse{display:block}.teach-game{background:white;color:black;border:1px solid #aaa}.teach-game h3,.teach-game p{color:black}.teach-result{background:white;color:black}.teach-note{border:0;padding:8px 0}.teach-game button{display:none}}
-</style></head>
+:root{
+  --floor:#f2f4f3; --panel:#ffffff; --ink:#16202b; --muted:#566473; --line:#cfd6db;
+  --wall:#36424f; --hazard:#f2b705; --charge:#178a5c; --wave:#2f6fa8; --warn:#b3261e;
+  --display:"DIN Alternate","Bahnschrift","Roboto Condensed","Arial Narrow",sans-serif;
+  --body:"Avenir Next","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--floor);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
+[data-lang="tr"] .en,[data-lang="en"] .tr{display:none !important}
+a{color:var(--wave)}
+:focus-visible{outline:3px solid var(--hazard);outline-offset:2px}
+
+.topbar{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;padding:.5rem 1rem}
+.topbar .course{font-family:var(--display);font-size:1.05rem;margin-right:auto}
+.topbar nav{display:flex;flex-wrap:wrap;gap:.25rem .9rem;font-size:.9rem}
+.topbar nav a{color:#dfe6ec;text-decoration:none}
+.topbar nav a:hover{text-decoration:underline}
+.lang{display:flex;border:1px solid #6b7a88;border-radius:4px;overflow:hidden}
+.lang a,.lang span{color:#dfe6ec;font-size:.9rem;padding:.2rem .65rem;text-decoration:none}
+.lang span[aria-current]{background:var(--hazard);color:var(--ink);font-weight:600}
+.topbar a.course{color:#fff;text-decoration:none}
+.printbtn{background:none;border:1px solid #6b7a88;border-radius:4px;color:#dfe6ec;font:inherit;font-size:.9rem;padding:.2rem .65rem;cursor:pointer}
+
+.hero{background:var(--panel);border-bottom:6px solid var(--hazard)}
+.hero-in{max-width:68rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:2.5rem;align-items:start}
+.hero h1{font-family:var(--display);font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
+.hero p{max-width:34rem;margin:.6rem 0}
+.hero .meta{color:var(--muted);font-size:.95rem}
+.sitelinks{display:flex;flex-wrap:wrap;gap:.3rem 1.25rem}
+
+main{max-width:46rem;margin:0 auto;padding:1rem 1.25rem 4rem}
+section{padding-top:2.5rem}
+h2{font-family:var(--display);font-size:1.9rem;line-height:1.15;margin:0 0 .75rem;padding-top:.75rem;border-top:4px solid var(--ink)}
+h3{font-family:var(--display);font-size:1.3rem;margin:1.75rem 0 .4rem}
+h4{font-size:1rem;margin:1.25rem 0 .3rem}
+p{margin:.6rem 0}
+ol,ul{padding-left:1.4rem}
+li{margin:.35rem 0}
+.blank{display:inline-block;min-width:4.5rem;border-bottom:1.5px solid var(--ink);height:1.1em;vertical-align:baseline}
+.blank.long{display:block;min-width:0;width:100%;height:1.9em}
+.note{background:#fff8dc;border-left:6px solid var(--hazard);padding:.6rem .9rem;margin:1rem 0}
+
+table{border-collapse:collapse;width:100%;margin:1rem 0;background:var(--panel);font-size:.97rem}
+th,td{border:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:#e6ebee;font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+
+pre{background:var(--ink);color:#eef3f6;padding:1rem;overflow-x:auto;font-family:var(--mono);font-size:.86rem;line-height:1.5;border-radius:4px}
+code{font-family:var(--mono);font-size:.92em;background:#e6ebee;padding:.05em .3em;border-radius:3px}
+pre code{background:none;padding:0;font-size:inherit}
+
+details{background:var(--panel);border:1px solid var(--line);margin:1rem 0;padding:.6rem .9rem}
+summary{cursor:pointer;font-weight:600}
+details.teacher{border-left:6px solid var(--charge)}
+
+/* widgets */
+.widget{background:var(--panel);border:1px solid var(--line);padding:1rem;margin:1rem 0}
+.hero .widget{margin:0;border:2px solid var(--ink)}
+.widget h3{margin-top:0}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0;align-items:center}
+button.act,select,input[type=number]{font:inherit;font-size:.95rem;padding:.4rem .75rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:4px}
+button.act{cursor:pointer}
+button.act.primary{background:var(--ink);color:#fff}
+button.act:disabled{opacity:.45;cursor:not-allowed}
+.status{font-size:.95rem;min-height:3.2em}
+.queue{font-family:var(--mono);font-size:.85rem;word-break:break-word;color:var(--muted)}
+
+.grid{display:grid;gap:3px;background:var(--wall);padding:3px;width:100%;max-width:24rem;aspect-ratio:1}
+.cell{border:0;padding:0;background:#fff;font:600 1rem var(--body);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;min-width:0}
+.cell.wall{background:var(--wall)}
+.cell.start{box-shadow:inset 0 0 0 4px var(--hazard)}
+.cell.goal{box-shadow:inset 0 0 0 4px var(--charge)}
+.cell.cur{outline:3px solid var(--warn);outline-offset:-3px}
+.cell.path::after{content:"";position:absolute;inset:22%;border:3px solid var(--warn);border-radius:50%}
+.cell .tag{position:absolute;top:1px;left:4px;font-size:.65rem;font-weight:700;color:var(--muted)}
+.grid.big .cell{font-size:.7rem}.grid.big .cell .tag{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.85rem;color:var(--muted);margin-top:.5rem}
+.sw{display:inline-block;width:.9em;height:.9em;vertical-align:-.1em;margin-right:.3em;background:#fff;border:1px solid var(--line)}
+
+/* paper grid */
+table.paper{width:auto;margin:1rem 0;border:3px solid var(--wall)}
+table.paper td{width:3.6rem;height:3.6rem;border:1.5px solid var(--wall);padding:2px 4px;font-size:.75rem;font-weight:700;color:var(--muted);background:#fff}
+table.paper td.w{background:var(--wall)}
+table.paper.small td{width:3rem;height:3rem}
+table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;color:var(--ink)}
+
+.growth output{font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%}
+
+@media (max-width:52rem){.hero-in{grid-template-columns:1fr}.topbar nav{display:none}}
+@media print{
+  .topbar,.widget,.printbtn{display:none !important}
+  body{background:#fff;font-size:11pt}
+  .hero{border:0}.hero-in{display:block;padding:0 0 1rem}
+  main{max-width:none;padding:0}
+  section{break-before:auto}
+  section.sheet{break-before:page}
+  pre{background:#fff;color:#000;border:1px solid #000}
+  h2,h3{break-after:avoid}
+  table,pre,li{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header class="site-header"><a class="brand" href="../">AA <span>Algorithm Analysis</span></a><a href="tr/" hreflang="tr" lang="tr">Türkçe</a></header>
-<main id="main">
-<section class="pilot-hero" aria-labelledby="lesson-title"><div class="pilot-dark"><p class="pilot-kicker">AA / 08 · Robot mission control · 180 min</p><p class="eyebrow" style="color:#bce8e1">15 min · Engineering question</p><div class="pilot-cols"><div><h1 id="lesson-title">Rescue the robot!</h1><p class="lead">It's 3:14 a.m. A warehouse robot is running out of charge. It has just enough energy for <strong>eight moves</strong> to reach its charging station.</p><p>In this simulation, each move costs one energy unit. Diagonal moves are not allowed. Try rescuing the robot yourself, then discover how to teach a computer to find the shortest route.</p><div class="pilot-controls"><a href="#mission" class="pilot-button pilot-primary">Start the mission</a><a href="#small-python" class="pilot-button">Go to Python</a></div></div><svg viewBox="0 0 320 210" role="img" aria-label="A robot navigating warehouse shelves to its charging station" style="width:100%;max-height:250px"><rect width="320" height="210" rx="14" fill="#173747"/><g fill="#395765" stroke="#577684"><rect x="24" y="20" width="57" height="56" rx="5"/><rect x="24" y="123" width="57" height="56" rx="5"/><rect x="115" y="20" width="57" height="56" rx="5"/><rect x="115" y="123" width="57" height="56" rx="5"/><rect x="206" y="20" width="57" height="56" rx="5"/><rect x="206" y="123" width="57" height="56" rx="5"/></g><path d="M43 102 H274 V155" stroke="#67dbc4" stroke-width="3" stroke-dasharray="7 7" fill="none"/><rect x="25" y="85" width="38" height="34" rx="9" fill="#83dcea"/><rect x="32" y="91" width="24" height="13" rx="4" fill="#153748"/><circle cx="39" cy="97" r="2" fill="white"/><circle cx="49" cy="97" r="2" fill="white"/><rect x="256" y="139" width="36" height="42" rx="7" fill="#62d9b2"/><path d="M275 144 l-11 17 h10 l-3 15 14-21 h-10z" fill="#173747"/><text x="25" y="200" font-size="11" fill="#c7e7e9">SIMULATION · FOUR-DIRECTION MOVEMENT</text></svg></div></div><div class="pilot-modebar" role="group" aria-label="Lesson view"><strong>View:</strong><button class="pilot-button" id="pilot-student" type="button" aria-pressed="true">Student</button><button class="pilot-button" id="pilot-teacher-mode" type="button" aria-pressed="false">Instructor / projector</button><span id="pilot-mode-status" aria-live="polite"></span></div><nav class="pilot-nav" aria-label="Lesson roadmap"><a href="#mission">01 Mission</a><a href="#opening">02 Model</a><a href="#layer-lab">03 BFS control center</a><a href="#why-bfs">04 Why it works</a><a href="#small-python">05 Python</a><a href="#search-cost">06 Performance</a><a href="#studio">07 Final challenge</a><a href="#exam-practice">08 Review</a><a href="#connections">Earlier weeks</a></nav><p class="pilot-lesson-plan">180 minutes · 15 min opening, 35 min paper work, 10 min break, 45 min lab, 45 min design task, 25 min exam practice and 5 min exit ticket.</p><details><summary>Interactive lesson plan and personal progress</summary><p>10 min mission + 15 min model + 25 min BFS + 20 min correctness + 10 min break + 35 min Python + 20 min performance + 35 min final challenge + 10 min review = 180 min.</p><div class="pilot-progress"><label><input type="checkbox" class="pilot-check" data-stage="0">Mission</label><label><input type="checkbox" class="pilot-check" data-stage="1">Model</label><label><input type="checkbox" class="pilot-check" data-stage="2">BFS</label><label><input type="checkbox" class="pilot-check" data-stage="3">Proof</label><label><input type="checkbox" class="pilot-check" data-stage="4">Python</label><label><input type="checkbox" class="pilot-check" data-stage="5">Performance</label><label><input type="checkbox" class="pilot-check" data-stage="6">Final</label><label><input type="checkbox" class="pilot-check" data-stage="7">Review</label></div><p id="pilot-progress-status" aria-live="polite">0/8 sections completed.</p><p>This is a personal progress tracker, not a grade or exam result.</p></details><aside class="pilot-teacher"><strong>Instructor note · 10 minutes</strong><p>Launch the mission before introducing the definition. Give students two minutes to try a route independently, then compare with a partner. Ask: How can we prove that no shorter route exists?</p></aside></section><section id="mission"><div class="pilot-chapter"><span class="pilot-phase">01 / MISSION</span><span>10 min · Predict and try</span></div><div class="pilot-dark"><h2>Reach the charging station in eight moves</h2><div class="pilot-cols"><div><div id="pilot-mission-grid" class="pilot-grid" style="grid-template-columns:repeat(6,minmax(0,1fr))" role="img" aria-label="Robot map"></div><p class="pilot-legend">R: robot · S: start · G: charger · #: shelf · dot: free cell</p><div class="pilot-dpad" aria-label="Robot movement controls"><button type="button" data-move="0" aria-label="Up">↑</button><button type="button" data-move="3" aria-label="Left">←</button><button type="button" data-move="2" aria-label="Down">↓</button><button type="button" data-move="1" aria-label="Right">→</button></div></div><div class="pilot-panel"><h3>Robot status</h3><div class="pilot-stats"><div class="pilot-stat"><span>Remaining</span><strong id="pilot-energy">8</strong></div><div class="pilot-stat"><span>Moves</span><strong id="pilot-moves">0</strong></div><div class="pilot-stat"><span>Position</span><strong id="pilot-position">0,0</strong></div></div><div class="pilot-battery" role="progressbar" aria-label="Remaining energy" aria-valuemin="0" aria-valuemax="8" aria-valuenow="8" id="pilot-battery"><i style="width:100%"></i></div><p id="pilot-mission-status" role="status" aria-live="polite">Choose a direction. Attempts to move into a wall or beyond the map do not use energy.</p><div class="pilot-controls"><button id="pilot-mission-reset" type="button">Try again</button><button id="pilot-mission-hint" type="button">Hint</button><button id="pilot-mission-solve" type="button" class="pilot-primary">Compare with BFS</button></div><p id="pilot-mission-hint-text" aria-live="polite"></p></div></div></div><div class="pilot-bridge"><strong>Here's the real challenge:</strong> Finding a route is one thing. How can we prove there is no shorter one? That is why a computer needs a systematic search method.</div></section>
 
-<section id="opening"><h2>How does a robot see its world?</h2><p>First use a free 2 × 2 grid. S is the start and G is the charging station. A dot is a free cell. The robot moves one cell up, right, down or left; diagonal movement is not allowed. Every legal move counts as one step.</p><div class="teach-split reverse"><div class="teach-game"><h3>Where can the robot move?</h3><p>Choose a square. Yellow squares are the neighbors you can reach in one move.</p><div id="teach-model-board" class="teach-board" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div><div class="pilot-controls"><button type="button" id="teach-model-wall">Change obstacles</button><button type="button" id="teach-model-reset">Reset</button></div><p id="teach-model-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>From a map to a graph</h3><p>Divide the robot's surroundings into small squares. Each traversable square becomes a vertex, and each permitted move between squares becomes an edge. Together they form a graph.</p><p>At (1,1), the right neighbor is (1,2), and the lower neighbor is (2,1). A wall removes that connection. Knowing the goal's coordinates alone is not enough to determine a route.</p><p>Try a corner, then an interior square. Why does the number of neighbors change?</p></div></div><figure class="bfs-figure"><svg class="bfs-grid" viewBox="0 0 235 197" role="img" aria-label="Rows increase downward; columns increase to the right. S = (0,0), G = (1,1)."><text x="100" y="22">0</text><text x="190" y="22">1</text><text x="21" y="83">0</text><g><rect class="endpoint" x="55" y="35" width="86" height="72" rx="8"/><text x="98" y="67">S</text></g><g><rect class="free" x="145" y="35" width="86" height="72" rx="8"/><text x="188" y="67">·</text></g><text x="21" y="159">1</text><g><rect class="free" x="55" y="111" width="86" height="72" rx="8"/><text x="98" y="143">·</text></g><g><rect class="endpoint" x="145" y="111" width="86" height="72" rx="8"/><text x="188" y="143">G</text></g></svg><figcaption>Rows increase downward; columns increase to the right. S = (0,0), G = (1,1).</figcaption></figure><p><strong>Predict:</strong> How many moves are needed? Right then down takes two. Down then right also takes two. There can be more than one shortest route. One diagonal would be shorter, but it is not a legal move in this model.</p><h3>Turn the grid into a graph</h3><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="From map to graph"><table class="robot-table"><caption>From map to graph</caption><thead><tr><th scope="col">Map idea</th><th scope="col">Graph idea</th><th scope="col">Example</th></tr></thead><tbody><tr><th scope="row">A traversable cell</th><td>Vertex (node)</td><td>(0,0)</td></tr><tr><th scope="row">A legal one-cell move</th><td>Edge</td><td>(0,0) → (0,1)</td></tr><tr><th scope="row">A blocked cell (#)</th><td>Not traversable</td><td>No move may enter it.</td></tr><tr><th scope="row">A route</th><td>Sequence of connected vertices</td><td>(0,0), (0,1), (1,1)</td></tr></tbody></table></div><p>We do not need to draw every edge or store a separate graph. The neighbor function generates legal moves from row and column coordinates.</p><aside class="week-reminder"><h3><a href="../w3/">Remember Week 3</a> · A known position versus a connected route</h3><p>Binary search found where 25 belongs in [10, 20, 30, 45]. It used sorted values to discard half the candidates. Knowing that G is at (1,1) does not tell us which cells can reach it. Obstacles are connectivity constraints; the map is not a sorted search interval.</p></aside><aside class="week-reminder"><h3><a href="../w6/">Remember Week 6</a> · From measurements to a map</h3><p>Sorting [12, 200, 11, 13, 10] gave median 12, reducing the effect of one spike. A robot may process sensor measurements before building an occupancy grid. BFS begins after the grid is supplied: it does not correct a wrongly marked obstacle, account for robot width, or predict moving objects. Those belong to the map and motion model.</p></aside><div class="pilot-quiz" id="eng-prediction-1" data-correct="1" data-why="Our direction order is up, right, down, left, so right is discovered before down."><h3>Make a prediction</h3><p>After popping S in the empty 2×2 grid, which two cells enter the queue first?</p><div role="group" aria-label="After popping S in the empty 2×2 grid, which two cells enter the queue first?"><button type="button" data-answer="0" aria-pressed="false">(1,0), then (0,1)</button><button type="button" data-answer="1" aria-pressed="false">(0,1), then (1,0)</button><button type="button" data-answer="2" aria-pressed="false">Only G</button></div><p class="pilot-feedback" role="status" aria-live="polite"></p></div></section><section id="concepts"><h2>Why explore nearby cells first?</h2><div class="teach-split"><div class="teach-game"><h3>The cafeteria queue</h3><div id="teach-fifo-q" class="teach-tokens"></div><div class="pilot-controls"><button type="button" id="teach-fifo-add">Add a person</button><button type="button" id="teach-fifo-pop">Serve first person</button><button type="button" id="teach-fifo-reset">Reset</button></div><p id="teach-fifo-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>You already know FIFO</h3><p>A, B and C are waiting for lunch. A gets served first. A newcomer, D, joins behind B and C. BFS treats discovered cells in much the same way.</p><p>In Python, <code>append()</code> adds to the back and <code>popleft()</code> removes from the front. This lets BFS explore nearby cells before more distant ones.</p><p>Add and remove people. Predict who will be served next before each step.</p></div></div><h3>You will be able to</h3><ul><li>Model legal grid moves as graph edges</li><li>Trace the FIFO frontier and explain its order</li><li>Mark discoveries and record parents</li><li>Reconstruct and validate a shortest route</li><li>Distinguish no route from a zero-move route</li><li>Compare route length, search work and memory</li></ul><aside class="week-reminder"><h3><a href="../w4/">Remember Week 4</a> · FIFO gives the oldest waiting entry first</h3><p>After adding A, B and C, a FIFO removes A and leaves [B, C]. Add D and it becomes [B, C, D]. BFS uses this exact rule: process cells already waiting before cells just discovered. In Python, deque.append adds at the back and deque.popleft removes from the front without shifting the whole list.</p></aside><p>The <strong>frontier</strong> is the queue of discovered cells waiting to be processed. A cell is <strong>discovered</strong> when we first record and enqueue it. It is <strong>expanded</strong> when we examine its neighbors. We test for the goal immediately after popping, so the goal is counted as popped but its neighbors are not expanded.</p><ol class="tool-steps"><li>Mark S and enqueue it. Its distance is 0 and its parent is None.</li><li>Remove the oldest queued cell. If it is G, reconstruct the route and stop.</li><li>Inspect neighbors in up, right, down, left order. Reject out-of-bounds, blocked and already discovered cells.</li><li>For each new legal neighbor, record its parent, assign distance current distance + 1, then enqueue it.</li><li>Continue until G is popped or the queue is empty.</li></ol><figure class="bfs-figure"><svg class="bfs-grid" viewBox="0 0 235 197" role="img" aria-label="Distance layers: start 0, its two neighbors 1, goal 2. These are move counts, not terrain costs."><text x="100" y="22">0</text><text x="190" y="22">1</text><text x="21" y="83">0</text><g><rect class="endpoint" x="55" y="35" width="86" height="72" rx="8"/><text x="98" y="67">S</text><text class="distance" x="98" y="93">d = 0</text></g><g><rect class="free" x="145" y="35" width="86" height="72" rx="8"/><text x="188" y="67">·</text><text class="distance" x="188" y="93">d = 1</text></g><text x="21" y="159">1</text><g><rect class="free" x="55" y="111" width="86" height="72" rx="8"/><text x="98" y="143">·</text><text class="distance" x="98" y="169">d = 1</text></g><g><rect class="endpoint" x="145" y="111" width="86" height="72" rx="8"/><text x="188" y="143">G</text><text class="distance" x="188" y="169">d = 2</text></g></svg><figcaption>Distance layers: start 0, its two neighbors 1, goal 2. These are move counts, not terrain costs.</figcaption></figure><figure class="concept-figure"><figcaption>Worked trace: FIFO shown from front to back</figcaption><ol class="concept-frames"><li><strong>Initialize: [(0,0)]</strong><span>Record parent[(0,0)] = None. The start is already discovered.</span></li><li><strong>Pop S: [(0,1), (1,0)]</strong><span>Up is outside. Discover right, then down. Left is outside.</span></li><li><strong>Pop (0,1): [(1,0), (1,1)]</strong><span>Discover G and record parent[G] = (0,1). Do not stop yet: this implementation stops on pop.</span></li><li><strong>Pop (1,0): [(1,1)]</strong><span>G is already discovered; do not enqueue it again.</span></li><li><strong>Pop G: []</strong><span>Return a two-move route. Four cells were popped, including G.</span></li></ol></figure><details><summary>Could we stop when G is first discovered?</summary><p>Yes. Checking the goal at discovery is also correct for equal-cost BFS when implemented consistently, with a separate start-equals-goal check. We use pop-time stopping throughout this lesson so the traces and counts agree.</p></details></section>
-<section id="layer-lab"><div class="pilot-chapter"><span class="pilot-phase">03 / DISCOVERY</span><span>25 min · Predict → step → explain</span></div><h2>BFS control center</h2><p>Advance one step and the computer examines the cell at the front of the queue. It adds newly discovered, traversable neighbors to the back. Numbers show the fewest moves needed from the start. Remember: the computer is exploring the map; the robot is not moving yet.</p><div class="teach-split"><div style="min-width:0"><div class="pilot-dark"><div class="pilot-controls"><button type="button" id="pilot-bfs-mission">Rescue map</button><button type="button" id="pilot-bfs-small">2×2 example</button><button type="button" id="pilot-bfs-default">5×5 experiment</button><button type="button" id="pilot-bfs-seal">Block the goal</button></div><div class="pilot-cols"><div><h3>Robot map</h3><p class="pilot-legend">Yellow: queued · Blue: processed · Green: final route · #: obstacle. Click a cell to toggle an obstacle.</p><div id="pilot-bfs-grid" class="pilot-grid"></div><div class="pilot-stats"><div class="pilot-stat"><span>Popped</span><strong id="pilot-popped">0</strong></div><div class="pilot-stat"><span>Waiting</span><strong id="pilot-waiting">1</strong></div><div class="pilot-stat"><span>Fewest moves</span><strong id="pilot-length">—</strong></div></div></div><div class="pilot-panel"><h3>FIFO · first in, first out</h3><div id="pilot-bfs-queue" class="pilot-queue" aria-label="Queue, leftmost exits first"></div><h3>What the code is doing</h3><pre class="pilot-code" id="pilot-bfs-code"><span>queue = deque([start])</span><span>cell = queue.popleft()</span><span>if cell == goal: return path</span><span>for neighbor in valid_neighbors(cell):</span><span>    if neighbor not in parents:</span><span>        parents[neighbor] = cell</span><span>        queue.append(neighbor)</span></pre><h3>Predecessor records</h3><div id="pilot-bfs-parents" class="pilot-parent"></div></div></div><div class="pilot-controls"><button id="pilot-bfs-prev" type="button">← Previous</button><button id="pilot-bfs-next" type="button" class="pilot-primary">Next →</button><button id="pilot-bfs-play" type="button">▶ Play</button><button id="pilot-bfs-finish" type="button">Finish</button><button id="pilot-bfs-reset" type="button">Restart</button></div><p id="pilot-bfs-status" role="status" aria-live="polite"></p></div></div><div class="teach-note"><h3>What should we pay attention to?</h3><p><strong>Map:</strong> Yellow cells are waiting, blue cells have been processed, and green cells belong to the final route.</p><p><strong>Queue:</strong> The leftmost entry comes out first. New neighbors join on the right. This keeps more distant cells from overtaking nearer cells.</p><p><strong>Predecessor:</strong> We remember which cell first discovered each neighbor. At the goal, these records become directions back to the start.</p><p>Select the 2×2 map. Predict which two coordinates will enter the queue on the first step, then check.</p><details><summary>Can we stop when we first discover the goal?</summary><p>With equal costs, BFS determines the shortest distance at first discovery. Our code stops when the goal is popped, so all search counts use that convention.</p></details></div></div><aside class="pilot-teacher"><strong>Instructor note</strong><p>Pause after popping S on the 2×2 example. Ask which cell will discover G first and whether the second cell will enqueue it again. Then block the goal on the 5×5 map to demonstrate queue exhaustion.</p></aside><p class="pilot-bridge"><strong>Connection to Weeks 4 and 5:</strong> FIFO preserves layer order. A dictionary tells us whether a vertex has already been discovered. Together these structures avoid unnecessary repetitions. The visualizer uses small arrays; the actual Python implementation uses <code>deque</code>.</p></section>
-<section id="why-bfs"><h2>How FIFO keeps us from missing a shorter route</h2><p>S is at distance 0. Its neighbors enter at distance 1. When a distance-1 cell is processed, its new neighbors join the back at distance 2, behind the remaining distance-1 cells. This repeats at every layer. A longer route cannot reach a cell before all shorter-distance layers have been considered.</p><div class="teach-split reverse"><div class="teach-game"><h3>Can G enter the queue twice?</h3><label><input type="checkbox" id="teach-duplicate-early" checked> Mark on enqueue</label><div id="teach-duplicate-board" class="teach-board" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div><div id="teach-duplicate-q" class="teach-tokens"></div><div class="pilot-controls"><button type="button" id="teach-duplicate-next">One step</button><button type="button" id="teach-duplicate-reset">Reset</button></div><p id="teach-duplicate-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>Why a dictionary helps</h3><p>In a 2×2 grid, both the right neighbor A and the lower neighbor B can reach G. If we forget to mark G on its first discovery, the second neighbor can enqueue it again.</p><p>Uncheck the box and repeat. You'll see two copies of G. This small demonstration stops at the first goal pop to expose duplicate entries.</p><p>In our BFS, <code>parents[neighbor] = cell</code> records both discovery and the predecessor.</p></div></div><aside class="week-reminder"><h3><a href="../w7/">Remember Week 7</a> · Why not use last week’s heap?</h3><p>A min-heap selected time 4 before times 7 and 9, regardless of insertion order. In equal-cost BFS, FIFO already keeps discovery distances in nondecreasing order: 0, then 1, then 2. A heap is unnecessary for this distance ordering. If entering one cell costs 9 and another costs 1, fewer moves may not mean lower total cost; that leads to Dijkstra in Week 9.</p></aside><h3>Why mark on enqueue?</h3><p>In the 2 × 2 example, both (0,1) and (1,0) can reach G. The first records G before enqueueing it. When the other sees G, membership in parents says it is already discovered. Without that early mark, both can queue G before its first copy is popped.</p><aside class="week-reminder"><h3><a href="../w5/">Remember Week 5</a> · One dictionary, two useful jobs</h3><p>A dictionary such as <code>{"E02": "Check sensor"}</code> maps an exact key to a response. BFS uses coordinates as keys: <code>parents[(1,1)] = (0,1)</code>. This tells us who discovered (1,1). The check <code>(1,1) in parents</code> also tells us it has already been discovered. A separate visited set is not needed in this implementation.</p></aside><h3>A BFS parent is not a heap parent</h3><p>In Week 7, a parent was defined by the heap’s array index. Here, a parent is the previous cell on the discovery route. We do not use (i − 1) // 2 to reconstruct a grid route.</p><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Parent records after discovery"><table class="robot-table"><caption>Parent records after discovery</caption><thead><tr><th scope="col">Cell</th><th scope="col">Parent</th><th scope="col">Distance</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>None</td><td>0</td></tr><tr><th scope="row">(0,1)</th><td>(0,0)</td><td>1</td></tr><tr><th scope="row">(1,0)</th><td>(0,0)</td><td>1</td></tr><tr><th scope="row">(1,1)</th><td>(0,1)</td><td>2</td></tr></tbody></table></div><p>Follow parents backward: G (1,1) → (0,1) → S (0,0). Reverse the sequence to get [(0,0), (0,1), (1,1)]. Three cells make <strong>two moves</strong>: moves = number of path cells − 1.</p><aside class="week-reminder"><h3><a href="../w1/">Remember Week 1</a> · Stop at the right condition</h3><p>Searching [33, 20, 17, 12] for the first value below 20 stopped at 17. BFS also has a stopping condition, but FIFO’s layer order is what makes the first goal shortest in moves. If S = G, the route is [S] and has zero moves. If the queue empties without G, return no route, not zero moves.</p></aside><div class="pilot-quiz" id="eng-prediction-2" data-correct="0" data-why="Marking on enqueue prevents a second neighbor from adding a duplicate."><h3>Make a prediction</h3><p>Two neighbors can discover the same goal. When should we mark it?</p><div role="group" aria-label="Two neighbors can discover the same goal. When should we mark it?"><button type="button" data-answer="0" aria-pressed="false">When enqueuing it</button><button type="button" data-answer="1" aria-pressed="false">When popping it</button></div><p class="pilot-feedback" role="status" aria-live="polite"></p></div></section><section id="paper"><p class="eyebrow">35 min</p><h2>Trace it on paper</h2>
-<figure class="bfs-figure"><svg class="bfs-grid" viewBox="0 0 505 273" role="img" aria-label="Shared map: S = (0,0), G = (0,4). × marks a blocked cell (# in the code). The 9s are traversable terrain labels, not nine moves."><text x="100" y="22">0</text><text x="190" y="22">1</text><text x="280" y="22">2</text><text x="370" y="22">3</text><text x="460" y="22">4</text><text x="21" y="83">0</text><g><rect class="endpoint" x="55" y="35" width="86" height="72" rx="8"/><text x="98" y="67">S</text></g><g><rect class="terrain" x="145" y="35" width="86" height="72" rx="8"/><text x="188" y="67">9</text></g><g><rect class="terrain" x="235" y="35" width="86" height="72" rx="8"/><text x="278" y="67">9</text></g><g><rect class="terrain" x="325" y="35" width="86" height="72" rx="8"/><text x="368" y="67">9</text></g><g><rect class="endpoint" x="415" y="35" width="86" height="72" rx="8"/><text x="458" y="67">G</text></g><text x="21" y="159">1</text><g><rect class="free" x="55" y="111" width="86" height="72" rx="8"/><text x="98" y="143">·</text></g><g><rect class="blocked" x="145" y="111" width="86" height="72" rx="8"/><text x="188" y="143">×</text></g><g><rect class="blocked" x="235" y="111" width="86" height="72" rx="8"/><text x="278" y="143">×</text></g><g><rect class="blocked" x="325" y="111" width="86" height="72" rx="8"/><text x="368" y="143">×</text></g><g><rect class="free" x="415" y="111" width="86" height="72" rx="8"/><text x="458" y="143">·</text></g><text x="21" y="235">2</text><g><rect class="free" x="55" y="187" width="86" height="72" rx="8"/><text x="98" y="219">·</text></g><g><rect class="free" x="145" y="187" width="86" height="72" rx="8"/><text x="188" y="219">·</text></g><g><rect class="free" x="235" y="187" width="86" height="72" rx="8"/><text x="278" y="219">·</text></g><g><rect class="free" x="325" y="187" width="86" height="72" rx="8"/><text x="368" y="219">·</text></g><g><rect class="free" x="415" y="187" width="86" height="72" rx="8"/><text x="458" y="219">·</text></g></svg><figcaption>Shared map: S = (0,0), G = (0,4). × marks a blocked cell (# in the code). The 9s are traversable terrain labels, not nine moves.</figcaption></figure><p>Use the map above. Start a FIFO with S, mark cells when enqueued and record each cell’s parent. Expand neighbors in up, right, down, left order. Write the queue after each pop until G is popped. Follow parents back to S.</p><p>Write your trace first. Compare your steps, then explain why the method works in three sentences.</p>
-<details><summary>Check your trace</summary><p>From S, the top neighbor at (0,1) and the lower neighbor at (1,0) both enter at distance 1. The FIFO expands distance layers in order. G at (0,4) is reached across the top in four moves. The queue, visited cells and parents use space proportional to the reachable cells.</p><table class="robot-table"><thead><tr><th scope="col">Popped</th><th scope="col">FIFO after processing</th></tr></thead><tbody><tr><th scope="row">(0,0)</th><td>(0,1), (1,0)</td></tr><tr><th scope="row">(0,1)</th><td>(1,0), (0,2)</td></tr><tr><th scope="row">(1,0)</th><td>(0,2), (2,0)</td></tr><tr><th scope="row">(0,2)</th><td>(2,0), (0,3)</td></tr><tr><th scope="row">(2,0)</th><td>(0,3), (2,1)</td></tr><tr><th scope="row">(0,3)</th><td>(2,1), (0,4)</td></tr><tr><th scope="row">(2,1)</th><td>(0,4), (2,2)</td></tr><tr><th scope="row">(0,4)</th><td>(2,2) · stop</td></tr></tbody></table></details><details><summary>Compare a three-sentence explanation</summary><p>The FIFO expands one distance layer before the next. Marking on enqueue records each cell’s first parent and avoids duplicate queue entries. Following G’s parents gives the four-move top path.</p></details>
+<div class="topbar">
+  <a class="course" href="../"><span class="tr">AA Algoritma Analizi, Hafta 8</span><span class="en">AA Algorithm Analysis, Week 8</span></a>
+  <nav aria-label="Sections">
+    <a href="#plan"><span class="tr">Akış</span><span class="en">Plan</span></a>
+    <a href="#count"><span class="tr">Adım sayma</span><span class="en">Counting steps</span></a>
+    <a href="#route"><span class="tr">En kısa rota</span><span class="en">Shortest route</span></a>
+    <a href="#code"><span class="tr">Kod</span><span class="en">Code</span></a>
+    <a href="#mistakes"><span class="tr">Hatalar</span><span class="en">Mistakes</span></a>
+    <a href="#exam"><span class="tr">Sorular</span><span class="en">Questions</span></a>
+    <a href="#key"><span class="tr">Cevaplar</span><span class="en">Answers</span></a>
+  </nav>
+  <button class="printbtn" type="button" onclick="window.print()"><span class="tr">Yazdır</span><span class="en">Print</span></button>
+  <div class="lang" role="group" aria-label="Dil / Language"><a href="tr/" hreflang="tr" lang="tr">TR</a><span aria-current="true">EN</span></div>
+</div>
 
-<h3>Build breadth-first layers on a map</h3>
-<p>Draw the three rows S#.. / .#G. / .... . The first row is row 0 and the first column is column 0. Trace BFS with four-direction movement and the same neighbor order as the main example.</p>
-<details><summary>Show the worked steps</summary><ol class="tool-steps"><li>From (0,0), only (1,0) is legal and new. The next two discoveries are (2,0) and then (2,1), at distances 2 and 3.</li><li>From (2,1), discover (2,2) at distance 4. From (2,2), discover both (1,2) and (2,3) at distance 5.</li><li>Follow the parents of (1,2) back to S. The path is down, down, right, right, up. Mark on enqueue so that a cell discovered from two directions gets only one queue entry.</li></ol></details>
-<h3>Compare two complete routes</h3><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Moves versus terrain cost"><table class="robot-table"><caption>Moves versus terrain cost</caption><thead><tr><th scope="col">Route</th><th scope="col">Moves</th><th scope="col">Entry-cost sum</th></tr></thead><tbody><tr><th scope="row">Across the top</th><td>4</td><td>9 + 9 + 9 + 1 = 28</td></tr><tr><th scope="row">Down twice, right four times, up twice</th><td>8</td><td>1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 8</td></tr></tbody></table></div><p>BFS selects the four-move top route. This is correct for today’s objective, even though its terrain cost is larger. The starting cell is not charged; each entered dot or G costs 1 and each entered 9 costs 9. Cost is reported after the route is found; BFS does not use it to choose cells.</p><h3>Trace a detour visually</h3><figure class="bfs-figure"><svg class="bfs-grid" viewBox="0 0 415 273" role="img" aria-label="Detour map: route down, down, right, right, up; 6 cells and 5 moves."><text x="100" y="22">0</text><text x="190" y="22">1</text><text x="280" y="22">2</text><text x="370" y="22">3</text><text x="21" y="83">0</text><g><rect class="endpoint" x="55" y="35" width="86" height="72" rx="8"/><text x="98" y="67">S</text></g><g><rect class="blocked" x="145" y="35" width="86" height="72" rx="8"/><text x="188" y="67">×</text></g><g><rect class="free" x="235" y="35" width="86" height="72" rx="8"/><text x="278" y="67">·</text></g><g><rect class="free" x="325" y="35" width="86" height="72" rx="8"/><text x="368" y="67">·</text></g><text x="21" y="159">1</text><g><rect class="free" x="55" y="111" width="86" height="72" rx="8"/><text x="98" y="143">·</text></g><g><rect class="blocked" x="145" y="111" width="86" height="72" rx="8"/><text x="188" y="143">×</text></g><g><rect class="endpoint" x="235" y="111" width="86" height="72" rx="8"/><text x="278" y="143">G</text></g><g><rect class="free" x="325" y="111" width="86" height="72" rx="8"/><text x="368" y="143">·</text></g><text x="21" y="235">2</text><g><rect class="free" x="55" y="187" width="86" height="72" rx="8"/><text x="98" y="219">·</text></g><g><rect class="free" x="145" y="187" width="86" height="72" rx="8"/><text x="188" y="219">·</text></g><g><rect class="free" x="235" y="187" width="86" height="72" rx="8"/><text x="278" y="219">·</text></g><g><rect class="free" x="325" y="187" width="86" height="72" rx="8"/><text x="368" y="219">·</text></g></svg><figcaption>Detour map: route down, down, right, right, up; 6 cells and 5 moves.</figcaption></figure><details><summary>What if (2,1) becomes blocked?</summary><p>Block (2,1). Only (0,0), (1,0) and (2,0) are reachable from S. After those three pops, the queue empties. Return no route. Do not return the partial explored corridor as a successful path.</p></details><p>Compare the two traces. Record one boundary case and a clue that would expose a wrong result. Then take a 10-minute break.</p>
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <h1><span class="tr">Robotun 8 birim enerjisi kaldı. Şarj istasyonuna yetişir mi?</span><span class="en">The robot has 8 units of energy left. Can it reach the charger?</span></h1>
+      <p class="tr">Bu hafta tek bir soruya bakıyoruz: <strong>girdi büyüyünce iş ne kadar büyür?</strong> Önce kartlarla ve kâğıtla sayacağız, sonra aynı işi robota yaptıracağız. Kod en sonda gelir ve kısa kalır.</p>
+      <p class="en">This week has one question: <strong>when the input grows, how much does the work grow?</strong> We count with cards and paper first, then make the robot do the same job. Code comes last and stays short.</p>
+      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın.</p>
+      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls.</p>
+      <p class="meta sitelinks"><a href="../w7/"><span class="tr">Hafta 7</span><span class="en">Week 7</span></a> <a href="full.html"><span class="tr">Ayrıntılı ders ve zamanlama deneyi</span><span class="en">Full lesson and timing lab</span></a> <a href="../w9/"><span class="tr">Hafta 9</span><span class="en">Week 9</span></a></p>
+      <p class="meta"><span class="tr">180 dakika, ikili çalışma. Ön koşul: Python'da <code>for</code> döngüsü okuyabilmek.</span><span class="en">180 minutes, in pairs. Prerequisite: being able to read a Python <code>for</code> loop.</span></p>
+    </div>
+
+    <div class="widget" id="wave">
+      <div class="grid" id="wgrid" role="grid" aria-label="Map"></div>
+      <div class="legend">
+        <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--hazard)"></span><span class="tr">R robot</span><span class="en">R robot</span></span>
+        <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--charge)"></span><span class="tr">S şarj</span><span class="en">S charger</span></span>
+        <span><span class="sw" style="background:var(--wall)"></span><span class="tr">duvar</span><span class="en">wall</span></span>
+      </div>
+      <div class="controls">
+        <button class="act primary" type="button" id="wlayer"><span class="tr">Bir halka ilerlet</span><span class="en">Advance one ring</span></button>
+        <button class="act" type="button" id="wstep"><span class="tr">Tek hücre işle</span><span class="en">Process one cell</span></button>
+        <button class="act" type="button" id="wclear"><span class="tr">Sayıları sil</span><span class="en">Clear numbers</span></button>
+      </div>
+      <div class="controls">
+        <label><span class="tr">Harita</span><span class="en">Map</span>
+          <select id="wsize">
+            <option value="5">5×5</option><option value="8">8×8</option><option value="12">12×12</option><option value="20">20×20</option>
+          </select></label>
+        <button class="act" type="button" id="wrand"><span class="tr">Rastgele duvarlar</span><span class="en">Random walls</span></button>
+        <button class="act" type="button" id="wdef"><span class="tr">Ders haritası</span><span class="en">Lesson map</span></button>
+      </div>
+      <div class="status" id="wstatus" aria-live="polite"></div>
+      <div class="queue" id="wqueue"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="goals">
+  <h2><span class="tr">Dersin sonunda</span><span class="en">By the end of the lesson</span></h2>
+  <ul class="tr">
+    <li>Bir işin adımlarını sayabilir ve girdi iki katına çıkınca ne olacağını tahmin edebilirsiniz.</li>
+    <li>Üç büyüme türünü ayırt edersiniz: iki katına çıkan, bir artan, dört katına çıkan.</li>
+    <li>Engelli bir haritada en az hamleli rotayı kâğıt üzerinde bulur ve neden en kısa olduğunu açıklarsınız.</li>
+    <li>Aynı işi yapan kısa bir Python kodunu okur, çıktısını tahmin eder ve değiştirirsiniz.</li>
+  </ul>
+  <ul class="en">
+    <li>You can count the steps of a task and predict what happens when the input doubles.</li>
+    <li>You can tell three kinds of growth apart: work that doubles, work that adds one, work that quadruples.</li>
+    <li>You can find the fewest-move route on a map with obstacles, on paper, and explain why it is the shortest.</li>
+    <li>You can read a short Python program that does the same job, predict its output and change it.</li>
+  </ul>
+
+  <h3><span class="tr">Bunu neden bilmeliyiz?</span><span class="en">Why should we know this?</span></h3>
+  <p class="tr">Robotunuzun kontrol döngüsü saniyede 100 kez çalışıyorsa her turda 10 milisaniyeniz vardır. Rota hesabı bu süreye sığmazsa robot ya durur ya da eski bilgiyle hareket eder. Bir yöntemin bugün hızlı çalışması yetmez; sensör verisi ya da harita on kat büyüdüğünde ne olacağını önceden bilmeniz gerekir. Algoritma analizi bu tahmini yapmanın yoludur.</p>
+  <p class="en">If your robot's control loop runs 100 times a second, you have 10 milliseconds per cycle. If route planning does not fit, the robot either stalls or moves on stale information. It is not enough that a method is fast today; you need to know in advance what happens when the sensor data or the map grows tenfold. Algorithm analysis is how you make that prediction.</p>
 </section>
-<section id="common-mistakes">
-<h2>Common mistakes</h2><ul><li>Marking visited only on pop and duplicating queue entries.</li><li>Counting cells on a path as moves.</li><li>Using BFS to minimize unequal terrain costs.</li><li>Treating a BFS parent like a heap index parent. It is the previous route cell.</li><li>Equating popped cells with route moves. BFS also explores branches not used in the final path.</li><li>Treating a blocked start as a zero-move route. Validate endpoints first.</li></ul>
-<h3>English–Turkish glossary</h3><dl class="concept-glossary"><dt>Frontier / Arama sınırı</dt><dd>Discovered cells waiting to be expanded.</dd><dt>Parent / Ebeveyn</dt><dd>Cell that first discovered this one.</dd><dt>Layer / Katman</dt><dd>Cells at the same move distance.</dd></dl>
+
+<section id="plan">
+  <h2><span class="tr">Ders akışı</span><span class="en">Lesson plan</span></h2>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Süre</th><th>Ne yapılır</th><th>Malzeme</th></tr>
+    <tr><td>10 dk</td><td>Açılış: yukarıdaki haritada rota tahmini, kimse çözümü söylemez</td><td>Projeksiyon</td></tr>
+    <tr><td>55 dk</td><td>Bölüm 1: adım sayma, üç deney ve özet tablosu</td><td>Grup başına 16 numaralı kart</td></tr>
+    <tr><td>15 dk</td><td>Ara</td><td></td></tr>
+    <tr><td>50 dk</td><td>Bölüm 2: kâğıtta en kısa rota ve kuyruk izleme</td><td>Çalışma kâğıdı çıktısı</td></tr>
+    <tr><td>35 dk</td><td>Bölüm 3: kısa kod, tahmin et, çalıştır, değiştir</td><td>Bilgisayar, Python</td></tr>
+    <tr><td>15 dk</td><td>Çıkış sorusu ve toparlama</td><td>Küçük kâğıt</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Time</th><th>Activity</th><th>Materials</th></tr>
+    <tr><td>10 min</td><td>Opening: guess the route on the map above, nobody gives the answer</td><td>Projector</td></tr>
+    <tr><td>55 min</td><td>Part 1: counting steps, three experiments and the summary table</td><td>16 numbered cards per group</td></tr>
+    <tr><td>15 min</td><td>Break</td><td></td></tr>
+    <tr><td>50 min</td><td>Part 2: shortest route on paper and tracing the queue</td><td>Printed worksheet</td></tr>
+    <tr><td>35 min</td><td>Part 3: short code, predict, run, change</td><td>Computer, Python</td></tr>
+    <tr><td>15 min</td><td>Exit question and wrap-up</td><td>Slip of paper</td></tr>
+  </table>
+  </div>
+  <details class="teacher">
+    <summary><span class="tr">Öğretmen notu: dersi nasıl yürütmeli</span><span class="en">Teacher note: how to run the lesson</span></summary>
+    <ul class="tr">
+      <li>Her etkinlikte sıra aynıdır: önce tahmin yazılır, sonra denenir, sonra sayılar tahtaya yazılır. Tahmin yazılmadan deneye geçmeyin; öğrenmenin çoğu tahminle sonucun farkından gelir.</li>
+      <li>Cevabı siz söylemeyin. Grupların sayıları farklı çıkarsa bu iyidir; "neden farklı?" sorusu dersin en verimli dakikalarıdır.</li>
+      <li>O gösterimini özet tablosu dolana kadar kullanmayın. Önce davranış, sonra adı.</li>
+      <li>Dersten önce Bölüm 2'deki haritayı kendiniz elle doldurun. Takıldığınız yer öğrencinin de takılacağı yerdir.</li>
+      <li>Süre yetmezse Bölüm 3'ün dördüncü görevini ve ek kodu ödev yapın. Bölüm 1'i kısaltmayın.</li>
+    </ul>
+    <ul class="en">
+      <li>Every activity follows the same order: write a prediction, try it, then put the numbers on the board. Do not skip the prediction; most of the learning comes from the gap between prediction and result.</li>
+      <li>Do not give the answer yourself. If groups get different numbers, good; "why are they different?" is the most productive part of the lesson.</li>
+      <li>Do not use O notation until the summary table is full. Behaviour first, name second.</li>
+      <li>Before class, fill in the Part 2 map by hand yourself. Where you get stuck is where students will get stuck.</li>
+      <li>If time runs short, turn task 4 of Part 3 and the extra code into homework. Do not shorten Part 1.</li>
+    </ul>
+  </details>
 </section>
-<section id="small-python"><h2>Let's write our first BFS program</h2><p>Before running the timing lab, run this small example. For this first version, assume a nonempty grid and valid, free start and goal coordinates. The laboratory version checks these inputs.</p><pre class="python-example" data-python="2"><code>from collections import deque
 
-def shortest_route(grid, start, goal):
-    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
-    queue = deque([start])
-    parents = {start: None}
+<section id="count" class="sheet">
+  <h2><span class="tr">Bölüm 1: Adım sayma</span><span class="en">Part 1: Counting steps</span></h2>
+  <p class="tr">Üç deneyde de aynı şeyi yapın: işi sayın, sonra girdiyi iki katına çıkarıp yeniden sayın. Saniye ölçmüyoruz; adım sayıyoruz, çünkü adım sayısı bilgisayarın hızına bağlı değildir.</p>
+  <p class="en">Do the same thing in all three experiments: count the work, then double the input and count again. We do not measure seconds; we count steps, because the step count does not depend on how fast the computer is.</p>
 
-    while queue:
-        cell = queue.popleft()
-        if cell == goal:
-            path = []
-            while cell is not None:
-                path.append(cell)
-                cell = parents[cell]
-            path.reverse()
-            return len(path) - 1, path
+  <h3><span class="tr">Deney 1: Kart arama</span><span class="en">Experiment 1: Card search</span></h3>
+  <p class="tr">16 kartı karıştırıp ters çevirin. Arkadaşınız bir sayı söylesin; kartları soldan sağa sırayla açarak o sayıyı arayın. Her açılan kart bir adımdır.</p>
+  <p class="en">Shuffle 16 cards and lay them face down. Your partner names a number; turn the cards over left to right until you find it. Each card turned is one step.</p>
+  <ol class="tr">
+    <li>En şanslı durumda kaç kart açarsınız? <span class="blank"></span> En kötü durumda? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Üç kez oynayın, açılan kart sayılarını yazın: <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>Kart sayısı 32 olsaydı en kötü durum kaç olurdu? <span class="blank"></span></li>
+    <li>Kart iki katına çıkınca iş kaç katına çıktı? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>How many cards do you turn in the luckiest case? <span class="blank"></span> In the worst case? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Play three times and write down the number of cards turned: <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>With 32 cards, what would the worst case be? <span class="blank"></span></li>
+    <li>When the cards doubled, by what factor did the work grow? <span class="blank"></span></li>
+  </ol>
 
-        row, col = cell
-        for dr, dc in directions:
-            neighbor = (row + dr, col + dc)
-            r, c = neighbor
-            if (0 &lt;= r &lt; len(grid)
-                    and 0 &lt;= c &lt; len(grid[r])
-                    and grid[r][c] != "#"
-                    and neighbor not in parents):
-                parents[neighbor] = cell
-                queue.append(neighbor)
+  <h3><span class="tr">Deney 2: Sayı tahmini</span><span class="en">Experiment 2: Number guessing</span></h3>
+  <p class="tr">Arkadaşınız 1 ile 100 arasında bir sayı tutsun. Her tahminde yalnızca "daha büyük" ya da "daha küçük" desin. Kural: her seferinde kalan aralığın tam ortasını sorun.</p>
+  <p class="en">Your partner picks a number between 1 and 100. After each guess they only say "higher" or "lower". Rule: always ask for the exact middle of the remaining range.</p>
+  <ol class="tr">
+    <li>En fazla kaç tahmin gerekir? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Her tahminden sonra kalan aralığın büyüklüğünü yazın: 100, <span class="blank"></span> <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>Aralık 1–200 olsaydı en fazla kaç tahmin gerekirdi? <span class="blank"></span></li>
+    <li>Aralık iki katına çıkınca iş ne kadar arttı? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>What is the largest number of guesses needed? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>After each guess, write the size of the remaining range: 100, <span class="blank"></span> <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>If the range were 1–200, how many guesses at most? <span class="blank"></span></li>
+    <li>When the range doubled, how much did the work grow? <span class="blank"></span></li>
+  </ol>
 
-    return None, []
+  <div class="widget" id="guess">
+    <h3><span class="tr">Bilgisayara karşı deneyin</span><span class="en">Try it against the computer</span></h3>
+    <div class="controls">
+      <label><span class="tr">Aralık: 1 ile</span><span class="en">Range: 1 to</span>
+        <select id="gmax"><option>100</option><option>200</option><option>1000</option><option>1000000</option></select></label>
+      <button class="act" type="button" id="gnew"><span class="tr">Yeni sayı tut</span><span class="en">Pick a new number</span></button>
+    </div>
+    <div class="controls">
+      <label for="gin"><span class="tr">Tahmininiz</span><span class="en">Your guess</span></label>
+      <input type="number" id="gin" min="1" inputmode="numeric" style="width:9rem">
+      <button class="act primary" type="button" id="ggo"><span class="tr">Tahmin et</span><span class="en">Guess</span></button>
+    </div>
+    <div class="status" id="gstatus" aria-live="polite"></div>
+  </div>
 
-grid = ("S.", ".G")
-moves, path = shortest_route(grid, (0, 0), (1, 1))
-print("Moves:", moves)
-print("Path:", path)
-assert moves == 2
-assert path == [(0, 0), (0, 1), (1, 1)]</code></pre><h3>Expected output</h3><pre class="lab-variation"><code>Moves: 2
-Path: [(0, 0), (0, 1), (1, 1)]</code></pre><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Read the code"><table class="robot-table"><caption>Read the code</caption><thead><tr><th scope="col">Code</th><th scope="col">Purpose</th></tr></thead><tbody><tr><th scope="row">queue.popleft()</th><td>Take the oldest pending cell.</td></tr><tr><th scope="row">neighbor not in parents</th><td>Reject an already discovered cell.</td></tr><tr><th scope="row">parents[neighbor] = cell</th><td>Mark discovery and remember the previous cell.</td></tr><tr><th scope="row">queue.append(neighbor)</th><td>Put the new cell behind the waiting frontier.</td></tr><tr><th scope="row">path.reverse()</th><td>Change goal-to-start order into start-to-goal order.</td></tr><tr><th scope="row">return None, []</th><td>The reachable region was exhausted without the goal.</td></tr></tbody></table></div><p><strong>Predict before editing:</strong> Reverse the neighbor preference so down is considered before right. The selected route can change to down then right, but the move count remains 2. Update the route assertion if you deliberately change the tie-breaking order.</p><div class="pilot-bridge"><strong>Code challenge:</strong> Predict the 2×2 result before running it. Change the direction order: does the route change? Does the number of moves change? Explain why marking on enqueue matters.</div><aside class="pilot-teacher"><strong>Instructor · Python workshop</strong><p>Ask students to write the enqueue, dequeue and predecessor steps before revealing the full program.</p></aside></section><section id="python-explained"><h2>What does each line actually do?</h2><p><code>from collections import deque</code> supplies the FIFO queue. A list's <code>pop(0)</code> shifts the remaining elements (O(n)); deque insertion and removal at either end are O(1). This directly applies Week 4.</p><p><code>shortest_route(grid,start,goal)</code> receives three inputs. <code>deque([start])</code> places the start in the queue; <code>parents = {start: None}</code> records that the start has been discovered and has no predecessor. <code>while queue</code> runs while the queue is nonempty; <code>popleft()</code> removes the oldest waiting cell.</p><p><code>row,col = cell</code> unpacks the coordinate into two variables. <code>for dr,dc in directions</code> examines the four directions in order. If cell=(2,3), dr=−1 and dc=0, then neighbor=(1,3). The <code>and</code> conditions are evaluated left to right: if the bounds check fails, the cell is not accessed. Negative indices in Python can access elements from the end, so bounds checks are essential.</p><p>First <code>parents[neighbor] = cell</code>, then <code>queue.append(neighbor)</code> marks and queues a new cell. This order prevents duplicates. Dictionary membership takes expected O(1) time, while list membership can take O(n).</p><p>When the goal is popped, follow the parent records backward: [G,A,S]. <code>path.reverse()</code> produces [S,A,G]. Three cells give two transitions; <code>len(path)-1</code> gives the number of moves. If there is no route, return <code>None, []</code>; if the start equals the goal, return <code>0, [start]</code>.</p><p>A valid route must start at S, end at G, avoid obstacles, and have a sum of absolute row and column differences equal to 1 for every consecutive pair of cells. These checks establish validity; the BFS layer order establishes minimality.</p></section>
-<section id="search-cost"><h2>Does a short route mean a small search?</h2><div class="teach-split"><div class="teach-game"><h3>Make the map bigger</h3><label for="teach-size">Grid side length: <output id="teach-size-value">10</output></label><input type="range" min="2" max="100" id="teach-size" value="10"><div class="pilot-stats"><div class="pilot-stat"><span>Vertices V</span><strong id="teach-v">100</strong></div><div class="pilot-stat"><span>Edges E</span><strong id="teach-e">180</strong></div><div class="pilot-stat"><span>V+E</span><strong id="teach-ve">280</strong></div></div><p id="teach-cost-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>See Big O in action</h3><p>An obstacle-free n×n grid contains n² cells. Every row and column contains n−1 links. The number of undirected edges is 2n(n−1).</p><p>BFS processes each vertex at most once and examines its neighbors. Graph search takes O(V+E) time, or O(n²) for a four-direction square grid.</p><p>Move the slider from 10 to 20. Does the cell count double or quadruple? These figures measure graph size, not elapsed time.</p></div></div><aside class="week-reminder"><h3><a href="../w2/">Remember Week 2</a> · Count what the algorithm actually visits</h3><p>A single scan of 8 items makes 8 visits; 16 items make 16 visits. For BFS, count reachable vertices and their adjacency checks, not only path cells. Each discovered cell enters once and leaves at most once. A four-neighbor cell has at most four candidate directions.</p></aside><p>With adjacency lists or generated neighbors, BFS takes O(V + E) time and O(V) auxiliary space in the worst case, assuming expected constant-time dictionary operations. V counts graph vertices and E edges. On a four-neighbor grid, E is O(V), so the search is linear in the number of cells it may visit.</p><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Three different counts"><table class="robot-table"><caption>Three different counts</caption><thead><tr><th scope="col">Quantity</th><th scope="col">Meaning</th><th scope="col">Free 2 × 2 example</th></tr></thead><tbody><tr><th scope="row">Moves</th><td>Edges in the returned route</td><td>2</td></tr><tr><th scope="row">Path cells</th><td>Coordinates in the returned route</td><td>3</td></tr><tr><th scope="row">Popped cells</th><td>Queue removals, including the goal</td><td>4</td></tr></tbody></table></div><p>On the 25 × 25 open map in the lab, the route has 6 moves but 73 cells are popped with our neighbor order and pop-time stopping rule. BFS also explores other directions in each layer. A narrow corridor can have fewer alternatives even when its final route is longer.</p><h3>Make memory concrete</h3><p>Suppose a compact implementation reserves one discovery byte and a four-byte parent index for each of 10,000 cells: 50,000 bytes. Reserving up to 10,000 four-byte queue entries adds 40,000 bytes: 90,000 bytes before the map and other overhead. These are explicit storage assumptions, not Python object sizes. Python tuples, dictionaries and deque entries need additional space.</p><div class="pilot-quiz" id="eng-prediction-3" data-correct="1" data-why="The route contains five cells, but the search can explore alternative branches too."><h3>Make a prediction</h3><p>BFS found a four-move route. Does that mean it popped exactly five cells?</p><div role="group" aria-label="BFS found a four-move route. Does that mean it popped exactly five cells?"><button type="button" data-answer="0" aria-pressed="false">Yes</button><button type="button" data-answer="1" aria-pressed="false">No</button></div><p class="pilot-feedback" role="status" aria-live="polite"></p></div></section><section id="complexity-derivation"><h2>What happens when the map grows?</h2><p>The first-discovery distance is d(v)=d(u)+1: we add one edge to the moves needed to reach u. If the goal is first discovered in layer k, a shorter path would have discovered it in an earlier layer. This contradiction explains why BFS guarantees the fewest moves in the equal-cost model.</p><h3>Why O(V+E)?</h3><p>Each of V vertices enters and leaves the queue at most once. In adjacency lists for an undirected graph, each edge appears at both endpoints, giving 2E adjacency entries. With constant-time queue operations and expected constant-time dictionary operations, T ≤ aV+bV+2cE. Dropping constant factors gives O(V+E). An implementation that scans adjacency-matrix rows can instead require O(V²).</p><h3>Count grid edges</h3><p>For an obstacle-free R-row, C-column grid, V=RC. Each row contains C−1 horizontal edges and each column contains R−1 vertical edges. Thus E=R(C−1)+C(R−1)=2RC−R−C. A 10 × 10 grid has V=100 and E=180. V+E=280 is a measure of graph size, not an actual CPU instruction count.</p><p>Each cell has at most four neighbors, so E=O(V). Worst-case grid search is O(RC); for a square grid of side n it is O(n²), or O(N) when N is the total cell count. Do not confuse n with N.</p><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Grid growth"><table class="robot-table"><thead><tr><th scope="col">Dimensions</th><th scope="col">Cells</th><th scope="col">Edges without obstacles</th></tr></thead><tbody><tr><td>10 × 10</td><td>100</td><td>180</td></tr><tr><td>20 × 20</td><td>400</td><td>760</td></tr><tr><td>100 × 100</td><td>10,000</td><td>19,800</td></tr></tbody></table></div><p>Auxiliary space is O(V): parent records, queue entries and the returned path each contain at most V entries. The earlier estimate of 90,000 bytes is 90,000/1024 ≈ 87.89 KiB; this hypothetical layout will not fit in 64 KiB RAM. Actual Python object costs differ.</p><h3>Understand timing units</h3><p>If 200 calls take a total of 0.04 seconds, the average per call is 0.04/200=0.0002 seconds, or 0.2 ms. The median of five batch averages gives a typical value; their maximum is not a guaranteed worst-case time for an individual call. These numbers are hypothetical; measure actual times in the laboratory.</p></section>
-<section id="timing"><p class="eyebrow">45 min</p><h2>Measure it</h2><p>First predict the route, then check correctness, then measure time. The runnable code returns (moves, terrain cost, popped cells, path). A blocked or out-of-grid endpoint is invalid input and raises ValueError; valid but disconnected endpoints return (None, None, popped, []).</p>
-<p>Predict how long corridors and open areas change the number of expanded cells. Run BFS on the shared grid and a larger open grid. Record steps, popped cells and time. On the shared map, try blocking the goal’s two neighbors.</p><p>Select Run or copy the code into Python 3. The two times are the median and largest of five batch averages, in milliseconds per call. The largest batch average does not bound an individual call. The pop count includes the goal. BFS uses a FIFO queue; there are no heap entries here.</p>
-<pre class="python-example" data-python="1"><code>from statistics import median
-from timeit import repeat
+  <h3><span class="tr">Deney 3: Tokalaşma</span><span class="en">Experiment 3: Handshakes</span></h3>
+  <p class="tr">4 kişilik grupta herkes herkesle bir kez tokalaşsın; biri saysın. Sonra iki grup birleşip 8 kişi olsun ve yeniden sayın.</p>
+  <p class="en">In a group of 4, everyone shakes hands with everyone else once; one person counts. Then two groups merge into 8 and count again.</p>
+  <ol class="tr">
+    <li>4 kişide kaç tokalaşma oldu? <span class="blank"></span></li>
+    <li>8 kişide kaç tokalaşma oldu? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Kişi sayısı iki katına çıkınca iş kaç katına çıktı? <span class="blank"></span></li>
+    <li>Bütün sınıf tokalaşsaydı kaç tokalaşma olurdu? Saymadan nasıl bulursunuz? <span class="blank long"></span></li>
+  </ol>
+  <ol class="en">
+    <li>How many handshakes with 4 people? <span class="blank"></span></li>
+    <li>How many with 8 people? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>When the group doubled, by what factor did the work grow? <span class="blank"></span></li>
+    <li>If the whole class shook hands, how many handshakes would there be? How can you find out without counting? <span class="blank long"></span></li>
+  </ol>
 
+  <h3><span class="tr">Özet tablosu</span><span class="en">Summary table</span></h3>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Deney</th><th>Girdi</th><th>İş (en kötü durum)</th><th>Girdi × 2 olunca iş</th></tr>
+    <tr><td>Kart arama</td><td>16 kart</td><td></td><td></td></tr>
+    <tr><td>Sayı tahmini</td><td>1–100</td><td></td><td></td></tr>
+    <tr><td>Tokalaşma</td><td>4 kişi</td><td></td><td></td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Experiment</th><th>Input</th><th>Work (worst case)</th><th>Work when input × 2</th></tr>
+    <tr><td>Card search</td><td>16 cards</td><td></td><td></td></tr>
+    <tr><td>Number guessing</td><td>1–100</td><td></td><td></td></tr>
+    <tr><td>Handshakes</td><td>4 people</td><td></td><td></td></tr>
+  </table>
+  </div>
+  <p class="tr">Son soru: 1 milyon girdiniz olsa hangi yöntemi isterdiniz, hangisinden kaçardınız? <span class="blank long"></span></p>
+  <p class="en">Last question: with 1 million inputs, which method would you want and which would you avoid? <span class="blank long"></span></p>
 
-def measure(label, job, repeats=200):
-    samples = repeat(job, repeat=5, number=repeats)
-    typical = median(samples) * 1000 / repeats
-    longest = max(samples) * 1000 / repeats
-    print(f&quot;{label:18}  {typical:.6f} ms  {longest:.6f} ms&quot;)
+  <h3><span class="tr">Bu üç davranışın adı</span><span class="en">Names for these three behaviours</span></h3>
+  <p class="tr">Tabloyu doldurduktan sonra okuyun. Girdi büyüklüğüne n diyelim. Büyük O gösterimi, n büyüdükçe işin nasıl büyüdüğünü tek kelimeyle söylemenin yoludur; kesin adım sayısını değil, büyümenin biçimini anlatır.</p>
+  <p class="en">Read this after filling in the table. Call the input size n. Big O notation is a one-word way of saying how the work grows as n grows; it describes the shape of the growth, not the exact step count.</p>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Deney</th><th>Davranış</th><th>Yazılışı</th><th>Okunuşu</th></tr>
+    <tr><td>Kart arama</td><td>Girdi 2 katına çıkınca iş 2 katına çıkar</td><td>O(n)</td><td>doğrusal</td></tr>
+    <tr><td>Sayı tahmini</td><td>Girdi 2 katına çıkınca iş 1 adım artar</td><td>O(log n)</td><td>logaritmik</td></tr>
+    <tr><td>Tokalaşma</td><td>Girdi 2 katına çıkınca iş yaklaşık 4 katına çıkar</td><td>O(n²)</td><td>karesel</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Experiment</th><th>Behaviour</th><th>Written</th><th>Read as</th></tr>
+    <tr><td>Card search</td><td>Input doubles, work doubles</td><td>O(n)</td><td>linear</td></tr>
+    <tr><td>Number guessing</td><td>Input doubles, work adds 1 step</td><td>O(log n)</td><td>logarithmic</td></tr>
+    <tr><td>Handshakes</td><td>Input doubles, work roughly quadruples</td><td>O(n²)</td><td>quadratic</td></tr>
+  </table>
+  </div>
 
-from collections import deque
+  <div class="widget growth" id="growth">
+    <h3><span class="tr">Girdi büyüyünce ne olur?</span><span class="en">What happens as the input grows?</span></h3>
+    <p class="tr">Saniyede 1 milyon adım atan bir işlemci varsayalım. Kaydırıcıyla n'yi değiştirin.</p>
+    <p class="en">Assume a processor that does 1 million steps per second. Move the slider to change n.</p>
+    <label for="gn">n = <output id="gnv"></output></label>
+    <input type="range" id="gn" min="1" max="6" step="0.05" value="3">
+    <div class="scroll">
+    <table>
+      <tr><th><span class="tr">Büyüme</span><span class="en">Growth</span></th><th class="num"><span class="tr">Adım</span><span class="en">Steps</span></th><th class="num"><span class="tr">Süre</span><span class="en">Time</span></th></tr>
+      <tr><td>O(log n)</td><td class="num"><output id="g1"></output></td><td class="num"><output id="t1"></output></td></tr>
+      <tr><td>O(n)</td><td class="num"><output id="g2"></output></td><td class="num"><output id="t2"></output></td></tr>
+      <tr><td>O(n log n)</td><td class="num"><output id="g3"></output></td><td class="num"><output id="t3"></output></td></tr>
+      <tr><td>O(n²)</td><td class="num"><output id="g4"></output></td><td class="num"><output id="t4"></output></td></tr>
+    </table>
+    </div>
+    <p class="tr">n = 1 000 000 için karesel yöntem 11 günden uzun sürer; logaritmik yöntem 20 adımda biter. Kontrol döngünüzde 10 milisaniyeniz varsa hangi satırlar sığıyor?</p>
+    <p class="en">At n = 1,000,000 the quadratic method takes more than 11 days; the logarithmic one finishes in 20 steps. If your control loop gives you 10 milliseconds, which rows fit?</p>
+  </div>
 
-DIRECTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+  <h3><span class="tr">Önceki yedi hafta tek tabloda</span><span class="en">The previous seven weeks in one table</span></h3>
+  <p class="tr">Şimdiye kadar gördüğünüz her şey bu üç davranıştan birine ya da yakın bir akrabasına denk gelir. Tabloyu ezberlemeyin; her satır için "girdi iki katına çıkınca ne olur?" diye sorun.</p>
+  <p class="en">Everything you have seen so far matches one of these three behaviours or a close relative. Do not memorise the table; for each row ask "what happens when the input doubles?"</p>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Hafta</th><th>Konu</th><th>Büyüme</th><th>Hangi deneye benziyor</th></tr>
+    <tr><td>1–2</td><td>Sırayla arama, ziyaret sayma</td><td>O(n)</td><td>Kart arama</td></tr>
+    <tr><td>3</td><td>İkili arama (sıralı veride)</td><td>O(log n)</td><td>Sayı tahmini</td></tr>
+    <tr><td>4</td><td>Kuyruğa ekleme ve kuyruktan çıkarma</td><td>O(1)</td><td>Girdi büyüse de iş aynı kalır</td></tr>
+    <tr><td>5</td><td>Sözlükte arama</td><td>ortalamada O(1)</td><td>Girdi büyüse de iş aynı kalır</td></tr>
+    <tr><td>6</td><td>İyi bir sıralama</td><td>O(n log n)</td><td>Kart aramadan biraz ağır, tokalaşmadan çok hafif</td></tr>
+    <tr><td>7</td><td>Öbeğe ekleme ve öbekten çıkarma</td><td>O(log n)</td><td>Sayı tahmini</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Week</th><th>Topic</th><th>Growth</th><th>Which experiment it resembles</th></tr>
+    <tr><td>1–2</td><td>Sequential search, counting visits</td><td>O(n)</td><td>Card search</td></tr>
+    <tr><td>3</td><td>Binary search (on sorted data)</td><td>O(log n)</td><td>Number guessing</td></tr>
+    <tr><td>4</td><td>Adding to and removing from a queue</td><td>O(1)</td><td>Work stays the same as input grows</td></tr>
+    <tr><td>5</td><td>Dictionary lookup</td><td>O(1) on average</td><td>Work stays the same as input grows</td></tr>
+    <tr><td>6</td><td>A good sorting method</td><td>O(n log n)</td><td>A little heavier than card search, far lighter than handshakes</td></tr>
+    <tr><td>7</td><td>Adding to and removing from a heap</td><td>O(log n)</td><td>Number guessing</td></tr>
+  </table>
+  </div>
+</section>
 
+<section id="route" class="sheet">
+  <h2><span class="tr">Bölüm 2: Kâğıtta en kısa rota</span><span class="en">Part 2: Shortest route on paper</span></h2>
+  <p class="tr">Depo robotunun 8 birim enerjisi kaldı. Her hamle (yukarı, sağ, aşağı, sol) 1 birim harcar; çapraz hareket yoktur. Koyu hücreler duvardır. Robot R hücresinden S hücresindeki şarj istasyonuna yetişebilir mi?</p>
+  <p class="en">The warehouse robot has 8 units of energy left. Each move (up, right, down, left) costs 1 unit; there are no diagonal moves. Dark cells are walls. Can the robot get from cell R to the charger in cell S?</p>
 
-def neighbors(grid, cell):
-    row, col = cell
-    for dr, dc in DIRECTIONS:
-        r, c = row + dr, col + dc
-        if 0 &lt;= r &lt; len(grid) and 0 &lt;= c &lt; len(grid[r]) and grid[r][c] != &quot;#&quot;:
-            yield r, c
+  <table class="paper" aria-label="Map">
+    <tr><td>R</td><td></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td class="w"></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td class="w"></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td></td><td class="w"></td></tr>
+    <tr><td class="w"></td><td></td><td></td><td></td><td>S</td></tr>
+  </table>
 
+  <h3><span class="tr">Önce kendiniz deneyin</span><span class="en">Try it yourself first</span></h3>
+  <ol class="tr">
+    <li>Bir rota çizin. Kaç hamle sürdü? <span class="blank"></span></li>
+    <li>Daha kısası olmadığından emin misiniz? Bir arkadaşınızı nasıl ikna edersiniz? <span class="blank long"></span></li>
+  </ol>
+  <ol class="en">
+    <li>Draw a route. How many moves did it take? <span class="blank"></span></li>
+    <li>Are you sure there is no shorter one? How would you convince a classmate? <span class="blank long"></span></li>
+  </ol>
 
-def entry_cost(grid, cell):
-    row, col = cell
-    symbol = grid[row][col]
-    return int(symbol) if symbol.isdigit() else 1
+  <h3><span class="tr">Halka yöntemi</span><span class="en">The ripple method</span></h3>
+  <p class="tr">Suya taş atınca halkalar her yöne aynı hızla yayılır ve bir noktaya her zaman en kısa yoldan ulaşır. Aynısını haritada yapın.</p>
+  <p class="en">Drop a stone in water and the ripple spreads at the same speed in every direction, reaching each point by the shortest way. Do the same on the map.</p>
+  <ol class="tr">
+    <li>R hücresine 0 yazın.</li>
+    <li>0'ın boş komşularına 1 yazın.</li>
+    <li>1'lerin henüz sayı yazılmamış boş komşularına 2 yazın.</li>
+    <li>S hücresine sayı yazılana kadar böyle sürdürün.</li>
+  </ol>
+  <ol class="en">
+    <li>Write 0 in cell R.</li>
+    <li>Write 1 in the empty neighbours of 0.</li>
+    <li>Write 2 in the empty neighbours of the 1s that have no number yet.</li>
+    <li>Keep going until cell S gets a number.</li>
+  </ol>
+  <p class="note tr">İki kural: sayı yazılmış bir hücreye bir daha yazılmaz, duvara yazılmaz.</p>
+  <p class="note en">Two rules: never write in a cell that already has a number, and never write in a wall.</p>
 
+  <h3><span class="tr">Sorular</span><span class="en">Questions</span></h3>
+  <ol class="tr">
+    <li>S hücresine hangi sayı yazıldı? <span class="blank"></span> Robotun enerjisi yetiyor mu? <span class="blank"></span></li>
+    <li>S'den başlayıp her adımda bir küçük sayıya giderek R'ye dönün. Bu yol en kısa rotadır. Kaç farklı en kısa rota var? <span class="blank"></span></li>
+    <li>Rotanız kaç hamle, kaç hücreden geçiyor? İkisi neden farklı? <span class="blank long"></span></li>
+    <li>Bir hücreye yazdığınız sayı neden o hücreye ulaşmanın en az hamle sayısıdır? <span class="blank long"></span></li>
+    <li>Kaç hücreye sayı yazdınız? <span class="blank"></span> Harita 10×10 olsaydı en fazla kaç hücreye yazardınız? <span class="blank"></span> Bu, Bölüm 1'deki hangi deneye benziyor? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>What number did cell S get? <span class="blank"></span> Does the robot have enough energy? <span class="blank"></span></li>
+    <li>Start at S and walk back to R, moving to a number one smaller at each step. That path is a shortest route. How many different shortest routes are there? <span class="blank"></span></li>
+    <li>How many moves is your route, and how many cells does it pass through? Why are the two different? <span class="blank long"></span></li>
+    <li>Why is the number you wrote in a cell the fewest moves needed to reach it? <span class="blank long"></span></li>
+    <li>How many cells did you number? <span class="blank"></span> On a 10×10 map, how many at most? <span class="blank"></span> Which Part 1 experiment does that resemble? <span class="blank"></span></li>
+  </ol>
 
-def result(grid, parents, goal, popped):
-    path = [goal]
-    while parents[path[-1]] is not None:
-        path.append(parents[path[-1]])
-    path.reverse()
-    return len(path) - 1, sum(entry_cost(grid, cell) for cell in path[1:]), popped, path
+  <h3><span class="tr">Bilgisayar halkaları hangi sırayla yazar?</span><span class="en">In what order does a computer write the ripples?</span></h3>
+  <p class="tr">Siz haritaya bakıp bütün 1'leri bir anda görürsünüz; bilgisayar her seferinde tek bir hücreye bakabilir. Bu yüzden sırası gelen hücreleri bir <strong>kuyrukta</strong> tutar. Kuyruk yemekhane sırası gibidir: yeni gelen sona eklenir, en önce gelen önce çıkar. Böylece 1'ler bitmeden 2'lere geçilmez.</p>
+  <p class="en">You look at the map and see all the 1s at once; a computer can look at only one cell at a time. So it keeps the cells waiting their turn in a <strong>queue</strong>. A queue works like a cafeteria line: newcomers join the back, whoever came first leaves first. That way the 2s never start before the 1s are finished.</p>
+  <p class="tr">Hücreleri (satır, sütun) olarak yazıyoruz; sol üst köşe (0, 0). Komşulara hep aynı sırayla bakın: yukarı, sağ, aşağı, sol. İlk dört satır dolduruldu; sonraki dördünü siz doldurun.</p>
+  <p class="en">Cells are written as (row, column); the top-left corner is (0, 0). Always check neighbours in the same order: up, right, down, left. The first four rows are filled in; do the next four yourself.</p>
+  <div class="scroll">
+  <table>
+    <tr><th><span class="tr">Adım</span><span class="en">Step</span></th><th><span class="tr">Kuyruktan çıkan</span><span class="en">Removed from queue</span></th><th><span class="tr">Kuyruğa eklenen</span><span class="en">Added to queue</span></th><th><span class="tr">Kuyruğun son hali</span><span class="en">Queue afterwards</span></th></tr>
+    <tr><td>1</td><td>(0,0)</td><td>(0,1), (1,0)</td><td>(0,1), (1,0)</td></tr>
+    <tr><td>2</td><td>(0,1)</td><td>(0,2)</td><td>(1,0), (0,2)</td></tr>
+    <tr><td>3</td><td>(1,0)</td><td>(2,0)</td><td>(0,2), (2,0)</td></tr>
+    <tr><td>4</td><td>(0,2)</td><td>(1,2)</td><td>(2,0), (1,2)</td></tr>
+    <tr><td>5</td><td></td><td></td><td></td></tr>
+    <tr><td>6</td><td></td><td></td><td></td></tr>
+    <tr><td>7</td><td></td><td></td><td></td></tr>
+    <tr><td>8</td><td></td><td></td><td></td></tr>
+  </table>
+  </div>
+  <p class="tr">Sayfanın başındaki canlı haritada "Tek hücre işle" düğmesi tam olarak bu tabloyu adım adım oynatır; doldurduktan sonra oradan kontrol edin. Bu yöntemin adı <strong>genişlik öncelikli arama</strong>dır (BFS, breadth-first search).</p>
+  <p class="en">On the live map at the top of the page, "Process one cell" plays exactly this table step by step; check your rows there once you are done. The method is called <strong>breadth-first search</strong> (BFS).</p>
+</section>
 
-def validate_endpoints(grid, start, goal):
-    if not grid or not grid[0]:
-        raise ValueError("Grid must be nonempty")
-    width = len(grid[0])
-    if any(len(row) != width for row in grid):
-        raise ValueError("Grid must be rectangular")
-    for row, col in (start, goal):
-        if not (0 &lt;= row &lt; len(grid) and 0 &lt;= col &lt; width):
-            raise ValueError("Endpoint outside grid")
-        if grid[row][col] == "#":
-            raise ValueError("Endpoint is blocked")
+<section id="code" class="sheet">
+  <h2><span class="tr">Bölüm 3: Kısa kod</span><span class="en">Part 3: Short code</span></h2>
+  <p class="tr">Kod, kâğıtta çizdiğiniz halkaların aynısıdır. Kodu siz yazmayacaksınız; hazır alıp okuyacak, çıktısını tahmin edecek ve değiştireceksiniz.</p>
+  <p class="en">The code is the same ripple you drew on paper. You will not write it; you will take it ready-made, read it, predict its output and change it.</p>
 
-def bfs(grid, start, goal):
-    validate_endpoints(grid, start, goal)
-    queue = deque([start])
-    parents = {start: None}
-    popped = 0
-    while queue:
-        cell = queue.popleft()
-        popped += 1
-        if cell == goal:
-            return result(grid, parents, goal, popped)
-        for neighbor in neighbors(grid, cell):
-            if neighbor not in parents:
-                parents[neighbor] = cell
-                queue.append(neighbor)
-    return None, None, popped, []
+<pre class="tr" data-test="tr1"><code>from collections import deque
 
-def check_path(grid, start, goal, moves, cost, path):
-    if moves is None:
-        assert cost is None and path == []
-        return
-    assert path[0] == start and path[-1] == goal
-    assert moves == len(path) - 1
-    for row, col in path:
-        assert 0 &lt;= row &lt; len(grid)
-        assert 0 &lt;= col &lt; len(grid[row])
-        assert grid[row][col] != "#"
-    for (r1, c1), (r2, c2) in zip(path, path[1:]):
-        assert abs(r1 - r2) + abs(c1 - c2) == 1
-    assert cost == sum(entry_cost(grid, cell) for cell in path[1:])
-
-maps = [
-    ((&#x27;S999G&#x27;, &#x27;.###.&#x27;, &#x27;.....&#x27;), (0, 0), (0, 4)),
-    ([&quot;.&quot; * 25] * 25, (12, 12), (12, 18)),
+harita = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
 ]
 
-planners = [(&quot;BFS&quot;, bfs)]
+def en_kisa_hamle(harita, baslangic, hedef):
+    kuyruk = deque([baslangic])        # sırası gelen hücreler
+    uzaklik = {baslangic: 0}           # hücrelere yazdığımız sayılar
+    while kuyruk:
+        r, c = kuyruk.popleft()        # sıranın başındakini al
+        if (r, c) == hedef:
+            return uzaklik[(r, c)]
+        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            yr, yc = r + dr, c + dc
+            if 0 &lt;= yr &lt; len(harita) and 0 &lt;= yc &lt; len(harita[0]):
+                if harita[yr][yc] != "#" and (yr, yc) not in uzaklik:
+                    uzaklik[(yr, yc)] = uzaklik[(r, c)] + 1
+                    kuyruk.append((yr, yc))   # sıranın sonuna ekle
+    return None                        # yol yok
 
-for grid, start, goal in maps:
-    for name, planner in planners:
-        def job():
-            return planner(grid, start, goal)
+print(en_kisa_hamle(harita, (0, 0), (4, 4)))</code></pre>
 
-        moves, cost, popped, path = job()
-        check_path(grid, start, goal, moves, cost, path)
-        print(name, &quot;-&gt; (moves, terrain cost, popped):&quot;, (moves, cost, popped))
-        print(&quot;Path:&quot;, path)
-        measure(name, job, repeats=30)
-</code></pre>
-<p>The measured call includes endpoint validation, the BFS search, route reconstruction and terrain-cost reporting. Grid construction stays outside the measurement. This is a measurement of the complete planner function, not only its queue operations.</p><h3>Lab procedure</h3>
-<p>Use the first 10 minutes for the baseline, the next 20 to change inputs and the last 15 to compare results. Use Restore example to return to the starter.</p>
-<ol class="tool-steps"><li>Run the two starter maps. Record steps and cells popped separately. Explain why popping more cells does not necessarily produce a longer path.</li><li>Add the worked map to maps with start (0,0) and goal (1,2). Check that the returned path contains six cells including S and G.</li><li>Block (2,1) on that map and predict the result. Run it, then try start equal to goal on a free cell. Record how the output distinguishes no route from a zero-move route.</li></ol>
-<details><summary>Show a ready-to-run variation</summary>
-<p>Restore the starter, select Edit code, append the snippet at the end and select Run.</p>
-<pre class="lab-variation"><code>open_route = (&quot;S#..&quot;, &quot;.#G.&quot;, &quot;....&quot;)
-blocked_route = (&quot;S#..&quot;, &quot;.#G.&quot;, &quot;.#..&quot;)
-for grid in (open_route, blocked_route):
-    print(bfs(grid, (0, 0), (1, 2)))
-assert bfs(open_route, (0, 0), (1, 2))[0] == 5
-assert bfs(blocked_route, (0, 0), (1, 2))[0] is None
-assert bfs(open_route, (0, 0), (0, 0))[0] == 0
+<pre class="en" data-test="en1"><code>from collections import deque
 
-for bad_start in ((-1, 0), (0, 1)):
-    try:
-        bfs(open_route, bad_start, (1, 2))
-    except ValueError:
-        pass
-    else:
-        raise AssertionError("Invalid start was accepted")</code></pre>
-</details>
-<p>Keep a record of the prediction, changed input, correctness check, measured time and a sentence explaining the result.</p>
-<h3>Record evidence, not just a runtime</h3><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Laboratory record"><table class="robot-table"><caption>Laboratory record</caption><thead><tr><th scope="col">Case</th><th scope="col">Moves</th><th scope="col">Popped</th><th scope="col">What to explain</th></tr></thead><tbody><tr><th scope="row">Shared terrain map</th><td>4</td><td>8</td><td>Why the cost is 28, not 4</td></tr><tr><th scope="row">Open 25 × 25 map</th><td>6</td><td>73</td><td>Why search work exceeds route length</td></tr><tr><th scope="row">Detour map</th><td>5</td><td>6</td><td>Six cells mean five moves</td></tr><tr><th scope="row">Detour blocked at (2,1)</th><td>None</td><td>3</td><td>Unreachable is not zero moves</td></tr><tr><th scope="row">Start equals goal</th><td>0</td><td>1</td><td>One path cell and no movement</td></tr></tbody></table></div><p>The validator checks route legality and cost, not optimality by itself. Use the worked distances and known-answer cases to check shortest-path behavior. A different neighbor order may change the selected shortest route and the pop count, while preserving the minimum move count.</p></section>
-<section id="engineering-limits"><h2>Will this work on a real robot?</h2><p>In this lesson the robot fits inside one cell, the map is static, and all four movement directions have equal cost. A real robot needs obstacle clearance for its physical width, map updates and replanning for moving objects, and a motion model that accounts for orientation and turning constraints.</p><div class="teach-split"><div class="teach-game"><h3>Change the terrain cost</h3><label for="teach-terrain">Cost of each of the three upper cells: <output id="teach-terrain-value">9</output></label><input type="range" min="1" max="9" id="teach-terrain" value="9"><div id="teach-terrain-board" class="teach-board" style="grid-template-columns:repeat(5,minmax(0,1fr))"></div><p id="teach-terrain-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>Does a shorter walk always save energy?</h3><p>The upper route takes four moves and the lower route takes eight. If each of the three upper cells costs c to enter, the upper route costs 3c+1 in total, while the lower costs 8. BFS minimizes moves, not energy.</p><p>Change the slider. When does the longer route become cheaper? Now you know why we need Dijkstra next week.</p></div></div><p>If the top route costs 28 in four moves and the bottom route costs 8 in eight moves, different objective functions give different answers. <a href="../w9/">Week 9: Dijkstra</a> handles unequal nonnegative costs, while <a href="../w10/">Week 10: A*</a> uses an appropriate estimate of remaining cost to guide the search toward the goal.</p><div class="pilot-quiz" id="eng-prediction-4" data-correct="0" data-why="BFS minimizes moves, not weighted energy. Dijkstra solves the weighted problem."><h3>Make a prediction</h3><p>A four-move route costs 28 energy units and an eight-move route costs 8. Which route does BFS choose?</p><div role="group" aria-label="A four-move route costs 28 energy units and an eight-move route costs 8. Which route does BFS choose?"><button type="button" data-answer="0" aria-pressed="false">Four moves</button><button type="button" data-answer="1" aria-pressed="false">Eight moves</button></div><p class="pilot-feedback" role="status" aria-live="polite"></p></div></section>
-<section id="studio"><p class="eyebrow">45 min</p><h2>Emergency: which exit should we choose?</h2>
-<p>On rows S... / .##. / G..G, the robot may exit at either (2,0) or (2,3). All traversable moves cost one. A pallet blocks the near exit in the second scenario.</p><div class="teach-split reverse"><div class="teach-game"><h3>Emergency exit simulator</h3><label><input type="checkbox" id="teach-near"> Block the nearer exit</label><label><input type="checkbox" id="teach-far"> Block the farther exit</label><div id="teach-exit-board" class="teach-board" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div><div class="pilot-controls"><button type="button" id="teach-exit-run">Find the nearest exit</button><button type="button" id="teach-exit-reset">Reset</button></div><p id="teach-exit-info" class="teach-result" role="status" aria-live="polite"></p></div><div class="teach-note"><h3>What if there is more than one goal?</h3><p>Instead of one G, keep a set of open exits. The same BFS works; only the stopping condition changes to <code>if cell in goals:</code>.</p><p>Predict the nearest exit while both are open. Block it and try again. What should the computer report if both exits are closed?</p><p>This is a mathematical map experiment. Real evacuation also requires clearance and physical safety checks.</p></div></div><figure class="bfs-figure"><svg class="bfs-grid" viewBox="0 0 415 273" role="img" aria-label="Two exits: (2,0) and (2,3). Every move has the same cost."><text x="100" y="22">0</text><text x="190" y="22">1</text><text x="280" y="22">2</text><text x="370" y="22">3</text><text x="21" y="83">0</text><g><rect class="endpoint" x="55" y="35" width="86" height="72" rx="8"/><text x="98" y="67">S</text></g><g><rect class="free" x="145" y="35" width="86" height="72" rx="8"/><text x="188" y="67">·</text></g><g><rect class="free" x="235" y="35" width="86" height="72" rx="8"/><text x="278" y="67">·</text></g><g><rect class="free" x="325" y="35" width="86" height="72" rx="8"/><text x="368" y="67">·</text></g><text x="21" y="159">1</text><g><rect class="free" x="55" y="111" width="86" height="72" rx="8"/><text x="98" y="143">·</text></g><g><rect class="blocked" x="145" y="111" width="86" height="72" rx="8"/><text x="188" y="143">×</text></g><g><rect class="blocked" x="235" y="111" width="86" height="72" rx="8"/><text x="278" y="143">×</text></g><g><rect class="free" x="325" y="111" width="86" height="72" rx="8"/><text x="368" y="143">·</text></g><text x="21" y="235">2</text><g><rect class="endpoint" x="55" y="187" width="86" height="72" rx="8"/><text x="98" y="219">G</text></g><g><rect class="free" x="145" y="187" width="86" height="72" rx="8"/><text x="188" y="219">·</text></g><g><rect class="free" x="235" y="187" width="86" height="72" rx="8"/><text x="278" y="219">·</text></g><g><rect class="endpoint" x="325" y="187" width="86" height="72" rx="8"/><text x="368" y="219">G</text></g></svg><figcaption>Two exits: (2,0) and (2,3). Every move has the same cost.</figcaption></figure>
-<p>Start individually for 10 minutes. Work with a partner for 20. Spend the last 15 comparing with another pair and revising your recommendation.</p>
-<ol class="tool-steps"><li>Draw BFS layers and mark both exits. Find the nearest available exit before and after blocking (2,0).</li><li>Explain how to adapt the single-goal loop to stop on any goal. Trace the stopping condition when the goals list is empty.</li><li>Write a path validation checklist. Include endpoint, legal moves, obstacles and the outcome when no exits are reachable.</li></ol>
-<details><summary>Compare a model answer</summary><p>The near exit is reached in two moves. With it blocked, the far exit is reached in five by following the top row to column 3 and moving down twice. Use membership in a goal set at the pop step. An empty goal set can immediately report no route. Check the path’s move count as well as its endpoints.</p></details>
-<h3>Adapt the stopping condition</h3><p>Store valid free exits in a set. In the BFS loop, replace the single-goal equality check with membership. Reconstruct from the exit actually popped, not from a fixed goal variable. If the goal set is empty, return no route immediately.</p><pre class="lab-variation"><code>if cell in goals:
-    return result(grid, parents, cell, popped)</code></pre><p>This is the replacement stopping fragment for the lab’s BFS, not a standalone program. When a pallet blocks (2,0), mark that map cell as # and remove it from the valid goal set.</p><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Acceptance tests for two exits"><table class="robot-table"><caption>Acceptance tests for two exits</caption><thead><tr><th scope="col">Scenario</th><th scope="col">Expected result</th></tr></thead><tbody><tr><th scope="row">Both exits open</th><td>(2,0), 2 moves</td></tr><tr><th scope="row">Near exit blocked</th><td>(2,3), 5 moves</td></tr><tr><th scope="row">No available exits</th><td>No route; no search needed</td></tr><tr><th scope="row">Start is a valid exit</th><td>[start], 0 moves</td></tr></tbody></table></div><p>Validate the returned endpoints, each in-bounds free cell and each one-cell orthogonal move. Planning on this map does not itself guarantee collision-free motion for a physical robot: the map must already reflect its footprint and clearance.</p><aside class="pilot-teacher"><strong>Instructor · Final challenge</strong><p>Have students predict both exit distances, test the blocked exit, and explain the stopping rule and the no-route result.</p></aside></section>
-<section id="exam-practice"><p class="eyebrow">25 min</p><h2>Exam-style questions</h2>
-<p>Spend 15 minutes on the three questions and two of the <a href="#drills">extra drills</a> without help. Use the last 10 to check answers and rewrite one explanation.</p>
-<ol class="practice-list"><li><p>What are the first two cells enqueued after S?</p><details><summary>Show answer</summary><p>(0,1), then (1,0).</p></details></li><li><p>How do parents give the route?</p><details><summary>Show answer</summary><p>Follow them from G to S, then reverse.</p></details></li><li><p>What if some moves cost nine units?</p><details><summary>Show answer</summary><p>BFS still minimizes steps. Compare weighted cost with Dijkstra.</p></details></li></ol></section>
-<section id="drills"><h2>More practice</h2><ol class="practice-list"><li><p>What goes into the initial queue?</p><details><summary>Show answer</summary><p>S alone, already marked visited.</p></details></li><li><p>When do we mark a cell visited?</p><details><summary>Show answer</summary><p>When it is enqueued, to prevent duplicate entries.</p></details></li><li><p>What if S and G are the same cell?</p><details><summary>Show answer</summary><p>Zero moves.</p></details></li><li><p>What does an empty queue mean if G has not been reached?</p><details><summary>Show answer</summary><p>There is no reachable route.</p></details></li><li><p>Does the method include diagonal moves?</p><details><summary>Show answer</summary><p>Only if the graph allows them. This map uses four neighbors.</p></details></li></ol></section>
-<section id="exit-ticket"><p class="eyebrow">5 min</p><h2>Exit ticket</h2>
-<p>Where should you mark a cell visited, and what extra work can happen if you wait until pop?</p>
-<p>Write two or three sentences on your own. Support your answer with a count, a measurement or a step from today’s trace.</p><details><summary>Compare a sample exit answer</summary><p>Mark a cell when it is enqueued. If you wait until pop, two neighbors can enqueue it before either copy is processed. That adds queue work and can confuse parent tracking.</p></details>
-<div class="pilot-dark"><p class="pilot-kicker">Next mission / 09</p><h3>Is the shortest route really the best route?</h3><p>Four moves can cost 28 energy units. Eight moves can cost just 8. What should we change in our algorithm?</p><a class="pilot-button pilot-primary" href="../w9/">Mission 09 · Dijkstra →</a></div></section>
-<section id="connections"><h2>How the earlier weeks fit together</h2><div class="bfs-table-scroll" tabindex="0" role="region" aria-label="From familiar ideas to BFS"><table class="robot-table"><caption>From familiar ideas to BFS</caption><thead><tr><th scope="col">Week</th><th scope="col">Short reminder</th><th scope="col">Connection here</th></tr></thead><tbody><tr><th scope="row">1</th><td>First match in [33,20,17,12] is 17 for threshold 20.</td><td>Choose and justify a stopping condition.</td></tr><tr><th scope="row">2</th><td>8 → 16 items doubles a full scan.</td><td>Count visited cells and neighbor checks, not only the final route.</td></tr><tr><th scope="row">3</th><td>Binary search locates 25 between 20 and 30.</td><td>A coordinate does not solve a connectivity problem.</td></tr><tr><th scope="row">4</th><td>FIFO: [A,B,C] → pop A → [B,C].</td><td>Process every earlier layer before later layers.</td></tr><tr><th scope="row">5</th><td>Exact keys retrieve stored information.</td><td>parents stores discovery and previous cells.</td></tr><tr><th scope="row">6</th><td>Median of [12,200,11,13,10] is 12.</td><td>Map preparation precedes route search.</td></tr><tr><th scope="row">7</th><td>A heap selects 4 before 7 and 9.</td><td>Equal-cost BFS needs FIFO; unequal costs require another ordering strategy.</td></tr></tbody></table></div><details id="lecture-guide"><summary>Detailed notes: the first seven weeks and the physical model</summary><h2>Lecture notes: From first principles to route planning</h2>
-<p>A warehouse robot is running low on battery. It knows where the charging station is, but shelves stand in its way. A person can inspect a map visually; a computer must determine which locations are connected and which movements are legal. This week we solve that problem using <strong>breadth-first search (BFS)</strong>.</p>
-<p>First understand the physical problem, then trace a small map by hand, run the Python code, and finally evaluate correctness and computational cost. These explanations prepare you for the existing paper practice and laboratory.</p>
-<h3>How do the first seven weeks come together here?</h3>
-<div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Connections to earlier weeks"><table class="robot-table"><thead><tr><th scope="col">Week</th><th scope="col">Quick reminder</th><th scope="col">Today's application</th></tr></thead><tbody>
-<tr><th scope="row"><a href="../w1/">1 · Search and time budgets</a></th><td>The first value below 20 in [33,20,17,12] is 17; three checks are needed.</td><td>Stop when the goal is found; the work of searching differs from the robot's movements.</td></tr>
-<tr><th scope="row"><a href="../w2/">2 · Growth</a></th><td>A scan of 100 items visits ten times as many items as a scan of 10.</td><td>Making both sides of a map ten times larger produces 100 times as many cells.</td></tr>
-<tr><th scope="row"><a href="../w3/">3 · Binary search and code cost</a></th><td>Searching for 25 in sorted [10,20,30,45] repeatedly halves the candidate interval.</td><td>A map represents connections, not sorted values; we cannot eliminate half its cells that way.</td></tr>
-<tr><th scope="row"><a href="../w4/">4 · Buffers and FIFO</a></th><td>If A, B, C arrive in that order, A leaves first; D joins the back.</td><td>Process waiting cells in their discovery order.</td></tr>
-<tr><th scope="row"><a href="../w5/">5 · Search structures</a></th><td>A dictionary maps fault code E02 to its explanation.</td><td>Map each coordinate to its parent and prevent duplicate discoveries.</td></tr>
-<tr><th scope="row"><a href="../w6/">6 · Sorting and median</a></th><td>Sorting [12,200,11,13,10] gives [10,11,12,13,200]; the median is 12.</td><td>Noisy sensor measurements can be processed before making the map.</td></tr>
-<tr><th scope="row"><a href="../w7/">7 · Priority queues and heaps</a></th><td>Insert 9,4,7: a min-heap gives 4 first, FIFO gives 9 first.</td><td>FIFO is sufficient for equal costs; next week we will use a heap for unequal costs.</td></tr>
-</tbody></table></div>
-<h3>From the physical world to a computer model</h3><p>An occupancy grid divides an area into small cells. A 5 × 5 grid with 20 cm cells represents a 1 m × 1 m area. A dot means free space, # means an obstacle, S is the start and G is the goal. Real occupancy maps can also represent probabilities; here we use a simple binary model.</p><p>Sensor → data buffer (Week 4) → filtering (Week 6) → map → BFS → motion control. BFS does not build the map or drive the motors directly: it calculates a route on the supplied map.</p>
-<h3>What is a graph?</h3><p>A graph, written G = (V,E), represents connections. V is the set of vertices (nodes), and E is the set of edges. Rooms in a building can be vertices and doors can be edges. If A–B, A–C, B–D and C–D are connected, both A→B→D and A→C→D use two edges. An undirected edge allows travel both ways; a directed edge permits only its specified direction. In a weighted graph, edges may have different costs.</p>
-<h3>How do we read coordinates?</h3><p>In Python we use (row, column). The top-left cell is (0,0). Moving down increases the row; moving right increases the column. Let us calculate four movements from (2,3).</p>
-<div class="bfs-table-scroll" tabindex="0" role="region" aria-label="Movement coordinates"><table class="robot-table"><thead><tr><th scope="col">Direction</th><th scope="col">Change</th><th scope="col">New coordinate</th></tr></thead><tbody><tr><td>Up</td><td>(−1,0)</td><td>(1,3)</td></tr><tr><td>Right</td><td>(0,+1)</td><td>(2,4)</td></tr><tr><td>Down</td><td>(+1,0)</td><td>(3,3)</td></tr><tr><td>Left</td><td>(0,−1)</td><td>(2,2)</td></tr></tbody></table></div><p>A new coordinate is a legal neighbor only if it lies inside the map and is not blocked.</p></details></section><section id="topic-references"><h2>Topic references</h2>
-<p>Earlier lessons can use different week numbers for the same topic.</p>
-<ul class="plain-links"><li><a href="../w8/reference.html">Earlier Week 8 · BFS</a></li><li><a href="../w8/ek-notlar/#practice">Extended question bank and notes · 08</a></li></ul>
-<p><a href="../resources/#assessment">Exam scope and project</a></p>
-<nav class="robot-nav" aria-label="Weeks"><a href="../w7/">← Week 7</a><a href="../w9/">→ Week 9</a></nav>
-</section></main>
-<footer><span>Algorithm Analysis · Dr. Arif Solmaz</span><a href="#main">Back to top ↑</a></footer>
-<script id="w8-pilot-script">
+grid = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
+]
+
+def fewest_moves(grid, start, goal):
+    queue = deque([start])             # cells waiting their turn
+    dist = {start: 0}                  # the numbers we write in cells
+    while queue:
+        r, c = queue.popleft()         # take the one at the front
+        if (r, c) == goal:
+            return dist[(r, c)]
+        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            nr, nc = r + dr, c + dc
+            if 0 &lt;= nr &lt; len(grid) and 0 &lt;= nc &lt; len(grid[0]):
+                if grid[nr][nc] != "#" and (nr, nc) not in dist:
+                    dist[(nr, nc)] = dist[(r, c)] + 1
+                    queue.append((nr, nc))    # join the back of the line
+    return None                        # no route
+
+print(fewest_moves(grid, (0, 0), (4, 4)))</code></pre>
+
+  <h3><span class="tr">Kâğıtla eşleştirme</span><span class="en">Matching code to paper</span></h3>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Kâğıtta</th><th>Kodda</th></tr>
+    <tr><td>Hücrelere yazdığınız sayılar</td><td><code>uzaklik</code> sözlüğü</td></tr>
+    <tr><td>"Sayı yazılmış hücreye bir daha yazılmaz"</td><td><code>(yr, yc) not in uzaklik</code></td></tr>
+    <tr><td>"Duvara yazılmaz"</td><td><code>harita[yr][yc] != "#"</code></td></tr>
+    <tr><td>Haritanın dışına çıkmamak</td><td><code>0 &lt;= yr &lt; len(harita)</code> ve sütun için aynısı</td></tr>
+    <tr><td>Yukarı, sağ, aşağı, sol</td><td><code>[(-1, 0), (0, 1), (1, 0), (0, -1)]</code></td></tr>
+    <tr><td>Yemekhane sırası</td><td><code>popleft()</code> baştan alır, <code>append()</code> sona ekler</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>On paper</th><th>In code</th></tr>
+    <tr><td>The numbers you wrote in cells</td><td>the <code>dist</code> dictionary</td></tr>
+    <tr><td>"Never write in a numbered cell again"</td><td><code>(nr, nc) not in dist</code></td></tr>
+    <tr><td>"Never write in a wall"</td><td><code>grid[nr][nc] != "#"</code></td></tr>
+    <tr><td>Staying on the map</td><td><code>0 &lt;= nr &lt; len(grid)</code> and the same for columns</td></tr>
+    <tr><td>Up, right, down, left</td><td><code>[(-1, 0), (0, 1), (1, 0), (0, -1)]</code></td></tr>
+    <tr><td>The cafeteria line</td><td><code>popleft()</code> takes from the front, <code>append()</code> adds to the back</td></tr>
+  </table>
+  </div>
+
+  <h3><span class="tr">Görevler</span><span class="en">Tasks</span></h3>
+  <p class="tr">Her görevde önce tahmininizi yazın, sonra çalıştırın.</p>
+  <p class="en">For each task, write your prediction first, then run the code.</p>
+  <ol class="tr">
+    <li>Kodu hiç değiştirmeden çalıştırın. Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Haritanın üçüncü satırını <code>".#.#."</code> yapın (bir duvar eklendi). Sonuç değişir mi? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Buna ek olarak son satırı <code>"#.#.S"</code> yapın. Çıktı ne olur, ne anlama gelir? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Haritayı baştaki haline döndürün. <code>not in uzaklik</code> koşulunu silseydiniz ne olurdu? Çalıştırmadan tartışın. <span class="blank long"></span></li>
+    <li>Robotun 8 birim enerjisi için "yeter" ya da "yetmez" yazdıran iki satır ekleyin.</li>
+  </ol>
+  <ol class="en">
+    <li>Run the code unchanged. What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Change the third row of the map to <code>".#.#."</code> (one wall added). Does the result change? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>In addition, change the last row to <code>"#.#.S"</code>. What is the output and what does it mean? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Restore the original map. What would happen if you deleted the <code>not in dist</code> condition? Discuss without running it. <span class="blank long"></span></li>
+    <li>Add two lines that print "enough" or "not enough" for the robot's 8 units of energy.</li>
+  </ol>
+
+  <details>
+    <summary><span class="tr">Ek: yalnızca sayıyı değil rotanın kendisini bulmak</span><span class="en">Extra: finding the route itself, not just its length</span></summary>
+    <p class="tr">Kâğıtta S'den geriye, her adımda bir küçük sayıya giderek yürümüştünüz. Kod da aynısını yapar. Önce halkaları bütün haritaya yayan, sonra geri yürüyen iki kısa fonksiyon:</p>
+    <p class="en">On paper you walked back from S, moving to a number one smaller at each step. The code does the same. Two short functions: one spreads the ripple over the whole map, the other walks back.</p>
+<pre class="tr" data-test="tr2"><code>YONLER = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+def halkalari_yay(harita, baslangic):
+    kuyruk = deque([baslangic])
+    uzaklik = {baslangic: 0}
+    while kuyruk:
+        r, c = kuyruk.popleft()
+        for dr, dc in YONLER:
+            yr, yc = r + dr, c + dc
+            if 0 &lt;= yr &lt; len(harita) and 0 &lt;= yc &lt; len(harita[0]):
+                if harita[yr][yc] != "#" and (yr, yc) not in uzaklik:
+                    uzaklik[(yr, yc)] = uzaklik[(r, c)] + 1
+                    kuyruk.append((yr, yc))
+    return uzaklik
+
+def rota_bul(uzaklik, hedef):
+    rota = [hedef]
+    r, c = hedef
+    while uzaklik[(r, c)] &gt; 0:
+        for dr, dc in YONLER:
+            komsu = (r + dr, c + dc)
+            if uzaklik.get(komsu) == uzaklik[(r, c)] - 1:
+                r, c = komsu
+                rota.append(komsu)
+                break
+    return rota[::-1]              # ters çevir: baştan sona
+
+uzaklik = halkalari_yay(harita, (0, 0))
+print(rota_bul(uzaklik, (4, 4)))</code></pre>
+<pre class="en" data-test="en2"><code>MOVES = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+def spread_ripple(grid, start):
+    queue = deque([start])
+    dist = {start: 0}
+    while queue:
+        r, c = queue.popleft()
+        for dr, dc in MOVES:
+            nr, nc = r + dr, c + dc
+            if 0 &lt;= nr &lt; len(grid) and 0 &lt;= nc &lt; len(grid[0]):
+                if grid[nr][nc] != "#" and (nr, nc) not in dist:
+                    dist[(nr, nc)] = dist[(r, c)] + 1
+                    queue.append((nr, nc))
+    return dist
+
+def find_route(dist, goal):
+    route = [goal]
+    r, c = goal
+    while dist[(r, c)] &gt; 0:
+        for dr, dc in MOVES:
+            nb = (r + dr, c + dc)
+            if dist.get(nb) == dist[(r, c)] - 1:
+                r, c = nb
+                route.append(nb)
+                break
+    return route[::-1]             # reverse: start to goal
+
+dist = spread_ripple(grid, (0, 0))
+print(find_route(dist, (4, 4)))</code></pre>
+    <p class="tr">Çıktı 9 hücrelik bir listedir: 8 hamle, 9 hücre. Hedefe yol yoksa <code>rota_bul</code> hata verir; önce <code>hedef in uzaklik</code> diye kontrol edin.</p>
+    <p class="en">The output is a list of 9 cells: 8 moves, 9 cells. If there is no route to the goal, <code>find_route</code> raises an error; check <code>goal in dist</code> first.</p>
+  </details>
+
+  <h3><span class="tr">Bu yöntemin işi nasıl büyür?</span><span class="en">How does this method's work grow?</span></h3>
+  <p class="tr">Her hücre kuyruğa en fazla bir kez girer ve çıkarıldığında 4 komşusuna bakılır. Demek ki iş, hücre sayısıyla orantılıdır: hücre sayısı iki katına çıkarsa iş de yaklaşık iki katına çıkar. Bu, kart aramayla aynı davranıştır. Dikkat edilecek nokta: haritanın kenarı iki katına çıkarsa hücre sayısı dört katına çıkar. Baştaki canlı haritada 5×5, 8×8, 12×12 ve 20×20 seçip "işlenen hücre" sayısını karşılaştırın.</p>
+  <p class="en">Each cell enters the queue at most once, and when it is removed its 4 neighbours are checked. So the work is proportional to the number of cells: double the cells and the work roughly doubles. That is the card-search behaviour. One thing to watch: doubling the side of the map quadruples the number of cells. On the live map at the top, pick 5×5, 8×8, 12×12 and 20×20 and compare the "cells processed" count.</p>
+</section>
+
+<section id="mistakes">
+  <h2><span class="tr">Sık yapılan hatalar</span><span class="en">Common mistakes</span></h2>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Hata</th><th>Doğrusu</th></tr>
+    <tr><td>Hamleyi hücreyle karıştırmak</td><td>8 hamlelik rota 9 hücreden geçer. Enerjiyi hamle harcar.</td></tr>
+    <tr><td>Sayı yazılmış hücrenin üzerine yeniden yazmak</td><td>İlk yazılan sayı en küçük olandır; sonradan gelen yol daha kısa olamaz.</td></tr>
+    <tr><td>Hücreyi kuyruğa eklerken değil, kuyruktan çıkarırken işaretlemek</td><td>Aynı hücre kuyruğa iki kez girer. Sayıyı eklerken yazın.</td></tr>
+    <tr><td>Kuyruğun sonundan almak</td><td>Sondan alırsanız katman sırası bozulur; ilk bulunan yol en kısa olmayabilir.</td></tr>
+    <tr><td>"O(n), n saniye sürer demektir"</td><td>O gösterimi süreyi değil büyümeyi anlatır: girdi iki katına çıkınca ne olur?</td></tr>
+    <tr><td>Bu yöntemin her zaman "en ucuz" yolu bulduğunu sanmak</td><td>Yalnızca en az hamleyi bulur. Hamlelerin maliyeti farklıysa yanılabilir (Hafta 9).</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Mistake</th><th>Correction</th></tr>
+    <tr><td>Confusing moves with cells</td><td>An 8-move route passes through 9 cells. Energy is spent per move.</td></tr>
+    <tr><td>Writing over a cell that already has a number</td><td>The first number written is the smallest; a later path cannot be shorter.</td></tr>
+    <tr><td>Marking a cell when it leaves the queue instead of when it enters</td><td>The same cell gets queued twice. Write the number when you add it.</td></tr>
+    <tr><td>Taking from the back of the queue</td><td>That breaks the layer order; the first route found may not be the shortest.</td></tr>
+    <tr><td>"O(n) means it takes n seconds"</td><td>O notation describes growth, not time: what happens when the input doubles?</td></tr>
+    <tr><td>Assuming this method always finds the "cheapest" path</td><td>It finds only the fewest moves. If moves have different costs it can be wrong (Week 9).</td></tr>
+  </table>
+  </div>
+
+  <h3><span class="tr">Gelecek haftaya köprü</span><span class="en">Bridge to next week</span></h3>
+  <p class="tr">Deponun bir bölümü rampa olsun ve oradaki her hamle 1 yerine 5 birim enerji harcasın. En az hamleli rota hâlâ en az enerji harcayan rota mıdır? Bir karşı örnek çizmeyi deneyin. Hafta 9'da bu soruyu çözen yöntemi (Dijkstra) aynı harita üzerinde göreceğiz.</p>
+  <p class="en">Suppose part of the warehouse is a ramp where each move costs 5 units of energy instead of 1. Is the fewest-move route still the least-energy route? Try to draw a counterexample. In Week 9 we will see the method that answers this (Dijkstra) on the same map.</p>
+</section>
+
+<section id="exam" class="sheet">
+  <h2><span class="tr">Sınav tipi sorular</span><span class="en">Exam-style questions</span></h2>
+
+  <h3><span class="tr">Soru 1</span><span class="en">Question 1</span></h3>
+  <p class="tr">Bir program 1000 sensör kaydını 1 saniyede işliyor. Kayıt sayısı 2000 olursa süre yaklaşık ne olur? Yöntem (a) O(n), (b) O(n²), (c) O(log n) ise ayrı ayrı cevaplayın.</p>
+  <p class="en">A program processes 1000 sensor records in 1 second. Roughly how long does it take for 2000 records? Answer separately if the method is (a) O(n), (b) O(n²), (c) O(log n).</p>
+
+  <h3><span class="tr">Soru 2</span><span class="en">Question 2</span></h3>
+  <p class="tr">Aşağıdaki haritada halka yöntemini uygulayın. R'den S'ye en az kaç hamle gerekir? Robotun 5 birim enerjisi varsa yetişir mi?</p>
+  <p class="en">Apply the ripple method to the map below. What is the fewest number of moves from R to S? If the robot has 5 units of energy, does it make it?</p>
+  <table class="paper small" aria-label="Map">
+    <tr><td>R</td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td class="w"></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td>S</td></tr>
+  </table>
+
+  <h3><span class="tr">Soru 3</span><span class="en">Question 3</span></h3>
+  <p class="tr">Bir arkadaşınız kodda <code>popleft()</code> yerine <code>pop()</code> yazdı (kuyruğun sonundan alıyor). Program yine bir yol bulur mu? Bulduğu hamle sayısı her zaman en az olan mıdır? Nedenini iki cümleyle açıklayın.</p>
+  <p class="en">A classmate wrote <code>pop()</code> instead of <code>popleft()</code> (taking from the back of the queue). Does the program still find a route? Is the move count it reports always the smallest? Explain why in two sentences.</p>
+
+  <h3><span class="tr">Ev alıştırmaları</span><span class="en">Homework</span></h3>
+  <ol class="tr">
+    <li>Aşağıdaki üç kod parçasında <code>say</code> değişkeni n = 8 için kaç olur? n = 16 için? Her birini Bölüm 1'deki bir deneyle eşleştirin.</li>
+  </ol>
+  <ol class="en">
+    <li>In the three snippets below, what is <code>count</code> for n = 8? For n = 16? Match each one to a Part 1 experiment.</li>
+  </ol>
+<pre class="tr"><code># A
+say = 0
+for i in range(n):
+    say += 1
+
+# B
+say = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        say += 1
+
+# C
+say = 0
+k = n
+while k &gt; 1:
+    k = k // 2
+    say += 1</code></pre>
+<pre class="en"><code># A
+count = 0
+for i in range(n):
+    count += 1
+
+# B
+count = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        count += 1
+
+# C
+count = 0
+k = n
+while k &gt; 1:
+    k = k // 2
+    count += 1</code></pre>
+  <ol start="2" class="tr">
+    <li>En kısa rotası tam 12 hamle olan 6×6'lık bir harita çizin. Arkadaşınızla değiştirin ve birbirinizin haritasını halka yöntemiyle kontrol edin.</li>
+    <li>Koddaki yön sırasını değiştirin (örneğin sol, aşağı, sağ, yukarı). Hamle sayısı değişir mi? Ek koddaki rota değişir mi? Neden?</li>
+    <li>Robot çapraz da gidebilsin: yön listesine dört çapraz yön ekleyin. Ders haritasında en az hamle sayısı kaç olur?</li>
+    <li>Koda bir sayaç ekleyip kuyruktan kaç hücre çıkarıldığını yazdırın. Hiç duvarı olmayan 10×10 ve 20×20 haritalarda sayacı karşılaştırın. Sonuç tahmininize uyuyor mu?</li>
+  </ol>
+  <ol start="2" class="en">
+    <li>Draw a 6×6 map whose shortest route is exactly 12 moves. Swap with a classmate and check each other's map with the ripple method.</li>
+    <li>Change the order of directions in the code (for example left, down, right, up). Does the move count change? Does the route from the extra code change? Why?</li>
+    <li>Let the robot move diagonally too: add the four diagonal directions to the list. What is the fewest number of moves on the lesson map?</li>
+    <li>Add a counter to the code and print how many cells were removed from the queue. Compare the counter on wall-free 10×10 and 20×20 maps. Does it match your prediction?</li>
+  </ol>
+</section>
+
+<section id="glossary">
+  <h2><span class="tr">Sözlük</span><span class="en">Glossary</span></h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Türkçe</th><th>English</th><th><span class="tr">Anlamı</span><span class="en">Meaning</span></th></tr>
+    <tr><td>girdi büyüklüğü (n)</td><td>input size (n)</td><td><span class="tr">İşlenecek şeyin sayısı: kart, kayıt, hücre</span><span class="en">How many things there are to process: cards, records, cells</span></td></tr>
+    <tr><td>adım sayısı</td><td>step count</td><td><span class="tr">Yöntemin yaptığı temel işlem sayısı</span><span class="en">The number of basic operations the method performs</span></td></tr>
+    <tr><td>en kötü durum</td><td>worst case</td><td><span class="tr">Aynı büyüklükteki girdiler içinde en çok iş çıkaran</span><span class="en">The input of a given size that causes the most work</span></td></tr>
+    <tr><td>büyüme</td><td>growth</td><td><span class="tr">Girdi büyüyünce adım sayısının nasıl değiştiği</span><span class="en">How the step count changes as the input grows</span></td></tr>
+    <tr><td>kuyruk</td><td>queue (FIFO)</td><td><span class="tr">İlk giren ilk çıkar</span><span class="en">First in, first out</span></td></tr>
+    <tr><td>komşu</td><td>neighbour</td><td><span class="tr">Bir hamlede ulaşılan hücre</span><span class="en">A cell reachable in one move</span></td></tr>
+    <tr><td>katman</td><td>layer</td><td><span class="tr">Aynı sayının yazıldığı hücreler, yani bir halka</span><span class="en">The cells that share the same number: one ring of the ripple</span></td></tr>
+    <tr><td>genişlik öncelikli arama</td><td>breadth-first search (BFS)</td><td><span class="tr">Halka yönteminin adı</span><span class="en">The name of the ripple method</span></td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="exit">
+  <h2><span class="tr">Çıkış sorusu</span><span class="en">Exit question</span></h2>
+  <p class="tr">Küçük bir kâğıda, isimsiz yazın: "Halka yönteminde bir hücreye yazılan sayı neden sonradan değişmez? Bir cümleyle açıklayın." Altına bugün en çok zorlandığınız yeri tek kelimeyle ekleyin.</p>
+  <p class="en">On a slip of paper, no name: "In the ripple method, why does the number written in a cell never change later? Explain in one sentence." Below it, add in one word the part you found hardest today.</p>
+</section>
+
+<section id="key">
+  <h2><span class="tr">Cevap anahtarı</span><span class="en">Answer key</span></h2>
+  <p class="tr">Öğretmen içindir. Kapalıyken yazdırılan çıktıda görünmez.</p>
+  <p class="en">For the teacher. It does not appear in the printout while closed.</p>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 1: Adım sayma</span><span class="en">Part 1: Counting steps</span></summary>
+    <div class="scroll">
+    <table class="tr">
+      <tr><th>Deney</th><th>Girdi</th><th>İş (en kötü durum)</th><th>Girdi × 2 olunca iş</th></tr>
+      <tr><td>Kart arama</td><td>16 kart</td><td>16 kart (en şanslı durumda 1)</td><td>32 kart, yani 2 katı</td></tr>
+      <tr><td>Sayı tahmini</td><td>1–100</td><td>7 tahmin</td><td>8 tahmin, yani yalnızca 1 fazla</td></tr>
+      <tr><td>Tokalaşma</td><td>4 kişi</td><td>6 tokalaşma</td><td>8 kişide 28</td></tr>
+    </table>
+    <table class="en">
+      <tr><th>Experiment</th><th>Input</th><th>Work (worst case)</th><th>Work when input × 2</th></tr>
+      <tr><td>Card search</td><td>16 cards</td><td>16 cards (1 in the luckiest case)</td><td>32 cards, twice as many</td></tr>
+      <tr><td>Number guessing</td><td>1–100</td><td>7 guesses</td><td>8 guesses, only 1 more</td></tr>
+      <tr><td>Handshakes</td><td>4 people</td><td>6 handshakes</td><td>28 with 8 people</td></tr>
+    </table>
+    </div>
+    <ul class="tr">
+      <li>Sayı tahmininde kalan aralık kabaca 100, 50, 25, 12, 6, 3, 1 diye yarılanır. 1 milyonluk aralıkta bile 20 tahmin yeter.</li>
+      <li>Tokalaşmada n kişi için sayı n × (n − 1) / 2'dir. Oran tam 4 çıkmaz (28 / 6 ≈ 4,7); 16 kişide 120 olur ve oran 4'e yaklaşır. Öğrenciler "tam 4 değil" derse haklıdırlar; büyük n için 4'e yaklaştığını gösterin.</li>
+      <li>1 milyon girdi: sayı tahmini 20 adım, kart arama 1 milyon adım, tokalaşma yaklaşık 500 milyar adım.</li>
+    </ul>
+    <ul class="en">
+      <li>In number guessing the remaining range halves roughly as 100, 50, 25, 12, 6, 3, 1. Even a range of 1 million needs only 20 guesses.</li>
+      <li>For n people the handshake count is n × (n − 1) / 2. The ratio is not exactly 4 (28 / 6 ≈ 4.7); with 16 people it is 120 and the ratio approaches 4. Students who say "it is not exactly 4" are right; show that it approaches 4 for large n.</li>
+      <li>With 1 million inputs: number guessing takes 20 steps, card search 1 million steps, handshakes about 500 billion steps.</li>
+    </ul>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 2: En kısa rota</span><span class="en">Part 2: Shortest route</span></summary>
+    <table class="paper filled" aria-label="Filled map">
+      <tr><td>0</td><td>1</td><td>2</td><td class="w"></td><td>8</td></tr>
+      <tr><td>1</td><td class="w"></td><td>3</td><td class="w"></td><td>7</td></tr>
+      <tr><td>2</td><td class="w"></td><td>4</td><td>5</td><td>6</td></tr>
+      <tr><td>3</td><td>4</td><td class="w"></td><td>6</td><td class="w"></td></tr>
+      <tr><td class="w"></td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+    </table>
+    <ol class="tr">
+      <li>S hücresine 8 yazılır. Enerji tam yeter: 8 hamle, 8 birim.</li>
+      <li>İki en kısa rota vardır: biri üstten ve ortadan, diğeri soldan ve alttan dolaşır.</li>
+      <li>8 hamle, 9 hücre. Başlangıç hücresi hamle harcamaz.</li>
+      <li>Önce 1 hamlelik halka, sonra 2 hamlelik halka dolar. Bir hücreye daha kısa yol olsaydı o hücre daha önceki halkada sayı alırdı.</li>
+      <li>Bu haritada 18 hücre (25 hücre, 7 duvar). 10×10'da en fazla 100. Her hücreye bir kez yazıldığı için iş hücre sayısıyla orantılıdır: kart arama.</li>
+    </ol>
+    <ol class="en">
+      <li>Cell S gets 8. The energy is exactly enough: 8 moves, 8 units.</li>
+      <li>There are two shortest routes: one goes along the top and through the middle, the other down the left and along the bottom.</li>
+      <li>8 moves, 9 cells. The starting cell costs no move.</li>
+      <li>The ripple fills all the 1-move cells first, then the 2-move cells. If a cell had a shorter path it would have received its number in an earlier ring.</li>
+      <li>18 cells on this map (25 cells, 7 walls). At most 100 on a 10×10. Each cell is written once, so the work is proportional to the number of cells: card search.</li>
+    </ol>
+    <p class="tr">Kuyruk tablosunun devamı:</p>
+    <p class="en">The rest of the queue table:</p>
+    <div class="scroll">
+    <table>
+      <tr><th><span class="tr">Adım</span><span class="en">Step</span></th><th><span class="tr">Çıkan</span><span class="en">Removed</span></th><th><span class="tr">Eklenen</span><span class="en">Added</span></th><th><span class="tr">Kuyruk</span><span class="en">Queue</span></th></tr>
+      <tr><td>5</td><td>(2,0)</td><td>(3,0)</td><td>(1,2), (3,0)</td></tr>
+      <tr><td>6</td><td>(1,2)</td><td>(2,2)</td><td>(3,0), (2,2)</td></tr>
+      <tr><td>7</td><td>(3,0)</td><td>(3,1)</td><td>(2,2), (3,1)</td></tr>
+      <tr><td>8</td><td>(2,2)</td><td>(2,3)</td><td>(3,1), (2,3)</td></tr>
+    </table>
+    </div>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 3: Kod görevleri</span><span class="en">Part 3: Code tasks</span></summary>
+    <ol class="tr">
+      <li>Çıktı 8.</li>
+      <li>Değişmez, yine 8: ortadaki yol kapanır ama soldan ve alttan giden yol da 8 hamledir.</li>
+      <li>Çıktı <code>None</code>: iki yol da kapandı, robot istasyona ulaşamaz.</li>
+      <li>Aynı hücreler tekrar tekrar kuyruğa girer, sayıların üzerine yazılır ve sonuç güvenilmez olur. Yol olmayan bir haritada kuyruk hiç boşalmaz ve program durmaz.</li>
+      <li>Örnek: <code>h = en_kisa_hamle(harita, (0, 0), (4, 4))</code>, ardından <code>print("yeter" if h is not None and h &lt;= 8 else "yetmez")</code>.</li>
+    </ol>
+    <ol class="en">
+      <li>The output is 8.</li>
+      <li>No change, still 8: the middle route is blocked, but the route down the left and along the bottom is also 8 moves.</li>
+      <li>The output is <code>None</code>: both routes are blocked and the robot cannot reach the charger.</li>
+      <li>The same cells enter the queue again and again, numbers get overwritten and the result cannot be trusted. On a map with no route the queue never empties and the program never stops.</li>
+      <li>Example: <code>m = fewest_moves(grid, (0, 0), (4, 4))</code>, then <code>print("enough" if m is not None and m &lt;= 8 else "not enough")</code>.</li>
+    </ol>
+    <p class="tr">Ek kodun çıktısı: <code>[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3), (3, 3), (4, 3), (4, 4)]</code></p>
+    <p class="en">Output of the extra code: <code>[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3), (3, 3), (4, 3), (4, 4)]</code></p>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Sınav tipi sorular ve ev alıştırmaları</span><span class="en">Exam-style questions and homework</span></summary>
+    <h4><span class="tr">Soru 1</span><span class="en">Question 1</span></h4>
+    <p class="tr">(a) yaklaşık 2 saniye. (b) yaklaşık 4 saniye. (c) yaklaşık 1,1 saniye: log₂ 1000 ≈ 10, log₂ 2000 ≈ 11, yani iş onda bir kadar artar.</p>
+    <p class="en">(a) about 2 seconds. (b) about 4 seconds. (c) about 1.1 seconds: log₂ 1000 ≈ 10, log₂ 2000 ≈ 11, so the work grows by about a tenth.</p>
+    <h4><span class="tr">Soru 2</span><span class="en">Question 2</span></h4>
+    <table class="paper small filled" aria-label="Filled map">
+      <tr><td>0</td><td>1</td><td class="w"></td><td>7</td></tr>
+      <tr><td>1</td><td>2</td><td class="w"></td><td>6</td></tr>
+      <tr><td class="w"></td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><td>5</td><td>4</td><td class="w"></td><td>6</td></tr>
+    </table>
+    <p class="tr">En az 6 hamle. 5 birim enerji yetmez.</p>
+    <p class="en">At least 6 moves. 5 units of energy are not enough.</p>
+    <h4><span class="tr">Soru 3</span><span class="en">Question 3</span></h4>
+    <p class="tr">Yol varsa yine bulur, çünkü ulaşılabilen her hücre sonunda işlenir. Ama hücreler artık katman sırasıyla işlenmez; program bir yöne doğru derine dalar ve hedefe dolambaçlı bir yoldan önce varabilir, bu yüzden bildirdiği sayı en az hamle olmayabilir.</p>
+    <p class="en">If a route exists it still finds one, because every reachable cell is eventually processed. But cells are no longer processed in layer order; the program dives deep in one direction and may reach the goal by a roundabout path first, so the number it reports may not be the fewest moves.</p>
+    <h4><span class="tr">Ev alıştırmaları</span><span class="en">Homework</span></h4>
+    <ol class="tr">
+      <li>A: 8 ve 16 (kart arama). B: 28 ve 120 (tokalaşma). C: 3 ve 4 (sayı tahmini).</li>
+      <li>Açık uçlu. Kontrol: halka yönteminde S'ye 12 yazılmalı.</li>
+      <li>Hamle sayısı değişmez. Birden fazla en kısa rota olduğunda hangisinin bulunacağı yön sırasına bağlıdır.</li>
+      <li>Çapraz hareketle ders haritasında en az 5 hamle.</li>
+      <li>Duvarsız haritada hedef en uzak köşede olduğu için bütün hücreler çıkarılır: 100 ve 400. Kenar 2 katına, hücre sayısı ve iş 4 katına çıkar.</li>
+    </ol>
+    <ol class="en">
+      <li>A: 8 and 16 (card search). B: 28 and 120 (handshakes). C: 3 and 4 (number guessing).</li>
+      <li>Open-ended. Check: the ripple method must write 12 in S.</li>
+      <li>The move count does not change. When there is more than one shortest route, which one is found depends on the order of directions.</li>
+      <li>With diagonal moves, at least 5 moves on the lesson map.</li>
+      <li>On a wall-free map the goal is in the far corner, so every cell is removed: 100 and 400. The side doubles; the number of cells and the work quadruple.</li>
+    </ol>
+  </details>
+</section>
+
+</main>
+
+<script>
 (function(){
-"use strict";
-const $=id=>document.getElementById(id),D=[[-1,0],[0,1],[1,0],[0,-1]],M=["S....#",".###.#","...#..","#....G","......"],coord=(v,C)=>"("+Math.floor(v/C)+","+v%C+")";
-function model(lines){const R=lines.length,C=lines[0].length,g=lines.join("");return {R,C,S:g.indexOf("S"),G:g.indexOf("G"),walls:new Set([...g].map((x,i)=>x==="#"?i:-1).filter(i=>i>=0))};}
-function neighbors(u,m){const r=Math.floor(u/m.C),c=u%m.C,out=[];for(const [dr,dc] of D){let a=r+dr,b=c+dc,v=a*m.C+b;if(a>=0&&a<m.R&&b>=0&&b<m.C&&!m.walls.has(v))out.push(v);}return out;}
-function trace(m){const q=[m.S],p=new Map([[m.S,null]]),dist=new Map([[m.S,0]]),pops=[],frames=[];let head=0,path=[],done=false;function save(msg,phase){frames.push({q:q.slice(head),p:new Map(p),d:new Map(dist),pops:pops.slice(),path:path.slice(),done,msg,phase});}save("Marked S and added it to the queue.",0);while(head<q.length){const u=q[head++];pops.push(u);if(u===m.G){for(let v=u;v!==null;v=p.get(v))path.unshift(v);done=true;save("Goal popped. Reconstructed the route: "+(path.length-1)+" moves.",2);break;}const added=[];for(const v of neighbors(u,m))if(!p.has(v)){p.set(v,u);dist.set(v,dist.get(u)+1);q.push(v);added.push(coord(v,m.C));}done=head===q.length;save("Pop: "+coord(u,m.C)+". "+(added.length?"New neighbors: "+added.join(", "):"No new neighbors.")+(done?" Queue empty; goal unreachable.":""),added.length?5:1);}return frames;}
-const mm=model(M),solution=trace(mm).at(-1);let pos=mm.S,moves=0,trail=[pos],reveal=false;
-function missionDraw(msg){const grid=$("pilot-mission-grid");grid.replaceChildren();for(let i=0;i<mm.R*mm.C;i++){const cell=document.createElement("span");cell.className="mission-cell "+(mm.walls.has(i)?"wall":pos===i?"robot":reveal&&solution.path.includes(i)?"final":trail.includes(i)?"trail":"")+(i===mm.G?" goal":"");cell.textContent=pos===i?"R":i===mm.G?"G":i===mm.S?"S":mm.walls.has(i)?"#":"·";grid.append(cell);}grid.setAttribute("aria-label","Robot "+coord(pos,mm.C)+", goal "+coord(mm.G,mm.C)+", "+(8-moves)+" moves left");$("pilot-energy").textContent=8-moves;$("pilot-moves").textContent=moves;$("pilot-position").textContent=Math.floor(pos/mm.C)+","+pos%mm.C;const b=$("pilot-battery");b.setAttribute("aria-valuenow",8-moves);b.firstElementChild.style.width=(8-moves)*12.5+"%";b.firstElementChild.style.background=moves>=6?"#f2ab40":"#6be0be";const won=pos===mm.G,ended=won||moves>=8;document.querySelectorAll("[data-move]").forEach(x=>x.disabled=ended);$("pilot-mission-status").textContent=msg||(won?"Mission accomplished! Moves used: "+moves+". How can we prove there is no shorter route?":ended?"Energy depleted. Try again or compare with BFS.":"Choose a direction. Invalid moves do not use energy.");}
-function move(k){if(pos===mm.G||moves>=8)return;const [dr,dc]=D[k],r=Math.floor(pos/mm.C)+dr,c=pos%mm.C+dc,v=r*mm.C+c;if(r<0||r>=mm.R||c<0||c>=mm.C||mm.walls.has(v)){missionDraw("Invalid move: wall or map boundary. Energy unchanged.");return;}pos=v;moves++;trail.push(pos);missionDraw();}
-document.querySelectorAll("[data-move]").forEach(b=>b.onclick=()=>move(Number(b.dataset.move)));$("pilot-mission-reset").onclick=()=>{pos=mm.S;moves=0;trail=[pos];reveal=false;$("pilot-mission-hint-text").textContent="";missionDraw();};$("pilot-mission-hint").onclick=()=>{$("pilot-mission-hint-text").textContent="The goal is southeast. At least three down and five right moves are needed. Obstacles may increase this lower bound.";};$("pilot-mission-solve").onclick=()=>{reveal=true;missionDraw();$("pilot-mission-hint-text").textContent="BFS found a shortest route of "+(solution.path.length-1)+" moves. The green route is the computer's result.";load(M);$("layer-lab").scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});};
-let m,frames,index=0,timer=null;
-function stop(){if(timer!==null){clearInterval(timer);timer=null;}$("pilot-bfs-play").textContent="▶ Play";}
-function load(lines){stop();m=model(lines);rebuild();}
-function rebuild(){stop();frames=trace(m);index=0;draw();}
-function draw(){const f=frames[index],grid=$("pilot-bfs-grid");grid.style.gridTemplateColumns="repeat("+m.C+",minmax(0,1fr))";grid.replaceChildren();for(let i=0;i<m.R*m.C;i++){const b=document.createElement("button");b.type="button";b.className=(m.walls.has(i)?"wall":f.path.includes(i)?"final":f.q.includes(i)?"waiting":f.pops.includes(i)?"processed":"")+(i===m.G?" goal":"");b.textContent=i===m.S?"S":i===m.G?"G":m.walls.has(i)?"#":f.d.has(i)?f.d.get(i):"·";if((i===m.S||i===m.G)&&f.d.has(i)){const small=document.createElement("small");small.textContent=f.d.get(i);b.append(small);}b.disabled=i===m.S||i===m.G;b.setAttribute("aria-label",coord(i,m.C)+", "+(m.walls.has(i)?"obstacle":f.d.has(i)?"distance "+f.d.get(i):"undiscovered"));b.onclick=()=>{if(m.walls.has(i))m.walls.delete(i);else m.walls.add(i);rebuild();grid.children[i].focus();};grid.append(b);}const q=$("pilot-bfs-queue");q.replaceChildren();if(!f.q.length)q.textContent="Empty";else for(const v of f.q){const x=document.createElement("span");x.className="pilot-token";x.textContent=coord(v,m.C);q.append(x);}$("pilot-bfs-parents").textContent=[...f.p].map(([v,p])=>coord(v,m.C)+" ← "+(p===null?"None":coord(p,m.C))).join(" | ");[...$("pilot-bfs-code").children].forEach((x,i)=>x.classList.toggle("active",i===f.phase));$("pilot-popped").textContent=f.pops.length;$("pilot-waiting").textContent=f.q.length;$("pilot-length").textContent=f.path.length?f.path.length-1:f.done?"None":"—";$("pilot-bfs-status").textContent="Step "+index+"/"+(frames.length-1)+" · "+f.msg;$("pilot-bfs-prev").disabled=index===0;$("pilot-bfs-next").disabled=index===frames.length-1;if(f.done)stop();}
-function next(){if(index<frames.length-1){index++;draw();}else stop();}
-$("pilot-bfs-mission").onclick=()=>load(M);$("pilot-bfs-small").onclick=()=>load(["S.",".G"]);$("pilot-bfs-default").onclick=()=>load(["S....",".###.",".....",".#.#.","....G"]);$("pilot-bfs-seal").onclick=()=>{for(const v of neighbors(m.G,m))if(v!==m.S)m.walls.add(v);rebuild();};$("pilot-bfs-prev").onclick=()=>{stop();index=Math.max(0,index-1);draw();};$("pilot-bfs-next").onclick=()=>{stop();next();};$("pilot-bfs-finish").onclick=()=>{stop();index=frames.length-1;draw();};$("pilot-bfs-reset").onclick=()=>{stop();index=0;draw();};$("pilot-bfs-play").onclick=()=>{if(timer!==null){stop();return;}if(index===frames.length-1){index=0;draw();}timer=setInterval(next,620);$("pilot-bfs-play").textContent="Ⅱ Pause";};
-function mode(t){document.body.classList.toggle("pilot-instructor",t);$("pilot-student").setAttribute("aria-pressed",!t);$("pilot-teacher-mode").setAttribute("aria-pressed",t);$("pilot-mode-status").textContent=t?"Instructor notes enabled.":"Student view.";}
-$("pilot-student").onclick=()=>mode(false);$("pilot-teacher-mode").onclick=()=>mode(true);
-document.querySelectorAll(".pilot-quiz").forEach(q=>q.querySelectorAll("button[data-answer]").forEach(b=>b.onclick=()=>{q.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));const ok=b.dataset.answer===q.dataset.correct;const p=q.querySelector(".pilot-feedback");p.textContent=(ok?"Correct! ":"Try again. ")+q.dataset.why;p.style.color=ok?"#0d635b":"#9b3c20";}));const checks=[...document.querySelectorAll(".pilot-check")];function progress(){$("pilot-progress-status").textContent=checks.filter(c=>c.checked).length+"/8 sections completed.";try{localStorage.setItem("aa-w8-en-progress",JSON.stringify(checks.map(c=>c.checked)));}catch(e){}}try{const a=JSON.parse(localStorage.getItem("aa-w8-en-progress")||"[]");checks.forEach((c,i)=>c.checked=!!a[i]);}catch(e){}checks.forEach(c=>c.onchange=progress);progress();missionDraw();load(M);
+  var root=document.documentElement;
+  function L(){return root.getAttribute('data-lang')==='en'?'en':'tr';}
+  var TXT={
+    tr:{start:'Rotayı önce gözünüzle tahmin edin, sonra halkaları ilerletin.',
+        running:function(p,l){return 'İşlenen hücre: '+p+'. Yazılan en büyük sayı: '+l+'.';},
+        found:function(d,p){return 'S hücresine '+d+' yazıldı: en az '+d+' hamle. İşlenen hücre: '+p+'.';},
+        energy:function(ok){return ok?' 8 birim enerji yeter.':' 8 birim enerji yetmez.';},
+        none:function(p){return 'Kuyruk boşaldı ve S\'ye ulaşılamadı: yol yok. İşlenen hücre: '+p+'.';},
+        queue:'Kuyruk: ',empty:'boş',more:' ve '+'{n}'+' hücre daha',
+        gstart:function(n,m){return '1 ile '+n+' arasında bir sayı tuttum. En fazla '+m+' tahmin yeter.';},
+        ghigh:'Daha büyük.',glow:'Daha küçük.',
+        gstate:function(k,lo,hi){return ' Tahmin sayısı: '+k+'. Kalan aralık: '+lo+'–'+hi+' ('+(hi-lo+1)+' sayı).';},
+        gwin:function(k,m){return 'Buldunuz. '+k+' tahmin kullandınız; ortadan sorarak en fazla '+m+' tahmin gerekir.';},
+        gbad:function(n){return '1 ile '+n+' arasında bir tam sayı yazın.';},
+        units:['mikrosaniye','milisaniye','saniye','dakika','saat','gün','yıl'],steps:'adım',loc:'tr-TR'},
+    en:{start:'Guess the route by eye first, then advance the ripple.',
+        running:function(p,l){return 'Cells processed: '+p+'. Largest number written: '+l+'.';},
+        found:function(d,p){return 'Cell S got '+d+': at least '+d+' moves. Cells processed: '+p+'.';},
+        energy:function(ok){return ok?' 8 units of energy are enough.':' 8 units of energy are not enough.';},
+        none:function(p){return 'The queue is empty and S was never reached: no route. Cells processed: '+p+'.';},
+        queue:'Queue: ',empty:'empty',more:' and '+'{n}'+' more',
+        gstart:function(n,m){return 'I picked a number between 1 and '+n+'. At most '+m+' guesses are needed.';},
+        ghigh:'Higher.',glow:'Lower.',
+        gstate:function(k,lo,hi){return ' Guesses so far: '+k+'. Remaining range: '+lo+'–'+hi+' ('+(hi-lo+1)+' numbers).';},
+        gwin:function(k,m){return 'Correct. You used '+k+' guesses; asking for the middle never needs more than '+m+'.';},
+        gbad:function(n){return 'Enter a whole number between 1 and '+n+'.';},
+        units:['microseconds','milliseconds','seconds','minutes','hours','days','years'],steps:'steps',loc:'en-GB'}
+  };
+  function T(){return TXT[L()];}
+
+  /* ---------- wave widget ---------- */
+  var DEF=['R..#.','.#.#.','.#...','..#.#','#...S'];
+  var DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
+  var W={n:5,walls:{},dist:{},queue:[],cur:null,pops:0,done:false,found:false,path:{},isDef:true};
+  var gridEl=document.getElementById('wgrid'),statusEl=document.getElementById('wstatus'),queueEl=document.getElementById('wqueue');
+  function key(r,c){return r+','+c;}
+  function loadDefault(){W.n=5;W.walls={};for(var r=0;r<5;r++)for(var c=0;c<5;c++)if(DEF[r][c]==='#')W.walls[key(r,c)]=true;W.isDef=true;document.getElementById('wsize').value='5';clearWave();}
+  function randomWalls(){W.walls={};var n=W.n;for(var r=0;r<n;r++)for(var c=0;c<n;c++){if((r===0&&c===0)||(r===n-1&&c===n-1))continue;if(Math.random()<0.24)W.walls[key(r,c)]=true;}W.isDef=false;clearWave();}
+  function clearWave(){W.dist={};W.dist[key(0,0)]=0;W.queue=[[0,0]];W.cur=null;W.pops=0;W.done=false;W.found=false;W.path={};render();}
+  function stepCell(){
+    if(W.done)return;
+    if(!W.queue.length){W.done=true;W.cur=null;return;}
+    var cell=W.queue.shift(),r=cell[0],c=cell[1];W.cur=key(r,c);W.pops++;
+    if(r===W.n-1&&c===W.n-1){W.done=true;W.found=true;tracePath();return;}
+    for(var i=0;i<4;i++){var y=r+DIRS[i][0],x=c+DIRS[i][1];
+      if(y<0||x<0||y>=W.n||x>=W.n)continue;var k=key(y,x);
+      if(W.walls[k]||W.dist[k]!==undefined)continue;
+      W.dist[k]=W.dist[key(r,c)]+1;W.queue.push([y,x]);}
+    if(!W.queue.length){W.done=true;}
+  }
+  function stepLayer(){
+    if(W.done||!W.queue.length){stepCell();return;}
+    var level=W.dist[key(W.queue[0][0],W.queue[0][1])];
+    while(!W.done&&W.queue.length&&W.dist[key(W.queue[0][0],W.queue[0][1])]===level)stepCell();
+  }
+  function tracePath(){
+    var r=W.n-1,c=W.n-1;W.path={};W.path[key(r,c)]=true;
+    while(W.dist[key(r,c)]>0){for(var i=0;i<4;i++){var y=r+DIRS[i][0],x=c+DIRS[i][1];
+      if(W.dist[key(y,x)]===W.dist[key(r,c)]-1){r=y;c=x;W.path[key(r,c)]=true;break;}}}
+  }
+  function render(){
+    var n=W.n,maxL=0,k;for(k in W.dist)if(W.dist[k]>maxL)maxL=W.dist[k];
+    gridEl.style.gridTemplateColumns='repeat('+n+',1fr)';
+    gridEl.className='grid'+(n>8?' big':'');
+    gridEl.innerHTML='';
+    for(var r=0;r<n;r++)for(var c=0;c<n;c++){
+      var b=document.createElement('button');b.type='button';b.className='cell';k=key(r,c);
+      var isS=(r===0&&c===0),isG=(r===n-1&&c===n-1),label='('+r+','+c+')';
+      if(W.walls[k]){b.className+=' wall';label+=' #';}
+      else{
+        if(W.dist[k]!==undefined){
+          var d=W.dist[k],light=92-Math.min(d,2*n)*(46/(2*n));
+          b.style.background='hsl(207,56%,'+light+'%)';b.style.color=light<62?'#fff':'#16202b';
+          b.appendChild(document.createTextNode(d));label+=' '+d;}
+        if(isS||isG){var t=document.createElement('span');t.className='tag';t.textContent=isS?'R':'S';b.appendChild(t);b.className+=isS?' start':' goal';label+=isS?' R':' S';}
+        if(W.path[k])b.className+=' path';
+        if(W.cur===k)b.className+=' cur';
+      }
+      b.setAttribute('aria-label',label);b.dataset.r=r;b.dataset.c=c;
+      gridEl.appendChild(b);
+    }
+    var t=T(),msg;
+    if(W.found){var dd=W.dist[key(n-1,n-1)];msg=t.found(dd,W.pops)+(W.isDef||n===5?t.energy(dd<=8):'');}
+    else if(W.done){msg=t.none(W.pops);}
+    else if(W.pops===0){msg=t.start;}
+    else{msg=t.running(W.pops,maxL);}
+    statusEl.textContent=msg;
+    var q=W.queue.slice(0,10).map(function(x){return '('+x[0]+','+x[1]+')';}).join(' ');
+    if(W.queue.length>10)q+=t.more.replace('{n}',W.queue.length-10);
+    queueEl.textContent=W.done?'':t.queue+(W.queue.length?q:t.empty);
+    document.getElementById('wlayer').disabled=W.done;document.getElementById('wstep').disabled=W.done;
+  }
+  gridEl.addEventListener('click',function(e){
+    var b=e.target.closest('.cell');if(!b)return;var r=+b.dataset.r,c=+b.dataset.c,n=W.n;
+    if((r===0&&c===0)||(r===n-1&&c===n-1))return;
+    var k=key(r,c);if(W.walls[k])delete W.walls[k];else W.walls[k]=true;W.isDef=false;clearWave();
+  });
+  document.getElementById('wlayer').onclick=function(){stepLayer();render();};
+  document.getElementById('wstep').onclick=function(){stepCell();render();};
+  document.getElementById('wclear').onclick=clearWave;
+  document.getElementById('wdef').onclick=loadDefault;
+  document.getElementById('wrand').onclick=randomWalls;
+  document.getElementById('wsize').onchange=function(){W.n=+this.value;W.walls={};W.isDef=false;if(W.n===5){loadDefault();}else{clearWave();}};
+
+  /* ---------- guessing widget ---------- */
+  var G={max:100,secret:0,count:0,lo:1,hi:100,won:false,last:''};
+  var gStatus=document.getElementById('gstatus'),gIn=document.getElementById('gin');
+  function need(n){return Math.ceil(Math.log(n+1)/Math.LN2);}
+  function gNew(){G.max=+document.getElementById('gmax').value;G.secret=1+Math.floor(Math.random()*G.max);G.count=0;G.lo=1;G.hi=G.max;G.won=false;G.last='start';gIn.max=G.max;gIn.value='';gRender();}
+  function gRender(){var t=T(),m=need(G.max),s;
+    if(G.last==='start')s=t.gstart(G.max.toLocaleString(t.loc),m);
+    else if(G.last==='bad')s=t.gbad(G.max.toLocaleString(t.loc));
+    else if(G.won)s=t.gwin(G.count,m);
+    else s=(G.last==='high'?t.ghigh:t.glow)+t.gstate(G.count,G.lo.toLocaleString(t.loc),G.hi.toLocaleString(t.loc));
+    gStatus.textContent=s;}
+  function gGuess(){if(G.won)return;var v=parseInt(gIn.value,10);
+    if(!(v>=1&&v<=G.max)){G.last='bad';gRender();return;}
+    G.count++;
+    if(v===G.secret){G.won=true;G.last='win';}
+    else if(v<G.secret){G.last='high';if(v+1>G.lo)G.lo=v+1;}
+    else{G.last='low';if(v-1<G.hi)G.hi=v-1;}
+    gIn.value='';gIn.focus();gRender();}
+  document.getElementById('gnew').onclick=gNew;
+  document.getElementById('gmax').onchange=gNew;
+  document.getElementById('ggo').onclick=gGuess;
+  gIn.addEventListener('keydown',function(e){if(e.key==='Enter')gGuess();});
+
+  /* ---------- growth widget ---------- */
+  var gn=document.getElementById('gn');
+  function fmtTime(steps){var t=T(),s=steps/1e6,u=t.units,v,i;
+    if(s<1e-3){v=s*1e6;i=0;}else if(s<1){v=s*1e3;i=1;}else if(s<60){v=s;i=2;}else if(s<3600){v=s/60;i=3;}
+    else if(s<86400){v=s/3600;i=4;}else if(s<86400*365){v=s/86400;i=5;}else{v=s/(86400*365);i=6;}
+    return v.toLocaleString(t.loc,{maximumFractionDigits:v<10?1:0})+' '+u[i];}
+  function fmtN(x){return Math.round(x).toLocaleString(T().loc);}
+  function growth(){var n=Math.round(Math.pow(10,+gn.value)),lg=Math.log(n)/Math.LN2;
+    var vals=[Math.max(1,Math.ceil(lg)),n,n*lg,n*n];
+    document.getElementById('gnv').textContent=fmtN(n);
+    for(var i=0;i<4;i++){document.getElementById('g'+(i+1)).textContent=fmtN(vals[i]);document.getElementById('t'+(i+1)).textContent=fmtTime(vals[i]);}}
+  gn.addEventListener('input',growth);
+
+  loadDefault();gNew();growth();
 })();
-</script><script id="w8-teaching-labs">(function(){"use strict";const $=id=>document.getElementById(id),D=[[-1,0],[0,1],[1,0],[0,-1]],co=(i,C)=>"("+Math.floor(i/C)+","+i%C+")";function ns(i,R,C,w){let r=Math.floor(i/C),c=i%C;return D.map(([a,b])=>[r+a,c+b]).filter(([a,b])=>a>=0&&a<R&&b>=0&&b<C&&!w.has(a*C+b)).map(([a,b])=>a*C+b)}function board(id,R,C,cell,click){const host=$(id);host.replaceChildren();for(let i=0;i<R*C;i++){const [label,cls]=cell(i),b=document.createElement(click?"button":"span");if(click){b.type="button";b.onclick=()=>click(i);}b.className="teach-cell "+cls;b.textContent=label;b.setAttribute("aria-label",co(i,C)+" "+label);host.append(b)}}function tokens(id,q){const h=$(id);h.replaceChildren();if(!q.length)h.textContent="Empty";for(const x of q){const t=document.createElement("span");t.textContent=x;t.className="teach-token";h.append(t)}}
-let mp=5,mw=new Set([6,9]);function model(){const a=ns(mp,3,4,mw);board("teach-model-board",3,4,i=>[mw.has(i)?"#":i===mp?"R":a.includes(i)?"✓":"·",mw.has(i)?"wall":i===mp?"good":a.includes(i)?"wait":""],i=>{if(!mw.has(i)){mp=i;model();$("teach-model-board").children[i].focus()}});$("teach-model-info").textContent=co(mp,4)+" has "+a.length+" reachable neighbors: "+a.map(i=>co(i,4)).join(", ")}$("teach-model-wall").onclick=()=>{mw=mw.size?new Set():new Set([6,9].filter(i=>i!==mp));model()};$("teach-model-reset").onclick=()=>{mp=5;mw=new Set([6,9]);model()};model();
-let fifo=["A","B","C"],serial=3;function fd(msg){tokens("teach-fifo-q",fifo);$("teach-fifo-info").textContent=msg;$("teach-fifo-pop").disabled=!fifo.length;$("teach-fifo-add").disabled=fifo.length>=12}fd("First out: A.");$("teach-fifo-add").onclick=()=>{let x=serial<26?String.fromCharCode(65+serial):"H"+serial;serial++;fifo.push(x);fd(x+" joined the back. First out: "+fifo[0])};$("teach-fifo-pop").onclick=()=>{let x=fifo.shift();fd(x+" left. "+(fifo.length?"Next: "+fifo[0]:"Queue empty."))};$("teach-fifo-reset").onclick=()=>{fifo=["A","B","C"];serial=3;fd("First out: A.")};
-let q,seen,dis,pops,done;function dd(msg){board("teach-duplicate-board",2,2,i=>[["S","A","B","G"][i],q.includes(i)?"wait":seen.has(i)?"seen":""]);tokens("teach-duplicate-q",q.map(i=>["S","A","B","G"][i]));$("teach-duplicate-info").textContent=msg;$("teach-duplicate-next").disabled=done||!q.length}function reset(){q=[0];seen=new Set();dis=new Set([0]);pops=0;done=false;dd("Initial state: S is queued.")}function step(){if(done||!q.length)return;let u=q.shift(),early=$("teach-duplicate-early").checked;pops++;seen.add(u);if(u===3){done=true;dd("G was popped. "+pops+" pops; G copies still waiting: "+q.filter(v=>v===3).length);return}for(const v of ns(u,2,2,new Set()))if(early?!dis.has(v):!seen.has(v)){if(early)dis.add(v);q.push(v)}dd(["S","A","B","G"][u]+" popped. G copies waiting: "+q.filter(v=>v===3).length)}$("teach-duplicate-early").onchange=reset;$("teach-duplicate-next").onclick=step;$("teach-duplicate-reset").onclick=reset;reset();
-function size(){let n=Number($("teach-size").value),v=n*n,e=2*n*(n-1);$("teach-size-value").textContent=n;$("teach-v").textContent=v;$("teach-e").textContent=e;$("teach-ve").textContent=v+e;$("teach-cost-info").textContent=n+"×"+n+" grid; hypothetical 9-byte-per-cell storage: "+(9*v).toLocaleString("en-US")+" bytes of auxiliary storage. Python object sizes differ."}$("teach-size").oninput=size;size();
-let path=[];function walls(){const w=new Set([5,6]);if($("teach-near").checked)w.add(8);if($("teach-far").checked)w.add(11);return w}function ex(msg){let w=walls();board("teach-exit-board",3,4,i=>[w.has(i)?"#":i===0?"S":i===8||i===11?"G":"·",w.has(i)?"wall":path.includes(i)?"good":""]);$("teach-exit-info").textContent=msg||"Predict first, then run the search."}function run(){let w=walls(),goals=new Set([8,11].filter(i=>!w.has(i))),q=[0],p=new Map([[0,null]]);path=[];if(!goals.size){ex("No open exits; no search needed.");return}for(let h=0;h<q.length;h++){let u=q[h];if(goals.has(u)){for(let x=u;x!==null;x=p.get(x))path.unshift(x);ex("Nearest exit "+co(u,4)+": "+(path.length-1)+" moves. "+(h+1)+" cells popped.");return}for(const v of ns(u,3,4,w))if(!p.has(v)){p.set(v,u);q.push(v)}}ex("No open exit is reachable.")}for(const id of ["teach-near","teach-far"])$(id).onchange=()=>{path=[];ex()};$("teach-exit-run").onclick=run;$("teach-exit-reset").onclick=()=>{$("teach-near").checked=false;$("teach-far").checked=false;path=[];ex()};ex();
-function terrain(){let c=Number($("teach-terrain").value),top=3*c+1;$("teach-terrain-value").textContent=c;board("teach-terrain-board",3,5,i=>[i===0?"S":i===4?"G":[6,7,8].includes(i)?"#":i>0&&i<4?String(c):"1",[6,7,8].includes(i)?"wall":i<5?"wait":[5,10,11,12,13,14,9].includes(i)&&8<top?"good":""]);$("teach-terrain-info").textContent="BFS: upper route, 4 moves, energy "+top+". Lower route: 8 moves, energy 8. "+(top<=8?"Upper route is cheaper.":"Lower route is cheaper; BFS does not choose it.")}$("teach-terrain").oninput=terrain;terrain();
-})();</script></body>
+</script>
+</body>
 </html>
