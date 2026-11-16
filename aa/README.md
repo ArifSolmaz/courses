@@ -23,7 +23,9 @@ The notes and process history below describe earlier editions.
 
 Week 8 is the exception: `w8/index.html` and `w8/tr/index.html` are a short, hand-written paper-first lesson
 (counting steps, then the ring method for the fewest-move route). Both files hold the Turkish and English text;
-the `data-lang` attribute on `<html>` selects which one is shown. The fuller lesson with the timing lab is
+the `data-lang` attribute on `<html>` selects which one is shown. The blanks in the questions become answer boxes
+at load; their answers are the `ANS` list in the page script, in page order, so add or remove a blank and its
+answer together in both files. The code cells use the shared `assets/python-runner.js`. The fuller lesson with the timing lab is
 `w8/full.html` and `w8/tr/full.html`. `tools/build.py` does not know about this split, so do not run it over Week 8.
 
 ## Earlier editions

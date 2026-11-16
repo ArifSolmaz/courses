@@ -278,6 +278,30 @@ for (const language of languages) {
       await expect(page.locator('#wgrid .cell.goal')).toHaveText(/^8\s*S$/);
       await expect(page.locator('#wgrid .cell.path')).toHaveCount(9);
       await expect(page.locator('#wstatus')).toContainText('18');
+
+      // Answer boxes: one wrong and one right answer, checked per question and for the whole part.
+      const boxes = page.locator('.q input, .qlong textarea');
+      await expect(boxes).toHaveCount(74);
+      const first = page.locator('#count ol li').first();
+      await first.locator('input').nth(0).fill('3');
+      await first.locator('input').nth(1).fill('16');
+      await first.locator('button.chk').click();
+      await expect(first.locator('.fb').nth(0)).toHaveClass(/\bno\b/);
+      await expect(first.locator('.fb').nth(0)).toContainText('1');
+      await expect(first.locator('.fb').nth(1)).toHaveClass(/\bok\b/);
+      await page.locator('#count .chkall button').click();
+      await expect(page.locator('#count .score')).toContainText('23');
+
+      // The lesson code runs and can be edited on the page.
+      const cell = page.locator('#python-example-1');
+      await cell.getByRole('button', { name: language.run, exact: true }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toHaveText('8\n');
+      await cell.getByRole('button', { name: language.edit, exact: true }).click();
+      const editor = cell.locator('.py-editor');
+      await editor.fill((await editor.inputValue()).replace('".#...",', '".#.#.",').replace('"#...S",', '"#.#.S",'));
+      await cell.getByRole('button', { name: language.run, exact: true }).click();
+      await expect(cell.locator('.py-output')).toHaveText('None\n');
       expect(errors).toEqual([]);
     });
 
