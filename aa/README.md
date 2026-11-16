@@ -21,12 +21,14 @@ repository root to generate the main and reference pages. The earlier bilingual
 edition is built from `tools/lessons/` at each week's `reference.html` URL.
 The notes and process history below describe earlier editions.
 
-Week 8 is the exception: `w8/index.html` and `w8/tr/index.html` are a short, hand-written paper-first lesson
-(counting steps, then the ring method for the fewest-move route). Both files hold the Turkish and English text;
+Weeks 8 and 9 are the exception: `w8/index.html`, `w9/index.html` and their `tr/` counterparts are short,
+hand-written paper-first lessons (Week 8: counting steps, then the ring method for the fewest-move route;
+Week 9: moves against energy, then the cheapest-first method). Both files hold the Turkish and English text;
 the `data-lang` attribute on `<html>` selects which one is shown. The blanks in the questions become answer boxes
 at load; their answers are the `ANS` list in the page script, in page order, so add or remove a blank and its
 answer together in both files. The code cells use the shared `assets/python-runner.js`. The fuller lesson with the timing lab is
-`w8/full.html` and `w8/tr/full.html`. `tools/build.py` does not know about this split, so do not run it over Week 8.
+`full.html` and `tr/full.html` in each week's folder. `tools/build.py` does not know about this split, so do not
+run it over Weeks 8 and 9.
 
 ## Earlier editions
 

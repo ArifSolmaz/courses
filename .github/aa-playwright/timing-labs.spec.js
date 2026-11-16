@@ -68,9 +68,9 @@ const languages = [
   },
 ];
 
-// Week 8 opens with the short paper-first lesson; the full lesson with the timing lab is full.html.
+// Weeks 8 and 9 open with a short paper-first lesson; the full lesson with the timing lab is full.html.
 function lessonPath(week, language) {
-  return `w${week}/${language.path}${week === 8 ? 'full.html' : ''}`;
+  return `w${week}/${language.path}${week === 8 || week === 9 ? 'full.html' : ''}`;
 }
 
 function measurementLabels(result) {
@@ -315,7 +315,7 @@ for (const language of languages) {
 
 
     test('Week 9 cost updates, reminders and small graph', async ({ page }) => {
-      await page.goto(`w9/${language.path}`, { waitUntil: 'domcontentloaded' });
+      await page.goto(lessonPath(9, language), { waitUntil: 'domcontentloaded' });
       await expect(page.locator('.week-reminder')).toHaveCount(8);
       await expect(page.locator('svg.route-svg')).toHaveCount(2);
       const cell = page.locator('#python-example-2');
@@ -331,6 +331,52 @@ for (const language of languages) {
       for (let week = 1; week <= 8; week++) {
         await expect(links.filter({ hasText: new RegExp(' ' + week + '$') })).toHaveCount(1);
       }
+    });
+
+
+    test('Week 9 short lesson cheapest-first walk-through', async ({ page }) => {
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      const response = await page.goto(`w9/${language.path}`, { waitUntil: 'domcontentloaded' });
+      expect(response?.ok()).toBe(true);
+      await expect(page.locator('html')).toHaveAttribute('lang', language.code);
+      await expect(page.locator(language.code === 'en' ? '.tr:visible' : '.en:visible')).toHaveCount(0);
+      await expect(page.locator('a[href="full.html"]')).toBeVisible();
+
+      // Live map: 17 cells are circled, the cheapest route costs 10 and the fewest-move route 14.
+      const stepButton = page.locator('#wstep');
+      await expect(page.locator('#wgrid .cell')).toHaveCount(25);
+      for (let step = 0; step < 17; step++) await stepButton.click();
+      await expect(stepButton).toBeDisabled();
+      await expect(page.locator('#wgrid .cell.goal .num')).toHaveText('10');
+      await expect(page.locator('#wgrid .cell.path')).toHaveCount(11);
+      await expect(page.locator('#wstatus')).toContainText('14');
+
+      // Answer boxes, the worked explanation and the part score.
+      await expect(page.locator('.q input, .qlong textarea')).toHaveCount(77);
+      const first = page.locator('#cost ol li').first();
+      await first.locator('input').nth(0).fill('3');
+      await first.locator('input').nth(1).fill('13');
+      await first.locator('button.chk').click();
+      await expect(first.locator('.fb').nth(0)).toHaveClass(/\bno\b/);
+      await expect(first.locator('.fb').nth(0)).toContainText('4');
+      await expect(first.locator('.fb').nth(1)).toHaveClass(/\bok\b/);
+      await first.locator('button.ibtn').nth(1).click();
+      await expect(first.locator('.explain:visible .calc')).toContainText('4 + 4 + 4 + 1 = 13');
+      await page.locator('#cost .chkall button').click();
+      await expect(page.locator('#cost .score')).toContainText('29');
+
+      // The lesson code runs and can be edited on the page.
+      const cell = page.locator('#python-example-1');
+      await cell.getByRole('button', { name: language.run, exact: true }).click();
+      await expect(cell.getByRole('status')).toHaveText(language.finished);
+      await expect(cell.locator('.py-output')).toHaveText('10\n');
+      await cell.getByRole('button', { name: language.edit, exact: true }).click();
+      const editor = cell.locator('.py-editor');
+      await editor.fill((await editor.inputValue()).replace('"h": 4', '"h": 1'));
+      await cell.getByRole('button', { name: language.run, exact: true }).click();
+      await expect(cell.locator('.py-output')).toHaveText('8\n');
+      expect(errors).toEqual([]);
     });
 
 
