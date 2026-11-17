@@ -35,8 +35,13 @@ a{color:var(--wave)}
 .printbtn{background:none;border:1px solid #6b7a88;border-radius:4px;color:#dfe6ec;font:inherit;font-size:.9rem;padding:.2rem .65rem;cursor:pointer}
 
 .hero{background:var(--panel);border-bottom:6px solid var(--hazard)}
-.hero-in{max-width:68rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:2.5rem;align-items:start}
-.hero h1{font-family:var(--display);font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
+.hero-in{max-width:92rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(18rem,1fr) minmax(0,48rem);gap:2.5rem;align-items:start}
+/* live map: map on the left, buttons, status and queue on the right */
+#wave{display:grid;grid-template-columns:minmax(0,23rem) minmax(0,1fr);gap:0 1.25rem;align-items:start}
+#wave .wleft,#wave .wright{min-width:0}
+#wave .grid{max-width:none}
+#wave .wright .controls:first-child{margin-top:0}
+.hero h1{font-family:var(--display);font-size:clamp(1.9rem,3.3vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
 .hero p{max-width:34rem;margin:.6rem 0}
 .hero .meta{color:var(--muted);font-size:.95rem}
 .sitelinks{display:flex;flex-wrap:wrap;gap:.3rem 1.25rem}
@@ -112,7 +117,20 @@ button.act{cursor:pointer}
 button.act.primary{background:var(--ink);color:#fff}
 button.act:disabled{opacity:.45;cursor:not-allowed}
 .status{font-size:.95rem;min-height:3.2em}
-.queue{font-family:var(--mono);font-size:.85rem;word-break:break-word;color:var(--muted)}
+.queue{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+.qrow{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.3rem 0}
+.qlab{font-size:.82rem;font-weight:600;color:var(--muted);min-width:2.6rem}
+.qbox{min-width:3.2rem;padding:.2rem .35rem;border:2px solid var(--ink);text-align:center;background:#fff;line-height:1.15}
+.qbox b{display:block;font-size:1.05rem}
+.qbox small{display:block;font-family:var(--mono);font-size:.68rem}
+.qbox.out{border-style:dashed;border-color:var(--warn);background:#fff !important;color:var(--warn) !important}
+.qbox.new{box-shadow:0 0 0 3px var(--charge);animation:qin .35s ease-out}
+.qmore{font-size:.85rem;color:var(--muted)}
+.qnote{font-size:.92rem;margin:.4rem 0 0}
+.qnote .k{font-weight:700}
+.cell.new{outline:3px dashed var(--charge);outline-offset:-5px}
+@keyframes qin{from{opacity:0;transform:translateX(10px)}}
+@media (prefers-reduced-motion:reduce){.qbox.new{animation:none}}
 
 .grid{display:grid;gap:3px;background:var(--wall);padding:3px;width:100%;max-width:24rem;aspect-ratio:1}
 .cell{border:0;padding:0;background:#fff;font:600 1rem var(--body);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;min-width:0}
@@ -136,7 +154,9 @@ table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;
 .growth output{font-variant-numeric:tabular-nums;font-weight:600}
 input[type=range]{width:100%}
 
-@media (max-width:52rem){.hero-in{grid-template-columns:1fr}.topbar nav{display:none}}
+@media (max-width:64rem){.hero-in{grid-template-columns:1fr}}
+@media (max-width:52rem){.topbar nav{display:none}}
+@media (max-width:42rem){#wave{grid-template-columns:1fr}#wave .grid{max-width:24rem}#wave .wright{margin-top:.75rem}}
 @media print{
   .topbar,.widget,.printbtn,.chk,.chkrow,.chkall,.ibtn,.python-toolbar,.python-hint{display:none !important}
   body{background:#fff;font-size:11pt}
@@ -193,6 +213,7 @@ table.paper td.h{background:repeating-linear-gradient(45deg,#fff6d1,#fff6d1 6px,
     </div>
 
     <div class="widget" id="wave">
+      <div class="wleft">
       <div class="grid" id="wgrid" role="grid" aria-label="Map"></div>
       <div class="legend">
         <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--hazard)"></span>R robot</span>
@@ -201,6 +222,8 @@ table.paper td.h{background:repeating-linear-gradient(45deg,#fff6d1,#fff6d1 6px,
         <span><span class="sw" style="background:var(--wall)"></span><span class="tr">duvar</span><span class="en">wall</span></span>
         <span><span class="sw" style="outline:2px dashed var(--wave);outline-offset:-3px"></span><span class="tr">bekleyen sayı</span><span class="en">waiting number</span></span>
       </div>
+      </div>
+      <div class="wright">
       <div class="controls">
         <button class="act primary" type="button" id="wstep"><span class="tr">En ucuz hücreyi işle</span><span class="en">Process the cheapest cell</span></button>
         <button class="act" type="button" id="wrun"><span class="tr">Sona kadar işle</span><span class="en">Run to the end</span></button>
@@ -216,6 +239,7 @@ table.paper td.h{background:repeating-linear-gradient(45deg,#fff6d1,#fff6d1 6px,
       </div>
       <div class="status" id="wstatus" aria-live="polite"></div>
       <div class="queue" id="wqueue"></div>
+      </div>
     </div>
   </div>
 </header>

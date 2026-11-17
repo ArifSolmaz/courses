@@ -35,8 +35,13 @@ a{color:var(--wave)}
 .printbtn{background:none;border:1px solid #6b7a88;border-radius:4px;color:#dfe6ec;font:inherit;font-size:.9rem;padding:.2rem .65rem;cursor:pointer}
 
 .hero{background:var(--panel);border-bottom:6px solid var(--hazard)}
-.hero-in{max-width:68rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:2.5rem;align-items:start}
-.hero h1{font-family:var(--display);font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
+.hero-in{max-width:92rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(18rem,1fr) minmax(0,48rem);gap:2.5rem;align-items:start}
+/* live map: map on the left, buttons, status and queue on the right */
+#wave{display:grid;grid-template-columns:minmax(0,23rem) minmax(0,1fr);gap:0 1.25rem;align-items:start}
+#wave .wleft,#wave .wright{min-width:0}
+#wave .grid{max-width:none}
+#wave .wright .controls:first-child{margin-top:0}
+.hero h1{font-family:var(--display);font-size:clamp(1.9rem,3.3vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
 .hero p{max-width:34rem;margin:.6rem 0}
 .hero .meta{color:var(--muted);font-size:.95rem}
 .sitelinks{display:flex;flex-wrap:wrap;gap:.3rem 1.25rem}
@@ -149,7 +154,9 @@ table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;
 .growth output{font-variant-numeric:tabular-nums;font-weight:600}
 input[type=range]{width:100%}
 
-@media (max-width:52rem){.hero-in{grid-template-columns:1fr}.topbar nav{display:none}}
+@media (max-width:64rem){.hero-in{grid-template-columns:1fr}}
+@media (max-width:52rem){.topbar nav{display:none}}
+@media (max-width:42rem){#wave{grid-template-columns:1fr}#wave .grid{max-width:24rem}#wave .wright{margin-top:.75rem}}
 @media print{
   .topbar,.widget,.printbtn,.chk,.chkrow,.chkall,.ibtn,.python-toolbar,.python-hint{display:none !important}
   body{background:#fff;font-size:11pt}
@@ -186,13 +193,14 @@ input[type=range]{width:100%}
       <h1><span class="tr">Robotun 8 birim enerjisi kaldı. Şarj istasyonuna yetişir mi?</span><span class="en">The robot has 8 units of energy left. Can it reach the charger?</span></h1>
       <p class="tr">Bu hafta tek bir soruya bakıyoruz: <strong>girdi büyüyünce iş ne kadar büyür?</strong> Önce kartlarla ve kâğıtla sayacağız, sonra aynı işi robota yaptıracağız. Kod en sonda gelir ve kısa kalır.</p>
       <p class="en">This week has one question: <strong>when the input grows, how much does the work grow?</strong> We count with cards and paper first, then make the robot do the same job. Code comes last and stays short.</p>
-      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın. Haritanın altındaki kutular kuyruktur: hücreler soldan çıkar, sağa eklenir.</p>
-      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls. The boxes under the map are the queue: cells leave on the left and join on the right.</p>
+      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın. Haritanın yanındaki kutular kuyruktur: hücreler soldan çıkar, sağa eklenir.</p>
+      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls. The boxes beside the map are the queue: cells leave on the left and join on the right.</p>
       <p class="meta sitelinks"><a href="../../w7/tr/"><span class="tr">Hafta 7</span><span class="en">Week 7</span></a> <a href="full.html"><span class="tr">Ayrıntılı ders ve zamanlama deneyi</span><span class="en">Full lesson and timing lab</span></a> <a href="../../w9/tr/"><span class="tr">Hafta 9</span><span class="en">Week 9</span></a></p>
       <p class="meta"><span class="tr">180 dakika, ikili çalışma. Ön koşul: Python'da <code>for</code> döngüsü okuyabilmek.</span><span class="en">180 minutes, in pairs. Prerequisite: being able to read a Python <code>for</code> loop.</span></p>
     </div>
 
     <div class="widget" id="wave">
+      <div class="wleft">
       <div class="grid" id="wgrid" role="grid" aria-label="Map"></div>
       <div class="legend">
         <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--hazard)"></span><span class="tr">R robot</span><span class="en">R robot</span></span>
@@ -201,6 +209,8 @@ input[type=range]{width:100%}
         <span><span class="sw" style="outline:3px solid var(--warn);outline-offset:-3px"></span><span class="tr">kuyruktan çıkan</span><span class="en">just removed</span></span>
         <span><span class="sw" style="outline:3px dashed var(--charge);outline-offset:-3px"></span><span class="tr">kuyruğa yeni giren</span><span class="en">just added</span></span>
       </div>
+      </div>
+      <div class="wright">
       <div class="controls">
         <button class="act primary" type="button" id="wlayer"><span class="tr">Bir halka ilerlet</span><span class="en">Advance one ring</span></button>
         <button class="act" type="button" id="wstep"><span class="tr">Tek hücre işle</span><span class="en">Process one cell</span></button>
@@ -216,6 +226,7 @@ input[type=range]{width:100%}
       </div>
       <div class="status" id="wstatus" aria-live="polite"></div>
       <div class="queue" id="wqueue"></div>
+      </div>
     </div>
   </div>
 </header>
