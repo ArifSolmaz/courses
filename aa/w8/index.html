@@ -112,7 +112,20 @@ button.act{cursor:pointer}
 button.act.primary{background:var(--ink);color:#fff}
 button.act:disabled{opacity:.45;cursor:not-allowed}
 .status{font-size:.95rem;min-height:3.2em}
-.queue{font-family:var(--mono);font-size:.85rem;word-break:break-word;color:var(--muted)}
+.queue{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+.qrow{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.3rem 0}
+.qlab{font-size:.82rem;font-weight:600;color:var(--muted);min-width:2.6rem}
+.qbox{min-width:3.2rem;padding:.2rem .35rem;border:2px solid var(--ink);text-align:center;background:#fff;line-height:1.15}
+.qbox b{display:block;font-size:1.05rem}
+.qbox small{display:block;font-family:var(--mono);font-size:.68rem}
+.qbox.out{border-style:dashed;border-color:var(--warn);background:#fff !important;color:var(--warn) !important}
+.qbox.new{box-shadow:0 0 0 3px var(--charge);animation:qin .35s ease-out}
+.qmore{font-size:.85rem;color:var(--muted)}
+.qnote{font-size:.92rem;margin:.4rem 0 0}
+.qnote .k{font-weight:700}
+.cell.new{outline:3px dashed var(--charge);outline-offset:-5px}
+@keyframes qin{from{opacity:0;transform:translateX(10px)}}
+@media (prefers-reduced-motion:reduce){.qbox.new{animation:none}}
 
 .grid{display:grid;gap:3px;background:var(--wall);padding:3px;width:100%;max-width:24rem;aspect-ratio:1}
 .cell{border:0;padding:0;background:#fff;font:600 1rem var(--body);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;min-width:0}
@@ -173,8 +186,8 @@ input[type=range]{width:100%}
       <h1><span class="tr">Robotun 8 birim enerjisi kaldı. Şarj istasyonuna yetişir mi?</span><span class="en">The robot has 8 units of energy left. Can it reach the charger?</span></h1>
       <p class="tr">Bu hafta tek bir soruya bakıyoruz: <strong>girdi büyüyünce iş ne kadar büyür?</strong> Önce kartlarla ve kâğıtla sayacağız, sonra aynı işi robota yaptıracağız. Kod en sonda gelir ve kısa kalır.</p>
       <p class="en">This week has one question: <strong>when the input grows, how much does the work grow?</strong> We count with cards and paper first, then make the robot do the same job. Code comes last and stays short.</p>
-      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın.</p>
-      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls.</p>
+      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın. Haritanın altındaki kutular kuyruktur: hücreler soldan çıkar, sağa eklenir.</p>
+      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls. The boxes under the map are the queue: cells leave on the left and join on the right.</p>
       <p class="meta sitelinks"><a href="../w7/"><span class="tr">Hafta 7</span><span class="en">Week 7</span></a> <a href="full.html"><span class="tr">Ayrıntılı ders ve zamanlama deneyi</span><span class="en">Full lesson and timing lab</span></a> <a href="../w9/"><span class="tr">Hafta 9</span><span class="en">Week 9</span></a></p>
       <p class="meta"><span class="tr">180 dakika, ikili çalışma. Ön koşul: Python'da <code>for</code> döngüsü okuyabilmek.</span><span class="en">180 minutes, in pairs. Prerequisite: being able to read a Python <code>for</code> loop.</span></p>
     </div>
@@ -185,6 +198,8 @@ input[type=range]{width:100%}
         <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--hazard)"></span><span class="tr">R robot</span><span class="en">R robot</span></span>
         <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--charge)"></span><span class="tr">S şarj</span><span class="en">S charger</span></span>
         <span><span class="sw" style="background:var(--wall)"></span><span class="tr">duvar</span><span class="en">wall</span></span>
+        <span><span class="sw" style="outline:3px solid var(--warn);outline-offset:-3px"></span><span class="tr">kuyruktan çıkan</span><span class="en">just removed</span></span>
+        <span><span class="sw" style="outline:3px dashed var(--charge);outline-offset:-3px"></span><span class="tr">kuyruğa yeni giren</span><span class="en">just added</span></span>
       </div>
       <div class="controls">
         <button class="act primary" type="button" id="wlayer"><span class="tr">Bir halka ilerlet</span><span class="en">Advance one ring</span></button>
@@ -924,6 +939,11 @@ print("C:", count)</pre>
         energy:function(ok){return ok?' 8 birim enerji yeter.':' 8 birim enerji yetmez.';},
         none:function(p){return 'Kuyruk boşaldı ve S\'ye ulaşılamadı: yol yok. İşlenen hücre: '+p+'.';},
         queue:'Kuyruk: ',empty:'boş',more:' ve '+'{n}'+' hücre daha',
+        qout:'Çıkan',qin:'Kuyruk',qhead:'baş',qtail:'son',qempty:'Kuyruk boş.',
+        q0:'Başta kuyrukta yalnızca R var. "Tek hücre işle"ye basın: R baştan çıkar, komşuları sona girer.',
+        qstep:function(o,a){return o+' baştan çıktı'+(a?'; '+a+' sona eklendi.':'; yeni komşu yok, sona kimse eklenmedi.');},
+        qfound:function(o,g){return o+' baştan çıktı. '+g+' S hücresidir: arama bitti.';},
+        qnone:'Kuyruk boşaldı: işlenecek hücre kalmadı.',
         gstart:function(n,m){return '1 ile '+n+' arasında bir sayı tuttum. En fazla '+m+' tahmin yeter.';},
         ghigh:'Daha büyük.',glow:'Daha küçük.',
         gstate:function(k,lo,hi){return ' Tahmin sayısı: '+k+'. Kalan aralık: '+lo+'–'+hi+' ('+(hi-lo+1)+' sayı).';},
@@ -936,6 +956,11 @@ print("C:", count)</pre>
         energy:function(ok){return ok?' 8 units of energy are enough.':' 8 units of energy are not enough.';},
         none:function(p){return 'The queue is empty and S was never reached: no route. Cells processed: '+p+'.';},
         queue:'Queue: ',empty:'empty',more:' and '+'{n}'+' more',
+        qout:'Removed',qin:'Queue',qhead:'front',qtail:'back',qempty:'The queue is empty.',
+        q0:'At first only R is in the queue. Select "Process one cell": R leaves the front and its neighbours join the back.',
+        qstep:function(o,a){return o+' left the front'+(a?'; '+a+' joined the back.':'; no new neighbours, nothing joined the back.');},
+        qfound:function(o,g){return o+' left the front. '+g+' is cell S: the search is over.';},
+        qnone:'The queue is empty: no cells left to process.',
         gstart:function(n,m){return 'I picked a number between 1 and '+n+'. At most '+m+' guesses are needed.';},
         ghigh:'Higher.',glow:'Lower.',
         gstate:function(k,lo,hi){return ' Guesses so far: '+k+'. Remaining range: '+lo+'–'+hi+' ('+(hi-lo+1)+' numbers).';},
@@ -948,21 +973,21 @@ print("C:", count)</pre>
   /* ---------- wave widget ---------- */
   var DEF=['R..#.','.#.#.','.#...','..#.#','#...S'];
   var DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
-  var W={n:5,walls:{},dist:{},queue:[],cur:null,pops:0,done:false,found:false,path:{},isDef:true};
+  var W={n:5,walls:{},dist:{},queue:[],cur:null,pops:0,done:false,found:false,path:{},isDef:true,out:[],added:[]};
   var gridEl=document.getElementById('wgrid'),statusEl=document.getElementById('wstatus'),queueEl=document.getElementById('wqueue');
   function key(r,c){return r+','+c;}
   function loadDefault(){W.n=5;W.walls={};for(var r=0;r<5;r++)for(var c=0;c<5;c++)if(DEF[r][c]==='#')W.walls[key(r,c)]=true;W.isDef=true;document.getElementById('wsize').value='5';clearWave();}
   function randomWalls(){W.walls={};var n=W.n;for(var r=0;r<n;r++)for(var c=0;c<n;c++){if((r===0&&c===0)||(r===n-1&&c===n-1))continue;if(Math.random()<0.24)W.walls[key(r,c)]=true;}W.isDef=false;clearWave();}
-  function clearWave(){W.dist={};W.dist[key(0,0)]=0;W.queue=[[0,0]];W.cur=null;W.pops=0;W.done=false;W.found=false;W.path={};render();}
+  function clearWave(){W.dist={};W.dist[key(0,0)]=0;W.queue=[[0,0]];W.cur=null;W.pops=0;W.out=[];W.added=[];W.done=false;W.found=false;W.path={};render();}
   function stepCell(){
     if(W.done)return;
     if(!W.queue.length){W.done=true;W.cur=null;return;}
-    var cell=W.queue.shift(),r=cell[0],c=cell[1];W.cur=key(r,c);W.pops++;
+    var cell=W.queue.shift(),r=cell[0],c=cell[1];W.cur=key(r,c);W.pops++;W.out.push(key(r,c));
     if(r===W.n-1&&c===W.n-1){W.done=true;W.found=true;tracePath();return;}
     for(var i=0;i<4;i++){var y=r+DIRS[i][0],x=c+DIRS[i][1];
       if(y<0||x<0||y>=W.n||x>=W.n)continue;var k=key(y,x);
       if(W.walls[k]||W.dist[k]!==undefined)continue;
-      W.dist[k]=W.dist[key(r,c)]+1;W.queue.push([y,x]);}
+      W.dist[k]=W.dist[key(r,c)]+1;W.queue.push([y,x]);W.added.push(k);}
     if(!W.queue.length){W.done=true;}
   }
   function stepLayer(){
@@ -991,7 +1016,8 @@ print("C:", count)</pre>
           b.appendChild(document.createTextNode(d));label+=' '+d;}
         if(isS||isG){var t=document.createElement('span');t.className='tag';t.textContent=isS?'R':'S';b.appendChild(t);b.className+=isS?' start':' goal';label+=isS?' R':' S';}
         if(W.path[k])b.className+=' path';
-        if(W.cur===k)b.className+=' cur';
+        if(W.out.indexOf(k)>=0)b.className+=' cur';
+        if(W.added.indexOf(k)>=0)b.className+=' new';
       }
       b.setAttribute('aria-label',label);b.dataset.r=r;b.dataset.c=c;
       gridEl.appendChild(b);
@@ -1002,18 +1028,43 @@ print("C:", count)</pre>
     else if(W.pops===0){msg=t.start;}
     else{msg=t.running(W.pops,maxL);}
     statusEl.textContent=msg;
-    var q=W.queue.slice(0,10).map(function(x){return '('+x[0]+','+x[1]+')';}).join(' ');
-    if(W.queue.length>10)q+=t.more.replace('{n}',W.queue.length-10);
-    queueEl.textContent=W.done?'':t.queue+(W.queue.length?q:t.empty);
+    drawQueue(t,n);
     document.getElementById('wlayer').disabled=W.done;document.getElementById('wstep').disabled=W.done;
+  }
+  function shade(d,n){var light=92-Math.min(d,2*n)*(46/(2*n));return ['hsl(207,56%,'+light+'%)',light<62?'#fff':'#16202b'];}
+  function qbox(k,n,cls){var p=k.split(','),d=W.dist[k],b=document.createElement('span'),col=shade(d,n);
+    b.className='qbox'+(cls?' '+cls:'');b.style.background=col[0];b.style.color=col[1];
+    var v=document.createElement('b');v.textContent=d;var s=document.createElement('small');s.textContent='('+p[0]+','+p[1]+')';
+    b.appendChild(v);b.appendChild(s);return b;}
+  function lab(txt){var e=document.createElement('span');e.className='qlab';e.textContent=txt;return e;}
+  function names(list){var s=list.slice(0,6).map(function(k){return '('+k+')';}).join(', ');return list.length>6?s+' …':s;}
+  function drawQueue(t,n){
+    queueEl.innerHTML='';
+    if(W.out.length){var r1=document.createElement('div');r1.className='qrow';r1.appendChild(lab(t.qout));
+      W.out.slice(-6).forEach(function(k){r1.appendChild(qbox(k,n,'out'));});
+      if(W.out.length>6){var m=document.createElement('span');m.className='qmore';m.textContent='+'+(W.out.length-6);r1.appendChild(m);}
+      queueEl.appendChild(r1);}
+    var r2=document.createElement('div');r2.className='qrow';r2.appendChild(lab(t.qin+' · '+t.qhead));
+    var max=12;
+    W.queue.slice(0,max).forEach(function(x){var k=key(x[0],x[1]);r2.appendChild(qbox(k,n,W.added.indexOf(k)>=0?'new':''));});
+    if(W.queue.length>max){var m2=document.createElement('span');m2.className='qmore';m2.textContent=t.more.replace('{n}',W.queue.length-max);r2.appendChild(m2);}
+    if(!W.queue.length){var e=document.createElement('span');e.className='qmore';e.textContent=t.qempty;r2.appendChild(e);}
+    else r2.appendChild(lab(t.qtail));
+    queueEl.appendChild(r2);
+    var note=document.createElement('p');note.className='qnote';
+    if(!W.out.length)note.textContent=t.q0;
+    else if(W.found&&W.out[W.out.length-1]===key(n-1,n-1))note.textContent=t.qfound(names(W.out),'('+key(n-1,n-1)+')');
+    else if(W.done&&!W.queue.length)note.textContent=t.qstep(names(W.out),names(W.added))+' '+t.qnone;
+    else note.textContent=t.qstep(names(W.out),names(W.added));
+    queueEl.appendChild(note);
   }
   gridEl.addEventListener('click',function(e){
     var b=e.target.closest('.cell');if(!b)return;var r=+b.dataset.r,c=+b.dataset.c,n=W.n;
     if((r===0&&c===0)||(r===n-1&&c===n-1))return;
     var k=key(r,c);if(W.walls[k])delete W.walls[k];else W.walls[k]=true;W.isDef=false;clearWave();
   });
-  document.getElementById('wlayer').onclick=function(){stepLayer();render();};
-  document.getElementById('wstep').onclick=function(){stepCell();render();};
+  document.getElementById('wlayer').onclick=function(){W.out=[];W.added=[];stepLayer();render();};
+  document.getElementById('wstep').onclick=function(){W.out=[];W.added=[];stepCell();render();};
   document.getElementById('wclear').onclick=clearWave;
   document.getElementById('wdef').onclick=loadDefault;
   document.getElementById('wrand').onclick=randomWalls;
