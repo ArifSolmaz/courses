@@ -152,6 +152,12 @@ table.paper.small td{width:3rem;height:3rem}
 table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;color:var(--ink)}
 
 .growth output{font-variant-numeric:tabular-nums;font-weight:600}
+.axes{display:grid;grid-template-columns:repeat(3,minmax(0,11rem));gap:4px;margin:1rem 0;font-family:var(--mono);font-size:.82rem}
+.axes .ax{border:2px solid var(--ink);background:#fff;padding:.4rem .3rem;text-align:center;line-height:1.3}
+.axes .ax small{display:block;font-family:var(--body);color:var(--muted);font-size:.78rem}
+.axes .ax.me{background:var(--ink);color:#fff}.axes .ax.me small{color:#cfd6db}
+table.codeexp td.num{width:4.5rem;white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+table.trace td:first-child{white-space:nowrap}
 .gcalc-h{margin:1rem 0 .2rem}
 #gcalc{font-size:.8rem}
 input[type=range]{width:100%}
@@ -367,27 +373,43 @@ harita = [
     ".##..",
     "....S",
 ]
-MALIYET = {".": 1, "h": 4, "R": 1, "S": 1}     # bir hücreye girmenin enerjisi
+# bir hücreye girmenin enerjisi: boş 1, halı 4
+MALIYET = {".": 1, "h": 4, "R": 1, "S": 1}
+
+# Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar
+YONLER = [
+    (-1, 0),   # yukarı: bir satır yukarı, sütun aynı
+    (0, 1),    # sağ:    satır aynı, bir sütun sağa
+    (1, 0),    # aşağı:  bir satır aşağı, sütun aynı
+    (0, -1),   # sol:    satır aynı, bir sütun sola
+]
 
 def en_ucuz_rota(harita, baslangic, hedef):
+    satir_sayisi = len(harita)
+    sutun_sayisi = len(harita[0])
     en_ucuz = {baslangic: 0}               # hücrelere yazdığımız sayılar
     bekleyenler = [(0, baslangic)]         # (sayı, hücre) çiftleri
     while bekleyenler:
-        sayi, (r, c) = heapq.heappop(bekleyenler)    # en küçük sayılıyı al
-        if sayi &gt; en_ucuz[(r, c)]:
+        # en küçük sayılı çifti al
+        sayi, (satir, sutun) = heapq.heappop(bekleyenler)
+        if sayi &gt; en_ucuz[(satir, sutun)]:
             continue                       # üzeri çizilmiş eski bir sayı
-        if (r, c) == hedef:
+        if (satir, sutun) == hedef:
             return sayi                    # hedef daire içine alındı
-        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-            yr, yc = r + dr, c + dc
-            if not (0 &lt;= yr &lt; len(harita) and 0 &lt;= yc &lt; len(harita[0])):
-                continue                   # harita dışı
-            if harita[yr][yc] == "#":
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu_satir = satir + satir_adimi
+            komsu_sutun = sutun + sutun_adimi
+            komsu = (komsu_satir, komsu_sutun)
+            if komsu_satir &lt; 0 or komsu_satir &gt;= satir_sayisi:
+                continue                   # harita dışı (üst ya da alt)
+            if komsu_sutun &lt; 0 or komsu_sutun &gt;= sutun_sayisi:
+                continue                   # harita dışı (sol ya da sağ)
+            if harita[komsu_satir][komsu_sutun] == "#":
                 continue                   # duvar
-            yeni = sayi + MALIYET[harita[yr][yc]]
-            if yeni &lt; en_ucuz.get((yr, yc), float("inf")):
-                en_ucuz[(yr, yc)] = yeni
-                heapq.heappush(bekleyenler, (yeni, (yr, yc)))
+            yeni = sayi + MALIYET[harita[komsu_satir][komsu_sutun]]
+            if yeni &lt; en_ucuz.get(komsu, float("inf")):
+                en_ucuz[komsu] = yeni
+                heapq.heappush(bekleyenler, (yeni, komsu))
     return None                            # yol yok
 
 print(en_ucuz_rota(harita, (0, 0), (4, 4)))</pre>
@@ -400,39 +422,65 @@ grid = [
     ".##..",
     "....S",
 ]
-COST = {".": 1, "h": 4, "R": 1, "S": 1}        # energy needed to enter a cell
+# energy needed to enter a cell: plain 1, carpet 4
+COST = {".": 1, "h": 4, "R": 1, "S": 1}
+
+# What to add to the row and the column to reach each neighbour
+MOVES = [
+    (-1, 0),   # up:    one row up, same column
+    (0, 1),    # right: same row, one column right
+    (1, 0),    # down:  one row down, same column
+    (0, -1),   # left:  same row, one column left
+]
 
 def cheapest_route(grid, start, goal):
+    rows = len(grid)
+    cols = len(grid[0])
     best = {start: 0}                      # the numbers we write in cells
     waiting = [(0, start)]                 # (number, cell) pairs
     while waiting:
-        number, (r, c) = heapq.heappop(waiting)      # take the smallest number
-        if number &gt; best[(r, c)]:
+        # take the pair with the smallest number
+        number, (row, col) = heapq.heappop(waiting)
+        if number &gt; best[(row, col)]:
             continue                       # an old, crossed-out number
-        if (r, c) == goal:
+        if (row, col) == goal:
             return number                  # the goal has been circled
-        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-            nr, nc = r + dr, c + dc
-            if not (0 &lt;= nr &lt; len(grid) and 0 &lt;= nc &lt; len(grid[0])):
-                continue                   # off the map
-            if grid[nr][nc] == "#":
+        for row_step, col_step in MOVES:
+            next_row = row + row_step
+            next_col = col + col_step
+            neighbour = (next_row, next_col)
+            if next_row &lt; 0 or next_row &gt;= rows:
+                continue                   # off the map (top or bottom)
+            if next_col &lt; 0 or next_col &gt;= cols:
+                continue                   # off the map (left or right)
+            if grid[next_row][next_col] == "#":
                 continue                   # wall
-            new = number + COST[grid[nr][nc]]
-            if new &lt; best.get((nr, nc), float("inf")):
-                best[(nr, nc)] = new
-                heapq.heappush(waiting, (new, (nr, nc)))
+            new = number + COST[grid[next_row][next_col]]
+            if new &lt; best.get(neighbour, float("inf")):
+                best[neighbour] = new
+                heapq.heappush(waiting, (new, neighbour))
     return None                            # no route
 
 print(cheapest_route(grid, (0, 0), (4, 4)))</pre>
 </div>
+<div class="tr"><h3>Kod satır satır</h3><p>Hücreler geçen haftaki gibi <code>(satır, sütun)</code> numarasıyla adlandırılır; sol üst köşe <code>(0, 0)</code>, S hücresi <code>(4, 4)</code>. Komşuya gitmek için satıra ve sütuna <code>YONLER</code> listesindeki sayılar eklenir:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(satir − 1, sutun)<small>yukarı: (−1, 0)</small></span><span></span>
+<span class="ax">(satir, sutun − 1)<small>sol: (0, −1)</small></span><span class="ax me">(satir, sutun)<small>şimdiki hücre</small></span><span class="ax">(satir, sutun + 1)<small>sağ: (0, 1)</small></span>
+<span></span><span class="ax">(satir + 1, sutun)<small>aşağı: (1, 0)</small></span><span></span>
+</div><p>Geçen haftanın kodundan farklı olan satırlar: <code>MALIYET</code>, öbek (<code>heapq</code>), eski sayıyı atlayan satır ve "daha küçük mü?" denetimi.</p><div class="scroll"><table class="codeexp"><tr><th>Satır</th><th>Ne yapar</th></tr><tr><td class="num">1</td><td>Python'un hazır öbek araçlarını getirir. <code>heappop</code> listedeki en küçük elemanı verir, <code>heappush</code> yeni eleman ekler.</td></tr><tr><td class="num">3–9</td><td>Harita, her biri bir satır olan beş metindir. <code>"h"</code> halı hücresidir.</td></tr><tr><td class="num">11</td><td>Bir hücreye girmenin enerjisi: boş hücre, R ve S için 1, halı için 4. <code>MALIYET["h"]</code> 4 verir.</td></tr><tr><td class="num">14–18</td><td>Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar: yukarı, sağ, aşağı, sol.</td></tr><tr><td class="num">22–23</td><td>Haritanın kaç satır ve kaç sütun olduğu.</td></tr><tr><td class="num">24</td><td>Sözlük: hücre → şimdiye kadar bulunan en ucuz sayı. Kâğıtta kurşun kalemle yazdığınız sayılar.</td></tr><tr><td class="num">25</td><td>Daire içine alınmayı bekleyen <code>(sayı, hücre)</code> çiftleri. Sayı önde olduğu için öbek bunları sayıya göre sıralar.</td></tr><tr><td class="num">26</td><td>Bekleyen olduğu sürece tekrar et.</td></tr><tr><td class="num">28</td><td>En küçük sayılı çifti al ve parçalarına ayır: <code>sayi</code>, <code>satir</code>, <code>sutun</code>. Kâğıttaki "en küçüğü daire içine al" adımı budur.</td></tr><tr><td class="num">29–30</td><td>Bu hücre için sonradan daha küçük bir sayı bulunmuşsa, elimizdeki eski kayıttır: atla.</td></tr><tr><td class="num">31–32</td><td>Hedef daire içine alındıysa sayısı kesindir: döndür.</td></tr><tr><td class="num">33</td><td>Dört yönü sırayla dene.</td></tr><tr><td class="num">34–36</td><td>Komşunun numaraları: şimdiki hücre + yön.</td></tr><tr><td class="num">37–40</td><td>Harita dışına taşan yönleri atla (önce satır, sonra sütun).</td></tr><tr><td class="num">41</td><td>Duvarsa atla.</td></tr><tr><td class="num">43</td><td>Komşuya bu yoldan gitmenin maliyeti: daire içindeki sayı + komşuya girmenin enerjisi.</td></tr><tr><td class="num">44</td><td>Bu, komşunun şimdiki sayısından küçük mü? Komşunun henüz sayısı yoksa <code>get</code> sonsuz (<code>float("inf")</code>) verir; her sayı ondan küçüktür.</td></tr><tr><td class="num">45–46</td><td>Küçükse yeni sayıyı yaz ve komşuyu bekleyenlere ekle. Kâğıtta: eskisinin üzerini çiz, yenisini yaz.</td></tr><tr><td class="num">47</td><td>Bekleyen kalmadı ve hedefe varılmadı: yol yok.</td></tr></table></div><h3>Örnek: <code>(0, 1)</code> daire içine alındığında</h3><p>Adım tablosunun 2. adımı. <code>sayi = 1</code>; döngü dört yönü sırayla dener:</p><div class="scroll"><table class="trace"><tr><th>Yön</th><th>komsu</th><th>Hücre</th><th>Hesap</th><th>Sonuç</th></tr><tr><td>yukarı</td><td>(−1, 1)</td><td></td><td></td><td>Harita dışı, atla</td></tr><tr><td>sağ</td><td>(0, 2)</td><td>"h", halı</td><td>yeni = 1 + 4 = 5</td><td>Sayısı yok (sonsuz): 5 yazılır, bekleyenlere eklenir</td></tr><tr><td>aşağı</td><td>(1, 1)</td><td>".", boş</td><td>yeni = 1 + 1 = 2</td><td>Sayısı yok: 2 yazılır, bekleyenlere eklenir</td></tr><tr><td>sol</td><td>(0, 0)</td><td>"R"</td><td>yeni = 1 + 1 = 2</td><td>Şimdiki sayısı 0; 2, 0'dan küçük değil: değişmez</td></tr></table></div><p>Sonuç: bekleyenler <code>(1, 1)=2, (0, 2)=5</code> olur; tablodaki 2. satırla aynı.</p></div>
+<div class="en"><h3>The code line by line</h3><p>Cells are named by <code>(row, column)</code> as last week; the top-left corner is <code>(0, 0)</code> and S is <code>(4, 4)</code>. To reach a neighbour, the numbers in <code>MOVES</code> are added to the row and column:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(row − 1, col)<small>up: (−1, 0)</small></span><span></span>
+<span class="ax">(row, col − 1)<small>left: (0, −1)</small></span><span class="ax me">(row, col)<small>current cell</small></span><span class="ax">(row, col + 1)<small>right: (0, 1)</small></span>
+<span></span><span class="ax">(row + 1, col)<small>down: (1, 0)</small></span><span></span>
+</div><p>The lines that differ from last week's code: <code>COST</code>, the heap (<code>heapq</code>), the line that skips old numbers, and the "is it smaller?" check.</p><div class="scroll"><table class="codeexp"><tr><th>Line</th><th>What it does</th></tr><tr><td class="num">1</td><td>Brings in Python's ready-made heap tools. <code>heappop</code> gives the smallest item in the list, <code>heappush</code> adds a new one.</td></tr><tr><td class="num">3–9</td><td>The map is five strings, one per row. <code>"h"</code> is a carpet cell.</td></tr><tr><td class="num">11</td><td>The energy to enter a cell: 1 for a plain cell, R and S, 4 for carpet. <code>COST["h"]</code> gives 4.</td></tr><tr><td class="num">14–18</td><td>What to add to the row and column to reach each neighbour: up, right, down, left.</td></tr><tr><td class="num">22–23</td><td>How many rows and columns the map has.</td></tr><tr><td class="num">24</td><td>A dictionary: cell → cheapest number found so far. The numbers you wrote in pencil.</td></tr><tr><td class="num">25</td><td><code>(number, cell)</code> pairs waiting to be circled. The number comes first, so the heap orders them by number.</td></tr><tr><td class="num">26</td><td>Repeat as long as something is waiting.</td></tr><tr><td class="num">28</td><td>Take the pair with the smallest number and split it: <code>number</code>, <code>row</code>, <code>col</code>. This is "circle the smallest" from the paper method.</td></tr><tr><td class="num">29–30</td><td>If a smaller number has since been found for this cell, this is an old record: skip it.</td></tr><tr><td class="num">31–32</td><td>If the goal has been circled, its number is final: return it.</td></tr><tr><td class="num">33</td><td>Try the four moves in turn.</td></tr><tr><td class="num">34–36</td><td>The neighbour's numbers: current cell + move.</td></tr><tr><td class="num">37–40</td><td>Skip moves that fall off the map (row first, then column).</td></tr><tr><td class="num">41</td><td>Skip walls.</td></tr><tr><td class="num">43</td><td>The cost of reaching the neighbour this way: the circled number + the energy to enter the neighbour.</td></tr><tr><td class="num">44</td><td>Is that smaller than the neighbour's current number? If the neighbour has no number yet, <code>get</code> gives infinity (<code>float("inf")</code>), and every number is smaller.</td></tr><tr><td class="num">45–46</td><td>If smaller, write the new number and add the neighbour to the waiting list. On paper: cross out the old one and write the new one.</td></tr><tr><td class="num">47</td><td>Nothing is waiting and the goal was never reached: no route.</td></tr></table></div><h3>Example: when <code>(0, 1)</code> is circled</h3><p>Step 2 of the step table. <code>number = 1</code>; the loop tries the four moves in turn:</p><div class="scroll"><table class="trace"><tr><th>Move</th><th>neighbour</th><th>Cell</th><th>Working</th><th>Result</th></tr><tr><td>up</td><td>(−1, 1)</td><td></td><td></td><td>Off the map, skip</td></tr><tr><td>right</td><td>(0, 2)</td><td>"h", carpet</td><td>new = 1 + 4 = 5</td><td>No number yet (infinity): 5 is written and added to the waiting list</td></tr><tr><td>down</td><td>(1, 1)</td><td>".", plain</td><td>new = 1 + 1 = 2</td><td>No number yet: 2 is written and added to the waiting list</td></tr><tr><td>left</td><td>(0, 0)</td><td>"R"</td><td>new = 1 + 1 = 2</td><td>Its number is 0; 2 is not smaller than 0: unchanged</td></tr></table></div><p>Result: waiting becomes <code>(1, 1)=2, (0, 2)=5</code>, the same as row 2 of the step table.</p></div>
 <h3><span class="tr">Kâğıtla eşleştirme</span><span class="en">Matching code to paper</span></h3>
-<div class="scroll"><table class="tr"><tr><th>Kâğıtta</th><th>Kodda</th></tr><tr><td>Hücrelere yazdığınız sayılar</td><td><code>en_ucuz</code> sözlüğü</td></tr><tr><td>Daire içine alınmayı bekleyen sayılar</td><td><code>bekleyenler</code> öbeği</td></tr><tr><td>"En küçük sayıyı daire içine al"</td><td><code>heapq.heappop(bekleyenler)</code></td></tr><tr><td>"Daire içindeki sayı + girmenin maliyeti"</td><td><code>yeni = sayi + MALIYET[...]</code></td></tr><tr><td>"Daha küçükse üzerini çiz, yenisini yaz"</td><td><code>if yeni &lt; en_ucuz.get(...)</code></td></tr><tr><td>"S daire içine alınınca dur"</td><td><code>if (r, c) == hedef: return sayi</code></td></tr></table></div>
-<div class="scroll"><table class="en"><tr><th>On paper</th><th>In code</th></tr><tr><td>The numbers you wrote in cells</td><td>the <code>best</code> dictionary</td></tr><tr><td>The numbers waiting to be circled</td><td>the <code>waiting</code> heap</td></tr><tr><td>"Circle the smallest number"</td><td><code>heapq.heappop(waiting)</code></td></tr><tr><td>"The circled number + the cost of entering"</td><td><code>new = number + COST[...]</code></td></tr><tr><td>"If smaller, cross out and write the new one"</td><td><code>if new &lt; best.get(...)</code></td></tr><tr><td>"Stop when S is circled"</td><td><code>if (r, c) == goal: return number</code></td></tr></table></div>
+<div class="scroll"><table class="tr"><tr><th>Kâğıtta</th><th>Kodda</th></tr><tr><td>Hücrelere yazdığınız sayılar</td><td><code>en_ucuz</code> sözlüğü</td></tr><tr><td>Daire içine alınmayı bekleyen sayılar</td><td><code>bekleyenler</code> öbeği</td></tr><tr><td>"En küçük sayıyı daire içine al"</td><td><code>heapq.heappop(bekleyenler)</code></td></tr><tr><td>"Daire içindeki sayı + girmenin maliyeti"</td><td><code>yeni = sayi + MALIYET[harita[komsu_satir][komsu_sutun]]</code></td></tr><tr><td>"Daha küçükse üzerini çiz, yenisini yaz"</td><td><code>if yeni &lt; en_ucuz.get(komsu, float("inf"))</code></td></tr><tr><td>"S daire içine alınınca dur"</td><td><code>if (satir, sutun) == hedef: return sayi</code></td></tr></table></div>
+<div class="scroll"><table class="en"><tr><th>On paper</th><th>In code</th></tr><tr><td>The numbers you wrote in cells</td><td>the <code>best</code> dictionary</td></tr><tr><td>The numbers waiting to be circled</td><td>the <code>waiting</code> heap</td></tr><tr><td>"Circle the smallest number"</td><td><code>heapq.heappop(waiting)</code></td></tr><tr><td>"The circled number + the cost of entering"</td><td><code>new = number + COST[grid[next_row][next_col]]</code></td></tr><tr><td>"If smaller, cross out and write the new one"</td><td><code>if new &lt; best.get(neighbour, float("inf"))</code></td></tr><tr><td>"Stop when S is circled"</td><td><code>if (row, col) == goal: return number</code></td></tr></table></div>
 <h3><span class="tr">Görevler</span><span class="en">Tasks</span></h3>
 <p class="tr">Her görevde önce tahmininizi yazın, sonra kodu çalıştırın. Kod bu sayfada çalışır: değiştirmek için "Kodu düzenle"ye, çalıştırmak için "Çalıştır"a basın; "Örneği yükle" kodu ilk haline döndürür. Her görevden önce örneği yeniden yükleyin.</p>
 <p class="en">For each task, write your prediction first, then run the code. The code runs on this page: select "Edit code" to change it and "Run" to run it; "Restore example" brings back the original. Restore the example before each task.</p>
-<ol class="tr"><li>Kodu hiç değiştirmeden çalıştırın. Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li><code>MALIYET</code> içinde halının maliyetini 1 yapın (<code>"h": 1</code>). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li>Haritanın üçüncü satırını <code>".#.#h"</code> yapın (bir duvar eklendi). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li><code>if sayi &gt; en_ucuz[(r, c)]: continue</code> satırı ne işe yarar? Çalıştırmadan tartışın. <span class="blank long"></span></li><li><code>heapq.heappop</code> yerine listenin sonundaki elemanı alsaydınız ne olurdu? <span class="blank long"></span></li></ol>
-<ol class="en"><li>Run the code unchanged. What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>In <code>COST</code>, make carpet cost 1 (<code>"h": 1</code>). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>Change the third row of the map to <code>".#.#h"</code> (one wall added). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>What is the line <code>if number &gt; best[(r, c)]: continue</code> for? Discuss without running it. <span class="blank long"></span></li><li>What would happen if you took the last item of the list instead of using <code>heapq.heappop</code>? <span class="blank long"></span></li></ol>
+<ol class="tr"><li>Kodu hiç değiştirmeden çalıştırın. Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li><code>MALIYET</code> içinde halının maliyetini 1 yapın (<code>"h": 1</code>). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li>Haritanın üçüncü satırını <code>".#.#h"</code> yapın (bir duvar eklendi). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li><li><code>if sayi &gt; en_ucuz[(satir, sutun)]: continue</code> satırları ne işe yarar? Çalıştırmadan tartışın. <span class="blank long"></span></li><li><code>heapq.heappop</code> yerine listenin sonundaki elemanı alsaydınız ne olurdu? <span class="blank long"></span></li></ol>
+<ol class="en"><li>Run the code unchanged. What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>In <code>COST</code>, make carpet cost 1 (<code>"h": 1</code>). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>Change the third row of the map to <code>".#.#h"</code> (one wall added). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li><li>What are the lines <code>if number &gt; best[(row, col)]: continue</code> for? Discuss without running it. <span class="blank long"></span></li><li>What would happen if you took the last item of the list instead of using <code>heapq.heappop</code>? <span class="blank long"></span></li></ol>
 <details><summary><span class="tr">Ek: dört istasyonu kodla çözmek</span><span class="en">Extra: solving the four stations in code</span></summary>
 <p class="tr">Aynı kural, ızgara yerine koridor listesiyle çalışır. Bu sürüm her adımı yazdırır; üzeri çizilen sayıların atlandığını görebilirsiniz.</p>
 <p class="en">The same rule works with a list of corridors instead of a grid. This version prints every step, so you can see the crossed-out numbers being skipped.</p>
