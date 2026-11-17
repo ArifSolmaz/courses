@@ -152,6 +152,12 @@ table.paper.small td{width:3rem;height:3rem}
 table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;color:var(--ink)}
 
 .growth output{font-variant-numeric:tabular-nums;font-weight:600}
+.axes{display:grid;grid-template-columns:repeat(3,minmax(0,11rem));gap:4px;margin:1rem 0;font-family:var(--mono);font-size:.82rem}
+.axes .ax{border:2px solid var(--ink);background:#fff;padding:.4rem .3rem;text-align:center;line-height:1.3}
+.axes .ax small{display:block;font-family:var(--body);color:var(--muted);font-size:.78rem}
+.axes .ax.me{background:var(--ink);color:#fff}.axes .ax.me small{color:#cfd6db}
+table.codeexp td.num{width:4.5rem;white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+table.trace td:first-child{white-space:nowrap}
 .gcalc-h{margin:1rem 0 .2rem}
 #gcalc{font-size:.8rem}
 input[type=range]{width:100%}
@@ -500,20 +506,38 @@ harita = [
     "#...S",
 ]
 
+# Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar
+YONLER = [
+    (-1, 0),   # yukarı: bir satır yukarı, sütun aynı
+    (0, 1),    # sağ:    satır aynı, bir sütun sağa
+    (1, 0),    # aşağı:  bir satır aşağı, sütun aynı
+    (0, -1),   # sol:    satır aynı, bir sütun sola
+]
+
 def en_kisa_hamle(harita, baslangic, hedef):
+    satir_sayisi = len(harita)         # 5 satır
+    sutun_sayisi = len(harita[0])      # 5 sütun
     kuyruk = deque([baslangic])        # sırası gelen hücreler
     uzaklik = {baslangic: 0}           # hücrelere yazdığımız sayılar
     while kuyruk:
-        r, c = kuyruk.popleft()        # sıranın başındakini al
-        if (r, c) == hedef:
-            return uzaklik[(r, c)]
-        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-            yr, yc = r + dr, c + dc
-            if 0 &lt;= yr &lt; len(harita) and 0 &lt;= yc &lt; len(harita[0]):
-                if harita[yr][yc] != "#" and (yr, yc) not in uzaklik:
-                    uzaklik[(yr, yc)] = uzaklik[(r, c)] + 1
-                    kuyruk.append((yr, yc))   # sıranın sonuna ekle
-    return None                        # yol yok
+        satir, sutun = kuyruk.popleft()           # sıranın başındakini al
+        if (satir, sutun) == hedef:
+            return uzaklik[(satir, sutun)]
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu_satir = satir + satir_adimi
+            komsu_sutun = sutun + sutun_adimi
+            komsu = (komsu_satir, komsu_sutun)
+            if komsu_satir &lt; 0 or komsu_satir &gt;= satir_sayisi:
+                continue                     # harita dışı (üst ya da alt)
+            if komsu_sutun &lt; 0 or komsu_sutun &gt;= sutun_sayisi:
+                continue                     # harita dışı (sol ya da sağ)
+            if harita[komsu_satir][komsu_sutun] == "#":
+                continue                           # duvar
+            if komsu in uzaklik:
+                continue                           # zaten sayı yazılmış
+            uzaklik[komsu] = uzaklik[(satir, sutun)] + 1
+            kuyruk.append(komsu)                   # sıranın sonuna ekle
+    return None                                  # kuyruk boşaldı: yol yok
 
 print(en_kisa_hamle(harita, (0, 0), (4, 4)))</pre>
 
@@ -527,42 +551,71 @@ grid = [
     "#...S",
 ]
 
+# What to add to the row and the column to reach each neighbour
+MOVES = [
+    (-1, 0),   # up:    one row up, same column
+    (0, 1),    # right: same row, one column right
+    (1, 0),    # down:  one row down, same column
+    (0, -1),   # left:  same row, one column left
+]
+
 def fewest_moves(grid, start, goal):
+    rows = len(grid)                   # 5 rows
+    cols = len(grid[0])                # 5 columns
     queue = deque([start])             # cells waiting their turn
     dist = {start: 0}                  # the numbers we write in cells
     while queue:
-        r, c = queue.popleft()         # take the one at the front
-        if (r, c) == goal:
-            return dist[(r, c)]
-        for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-            nr, nc = r + dr, c + dc
-            if 0 &lt;= nr &lt; len(grid) and 0 &lt;= nc &lt; len(grid[0]):
-                if grid[nr][nc] != "#" and (nr, nc) not in dist:
-                    dist[(nr, nc)] = dist[(r, c)] + 1
-                    queue.append((nr, nc))    # join the back of the line
-    return None                        # no route
+        row, col = queue.popleft()             # take the one at the front
+        if (row, col) == goal:
+            return dist[(row, col)]
+        for row_step, col_step in MOVES:
+            next_row = row + row_step
+            next_col = col + col_step
+            neighbour = (next_row, next_col)
+            if next_row &lt; 0 or next_row &gt;= rows:
+                continue                     # off the map (top or bottom)
+            if next_col &lt; 0 or next_col &gt;= cols:
+                continue                     # off the map (left or right)
+            if grid[next_row][next_col] == "#":
+                continue                           # wall
+            if neighbour in dist:
+                continue                           # already has a number
+            dist[neighbour] = dist[(row, col)] + 1
+            queue.append(neighbour)            # join the back of the line
+    return None                                 # queue is empty: no route
 
 print(fewest_moves(grid, (0, 0), (4, 4)))</pre>
 </div>
+
+  <div class="tr"><h3>Kod satır satır</h3><p>Haritadaki her hücreyi iki sayıyla adlandırıyoruz: <code>(satır, sütun)</code>. Satırlar yukarıdan aşağı, sütunlar soldan sağa sayılır ve sayma 0'dan başlar. Sol üst köşe <code>(0, 0)</code>, S hücresi <code>(4, 4)</code>. Kodda <code>satir</code> ve <code>sutun</code> şimdiki hücrenin bu iki numarasıdır.</p><p>Bir komşuya gitmek, bu iki numaraya küçük bir sayı eklemektir. Yukarıdaki komşunun satırı bir eksiktir, sağdakinin sütunu bir fazladır:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(satir − 1, sutun)<small>yukarı: (−1, 0)</small></span><span></span>
+<span class="ax">(satir, sutun − 1)<small>sol: (0, −1)</small></span><span class="ax me">(satir, sutun)<small>şimdiki hücre</small></span><span class="ax">(satir, sutun + 1)<small>sağ: (0, 1)</small></span>
+<span></span><span class="ax">(satir + 1, sutun)<small>aşağı: (1, 0)</small></span><span></span>
+</div><p><code>YONLER</code> listesi tam olarak bu eklenecek sayıları tutar. Döngüde her yön iki parçaya ayrılır: <code>satir_adimi</code> satıra, <code>sutun_adimi</code> sütuna eklenen sayıdır. Sonuç <code>komsu_satir</code> ve <code>komsu_sutun</code>, yani komşunun numaralarıdır.</p><div class="scroll"><table class="codeexp"><tr><th>Satır</th><th>Ne yapar</th></tr><tr><td class="num">1</td><td>Python'un hazır kuyruk yapısını (<code>deque</code>) getirir. Baştan çıkarmak ve sona eklemek hızlıdır.</td></tr><tr><td class="num">3–9</td><td>Harita, her biri bir satır olan beş metindir. <code>harita[2]</code> üçüncü satır, <code>harita[2][1]</code> o satırın ikinci karakteridir (burada <code>"#"</code>).</td></tr><tr><td class="num">12–16</td><td>Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar, hep aynı sırayla: yukarı, sağ, aşağı, sol.</td></tr><tr><td class="num">19</td><td>Fonksiyon üç şey alır: harita, başlangıç hücresi ve hedef hücre.</td></tr><tr><td class="num">20–21</td><td>Haritanın kaç satır ve kaç sütun olduğu. Haritanın dışına taşmayı bunlarla anlarız.</td></tr><tr><td class="num">22</td><td>Kuyruğa yalnızca başlangıç hücresi konur.</td></tr><tr><td class="num">23</td><td>Sözlük: anahtar bir hücre, değer o hücreye yazılan sayı. Başlangıca 0 yazılır. Kâğıttaki sayıların kodtaki karşılığı budur.</td></tr><tr><td class="num">24</td><td>Kuyrukta hücre olduğu sürece aşağıdaki adımları tekrar et.</td></tr><tr><td class="num">25</td><td>Kuyruğun başındaki hücreyi al. Hücre <code>(0, 2)</code> ise <code>satir = 0</code>, <code>sutun = 2</code> olur.</td></tr><tr><td class="num">26–27</td><td>Alınan hücre hedefse ona yazılmış sayıyı döndür. Bu, en az hamle sayısıdır.</td></tr><tr><td class="num">28</td><td>Dört yönü sırayla dene. İlk turda <code>satir_adimi = -1</code>, <code>sutun_adimi = 0</code> (yukarı); ikinci turda <code>0</code> ve <code>1</code> (sağ).</td></tr><tr><td class="num">29–31</td><td>Komşunun numaraları: şimdiki hücre + yön. Sonra iki numara tek bir hücre adında birleştirilir.</td></tr><tr><td class="num">32–33</td><td>Satır −1 ya da 5 olduysa komşu haritanın dışındadır. <code>continue</code> bu yönü bırakıp bir sonraki yöne geçer.</td></tr><tr><td class="num">34–35</td><td>Aynı denetim, sütun için.</td></tr><tr><td class="num">36</td><td>Komşu duvarsa bu yönü atla.</td></tr><tr><td class="num">38</td><td>Komşuya zaten sayı yazılmışsa atla. İlk yazılan sayı en küçüğüdür; bir daha yazılmaz.</td></tr><tr><td class="num">40</td><td>Komşuya şimdiki hücrenin sayısı + 1 yazılır.</td></tr><tr><td class="num">41</td><td>Komşu kuyruğun sonuna eklenir; sırası gelince o da komşularına bakacak.</td></tr><tr><td class="num">42</td><td>Kuyruk boşaldı ve hedefe hiç varılmadı: yol yok.</td></tr><tr><td class="num">44</td><td>Fonksiyonu R <code>(0, 0)</code> ile S <code>(4, 4)</code> arasında çalıştırır ve sonucu yazdırır.</td></tr></table></div><h3>Örnek: <code>(0, 2)</code> kuyruktan çıktığında</h3><p>Canlı haritada dört kez "Tek hücre işle"ye basınca gördüğünüz adım. <code>(0, 2)</code> hücresinin sayısı 2'dir; döngü dört yönü sırayla dener:</p><div class="scroll"><table class="trace"><tr><th>Yön</th><th>satir_adimi, sutun_adimi</th><th>komsu</th><th>Sonuç</th></tr><tr><td>yukarı</td><td>−1, 0</td><td>(0 − 1, 2 + 0) = (−1, 2)</td><td>Satır −1: harita dışı, atla</td></tr><tr><td>sağ</td><td>0, 1</td><td>(0 + 0, 2 + 1) = (0, 3)</td><td><code>harita[0][3]</code> = "#": duvar, atla</td></tr><tr><td>aşağı</td><td>1, 0</td><td>(0 + 1, 2 + 0) = (1, 2)</td><td>Boş ve sayısı yok: <code>uzaklik[(1, 2)] = 2 + 1 = 3</code>, kuyruğun sonuna eklenir</td></tr><tr><td>sol</td><td>0, −1</td><td>(0 + 0, 2 − 1) = (0, 1)</td><td>Sayısı zaten var (1): atla</td></tr></table></div><p>Sonuç: kuyruk <code>(2, 0), (1, 2)</code> olur. Canlı haritanın yanındaki kutularda gördüğünüz durum budur.</p></div>
+  <div class="en"><h3>The code line by line</h3><p>Each cell on the map is named by two numbers: <code>(row, column)</code>. Rows are counted top to bottom, columns left to right, starting from 0. The top-left corner is <code>(0, 0)</code> and cell S is <code>(4, 4)</code>. In the code, <code>row</code> and <code>col</code> are these two numbers for the current cell.</p><p>Moving to a neighbour means adding a small number to those two. The neighbour above has a row one less; the neighbour to the right has a column one more:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(row − 1, col)<small>up: (−1, 0)</small></span><span></span>
+<span class="ax">(row, col − 1)<small>left: (0, −1)</small></span><span class="ax me">(row, col)<small>current cell</small></span><span class="ax">(row, col + 1)<small>right: (0, 1)</small></span>
+<span></span><span class="ax">(row + 1, col)<small>down: (1, 0)</small></span><span></span>
+</div><p>The <code>MOVES</code> list holds exactly these numbers to add. In the loop each move is split in two: <code>row_step</code> is added to the row and <code>col_step</code> to the column. The results, <code>next_row</code> and <code>next_col</code>, are the neighbour's numbers.</p><div class="scroll"><table class="codeexp"><tr><th>Line</th><th>What it does</th></tr><tr><td class="num">1</td><td>Brings in Python's ready-made queue (<code>deque</code>). Taking from the front and adding to the back are fast.</td></tr><tr><td class="num">3–9</td><td>The map is five strings, one per row. <code>grid[2]</code> is the third row and <code>grid[2][1]</code> its second character (here <code>"#"</code>).</td></tr><tr><td class="num">12–16</td><td>What to add to the row and column to reach each neighbour, always in the same order: up, right, down, left.</td></tr><tr><td class="num">19</td><td>The function takes three things: the map, the start cell and the goal cell.</td></tr><tr><td class="num">20–21</td><td>How many rows and columns the map has. We use them to tell when a neighbour falls off the map.</td></tr><tr><td class="num">22</td><td>The queue starts with just the start cell.</td></tr><tr><td class="num">23</td><td>A dictionary: the key is a cell, the value the number written in it. The start gets 0. These are the numbers you wrote on paper.</td></tr><tr><td class="num">24</td><td>Repeat the steps below as long as the queue has cells in it.</td></tr><tr><td class="num">25</td><td>Take the cell at the front of the queue. If it is <code>(0, 2)</code>, then <code>row = 0</code> and <code>col = 2</code>.</td></tr><tr><td class="num">26–27</td><td>If this cell is the goal, return its number. That is the fewest number of moves.</td></tr><tr><td class="num">28</td><td>Try the four moves in turn. The first time round <code>row_step = -1</code>, <code>col_step = 0</code> (up); the second time <code>0</code> and <code>1</code> (right).</td></tr><tr><td class="num">29–31</td><td>The neighbour's numbers: current cell + move. Then the two numbers are joined into one cell name.</td></tr><tr><td class="num">32–33</td><td>If the row has become −1 or 5, the neighbour is off the map. <code>continue</code> drops this move and goes on to the next.</td></tr><tr><td class="num">34–35</td><td>The same check for the column.</td></tr><tr><td class="num">36</td><td>If the neighbour is a wall, skip this move.</td></tr><tr><td class="num">38</td><td>If the neighbour already has a number, skip it. The first number written is the smallest; it is never written again.</td></tr><tr><td class="num">40</td><td>The neighbour gets the current cell's number + 1.</td></tr><tr><td class="num">41</td><td>The neighbour joins the back of the queue; when its turn comes it will look at its own neighbours.</td></tr><tr><td class="num">42</td><td>The queue is empty and the goal was never reached: no route.</td></tr><tr><td class="num">44</td><td>Runs the function from R <code>(0, 0)</code> to S <code>(4, 4)</code> and prints the result.</td></tr></table></div><h3>Example: when <code>(0, 2)</code> leaves the queue</h3><p>This is the step you see on the live map after selecting "Process one cell" four times. Cell <code>(0, 2)</code> holds 2; the loop tries the four moves in turn:</p><div class="scroll"><table class="trace"><tr><th>Move</th><th>row_step, col_step</th><th>neighbour</th><th>Result</th></tr><tr><td>up</td><td>−1, 0</td><td>(0 − 1, 2 + 0) = (−1, 2)</td><td>Row −1: off the map, skip</td></tr><tr><td>right</td><td>0, 1</td><td>(0 + 0, 2 + 1) = (0, 3)</td><td><code>grid[0][3]</code> = "#": wall, skip</td></tr><tr><td>down</td><td>1, 0</td><td>(0 + 1, 2 + 0) = (1, 2)</td><td>Free and unnumbered: <code>dist[(1, 2)] = 2 + 1 = 3</code>, joins the back of the queue</td></tr><tr><td>left</td><td>0, −1</td><td>(0 + 0, 2 − 1) = (0, 1)</td><td>Already numbered (1): skip</td></tr></table></div><p>Result: the queue becomes <code>(2, 0), (1, 2)</code>, which is what the boxes beside the live map show.</p></div>
 
   <h3><span class="tr">Kâğıtla eşleştirme</span><span class="en">Matching code to paper</span></h3>
   <div class="scroll">
   <table class="tr">
     <tr><th>Kâğıtta</th><th>Kodda</th></tr>
     <tr><td>Hücrelere yazdığınız sayılar</td><td><code>uzaklik</code> sözlüğü</td></tr>
-    <tr><td>"Sayı yazılmış hücreye bir daha yazılmaz"</td><td><code>(yr, yc) not in uzaklik</code></td></tr>
-    <tr><td>"Duvara yazılmaz"</td><td><code>harita[yr][yc] != "#"</code></td></tr>
-    <tr><td>Haritanın dışına çıkmamak</td><td><code>0 &lt;= yr &lt; len(harita)</code> ve sütun için aynısı</td></tr>
-    <tr><td>Yukarı, sağ, aşağı, sol</td><td><code>[(-1, 0), (0, 1), (1, 0), (0, -1)]</code></td></tr>
+    <tr><td>"Sayı yazılmış hücreye bir daha yazılmaz"</td><td><code>if komsu in uzaklik: continue</code></td></tr>
+    <tr><td>"Duvara yazılmaz"</td><td><code>if harita[komsu_satir][komsu_sutun] == "#": continue</code></td></tr>
+    <tr><td>Haritanın dışına çıkmamak</td><td><code>if komsu_satir &lt; 0 or komsu_satir &gt;= satir_sayisi: continue</code> ve sütun için aynısı</td></tr>
+    <tr><td>Yukarı, sağ, aşağı, sol</td><td><code>YONLER</code> listesi</td></tr>
     <tr><td>Yemekhane sırası</td><td><code>popleft()</code> baştan alır, <code>append()</code> sona ekler</td></tr>
   </table>
   <table class="en">
     <tr><th>On paper</th><th>In code</th></tr>
     <tr><td>The numbers you wrote in cells</td><td>the <code>dist</code> dictionary</td></tr>
-    <tr><td>"Never write in a numbered cell again"</td><td><code>(nr, nc) not in dist</code></td></tr>
-    <tr><td>"Never write in a wall"</td><td><code>grid[nr][nc] != "#"</code></td></tr>
-    <tr><td>Staying on the map</td><td><code>0 &lt;= nr &lt; len(grid)</code> and the same for columns</td></tr>
-    <tr><td>Up, right, down, left</td><td><code>[(-1, 0), (0, 1), (1, 0), (0, -1)]</code></td></tr>
+    <tr><td>"Never write in a numbered cell again"</td><td><code>if neighbour in dist: continue</code></td></tr>
+    <tr><td>"Never write in a wall"</td><td><code>if grid[next_row][next_col] == "#": continue</code></td></tr>
+    <tr><td>Staying on the map</td><td><code>if next_row &lt; 0 or next_row &gt;= rows: continue</code> and the same for columns</td></tr>
+    <tr><td>Up, right, down, left</td><td>the <code>MOVES</code> list</td></tr>
     <tr><td>The cafeteria line</td><td><code>popleft()</code> takes from the front, <code>append()</code> adds to the back</td></tr>
   </table>
   </div>
@@ -574,14 +627,14 @@ print(fewest_moves(grid, (0, 0), (4, 4)))</pre>
     <li>Kodu hiç değiştirmeden çalıştırın. Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
     <li>Haritanın üçüncü satırını <code>".#.#."</code> yapın (bir duvar eklendi). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
     <li>Buna ek olarak son satırı <code>"#.#.S"</code> yapın. Çıktı ne olur, ne anlama gelir? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
-    <li>Haritayı baştaki haline döndürün. <code>not in uzaklik</code> koşulunu silseydiniz ne olurdu? Çalıştırmadan tartışın. <span class="blank long"></span></li>
+    <li>Haritayı baştaki haline döndürün. <code>if komsu in uzaklik: continue</code> satırlarını silseydiniz ne olurdu? Çalıştırmadan tartışın. <span class="blank long"></span></li>
     <li>Robotun 8 birim enerjisi için "yeter" ya da "yetmez" yazdıran iki satır ekleyin.</li>
   </ol>
   <ol class="en">
     <li>Run the code unchanged. What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
     <li>Change the third row of the map to <code>".#.#."</code> (one wall added). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
     <li>In addition, change the last row to <code>"#.#.S"</code>. What is the output and what does it mean? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
-    <li>Restore the original map. What would happen if you deleted the <code>not in dist</code> condition? Discuss without running it. <span class="blank long"></span></li>
+    <li>Restore the original map. What would happen if you deleted the <code>if neighbour in dist: continue</code> lines? Discuss without running it. <span class="blank long"></span></li>
     <li>Add two lines that print "enough" or "not enough" for the robot's 8 units of energy.</li>
   </ol>
 
@@ -599,32 +652,40 @@ harita = [
     "#...S",
 ]
 
-YONLER = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+YONLER = [(-1, 0), (0, 1), (1, 0), (0, -1)]      # yukarı, sağ, aşağı, sol
 
 def halkalari_yay(harita, baslangic):
     kuyruk = deque([baslangic])
     uzaklik = {baslangic: 0}
     while kuyruk:
-        r, c = kuyruk.popleft()
-        for dr, dc in YONLER:
-            yr, yc = r + dr, c + dc
-            if 0 &lt;= yr &lt; len(harita) and 0 &lt;= yc &lt; len(harita[0]):
-                if harita[yr][yc] != "#" and (yr, yc) not in uzaklik:
-                    uzaklik[(yr, yc)] = uzaklik[(r, c)] + 1
-                    kuyruk.append((yr, yc))
+        satir, sutun = kuyruk.popleft()
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu_satir = satir + satir_adimi
+            komsu_sutun = sutun + sutun_adimi
+            komsu = (komsu_satir, komsu_sutun)
+            if not 0 &lt;= komsu_satir &lt; len(harita):
+                continue                           # harita dışı (satır)
+            if not 0 &lt;= komsu_sutun &lt; len(harita[0]):
+                continue                           # harita dışı (sütun)
+            if harita[komsu_satir][komsu_sutun] == "#":
+                continue                           # duvar
+            if komsu in uzaklik:
+                continue                           # zaten sayılı
+            uzaklik[komsu] = uzaklik[(satir, sutun)] + 1
+            kuyruk.append(komsu)
     return uzaklik
 
 def rota_bul(uzaklik, hedef):
     rota = [hedef]
-    r, c = hedef
-    while uzaklik[(r, c)] &gt; 0:
-        for dr, dc in YONLER:
-            komsu = (r + dr, c + dc)
-            if uzaklik.get(komsu) == uzaklik[(r, c)] - 1:
-                r, c = komsu
+    satir, sutun = hedef
+    while uzaklik[(satir, sutun)] &gt; 0:       # başlangıca (0) varana kadar
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu = (satir + satir_adimi, sutun + sutun_adimi)
+            if uzaklik.get(komsu) == uzaklik[(satir, sutun)] - 1:
+                satir, sutun = komsu               # bir küçük sayıya geç
                 rota.append(komsu)
                 break
-    return rota[::-1]              # ters çevir: baştan sona
+    return rota[::-1]                            # ters çevir: baştan sona
 
 uzaklik = halkalari_yay(harita, (0, 0))
 print(rota_bul(uzaklik, (4, 4)))</pre>
@@ -638,32 +699,40 @@ grid = [
     "#...S",
 ]
 
-MOVES = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+MOVES = [(-1, 0), (0, 1), (1, 0), (0, -1)]        # up, right, down, left
 
 def spread_ripple(grid, start):
     queue = deque([start])
     dist = {start: 0}
     while queue:
-        r, c = queue.popleft()
-        for dr, dc in MOVES:
-            nr, nc = r + dr, c + dc
-            if 0 &lt;= nr &lt; len(grid) and 0 &lt;= nc &lt; len(grid[0]):
-                if grid[nr][nc] != "#" and (nr, nc) not in dist:
-                    dist[(nr, nc)] = dist[(r, c)] + 1
-                    queue.append((nr, nc))
+        row, col = queue.popleft()
+        for row_step, col_step in MOVES:
+            next_row = row + row_step
+            next_col = col + col_step
+            neighbour = (next_row, next_col)
+            if not 0 &lt;= next_row &lt; len(grid):
+                continue                           # off the map (row)
+            if not 0 &lt;= next_col &lt; len(grid[0]):
+                continue                           # off the map (column)
+            if grid[next_row][next_col] == "#":
+                continue                           # wall
+            if neighbour in dist:
+                continue                           # already numbered
+            dist[neighbour] = dist[(row, col)] + 1
+            queue.append(neighbour)
     return dist
 
 def find_route(dist, goal):
     route = [goal]
-    r, c = goal
-    while dist[(r, c)] &gt; 0:
-        for dr, dc in MOVES:
-            nb = (r + dr, c + dc)
-            if dist.get(nb) == dist[(r, c)] - 1:
-                r, c = nb
-                route.append(nb)
+    row, col = goal
+    while dist[(row, col)] &gt; 0:             # until we reach the start (0)
+        for row_step, col_step in MOVES:
+            neighbour = (row + row_step, col + col_step)
+            if dist.get(neighbour) == dist[(row, col)] - 1:
+                row, col = neighbour        # step to a number one smaller
+                route.append(neighbour)
                 break
-    return route[::-1]             # reverse: start to goal
+    return route[::-1]                            # reverse: start to goal
 
 dist = spread_ripple(grid, (0, 0))
 print(find_route(dist, (4, 4)))</pre>
