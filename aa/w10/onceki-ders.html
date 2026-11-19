@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 10 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js?v=3"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script><!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=3">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
+</head><body><p class="previous-lesson-banner" style="margin:1rem;padding:.75rem 1rem;border:1px solid #888;border-radius:10px">Arşiv: Hafta 10 önceki ders sayfası. <a href="./">← Yeni ders sayfasına dön</a></p>
+<header><a href="../">← AA course</a><span>Week 10 · Minimum spanning trees and union-find</span><button id="print" type="button">Print</button></header>
+<main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Connect everything. Spend less.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
+<details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: Networks, safe edges and Prim</li><li>64–74: Break</li><li>74–122: Kruskal and union-find</li><li>122–132: Break</li><li>132–180: Practice, Python and engineering choices</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w10-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w10">Hafta 10 · Döngüsüz bağla, toplam maliyeti azalt</p>
+<h2 id="lb-w10-title">Sensör ağını kurmak mı, bir mesajı ulaştırmak mı?</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w9/#bridge-path"><strong>← Önce: Hafta 9 — döngüyü tanı</strong><span>Şimdi çevrim oluşturmayan bağlantıları maliyetle birlikte seç.</span></a>
+<a href="../w11/#bridge-path"><strong>Sonra: Hafta 11 — tek yolun maliyeti →</strong><span>Ucuz kurulan ağ, her mesajın en ucuz yolu olmayabilir.</span></a>
+</nav>
+<p>A, B, C sensörleri arasındaki yönsüz kabloların maliyetleri <strong>AB = 2, BC = 2, AC = 3</strong>. Minimum kapsayan ağaç (MST), hepsini bağlarken <strong>seçilen kabloların toplamını</strong> küçültür. Buradaki birimler para veya kablo uzunluğu olabilir.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-19">Bu haftanın laboratuvarı: aynı ağda iki amacı karşılaştır →</a><a href="../bridge/#secim">Önkoşul: yöntemi koşullarıyla seç</a></p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — Kruskal hangi kenarı reddeder?</summary>
+<p>Tepe listesi farklı stringlerden oluşur; ağırlıklar sonlu tamsayıdır. Her uç önceden tanımlı, her yönsüz kenar bir kez yazılıdır. Kruskal ucuzdan pahalıya ilerler. <code>find</code> aynı gruptaki uçları tanır; küçük grup büyüğe bağlanır.</p>
+<pre><code>def mst(vertices, edges):
+    parent = {v: v for v in vertices}
+    size = {v: 1 for v in vertices}
+    def find(v):
+        while v != parent[v]:
+            parent[v] = parent[parent[v]]
+            v = parent[v]
+        return v
+    chosen, total = [], 0
+    for u, v, weight in sorted(edges, key=lambda e: e[2]):
+        a, b = find(u), find(v)
+        if a == b:
+            continue
+        if size[a] &lt; size[b]:
+            a, b = b, a
+        parent[b] = a
+        size[a] += size[b]
+        chosen.append((u, v, weight))
+        total += weight
+    return chosen, total
+
+chosen, total = mst(["A", "B", "C"],
+    [("A", "B", 2), ("B", "C", 2), ("A", "C", 3)])</code></pre>
+<p>AB kabul edilir; BC ayrı grupları birleştirir. AC incelendiğinde uçlar zaten bağlıdır: eklenirse çevrim olur. Seçim AB, BC; toplam <strong>4</strong>.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>Üç sensörü bağlayacaksın: <strong>AB = 2, BC = 2, AC = 3</strong>. Yönsüz ağın bütün tepelerini bağlayan bir ağacın en küçük <strong>toplam kablo maliyeti</strong> kaçtır? İşlem sayısını hesaplama.</p>
+<div class="learning-bridge-check" data-learning-check data-answer="4">
+<label for="lb-w10-count">Tahminim (toplam maliyet)</label>
+<div class="learning-bridge-input-row"><input id="lb-w10-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w10-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w10-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>Bir kenar üç tepeyi bağlamaz; üç kenar çevrim oluşturur. İki kenarlı üç seçeneğin toplamlarını karşılaştır.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>4 maliyet birimi.</strong> AB + BC = 2 + 2 = 4; diğer iki ağaç 2 + 3 = 5’er birimdir. En iyi seçim üç sensörü de bağlar.</p></details>
+</div>
+<details><summary>Matematik köprüsü — kenar sayısı, maliyet ve çalışma farklıdır</summary><p>Üç olası ağacın toplamı 4, 5, 5’tir. Bağlı V tepeli ağaç <strong>V−1 kenar</strong> içerir; maliyeti <strong>Σ<sub>e∈T</sub>w(e)</strong>, seçilen T kenarlarının ağırlık toplamıdır. Kenar sayısı 2 iken toplam maliyet 4 olabilir. <a href="../w7/#bridge-path">Hafta 7’deki sıralama</a> burada kenarları hazırlar. Sabit maliyetli karşılaştırmalar ve uygun union-find ile Kruskal’ın çalışma sınırı O(V + E log E)’dir (E ≥ 2). Bu sınır kablo maliyeti veya saniye değildir.</p></details>
+<div class="learning-bridge-transfer" id="lb-w10-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>“Bir kablo kopsa da iletişim sürsün” şartı eklendi. MST yeterli mi? Hiç bağlantısı olmayan D sensörü eklenirse kodun döndürdüğü 4 neyi anlatır?</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>Ağaçta bir kenarın kopması ağı böler; yedeklilik ayrı tasarım şartıdır. Bu üçgende üç kabloyu da kurmak 7 birimdir ve tek kopmaya dayanır. Yalnız D eklenirse bütün tepeleri kapsayan ağaç yoktur. Kod, bileşenlerin minimum kapsayan ormanını döndürür: ABC’nin ağacı ve yalnız D; 4, tüm ağı bağlama garantisi değildir.</p></details></div>
+<p><a href="#example-18">Mevcut Kruskal Python laboratuvarı</a> beş tepeli Graph W kullanır; yukarıdaki kod aynı kuralı üç sensöre uygular.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> seçilen kenarları, geçerliliği ve toplamı açıklayabiliyorsan <a href="../w11/#bridge-path">aynı üçgende A–C yoluna geç</a>. Takıldıysan <a href="#example-10">Kruskal kabul/ret adımlarını izle</a>; bu görsel Graph W’dir.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
+<article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">vertices = &quot;ABCDE&quot;
+edges = [(&quot;A&quot;, &quot;B&quot;, 4), (&quot;A&quot;, &quot;C&quot;, 1), (&quot;B&quot;, &quot;C&quot;, 2),
+         (&quot;B&quot;, &quot;D&quot;, 5), (&quot;C&quot;, &quot;D&quot;, 8), (&quot;D&quot;, &quot;E&quot;, 3),
+         (&quot;C&quot;, &quot;E&quot;, 10)]
+parent = {v: v for v in vertices}
+size = {v: 1 for v in vertices}
+
+def find(x):
+    while parent[x] != x:
+        parent[x] = parent[parent[x]]
+        x = parent[x]
+    return x
+
+chosen = []
+for u, v, weight in sorted(edges, key=lambda edge: edge[2]):
+    a, b = find(u), find(v)
+    if a == b:
+        continue
+    if size[a] &lt; size[b]:
+        a, b = b, a
+    parent[b] = a
+    size[a] += size[b]
+    chosen.append((u, v, weight))
+print(&quot;Edges:&quot;, chosen)
+print(&quot;Total:&quot;, sum(weight for u, v, weight in chosen))
+print(&quot;MST&quot; if len(chosen) == len(vertices) - 1
+      else &quot;Disconnected: minimum spanning forest&quot;)</pre></section><section id="walkthrough" class="walkthrough" aria-labelledby="explanationHeading"><h3 id="explanationHeading">What is happening? Step by step</h3><p id="guideNote" class="guide-note">These steps explain the written example. The visual above can show other sizes or cases.</p><ol id="guideSteps" class="full-explanation"></ol></section><p id="lesson" class="lesson"></p><div class="check"><p><strong>Try this:</strong> <span id="check"></span></p><p class="answer"><strong>Answer:</strong> <span id="answer"></span></p></div><section id="details" class="assumptions"><h3>Important details</h3><p id="extra"></p><a id="ref">Related lecture notes →</a></section></article>
+<nav class="steps" aria-label="Move between examples"><button id="prev" type="button">← Previous</button><div class="navigation-help"><span id="status" role="status" aria-live="polite"></span><small>Use ← / → arrow keys</small></div><button id="next" type="button">Next →</button></nav>
+</main><noscript>This lesson needs JavaScript. <a href="lecture-notes.html">Open the detailed lecture notes.</a></noscript>
+<script>if(/^#(?:topic-|s\d|python-example-)/.test(location.hash))location.replace('lecture-notes.html'+location.hash);</script></body></html>

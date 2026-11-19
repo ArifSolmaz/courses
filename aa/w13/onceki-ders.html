@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 13 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js?v=3"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script><!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=3">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
+</head><body><p class="previous-lesson-banner" style="margin:1rem;padding:.75rem 1rem;border:1px solid #888;border-radius:10px">Arşiv: Hafta 13 önceki ders sayfası. <a href="./">← Yeni ders sayfasına dön</a></p>
+<header><a href="../">← AA course</a><span>Week 13 · Dynamic programming applications</span><button id="print" type="button">Print</button></header>
+<main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Small answers. Better decisions.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
+<details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: DP states, edit distance and common sequences</li><li>64–74: Break</li><li>74–122: Sequence variants, packing and scheduling</li><li>122–132: Break</li><li>132–180: Worst cases, intervals and sensor alignment</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w13-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w13">Hafta 13 · Durumu tanımla, önceki satırdan hesapla</p>
+<h2 id="lb-w13-title">Üç aktarımın en ucuzunu tüm yürüyüşleri saklamadan bul</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w12/#bridge-path"><strong>← Önce: Hafta 12 — yürüyüşleri listele</strong><span>Aynı adım sayısında aynı sensörde biten önekleri karşılaştır.</span></a>
+<a href="../w14/#bridge-path"><strong>Sonra: Hafta 14 — hesaplama sınırlarını sorgula →</strong><span>Yeni kısıtlar durum uzayını büyüttüğünde verimli çözüm iddiasını yeniden denetle.</span></a>
+</nav>
+<p>Ağ ve ağırlıklar aynı: <strong>AB = 2, BC = 2, AC = 3</strong>. Üç aktarım turunda C’de bitme ve yeniden uğrama izni sürüyor. Hafta 12’deki üç yürüyüşün maliyetleri 7,9,7 idi; şimdi bütün liste yerine minimumu istiyoruz.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-1">Bu haftanın laboratuvarı: DP durumunu tanımla →</a><a href="../bridge/#matematik">Önkoşul: matematikteki ifadenin anlamını açıkla</a></p>
+<p>Yerel laboratuvar genel DP tarifini verir; sensör tablosu aşağıdadır. <a href="#example-7">Mevcut Python laboratuvarı</a> ise <code>cat → cut</code> düzenleme uzaklığını hesaplar.</p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — aynı sensör, farklı adım sayısı</summary>
+<p><strong>D[t,v]</strong>, A’dan v’ye tam t bağlantıyla ulaşan yürüyüşün minimum maliyetidir. Bütün komşular tanımlı, ağırlıklar sonlu tamsayı; adım sayısı negatif olmayan tamsayıdır.</p>
+<pre><code>def exact_walk_cost(graph, start, target, steps):
+    if type(steps) is not int or steps &lt; 0:
+        raise ValueError("invalid steps")
+    if start not in graph or target not in graph:
+        raise ValueError("unknown endpoint")
+    infinity = float("inf")
+    table = [{v: infinity for v in graph}]
+    table[0][start] = 0
+    for t in range(1, steps + 1):
+        previous = table[t - 1]
+        current = {v: infinity for v in graph}
+        for u in graph:
+            if previous[u] == infinity:
+                continue
+            for v, weight in graph[u]:
+                offer = previous[u] + weight
+                current[v] = min(current[v], offer)
+        table.append(current)
+    return table[steps][target], table
+
+graph = {"A": [("B", 2), ("C", 3)],
+         "B": [("A", 2), ("C", 2)],
+         "C": [("A", 3), ("B", 2)]}
+answer, table = exact_walk_cost(graph, "A", "C", 3)</code></pre>
+<div class="dp-scroll"><table class="bfs-table"><caption>D[t,v]: tam t bağlantı için minimum maliyet</caption><thead><tr><th scope="col">t</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead><tbody><tr><th scope="row">0</th><td>0</td><td>∞</td><td>∞</td></tr><tr><th scope="row">1</th><td>∞</td><td>2</td><td>3</td></tr><tr><th scope="row">2</th><td>4</td><td>5</td><td>4</td></tr><tr><th scope="row">3</th><td>7</td><td>6</td><td>7</td></tr></tbody></table></div>
+<p>D[1,C]=3’ü sonuca taşımıyoruz: bir bağlantı, üç bağlantı değildir. Her yeni satır yalnız önceki satırı okur; aynı satırdaki güncellemeyi tekrar kullanmak adım koşulunu bozabilir.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>Aynı yönsüz ağda <strong>AB = 2, BC = 2, AC = 3</strong>. A’dan C’ye <strong>tam 3 bağlantılı yürüyüşün en küçük toplam maliyeti</strong> kaçtır? Sensör tekrarına izin var; bir adımlı doğrudan yol bu sorunun cevabı değildir.</p>
+<div class="learning-bridge-check" data-learning-check data-answer="7">
+<label for="lb-w13-count">Tahminim (toplam maliyet)</label>
+<div class="learning-bridge-input-row"><input id="lb-w13-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w13-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w13-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>İkinci satırda D[2,A] = 4 ve D[2,B] = 5. C’ye son bağlantı A’dan 3 veya B’den 2 ekler. İki teklifi karşılaştır.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>7 maliyet birimi.</strong> min(4+3, 5+2) = 7. A–B–A–C ve A–C–B–C bu maliyeti sağlar; çözüm sayısı olan 3’ü yazma.</p></details>
+</div>
+<details><summary>Matematik köprüsü — satırın anlamından bağıntıya</summary><p>Taban <strong>D[0,A]=0</strong>, diğer tepeler için ∞’dur. Geçiş <strong>D[t,v] = min<sub>u→v</sub>(D[t−1,u] + w(u,v))</strong>: son bağlantıdan önceki en iyi maliyete o bağlantıyı ekle. Uygun önceki durum yoksa sonuç ∞ kalır. Burada V sensör, E komşuluk listelerindeki toplam bağlantı kaydı sayısıdır; yönsüz bir bağlantının iki kaydı vardır. k ≥ 1 için çalışma O(k(V+E)), saklanan tablo O(kV) alandır; sabit maliyetli aritmetik varsayılır. Bu kod sıfır satırı dahil (k+1)V hücre saklar; minimum maliyet 7, işlem sayısı değildir.</p></details>
+<div class="learning-bridge-transfer" id="lb-w13-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>Hiç yürüyüş yoksa veya k=0 ise ne olur? Ağırlık negatifleşirse sonlu k neden Dijkstra’dan farklıdır? “Her sensör en fazla bir kez” şartında (t,v) yeterli mi?</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>Çözüm yoksa ∞; k=0 ve başlangıç=hedef ise 0, farklıysa ∞. Sonlu k’de sınırlı sayıda yürüyüş vardır; negatif ağırlıklar da bu tabloda geçerlidir. Dijkstra’nın negatif olmama koşulu buraya taşınmaz. Sensör tekrarı yasaklanırsa geçmişte ziyaret edilen küme de gerekir; (t,v) tek başına gelecekteki seçenekleri belirlemez. Küme içeren durum sayısı üstel büyüyebilir.</p></details></div>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> durumu, tabanı ve önceki satır şartını açıklayabiliyorsan <a href="../w14/#bridge-path">hesaplama sınırlarına geç</a>. Takıldıysan <a href="#example-22">durum sayısının neden büyüdüğünü incele</a>; bu görsel gezgin satıcı küme durumlarını karşılaştırır.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
+<article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">source = &quot;cat&quot;
+target = &quot;cut&quot;
+m, n = len(source), len(target)
+dp = [[0] * (n + 1) for _ in range(m + 1)]
+for i in range(m + 1):
+    dp[i][0] = i
+for j in range(n + 1):
+    dp[0][j] = j
+for i in range(1, m + 1):
+    for j in range(1, n + 1):
+        replace_cost = 0 if source[i - 1] == target[j - 1] else 1
+        dp[i][j] = min(dp[i - 1][j] + 1,
+                       dp[i][j - 1] + 1,
+                       dp[i - 1][j - 1] + replace_cost)
+for row in dp:
+    print(row)
+print(&quot;Distance:&quot;, dp[m][n])</pre></section><section id="walkthrough" class="walkthrough" aria-labelledby="explanationHeading"><h3 id="explanationHeading">What is happening? Step by step</h3><p id="guideNote" class="guide-note">These steps explain the written example. The visual above can show other sizes or cases.</p><ol id="guideSteps" class="full-explanation"></ol></section><p id="lesson" class="lesson"></p><div class="check"><p><strong>Try this:</strong> <span id="check"></span></p><p class="answer"><strong>Answer:</strong> <span id="answer"></span></p></div><section id="details" class="assumptions"><h3>Important details</h3><p id="extra"></p><a id="ref">Related lecture notes →</a></section></article>
+<nav class="steps" aria-label="Move between examples"><button id="prev" type="button">← Previous</button><div class="navigation-help"><span id="status" role="status" aria-live="polite"></span><small>Use ← / → arrow keys</small></div><button id="next" type="button">Next →</button></nav>
+</main><noscript>This lesson needs JavaScript. <a href="lecture-notes.html">Open the detailed lecture notes.</a></noscript>
+<script>if(/^#(?:topic-|s\d|python-example-)/.test(location.hash))location.replace('lecture-notes.html'+location.hash);</script></body></html>

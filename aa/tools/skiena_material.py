@@ -83,7 +83,8 @@ WEEK_NOTES = {
 
 def exercise(number, display_number=None):
     x=EXERCISES[number]; ident=f'skiena-ex-{number:03d}'
-    answer=html.escape(x['answer']);question=html.escape(x['question'])
+    # Optional HTML comes only from the reviewed local author bank.
+    answer=x.get('answer_html', html.escape(x['answer']));question=html.escape(x['question'])
     from question_bank import scaffold
     start, worked = scaffold('written', number)
     context = CONTEXT.get(number, '')

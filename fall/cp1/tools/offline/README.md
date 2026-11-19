@@ -4,7 +4,215 @@ Build all 14 weeks with `python3 fall/cp1/tools/offline/build.py --all`, or one 
 
 Each single HTML includes the complete maintained lesson notebook and its complete worked solutions. Students can open the hosted page or download the HTML before class and open it in a normal browser. Python runs inside a worker; no Python installation, Google account, local server or classroom network is needed after downloading. The weekly pages and dashboard resource panels link to each edition.
 
+### Week 6 guided edition
+
+Week 6 is an instructor-approved offline-specific edition, authored in
+`week06.py`. It replaces the old offline lesson/practice/solution sequence with
+14 main activities and 10 optional activities (the approved 20A–C and 21A–B cards
+are individual runnable activities). All teaching content is English. Every
+activity has Predict, Run, and Change one thing steps, complete independent code,
+and a single requested edit. Harder activities are explicitly labelled Optional.
+The original Colab notebooks, solutions and web-course pages are unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 6`, then run
+`python3 fall/cp1/tools/offline/verify_week06_guided.py`. This checks exact outputs
+for all 24 starting programs and all 24 requested changes, optional labels,
+English-only content, step coverage and source/HTML parity. The older Week 6
+boundary and explanation verifiers still check the original notebook editions.
+
+### Week 7 guided edition
+
+Week 7 uses the approved draft in `week07.py`: 12 main activities and 13 optional
+activities, all in English. Each independent program has Predict, Run, and Change
+one thing steps. This replaces the former offline lesson/practice/solution
+sequence; the original Colab notebooks, solutions and web-course pages remain
+unchanged. Harder counting, grouping, reporting and parsing examples are optional.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 7`, then run
+`python3 fall/cp1/tools/offline/verify_week07_guided.py`. It executes all 25 starting
+programs and all 25 requested changes and verifies their exact outputs, labels,
+English step structure and source/HTML parity. The older Week 7 boundary and
+explanation checks continue to verify the original notebook editions.
+
+### Week 8 guided edition
+
+Week 8 follows the approved English draft in `week08.py`: 14 main activities and
+16 optional activities. Each independent code cell has Predict, Run, and Change
+one thing steps plus Undo last change and Restore original code controls. Longer
+loops, text-processing puzzles and the function preview remain optional. The
+original Colab notebooks, solutions and web-course pages remain unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 8`, then run
+`python3 fall/cp1/tools/offline/verify_week08_guided.py`. It checks exact output for
+all 30 starting programs and all 30 specified edits, optional labels, English step
+structure and source/HTML parity. `verify_code_history.cjs` also checks the undo
+and restore controls in all three guided editions.
+
+### Week 9 guided edition
+
+Week 9 uses the approved English draft in `week09.py`: 12 main activities and
+14 optional activities. Every independent example includes its function definition
+and Predict, Run, and Change one thing steps, plus per-cell Undo last change and
+Restore original code controls. Conditions, loops and longer engineering examples
+remain optional. The original Colab notebooks, solutions and web-course pages
+remain unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 9`, then run
+`python3 fall/cp1/tools/offline/verify_week09_guided.py`. It verifies exact outputs
+for all 26 starting programs and all 26 specified edits, optional labels, English
+step structure and source/HTML parity. `verify_code_history.cjs` checks the shared
+undo and restore implementation in all four guided editions.
+
+### Week 10 guided edition
+
+Week 10 follows the approved English draft in `week10.py`: 12 main activities
+and 16 optional activities. Each independent example includes Predict, Run, and
+Change one thing steps plus Undo last change and Restore original code controls.
+Longer mini-libraries and reports remain optional. The original Colab notebooks,
+solutions and web-course pages remain unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 10`, then run
+`python3 fall/cp1/tools/offline/verify_week10_guided.py`. It checks exact outputs
+for all 28 starting programs and all 28 specified edits, optional labels, English
+step structure and source/HTML parity. `verify_code_history.cjs` checks undo and
+restore in all five guided editions.
+
+### Week 11 guided edition
+
+Week 11 uses the approved English draft in `week11.py`: 12 main activities and
+16 optional activities. Each independent example has Predict, Run, and Change one
+thing steps plus Undo last change and Restore original code controls. All response
+strings are supplied in code. Longer retries, processors and the temporary-file
+preview remain optional. The original Colab notebooks, solutions and web-course
+pages remain unchanged.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 11`, then run
+`python3 fall/cp1/tools/offline/verify_week11_guided.py`. It checks exact outputs
+for all 28 starting programs and all 28 specified edits, optional labels, English
+step structure and source/HTML parity. `verify_code_history.cjs` checks undo and
+restore in all six guided editions. The file preview creates and cleans up its
+own temporary directory in both runs.
+
+### Week 12 guided edition
+
+Week 12 uses the approved English draft in `week12.py`: 14 main activities and
+12 optional extensions. Every activity has Predict, Run, and Change one thing.
+Each program creates its own demonstration files; repeated runs reset those files.
+Undo and Restore change code only. Files live in the Python session and must be
+downloaded separately from the saved notebook. Longer reports and cleaning stay optional.
+The Colab notebooks remain separate from this guided offline edition.
+
+Rebuild with `python3 fall/cp1/tools/offline/build.py --week 12`, then run
+`python3 fall/cp1/tools/offline/verify_week12_guided.py`. It checks all 52 original
+and changed programs in isolated folders, repeat-run behavior, CSV round trips,
+raw/clean/rejected files, the English steps, and the generated HTML.
+
+### Clickable code and easier edits, Weeks 1–14
+
+All fourteen pages show numbered code with a selected-line explanation. Clicking the
+code text or its number also highlights the output actually produced by that line
+after Run. A line with no printed output says so; file writes are not stdout.
+
+Weeks 6–12 attach maintained English help to both the original example and its
+approved single-change variant. **Apply suggested change** performs that exact
+replacement and preserves quotes and indentation. It does not run the code.
+The control never overwrites custom edits; restore first to use it again.
+Undo and Restore keep the numbered reading view, and Run returns from the editor
+to that view. Custom edits retain output links after rerunning; authored explanations
+are suspended when they no longer match. Free editing remains available on all
+nine pages with line numbers, Tab indentation, and automatic indentation on Enter.
+Weeks 13–14 retain their existing lesson/solution walkthroughs and include suggested edits plus Undo/Restore.
+
+Run `python3 fall/cp1/tools/offline/verify_guided_support.py` for exact HTML parity,
+complete explanation coverage and real traced output for all original/changed
+guided examples. `verify_code_history.cjs` checks history and all nine bundles.
+`verify_guided_change.cjs` checks the apply/undo/restore path and custom-edit protection.
+
+### Restored practice and complete solutions
+
+Weeks 6–12 keep the original exercise tasks, starter code, supplied file setup,
+complete answers and expected results after the guided examples. Exercises 1–8
+are core; Exercises 9–12 and the bridge are optional. Worked answers follow all
+practice tasks and use a separate namespace and working folder. Practice also has
+its own namespace and folder, so demonstration variables cannot supply hidden answers.
+Weeks 13–14 retain their original practice/answer sections and dependencies.
+English-only offline prose omits the originals' duplicate Turkish translations.
+Colab lesson/answer notebooks remain unchanged.
+
+`verify_practice_support.py` checks that every original starter and answer program
+is preserved across all nine pages and runs all 91 restored Weeks 6–12 answers
+against saved outputs and internal assertions. `verify_guided_support.py` checks
+numbered explanation coverage for practice and worked answers too.
+
+### Suggested scientific edits, Weeks 13–14
+
+`science_changes.py` adds **Apply suggested change** to 40 cells in Week 13
+and 14 cells in Week 14 to runnable examples, supplied starter data, and worked answers. Diagnostic
+helpers, prediction checks, and empty practice starters retain their original purpose.
+Each control previews an exact change, states its purpose, and reminds students to
+run earlier setup cells and restore/rerun before moving on. Baseline programs, exercises,
+expected results, and worked answers remain unchanged. Walkthroughs cover both the
+original and suggested variant, including updated labels for changed slices.
+
+Run `python3 fall/cp1/tools/offline/verify_science_changes.py` in an environment with
+NumPy and Matplotlib. It executes all 108 original/changed programs after their
+original prerequisites in fresh folders, keeping internal assertions active and
+checking plotted artists and PNG files. Existing guided-change/history tests cover
+Undo, Restore, saved edits, and protection of custom student code.
+
+### Suggested beginner edits, Weeks 1–5
+
+`early_changes.py` adds 190 reversible **Apply suggested change** controls to the
+first five offline pages. Lesson edits cover messages, values, conditions, formatting
+and bounded loops. Worked-answer edits change display only, so the existing numeric
+checks still pass. Empty exercise starters, diagnostic helpers and assertion-only
+cells retain their original purpose. Original exercises, answers, expected results
+and authored line walkthroughs are preserved; suggested variants have matching line
+help and real output links. Undo, Restore and automatic indentation are enabled on
+all fourteen weeks. Restore and rerun before moving to a dependent example.
+
+Run `python3 fall/cp1/tools/offline/verify_early_changes.py`: all 380 original/changed
+programs execute with their original prerequisites and seeded inputs; changed output,
+line attribution and 136 following answer-check executions are verified. The full
+`verify_content_parity.py` continues to verify all original tasks and saved outputs.
+
+### Full consistency audit, Weeks 1–14
+
+Run `python3 fall/cp1/tools/offline/verify_consistency.py` to check every embedded
+page against its maintained source, identical shared control bundles, all 806
+code/walkthrough associations, 431 exact suggested edits, and preservation/order
+of the 171 numbered exercises and 13 bridge exercises with their full answers.
+This catches older HTML bundles even when their controls still appear to work.
+
+`verify_all.py` now executes the prepared course in the same three isolated
+namespaces/folders as the browser: 457 example/lesson cells, 97 restored practice
+cells, and 252 solution/check cells. The previous test combined examples and
+practice and expected the older cell count. Run it with NumPy and Matplotlib.
+`verify_early_changes.py`, `verify_guided_support.py`, and `verify_science_changes.py`
+exercise all 862 original/changed variants. The history and guided-change JavaScript
+tests cover reversible restores and custom-edit protection. Output/plot trace tests
+check real attribution and ensure file writes are not claimed as printed output.
+
+The desktop browser audit checks one self-contained original/changed example in
+every week, all rendered code/control/exercise heading counts, number and code-text
+clicks, exact highlighted output, Undo/Restore (including undoing a restore), keyboard
+undo, and protection of custom edits. This is a desktop regression check; the
+classroom compatibility trial noted in each page still applies.
+
+After publishing, `python3 fall/cp1/tools/offline/verify_public_pages.py` streams
+all fourteen public HTML files and compares their SHA-256 values with the audited
+local builds. It does not save another copy of the downloads.
+
 ## Interface and persistence
+
+Weeks 1–14 provide per-cell **Undo last change** and **Restore original code**
+buttons beside Run. Undo (also Ctrl/Cmd+Z in the editor) walks back up to 100
+recent edit events in that cell. Restoring the original code can itself be undone.
+The original always comes from the page's authored example, even after opening
+saved work. Histories are session-only and reset when a saved notebook is opened;
+they survive running cells and restarting Python. Both actions update saved code
+without running it or changing Python variables. An English note reminds students
+to rerun to update the output. Other cells keep their own edits and histories.
 
 The open left sidebar highlights the current section during scrolling and follows the active entry inside its own scroll area. The top toolbar is not sticky. The notebook uses the available page width, with aligned Code and Output panels on laptops. They stack on phones (650 px or narrower) and in the narrow sidebar layout (851–1000 px). Input values sit below both panels and are hidden when the code has no direct input() call. Visibility updates as code is edited; an EOFError also reveals inputs for indirect calls. Comments and ordinary string examples do not create input boxes. Weeks 01–14 have been rebuilt with this layout; rebuilding other weeks applies the shared template. All teaching disclosures, helper code and error details are expanded. Code/input textareas grow to their wrapped content on edits and layout changes; outputs have no fixed-height scroll box. Code is editable, Run and Shift+Enter execute a cell, and Stop/restart terminates Python while preserving edits. `input()` consumes the cell's pre-entered lines; lesson examples have editable sample responses.
 
@@ -12,7 +220,7 @@ Save notebook exports `.ipynb` with edited code, input values, stdout and plots.
 
 Lesson and solution code have separate global namespaces and working directories. This prevents ordinary solution examples supplying hidden variables/files to practice, but is not a security boundary against deliberate Python code. In normal Jupyter/Colab the exported combined notebook uses one kernel; restart between lesson and answers there.
 
-Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render inside the Output panel beside the code on laptops (below on narrow screens) and are saved in notebook output. Week 12 uses ordinary `with open` setup code in both the source notebook and HTML.
+Weeks 11–14 show generated files in “Python files in this session,” with download buttons. Runtime files disappear on restart and are not included in the notebook export; save them separately or rerun their creation cells. The file list is limited to 100 files, four directory levels and 10 MB per downloadable file. Weeks 13–14 bundle NumPy, Matplotlib and their dependencies; figures render inside the Output panel beside the code on laptops (below on narrow screens) and are saved in notebook output. Week 12 uses ordinary file setup code in its guided offline source and HTML.
 
 ## Runtime and limitations
 
@@ -70,7 +278,7 @@ Python failures show the real exception, the student cell/line, an excerpt, a sh
 
 - `python3 fall/cp1/tools/offline/verify_week12_explanations.py`: checks all 60 Week 12 code blocks, 581 nonblank non-comment lines and 13 comment-only starters. File writes, printed output, append/overwrite behavior and CSV parsing limits are explained separately; 28 file/edge-case checks and all 13 exercise outputs pass.
 
-- `python3 fall/cp1/tools/offline/verify_week13_explanations.py`: checks all 46 Week 13 code blocks and 689 nonblank non-comment lines, including supplied exercise data. Array axes, masks, population standard deviation, moving-window ties, physical units and calibration assumptions are explained; all 13 exercise outputs and 46 numerical/boundary/CSV/plot checks pass.
+- `python3 fall/cp1/tools/offline/verify_week13_explanations.py`: checks all 48 Week 13 code blocks and 689 nonblank non-comment lines, including supplied exercise data. Array axes, masks, population standard deviation, moving-window ties, physical units and calibration assumptions are explained; all 13 exercise outputs and 46 numerical/boundary/CSV/plot checks pass.
 
 - `python3 fall/cp1/tools/offline/verify_week14_explanations.py`: checks all 31 Week 14 code blocks, 445 nonblank non-comment lines and 11 comment-only starters. All 12 exercise outputs and 64 pipeline/boundary/export/plot checks pass. On laptop screens, Week 14 long code and text-output panels scroll internally so explanations and plots remain alongside each other; all content remains available, with full flow on narrow screens and in print.
 

@@ -22,7 +22,7 @@ WEEKS=[
  'objectives':['State a problem as an input contract and an output contract before choosing a method.','Trace a greedy rule on a small instance and record every choice it makes.','Refute a claimed rule with one counterexample, and explain why one is enough.','Explain the three parts of an induction argument for correctness.'],
  'scope':['Problem, instance, algorithm, correctness','Robot tour: nearest-neighbour and closest-pair counterexamples','Interval scheduling by earliest finish, and why it is correct','Counterexamples: small, extreme and tied inputs','Induction as a correctness argument (structure only)'],
  'examples':[ex('Can a locally attractive choice give a globally bad answer?',
- 'Jobs A=[0,3], B=[2,4], C=[3,5]. Choose the largest compatible set; touching endpoints are allowed.',
+ 'Jobs A=[0,3), B=[2,4), C=[3,5). Choose the largest compatible set; intervals are half-open, so a job ending at time 3 is compatible with one starting at time 3.',
  ['Sort by finish time: A, B, C.','Accept A, ending at 3. Reject B because it starts at 2.','Accept C because it starts at 3. Result: two jobs.','The earliest finish leaves at least as much room as any competing first choice. Repeating this exchange establishes optimality for equal-value fixed intervals.'],
  'If jobs have different fees, maximising their count may not maximise income. We return to this distinction in dynamic programming.',figure=1)],
  'python':'Variables name values; assignment stores a result. An algorithm can be explained before any Python is written.'},

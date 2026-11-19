@@ -3,6 +3,7 @@ from html.parser import HTMLParser
 from urllib.parse import urlsplit,unquote
 import re,sys,io,contextlib
 from aligned.build import WEEKS,TESTS,WRITTEN,LECTURES,placements,configure,week_code,textbook_articles,TEXTBOOK_GROUPS
+from aligned.page_links import fragment_exists
 root=Path(__file__).resolve().parents[1]
 configure()
 tests,written=placements()
@@ -63,7 +64,11 @@ def check_links(p,s):
   if target.is_dir():target=target/'index.html'
   assert target.exists(),(p,url)
   if u.fragment and target.suffix=='.html':
-   assert re.search(r'id=[\"\']'+re.escape(u.fragment)+r'[\"\']',target.read_text()),(p,url,'missing anchor')
+   # The current lesson forwards bookmarked earlier anchors to its reference.
+   archive=target.with_name('reference.html')
+   forwards=target.name=='index.html' and 'assets/robot-course.js' in target.read_text()
+   assert (fragment_exists(target,u.fragment)
+           or (forwards and archive.is_file() and fragment_exists(archive,u.fragment))),(p,url,'missing anchor')
  return parsed
 
 # A colon-ended English paragraph followed by its Turkish twin must be followed by the content it introduces.
@@ -72,18 +77,27 @@ def dangling_colons(s):
  for m in re.finditer(r'<p(?: class="(?!turkish)[^"]*")?>([^<]*?):</p>\s*<p class="turkish">[^<]*</p>\s*(?=(</|$))',s):out.append(m[1][-60:])
  return out
 
+def full_lesson(n):
+ # Independently authored main pages retain the full generated lesson under ek-notlar.
+ # Check both routes, and keep all original question/animation invariants below.
+ main=root/f'w{n}/index.html'
+ check_links(main,main.read_text())
+ separate=any((root/'tools'/folder/f'w{n}.html').exists() for folder in ('lessons','simple','card-pages'))
+ return root/f'w{n}/ek-notlar/index.html' if separate else main
+
 for n in range(1,15):
- p=root/f'w{n}/index.html';s=p.read_text();parsed=check_links(p,s)
+ p=full_lesson(n);s=p.read_text();parsed=check_links(p,s)
+ prefix='../../' if p.parent.name=='ek-notlar' else '../'
  assert len(tests[n])>=10
  nums=[int(x) for x in re.findall(r'Question (\d+) ·',s)]
  assert nums==list(range(1,len(nums)+1)),(n,'question numbering')
  assert WEEKS[n-1]['title'] in s
- assert 'By the end of this week you can' in s and all(E in s for E in ['href="../scope/#scope-w%d"'%n,'href="../review/#review-w%d"'%n]),(n,'objectives/scope/review links')
+ assert 'By the end of this week you can' in s and all(E in s for E in [f'href="{prefix}scope/#scope-w{n}"',f'href="{prefix}review/#review-w{n}"']),(n,'objectives/scope/review links')
  assert s.count('class="worked-example"')==len(WEEKS[n-1]['examples']),(n,'worked examples rendered')
  for i in range(1,len(WEEKS[n-1]['examples'])+1):assert f'id="example-{n}-{i}"' in s
  assert 'Additional textbook problems with solutions' not in s,(n,'textbook problems must live on their own page')
- if n in (2,3,14):assert 'href="../textbook-problems/#' in s,(n,'textbook link')
- for m in re.finditer(r'href="\.\./w(\d+)/#skiena-ex-(\d+)"',s):
+ if n in (2,3,14):assert f'href="{prefix}textbook-problems/#' in s,(n,'textbook link')
+ for m in re.finditer(r'href="'+re.escape(prefix)+r'w(\d+)/#skiena-ex-(\d+)"',s):
   assert int(m[2]) in written[int(m[1])],(n,'source exercise link points to the wrong week',m[0])
  d=dangling_colons(s);assert not d,(n,'paragraph ends with a colon and nothing follows',d)
  print(f'Week {n:02}: {len(tests[n])} tests + {len(written[n])} written; links, numbering, colons and code passed')
@@ -97,16 +111,42 @@ for folder,needles in (('scope',['What the exams cover','id="midterm"','id="fina
 s=(root/'scope/index.html').read_text();assert s.count('class="sample-question"')==4 and 'ungraded' in s
 s=(root/'textbook-problems/index.html').read_text();assert len(re.findall(r'id="p2-\d+"',s))==51 and sum(map(len,textbook_articles().values()))==53
 home=(root/'index.html').read_text();check_links(root/'index.html',home)
-for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in home,x
-print('Scope, review and textbook-problems pages exist and are linked from the dashboard and every week.')
+if (root/'tools/lessons/home.html').is_file():
+ assert 'href="resources/"' in home
+ for n in range(1,15):assert f'href="w{n}/"' in home,(n,'fresh route entry')
+ from robot_course.build import dashboard, lesson, legacy_lesson, resources
+ source=root/'tools/lessons'
+ assert home==dashboard((source/'home.html').read_text())
+ assert (root/'resources/teaching/index.html').read_bytes()==(source/'teaching.html').read_bytes()
+ for n in range(1,15):
+  for lang,lang_path,source_suffix in [('en','',''),('tr','tr/','.tr')]:
+   folder=root/f'w{n}'/lang_path
+   current=folder/'index.html'
+   archive=folder/'reference.html'
+   original=(source/f'w{n}{source_suffix}.html').read_text()
+   assert current.read_text()==lesson(n,lang)
+   assert archive.read_text()==legacy_lesson(original,lang)
+   check_links(current,current.read_text())
+   check_links(archive,archive.read_text())
+ for destination in ('resources/index.html','resources/teaching/index.html'):
+  page=root/destination
+  check_links(page,page.read_text())
+ reference=(root/'resources/index.html').read_text()
+ assert reference==resources((source/'resources.html').read_text())
+ for x in ('href="../scope/"','href="../review/"','href="../textbook-problems/"'):assert x in reference,x
+ legacy=(root/'previous-home.html').read_text();check_links(root/'previous-home.html',legacy)
+ for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in legacy,x
+else:
+ for x in ('href="scope/"','href="review/"','href="textbook-problems/"'):assert x in home,x
+print('Scope, review and textbook-problems pages are preserved; the fresh route collects them under additional resources.')
 
 # The student route is only dashboard plus weekly pages; old libraries redirect.
 for n in range(1,15):
- s=(root/f'w{n}/index.html').read_text()
+ s=full_lesson(n).read_text()
  assert all(f'id="{x}"' in s for x in ('lesson','practice','notes'))
  assert not re.search(r'href="\.\./(?:python|guide|skiena|extensions)/',s)
 old=set(re.findall(r'data-anim="([^"]+)"',''.join(p.read_text() for p in (root/'tools/weeks').glob('w*.html'))))
-new=set(re.findall(r'data-anim="([^"]+)"',''.join((root/f'w{n}/index.html').read_text() for n in range(1,15))))
+new=set(re.findall(r'data-anim="([^"]+)"',''.join(full_lesson(n).read_text() for n in range(1,15))))
 assert old<=new,(old-new)
 for folder in ('python','guide'):
  for p in (root/folder).rglob('index.html'):assert 'http-equiv="refresh"' in p.read_text(),p

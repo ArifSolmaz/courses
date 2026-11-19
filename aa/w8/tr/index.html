@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot şarj istasyonuna yetişir mi? · AA Hafta 8</title>
+<link rel="alternate" hreflang="en" href="../">
+<link rel="stylesheet" href="../../assets/python-runner.css">
+<script defer src="../../assets/python-runner.js?v=3"></script>
+<style>
+:root{
+  --floor:#f2f4f3; --panel:#ffffff; --ink:#16202b; --muted:#566473; --line:#cfd6db;
+  --wall:#36424f; --hazard:#f2b705; --charge:#178a5c; --wave:#2f6fa8; --warn:#b3261e;
+  --display:"DIN Alternate","Bahnschrift","Roboto Condensed","Arial Narrow",sans-serif;
+  --body:"Avenir Next","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --panel2:#e6ebee; --mute:#566473;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--floor);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
+[data-lang="tr"] .en,[data-lang="en"] .tr{display:none !important}
+a{color:var(--wave)}
+:focus-visible{outline:3px solid var(--hazard);outline-offset:2px}
+
+.topbar{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;padding:.5rem 1rem}
+.topbar .course{font-family:var(--display);font-size:1.05rem;margin-right:auto}
+.topbar nav{display:flex;flex-wrap:wrap;gap:.25rem .9rem;font-size:.9rem}
+.topbar nav a{color:#dfe6ec;text-decoration:none}
+.topbar nav a:hover{text-decoration:underline}
+.lang{display:flex;border:1px solid #6b7a88;border-radius:4px;overflow:hidden}
+.lang a,.lang span{color:#dfe6ec;font-size:.9rem;padding:.2rem .65rem;text-decoration:none}
+.lang span[aria-current]{background:var(--hazard);color:var(--ink);font-weight:600}
+.topbar a.course{color:#fff;text-decoration:none}
+.printbtn{background:none;border:1px solid #6b7a88;border-radius:4px;color:#dfe6ec;font:inherit;font-size:.9rem;padding:.2rem .65rem;cursor:pointer}
+
+.hero{background:var(--panel);border-bottom:6px solid var(--hazard)}
+.hero-in{max-width:92rem;margin:0 auto;padding:2.5rem 1.25rem;display:grid;grid-template-columns:minmax(18rem,1fr) minmax(0,48rem);gap:2.5rem;align-items:start}
+/* live map: map on the left, buttons, status and queue on the right */
+#wave{display:grid;grid-template-columns:minmax(0,23rem) minmax(0,1fr);gap:0 1.25rem;align-items:start}
+#wave .wleft,#wave .wright{min-width:0}
+#wave .grid{max-width:none}
+#wave .wright .controls:first-child{margin-top:0}
+.hero h1{font-family:var(--display);font-size:clamp(1.9rem,3.3vw,3.4rem);line-height:1.05;margin:0 0 1rem;letter-spacing:-.01em}
+.hero p{max-width:34rem;margin:.6rem 0}
+.hero .meta{color:var(--muted);font-size:.95rem}
+.sitelinks{display:flex;flex-wrap:wrap;gap:.3rem 1.25rem}
+
+main{max-width:46rem;margin:0 auto;padding:1rem 1.25rem 4rem}
+section{padding-top:2.5rem}
+h2{font-family:var(--display);font-size:1.9rem;line-height:1.15;margin:0 0 .75rem;padding-top:.75rem;border-top:4px solid var(--ink)}
+h3{font-family:var(--display);font-size:1.3rem;margin:1.75rem 0 .4rem}
+h4{font-size:1rem;margin:1.25rem 0 .3rem}
+p{margin:.6rem 0}
+ol,ul{padding-left:1.4rem}
+li{margin:.35rem 0}
+.blank{display:inline-block;min-width:4.5rem;border-bottom:1.5px solid var(--ink);height:1.1em;vertical-align:baseline}
+.blank.long{display:block;min-width:0;width:100%;height:1.9em}
+.note{background:#fff8dc;border-left:6px solid var(--hazard);padding:.6rem .9rem;margin:1rem 0}
+
+table{border-collapse:collapse;width:100%;margin:1rem 0;background:var(--panel);font-size:.97rem}
+th,td{border:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:#e6ebee;font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+
+pre{background:var(--ink);color:#eef3f6;padding:1rem;overflow-x:auto;font-family:var(--mono);font-size:.86rem;line-height:1.5;border-radius:4px}
+code{font-family:var(--mono);font-size:.92em;background:#e6ebee;padding:.05em .3em;border-radius:3px}
+pre code{background:none;padding:0;font-size:inherit}
+
+details{background:var(--panel);border:1px solid var(--line);margin:1rem 0;padding:.6rem .9rem}
+summary{cursor:pointer;font-weight:600}
+details.teacher{border-left:6px solid var(--charge)}
+
+/* answers */
+.q{white-space:normal}
+.q input{font:inherit;font-size:.95rem;width:4.8rem;padding:.1rem .35rem;border:0;border-bottom:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+.q input.wide{width:8.5rem}
+td .q{display:block;white-space:normal}
+td .q input{display:block;width:100%;min-width:4.5rem}
+td .fb{margin:.3rem 0 0}
+.qlong{display:block;margin:.35rem 0}
+.qlong textarea{display:block;width:100%;min-height:3.2rem;font:inherit;font-size:.95rem;padding:.4rem .5rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:0;resize:vertical}
+.fb{display:inline-block;font-size:.85rem;font-weight:700;line-height:1.35;margin-left:.35rem;padding:.08rem .5rem;border-radius:3px;white-space:normal;vertical-align:baseline}
+.fb:empty{display:none}
+.fb.ok{background:#178a5c;color:#fff}
+.fb.no{background:#b3261e;color:#fff}
+.fb.info{background:#1f5f99;color:#fff}
+.ibtn{font:italic 700 .9rem Georgia,"Times New Roman",serif;width:1.45rem;height:1.45rem;line-height:1;padding:0;margin-left:.3rem;border:1.5px solid #1f5f99;border-radius:50%;background:#fff;color:#1f5f99;cursor:pointer;vertical-align:baseline}
+.ibtn[aria-expanded="true"]{background:#1f5f99;color:#fff}
+.explain{display:block;margin:.5rem 0 .6rem;padding:.6rem .8rem;background:#fff;border:1.5px solid #1f5f99;border-left-width:5px;font-size:.95rem;line-height:1.5;white-space:normal}
+.explain[hidden],.ibtn[hidden]{display:none}
+tr.exrow>td{padding:0;border:0}
+tr.exrow .explain{margin:.4rem .5rem .6rem}
+.calc{display:block;margin:.5rem 0 0;padding:.5rem .7rem;background:#eef4f9;font-family:var(--mono);font-size:.84rem;line-height:1.6;white-space:pre;overflow-x:auto;border-radius:0}
+.qlong .fb{display:block;margin:.35rem 0 0;font-weight:400;font-size:.95rem;line-height:1.5;color:#0d3b63;background:#dcebf7;border-left:5px solid #1f5f99;border-radius:0;padding:.45rem .7rem}
+.qlong .fb:empty{display:none}
+button.chk{font:inherit;font-size:.85rem;padding:.15rem .6rem;margin-left:.5rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:4px;cursor:pointer;white-space:nowrap}
+.chkrow{margin:.5rem 0 1rem}.chkrow button.chk{margin-left:0}
+.chkall{margin:1.75rem 0 0;padding-top:1rem;border-top:1px dashed var(--line)}
+.score{margin-left:.75rem;font-weight:600}
+/* site python runner */
+.python-cell{border-radius:4px}
+.python-cell pre{color:var(--ink);border-radius:0;max-height:none}
+.python-panes{grid-template-columns:minmax(0,1fr)}
+.python-result{border-left:0;border-top:1px solid var(--line)}
+.python-cell .py-output{min-height:2.5em}
+.python-toolbar button{cursor:pointer}
+.python-toolbar .btn{background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:6px;padding:6px 12px;font-size:12px}
+/* widgets */
+.widget{background:var(--panel);border:1px solid var(--line);padding:1rem;margin:1rem 0}
+.hero .widget{margin:0;border:2px solid var(--ink)}
+.widget h3{margin-top:0}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0;align-items:center}
+button.act,select,input[type=number]{font:inherit;font-size:.95rem;padding:.4rem .75rem;border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:4px}
+button.act{cursor:pointer}
+button.act.primary{background:var(--ink);color:#fff}
+button.act:disabled{opacity:.45;cursor:not-allowed}
+.status{font-size:.95rem;min-height:3.2em}
+.queue{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+.qrow{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.3rem 0}
+.qlab{font-size:.82rem;font-weight:600;color:var(--muted);min-width:2.6rem}
+.qbox{min-width:3.2rem;padding:.2rem .35rem;border:2px solid var(--ink);text-align:center;background:#fff;line-height:1.15}
+.qbox b{display:block;font-size:1.05rem}
+.qbox small{display:block;font-family:var(--mono);font-size:.68rem}
+.qbox.out{border-style:dashed;border-color:var(--warn);background:#fff !important;color:var(--warn) !important}
+.qbox.new{box-shadow:0 0 0 3px var(--charge);animation:qin .35s ease-out}
+.qmore{font-size:.85rem;color:var(--muted)}
+.qnote{font-size:.92rem;margin:.4rem 0 0}
+.qnote .k{font-weight:700}
+.cell.new{outline:3px dashed var(--charge);outline-offset:-5px}
+@keyframes qin{from{opacity:0;transform:translateX(10px)}}
+@media (prefers-reduced-motion:reduce){.qbox.new{animation:none}}
+
+.grid{display:grid;gap:3px;background:var(--wall);padding:3px;width:100%;max-width:24rem;aspect-ratio:1}
+.cell{border:0;padding:0;background:#fff;font:600 1rem var(--body);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;min-width:0}
+.cell.wall{background:var(--wall)}
+.cell.start{box-shadow:inset 0 0 0 4px var(--hazard)}
+.cell.goal{box-shadow:inset 0 0 0 4px var(--charge)}
+.cell.cur{outline:3px solid var(--warn);outline-offset:-3px}
+.cell.path::after{content:"";position:absolute;inset:22%;border:3px solid var(--warn);border-radius:50%}
+.cell .tag{position:absolute;top:1px;left:4px;font-size:.65rem;font-weight:700;color:var(--muted)}
+.grid.big .cell{font-size:.7rem}.grid.big .cell .tag{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.85rem;color:var(--muted);margin-top:.5rem}
+.sw{display:inline-block;width:.9em;height:.9em;vertical-align:-.1em;margin-right:.3em;background:#fff;border:1px solid var(--line)}
+
+/* paper grid */
+table.paper{width:auto;margin:1rem 0;border:3px solid var(--wall)}
+table.paper td{width:3.6rem;height:3.6rem;border:1.5px solid var(--wall);padding:2px 4px;font-size:.75rem;font-weight:700;color:var(--muted);background:#fff}
+table.paper td.w{background:var(--wall)}
+table.paper.small td{width:3rem;height:3rem}
+table.paper.filled td{font-size:1.05rem;text-align:center;vertical-align:middle;color:var(--ink)}
+
+.growth output{font-variant-numeric:tabular-nums;font-weight:600}
+.axes{display:grid;grid-template-columns:repeat(3,minmax(0,11rem));gap:4px;margin:1rem 0;font-family:var(--mono);font-size:.82rem}
+.axes .ax{border:2px solid var(--ink);background:#fff;padding:.4rem .3rem;text-align:center;line-height:1.3}
+.axes .ax small{display:block;font-family:var(--body);color:var(--muted);font-size:.78rem}
+.axes .ax.me{background:var(--ink);color:#fff}.axes .ax.me small{color:#cfd6db}
+table.codeexp td.num{width:4.5rem;white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+table.trace td:first-child{white-space:nowrap}
+.gcalc-h{margin:1rem 0 .2rem}
+#gcalc{font-size:.8rem}
+input[type=range]{width:100%}
+
+@media (max-width:64rem){.hero-in{grid-template-columns:1fr}}
+@media (max-width:52rem){.topbar nav{display:none}}
+@media (max-width:42rem){#wave{grid-template-columns:1fr}#wave .grid{max-width:24rem}#wave .wright{margin-top:.75rem}}
+@media print{
+  .topbar,.widget,.printbtn,.chk,.chkrow,.chkall,.ibtn,.python-toolbar,.python-hint{display:none !important}
+  body{background:#fff;font-size:11pt}
+  .hero{border:0}.hero-in{display:block;padding:0 0 1rem}
+  main{max-width:none;padding:0}
+  section{break-before:auto}
+  section.sheet{break-before:page}
+  pre{background:#fff;color:#000;border:1px solid #000}
+  h2,h3{break-after:avoid}
+  table,pre,li{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="course" href="../../"><span class="tr">AA Algoritma Analizi, Hafta 8</span><span class="en">AA Algorithm Analysis, Week 8</span></a>
+  <nav aria-label="Sections">
+    <a href="#count"><span class="tr">Adım sayma</span><span class="en">Counting steps</span></a>
+    <a href="#route"><span class="tr">En kısa rota</span><span class="en">Shortest route</span></a>
+    <a href="#code"><span class="tr">Kod</span><span class="en">Code</span></a>
+    <a href="#mistakes"><span class="tr">Hatalar</span><span class="en">Mistakes</span></a>
+    <a href="#exam"><span class="tr">Sorular</span><span class="en">Questions</span></a>
+    <a href="#key"><span class="tr">Cevaplar</span><span class="en">Answers</span></a>
+  </nav>
+  <button class="printbtn" type="button" onclick="window.print()"><span class="tr">Yazdır</span><span class="en">Print</span></button>
+  <div class="lang" role="group" aria-label="Dil / Language"><span aria-current="true">TR</span><a href="../" hreflang="en" lang="en">EN</a></div>
+</div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <h1><span class="tr">Robotun 8 birim enerjisi kaldı. Şarj istasyonuna yetişir mi?</span><span class="en">The robot has 8 units of energy left. Can it reach the charger?</span></h1>
+      <p class="tr">Bu hafta tek bir soruya bakıyoruz: <strong>girdi büyüyünce iş ne kadar büyür?</strong> Önce kartlarla ve kâğıtla sayacağız, sonra aynı işi robota yaptıracağız. Kod en sonda gelir ve kısa kalır.</p>
+      <p class="en">This week has one question: <strong>when the input grows, how much does the work grow?</strong> We count with cards and paper first, then make the robot do the same job. Code comes last and stays short.</p>
+      <p class="tr">Buradaki harita canlıdır. Önce rotayı gözünüzle tahmin edin, sonra halka halka ilerletin. Duvar eklemek ya da kaldırmak için hücrelere tıklayın. Haritanın yanındaki kutular kuyruktur: hücreler soldan çıkar, sağa eklenir.</p>
+      <p class="en">The map here is live. Guess the route by eye first, then advance the ripple one ring at a time. Click cells to add or remove walls. The boxes beside the map are the queue: cells leave on the left and join on the right.</p>
+      <p class="meta sitelinks"><a href="../../w7/tr/"><span class="tr">Hafta 7</span><span class="en">Week 7</span></a> <a href="full.html"><span class="tr">Ayrıntılı ders ve zamanlama deneyi</span><span class="en">Full lesson and timing lab</span></a> <a href="../../w9/tr/"><span class="tr">Hafta 9</span><span class="en">Week 9</span></a></p>
+      <p class="meta"><span class="tr">180 dakika, ikili çalışma. Ön koşul: Python'da <code>for</code> döngüsü okuyabilmek.</span><span class="en">180 minutes, in pairs. Prerequisite: being able to read a Python <code>for</code> loop.</span></p>
+    </div>
+
+    <div class="widget" id="wave">
+      <div class="wleft">
+      <div class="grid" id="wgrid" role="grid" aria-label="Map"></div>
+      <div class="legend">
+        <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--hazard)"></span><span class="tr">R robot</span><span class="en">R robot</span></span>
+        <span><span class="sw" style="box-shadow:inset 0 0 0 3px var(--charge)"></span><span class="tr">S şarj</span><span class="en">S charger</span></span>
+        <span><span class="sw" style="background:var(--wall)"></span><span class="tr">duvar</span><span class="en">wall</span></span>
+        <span><span class="sw" style="outline:3px solid var(--warn);outline-offset:-3px"></span><span class="tr">kuyruktan çıkan</span><span class="en">just removed</span></span>
+        <span><span class="sw" style="outline:3px dashed var(--charge);outline-offset:-3px"></span><span class="tr">kuyruğa yeni giren</span><span class="en">just added</span></span>
+      </div>
+      </div>
+      <div class="wright">
+      <div class="controls">
+        <button class="act primary" type="button" id="wlayer"><span class="tr">Bir halka ilerlet</span><span class="en">Advance one ring</span></button>
+        <button class="act" type="button" id="wstep"><span class="tr">Tek hücre işle</span><span class="en">Process one cell</span></button>
+        <button class="act" type="button" id="wclear"><span class="tr">Sayıları sil</span><span class="en">Clear numbers</span></button>
+      </div>
+      <div class="controls">
+        <label><span class="tr">Harita</span><span class="en">Map</span>
+          <select id="wsize">
+            <option value="5">5×5</option><option value="8">8×8</option><option value="12">12×12</option><option value="20">20×20</option>
+          </select></label>
+        <button class="act" type="button" id="wrand"><span class="tr">Rastgele duvarlar</span><span class="en">Random walls</span></button>
+        <button class="act" type="button" id="wdef"><span class="tr">Ders haritası</span><span class="en">Lesson map</span></button>
+      </div>
+      <div class="status" id="wstatus" aria-live="polite"></div>
+      <div class="queue" id="wqueue"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="goals">
+  <h2><span class="tr">Dersin sonunda</span><span class="en">By the end of the lesson</span></h2>
+  <ul class="tr">
+    <li>Bir işin adımlarını sayabilir ve girdi iki katına çıkınca ne olacağını tahmin edebilirsiniz.</li>
+    <li>Üç büyüme türünü ayırt edersiniz: iki katına çıkan, bir artan, dört katına çıkan.</li>
+    <li>Engelli bir haritada en az hamleli rotayı kâğıt üzerinde bulur ve neden en kısa olduğunu açıklarsınız.</li>
+    <li>Aynı işi yapan kısa bir Python kodunu okur, çıktısını tahmin eder ve değiştirirsiniz.</li>
+  </ul>
+  <ul class="en">
+    <li>You can count the steps of a task and predict what happens when the input doubles.</li>
+    <li>You can tell three kinds of growth apart: work that doubles, work that adds one, work that quadruples.</li>
+    <li>You can find the fewest-move route on a map with obstacles, on paper, and explain why it is the shortest.</li>
+    <li>You can read a short Python program that does the same job, predict its output and change it.</li>
+  </ul>
+
+  <h3><span class="tr">Bunu neden bilmeliyiz?</span><span class="en">Why should we know this?</span></h3>
+  <p class="tr">Robotunuzun kontrol döngüsü saniyede 100 kez çalışıyorsa her turda 10 milisaniyeniz vardır. Rota hesabı bu süreye sığmazsa robot ya durur ya da eski bilgiyle hareket eder. Bir yöntemin bugün hızlı çalışması yetmez; sensör verisi ya da harita on kat büyüdüğünde ne olacağını önceden bilmeniz gerekir. Algoritma analizi bu tahmini yapmanın yoludur.</p>
+  <p class="en">If your robot's control loop runs 100 times a second, you have 10 milliseconds per cycle. If route planning does not fit, the robot either stalls or moves on stale information. It is not enough that a method is fast today; you need to know in advance what happens when the sensor data or the map grows tenfold. Algorithm analysis is how you make that prediction.</p>
+</section>
+
+<section id="count" class="sheet">
+  <h2><span class="tr">Bölüm 1: Adım sayma</span><span class="en">Part 1: Counting steps</span></h2>
+  <p class="tr">Üç deneyde de aynı şeyi yapın: işi sayın, sonra girdiyi iki katına çıkarıp yeniden sayın. Saniye ölçmüyoruz; adım sayıyoruz, çünkü adım sayısı bilgisayarın hızına bağlı değildir.</p>
+  <p class="en">Do the same thing in all three experiments: count the work, then double the input and count again. We do not measure seconds; we count steps, because the step count does not depend on how fast the computer is.</p>
+
+  <h3><span class="tr">Deney 1: Kart arama</span><span class="en">Experiment 1: Card search</span></h3>
+  <p class="tr">16 kartı karıştırıp ters çevirin. Arkadaşınız bir sayı söylesin; kartları soldan sağa sırayla açarak o sayıyı arayın. Her açılan kart bir adımdır.</p>
+  <p class="en">Shuffle 16 cards and lay them face down. Your partner names a number; turn the cards over left to right until you find it. Each card turned is one step.</p>
+  <ol class="tr">
+    <li>En şanslı durumda kaç kart açarsınız? <span class="blank"></span> En kötü durumda? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Üç kez oynayın, açılan kart sayılarını yazın: <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>Kart sayısı 32 olsaydı en kötü durum kaç olurdu? <span class="blank"></span></li>
+    <li>Kart iki katına çıkınca iş kaç katına çıktı? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>How many cards do you turn in the luckiest case? <span class="blank"></span> In the worst case? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Play three times and write down the number of cards turned: <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>With 32 cards, what would the worst case be? <span class="blank"></span></li>
+    <li>When the cards doubled, by what factor did the work grow? <span class="blank"></span></li>
+  </ol>
+
+  <h3><span class="tr">Deney 2: Sayı tahmini</span><span class="en">Experiment 2: Number guessing</span></h3>
+  <p class="tr">Arkadaşınız 1 ile 100 arasında bir sayı tutsun. Her tahminde yalnızca "daha büyük" ya da "daha küçük" desin. Kural: her seferinde kalan aralığın tam ortasını sorun.</p>
+  <p class="en">Your partner picks a number between 1 and 100. After each guess they only say "higher" or "lower". Rule: always ask for the exact middle of the remaining range.</p>
+  <ol class="tr">
+    <li>En fazla kaç tahmin gerekir? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Her tahminden sonra kalan aralığın büyüklüğünü yazın: 100, <span class="blank"></span> <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>Aralık 1–200 olsaydı en fazla kaç tahmin gerekirdi? <span class="blank"></span></li>
+    <li>Aralık iki katına çıkınca iş ne kadar arttı? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>What is the largest number of guesses needed? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>After each guess, write the size of the remaining range: 100, <span class="blank"></span> <span class="blank"></span> <span class="blank"></span> <span class="blank"></span></li>
+    <li>If the range were 1–200, how many guesses at most? <span class="blank"></span></li>
+    <li>When the range doubled, how much did the work grow? <span class="blank"></span></li>
+  </ol>
+
+  <div class="widget" id="guess">
+    <h3><span class="tr">Bilgisayara karşı deneyin</span><span class="en">Try it against the computer</span></h3>
+    <div class="controls">
+      <label><span class="tr">Aralık: 1 ile</span><span class="en">Range: 1 to</span>
+        <select id="gmax"><option>100</option><option>200</option><option>1000</option><option>1000000</option></select></label>
+      <button class="act" type="button" id="gnew"><span class="tr">Yeni sayı tut</span><span class="en">Pick a new number</span></button>
+    </div>
+    <div class="controls">
+      <label for="gin"><span class="tr">Tahmininiz</span><span class="en">Your guess</span></label>
+      <input type="number" id="gin" min="1" inputmode="numeric" style="width:9rem">
+      <button class="act primary" type="button" id="ggo"><span class="tr">Tahmin et</span><span class="en">Guess</span></button>
+    </div>
+    <div class="status" id="gstatus" aria-live="polite"></div>
+  </div>
+
+  <h3><span class="tr">Deney 3: Tokalaşma</span><span class="en">Experiment 3: Handshakes</span></h3>
+  <p class="tr">4 kişilik grupta herkes herkesle bir kez tokalaşsın; biri saysın. Sonra iki grup birleşip 8 kişi olsun ve yeniden sayın.</p>
+  <p class="en">In a group of 4, everyone shakes hands with everyone else once; one person counts. Then two groups merge into 8 and count again.</p>
+  <ol class="tr">
+    <li>4 kişide kaç tokalaşma oldu? <span class="blank"></span></li>
+    <li>8 kişide kaç tokalaşma oldu? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Kişi sayısı iki katına çıkınca iş kaç katına çıktı? <span class="blank"></span></li>
+    <li>Bütün sınıf tokalaşsaydı kaç tokalaşma olurdu? Saymadan nasıl bulursunuz? <span class="blank long"></span></li>
+  </ol>
+  <ol class="en">
+    <li>How many handshakes with 4 people? <span class="blank"></span></li>
+    <li>How many with 8 people? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>When the group doubled, by what factor did the work grow? <span class="blank"></span></li>
+    <li>If the whole class shook hands, how many handshakes would there be? How can you find out without counting? <span class="blank long"></span></li>
+  </ol>
+
+  <h3><span class="tr">Özet tablosu</span><span class="en">Summary table</span></h3>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Deney</th><th>Girdi</th><th>İş (en kötü durum, sayı)</th><th>Girdi × 2 olunca iş (sayı)</th></tr>
+    <tr><td>Kart arama</td><td>16 kart</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>Sayı tahmini</td><td>1–100</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>Tokalaşma</td><td>4 kişi</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Experiment</th><th>Input</th><th>Work (worst case, a number)</th><th>Work when input × 2 (a number)</th></tr>
+    <tr><td>Card search</td><td>16 cards</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>Number guessing</td><td>1–100</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>Handshakes</td><td>4 people</td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+  </table>
+  </div>
+  <p class="tr">Son soru: 1 milyon girdiniz olsa hangi yöntemi isterdiniz, hangisinden kaçardınız? <span class="blank long"></span></p>
+  <p class="en">Last question: with 1 million inputs, which method would you want and which would you avoid? <span class="blank long"></span></p>
+
+  <h3><span class="tr">Bu üç davranışın adı</span><span class="en">Names for these three behaviours</span></h3>
+  <p class="tr">Tabloyu doldurduktan sonra okuyun. Girdi büyüklüğüne n diyelim. Büyük O gösterimi, n büyüdükçe işin nasıl büyüdüğünü tek kelimeyle söylemenin yoludur; kesin adım sayısını değil, büyümenin biçimini anlatır.</p>
+  <p class="en">Read this after filling in the table. Call the input size n. Big O notation is a one-word way of saying how the work grows as n grows; it describes the shape of the growth, not the exact step count.</p>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Deney</th><th>Davranış</th><th>Yazılışı</th><th>Okunuşu</th></tr>
+    <tr><td>Kart arama</td><td>Girdi 2 katına çıkınca iş 2 katına çıkar</td><td>O(n)</td><td>doğrusal</td></tr>
+    <tr><td>Sayı tahmini</td><td>Girdi 2 katına çıkınca iş 1 adım artar</td><td>O(log n)</td><td>logaritmik</td></tr>
+    <tr><td>Tokalaşma</td><td>Girdi 2 katına çıkınca iş yaklaşık 4 katına çıkar</td><td>O(n²)</td><td>karesel</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Experiment</th><th>Behaviour</th><th>Written</th><th>Read as</th></tr>
+    <tr><td>Card search</td><td>Input doubles, work doubles</td><td>O(n)</td><td>linear</td></tr>
+    <tr><td>Number guessing</td><td>Input doubles, work adds 1 step</td><td>O(log n)</td><td>logarithmic</td></tr>
+    <tr><td>Handshakes</td><td>Input doubles, work roughly quadruples</td><td>O(n²)</td><td>quadratic</td></tr>
+  </table>
+  </div>
+
+  <div class="widget growth" id="growth">
+    <h3><span class="tr">Girdi büyüyünce ne olur?</span><span class="en">What happens as the input grows?</span></h3>
+    <p class="tr">Saniyede 1 milyon adım atan bir işlemci varsayalım. Kaydırıcıyla n'yi değiştirin.</p>
+    <p class="en">Assume a processor that does 1 million steps per second. Move the slider to change n.</p>
+    <label for="gn">n = <output id="gnv"></output></label>
+    <input type="range" id="gn" min="1" max="6" step="0.05" value="3">
+    <div class="scroll">
+    <table>
+      <tr><th><span class="tr">Büyüme</span><span class="en">Growth</span></th><th class="num"><span class="tr">Adım</span><span class="en">Steps</span></th><th class="num"><span class="tr">Süre</span><span class="en">Time</span></th></tr>
+      <tr><td>O(log n)</td><td class="num"><output id="g1"></output></td><td class="num"><output id="t1"></output></td></tr>
+      <tr><td>O(n)</td><td class="num"><output id="g2"></output></td><td class="num"><output id="t2"></output></td></tr>
+      <tr><td>O(n log n)</td><td class="num"><output id="g3"></output></td><td class="num"><output id="t3"></output></td></tr>
+      <tr><td>O(n²)</td><td class="num"><output id="g4"></output></td><td class="num"><output id="t4"></output></td></tr>
+    </table>
+    </div>
+    <h4 class="gcalc-h"><span class="tr">Bu sayılar nasıl hesaplandı?</span><span class="en">How were these numbers worked out?</span></h4>
+    <code class="calc" id="gcalc" aria-live="polite"></code>
+    <p class="tr">n = 1 000 000 için karesel yöntem 11 günden uzun sürer; logaritmik yöntem 20 adımda biter. Kontrol döngünüzde 10 milisaniyeniz varsa hangi satırlar sığıyor?</p>
+    <p class="en">At n = 1,000,000 the quadratic method takes more than 11 days; the logarithmic one finishes in 20 steps. If your control loop gives you 10 milliseconds, which rows fit?</p>
+  </div>
+
+  <h3><span class="tr">Önceki yedi hafta tek tabloda</span><span class="en">The previous seven weeks in one table</span></h3>
+  <p class="tr">Şimdiye kadar gördüğünüz her şey bu üç davranıştan birine ya da yakın bir akrabasına denk gelir. Tabloyu ezberlemeyin; her satır için "girdi iki katına çıkınca ne olur?" diye sorun.</p>
+  <p class="en">Everything you have seen so far matches one of these three behaviours or a close relative. Do not memorise the table; for each row ask "what happens when the input doubles?"</p>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Hafta</th><th>Konu</th><th>Büyüme</th><th>Hangi deneye benziyor</th></tr>
+    <tr><td>1–2</td><td>Sırayla arama, ziyaret sayma</td><td>O(n)</td><td>Kart arama</td></tr>
+    <tr><td>3</td><td>İkili arama (sıralı veride)</td><td>O(log n)</td><td>Sayı tahmini</td></tr>
+    <tr><td>4</td><td>Kuyruğa ekleme ve kuyruktan çıkarma</td><td>O(1)</td><td>Girdi büyüse de iş aynı kalır</td></tr>
+    <tr><td>5</td><td>Sözlükte arama</td><td>ortalamada O(1)</td><td>Girdi büyüse de iş aynı kalır</td></tr>
+    <tr><td>6</td><td>İyi bir sıralama</td><td>O(n log n)</td><td>Kart aramadan biraz ağır, tokalaşmadan çok hafif</td></tr>
+    <tr><td>7</td><td>Öbeğe ekleme ve öbekten çıkarma</td><td>O(log n)</td><td>Sayı tahmini</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Week</th><th>Topic</th><th>Growth</th><th>Which experiment it resembles</th></tr>
+    <tr><td>1–2</td><td>Sequential search, counting visits</td><td>O(n)</td><td>Card search</td></tr>
+    <tr><td>3</td><td>Binary search (on sorted data)</td><td>O(log n)</td><td>Number guessing</td></tr>
+    <tr><td>4</td><td>Adding to and removing from a queue</td><td>O(1)</td><td>Work stays the same as input grows</td></tr>
+    <tr><td>5</td><td>Dictionary lookup</td><td>O(1) on average</td><td>Work stays the same as input grows</td></tr>
+    <tr><td>6</td><td>A good sorting method</td><td>O(n log n)</td><td>A little heavier than card search, far lighter than handshakes</td></tr>
+    <tr><td>7</td><td>Adding to and removing from a heap</td><td>O(log n)</td><td>Number guessing</td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="route" class="sheet">
+  <h2><span class="tr">Bölüm 2: Kâğıtta en kısa rota</span><span class="en">Part 2: Shortest route on paper</span></h2>
+  <p class="tr">Depo robotunun 8 birim enerjisi kaldı. Her hamle (yukarı, sağ, aşağı, sol) 1 birim harcar; çapraz hareket yoktur. Koyu hücreler duvardır. Robot R hücresinden S hücresindeki şarj istasyonuna yetişebilir mi?</p>
+  <p class="en">The warehouse robot has 8 units of energy left. Each move (up, right, down, left) costs 1 unit; there are no diagonal moves. Dark cells are walls. Can the robot get from cell R to the charger in cell S?</p>
+
+  <table class="paper" aria-label="Map">
+    <tr><td>R</td><td></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td class="w"></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td class="w"></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td></td><td class="w"></td></tr>
+    <tr><td class="w"></td><td></td><td></td><td></td><td>S</td></tr>
+  </table>
+
+  <h3><span class="tr">Önce kendiniz deneyin</span><span class="en">Try it yourself first</span></h3>
+  <ol class="tr">
+    <li>Bir rota çizin. Kaç hamle sürdü? <span class="blank"></span></li>
+    <li>Daha kısası olmadığından emin misiniz? Bir arkadaşınızı nasıl ikna edersiniz? <span class="blank long"></span></li>
+  </ol>
+  <ol class="en">
+    <li>Draw a route. How many moves did it take? <span class="blank"></span></li>
+    <li>Are you sure there is no shorter one? How would you convince a classmate? <span class="blank long"></span></li>
+  </ol>
+
+  <h3><span class="tr">Halka yöntemi</span><span class="en">The ripple method</span></h3>
+  <p class="tr">Suya taş atınca halkalar her yöne aynı hızla yayılır ve bir noktaya her zaman en kısa yoldan ulaşır. Aynısını haritada yapın.</p>
+  <p class="en">Drop a stone in water and the ripple spreads at the same speed in every direction, reaching each point by the shortest way. Do the same on the map.</p>
+  <ol class="tr">
+    <li>R hücresine 0 yazın.</li>
+    <li>0'ın boş komşularına 1 yazın.</li>
+    <li>1'lerin henüz sayı yazılmamış boş komşularına 2 yazın.</li>
+    <li>S hücresine sayı yazılana kadar böyle sürdürün.</li>
+  </ol>
+  <ol class="en">
+    <li>Write 0 in cell R.</li>
+    <li>Write 1 in the empty neighbours of 0.</li>
+    <li>Write 2 in the empty neighbours of the 1s that have no number yet.</li>
+    <li>Keep going until cell S gets a number.</li>
+  </ol>
+  <p class="note tr">İki kural: sayı yazılmış bir hücreye bir daha yazılmaz, duvara yazılmaz.</p>
+  <p class="note en">Two rules: never write in a cell that already has a number, and never write in a wall.</p>
+
+  <h3><span class="tr">Sorular</span><span class="en">Questions</span></h3>
+  <ol class="tr">
+    <li>S hücresine hangi sayı yazıldı? <span class="blank"></span> Robotun enerjisi yetiyor mu? <span class="blank"></span></li>
+    <li>S'den başlayıp her adımda bir küçük sayıya giderek R'ye dönün. Bu yol en kısa rotadır. Kaç farklı en kısa rota var? <span class="blank"></span></li>
+    <li>Rotanız kaç hamle, kaç hücreden geçiyor? İkisi neden farklı? <span class="blank long"></span></li>
+    <li>Bir hücreye yazdığınız sayı neden o hücreye ulaşmanın en az hamle sayısıdır? <span class="blank long"></span></li>
+    <li>Kaç hücreye sayı yazdınız? <span class="blank"></span> Harita 10×10 olsaydı en fazla kaç hücreye yazardınız? <span class="blank"></span> Bu, Bölüm 1'deki hangi deneye benziyor? <span class="blank"></span></li>
+  </ol>
+  <ol class="en">
+    <li>What number did cell S get? <span class="blank"></span> Does the robot have enough energy? <span class="blank"></span></li>
+    <li>Start at S and walk back to R, moving to a number one smaller at each step. That path is a shortest route. How many different shortest routes are there? <span class="blank"></span></li>
+    <li>How many moves is your route, and how many cells does it pass through? Why are the two different? <span class="blank long"></span></li>
+    <li>Why is the number you wrote in a cell the fewest moves needed to reach it? <span class="blank long"></span></li>
+    <li>How many cells did you number? <span class="blank"></span> On a 10×10 map, how many at most? <span class="blank"></span> Which Part 1 experiment does that resemble? <span class="blank"></span></li>
+  </ol>
+
+  <h3><span class="tr">Bilgisayar halkaları hangi sırayla yazar?</span><span class="en">In what order does a computer write the ripples?</span></h3>
+  <p class="tr">Siz haritaya bakıp bütün 1'leri bir anda görürsünüz; bilgisayar her seferinde tek bir hücreye bakabilir. Bu yüzden sırası gelen hücreleri bir <strong>kuyrukta</strong> tutar. Kuyruk yemekhane sırası gibidir: yeni gelen sona eklenir, en önce gelen önce çıkar. Böylece 1'ler bitmeden 2'lere geçilmez.</p>
+  <p class="en">You look at the map and see all the 1s at once; a computer can look at only one cell at a time. So it keeps the cells waiting their turn in a <strong>queue</strong>. A queue works like a cafeteria line: newcomers join the back, whoever came first leaves first. That way the 2s never start before the 1s are finished.</p>
+  <p class="tr">Hücreleri (satır, sütun) olarak yazıyoruz; sol üst köşe (0, 0). Komşulara hep aynı sırayla bakın: yukarı, sağ, aşağı, sol. İlk dört satır dolduruldu; sonraki dördünü siz doldurun. Hücreleri (2,0) biçiminde, birden fazlaysa virgülle ayırarak yazın.</p>
+  <p class="en">Cells are written as (row, column); the top-left corner is (0, 0). Always check neighbours in the same order: up, right, down, left. The first four rows are filled in; do the next four yourself. Write cells as (2,0), separated by commas if there are several.</p>
+  <div class="scroll">
+  <table>
+    <tr><th><span class="tr">Adım</span><span class="en">Step</span></th><th><span class="tr">Kuyruktan çıkan</span><span class="en">Removed from queue</span></th><th><span class="tr">Kuyruğa eklenen</span><span class="en">Added to queue</span></th><th><span class="tr">Kuyruğun son hali</span><span class="en">Queue afterwards</span></th></tr>
+    <tr><td>1</td><td>(0,0)</td><td>(0,1), (1,0)</td><td>(0,1), (1,0)</td></tr>
+    <tr><td>2</td><td>(0,1)</td><td>(0,2)</td><td>(1,0), (0,2)</td></tr>
+    <tr><td>3</td><td>(1,0)</td><td>(2,0)</td><td>(0,2), (2,0)</td></tr>
+    <tr><td>4</td><td>(0,2)</td><td>(1,2)</td><td>(2,0), (1,2)</td></tr>
+    <tr><td>5</td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>6</td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>7</td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+    <tr><td>8</td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td></tr>
+  </table>
+  </div>
+  <p class="tr">Sayfanın başındaki canlı haritada "Tek hücre işle" düğmesi tam olarak bu tabloyu adım adım oynatır; doldurduktan sonra oradan kontrol edin. Bu yöntemin adı <strong>genişlik öncelikli arama</strong>dır (BFS, breadth-first search).</p>
+  <p class="en">On the live map at the top of the page, "Process one cell" plays exactly this table step by step; check your rows there once you are done. The method is called <strong>breadth-first search</strong> (BFS).</p>
+</section>
+
+<section id="code" class="sheet">
+  <h2><span class="tr">Bölüm 3: Kısa kod</span><span class="en">Part 3: Short code</span></h2>
+  <p class="tr">Kod, kâğıtta çizdiğiniz halkaların aynısıdır. Kodu baştan yazmayacaksınız; hazır kodu okuyacak, çıktısını tahmin edecek, sonra bu sayfada çalıştırıp değiştireceksiniz.</p>
+  <p class="en">The code is the same ripple you drew on paper. You will not write it from scratch; you will read the ready-made code, predict its output, then run and change it on this page.</p>
+
+<div id="timing">
+<pre class="tr python-example" data-python="1" data-test="tr1">from collections import deque
+
+harita = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
+]
+
+# Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar
+YONLER = [
+    (-1, 0),   # yukarı: bir satır yukarı, sütun aynı
+    (0, 1),    # sağ:    satır aynı, bir sütun sağa
+    (1, 0),    # aşağı:  bir satır aşağı, sütun aynı
+    (0, -1),   # sol:    satır aynı, bir sütun sola
+]
+
+def en_kisa_hamle(harita, baslangic, hedef):
+    satir_sayisi = len(harita)         # 5 satır
+    sutun_sayisi = len(harita[0])      # 5 sütun
+    kuyruk = deque([baslangic])        # sırası gelen hücreler
+    uzaklik = {baslangic: 0}           # hücrelere yazdığımız sayılar
+    while kuyruk:
+        satir, sutun = kuyruk.popleft()           # sıranın başındakini al
+        if (satir, sutun) == hedef:
+            return uzaklik[(satir, sutun)]
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu_satir = satir + satir_adimi
+            komsu_sutun = sutun + sutun_adimi
+            komsu = (komsu_satir, komsu_sutun)
+            if komsu_satir &lt; 0 or komsu_satir &gt;= satir_sayisi:
+                continue                     # harita dışı (üst ya da alt)
+            if komsu_sutun &lt; 0 or komsu_sutun &gt;= sutun_sayisi:
+                continue                     # harita dışı (sol ya da sağ)
+            if harita[komsu_satir][komsu_sutun] == "#":
+                continue                           # duvar
+            if komsu in uzaklik:
+                continue                           # zaten sayı yazılmış
+            uzaklik[komsu] = uzaklik[(satir, sutun)] + 1
+            kuyruk.append(komsu)                   # sıranın sonuna ekle
+    return None                                  # kuyruk boşaldı: yol yok
+
+print(en_kisa_hamle(harita, (0, 0), (4, 4)))</pre>
+
+<pre class="en python-example" data-python="1" data-test="en1">from collections import deque
+
+grid = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
+]
+
+# What to add to the row and the column to reach each neighbour
+MOVES = [
+    (-1, 0),   # up:    one row up, same column
+    (0, 1),    # right: same row, one column right
+    (1, 0),    # down:  one row down, same column
+    (0, -1),   # left:  same row, one column left
+]
+
+def fewest_moves(grid, start, goal):
+    rows = len(grid)                   # 5 rows
+    cols = len(grid[0])                # 5 columns
+    queue = deque([start])             # cells waiting their turn
+    dist = {start: 0}                  # the numbers we write in cells
+    while queue:
+        row, col = queue.popleft()             # take the one at the front
+        if (row, col) == goal:
+            return dist[(row, col)]
+        for row_step, col_step in MOVES:
+            next_row = row + row_step
+            next_col = col + col_step
+            neighbour = (next_row, next_col)
+            if next_row &lt; 0 or next_row &gt;= rows:
+                continue                     # off the map (top or bottom)
+            if next_col &lt; 0 or next_col &gt;= cols:
+                continue                     # off the map (left or right)
+            if grid[next_row][next_col] == "#":
+                continue                           # wall
+            if neighbour in dist:
+                continue                           # already has a number
+            dist[neighbour] = dist[(row, col)] + 1
+            queue.append(neighbour)            # join the back of the line
+    return None                                 # queue is empty: no route
+
+print(fewest_moves(grid, (0, 0), (4, 4)))</pre>
+</div>
+
+  <div class="tr"><h3>Kod satır satır</h3><p>Haritadaki her hücreyi iki sayıyla adlandırıyoruz: <code>(satır, sütun)</code>. Satırlar yukarıdan aşağı, sütunlar soldan sağa sayılır ve sayma 0'dan başlar. Sol üst köşe <code>(0, 0)</code>, S hücresi <code>(4, 4)</code>. Kodda <code>satir</code> ve <code>sutun</code> şimdiki hücrenin bu iki numarasıdır.</p><p>Bir komşuya gitmek, bu iki numaraya küçük bir sayı eklemektir. Yukarıdaki komşunun satırı bir eksiktir, sağdakinin sütunu bir fazladır:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(satir − 1, sutun)<small>yukarı: (−1, 0)</small></span><span></span>
+<span class="ax">(satir, sutun − 1)<small>sol: (0, −1)</small></span><span class="ax me">(satir, sutun)<small>şimdiki hücre</small></span><span class="ax">(satir, sutun + 1)<small>sağ: (0, 1)</small></span>
+<span></span><span class="ax">(satir + 1, sutun)<small>aşağı: (1, 0)</small></span><span></span>
+</div><p><code>YONLER</code> listesi tam olarak bu eklenecek sayıları tutar. Döngüde her yön iki parçaya ayrılır: <code>satir_adimi</code> satıra, <code>sutun_adimi</code> sütuna eklenen sayıdır. Sonuç <code>komsu_satir</code> ve <code>komsu_sutun</code>, yani komşunun numaralarıdır.</p><div class="scroll"><table class="codeexp"><tr><th>Satır</th><th>Ne yapar</th></tr><tr><td class="num">1</td><td>Python'un hazır kuyruk yapısını (<code>deque</code>) getirir. Baştan çıkarmak ve sona eklemek hızlıdır.</td></tr><tr><td class="num">3–9</td><td>Harita, her biri bir satır olan beş metindir. <code>harita[2]</code> üçüncü satır, <code>harita[2][1]</code> o satırın ikinci karakteridir (burada <code>"#"</code>).</td></tr><tr><td class="num">12–16</td><td>Dört komşuya gitmek için satıra ve sütuna eklenecek sayılar, hep aynı sırayla: yukarı, sağ, aşağı, sol.</td></tr><tr><td class="num">19</td><td>Fonksiyon üç şey alır: harita, başlangıç hücresi ve hedef hücre.</td></tr><tr><td class="num">20–21</td><td>Haritanın kaç satır ve kaç sütun olduğu. Haritanın dışına taşmayı bunlarla anlarız.</td></tr><tr><td class="num">22</td><td>Kuyruğa yalnızca başlangıç hücresi konur.</td></tr><tr><td class="num">23</td><td>Sözlük: anahtar bir hücre, değer o hücreye yazılan sayı. Başlangıca 0 yazılır. Kâğıttaki sayıların kodtaki karşılığı budur.</td></tr><tr><td class="num">24</td><td>Kuyrukta hücre olduğu sürece aşağıdaki adımları tekrar et.</td></tr><tr><td class="num">25</td><td>Kuyruğun başındaki hücreyi al. Hücre <code>(0, 2)</code> ise <code>satir = 0</code>, <code>sutun = 2</code> olur.</td></tr><tr><td class="num">26–27</td><td>Alınan hücre hedefse ona yazılmış sayıyı döndür. Bu, en az hamle sayısıdır.</td></tr><tr><td class="num">28</td><td>Dört yönü sırayla dene. İlk turda <code>satir_adimi = -1</code>, <code>sutun_adimi = 0</code> (yukarı); ikinci turda <code>0</code> ve <code>1</code> (sağ).</td></tr><tr><td class="num">29–31</td><td>Komşunun numaraları: şimdiki hücre + yön. Sonra iki numara tek bir hücre adında birleştirilir.</td></tr><tr><td class="num">32–33</td><td>Satır −1 ya da 5 olduysa komşu haritanın dışındadır. <code>continue</code> bu yönü bırakıp bir sonraki yöne geçer.</td></tr><tr><td class="num">34–35</td><td>Aynı denetim, sütun için.</td></tr><tr><td class="num">36</td><td>Komşu duvarsa bu yönü atla.</td></tr><tr><td class="num">38</td><td>Komşuya zaten sayı yazılmışsa atla. İlk yazılan sayı en küçüğüdür; bir daha yazılmaz.</td></tr><tr><td class="num">40</td><td>Komşuya şimdiki hücrenin sayısı + 1 yazılır.</td></tr><tr><td class="num">41</td><td>Komşu kuyruğun sonuna eklenir; sırası gelince o da komşularına bakacak.</td></tr><tr><td class="num">42</td><td>Kuyruk boşaldı ve hedefe hiç varılmadı: yol yok.</td></tr><tr><td class="num">44</td><td>Fonksiyonu R <code>(0, 0)</code> ile S <code>(4, 4)</code> arasında çalıştırır ve sonucu yazdırır.</td></tr></table></div><h3>Örnek: <code>(0, 2)</code> kuyruktan çıktığında</h3><p>Canlı haritada dört kez "Tek hücre işle"ye basınca gördüğünüz adım. <code>(0, 2)</code> hücresinin sayısı 2'dir; döngü dört yönü sırayla dener:</p><div class="scroll"><table class="trace"><tr><th>Yön</th><th>satir_adimi, sutun_adimi</th><th>komsu</th><th>Sonuç</th></tr><tr><td>yukarı</td><td>−1, 0</td><td>(0 − 1, 2 + 0) = (−1, 2)</td><td>Satır −1: harita dışı, atla</td></tr><tr><td>sağ</td><td>0, 1</td><td>(0 + 0, 2 + 1) = (0, 3)</td><td><code>harita[0][3]</code> = "#": duvar, atla</td></tr><tr><td>aşağı</td><td>1, 0</td><td>(0 + 1, 2 + 0) = (1, 2)</td><td>Boş ve sayısı yok: <code>uzaklik[(1, 2)] = 2 + 1 = 3</code>, kuyruğun sonuna eklenir</td></tr><tr><td>sol</td><td>0, −1</td><td>(0 + 0, 2 − 1) = (0, 1)</td><td>Sayısı zaten var (1): atla</td></tr></table></div><p>Sonuç: kuyruk <code>(2, 0), (1, 2)</code> olur. Canlı haritanın yanındaki kutularda gördüğünüz durum budur.</p></div>
+  <div class="en"><h3>The code line by line</h3><p>Each cell on the map is named by two numbers: <code>(row, column)</code>. Rows are counted top to bottom, columns left to right, starting from 0. The top-left corner is <code>(0, 0)</code> and cell S is <code>(4, 4)</code>. In the code, <code>row</code> and <code>col</code> are these two numbers for the current cell.</p><p>Moving to a neighbour means adding a small number to those two. The neighbour above has a row one less; the neighbour to the right has a column one more:</p><div class="axes" aria-hidden="true">
+<span></span><span class="ax">(row − 1, col)<small>up: (−1, 0)</small></span><span></span>
+<span class="ax">(row, col − 1)<small>left: (0, −1)</small></span><span class="ax me">(row, col)<small>current cell</small></span><span class="ax">(row, col + 1)<small>right: (0, 1)</small></span>
+<span></span><span class="ax">(row + 1, col)<small>down: (1, 0)</small></span><span></span>
+</div><p>The <code>MOVES</code> list holds exactly these numbers to add. In the loop each move is split in two: <code>row_step</code> is added to the row and <code>col_step</code> to the column. The results, <code>next_row</code> and <code>next_col</code>, are the neighbour's numbers.</p><div class="scroll"><table class="codeexp"><tr><th>Line</th><th>What it does</th></tr><tr><td class="num">1</td><td>Brings in Python's ready-made queue (<code>deque</code>). Taking from the front and adding to the back are fast.</td></tr><tr><td class="num">3–9</td><td>The map is five strings, one per row. <code>grid[2]</code> is the third row and <code>grid[2][1]</code> its second character (here <code>"#"</code>).</td></tr><tr><td class="num">12–16</td><td>What to add to the row and column to reach each neighbour, always in the same order: up, right, down, left.</td></tr><tr><td class="num">19</td><td>The function takes three things: the map, the start cell and the goal cell.</td></tr><tr><td class="num">20–21</td><td>How many rows and columns the map has. We use them to tell when a neighbour falls off the map.</td></tr><tr><td class="num">22</td><td>The queue starts with just the start cell.</td></tr><tr><td class="num">23</td><td>A dictionary: the key is a cell, the value the number written in it. The start gets 0. These are the numbers you wrote on paper.</td></tr><tr><td class="num">24</td><td>Repeat the steps below as long as the queue has cells in it.</td></tr><tr><td class="num">25</td><td>Take the cell at the front of the queue. If it is <code>(0, 2)</code>, then <code>row = 0</code> and <code>col = 2</code>.</td></tr><tr><td class="num">26–27</td><td>If this cell is the goal, return its number. That is the fewest number of moves.</td></tr><tr><td class="num">28</td><td>Try the four moves in turn. The first time round <code>row_step = -1</code>, <code>col_step = 0</code> (up); the second time <code>0</code> and <code>1</code> (right).</td></tr><tr><td class="num">29–31</td><td>The neighbour's numbers: current cell + move. Then the two numbers are joined into one cell name.</td></tr><tr><td class="num">32–33</td><td>If the row has become −1 or 5, the neighbour is off the map. <code>continue</code> drops this move and goes on to the next.</td></tr><tr><td class="num">34–35</td><td>The same check for the column.</td></tr><tr><td class="num">36</td><td>If the neighbour is a wall, skip this move.</td></tr><tr><td class="num">38</td><td>If the neighbour already has a number, skip it. The first number written is the smallest; it is never written again.</td></tr><tr><td class="num">40</td><td>The neighbour gets the current cell's number + 1.</td></tr><tr><td class="num">41</td><td>The neighbour joins the back of the queue; when its turn comes it will look at its own neighbours.</td></tr><tr><td class="num">42</td><td>The queue is empty and the goal was never reached: no route.</td></tr><tr><td class="num">44</td><td>Runs the function from R <code>(0, 0)</code> to S <code>(4, 4)</code> and prints the result.</td></tr></table></div><h3>Example: when <code>(0, 2)</code> leaves the queue</h3><p>This is the step you see on the live map after selecting "Process one cell" four times. Cell <code>(0, 2)</code> holds 2; the loop tries the four moves in turn:</p><div class="scroll"><table class="trace"><tr><th>Move</th><th>row_step, col_step</th><th>neighbour</th><th>Result</th></tr><tr><td>up</td><td>−1, 0</td><td>(0 − 1, 2 + 0) = (−1, 2)</td><td>Row −1: off the map, skip</td></tr><tr><td>right</td><td>0, 1</td><td>(0 + 0, 2 + 1) = (0, 3)</td><td><code>grid[0][3]</code> = "#": wall, skip</td></tr><tr><td>down</td><td>1, 0</td><td>(0 + 1, 2 + 0) = (1, 2)</td><td>Free and unnumbered: <code>dist[(1, 2)] = 2 + 1 = 3</code>, joins the back of the queue</td></tr><tr><td>left</td><td>0, −1</td><td>(0 + 0, 2 − 1) = (0, 1)</td><td>Already numbered (1): skip</td></tr></table></div><p>Result: the queue becomes <code>(2, 0), (1, 2)</code>, which is what the boxes beside the live map show.</p></div>
+
+  <h3><span class="tr">Kâğıtla eşleştirme</span><span class="en">Matching code to paper</span></h3>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Kâğıtta</th><th>Kodda</th></tr>
+    <tr><td>Hücrelere yazdığınız sayılar</td><td><code>uzaklik</code> sözlüğü</td></tr>
+    <tr><td>"Sayı yazılmış hücreye bir daha yazılmaz"</td><td><code>if komsu in uzaklik: continue</code></td></tr>
+    <tr><td>"Duvara yazılmaz"</td><td><code>if harita[komsu_satir][komsu_sutun] == "#": continue</code></td></tr>
+    <tr><td>Haritanın dışına çıkmamak</td><td><code>if komsu_satir &lt; 0 or komsu_satir &gt;= satir_sayisi: continue</code> ve sütun için aynısı</td></tr>
+    <tr><td>Yukarı, sağ, aşağı, sol</td><td><code>YONLER</code> listesi</td></tr>
+    <tr><td>Yemekhane sırası</td><td><code>popleft()</code> baştan alır, <code>append()</code> sona ekler</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>On paper</th><th>In code</th></tr>
+    <tr><td>The numbers you wrote in cells</td><td>the <code>dist</code> dictionary</td></tr>
+    <tr><td>"Never write in a numbered cell again"</td><td><code>if neighbour in dist: continue</code></td></tr>
+    <tr><td>"Never write in a wall"</td><td><code>if grid[next_row][next_col] == "#": continue</code></td></tr>
+    <tr><td>Staying on the map</td><td><code>if next_row &lt; 0 or next_row &gt;= rows: continue</code> and the same for columns</td></tr>
+    <tr><td>Up, right, down, left</td><td>the <code>MOVES</code> list</td></tr>
+    <tr><td>The cafeteria line</td><td><code>popleft()</code> takes from the front, <code>append()</code> adds to the back</td></tr>
+  </table>
+  </div>
+
+  <h3><span class="tr">Görevler</span><span class="en">Tasks</span></h3>
+  <p class="tr">Her görevde önce tahmininizi yazın, sonra kodu çalıştırın. Kod bu sayfada çalışır: değiştirmek için "Kodu düzenle"ye, çalıştırmak için "Çalıştır"a basın; "Örneği yükle" kodu ilk haline döndürür.</p>
+  <p class="en">For each task, write your prediction first, then run the code. The code runs on this page: select "Edit code" to change it and "Run" to run it; "Restore example" brings back the original.</p>
+  <ol class="tr">
+    <li>Kodu hiç değiştirmeden çalıştırın. Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Haritanın üçüncü satırını <code>".#.#."</code> yapın (bir duvar eklendi). Çıktı ne olur? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Buna ek olarak son satırı <code>"#.#.S"</code> yapın. Çıktı ne olur, ne anlama gelir? Tahmin: <span class="blank"></span> Sonuç: <span class="blank"></span></li>
+    <li>Haritayı baştaki haline döndürün. <code>if komsu in uzaklik: continue</code> satırlarını silseydiniz ne olurdu? Çalıştırmadan tartışın. <span class="blank long"></span></li>
+    <li>Robotun 8 birim enerjisi için "yeter" ya da "yetmez" yazdıran iki satır ekleyin.</li>
+  </ol>
+  <ol class="en">
+    <li>Run the code unchanged. What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Change the third row of the map to <code>".#.#."</code> (one wall added). What is the output? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>In addition, change the last row to <code>"#.#.S"</code>. What is the output and what does it mean? Prediction: <span class="blank"></span> Result: <span class="blank"></span></li>
+    <li>Restore the original map. What would happen if you deleted the <code>if neighbour in dist: continue</code> lines? Discuss without running it. <span class="blank long"></span></li>
+    <li>Add two lines that print "enough" or "not enough" for the robot's 8 units of energy.</li>
+  </ol>
+
+  <details>
+    <summary><span class="tr">Ek: yalnızca sayıyı değil rotanın kendisini bulmak</span><span class="en">Extra: finding the route itself, not just its length</span></summary>
+    <p class="tr">Kâğıtta S'den geriye, her adımda bir küçük sayıya giderek yürümüştünüz. Kod da aynısını yapar. Önce halkaları bütün haritaya yayan, sonra geri yürüyen iki kısa fonksiyon:</p>
+    <p class="en">On paper you walked back from S, moving to a number one smaller at each step. The code does the same. Two short functions: one spreads the ripple over the whole map, the other walks back.</p>
+<pre class="tr python-example" data-python="2" data-test="tr2">from collections import deque
+
+harita = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
+]
+
+YONLER = [(-1, 0), (0, 1), (1, 0), (0, -1)]      # yukarı, sağ, aşağı, sol
+
+def halkalari_yay(harita, baslangic):
+    kuyruk = deque([baslangic])
+    uzaklik = {baslangic: 0}
+    while kuyruk:
+        satir, sutun = kuyruk.popleft()
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu_satir = satir + satir_adimi
+            komsu_sutun = sutun + sutun_adimi
+            komsu = (komsu_satir, komsu_sutun)
+            if not 0 &lt;= komsu_satir &lt; len(harita):
+                continue                           # harita dışı (satır)
+            if not 0 &lt;= komsu_sutun &lt; len(harita[0]):
+                continue                           # harita dışı (sütun)
+            if harita[komsu_satir][komsu_sutun] == "#":
+                continue                           # duvar
+            if komsu in uzaklik:
+                continue                           # zaten sayılı
+            uzaklik[komsu] = uzaklik[(satir, sutun)] + 1
+            kuyruk.append(komsu)
+    return uzaklik
+
+def rota_bul(uzaklik, hedef):
+    rota = [hedef]
+    satir, sutun = hedef
+    while uzaklik[(satir, sutun)] &gt; 0:       # başlangıca (0) varana kadar
+        for satir_adimi, sutun_adimi in YONLER:
+            komsu = (satir + satir_adimi, sutun + sutun_adimi)
+            if uzaklik.get(komsu) == uzaklik[(satir, sutun)] - 1:
+                satir, sutun = komsu               # bir küçük sayıya geç
+                rota.append(komsu)
+                break
+    return rota[::-1]                            # ters çevir: baştan sona
+
+uzaklik = halkalari_yay(harita, (0, 0))
+print(rota_bul(uzaklik, (4, 4)))</pre>
+<pre class="en python-example" data-python="2" data-test="en2">from collections import deque
+
+grid = [
+    "R..#.",
+    ".#.#.",
+    ".#...",
+    "..#.#",
+    "#...S",
+]
+
+MOVES = [(-1, 0), (0, 1), (1, 0), (0, -1)]        # up, right, down, left
+
+def spread_ripple(grid, start):
+    queue = deque([start])
+    dist = {start: 0}
+    while queue:
+        row, col = queue.popleft()
+        for row_step, col_step in MOVES:
+            next_row = row + row_step
+            next_col = col + col_step
+            neighbour = (next_row, next_col)
+            if not 0 &lt;= next_row &lt; len(grid):
+                continue                           # off the map (row)
+            if not 0 &lt;= next_col &lt; len(grid[0]):
+                continue                           # off the map (column)
+            if grid[next_row][next_col] == "#":
+                continue                           # wall
+            if neighbour in dist:
+                continue                           # already numbered
+            dist[neighbour] = dist[(row, col)] + 1
+            queue.append(neighbour)
+    return dist
+
+def find_route(dist, goal):
+    route = [goal]
+    row, col = goal
+    while dist[(row, col)] &gt; 0:             # until we reach the start (0)
+        for row_step, col_step in MOVES:
+            neighbour = (row + row_step, col + col_step)
+            if dist.get(neighbour) == dist[(row, col)] - 1:
+                row, col = neighbour        # step to a number one smaller
+                route.append(neighbour)
+                break
+    return route[::-1]                            # reverse: start to goal
+
+dist = spread_ripple(grid, (0, 0))
+print(find_route(dist, (4, 4)))</pre>
+    <p class="tr">Çıktı 9 hücrelik bir listedir: 8 hamle, 9 hücre. Hedefe yol yoksa <code>rota_bul</code> hata verir; önce <code>hedef in uzaklik</code> diye kontrol edin.</p>
+    <p class="en">The output is a list of 9 cells: 8 moves, 9 cells. If there is no route to the goal, <code>find_route</code> raises an error; check <code>goal in dist</code> first.</p>
+  </details>
+
+  <h3><span class="tr">Bu yöntemin işi nasıl büyür?</span><span class="en">How does this method's work grow?</span></h3>
+  <p class="tr">Her hücre kuyruğa en fazla bir kez girer ve çıkarıldığında 4 komşusuna bakılır. Demek ki iş, hücre sayısıyla orantılıdır: hücre sayısı iki katına çıkarsa iş de yaklaşık iki katına çıkar. Bu, kart aramayla aynı davranıştır. Dikkat edilecek nokta: haritanın kenarı iki katına çıkarsa hücre sayısı dört katına çıkar. Baştaki canlı haritada 5×5, 8×8, 12×12 ve 20×20 seçip "işlenen hücre" sayısını karşılaştırın.</p>
+  <p class="en">Each cell enters the queue at most once, and when it is removed its 4 neighbours are checked. So the work is proportional to the number of cells: double the cells and the work roughly doubles. That is the card-search behaviour. One thing to watch: doubling the side of the map quadruples the number of cells. On the live map at the top, pick 5×5, 8×8, 12×12 and 20×20 and compare the "cells processed" count.</p>
+</section>
+
+<section id="mistakes">
+  <h2><span class="tr">Sık yapılan hatalar</span><span class="en">Common mistakes</span></h2>
+  <div class="scroll">
+  <table class="tr">
+    <tr><th>Hata</th><th>Doğrusu</th></tr>
+    <tr><td>Hamleyi hücreyle karıştırmak</td><td>8 hamlelik rota 9 hücreden geçer. Enerjiyi hamle harcar.</td></tr>
+    <tr><td>Sayı yazılmış hücrenin üzerine yeniden yazmak</td><td>İlk yazılan sayı en küçük olandır; sonradan gelen yol daha kısa olamaz.</td></tr>
+    <tr><td>Hücreyi kuyruğa eklerken değil, kuyruktan çıkarırken işaretlemek</td><td>Aynı hücre kuyruğa iki kez girer. Sayıyı eklerken yazın.</td></tr>
+    <tr><td>Kuyruğun sonundan almak</td><td>Sondan alırsanız katman sırası bozulur; ilk bulunan yol en kısa olmayabilir.</td></tr>
+    <tr><td>"O(n), n saniye sürer demektir"</td><td>O gösterimi süreyi değil büyümeyi anlatır: girdi iki katına çıkınca ne olur?</td></tr>
+    <tr><td>Bu yöntemin her zaman "en ucuz" yolu bulduğunu sanmak</td><td>Yalnızca en az hamleyi bulur. Hamlelerin maliyeti farklıysa yanılabilir (Hafta 9).</td></tr>
+  </table>
+  <table class="en">
+    <tr><th>Mistake</th><th>Correction</th></tr>
+    <tr><td>Confusing moves with cells</td><td>An 8-move route passes through 9 cells. Energy is spent per move.</td></tr>
+    <tr><td>Writing over a cell that already has a number</td><td>The first number written is the smallest; a later path cannot be shorter.</td></tr>
+    <tr><td>Marking a cell when it leaves the queue instead of when it enters</td><td>The same cell gets queued twice. Write the number when you add it.</td></tr>
+    <tr><td>Taking from the back of the queue</td><td>That breaks the layer order; the first route found may not be the shortest.</td></tr>
+    <tr><td>"O(n) means it takes n seconds"</td><td>O notation describes growth, not time: what happens when the input doubles?</td></tr>
+    <tr><td>Assuming this method always finds the "cheapest" path</td><td>It finds only the fewest moves. If moves have different costs it can be wrong (Week 9).</td></tr>
+  </table>
+  </div>
+
+  <h3><span class="tr">Gelecek haftaya köprü</span><span class="en">Bridge to next week</span></h3>
+  <p class="tr">Deponun bazı hücreleri halı kaplı olsun ve halıya girmek 1 yerine 4 birim enerji harcasın. En az hamleli rota hâlâ en az enerji harcayan rota mıdır? Bir karşı örnek çizmeyi deneyin. Hafta 9'da bu soruyu çözen yöntemi (Dijkstra) aynı harita üzerinde göreceğiz.</p>
+  <p class="en">Suppose some cells of the warehouse are carpeted, and entering carpet costs 4 units of energy instead of 1. Is the fewest-move route still the least-energy route? Try to draw a counterexample. In Week 9 we will see the method that answers this (Dijkstra) on the same map.</p>
+</section>
+
+<section id="exam" class="sheet">
+  <h2><span class="tr">Sınav tipi sorular</span><span class="en">Exam-style questions</span></h2>
+
+  <h3><span class="tr">Soru 1</span><span class="en">Question 1</span></h3>
+  <p class="tr">Bir program 1000 sensör kaydını 1 saniyede işliyor. Kayıt sayısı 2000 olursa süre yaklaşık ne olur? Yöntem (a) O(n), (b) O(n²), (c) O(log n) ise ayrı ayrı cevaplayın. (a) <span class="blank"></span> saniye (b) <span class="blank"></span> saniye (c) <span class="blank"></span> saniye</p>
+  <p class="en">A program processes 1000 sensor records in 1 second. Roughly how long does it take for 2000 records? Answer separately if the method is (a) O(n), (b) O(n²), (c) O(log n). (a) <span class="blank"></span> seconds (b) <span class="blank"></span> seconds (c) <span class="blank"></span> seconds</p>
+
+  <h3><span class="tr">Soru 2</span><span class="en">Question 2</span></h3>
+  <p class="tr">Aşağıdaki haritada halka yöntemini uygulayın. R'den S'ye en az kaç hamle gerekir? <span class="blank"></span> Robotun 5 birim enerjisi varsa yetişir mi? <span class="blank"></span></p>
+  <p class="en">Apply the ripple method to the map below. What is the fewest number of moves from R to S? <span class="blank"></span> If the robot has 5 units of energy, does it make it? <span class="blank"></span></p>
+  <table class="paper small" aria-label="Map">
+    <tr><td>R</td><td></td><td class="w"></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td></td></tr>
+    <tr><td class="w"></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td class="w"></td><td>S</td></tr>
+  </table>
+
+  <h3><span class="tr">Soru 3</span><span class="en">Question 3</span></h3>
+  <p class="tr">Bir arkadaşınız kodda <code>popleft()</code> yerine <code>pop()</code> yazdı (kuyruğun sonundan alıyor). Program yine bir yol bulur mu? Bulduğu hamle sayısı her zaman en az olan mıdır? Nedenini iki cümleyle açıklayın. <span class="blank long"></span></p>
+  <p class="en">A classmate wrote <code>pop()</code> instead of <code>popleft()</code> (taking from the back of the queue). Does the program still find a route? Is the move count it reports always the smallest? Explain why in two sentences. <span class="blank long"></span></p>
+
+  <h3><span class="tr">Ev alıştırmaları</span><span class="en">Homework</span></h3>
+  <ol class="tr">
+    <li>Aşağıdaki üç kod parçasında <code>say</code> değişkeni n = 8 için kaç olur? n = 16 için? Önce tahminlerinizi yazın, sonra kodu çalıştırıp kontrol edin. Her parçayı Bölüm 1'deki bir deneyle eşleştirin.</li>
+  </ol>
+  <ol class="en">
+    <li>In the three snippets below, what is <code>count</code> for n = 8? For n = 16? Write your predictions first, then run the code to check. Match each snippet to a Part 1 experiment.</li>
+  </ol>
+<pre class="tr python-example" data-python="3" data-test="tr3">n = 8          # tahminden sonra 16 yapıp yeniden çalıştırın
+
+# A
+say = 0
+for i in range(n):
+    say += 1
+print("A:", say)
+
+# B
+say = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        say += 1
+print("B:", say)
+
+# C
+say = 0
+k = n
+while k &gt; 1:
+    k = k // 2
+    say += 1
+print("C:", say)</pre>
+<pre class="en python-example" data-python="3" data-test="en3">n = 8          # after predicting, change to 16 and run again
+
+# A
+count = 0
+for i in range(n):
+    count += 1
+print("A:", count)
+
+# B
+count = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        count += 1
+print("B:", count)
+
+# C
+count = 0
+k = n
+while k &gt; 1:
+    k = k // 2
+    count += 1
+print("C:", count)</pre>
+  <p class="tr">n = 8 için: A <span class="blank"></span> B <span class="blank"></span> C <span class="blank"></span> &nbsp; n = 16 için: A <span class="blank"></span> B <span class="blank"></span> C <span class="blank"></span></p>
+  <p class="en">For n = 8: A <span class="blank"></span> B <span class="blank"></span> C <span class="blank"></span> &nbsp; For n = 16: A <span class="blank"></span> B <span class="blank"></span> C <span class="blank"></span></p>
+  <ol start="2" class="tr">
+    <li>En kısa rotası tam 12 hamle olan 6×6'lık bir harita çizin. Arkadaşınızla değiştirin ve birbirinizin haritasını halka yöntemiyle kontrol edin.</li>
+    <li>Koddaki yön sırasını değiştirin (örneğin sol, aşağı, sağ, yukarı). Hamle sayısı değişir mi? Ek koddaki rota değişir mi? Neden? <span class="blank long"></span></li>
+    <li>Robot çapraz da gidebilsin: yön listesine dört çapraz yön ekleyin. Ders haritasında en az hamle sayısı kaç olur? <span class="blank"></span></li>
+    <li>Koda bir sayaç ekleyip kuyruktan kaç hücre çıkarıldığını yazdırın. Hiç duvarı olmayan 10×10 ve 20×20 haritalarda sayacı karşılaştırın: 10×10 için <span class="blank"></span> 20×20 için <span class="blank"></span></li>
+  </ol>
+  <ol start="2" class="en">
+    <li>Draw a 6×6 map whose shortest route is exactly 12 moves. Swap with a classmate and check each other's map with the ripple method.</li>
+    <li>Change the order of directions in the code (for example left, down, right, up). Does the move count change? Does the route from the extra code change? Why? <span class="blank long"></span></li>
+    <li>Let the robot move diagonally too: add the four diagonal directions to the list. What is the fewest number of moves on the lesson map? <span class="blank"></span></li>
+    <li>Add a counter to the code and print how many cells were removed from the queue. Compare the counter on wall-free 10×10 and 20×20 maps: 10×10 gives <span class="blank"></span> 20×20 gives <span class="blank"></span></li>
+  </ol>
+</section>
+
+<section id="glossary">
+  <h2><span class="tr">Sözlük</span><span class="en">Glossary</span></h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Türkçe</th><th>English</th><th><span class="tr">Anlamı</span><span class="en">Meaning</span></th></tr>
+    <tr><td>girdi büyüklüğü (n)</td><td>input size (n)</td><td><span class="tr">İşlenecek şeyin sayısı: kart, kayıt, hücre</span><span class="en">How many things there are to process: cards, records, cells</span></td></tr>
+    <tr><td>adım sayısı</td><td>step count</td><td><span class="tr">Yöntemin yaptığı temel işlem sayısı</span><span class="en">The number of basic operations the method performs</span></td></tr>
+    <tr><td>en kötü durum</td><td>worst case</td><td><span class="tr">Aynı büyüklükteki girdiler içinde en çok iş çıkaran</span><span class="en">The input of a given size that causes the most work</span></td></tr>
+    <tr><td>büyüme</td><td>growth</td><td><span class="tr">Girdi büyüyünce adım sayısının nasıl değiştiği</span><span class="en">How the step count changes as the input grows</span></td></tr>
+    <tr><td>kuyruk</td><td>queue (FIFO)</td><td><span class="tr">İlk giren ilk çıkar</span><span class="en">First in, first out</span></td></tr>
+    <tr><td>komşu</td><td>neighbour</td><td><span class="tr">Bir hamlede ulaşılan hücre</span><span class="en">A cell reachable in one move</span></td></tr>
+    <tr><td>katman</td><td>layer</td><td><span class="tr">Aynı sayının yazıldığı hücreler, yani bir halka</span><span class="en">The cells that share the same number: one ring of the ripple</span></td></tr>
+    <tr><td>genişlik öncelikli arama</td><td>breadth-first search (BFS)</td><td><span class="tr">Halka yönteminin adı</span><span class="en">The name of the ripple method</span></td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="exit">
+  <h2><span class="tr">Çıkış sorusu</span><span class="en">Exit question</span></h2>
+  <p class="tr">Küçük bir kâğıda, isimsiz yazın: "Halka yönteminde bir hücreye yazılan sayı neden sonradan değişmez? Bir cümleyle açıklayın." Altına bugün en çok zorlandığınız yeri tek kelimeyle ekleyin. <span class="blank long"></span></p>
+  <p class="en">On a slip of paper, no name: "In the ripple method, why does the number written in a cell never change later? Explain in one sentence." Below it, add in one word the part you found hardest today. <span class="blank long"></span></p>
+</section>
+
+<section id="key">
+  <h2><span class="tr">Cevap anahtarı</span><span class="en">Answer key</span></h2>
+  <p class="tr">Bütün cevaplar bir arada. Kapalıyken yazdırılan çıktıda görünmez.</p>
+  <p class="en">All the answers in one place. It does not appear in the printout while closed.</p>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 1: Adım sayma</span><span class="en">Part 1: Counting steps</span></summary>
+    <div class="scroll">
+    <table class="tr">
+      <tr><th>Deney</th><th>Girdi</th><th>İş (en kötü durum)</th><th>Girdi × 2 olunca iş</th></tr>
+      <tr><td>Kart arama</td><td>16 kart</td><td>16 kart (en şanslı durumda 1)</td><td>32 kart, yani 2 katı</td></tr>
+      <tr><td>Sayı tahmini</td><td>1–100</td><td>7 tahmin</td><td>8 tahmin, yani yalnızca 1 fazla</td></tr>
+      <tr><td>Tokalaşma</td><td>4 kişi</td><td>6 tokalaşma</td><td>8 kişide 28</td></tr>
+    </table>
+    <table class="en">
+      <tr><th>Experiment</th><th>Input</th><th>Work (worst case)</th><th>Work when input × 2</th></tr>
+      <tr><td>Card search</td><td>16 cards</td><td>16 cards (1 in the luckiest case)</td><td>32 cards, twice as many</td></tr>
+      <tr><td>Number guessing</td><td>1–100</td><td>7 guesses</td><td>8 guesses, only 1 more</td></tr>
+      <tr><td>Handshakes</td><td>4 people</td><td>6 handshakes</td><td>28 with 8 people</td></tr>
+    </table>
+    </div>
+    <ul class="tr">
+      <li>Sayı tahmininde kalan aralık kabaca 100, 50, 25, 12, 6, 3, 1 diye yarılanır. 1 milyonluk aralıkta bile 20 tahmin yeter.</li>
+      <li>Tokalaşmada n kişi için sayı n × (n − 1) / 2'dir. Oran tam 4 çıkmaz (28 / 6 ≈ 4,7); 16 kişide 120 olur ve oran 4'e yaklaşır. Öğrenciler "tam 4 değil" derse haklıdırlar; büyük n için 4'e yaklaştığını gösterin.</li>
+      <li>1 milyon girdi: sayı tahmini 20 adım, kart arama 1 milyon adım, tokalaşma yaklaşık 500 milyar adım.</li>
+    </ul>
+    <ul class="en">
+      <li>In number guessing the remaining range halves roughly as 100, 50, 25, 12, 6, 3, 1. Even a range of 1 million needs only 20 guesses.</li>
+      <li>For n people the handshake count is n × (n − 1) / 2. The ratio is not exactly 4 (28 / 6 ≈ 4.7); with 16 people it is 120 and the ratio approaches 4. Students who say "it is not exactly 4" are right; show that it approaches 4 for large n.</li>
+      <li>With 1 million inputs: number guessing takes 20 steps, card search 1 million steps, handshakes about 500 billion steps.</li>
+    </ul>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 2: En kısa rota</span><span class="en">Part 2: Shortest route</span></summary>
+    <table class="paper filled" aria-label="Filled map">
+      <tr><td>0</td><td>1</td><td>2</td><td class="w"></td><td>8</td></tr>
+      <tr><td>1</td><td class="w"></td><td>3</td><td class="w"></td><td>7</td></tr>
+      <tr><td>2</td><td class="w"></td><td>4</td><td>5</td><td>6</td></tr>
+      <tr><td>3</td><td>4</td><td class="w"></td><td>6</td><td class="w"></td></tr>
+      <tr><td class="w"></td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+    </table>
+    <ol class="tr">
+      <li>S hücresine 8 yazılır. Enerji tam yeter: 8 hamle, 8 birim.</li>
+      <li>İki en kısa rota vardır: biri üstten ve ortadan, diğeri soldan ve alttan dolaşır.</li>
+      <li>8 hamle, 9 hücre. Başlangıç hücresi hamle harcamaz.</li>
+      <li>Önce 1 hamlelik halka, sonra 2 hamlelik halka dolar. Bir hücreye daha kısa yol olsaydı o hücre daha önceki halkada sayı alırdı.</li>
+      <li>Bu haritada 18 hücre (25 hücre, 7 duvar). 10×10'da en fazla 100. Her hücreye bir kez yazıldığı için iş hücre sayısıyla orantılıdır: kart arama.</li>
+    </ol>
+    <ol class="en">
+      <li>Cell S gets 8. The energy is exactly enough: 8 moves, 8 units.</li>
+      <li>There are two shortest routes: one goes along the top and through the middle, the other down the left and along the bottom.</li>
+      <li>8 moves, 9 cells. The starting cell costs no move.</li>
+      <li>The ripple fills all the 1-move cells first, then the 2-move cells. If a cell had a shorter path it would have received its number in an earlier ring.</li>
+      <li>18 cells on this map (25 cells, 7 walls). At most 100 on a 10×10. Each cell is written once, so the work is proportional to the number of cells: card search.</li>
+    </ol>
+    <p class="tr">Kuyruk tablosunun devamı:</p>
+    <p class="en">The rest of the queue table:</p>
+    <div class="scroll">
+    <table>
+      <tr><th><span class="tr">Adım</span><span class="en">Step</span></th><th><span class="tr">Çıkan</span><span class="en">Removed</span></th><th><span class="tr">Eklenen</span><span class="en">Added</span></th><th><span class="tr">Kuyruk</span><span class="en">Queue</span></th></tr>
+      <tr><td>5</td><td>(2,0)</td><td>(3,0)</td><td>(1,2), (3,0)</td></tr>
+      <tr><td>6</td><td>(1,2)</td><td>(2,2)</td><td>(3,0), (2,2)</td></tr>
+      <tr><td>7</td><td>(3,0)</td><td>(3,1)</td><td>(2,2), (3,1)</td></tr>
+      <tr><td>8</td><td>(2,2)</td><td>(2,3)</td><td>(3,1), (2,3)</td></tr>
+    </table>
+    </div>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Bölüm 3: Kod görevleri</span><span class="en">Part 3: Code tasks</span></summary>
+    <ol class="tr">
+      <li>Çıktı 8.</li>
+      <li>Değişmez, yine 8: ortadaki yol kapanır ama soldan ve alttan giden yol da 8 hamledir.</li>
+      <li>Çıktı <code>None</code>: iki yol da kapandı, robot istasyona ulaşamaz.</li>
+      <li>Aynı hücreler tekrar tekrar kuyruğa girer, sayıların üzerine yazılır ve sonuç güvenilmez olur. Yol olmayan bir haritada kuyruk hiç boşalmaz ve program durmaz.</li>
+      <li>Örnek: <code>h = en_kisa_hamle(harita, (0, 0), (4, 4))</code>, ardından <code>print("yeter" if h is not None and h &lt;= 8 else "yetmez")</code>.</li>
+    </ol>
+    <ol class="en">
+      <li>The output is 8.</li>
+      <li>No change, still 8: the middle route is blocked, but the route down the left and along the bottom is also 8 moves.</li>
+      <li>The output is <code>None</code>: both routes are blocked and the robot cannot reach the charger.</li>
+      <li>The same cells enter the queue again and again, numbers get overwritten and the result cannot be trusted. On a map with no route the queue never empties and the program never stops.</li>
+      <li>Example: <code>m = fewest_moves(grid, (0, 0), (4, 4))</code>, then <code>print("enough" if m is not None and m &lt;= 8 else "not enough")</code>.</li>
+    </ol>
+    <p class="tr">Ek kodun çıktısı: <code>[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3), (3, 3), (4, 3), (4, 4)]</code></p>
+    <p class="en">Output of the extra code: <code>[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3), (3, 3), (4, 3), (4, 4)]</code></p>
+  </details>
+
+  <details class="teacher">
+    <summary><span class="tr">Sınav tipi sorular ve ev alıştırmaları</span><span class="en">Exam-style questions and homework</span></summary>
+    <h4><span class="tr">Soru 1</span><span class="en">Question 1</span></h4>
+    <p class="tr">(a) yaklaşık 2 saniye. (b) yaklaşık 4 saniye. (c) yaklaşık 1,1 saniye: log₂ 1000 ≈ 10, log₂ 2000 ≈ 11, yani iş onda bir kadar artar.</p>
+    <p class="en">(a) about 2 seconds. (b) about 4 seconds. (c) about 1.1 seconds: log₂ 1000 ≈ 10, log₂ 2000 ≈ 11, so the work grows by about a tenth.</p>
+    <h4><span class="tr">Soru 2</span><span class="en">Question 2</span></h4>
+    <table class="paper small filled" aria-label="Filled map">
+      <tr><td>0</td><td>1</td><td class="w"></td><td>7</td></tr>
+      <tr><td>1</td><td>2</td><td class="w"></td><td>6</td></tr>
+      <tr><td class="w"></td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><td>5</td><td>4</td><td class="w"></td><td>6</td></tr>
+    </table>
+    <p class="tr">En az 6 hamle. 5 birim enerji yetmez.</p>
+    <p class="en">At least 6 moves. 5 units of energy are not enough.</p>
+    <h4><span class="tr">Soru 3</span><span class="en">Question 3</span></h4>
+    <p class="tr">Yol varsa yine bulur, çünkü ulaşılabilen her hücre sonunda işlenir. Ama hücreler artık katman sırasıyla işlenmez; program bir yöne doğru derine dalar ve hedefe dolambaçlı bir yoldan önce varabilir, bu yüzden bildirdiği sayı en az hamle olmayabilir.</p>
+    <p class="en">If a route exists it still finds one, because every reachable cell is eventually processed. But cells are no longer processed in layer order; the program dives deep in one direction and may reach the goal by a roundabout path first, so the number it reports may not be the fewest moves.</p>
+    <h4><span class="tr">Ev alıştırmaları</span><span class="en">Homework</span></h4>
+    <ol class="tr">
+      <li>A: 8 ve 16 (kart arama). B: 28 ve 120 (tokalaşma). C: 3 ve 4 (sayı tahmini).</li>
+      <li>Açık uçlu. Kontrol: halka yönteminde S'ye 12 yazılmalı.</li>
+      <li>Hamle sayısı değişmez. Birden fazla en kısa rota olduğunda hangisinin bulunacağı yön sırasına bağlıdır.</li>
+      <li>Çapraz hareketle ders haritasında en az 5 hamle.</li>
+      <li>Duvarsız haritada hedef en uzak köşede olduğu için bütün hücreler çıkarılır: 100 ve 400. Kenar 2 katına, hücre sayısı ve iş 4 katına çıkar.</li>
+    </ol>
+    <ol class="en">
+      <li>A: 8 and 16 (card search). B: 28 and 120 (handshakes). C: 3 and 4 (number guessing).</li>
+      <li>Open-ended. Check: the ripple method must write 12 in S.</li>
+      <li>The move count does not change. When there is more than one shortest route, which one is found depends on the order of directions.</li>
+      <li>With diagonal moves, at least 5 moves on the lesson map.</li>
+      <li>On a wall-free map the goal is in the far corner, so every cell is removed: 100 and 400. The side doubles; the number of cells and the work quadruple.</li>
+    </ol>
+  </details>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  function L(){return root.getAttribute('data-lang')==='en'?'en':'tr';}
+  // Each page shows one language; drop the other so ids and code cells stay unique.
+  [].forEach.call(document.querySelectorAll(L()==='tr'?'.en':'.tr'),function(e){e.parentNode.removeChild(e);});
+  var TXT={
+    tr:{start:'Rotayı önce gözünüzle tahmin edin, sonra halkaları ilerletin.',
+        running:function(p,l){return 'İşlenen hücre: '+p+'. Yazılan en büyük sayı: '+l+'.';},
+        found:function(d,p){return 'S hücresine '+d+' yazıldı: en az '+d+' hamle. İşlenen hücre: '+p+'.';},
+        energy:function(ok){return ok?' 8 birim enerji yeter.':' 8 birim enerji yetmez.';},
+        none:function(p){return 'Kuyruk boşaldı ve S\'ye ulaşılamadı: yol yok. İşlenen hücre: '+p+'.';},
+        queue:'Kuyruk: ',empty:'boş',more:' ve '+'{n}'+' hücre daha',
+        qout:'Çıkan',qin:'Kuyruk',qhead:'baş',qtail:'son',qempty:'Kuyruk boş.',
+        q0:'Başta kuyrukta yalnızca R var. "Tek hücre işle"ye basın: R baştan çıkar, komşuları sona girer.',
+        qstep:function(o,a){return o+' baştan çıktı'+(a?'; '+a+' sona eklendi.':'; yeni komşu yok, sona kimse eklenmedi.');},
+        qfound:function(o,g){return o+' baştan çıktı. '+g+' S hücresidir: arama bitti.';},
+        qnone:'Kuyruk boşaldı: işlenecek hücre kalmadı.',
+        gstart:function(n,m){return '1 ile '+n+' arasında bir sayı tuttum. En fazla '+m+' tahmin yeter.';},
+        ghigh:'Daha büyük.',glow:'Daha küçük.',
+        gstate:function(k,lo,hi){return ' Tahmin sayısı: '+k+'. Kalan aralık: '+lo+'–'+hi+' ('+(hi-lo+1)+' sayı).';},
+        gwin:function(k,m){return 'Buldunuz. '+k+' tahmin kullandınız; ortadan sorarak en fazla '+m+' tahmin gerekir.';},
+        gbad:function(n){return '1 ile '+n+' arasında bir tam sayı yazın.';},
+        units:['mikrosaniye','milisaniye','saniye','dakika','saat','gün','yıl'],steps:'adım',loc:'tr-TR'},
+    en:{start:'Guess the route by eye first, then advance the ripple.',
+        running:function(p,l){return 'Cells processed: '+p+'. Largest number written: '+l+'.';},
+        found:function(d,p){return 'Cell S got '+d+': at least '+d+' moves. Cells processed: '+p+'.';},
+        energy:function(ok){return ok?' 8 units of energy are enough.':' 8 units of energy are not enough.';},
+        none:function(p){return 'The queue is empty and S was never reached: no route. Cells processed: '+p+'.';},
+        queue:'Queue: ',empty:'empty',more:' and '+'{n}'+' more',
+        qout:'Removed',qin:'Queue',qhead:'front',qtail:'back',qempty:'The queue is empty.',
+        q0:'At first only R is in the queue. Select "Process one cell": R leaves the front and its neighbours join the back.',
+        qstep:function(o,a){return o+' left the front'+(a?'; '+a+' joined the back.':'; no new neighbours, nothing joined the back.');},
+        qfound:function(o,g){return o+' left the front. '+g+' is cell S: the search is over.';},
+        qnone:'The queue is empty: no cells left to process.',
+        gstart:function(n,m){return 'I picked a number between 1 and '+n+'. At most '+m+' guesses are needed.';},
+        ghigh:'Higher.',glow:'Lower.',
+        gstate:function(k,lo,hi){return ' Guesses so far: '+k+'. Remaining range: '+lo+'–'+hi+' ('+(hi-lo+1)+' numbers).';},
+        gwin:function(k,m){return 'Correct. You used '+k+' guesses; asking for the middle never needs more than '+m+'.';},
+        gbad:function(n){return 'Enter a whole number between 1 and '+n+'.';},
+        units:['microseconds','milliseconds','seconds','minutes','hours','days','years'],steps:'steps',loc:'en-GB'}
+  };
+  function T(){return TXT[L()];}
+
+  /* ---------- wave widget ---------- */
+  var DEF=['R..#.','.#.#.','.#...','..#.#','#...S'];
+  var DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
+  var W={n:5,walls:{},dist:{},queue:[],cur:null,pops:0,done:false,found:false,path:{},isDef:true,out:[],added:[]};
+  var gridEl=document.getElementById('wgrid'),statusEl=document.getElementById('wstatus'),queueEl=document.getElementById('wqueue');
+  function key(r,c){return r+','+c;}
+  function loadDefault(){W.n=5;W.walls={};for(var r=0;r<5;r++)for(var c=0;c<5;c++)if(DEF[r][c]==='#')W.walls[key(r,c)]=true;W.isDef=true;document.getElementById('wsize').value='5';clearWave();}
+  function randomWalls(){W.walls={};var n=W.n;for(var r=0;r<n;r++)for(var c=0;c<n;c++){if((r===0&&c===0)||(r===n-1&&c===n-1))continue;if(Math.random()<0.24)W.walls[key(r,c)]=true;}W.isDef=false;clearWave();}
+  function clearWave(){W.dist={};W.dist[key(0,0)]=0;W.queue=[[0,0]];W.cur=null;W.pops=0;W.out=[];W.added=[];W.done=false;W.found=false;W.path={};render();}
+  function stepCell(){
+    if(W.done)return;
+    if(!W.queue.length){W.done=true;W.cur=null;return;}
+    var cell=W.queue.shift(),r=cell[0],c=cell[1];W.cur=key(r,c);W.pops++;W.out.push(key(r,c));
+    if(r===W.n-1&&c===W.n-1){W.done=true;W.found=true;tracePath();return;}
+    for(var i=0;i<4;i++){var y=r+DIRS[i][0],x=c+DIRS[i][1];
+      if(y<0||x<0||y>=W.n||x>=W.n)continue;var k=key(y,x);
+      if(W.walls[k]||W.dist[k]!==undefined)continue;
+      W.dist[k]=W.dist[key(r,c)]+1;W.queue.push([y,x]);W.added.push(k);}
+    if(!W.queue.length){W.done=true;}
+  }
+  function stepLayer(){
+    if(W.done||!W.queue.length){stepCell();return;}
+    var level=W.dist[key(W.queue[0][0],W.queue[0][1])];
+    while(!W.done&&W.queue.length&&W.dist[key(W.queue[0][0],W.queue[0][1])]===level)stepCell();
+  }
+  function tracePath(){
+    var r=W.n-1,c=W.n-1;W.path={};W.path[key(r,c)]=true;
+    while(W.dist[key(r,c)]>0){for(var i=0;i<4;i++){var y=r+DIRS[i][0],x=c+DIRS[i][1];
+      if(W.dist[key(y,x)]===W.dist[key(r,c)]-1){r=y;c=x;W.path[key(r,c)]=true;break;}}}
+  }
+  function render(){
+    var n=W.n,maxL=0,k;for(k in W.dist)if(W.dist[k]>maxL)maxL=W.dist[k];
+    gridEl.style.gridTemplateColumns='repeat('+n+',1fr)';
+    gridEl.className='grid'+(n>8?' big':'');
+    gridEl.innerHTML='';
+    for(var r=0;r<n;r++)for(var c=0;c<n;c++){
+      var b=document.createElement('button');b.type='button';b.className='cell';k=key(r,c);
+      var isS=(r===0&&c===0),isG=(r===n-1&&c===n-1),label='('+r+','+c+')';
+      if(W.walls[k]){b.className+=' wall';label+=' #';}
+      else{
+        if(W.dist[k]!==undefined){
+          var d=W.dist[k],light=92-Math.min(d,2*n)*(46/(2*n));
+          b.style.background='hsl(207,56%,'+light+'%)';b.style.color=light<62?'#fff':'#16202b';
+          b.appendChild(document.createTextNode(d));label+=' '+d;}
+        if(isS||isG){var t=document.createElement('span');t.className='tag';t.textContent=isS?'R':'S';b.appendChild(t);b.className+=isS?' start':' goal';label+=isS?' R':' S';}
+        if(W.path[k])b.className+=' path';
+        if(W.out.indexOf(k)>=0)b.className+=' cur';
+        if(W.added.indexOf(k)>=0)b.className+=' new';
+      }
+      b.setAttribute('aria-label',label);b.dataset.r=r;b.dataset.c=c;
+      gridEl.appendChild(b);
+    }
+    var t=T(),msg;
+    if(W.found){var dd=W.dist[key(n-1,n-1)];msg=t.found(dd,W.pops)+(W.isDef||n===5?t.energy(dd<=8):'');}
+    else if(W.done){msg=t.none(W.pops);}
+    else if(W.pops===0){msg=t.start;}
+    else{msg=t.running(W.pops,maxL);}
+    statusEl.textContent=msg;
+    drawQueue(t,n);
+    document.getElementById('wlayer').disabled=W.done;document.getElementById('wstep').disabled=W.done;
+  }
+  function shade(d,n){var light=92-Math.min(d,2*n)*(46/(2*n));return ['hsl(207,56%,'+light+'%)',light<62?'#fff':'#16202b'];}
+  function qbox(k,n,cls){var p=k.split(','),d=W.dist[k],b=document.createElement('span'),col=shade(d,n);
+    b.className='qbox'+(cls?' '+cls:'');b.style.background=col[0];b.style.color=col[1];
+    var v=document.createElement('b');v.textContent=d;var s=document.createElement('small');s.textContent='('+p[0]+','+p[1]+')';
+    b.appendChild(v);b.appendChild(s);return b;}
+  function lab(txt){var e=document.createElement('span');e.className='qlab';e.textContent=txt;return e;}
+  function names(list){var s=list.slice(0,6).map(function(k){return '('+k+')';}).join(', ');return list.length>6?s+' …':s;}
+  function drawQueue(t,n){
+    queueEl.innerHTML='';
+    if(W.out.length){var r1=document.createElement('div');r1.className='qrow';r1.appendChild(lab(t.qout));
+      W.out.slice(-6).forEach(function(k){r1.appendChild(qbox(k,n,'out'));});
+      if(W.out.length>6){var m=document.createElement('span');m.className='qmore';m.textContent='+'+(W.out.length-6);r1.appendChild(m);}
+      queueEl.appendChild(r1);}
+    var r2=document.createElement('div');r2.className='qrow';r2.appendChild(lab(t.qin+' · '+t.qhead));
+    var max=12;
+    W.queue.slice(0,max).forEach(function(x){var k=key(x[0],x[1]);r2.appendChild(qbox(k,n,W.added.indexOf(k)>=0?'new':''));});
+    if(W.queue.length>max){var m2=document.createElement('span');m2.className='qmore';m2.textContent=t.more.replace('{n}',W.queue.length-max);r2.appendChild(m2);}
+    if(!W.queue.length){var e=document.createElement('span');e.className='qmore';e.textContent=t.qempty;r2.appendChild(e);}
+    else r2.appendChild(lab(t.qtail));
+    queueEl.appendChild(r2);
+    var note=document.createElement('p');note.className='qnote';
+    if(!W.out.length)note.textContent=t.q0;
+    else if(W.found&&W.out[W.out.length-1]===key(n-1,n-1))note.textContent=t.qfound(names(W.out),'('+key(n-1,n-1)+')');
+    else if(W.done&&!W.queue.length)note.textContent=t.qstep(names(W.out),names(W.added))+' '+t.qnone;
+    else note.textContent=t.qstep(names(W.out),names(W.added));
+    queueEl.appendChild(note);
+  }
+  gridEl.addEventListener('click',function(e){
+    var b=e.target.closest('.cell');if(!b)return;var r=+b.dataset.r,c=+b.dataset.c,n=W.n;
+    if((r===0&&c===0)||(r===n-1&&c===n-1))return;
+    var k=key(r,c);if(W.walls[k])delete W.walls[k];else W.walls[k]=true;W.isDef=false;clearWave();
+  });
+  document.getElementById('wlayer').onclick=function(){W.out=[];W.added=[];stepLayer();render();};
+  document.getElementById('wstep').onclick=function(){W.out=[];W.added=[];stepCell();render();};
+  document.getElementById('wclear').onclick=clearWave;
+  document.getElementById('wdef').onclick=loadDefault;
+  document.getElementById('wrand').onclick=randomWalls;
+  document.getElementById('wsize').onchange=function(){W.n=+this.value;W.walls={};W.isDef=false;if(W.n===5){loadDefault();}else{clearWave();}};
+
+  /* ---------- guessing widget ---------- */
+  var G={max:100,secret:0,count:0,lo:1,hi:100,won:false,last:''};
+  var gStatus=document.getElementById('gstatus'),gIn=document.getElementById('gin');
+  function need(n){return Math.ceil(Math.log(n+1)/Math.LN2);}
+  function gNew(){G.max=+document.getElementById('gmax').value;G.secret=1+Math.floor(Math.random()*G.max);G.count=0;G.lo=1;G.hi=G.max;G.won=false;G.last='start';gIn.max=G.max;gIn.value='';gRender();}
+  function gRender(){var t=T(),m=need(G.max),s;
+    if(G.last==='start')s=t.gstart(G.max.toLocaleString(t.loc),m);
+    else if(G.last==='bad')s=t.gbad(G.max.toLocaleString(t.loc));
+    else if(G.won)s=t.gwin(G.count,m);
+    else s=(G.last==='high'?t.ghigh:t.glow)+t.gstate(G.count,G.lo.toLocaleString(t.loc),G.hi.toLocaleString(t.loc));
+    gStatus.textContent=s;}
+  function gGuess(){if(G.won)return;var v=parseInt(gIn.value,10);
+    if(!(v>=1&&v<=G.max)){G.last='bad';gRender();return;}
+    G.count++;
+    if(v===G.secret){G.won=true;G.last='win';}
+    else if(v<G.secret){G.last='high';if(v+1>G.lo)G.lo=v+1;}
+    else{G.last='low';if(v-1<G.hi)G.hi=v-1;}
+    gIn.value='';gIn.focus();gRender();}
+  document.getElementById('gnew').onclick=gNew;
+  document.getElementById('gmax').onchange=gNew;
+  document.getElementById('ggo').onclick=gGuess;
+  gIn.addEventListener('keydown',function(e){if(e.key==='Enter')gGuess();});
+
+  /* ---------- growth widget ---------- */
+  var gn=document.getElementById('gn');
+  function fmtTime(steps){var t=T(),s=steps/1e6,u=t.units,v,i;
+    if(s<1e-3){v=s*1e6;i=0;}else if(s<1){v=s*1e3;i=1;}else if(s<60){v=s;i=2;}else if(s<3600){v=s/60;i=3;}
+    else if(s<86400){v=s/3600;i=4;}else if(s<86400*365){v=s/86400;i=5;}else{v=s/(86400*365);i=6;}
+    var txt=v.toLocaleString(t.loc,{maximumFractionDigits:v<10?2:(v<100?1:0)}),unit=u[i];
+    if(t.loc==='en-GB'&&txt==='1')unit=unit.replace(/s$/,'');
+    return txt+' '+unit;}
+  function fmtN(x){return Math.round(x).toLocaleString(T().loc);}
+  var G_SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+  function gSup(k){return String(k).split('').map(function(d){return G_SUP[+d];}).join('');}
+  function gDec(x,d){return x.toLocaleString(T().loc,{minimumFractionDigits:d,maximumFractionDigits:d});}
+  function gSecs(s){return s<1?s.toLocaleString(T().loc,{maximumSignificantDigits:3,maximumFractionDigits:12}):s.toLocaleString(T().loc,{maximumFractionDigits:1});}
+  function gPad(x,w){x=String(x);while(x.length<w)x+=' ';return x;}
+  function gLpad(x,w){x=String(x);while(x.length<w)x=' '+x;return x;}
+  function growth(){var n=Math.round(Math.pow(10,+gn.value)),lg=Math.round(Math.log(n)/Math.LN2*100)/100;
+    // The table uses log2 n rounded to two decimals, the same value the worked steps show.
+    var vals=[Math.max(1,Math.ceil(lg)),n,Math.round(n*lg),n*n];
+    document.getElementById('gnv').textContent=fmtN(n);
+    for(var i=0;i<4;i++){document.getElementById('g'+(i+1)).textContent=fmtN(vals[i]);document.getElementById('t'+(i+1)).textContent=fmtTime(vals[i]);}
+    var en=L()==='en',k=Math.floor(Math.log(n)/Math.LN2+1e-9),lo=Math.pow(2,k),hi=lo*2,N=fmtN(n),L2=gDec(lg,2);
+    var step=en?'steps':'adım',w=Math.max.apply(null,vals.map(function(v){return fmtN(v).length;}));
+    var lines=[];
+    lines.push(en?'log₂ n: how many 2s must you multiply together to get '+N+'?':'log₂ n: kaç tane 2\'yi çarparsak sonuç '+N+' olur?');
+    if(k<=10){var twos=[];for(var j=0;j<k;j++)twos.push('2');lines.push('  2'+gSup(k)+' = '+twos.join(' × ')+' = '+fmtN(lo));}
+    lines.push(lo===n?'  2'+gSup(k)+' = '+N+'   →   log₂ '+N+' = '+k
+                     :'  2'+gSup(k)+' = '+fmtN(lo)+'  <  '+N+'  <  '+fmtN(hi)+' = 2'+gSup(k+1)+'   →   log₂ '+N+(en?' is between '+k+' and '+(k+1):', '+k+' ile '+(k+1)+' arasında'));
+    if(lo!==n)lines.push(en?'  log₂ '+N+' ≈ '+L2+'   (on a calculator: log '+N+' ÷ log 2)':'  log₂ '+N+' ≈ '+L2+'   (hesap makinesinde: log '+N+' ÷ log 2)');
+    lines.push('');
+    var rows=[['O(log n)',(en?L2+' rounded up (no fractional steps)':L2+' yukarı yuvarlanır (kesirli adım olmaz)')],
+              ['O(n)','n'],['O(n log n)',N+' × '+L2],['O(n²)',N+' × '+N]];
+    var cw=Math.max.apply(null,rows.map(function(r){return r[1].length;}));
+    rows.forEach(function(r,i){lines.push(gPad(r[0],11)+gPad(r[1],cw)+'  = '+gLpad(fmtN(vals[i]),w)+' '+step);});
+    lines.push('');
+    lines.push(en?'Time = steps ÷ 1,000,000   (the processor does 1 million steps a second)':'Süre = adım ÷ 1.000.000   (işlemci saniyede 1 milyon adım atar)');
+    var tl=rows.map(function(r,i){return fmtN(vals[i])+' ÷ '+fmtN(1e6);}),tw=Math.max.apply(null,tl.map(function(x){return x.length;}));
+    var sl=vals.map(function(v){return gSecs(v/1e6)+' s';}),sw=Math.max.apply(null,sl.map(function(x){return x.length;}));
+    rows.forEach(function(r,i){lines.push(gPad(r[0],11)+gPad(tl[i],tw)+'  = '+gPad(sl[i],sw)+'  = '+fmtTime(vals[i]));});
+    lines.push('');
+    lines.push(en?'1 millisecond = 0.001 s   1 microsecond = 0.000001 s   1 day = 86,400 s':'1 milisaniye = 0,001 s   1 mikrosaniye = 0,000001 s   1 gün = 86.400 s');
+    document.getElementById('gcalc').textContent=lines.join('\n');}
+  gn.addEventListener('input',growth);
+
+  /* ---------- answer boxes ---------- */
+  var EN_=L()==='en';
+  function N(n){return {k:'n',min:n,max:n,show:String(n)};}
+  function R(a,b,tr,en){return {k:'n',min:a,max:b,show:EN_?en:tr};}
+  function YN(yes,tr,en){return {k:'yn',yes:yes,show:EN_?en:tr};}
+  function WD(words,tr,en){return {k:'w',words:words,show:EN_?en:tr};}
+  function S(s){return {k:'s',s:s,show:s.replace(/\),\(/g,'), (')};}
+  function F(tr,en){return {k:'f',show:EN_?en:tr};}
+  function M(tr,en){return {k:'m',show:EN_?en:tr};}
+  var VAR=F('Oyuna göre değişir (1–16)','Depends on the game (1–16)');
+  var NONE=WD(['none','yok','no'],'None (yol yok)','None (no route)');
+  var ANS=[
+    /* experiment 1 */ N(1),N(16),N(16),VAR,VAR,VAR,N(32),N(2),
+    /* experiment 2 */ N(7),N(7),R(49,50,'yaklaşık 50','about 50'),R(24,25,'yaklaşık 25','about 25'),R(11,13,'yaklaşık 12','about 12'),R(5,6,'yaklaşık 6','about 6'),N(8),N(1),
+    /* experiment 3 */ N(6),N(28),N(28),R(4,5,'yaklaşık 4,7','about 4.7'),
+    M('n kişi için n × (n − 1) / 2. Örneğin 30 kişilik sınıfta 30 × 29 / 2 = 435 tokalaşma.','For n people it is n × (n − 1) / 2. A class of 30 gives 30 × 29 / 2 = 435 handshakes.'),
+    /* summary table */ N(16),N(32),N(7),N(8),N(6),N(28),
+    M('Sayı tahmini gibi çalışan yöntemi isterdiniz: 20 adım. Kart arama 1 milyon adım sürer. Tokalaşma yaklaşık 500 milyar adım sürer; ondan kaçardınız.','You would want the method that behaves like number guessing: 20 steps. Card search takes 1 million steps. Handshakes take about 500 billion steps; that is the one to avoid.'),
+    /* route: first try */ F('Rotanıza göre değişir (en az 8)','Depends on your route (at least 8)'),
+    M('Birkaç rota denemek yetmez; olası bütün rotaları kapsayan bir yöntem gerekir. Halka yöntemi bunu yapar.','Trying a few routes is not enough; you need a method that covers every possible route. The ripple method does that.'),
+    /* route: questions */ N(8),YN(true,'Evet, tam yeter: 8 hamle, 8 birim','Yes, exactly enough: 8 moves, 8 units'),N(2),
+    M('8 hamle, 9 hücre. Başlangıç hücresi hamle harcamaz.','8 moves, 9 cells. The starting cell costs no move.'),
+    M('Önce 1 hamlelik halka, sonra 2 hamlelik halka dolar. Bir hücreye daha kısa yol olsaydı o hücre daha önceki halkada sayı alırdı.','The 1-move ring fills first, then the 2-move ring. If a cell had a shorter path it would have received its number in an earlier ring.'),
+    N(18),N(100),WD(['kart','card','1'],'Kart arama (Deney 1): iş hücre sayısıyla orantılı','Card search (Experiment 1): work is proportional to the number of cells'),
+    /* queue table */ S('(2,0)'),S('(3,0)'),S('(1,2),(3,0)'),S('(1,2)'),S('(2,2)'),S('(3,0),(2,2)'),S('(3,0)'),S('(3,1)'),S('(2,2),(3,1)'),S('(2,2)'),S('(2,3)'),S('(3,1),(2,3)'),
+    /* code tasks */ N(8),N(8),N(8),N(8),NONE,NONE,
+    M('Aynı hücreler tekrar tekrar kuyruğa girer, sayıların üzerine yazılır ve sonuç güvenilmez olur. Yol olmayan bir haritada kuyruk hiç boşalmaz ve program durmaz.','The same cells enter the queue again and again, numbers get overwritten and the result cannot be trusted. On a map with no route the queue never empties and the program never stops.'),
+    /* exam 1 */ N(2),N(4),R(1.05,1.2,'yaklaşık 1,1','about 1.1'),
+    /* exam 2 */ N(6),YN(false,'Hayır: 6 hamle gerekir, 5 birim yetmez','No: it needs 6 moves, 5 units are not enough'),
+    M('Yol varsa yine bulur, çünkü ulaşılabilen her hücre sonunda işlenir. Ama hücreler artık halka sırasıyla işlenmez; program bir yöne doğru derine gider ve hedefe dolambaçlı bir yoldan önce varabilir, bu yüzden bildirdiği sayı en az hamle olmayabilir.','If a route exists it still finds one, because every reachable cell is eventually processed. But cells are no longer processed ring by ring; the program dives deep in one direction and may reach the goal by a roundabout path first, so the number it reports may not be the fewest moves.'),
+    /* homework 1 */ N(8),N(28),N(3),N(16),N(120),N(4),
+    M('Hamle sayısı değişmez. Birden fazla en kısa rota olduğunda hangisinin bulunacağı yön sırasına bağlıdır.','The move count does not change. When there is more than one shortest route, which one is found depends on the order of directions.'),
+    N(5),N(100),N(400),
+    /* exit */ M('Halkalar sırayla dolduğu için bir hücre sayısını ilk ulaşıldığı anda alır; sonradan gelen her yol en az o kadar uzundur.','Rings fill in order, so a cell gets its number the first time it is reached; any path that arrives later is at least as long.')
+  ];
+  /* ---------- explanations behind the "i" buttons, in the same order as ANS ---------- */
+  function E(trText,trCalc,enText,enCalc){return {text:EN_?enText:trText,calc:EN_?enCalc:trCalc};}
+  var X_WORST=E('Aranan sayı en sondaki kartsa bütün kartları açmadan bulamazsınız. En kötü durum, kart sayısına eşittir.','kart sayısı = 16\nen kötü durum = 16 kart',
+                'If the number is on the last card, you cannot find it without turning every card. The worst case equals the number of cards.','cards = 16\nworst case = 16 cards');
+  var X_PLAY=E('Açtığınız kart sayısı, aranan kartın sıradaki yerine eşittir: 5. sıradaysa 5 kart açarsınız. Çok kez oynarsanız ortalama, sıranın ortasına yakın çıkar.','ortalama = (1 + 2 + … + 16) / 16\n         = 136 / 16\n         = 8,5 kart',
+               'The number of cards you turn equals the position of the card you want: if it is 5th, you turn 5. Over many games the average lands near the middle of the row.','average = (1 + 2 + … + 16) / 16\n        = 136 / 16\n        = 8.5 cards');
+  var X_G7=E('Her tahmin kalan aralığı yarıya indirir. Aralık tek sayıya inene kadar yarılayın, sonra o sayıyı söyleyin.','100 → 50 → 25 → 12 → 6 → 3 → 1     6 tahmin\nkalan tek sayıyı söylemek          + 1 tahmin\ntoplam                             = 7 tahmin\n\nKısa yol: k tahmin en fazla 2ᵏ − 1 sayıyı ayırt eder.\n6 tahmin → 2⁶ − 1 = 63    (100 için yetmez)\n7 tahmin → 2⁷ − 1 = 127   (yeter)',
+             'Each guess halves the remaining range. Keep halving until one number is left, then name it.','100 → 50 → 25 → 12 → 6 → 3 → 1     6 guesses\nname the one number left           + 1 guess\ntotal                              = 7 guesses\n\nShortcut: k guesses can tell apart at most 2ᵏ − 1 numbers.\n6 guesses → 2⁶ − 1 = 63    (not enough for 100)\n7 guesses → 2⁷ − 1 = 127   (enough)');
+  var X_H8=E('Her kişi diğer 7 kişiyle tokalaşır. Böyle sayınca her tokalaşma iki kez sayılır (bir sizin, bir karşınızdakinin tarafından), bu yüzden ikiye bölünür.','8 kişi × 7 tokalaşma = 56\n56 / 2 = 28\n\nGenel kural: n × (n − 1) / 2',
+             'Each person shakes hands with the other 7. Counting that way counts every handshake twice (once for you, once for the other person), so divide by two.','8 people × 7 handshakes = 56\n56 / 2 = 28\n\nGeneral rule: n × (n − 1) / 2');
+  var X_CODE8=E('Kod, kâğıtta doldurduğunuz haritanın aynısını işler. Yazdırdığı sayı, S hücresine (satır 4, sütun 4) yazılan sayıdır.','0 1 2 # 8\n1 # 3 # 7\n2 # 4 5 6\n3 4 # 6 #\n# 5 6 7 8   ← sağ alt köşe: 8',
+                'The code works through the same map you filled in on paper. The number it prints is the one written in cell S (row 4, column 4).','0 1 2 # 8\n1 # 3 # 7\n2 # 4 5 6\n3 4 # 6 #\n# 5 6 7 8   ← bottom-right corner: 8');
+  var X_WALL=E('Yeni duvar (2,3) hücresindedir; ortadan geçen rota kapanır. Soldan ve alttan dolaşan rota açık kalır ve o da 8 hamledir.','kapanan rota: (0,0)→(0,1)→(0,2)→(1,2)→(2,2)→ ✗ (2,3)\naçık rota:    (0,0)→(1,0)→(2,0)→(3,0)→(3,1)→(4,1)→(4,2)→(4,3)→(4,4)\nhamle sayısı = 8',
+               'The new wall is in cell (2,3); the route through the middle is blocked. The route down the left and along the bottom stays open, and it is also 8 moves.','blocked: (0,0)→(0,1)→(0,2)→(1,2)→(2,2)→ ✗ (2,3)\nopen:    (0,0)→(1,0)→(2,0)→(3,0)→(3,1)→(4,1)→(4,2)→(4,3)→(4,4)\nmoves = 8');
+  var X_NONE=E('İkinci duvar (4,2) hücresindedir; alttaki rota da kapanır. S\'ye yalnızca (4,3) üzerinden girilir, (4,3)\'e de yalnızca (3,3) ya da (4,2) üzerinden. İkisi de artık kapalı. Kuyruk boşalır, döngü biter ve fonksiyon son satırdaki return None\'a ulaşır.','S (4,4) komşuları: (3,4) duvar, (4,3) boş\n(4,3) komşuları:   (4,2) duvar, (3,3) boş\n(3,3) komşuları:   (2,3) duvar, (3,2) duvar, (3,4) duvar\n→ dışarıdan bu üç hücreye giriş yok',
+               'The second wall is in cell (4,2); the bottom route is blocked too. S can only be entered through (4,3), and (4,3) only through (3,3) or (4,2). Both are now closed off. The queue empties, the loop ends and the function reaches return None on its last line.','neighbours of S (4,4): (3,4) wall, (4,3) free\nneighbours of (4,3):   (4,2) wall, (3,3) free\nneighbours of (3,3):   (2,3) wall, (3,2) wall, (3,4) wall\n→ no way into these three cells from outside');
+  var X_Q5=E('Kuyruğun başında (2,0) var; o çıkar. Dört komşusuna sırayla bakılır; yalnızca boş ve sayısız olan eklenir.','kuyruk:  (2,0), (1,2)\nçıkan:   (2,0)\nyukarı (1,0)  sayı yazılmış\nsağ    (2,1)  duvar\naşağı  (3,0)  boş → eklenir\nsol           harita dışı\nkuyruk:  (1,2), (3,0)',
+             'The front of the queue is (2,0); it comes out. Its four neighbours are checked in order; only a free cell with no number is added.','queue:   (2,0), (1,2)\nremoved: (2,0)\nup    (1,0)  already numbered\nright (2,1)  wall\ndown  (3,0)  free → added\nleft         off the map\nqueue:   (1,2), (3,0)');
+  var X_Q6=E('Kuyruğun başında (1,2) var; o çıkar.','kuyruk:  (1,2), (3,0)\nçıkan:   (1,2)\nyukarı (0,2)  sayı yazılmış\nsağ    (1,3)  duvar\naşağı  (2,2)  boş → eklenir\nsol    (1,1)  duvar\nkuyruk:  (3,0), (2,2)',
+             'The front of the queue is (1,2); it comes out.','queue:   (1,2), (3,0)\nremoved: (1,2)\nup    (0,2)  already numbered\nright (1,3)  wall\ndown  (2,2)  free → added\nleft  (1,1)  wall\nqueue:   (3,0), (2,2)');
+  var X_Q7=E('Kuyruğun başında (3,0) var; o çıkar.','kuyruk:  (3,0), (2,2)\nçıkan:   (3,0)\nyukarı (2,0)  sayı yazılmış\nsağ    (3,1)  boş → eklenir\naşağı  (4,0)  duvar\nsol           harita dışı\nkuyruk:  (2,2), (3,1)',
+             'The front of the queue is (3,0); it comes out.','queue:   (3,0), (2,2)\nremoved: (3,0)\nup    (2,0)  already numbered\nright (3,1)  free → added\ndown  (4,0)  wall\nleft         off the map\nqueue:   (2,2), (3,1)');
+  var X_Q8=E('Kuyruğun başında (2,2) var; o çıkar.','kuyruk:  (2,2), (3,1)\nçıkan:   (2,2)\nyukarı (1,2)  sayı yazılmış\nsağ    (2,3)  boş → eklenir\naşağı  (3,2)  duvar\nsol    (2,1)  duvar\nkuyruk:  (3,1), (2,3)',
+             'The front of the queue is (2,2); it comes out.','queue:   (2,2), (3,1)\nremoved: (2,2)\nup    (1,2)  already numbered\nright (2,3)  free → added\ndown  (3,2)  wall\nleft  (2,1)  wall\nqueue:   (3,1), (2,3)');
+  var EXP=[
+    /* experiment 1 */
+    E('En şanslı durumda aranan sayı, açtığınız ilk karttır.','açılan kart = 1','In the luckiest case the number you want is the first card you turn.','cards turned = 1'),
+    X_WORST,X_WORST,X_PLAY,X_PLAY,X_PLAY,
+    E('Kart sayısı değişse de kural aynıdır: en kötü durumda bütün kartlar açılır.','kart sayısı = 32\nen kötü durum = 32 kart','The rule is the same whatever the number of cards: in the worst case every card is turned.','cards = 32\nworst case = 32 cards'),
+    E('İki en kötü durumu birbirine bölün.','32 kart / 16 kart = 2\ngirdi 2 katı → iş 2 katı','Divide one worst case by the other.','32 cards / 16 cards = 2\ninput × 2 → work × 2'),
+    /* experiment 2 */
+    X_G7,X_G7,
+    E('İlk tahmin ortadaki sayıdır: 50. Cevaba göre aralığın bir yarısı elenir.','"daha büyük" → 51–100 kalır: 50 sayı\n"daha küçük" → 1–49 kalır:   49 sayı','The first guess is the middle number: 50. The answer rules out one half of the range.','"higher" → 51–100 remain: 50 numbers\n"lower"  → 1–49 remain:   49 numbers'),
+    E('51–100 aralığının ortası 75\'tir. Kalan aralık yine yarılanır.','"daha büyük" → 76–100 kalır: 25 sayı\n"daha küçük" → 51–74 kalır:  24 sayı','The middle of 51–100 is 75. The remaining range halves again.','"higher" → 76–100 remain: 25 numbers\n"lower"  → 51–74 remain:  24 numbers'),
+    E('76–100 aralığının ortası 88\'dir.','"daha büyük" → 89–100 kalır: 12 sayı\n"daha küçük" → 76–87 kalır:  12 sayı','The middle of 76–100 is 88.','"higher" → 89–100 remain: 12 numbers\n"lower"  → 76–87 remain:  12 numbers'),
+    E('89–100 aralığının ortası 94\'tür.','"daha büyük" → 95–100 kalır: 6 sayı\n"daha küçük" → 89–93 kalır:  5 sayı','The middle of 89–100 is 94.','"higher" → 95–100 remain: 6 numbers\n"lower"  → 89–93 remain:  5 numbers'),
+    E('Aralık iki katına çıkınca yalnızca bir yarılama daha gerekir: ilk tahmin 200\'ü 100\'e indirir, gerisi 1–100 ile aynıdır.','200 → 100 → 50 → 25 → 12 → 6 → 3 → 1     7 tahmin\nkalan tek sayıyı söylemek                + 1 tahmin\ntoplam                                   = 8 tahmin\n\nKısa yol: 2⁷ − 1 = 127 (200 için yetmez), 2⁸ − 1 = 255 (yeter)','Doubling the range needs just one more halving: the first guess turns 200 into 100, and the rest is the same as 1–100.','200 → 100 → 50 → 25 → 12 → 6 → 3 → 1     7 guesses\nname the one number left                 + 1 guess\ntotal                                    = 8 guesses\n\nShortcut: 2⁷ − 1 = 127 (not enough for 200), 2⁸ − 1 = 255 (enough)'),
+    E('İki sonucu birbirinden çıkarın. Kart aramada iş ikiye katlanmıştı; burada yalnızca bir adım arttı.','1–200 için 8 tahmin\n1–100 için 7 tahmin\n8 − 7 = 1 tahmin fazla','Subtract one result from the other. In card search the work doubled; here it grew by a single step.','8 guesses for 1–200\n7 guesses for 1–100\n8 − 7 = 1 more guess'),
+    /* experiment 3 */
+    E('Her kişi diğer 3 kişiyle tokalaşır. Böyle sayınca her tokalaşma iki kez sayılır, bu yüzden ikiye bölünür.','4 kişi × 3 tokalaşma = 12\n12 / 2 = 6\n\nTek tek: A–B, A–C, A–D, B–C, B–D, C–D','Each person shakes hands with the other 3. Counting that way counts every handshake twice, so divide by two.','4 people × 3 handshakes = 12\n12 / 2 = 6\n\nOne by one: A–B, A–C, A–D, B–C, B–D, C–D'),
+    X_H8,X_H8,
+    E('İki sonucu birbirine bölün. Oran tam 4 değildir, ama grup büyüdükçe 4\'e yaklaşır.','4 → 8 kişi:    28 / 6    ≈ 4,67\n8 → 16 kişi:   120 / 28  ≈ 4,29\n16 → 32 kişi:  496 / 120 ≈ 4,13\ngirdi 2 katı → iş yaklaşık 4 katı','Divide one result by the other. The ratio is not exactly 4, but it approaches 4 as the group grows.','4 → 8 people:    28 / 6    ≈ 4.67\n8 → 16 people:   120 / 28  ≈ 4.29\n16 → 32 people:  496 / 120 ≈ 4.13\ninput × 2 → work × about 4'),
+    null,
+    /* summary table */
+    E('Deney 1\'in en kötü durumu: bütün kartlar açılır.','16 kart → 16 adım','The worst case of Experiment 1: every card is turned.','16 cards → 16 steps'),
+    E('Kart sayısı iki katına çıkınca en kötü durum da iki katına çıkar.','32 kart → 32 adım\n32 / 16 = 2 katı','Twice the cards means twice the worst case.','32 cards → 32 steps\n32 / 16 = 2 times'),
+    E('Deney 2: 100 sayıyı yarılayarak bulmak.','100 → 50 → 25 → 12 → 6 → 3 → 1, sonra söyle\n6 + 1 = 7 tahmin','Experiment 2: finding one of 100 numbers by halving.','100 → 50 → 25 → 12 → 6 → 3 → 1, then name it\n6 + 1 = 7 guesses'),
+    E('Aralık 1–200 olunca yalnızca bir yarılama eklenir.','7 + 1 = 8 tahmin','With the range 1–200, one more halving is added.','7 + 1 = 8 guesses'),
+    E('Deney 3: 4 kişinin tokalaşması.','4 × 3 / 2 = 6','Experiment 3: handshakes among 4 people.','4 × 3 / 2 = 6'),
+    E('Kişi sayısı 8 olunca.','8 × 7 / 2 = 28\n28 / 6 ≈ 4,7 katı','With 8 people.','8 × 7 / 2 = 28\n28 / 6 ≈ 4.7 times'),
+    null,
+    /* route: first try */
+    E('Çizdiğiniz her rota geçerlidir, ama hepsi en kısa değildir. Halka yöntemi S hücresine 8 yazar; bundan kısa rota olamaz.','sizin rotanız ≥ 8 hamle\nen kısa rota  = 8 hamle','Any route you draw is valid, but not every route is the shortest. The ripple method writes 8 in cell S; no route can be shorter.','your route     ≥ 8 moves\nshortest route = 8 moves'),
+    null,
+    /* route: questions */
+    E('Halkaları sırayla doldurunca harita şöyle olur. S hücresi sağ alt köşededir.','0 1 2 # 8\n1 # 3 # 7\n2 # 4 5 6\n3 4 # 6 #\n# 5 6 7 8   ← S = 8','Filling the rings in order gives this map. Cell S is the bottom-right corner.','0 1 2 # 8\n1 # 3 # 7\n2 # 4 5 6\n3 4 # 6 #\n# 5 6 7 8   ← S = 8'),
+    E('Her hamle 1 birim harcar. Gereken enerjiyi eldekiyle karşılaştırın.','gereken = 8 hamle × 1 birim = 8 birim\neldeki  = 8 birim\n8 ≤ 8 → yeter, ama hiç pay kalmaz','Each move costs 1 unit. Compare the energy needed with the energy available.','needed    = 8 moves × 1 unit = 8 units\navailable = 8 units\n8 ≤ 8 → enough, with nothing to spare'),
+    E('S\'den geriye, her adımda bir küçük sayıya yürüyün. 8\'den 7\'ye tek yol vardır; 7\'nin ise iki tane 6 komşusu vardır. Oradan sonra her iki yol da tektir.','1) (0,0)→(0,1)→(0,2)→(1,2)→(2,2)→(2,3)→(3,3)→(4,3)→(4,4)\n2) (0,0)→(1,0)→(2,0)→(3,0)→(3,1)→(4,1)→(4,2)→(4,3)→(4,4)','Walk back from S, moving to a number one smaller each step. There is one way from 8 to 7; the 7 has two neighbours numbered 6. After that each path has no further choice.','1) (0,0)→(0,1)→(0,2)→(1,2)→(2,2)→(2,3)→(3,3)→(4,3)→(4,4)\n2) (0,0)→(1,0)→(2,0)→(3,0)→(3,1)→(4,1)→(4,2)→(4,3)→(4,4)'),
+    null,null,
+    E('Duvar olmayan her hücreye bir sayı yazılır.','toplam hücre = 5 × 5 = 25\nduvar        = 7\n25 − 7 = 18 hücre','Every cell that is not a wall gets a number.','all cells = 5 × 5 = 25\nwalls     = 7\n25 − 7 = 18 cells'),
+    E('En fazla, hiç duvar yokken olur: bütün hücrelere yazılır.','10 × 10 = 100 hücre','The most happens with no walls at all: every cell gets a number.','10 × 10 = 100 cells'),
+    E('Her hücreye yalnızca bir kez yazılır, yani iş hücre sayısıyla orantılıdır. Hücre sayısı iki katına çıkarsa iş de iki katına çıkar; bu, kart aramanın davranışıdır.','25 hücre  → en fazla 25 yazma\n100 hücre → en fazla 100 yazma\ngirdi × 4 → iş × 4   (doğrusal, O(n))','Each cell is written exactly once, so the work is proportional to the number of cells. Twice the cells means twice the work, which is how card search behaves.','25 cells  → at most 25 writes\n100 cells → at most 100 writes\ninput × 4 → work × 4   (linear, O(n))'),
+    /* queue table */
+    X_Q5,X_Q5,X_Q5,X_Q6,X_Q6,X_Q6,X_Q7,X_Q7,X_Q7,X_Q8,X_Q8,X_Q8,
+    /* code tasks */
+    X_CODE8,X_CODE8,X_WALL,X_WALL,X_NONE,X_NONE,
+    null,
+    /* exam 1 */
+    E('O(n) doğrusal büyümedir: girdi kaç katına çıkarsa süre de o kadar katına çıkar.','girdi oranı = 2000 / 1000 = 2\nsüre = 1 s × 2 = 2 s','O(n) is linear growth: the time grows by the same factor as the input.','input ratio = 2000 / 1000 = 2\ntime = 1 s × 2 = 2 s'),
+    E('O(n²) karesel büyümedir: girdi oranının karesi alınır.','girdi oranı = 2000 / 1000 = 2\n2² = 4\nsüre = 1 s × 4 = 4 s','O(n²) is quadratic growth: square the input ratio.','input ratio = 2000 / 1000 = 2\n2² = 4\ntime = 1 s × 4 = 4 s'),
+    E('O(log n) için girdilerin logaritmalarını oranlayın. Girdi iki katına çıkınca logaritma yalnızca 1 artar.','log₂ 1000 ≈ 9,97\nlog₂ 2000 ≈ 10,97   (tam 1 fazla)\nsüre = 1 s × 10,97 / 9,97 ≈ 1,10 s','For O(log n), take the ratio of the logarithms. Doubling the input raises the logarithm by just 1.','log₂ 1000 ≈ 9.97\nlog₂ 2000 ≈ 10.97   (exactly 1 more)\ntime = 1 s × 10.97 / 9.97 ≈ 1.10 s'),
+    /* exam 2 */
+    E('Halkaları doldurun; S sağ alt köşededir.','0 1 # 7\n1 2 # 6\n# 3 4 5\n5 4 # 6   ← S = 6\n\nrota: (0,0)→(0,1)→(1,1)→(2,1)→(2,2)→(2,3)→(3,3)','Fill in the rings; S is the bottom-right corner.','0 1 # 7\n1 2 # 6\n# 3 4 5\n5 4 # 6   ← S = 6\n\nroute: (0,0)→(0,1)→(1,1)→(2,1)→(2,2)→(2,3)→(3,3)'),
+    E('Gereken enerjiyi eldekiyle karşılaştırın.','gereken = 6 hamle × 1 birim = 6 birim\neldeki  = 5 birim\n6 > 5 → yetmez, 1 birim eksik','Compare the energy needed with the energy available.','needed    = 6 moves × 1 unit = 6 units\navailable = 5 units\n6 > 5 → not enough, 1 unit short'),
+    null,
+    /* homework 1 */
+    E('A parçasında tek döngü vardır ve n kez döner.','n = 8 → say = 8','Snippet A has a single loop that runs n times.','n = 8 → count = 8'),
+    E('B parçasında iç döngü, i\'den sonraki elemanlar kadar döner. Bu, tokalaşma sayımının aynısıdır.','i = 0 → 7 kez\ni = 1 → 6 kez\n…\ni = 7 → 0 kez\n7 + 6 + 5 + 4 + 3 + 2 + 1 + 0 = 28 = 8 × 7 / 2','In snippet B the inner loop runs once for each element after i. That is the handshake count.','i = 0 → 7 times\ni = 1 → 6 times\n…\ni = 7 → 0 times\n7 + 6 + 5 + 4 + 3 + 2 + 1 + 0 = 28 = 8 × 7 / 2'),
+    E('C parçasında k her turda yarıya iner; döngü k 1 olunca durur.','8 → 4 → 2 → 1\n3 yarılama → say = 3\nlog₂ 8 = 3','In snippet C, k halves on every pass; the loop stops when k reaches 1.','8 → 4 → 2 → 1\n3 halvings → count = 3\nlog₂ 8 = 3'),
+    E('A doğrusaldır: n iki katına çıkınca sonuç da iki katına çıkar.','n = 16 → say = 16\n16 / 8 = 2 katı','A is linear: doubling n doubles the result.','n = 16 → count = 16\n16 / 8 = 2 times'),
+    E('B kareseldir: n iki katına çıkınca sonuç yaklaşık dört katına çıkar.','16 × 15 / 2 = 120\n120 / 28 ≈ 4,3 katı','B is quadratic: doubling n roughly quadruples the result.','16 × 15 / 2 = 120\n120 / 28 ≈ 4.3 times'),
+    E('C logaritmiktir: n iki katına çıkınca sonuç yalnızca 1 artar.','16 → 8 → 4 → 2 → 1\n4 yarılama → say = 4\n4 − 3 = 1 fazla','C is logarithmic: doubling n adds just 1 to the result.','16 → 8 → 4 → 2 → 1\n4 halvings → count = 4\n4 − 3 = 1 more'),
+    null,
+    E('Çapraz hamleyle duvarsız bir 5×5 haritada köşeden köşeye 4 hamle yeterdi. Burada tam köşegen üzerindeki (1,1) duvar olduğu için bir hamle fazla gerekir.','duvarsız köşegen: (0,0)→(1,1)→(2,2)→(3,3)→(4,4)   4 hamle, ama (1,1) duvar\nen kısa rota:     (0,0)→(0,1)→(1,2)→(2,2)→(3,3)→(4,4)   5 hamle','With diagonal moves, a wall-free 5×5 map would take 4 moves corner to corner. Here (1,1), right on the diagonal, is a wall, so one extra move is needed.','wall-free diagonal: (0,0)→(1,1)→(2,2)→(3,3)→(4,4)   4 moves, but (1,1) is a wall\nshortest route:     (0,0)→(0,1)→(1,2)→(2,2)→(3,3)→(4,4)   5 moves'),
+    E('Hedef başlangıca en uzak köşededir. Halkalar ona ulaşana kadar diğer bütün hücreler kuyruktan çıkarılmış olur.','10 × 10 = 100 hücre → sayaç = 100','The goal is the corner farthest from the start. By the time the rings reach it, every other cell has already left the queue.','10 × 10 = 100 cells → counter = 100'),
+    E('Kenar iki katına çıkınca hücre sayısı dört katına çıkar; iş hücre sayısıyla orantılı olduğu için o da dört katına çıkar.','20 × 20 = 400 hücre → sayaç = 400\n400 / 100 = 4 katı','Doubling the side quadruples the number of cells; the work is proportional to the cells, so it quadruples too.','20 × 20 = 400 cells → counter = 400\n400 / 100 = 4 times'),
+    /* exit */ null
+  ];
+  if(EXP.length!==ANS.length&&window.console)console.error('Explanation list does not match the answers: '+EXP.length+' and '+ANS.length);
+  var QT=EN_?{check:'Check',all:'Check all questions in this part',ok:'Correct',ans:'Answer: ',model:'Sample answer: ',score:function(a,b){return 'Correct: '+a+' of '+b;},label:'Answer ',why:'How this answer is found',whyOf:'Answer '}
+            :{check:'Kontrol et',all:'Bu bölümdeki tüm soruları kontrol et',ok:'Doğru',ans:'Cevap: ',model:'Örnek cevap: ',score:function(a,b){return 'Doğru: '+a+' / '+b;},label:'Cevap ',why:'Bu cevap nasıl bulunur',whyOf:'Cevap '};
+  var YES=['evet','yeter','yetiyor','yetişir','yetisir','yes','enough'],NO=['hayır','hayir','yetmez','yetmiyor','yetişmez','yetişemez','no','not'];
+  function words(v){return v.toLocaleLowerCase('tr').split(/[^a-zçğıöşü0-9]+/).filter(Boolean);}
+  function has(ws,list){for(var i=0;i<ws.length;i++)if(list.indexOf(ws[i])>=0)return true;return false;}
+  function judge(a,v){
+    if(a.k==='n'){var x=parseFloat(v.replace(/\s/g,'').replace(',','.'));return !isNaN(x)&&x>=a.min-1e-9&&x<=a.max+1e-9;}
+    if(a.k==='yn'){var ws=words(v),neg=has(ws,NO);return a.yes?(!neg&&has(ws,YES)):neg;}
+    if(a.k==='w')return has(words(v),a.words);
+    if(a.k==='s')return v.replace(/\s/g,'')===a.s;
+    return null;
+  }
+  var items=[],boxes=[],blanks=[].slice.call(document.querySelectorAll('.blank'));
+  if(blanks.length!==ANS.length&&window.console)console.error('Answer list does not match the page: '+blanks.length+' boxes, '+ANS.length+' answers');
+  blanks.forEach(function(el,i){
+    var a=ANS[i];if(!a)return;
+    var long=a.k==='m',wrap=document.createElement(long?'span':'span'),field=document.createElement(long?'textarea':'input'),fb=document.createElement('span');
+    wrap.className=long?'qlong':'q';fb.className='fb';fb.setAttribute('aria-live','polite');
+    if(!long){field.type='text';field.autocomplete='off';if(a.k==='s'||a.k==='w'||a.k==='yn')field.className='wide';if(a.k==='n')field.inputMode='decimal';}
+    field.setAttribute('aria-label',QT.label+(i+1));
+    wrap.appendChild(field);wrap.appendChild(fb);el.parentNode.replaceChild(wrap,el);
+    var unit=wrap.closest('li')||wrap.closest('table')||wrap.closest('p');
+    var it={a:a,field:field,fb:fb,unit:unit,section:wrap.closest('section')};items.push(it);
+    var ex=EXP[i];
+    if(ex){
+      var ib=document.createElement('button');ib.type='button';ib.className='ibtn';ib.textContent='i';ib.hidden=true;
+      ib.setAttribute('aria-label',QT.why+' ('+QT.whyOf+(i+1)+')');ib.setAttribute('aria-expanded','false');ib.title=QT.why;
+      wrap.appendChild(ib);it.info=ib;
+      // One box per explanation and question: a prediction and its result, or the cells of one table row, share it.
+      var cell=wrap.closest('td'),scope=cell?cell.parentNode:unit,made=null;
+      for(var j=0;j<boxes.length;j++)if(boxes[j].scope===scope&&boxes[j].ex===ex)made=boxes[j];
+      if(!made){
+        var box=document.createElement('span');box.className='explain';box.hidden=true;
+        if(a.k==='n'||a.k==='yn'||a.k==='w'){var head=document.createElement('b');head.textContent=QT.whyOf+a.show+'. ';box.appendChild(head);}
+        var txt=document.createElement('span');txt.textContent=ex.text;box.appendChild(txt);
+        if(ex.calc){var calc=document.createElement('code');calc.className='calc';calc.textContent=ex.calc;box.appendChild(calc);}
+        made={scope:scope,ex:ex,box:box,buttons:[],inRow:!!cell};boxes.push(made);
+      }
+      made.buttons.push(ib);
+      ib.onclick=(function(m){return function(){m.box.hidden=!m.box.hidden;m.buttons.forEach(function(x){x.setAttribute('aria-expanded',m.box.hidden?'false':'true');});};})(made);
+    }
+    field.addEventListener('keydown',function(e){if(e.key==='Enter'&&!long){e.preventDefault();check(it);}});
+  });
+  function check(it){
+    var a=it.a,v=it.field.value.trim(),res=v?judge(a,v):null;
+    if(it.info)it.info.hidden=false;
+    if(a.k==='m'){it.fb.textContent=QT.model+a.show;return null;}
+    if(a.k==='f'){it.fb.className='fb info';it.fb.textContent=a.show;return null;}
+    if(res===true){it.fb.className='fb ok';it.fb.textContent='✓ '+QT.ok+((a.k==='n'&&a.min!==a.max)||a.k==='yn'||a.k==='w'?': '+a.show:'');}
+    else{it.fb.className='fb '+(v?'no':'info');it.fb.textContent=(v?'✗ ':'')+QT.ans+a.show;}
+    return res===true;
+  }
+  function checkMany(list){var good=0,graded=0;list.forEach(function(it){var r=check(it);if(r!==null){graded++;if(r)good++;}});return [good,graded];}
+  var units=[];items.forEach(function(it){if(units.indexOf(it.unit)<0)units.push(it.unit);});
+  // Explanations sit under their question; in a table they get a full-width row of their own.
+  boxes.forEach(function(m){
+    if(!m.inRow){m.scope.appendChild(m.box);return;}
+    var row=m.scope.nextSibling&&m.scope.nextSibling.className==='exrow'?m.scope.nextSibling:null;
+    if(!row){row=document.createElement('tr');row.className='exrow';var td=document.createElement('td');td.colSpan=m.scope.children.length;row.appendChild(td);m.scope.parentNode.insertBefore(row,m.scope.nextSibling);}
+    row.firstChild.appendChild(m.box);
+  });
+  units.forEach(function(u){
+    var b=document.createElement('button');b.type='button';b.className='chk';b.textContent=QT.check;
+    b.onclick=function(){checkMany(items.filter(function(it){return it.unit===u;}));};
+    if(u.tagName==='TABLE'){var row=document.createElement('div');row.className='chkrow';row.appendChild(b);var host=u.closest('.scroll')||u;host.parentNode.insertBefore(row,host.nextSibling);}
+    else{var first=u.querySelector('.qlong');if(first)u.insertBefore(b,first);else u.appendChild(b);}
+  });
+  var secs=[];items.forEach(function(it){if(it.section&&secs.indexOf(it.section)<0)secs.push(it.section);});
+  secs.forEach(function(sec){
+    var mine=items.filter(function(it){return it.section===sec;});if(mine.length<2)return;
+    var row=document.createElement('div');row.className='chkall';
+    var b=document.createElement('button');b.type='button';b.className='act primary';b.textContent=QT.all;
+    var out=document.createElement('span');out.className='score';out.setAttribute('aria-live','polite');
+    b.onclick=function(){var r=checkMany(mine);out.textContent=QT.score(r[0],r[1]);};
+    row.appendChild(b);row.appendChild(out);sec.appendChild(row);
+  });
+
+  loadDefault();gNew();growth();
+  // The shared runner gives every editor one fixed height; size each to its code instead.
+  window.addEventListener('load',function(){[].forEach.call(document.querySelectorAll('.py-editor'),function(e){e.style.height=(e.value.split('\n').length*22.1+34)+'px';});});
+})();
+</script>
+</body>
+</html>

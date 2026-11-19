@@ -1,0 +1,3 @@
+// Run locally; apply the generated SQL with Wrangler. Keep invite codes out of Git.
+import {randomBytes,randomUUID,createHash} from 'node:crypto';import {writeFileSync} from 'node:fs';
+const [name,file]=process.argv.slice(2);if(!name||!file){console.error('Usage: node create-class.mjs "Class name" /tmp/new-class.sql');process.exit(1);}const code='AA-'+randomBytes(4).toString('hex').toUpperCase(),id=randomUUID(),hash=createHash('sha256').update(code).digest('hex');const quote=s=>"'"+s.replaceAll("'","''")+"'";writeFileSync(file,`INSERT INTO classes(id,name,code_hash) VALUES(${quote(id)},${quote(name)},${quote(hash)});\n`,{mode:0o600});console.log(`Class: ${name}\nClass ID: ${id}\nInvite code: ${code}\nSQL file: ${file}`);

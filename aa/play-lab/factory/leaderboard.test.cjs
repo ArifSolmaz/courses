@@ -1,0 +1,7 @@
+const assert=require('node:assert/strict'),L=require('./leaderboard-model.js');
+const r=(nickname,policy,order,shift='steady')=>({nickname,policy,order:order.split(''),shift});
+const good=r('Comet','queue','ABCDEF'),bad=r('Comet','stack','BCDEFA');let a=L.upsert([],bad);assert.equal(a.status,'added');a=L.upsert(a.rows,good);assert.equal(a.status,'improved');a=L.upsert(a.rows,bad);assert.equal(a.status,'kept');assert.equal(a.rows.length,1);assert.equal(L.upsert(a.rows,{...good,nickname:' comet '}).status,'equal');
+a=L.upsert(a.rows,r('Maple','free','BACDEF'));a=L.upsert(a.rows,r('Nova','stack','BCDEFA'));assert.deepEqual(L.rank(a.rows,'steady').map(r=>r.rank),[1,1,3]);
+assert.equal(L.replay(r('Too soon','free','FABCDE')),null);assert.equal(L.replay(r('Duplicate','free','AABCDE')),null);assert.equal(L.replay({...good,order:['A']}),null);assert.equal(L.replay({...good,onTime:999}).onTime,6);assert.equal(L.name('<script>'),null);assert.equal(L.name('Öğrenci 1'),'Öğrenci 1');
+let b=L.upsert(a.rows,r('Comet','free','ADBEFC','burst'));assert.equal(b.rows.length,4);assert.equal(L.rank(b.rows,'burst')[0].onTime,5);assert.ok(L.compare({onTime:5,maxWait:5},{onTime:4,maxWait:0})<0);assert.ok(L.compare({onTime:4,maxWait:3},{onTime:4,maxWait:4})<0);assert.equal(L.clean([null,{nickname:'invalid'},good,good]).length,1);
+console.log('PASS: replay validation, score priority, wait tie-break, shared ranks, best-only updates, separate shifts, safe nicknames and stored-data checks.');

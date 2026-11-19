@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 9 · Learn through examples · AA</title><link rel="stylesheet" href="examples/lesson.css?v=20261017"><script defer src="examples/cards.js"></script><script defer src="examples/visuals.js?v=3"></script><script defer src="examples/lesson.js?v=2"></script><link rel="stylesheet" href="../assets/python-runner.css"><script defer src="examples/python-runner.js"></script><!-- AA:LEARNING-BRIDGE:ASSETS:START -->
+<link rel="stylesheet" href="../assets/learning-bridges.css?v=3">
+<script defer src="../assets/learning-bridges.js?v=1"></script>
+<!-- AA:LEARNING-BRIDGE:ASSETS:END -->
+</head><body><p class="previous-lesson-banner" style="margin:1rem;padding:.75rem 1rem;border:1px solid #888;border-radius:10px">Arşiv: Hafta 9 önceki ders sayfası. <a href="./">← Yeni ders sayfasına dön</a></p>
+<header><a href="../">← AA course</a><span>Week 9 · DFS, cycles and dependency order</span><button id="print" type="button">Print</button></header>
+<main><div class="heading"><div><p class="eyebrow">180 minutes · examples and practice</p><h1>Follow a route. Find a safe order.</h1></div><label class="picker">Go to an example<select id="choose" aria-label="Choose an example"></select></label></div>
+<details class="lesson-plan"><summary>Three-hour lesson · how to use this page</summary><p>Work through each example. Count the actions, try new numbers, and explain your answer. Answers stay visible to help you check your work. The times include practice and discussion; there is no automatic timer.</p><ol><li>0–64: DFS, states and edge classes</li><li>64–74: Break</li><li>74–122: Cycles and dependency order</li><li>122–132: Break</li><li>132–180: Practice, Python and network structure</li></ol><p>Have paper, a pen and a few small cards ready. Work on your own or follow the teacher’s demonstration. The aim is to explain the actions, not to rush through the pages.</p><a href="lecture-notes.html">Detailed lecture notes (Turkish) →</a></details><p class="research-entry"><a href="teknik-notlar/"><strong>Türkçe teknik notlar: 22 örneğin adım adım açıklaması →</strong></a></p><div class="progress"><div id="bar"></div></div>
+<!-- AA:LEARNING-BRIDGE:START -->
+<section class="learning-bridge" id="bridge-path" lang="tr" aria-labelledby="lb-w9-title">
+<p class="learning-bridge-kicker" id="learning-bridge-w9">Hafta 9 · Etkin çağrıdan güvenli bağımlılık sırasına</p>
+<h2 id="lb-w9-title">Sensör görevlerinde hangi iş hangisini bekler?</h2>
+<nav class="learning-bridge-route" aria-label="Önceki ve sonraki kavram">
+<a href="../w8/#bridge-path"><strong>← Önce: Hafta 8 — katmanları keşfet</strong><span>Kuyruk yerine çağrı yığını kullanınca keşif sırası değişir.</span></a>
+<a href="../w10/#bridge-path"><strong>Sonra: Hafta 10 — en az maliyetle bağla →</strong><span>Döngü bilgisini, bütün sensörleri bağlayan ucuz ağı seçmeye taşı.</span></a>
+</nav>
+<p>A → B, “A işi B’den önce yapılmalı” demektir. DFS bir dalı bitirip geri döner: <strong>beyaz</strong> keşfedilmemiş, <strong>gri</strong> çağrı yığınında etkin, <strong>siyah</strong> bitmiş tepedir.</p>
+<p class="learning-bridge-actions"><a class="learning-bridge-primary" href="#example-3">Bu haftanın laboratuvarı: üç durumu izle →</a><a href="../bridge/#dongu">Önkoşul: tekrarları saymayı hatırla</a></p>
+<details class="learning-bridge-worked"><summary>1. Çözümlü örnek — C, D’yi görünce döngü mü var?</summary>
+<p>Yerel görselle aynı yönlü çizge; bütün komşular sözlükte anahtardır ve yazılı sırada denenir. İçteki <code>visit</code> çağrıları dönüş yerlerini çağrı yığınında saklar; <code>nonlocal</code> ortak inceleme sayacını günceller.</p>
+<pre><code>def dfs_dependencies(graph):
+    state = {u: "white" for u in graph}
+    discovery, finish, scans = [], [], 0
+    def visit(u):
+        nonlocal scans
+        state[u] = "gray"
+        discovery.append(u)
+        for v in graph[u]:
+            scans += 1
+            if state[v] == "white":
+                visit(v)
+            elif state[v] == "gray":
+                raise ValueError("directed cycle")
+        state[u] = "black"
+        finish.append(u)
+    for u in graph:
+        if state[u] == "white":
+            visit(u)
+    return discovery, finish, scans
+
+graph = {"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}
+discovery, finish, scans = dfs_dependencies(graph)</code></pre>
+<p>Keşif <code>A,B,D,C</code>; bitiş <code>D,B,C,A</code>. C→D incelendiğinde D siyahtır: döngü kanıtı değildir. Ters bitiş <strong>A,C,B,D</strong>, her oku ileri taşıyan geçerli topolojik sıradır; tek olası sıra değildir.</p>
+</details>
+<div class="learning-bridge-guided">
+<h3>2. Bir adımı sen tamamla</h3>
+<p>A→B, A→C, B→D, C→D okları olan yönlü çizgede tüm DFS tamamlanınca <strong>kaç yönlü kenar incelenir?</strong> C → D, D bitmiş olsa da sayılır. Giriş/çıkışları ve renk atamalarını bu sayaca katma.</p>
+<div class="learning-bridge-check" data-learning-check data-answer="4">
+<label for="lb-w9-count">Tahminim (işlem sayısı)</label>
+<div class="learning-bridge-input-row"><input id="lb-w9-count" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" aria-describedby="lb-w9-count-feedback"><button type="button" data-learning-check-button hidden>Yanıtımı kontrol et</button></div>
+<p id="lb-w9-count-feedback" class="learning-bridge-feedback" role="status" aria-live="polite">Önce tahminini yaz; gerekirse ipucunu aç.</p>
+</div>
+<details><summary>İpucu</summary><p>A’nın iki, B’nin bir, C’nin bir, D’nin sıfır çıkış komşusu var. Yönsüz çizgedeki gibi ikiyle çarpma.</p></details>
+<details><summary>Çözüm ve gerekçe — kendi hesabından sonra aç</summary><p><strong>4 inceleme.</strong> A→B, B→D, A→C, C→D. Sonuncusu siyah tepeye gider; incelenir ama yeni çağrı oluşturmaz. Dört tepenin giriş ve bitiş olayları başka sayaçlardır.</p></details>
+</div>
+<div class="learning-bridge-transfer" id="lb-w9-transfer"><h3>3. Yeni durumda kendin karar ver</h3>
+<p>D→A eklenirse hangi durum hatayı kanıtlar? Bağlantısız bir görev, iki yönlü fiziksel bağlantı veya en az bağlantılı yol istendiğinde aynı kararı kullanabilir misin?</p>
+<details><summary>Kendi açıklamanı denetle</summary><p>D’den A’ya bakarken A gridir: A→B→D→A döngüsü vardır; topolojik sıra yoktur. Topolojik sıralama yalnız yönlü döngüsüz çizgede (DAG) mümkündür. Dış döngü bağlantısız görevleri de kapsar. Bu kod yönlüdür; basit yönsüz çizgede ebeveyne dönüş kenarı döngü sayılmamalıdır. DFS en az kenarlı yolu garanti etmez; bunun için BFS’ye dön.</p></details></div>
+<p>Komşuluk listeleriyle tam DFS O(V + E)’dir; renkler ve çağrı yığını O(V) ek yer kullanır. Çok derin bir çizgede Python’un özyineleme sınırına dikkat et; açık yığın kullanılabilir. <a href="#example-19">Mevcut Python laboratuvarı</a> aynı bağımlılık problemini DFS yerine giriş dereceleriyle <strong>Kahn algoritması</strong> kullanarak çözer.</p>
+<p class="learning-bridge-exit"><strong>Çıkış ölçütü:</strong> gri ile siyahı ayırıp sıranın her oku sağladığını denetleyebiliyorsan <a href="../w10/#bridge-path">Hafta 10’a geç</a>. Takıldıysan <a href="#example-11">döngü oluşturan oku yeniden izle</a>.</p>
+</section>
+<!-- AA:LEARNING-BRIDGE:END -->
+<article id="scene" aria-labelledby="title"><p id="timing" class="timing"></p><div class="meta"><span id="week"></span><span id="count"></span></div><h2 id="title" tabindex="-1"></h2><p id="question" class="question"></p><div class="pair"><section><span class="badge">A</span><h3 id="aTitle"></h3><p id="aText"></p></section><section><span class="badge">B</span><h3 id="bTitle"></h3><p id="bText"></p></section></div><div id="widget"></div><section id="pythonLab" hidden aria-labelledby="pythonHeading"><h3 id="pythonHeading">Try the same idea in Python</h3><pre class="python-example" data-python="1">from collections import deque
+
+graph = {"A": ["B", "C"], "B": ["D"],
+         "C": ["D", "E"], "D": ["E"], "E": []}
+indegree = {u: 0 for u in graph}
+for u in graph:
+    for v in graph[u]:
+        indegree[v] += 1
+ready = deque(u for u in graph if indegree[u] == 0)
+order = []
+while ready:
+    u = ready.popleft()
+    order.append(u)
+    for v in graph[u]:
+        indegree[v] -= 1
+        if indegree[v] == 0:
+            ready.append(v)
+if len(order) == len(graph):
+    print("Valid order:", order)
+else:
+    print("Cycle detected. Partial order:", order)</pre></section><section id="walkthrough" class="walkthrough" aria-labelledby="explanationHeading"><h3 id="explanationHeading">What is happening? Step by step</h3><p id="guideNote" class="guide-note">These steps explain the written example. The visual above can show other sizes or cases.</p><ol id="guideSteps" class="full-explanation"></ol></section><p id="lesson" class="lesson"></p><div class="check"><p><strong>Try this:</strong> <span id="check"></span></p><p class="answer"><strong>Answer:</strong> <span id="answer"></span></p></div><section id="details" class="assumptions"><h3>Important details</h3><p id="extra"></p><a id="ref">Related lecture notes →</a></section></article>
+<nav class="steps" aria-label="Move between examples"><button id="prev" type="button">← Previous</button><div class="navigation-help"><span id="status" role="status" aria-live="polite"></span><small>Use ← / → arrow keys</small></div><button id="next" type="button">Next →</button></nav>
+</main><noscript>This lesson needs JavaScript. <a href="lecture-notes.html">Open the detailed lecture notes.</a></noscript>
+<script>if(/^#(?:topic-|s\d|python-example-)/.test(location.hash))location.replace('lecture-notes.html'+location.hash);</script></body></html>

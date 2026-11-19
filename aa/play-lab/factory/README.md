@@ -1,0 +1,50 @@
+# Factory Rush
+
+Static standalone game linked from Play Lab. Three missions: FIFO/LIFO dispatch; burst arrivals with free scheduling; snapshot-based stack undo. No dependencies, uploads, real-time clock, or persistent results.
+
+## Rules and teaching boundaries
+- Six jobs, one worker, each job takes one time step. All initial arrivals are available at time zero. A valid shipment advances one step; arrivals at the new time then become available. Finishing at the deadline is on time. Invalid actions do not advance time.
+- Waiting time = start minus arrival. Finish is start plus one. Relative deadlines are arrival plus three. Tied arrivals enter in alphabetical order; LIFO reverses that insertion order.
+- Steady scenario: FIFO has 6 on time, max wait 1; LIFO has 5 on time, max wait 5. Finite arrivals mean no infinite starvation here; the explanation explicitly reserves that risk for an endless arrival stream.
+- Burst: both fixed policies have 4 on time. Free order A,D,B,E,F,C has 5 on time. All 6 on time is impossible: final finish is 6 but the latest deadline is 5. Improving on-time count may increase the wait of an old order; FIFO fairness and deadline success are distinct goals.
+- Policy is locked after first shipment. Restart permits switching. Records retain latest completed shift for each scenario/policy during this page session.
+- Repair stores a state snapshot before each action. Undo must pop the latest snapshot; it restores blue paint while preserving the earlier star. It is not a generic inverse-function claim.
+
+## Validation
+`node aa/play-lab/factory/model.test.cjs`
+Tests fixed policies, all 320 possible free-choice shifts across the two arrival schedules, invalid actions, wait/deadline accounting and repair snapshots.
+Browser checks cover incorrect FIFO choice, full FIFO and LIFO runs, a five-on-time free burst run, full repair including an incorrect undo, and laptop/narrow-screen layouts.
+
+## Previous local leaderboard preview (replaced by shared service)
+
+- Nicknames: 2–20 Unicode letters/numbers, spaces, underscores or hyphens; normalized and matched case-insensitively. This is a local alias, not an authenticated identity.
+- Separate boards per arrival schedule. Rank by on-time shipments descending, then maximum wait ascending. Exact ties share competition ranks (1, 1, 3). Clicking speed and retries are not scored. All policies compete within the same scenario.
+- Save is available only after a full dispatch shift. Repair is not ranked. Replays validate all six dispatches and recalculate metrics; stored scores are not trusted. This is still browser-only code and is not secure class-wide verification.
+- One best result per alias/scenario; weaker and equal attempts do not replace it. LocalStorage key `aa-factory-leaderboard-v1`. Failure to save is reported; in-memory play remains available.
+- Sample board uses explicitly fictional names, replay-validated sequences, a separate view and no persistence. It is never mixed with local entries.
+- Test `node aa/play-lab/factory/leaderboard.test.cjs`. Browser QA includes incomplete/repair disabled submission, blank nickname feedback, a saved Preview Tester result, reload persistence, weaker retry preservation, sample ranks and laptop/mobile layout.
+
+## Shared class board
+
+The active page uses shared-config.js and shared-board.js, backed by Cloudflare Workers + D1. The previous leaderboard.js is retained as an inactive local prototype; it is not loaded. See services/factory-board/README.md for deployment, identity, retention and testing. Students join with a teacher-provided class code and nickname. The public bundle holds no Cloudflare credentials. Dispatch sequences are replayed on the server; only improved scores replace previous bests. No local prototype scores are uploaded. The server uses a different browser identity key from the old local leaderboard.
+
+Live QA passed against isolated demo classes with two independent tokens and a browser submission. Demo classes were deactivated after testing. The student class starts without test scores.
+
+## Optional surprise missions
+“Deal me a mission” starts a fresh free-choice run with one of three goals: six on time with maximum wait one; five on time in the burst shift; or A last while the other five ship on time. Completion is checked against the actual finished run. Bonus text explains the result, including why making A wait is a failure case to avoid. Bonus missions never change class leaderboard scoring. Normal mission navigation clears the bonus.
+
+## Play-first local redesign
+
+The main screen is a conveyor, box characters, robot and delivery truck. Click a box to ship it; a short loading animation blocks extra actions until the delivery finishes. There is no wall-clock deadline. The default is free choice, with queue and stack modes available before a run. Deadline labels count delivery steps including the current shipment; late boxes remain deliverable.
+
+Three selectable levels retain the existing deterministic model and server-compatible score rules. Short contextual feedback is visible; definitions and step arithmetic are in the optional Why panel. Run comparison and class-board details are also optional disclosures. Surprise goals use the same six-order model and do not add leaderboard points.
+
+Validation: model and leaderboard suites pass. Browser playthroughs cover 6/6 steady, 5/6 burst, invalid queue choice, four repair actions, invalid undo and successful two-action undo. Checked 390px mobile layout and laptop preview. No class score was submitted during testing.
+
+## Adventure mode (local preview)
+
+Six progressive scheduling puzzles complement Classic, which keeps its original server-validated leaderboard. Adventure introduces deadlines, unequal work times, an unavoidable missed delivery, weighted value, release times and deliberate waiting, then deterministic fresh days. Every plan ships every box on one non-preemptive worker. A future job at the front of the plan causes intentional idle time until its arrival. No wall-clock speed affects results.
+
+Targets are exact optima across all permutations (at most 120 for current levels). For any fixed order, starting each job as early as its arrival permits cannot reduce the on-time score, so these permutations cover an optimal plan including useful idle time. Fresh-day targets are also tested against an independent time/mask dynamic program for 100 seeds. Adventure progress is local only and does not enter Classic leaderboards.
+
+Students build and revise full plans, watch delivery timelines, compare successive attempts on identical jobs, and unlock levels on meeting the objective. Hints are optional. New day resets the comparison history because its jobs differ. The six levels were played in browser, including a failed first plan and one-choice revision. No production scores were submitted.

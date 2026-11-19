@@ -5,6 +5,27 @@ import json,re
 def text(cell):return ''.join(cell['source']) if isinstance(cell['source'],list) else cell['source']
 
 def prepare(week,root):
+    if week == 6:
+        from week06 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 7:
+        from week07 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 8:
+        from week08 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 9:
+        from week09 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 10:
+        from week10 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 11:
+        from week11 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
+    if week == 12:
+        from week12 import prepare as prepare_guided_week
+        return prepare_guided_week(root)
     nb=json.loads((root/f'notebooks/Week_{week:02d}.ipynb').read_text());lesson_count=len(nb['cells'])
     answers=json.loads((root/f'solutions/Week_{week:02d}_Solutions.ipynb').read_text())
     for cell in answers['cells']:
@@ -34,5 +55,14 @@ def prepare(week,root):
                 s+='\n\n**Offline edition:** the following setup cells use `with open(..., "w")` instead of Colab’s `%%writefile` command. They create the same files. Run each setup cell before reading its file.\n'
         s=s.replace('In Google Colab and Jupyter Notebooks, `input()` works interactively — it pops up a text box for the user to type in.', 'In this offline page, fill in **Input values below the code/output pair before pressing Run**. Each `input()` call consumes one response line. The page does not open a live input dialog. If responses run out, add the missing lines and rerun the cell from the beginning.')
         s=s.replace('- In Jupyter/Colab: Click the **stop button** (square icon) or go to **Runtime > Interrupt execution**', '- On this offline page: use **Stop / restart Python** at the top. This stops execution and clears Python variables; your code edits remain.')
+        if week in (13,14) and cell['cell_type']=='markdown':
+            from practice_support import english_prose
+            s=english_prose(s)
         cell['source']=s.splitlines(keepends=True)
+    if week in range(1,6):
+        from early_changes import attach_early_changes
+        attach_early_changes(nb,week,lesson_count)
+    if week in (13,14):
+        from science_changes import attach_science_changes
+        attach_science_changes(nb,week,lesson_count)
     return nb,lesson_count
