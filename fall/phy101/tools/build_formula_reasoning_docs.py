@@ -14,6 +14,8 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt
 from PIL import Image, ImageChops
 
+from check_formula_reasoning import validate_source
+
 
 ROOT = Path(r"C:\Users\arifs\Documents\GitHub\courses\fall\phy101")
 SRC_MD = ROOT / "FORMULA_REASONING_W01_W07.md"
@@ -384,6 +386,7 @@ def build_docx(tokens: list[Token], equation_images: list[Path]) -> None:
 
 def main() -> int:
     text = SRC_MD.read_text(encoding="utf-8")
+    validate_source(text, SRC_MD)
     tokens = parse_markdown(text)
     equations = [token.text for token in tokens if token.kind == "equation"]
 

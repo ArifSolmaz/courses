@@ -1,0 +1,33 @@
+name: Check PHY101 formula drafts
+
+on:
+  pull_request:
+    paths:
+      - 'fall/phy101/FORMULA_REASONING*.md'
+      - 'fall/phy101/tools/check_formula_reasoning.py'
+      - 'fall/phy101/tools/build_formula_reasoning_docs.py'
+      - '.github/workflows/check-phy101-formulas.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'fall/phy101/FORMULA_REASONING*.md'
+      - 'fall/phy101/tools/check_formula_reasoning.py'
+      - 'fall/phy101/tools/build_formula_reasoning_docs.py'
+      - '.github/workflows/check-phy101-formulas.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Check formula drafts for accidental Liquid delimiters
+        run: python3 fall/phy101/tools/check_formula_reasoning.py
+      - name: Check Python syntax
+        run: python3 -m py_compile fall/phy101/tools/check_formula_reasoning.py fall/phy101/tools/build_formula_reasoning_docs.py

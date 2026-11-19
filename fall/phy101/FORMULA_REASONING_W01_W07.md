@@ -314,7 +314,7 @@ Edge cases and traps:
 Core equations:
 
 ```tex
-v_{{\rm av},x}=\frac{\Delta x}{\Delta t}
+v_{\mathrm{av},x}=\frac{\Delta x}{\Delta t}
 ```
 
 ```tex
@@ -341,7 +341,7 @@ Simple core example:
 Position changes from `1 m` to `7 m` in `3 s`.
 
 ```tex
-v_{{\rm av},x}=\frac{7\ \mathrm m-1\ \mathrm m}{3\ \mathrm s}=2\ \mathrm{m/s}
+v_{\mathrm{av},x}=\frac{7\ \mathrm m-1\ \mathrm m}{3\ \mathrm s}=2\ \mathrm{m/s}
 ```
 
 Edge cases and traps:
@@ -357,7 +357,7 @@ Edge cases and traps:
 Core equations:
 
 ```tex
-a_{{\rm av},x}=\frac{\Delta v_x}{\Delta t}
+a_{\mathrm{av},x}=\frac{\Delta v_x}{\Delta t}
 ```
 
 ```tex
@@ -379,7 +379,7 @@ A cart changes from `2 m/s` to `8 m/s` in `3 s`. This establishes average
 acceleration; it is also the instantaneous acceleration only if acceleration is constant.
 
 ```tex
-a_{{\rm av},x}=\frac{8-2}{3}=2\ \mathrm{m/s^2}
+a_{\mathrm{av},x}=\frac{8-2}{3}=2\ \mathrm{m/s^2}
 ```
 
 Edge cases and traps:
@@ -1445,7 +1445,7 @@ For constant mass, constant collinear net force, one-dimensional motion, and a c
 signed displacement:
 
 ```tex
-W_{\rm net}=F_{{\rm net},x}\Delta x=ma_x\Delta x
+W_{\rm net}=F_{\mathrm{net},x}\Delta x=ma_x\Delta x
 ```
 
 From kinematics:
@@ -1701,7 +1701,7 @@ F_{\rm net}=ma=(4)(2)=8\ \mathrm N
 ```
 
 ```tex
-W_{\rm net}=F_{{\rm net},x}\Delta x=(8)(3)=24\ \mathrm J
+W_{\rm net}=F_{\mathrm{net},x}\Delta x=(8)(3)=24\ \mathrm J
 ```
 
 ```tex
