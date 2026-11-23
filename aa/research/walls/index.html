@@ -109,6 +109,16 @@ label { font-size: 14px; color: var(--muted); }
 .stat .v { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .stat .how { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
 .stats .stat { flex: 1 1 210px; }
+.explain { display: grid; gap: 12px; }
+.ex { background: var(--bg); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; min-width: 0; }
+.ex h4 { margin: 0; font-family: var(--display); font-size: 18px; }
+.ex p { font-size: 15px; }
+.ex table.t { font-size: 14px; }
+.ex details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
+.tri { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tri span { font: 13px var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; }
+.tri span.z { background: var(--good-soft); border-color: var(--good); color: var(--good); font-weight: 600; }
+.zz { color: var(--good); font-weight: 600; }
 .stat.hl { background: var(--accent-soft); }
 .stat.hl .v { color: var(--accent); }
 .msg { font-size: 15px; padding: 10px 14px; border-radius: 12px; background: var(--bg); }
@@ -272,11 +282,12 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       </div>
       <div class="msg" id="tp-msg" aria-live="polite"></div>
       <div class="stats">
-        <div class="stat hl"><div class="k">Steps taken</div><div class="v" id="tp-moves">0</div><div class="how" id="tp-moves-how"></div></div>
-        <div class="stat"><div class="k">Most steps possible</div><div class="v" id="tp-max">0</div><div class="how" id="tp-max-how"></div></div>
-        <div class="stat"><div class="k">Brute force: all triples</div><div class="v" id="tp-brute">0</div><div class="how" id="tp-brute-how"></div></div>
+        <div class="stat hl"><div class="k">Steps taken</div><div class="v" id="tp-moves">0</div><div class="how">1 step = 1 triple checked · details below</div></div>
+        <div class="stat"><div class="k">Most steps possible</div><div class="v" id="tp-max">0</div><div class="how">where this comes from: below</div></div>
+        <div class="stat"><div class="k">Brute force: all triples</div><div class="v" id="tp-brute">0</div><div class="how">where this comes from: below</div></div>
         <div class="stat"><div class="k">Triples found</div><div class="v" id="tp-found">none yet</div><div class="how">checks whose sum was 0</div></div>
       </div>
+      <div class="explain" id="tp-explain" aria-live="polite"></div>
     </div>
 
     <div class="prose">
@@ -632,13 +643,10 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   let A = [], st = {};
   function tpInit(arr) {
     A = arr.slice().sort((a, b) => a - b);
-    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, pending: null, hit: false };
+    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), log: A.map(() => []), found: [], done: A.length < 3, pending: null, hit: false };
     const n = A.length;
     $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
     $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
-    const mx = Math.max(0, (n - 1) * (n - 2) / 2), terms = Array.from({ length: Math.max(0, n - 2) }, (_, q) => n - 2 - q).join(' + ');
-    $('tp-max-how').textContent = n >= 3 ? `(n−1)(n−2)/2 = ${n - 1} × ${n - 2} / 2 = ${fmt(mx)}` + (n <= 12 ? ` = ${terms}` : '') + ' (Gauss)' : '';
-    $('tp-brute-how').textContent = n >= 3 ? `n(n−1)(n−2)/6 = ${n} × ${n - 1} × ${n - 2} / 6 = ${fmt(n * (n - 1) * (n - 2) / 6)}. Divide by 6: each triple can be ordered 6 ways.` : '';
     tpRender('Sorted the list. The highlighted three are the first to check. Press Step.');
   }
   function tpMove() {
@@ -651,6 +659,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     if (st.pending !== null) tpMove();
     const { i, l, r } = st, s = A[i] + A[l] + A[r];
     st.moves++; st.per[i]++; st.pending = s; st.hit = s === 0;
+    st.log[i].push(s === 0 ? `<span class="zz">${A[i]}, ${A[l]}, ${A[r]} → 0 ✓</span>` : `${A[i]}, ${A[l]}, ${A[r]} → ${s}`);
     let txt = `${A[i]} + ${A[l]} + ${A[r]} = ${s}. `;
     if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Found one! Next: both fingers move inward.'; }
     else if (s < 0) txt += 'Too small. Next: the left finger moves right.';
@@ -674,12 +683,10 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       c.appendChild(d);
     });
     $('tp-moves').textContent = fmt(st.moves);
-    const per = st.per.slice(0, Math.max(1, A.length - 2)).join(' + ');
-    $('tp-moves-how').textContent = `1 step = 1 triple checked. Per fixed number: ${per} = ${fmt(st.moves)}`;
     $('tp-found').textContent = st.found.length ? st.found.join(' ') : (st.done ? 'none' : 'none yet');
     $('tp-msg').textContent = msg;
     $('tp-step').disabled = $('tp-run').disabled = st.done;
-    dvRender();
+    dvRender(); tpExplain();
   }
   function dvRender() {
     const n = A.length; if (!$('dv-rows')) return;
@@ -691,6 +698,30 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       h += `<tr><td class="num">${A[i]}</td><td class="num">${k}</td><td class="num">${k - 1}</td><td class="num">${st.per[i] || (i < st.i || st.done ? 0 : '–')}</td></tr>`; }
     $('dv-rows').innerHTML = h + '</tbody>';
     $('dv-sum').innerHTML = `${terms.join(' + ')} = <b>${fmt(terms.reduce((a, b) => a + b, 0))}</b> = (${n}−1)(${n}−2)/2 &nbsp;·&nbsp; steps actually used: <b>${st.moves}</b>`;
+  }
+  const TX = { stepsQ: m => `Where does “steps taken = ${m}” come from?`, stepsP: 'Each step checks one triple. Here is every check so far, grouped by the fixed number:', fixed: 'Fixed number', checks: 'Triples checked → sum', steps: 'Steps', total: 'Total',
+    maxQ: m => `Where does “most steps = ${m}” come from?`, maxP: 'With a number fixed, the fingers start on both ends of the numbers to its right. Each step rules out one number, and the fingers stop when they meet. So with k numbers to the right there are at most k − 1 steps.', right: 'Numbers to its right (k)', maxs: 'Most steps (k − 1)', gauss: n => `Adding the last column: (n−2) + … + 2 + 1. Gauss’s trick: write the sum forwards and backwards. Each column of the two rows adds to n − 1 = ${n - 1}, and there are n − 2 = ${n - 2} columns, so the sum is ${n - 1} × ${n - 2} / 2 = ${(n - 1) * (n - 2) / 2}. In general (n−1)(n−2)/2 ≈ n²/2.`, less: (m, mx) => `Only ${m} of the ${mx} possible steps were needed: when a triple is found, both fingers move at once, so two numbers are ruled out in one step.`,
+    bruteQ: c => `Where does “brute force = ${c}” come from?`, bruteP: n => `Brute force tries every group of 3 numbers. Choose the first: ${n} ways; the second: ${n - 1} ways; the third: ${n - 2} ways. That is ${n} × ${n - 1} × ${n - 2} = ${n * (n - 1) * (n - 2)} ordered picks. But the same three numbers turn up in 3 × 2 × 1 = 6 orders (a, b, c and c, a, b are the same triple), so the number of different triples is ${n * (n - 1) * (n - 2)} / 6 = ${n * (n - 1) * (n - 2) / 6}.`, showAll: c => `Show all ${c} triples (sum 0 in green)`, tooMany: c => `(${c} triples: too many to list here.)` };
+  function tpExplain() {
+    const n = A.length, el = $('tp-explain'); if (!el) return; if (n < 3) { el.innerHTML = ''; return; }
+    const rows = []; for (let i = 0; i <= n - 3; i++) { const k = n - 1 - i; rows.push({ i, k, max: k - 1, used: st.per[i], log: st.log[i] }); }
+    const mx = rows.reduce((a, r) => a + r.max, 0);
+    let h = `<div class="ex"><h4>${TX.stepsQ(st.moves)}</h4><p>${TX.stepsP}</p><div class="scroll-x"><table class="t"><thead><tr><th>${TX.fixed}</th><th>${TX.checks}</th><th>${TX.steps}</th></tr></thead><tbody>`;
+    rows.forEach(r => { h += `<tr><td class="num">${A[r.i]}</td><td class="num">${r.log.length ? r.log.join('<br>') : '–'}</td><td class="num">${r.used}</td></tr>`; });
+    h += `<tr><td><b>${TX.total}</b></td><td class="num">${rows.map(r => r.used).join(' + ')}</td><td class="num"><b>${st.moves}</b></td></tr></tbody></table></div></div>`;
+    h += `<div class="ex"><h4>${TX.maxQ(mx)}</h4><p>${TX.maxP}</p><div class="scroll-x"><table class="t"><thead><tr><th>${TX.fixed}</th><th>${TX.right}</th><th>${TX.maxs}</th></tr></thead><tbody>`;
+    rows.forEach(r => { h += `<tr><td class="num">${A[r.i]}</td><td class="num">${r.k} &nbsp;(${A.slice(r.i + 1).join(', ')})</td><td class="num">${r.k} − 1 = ${r.max}</td></tr>`; });
+    h += `<tr><td><b>${TX.total}</b></td><td></td><td class="num">${rows.map(r => r.max).join(' + ')} = <b>${mx}</b></td></tr></tbody></table></div><p>${TX.gauss(n)}</p>`;
+    if (st.done && st.moves < mx) h += `<p>${TX.less(st.moves, mx)}</p>`;
+    h += `</div>`;
+    const cnt = n * (n - 1) * (n - 2) / 6;
+    h += `<div class="ex"><h4>${TX.bruteQ(cnt)}</h4><p>${TX.bruteP(n)}</p>`;
+    if (cnt <= 220) {
+      const all = []; for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) for (let d = b + 1; d < n; d++) all.push([A[a], A[b], A[d]]);
+      const open = el.querySelector('details') && el.querySelector('details').open ? ' open' : '';
+      h += `<details${open}><summary>${TX.showAll(cnt)}</summary><div class="tri">${all.map(t => { const z = t[0] + t[1] + t[2]; return `<span class="${z === 0 ? 'z' : ''}">${t.join(', ')} → ${z}</span>`; }).join('')}</div></details>`;
+    } else h += `<p>${TX.tooMany(cnt)}</p>`;
+    el.innerHTML = h + `</div>`;
   }
   $('tp-step').onclick = tpStep;
   $('tp-run').onclick = () => { let g = 0; while (!st.done && g++ < 5000) tpStep(); };
