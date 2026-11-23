@@ -107,6 +107,8 @@ label { font-size: 14px; color: var(--muted); }
 .stat { background: var(--bg); border-radius: 12px; padding: 10px 14px; min-width: 130px; }
 .stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .stat .v { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat .how { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+.stats .stat { flex: 1 1 210px; }
 .stat.hl { background: var(--accent-soft); }
 .stat.hl .v { color: var(--accent); }
 .msg { font-size: 15px; padding: 10px 14px; border-radius: 12px; background: var(--bg); }
@@ -270,10 +272,10 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       </div>
       <div class="msg" id="tp-msg" aria-live="polite"></div>
       <div class="stats">
-        <div class="stat hl"><div class="k">Kullanılan parmak hareketi</div><div class="v" id="tp-moves">0</div></div>
-        <div class="stat"><div class="k">En fazla</div><div class="v" id="tp-max">0</div></div>
-        <div class="stat"><div class="k">Kaba kuvvet: tüm üçlüler</div><div class="v" id="tp-brute">0</div></div>
-        <div class="stat"><div class="k">Bulunan üçlüler</div><div class="v" id="tp-found">henüz yok</div></div>
+        <div class="stat hl"><div class="k">Atılan adım</div><div class="v" id="tp-moves">0</div><div class="how" id="tp-moves-how"></div></div>
+        <div class="stat"><div class="k">En fazla adım</div><div class="v" id="tp-max">0</div><div class="how" id="tp-max-how"></div></div>
+        <div class="stat"><div class="k">Kaba kuvvet: tüm üçlüler</div><div class="v" id="tp-brute">0</div><div class="how" id="tp-brute-how"></div></div>
+        <div class="stat"><div class="k">Bulunan üçlüler</div><div class="v" id="tp-found">henüz yok</div><div class="how">kontrolde toplamı 0 çıkan üçlüler</div></div>
       </div>
     </div>
 
@@ -634,6 +636,9 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     const n = A.length;
     $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
     $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
+    const mx = Math.max(0, (n - 1) * (n - 2) / 2), terms = Array.from({ length: Math.max(0, n - 2) }, (_, q) => n - 2 - q).join(' + ');
+    $('tp-max-how').textContent = n >= 3 ? `(n−1)(n−2)/2 = ${n - 1} × ${n - 2} / 2 = ${fmt(mx)}` + (n <= 12 ? ` = ${terms}` : '') + ' (Gauss)' : '';
+    $('tp-brute-how').textContent = n >= 3 ? `n(n−1)(n−2)/6 = ${n} × ${n - 1} × ${n - 2} / 6 = ${fmt(n * (n - 1) * (n - 2) / 6)}. 6’ya bölünür: her üçlü 6 farklı sırada yazılabilir.` : '';
     tpRender('Liste sıralandı. İşaretli üç sayı ilk kontrol edilecek üçlü. Adım’a bas.');
   }
   function tpMove() {
@@ -669,6 +674,8 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       c.appendChild(d);
     });
     $('tp-moves').textContent = fmt(st.moves);
+    const per = st.per.slice(0, Math.max(1, A.length - 2)).join(' + ');
+    $('tp-moves-how').textContent = `1 adım = 1 üçlü kontrolü. Sabit sayı başına: ${per} = ${fmt(st.moves)}`;
     $('tp-found').textContent = st.found.length ? st.found.join(' ') : (st.done ? 'yok' : 'henüz yok');
     $('tp-msg').textContent = msg;
     $('tp-step').disabled = $('tp-run').disabled = st.done;
