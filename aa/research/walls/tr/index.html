@@ -119,6 +119,7 @@ label { font-size: 14px; color: var(--muted); }
 .chip.fixed { background: var(--wall-soft); border-color: var(--wall); color: var(--wall); }
 .chip.left, .chip.right { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .chip.gone { opacity: 0.3; }
+.chip.hit { background: var(--good-soft); border-color: var(--good); color: var(--good); }
 .chip .lab { position: absolute; bottom: -20px; font: 600 11px var(--body); color: var(--muted); }
 .chips.pointers { padding-bottom: 22px; }
 
@@ -629,32 +630,37 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   let A = [], st = {};
   function tpInit(arr) {
     A = arr.slice().sort((a, b) => a - b);
-    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, last: '' };
+    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, pending: null, hit: false };
     const n = A.length;
     $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
     $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
-    tpRender('Liste sıralandı. İlk sayı sabit; parmaklar geri kalanın iki ucunda. Adım’a bas.');
+    tpRender('Liste sıralandı. İşaretli üç sayı ilk kontrol edilecek üçlü. Adım’a bas.');
+  }
+  function tpMove() {
+    const s = st.pending; st.pending = null;
+    if (s === 0) { st.l++; st.r--; } else if (s < 0) st.l++; else st.r--;
+    if (st.l >= st.r) { st.i++; st.l = st.i + 1; st.r = A.length - 1; }
   }
   function tpStep() {
     if (st.done) return;
+    if (st.pending !== null) tpMove();
     const { i, l, r } = st, s = A[i] + A[l] + A[r];
-    st.moves++; st.per[i]++;
+    st.moves++; st.per[i]++; st.pending = s; st.hit = s === 0;
     let txt = `${A[i]} + ${A[l]} + ${A[r]} = ${s}. `;
-    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Bir tane bulundu! İki parmağı da kaydır.'; st.l++; st.r--; }
-    else if (s < 0) { txt += 'Çok küçük: sol parmak sağa kayar.'; st.l++; }
-    else { txt += 'Çok büyük: sağ parmak sola kayar.'; st.r--; }
-    if (st.l >= st.r) {
-      st.i++; st.l = st.i + 1; st.r = A.length - 1;
-      if (st.i > A.length - 3) { st.done = true; txt += ' Bütün sayılar sabitlendi: bitti.'; }
-      else txt += ` Parmaklar buluştu. Şimdi ${A[st.i]} sabitlenir.`;
-    }
+    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Bir tane bulundu! Sırada: iki parmak da içeri kayar.'; }
+    else if (s < 0) txt += 'Çok küçük. Sırada: sol parmak sağa kayar.';
+    else txt += 'Çok büyük. Sırada: sağ parmak sola kayar.';
+    let nl = l, nr = r; if (s === 0) { nl++; nr--; } else if (s < 0) nl++; else nr--;
+    if (nl >= nr) { if (i + 1 > A.length - 3) { st.done = true; txt += ' Bu son kontroldü: bitti.'; } else txt += ` Sonra parmaklar buluşur, bu yüzden sıradaki sabit sayı ${A[i + 1]}.`; }
     tpRender(txt);
   }
   function tpRender(msg) {
     const c = $('tp-chips'); c.innerHTML = '';
     A.forEach((v, k) => {
       const d = document.createElement('div'); d.className = 'chip'; d.textContent = v;
-      if (!st.done) {
+      const on = k === st.i || k === st.l || k === st.r;
+      if (st.hit && on) d.classList.add('hit');
+      if (A.length >= 3) {
         if (k === st.i) { d.classList.add('fixed'); d.insertAdjacentHTML('beforeend', '<span class="lab">sabit</span>'); }
         else if (k === st.l) { d.classList.add('left'); d.insertAdjacentHTML('beforeend', '<span class="lab">sol</span>'); }
         else if (k === st.r) { d.classList.add('right'); d.insertAdjacentHTML('beforeend', '<span class="lab">sağ</span>'); }

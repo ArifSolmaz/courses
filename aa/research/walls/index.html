@@ -119,6 +119,7 @@ label { font-size: 14px; color: var(--muted); }
 .chip.fixed { background: var(--wall-soft); border-color: var(--wall); color: var(--wall); }
 .chip.left, .chip.right { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .chip.gone { opacity: 0.3; }
+.chip.hit { background: var(--good-soft); border-color: var(--good); color: var(--good); }
 .chip .lab { position: absolute; bottom: -20px; font: 600 11px var(--body); color: var(--muted); }
 .chips.pointers { padding-bottom: 22px; }
 
@@ -629,32 +630,37 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   let A = [], st = {};
   function tpInit(arr) {
     A = arr.slice().sort((a, b) => a - b);
-    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, last: '' };
+    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, pending: null, hit: false };
     const n = A.length;
     $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
     $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
-    tpRender('Sorted the list. The first number is fixed; fingers sit on both ends of the rest. Press Step.');
+    tpRender('Sorted the list. The highlighted three are the first to check. Press Step.');
+  }
+  function tpMove() {
+    const s = st.pending; st.pending = null;
+    if (s === 0) { st.l++; st.r--; } else if (s < 0) st.l++; else st.r--;
+    if (st.l >= st.r) { st.i++; st.l = st.i + 1; st.r = A.length - 1; }
   }
   function tpStep() {
     if (st.done) return;
+    if (st.pending !== null) tpMove();
     const { i, l, r } = st, s = A[i] + A[l] + A[r];
-    st.moves++; st.per[i]++;
+    st.moves++; st.per[i]++; st.pending = s; st.hit = s === 0;
     let txt = `${A[i]} + ${A[l]} + ${A[r]} = ${s}. `;
-    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Found one! Move both fingers.'; st.l++; st.r--; }
-    else if (s < 0) { txt += 'Too small: left finger moves right.'; st.l++; }
-    else { txt += 'Too big: right finger moves left.'; st.r--; }
-    if (st.l >= st.r) {
-      st.i++; st.l = st.i + 1; st.r = A.length - 1;
-      if (st.i > A.length - 3) { st.done = true; txt += ' All numbers fixed: done.'; }
-      else txt += ` Fingers met. Now fix ${A[st.i]}.`;
-    }
+    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Found one! Next: both fingers move inward.'; }
+    else if (s < 0) txt += 'Too small. Next: the left finger moves right.';
+    else txt += 'Too big. Next: the right finger moves left.';
+    let nl = l, nr = r; if (s === 0) { nl++; nr--; } else if (s < 0) nl++; else nr--;
+    if (nl >= nr) { if (i + 1 > A.length - 3) { st.done = true; txt += ' That was the last check: done.'; } else txt += ` The fingers then meet, so ${A[i + 1]} is fixed next.`; }
     tpRender(txt);
   }
   function tpRender(msg) {
     const c = $('tp-chips'); c.innerHTML = '';
     A.forEach((v, k) => {
       const d = document.createElement('div'); d.className = 'chip'; d.textContent = v;
-      if (!st.done) {
+      const on = k === st.i || k === st.l || k === st.r;
+      if (st.hit && on) d.classList.add('hit');
+      if (A.length >= 3) {
         if (k === st.i) { d.classList.add('fixed'); d.insertAdjacentHTML('beforeend', '<span class="lab">fixed</span>'); }
         else if (k === st.l) { d.classList.add('left'); d.insertAdjacentHTML('beforeend', '<span class="lab">left</span>'); }
         else if (k === st.r) { d.classList.add('right'); d.insertAdjacentHTML('beforeend', '<span class="lab">right</span>'); }
