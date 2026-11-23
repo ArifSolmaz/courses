@@ -294,7 +294,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
 
     <div class="prose">
       <h3>Puzzle 2: All-pairs shortest paths (APSP)</h3>
-      <p>You get a map of n cities with road lengths. What’s the shortest route between every pair? Floyd–Warshall (1962) asks one question over and over: <b>“Is it shorter to go from A to B through X?”</b> It asks it for every middle city X and every pair A, B.</p>
+      <p>You get a map of n cities with road lengths. What’s the shortest route between every pair? Floyd–Warshall (1962) asks one question over and over: <b>“Is it shorter to go from the start city to the end city through a middle city?”</b> An example from the map below: is going from Q to R through P shorter than the current Q → R? It asks this for every middle city and every start–end pair.</p>
     </div>
 
     <div class="bench" id="b-fw">
@@ -305,7 +305,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       </div>
       <div class="controls">
         <button class="primary" id="fw-step">Step (one check)</button>
-        <button id="fw-k">Do the remaining 25 checks for X = P</button>
+        <button id="fw-k">Do the remaining 25 checks for middle city P</button>
         <button id="fw-run">Do all remaining checks</button>
         <button id="fw-reset">Reset</button>
       </div>
@@ -339,9 +339,9 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       </div>
       <div class="approach">
         <h3>APSP, three loops</h3>
-        <p>The check runs once for every middle city X, every start A and every end B. Each check is 1 addition and 1 comparison:</p>
+        <p>The check runs once for every middle city, every start city and every end city. Each check is 1 addition and 1 comparison:</p>
         <div class="formula">n × n × n = n³ checks</div>
-        <div class="formula" style="font-size:14px; line-height:1.7">for X in cities:<br>&nbsp;&nbsp;for A in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;for B in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d[A][B] = min(d[A][B], d[A][X] + d[X][B])</div>
+        <div class="formula" style="font-size:14px; line-height:1.7">for via in cities:<br>&nbsp;&nbsp;for start in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;for end in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d[start][end] = min(d[start][end], d[start][via] + d[via][end])</div>
       </div>
     </div>
     <div class="bench" id="b-derive">
@@ -379,7 +379,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
 
     <div class="bench">
       <div class="bench-head"><h3>Derivation 4: why Floyd–Warshall is exactly n³</h3><span class="tag">live from Part 1</span></div>
-      <p class="sub">For each middle city X there are n × n = 25 pairs (A, B) to check. There are n = 5 middle cities. Run the stepper in Part 1 and watch each row fill:</p>
+      <p class="sub">For each middle city there are n × n = 25 start–end pairs to check. There are n = 5 middle cities. Run the stepper in Part 1 and watch each row fill:</p>
       <div class="scroll-x"><table class="t" id="dv-fw"></table></div>
       <div class="formula" id="dv-fw-sum"></div>
       <p class="sub">In general: n middle cities × n starts × n ends = n³ checks, each 1 addition + 1 comparison, so 2n³ basic operations. Written as a table product (the “min-plus product”): n² cells, each the smallest of n candidate sums, so again n² × n = n³.</p>
@@ -494,7 +494,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
 
       <div class="move"><div class="n">3</div><div class="bench" style="margin:0">
         <div class="bench-head"><h3>Both puzzles are triangle hunts</h3></div>
-        <p class="sub">Three numbers that add to 0, or a detour A → X → B that beats the direct road: both are three things that fit together, a triangle. The general version, <b>Exact Triangle</b> (“find a triangle whose weights add to exactly a target”), is at least as hard as both. Speed it up and both puzzles speed up.</p>
+        <p class="sub">Three numbers that add to 0, or a detour start → middle city → end that beats the direct road: both are three things that fit together, a triangle. The general version, <b>Exact Triangle</b> (“find a triangle whose weights add to exactly a target”), is at least as hard as both. Speed it up and both puzzles speed up.</p>
         <div class="chain">
           <div class="node"><div class="t">Thin table product</div><div class="d">fill only selected cells</div></div><div class="arr" aria-hidden="true">→</div>
           <div class="node"><div class="t">Count triangles</div><div class="d">common friends of a pair</div></div><div class="arr" aria-hidden="true">→</div>
@@ -752,7 +752,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
     edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
     fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, log: [] };
-    fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Middle city X = P. Each check asks: is start → X → end shorter than the current start → end? Press Step.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
+    fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Middle city = P. Each check asks: is start → middle city → end shorter than the current start → end? Press Step.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
   }
   function fwText(L) {
     const s = names[L.i], x = names[L.k], t = names[L.j];
@@ -762,7 +762,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     else h += `d[${s}][${x}] + d[${x}][${t}] = ${fv(L.a)} + ${fv(L.b)} = ${fv(L.via)}. Current d[${s}][${t}] = ${fv(L.cur)}. ` + (L.better ? `<b style="color:var(--good)">${fv(L.via)} &lt; ${fv(L.cur)}: shortcut! d[${s}][${t}] becomes ${L.via}.</b>` : `${fv(L.via)} is not smaller than ${fv(L.cur)}, so nothing changes.`);
     return h;
   }
-  function fwWhere(L) { const x = names[L.k]; return `Order: the middle city X = ${x} (${L.k + 1} of 5) stays fixed while the start walks down the rows and the end across the columns. This was check ${L.i * 5 + L.j + 1} of 25 for X = ${x}.`; }
+  function fwWhere(L) { const x = names[L.k]; return `Order: the middle city ${x} (${L.k + 1} of 5) stays fixed while the start walks down the rows and the end across the columns. This was check ${L.i * 5 + L.j + 1} of 25 for middle city ${x}.`; }
   function fwOne() {
     if (fw.done) return '';
     const { k, i, j } = fw, a = D[i][k], b = D[k][j], via = a + b, cur = D[i][j], better = via < cur;
@@ -773,7 +773,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) fw.done = true;
     return txt + (fw.done ? ' All 125 checks done.' : '');
   }
-  function fwDv() { if (!$('dv-fw')) return; let h = '<thead><tr><th>Middle city X</th><th>Pairs (A, B) checked</th><th>Of</th></tr></thead><tbody>';
+  function fwDv() { if (!$('dv-fw')) return; let h = '<thead><tr><th>Middle city</th><th>Start–end pairs checked</th><th>Of</th></tr></thead><tbody>';
     const rows = [];
     for (let k = 0; k < 5; k++) { const done = fw.done || k < fw.k ? 25 : (k === fw.k ? fw.i * 5 + fw.j : 0); rows.push(done);
       h += `<tr><td class="num">${names[k]}</td><td class="num">${done}</td><td class="num">5 × 5 = 25</td></tr>`; }
@@ -785,11 +785,11 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     ['fw-step', 'fw-k', 'fw-run'].forEach(id => $(id).disabled = fw.done);
     fwBtn();
   }
-  function fwBtn() { if (!fw.done) $('fw-k').textContent = `Do the remaining ${25 - (fw.i * 5 + fw.j)} checks for X = ${names[fw.k]}`; }
+  function fwBtn() { if (!fw.done) $('fw-k').textContent = `Do the remaining ${25 - (fw.i * 5 + fw.j)} checks for middle city ${names[fw.k]}`; }
   $('fw-step').onclick = () => fwRefresh(fwOne());
-  $('fw-k').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwRefresh(`Did the remaining ${n0} checks for X = ${names[k0]}. Every start–end pair has now been tried through ${names[k0]} (25 of 25).` + (fw.done ? ' All 125 checks done.' : ` Next middle city: X = ${names[fw.k]}.`)); };
+  $('fw-k').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwRefresh(`Did the remaining ${n0} checks for middle city ${names[k0]}. Every start–end pair has now been tried through ${names[k0]} (25 of 25).` + (fw.done ? ' All 125 checks done.' : ` Next middle city: ${names[fw.k]}.`)); };
   $('fw-run').onclick = () => { while (!fw.done) fwOne(); fwRefresh('All 125 checks done. The table now holds every shortest distance.'); };
-  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Reset. Middle city X = P.'); };
+  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Reset. Middle city = P.'); };
   function fwTable() {
     const t = $('fw-mat'); const L = fw.last;
     let h = `<tr><th class="corner">${'start ↓ · end →'}</th>` + names.map(n => `<th>${n}</th>`).join('') + '</tr>';
@@ -836,7 +836,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       const role = !fw.done && k === fw.k ? wall : (L && (k === L.i || k === L.j) ? acc : ink);
       h += `<circle cx="${x}" cy="${y}" r="20" fill="${surf}" stroke="${role}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="${role}">${names[k]}</text>`;
     });
-    h += `<text x="6" y="282" font-size="11" fill="${mut}">● orange: middle city X  ·  blue arrows: the detour being tried</text><text x="6" y="298" font-size="11" fill="${mut}">green dashed: current best  ·  labels are table distances</text>`;
+    h += `<text x="6" y="282" font-size="11" fill="${mut}">● orange: middle city  ·  blue arrows: the detour being tried</text><text x="6" y="298" font-size="11" fill="${mut}">green dashed: current best  ·  labels are table distances</text>`;
     s.innerHTML = h;
   }
   fwInit(); fwDv();
