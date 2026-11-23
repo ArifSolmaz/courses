@@ -141,6 +141,16 @@ label { font-size: 14px; color: var(--muted); }
 .mat td { width: 46px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; transition: background .2s; }
 .mat td.krow { background: var(--wall-soft); }
 .mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); }
+.mat td.chg { color: var(--good); font-weight: 700; }
+.matlegend { font-size: 13px; color: var(--muted); margin-top: 10px; max-width: 420px; display: grid; gap: 6px; }
+.matlegend p { font-size: 13px; }
+.matlegend ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.matlegend li { display: flex; gap: 8px; align-items: center; }
+.matlegend .key { flex: none; width: 22px; height: 18px; border-radius: 5px; display: inline-grid; place-items: center; font: 700 11px var(--mono); }
+.key.k1 { background: var(--wall-soft); }
+.key.k2 { outline: 2px dashed var(--wall); outline-offset: -2px; background: var(--bg); }
+.key.k3 { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: -2px; }
+.key.k4 { background: var(--bg); color: var(--good); }
 .mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
 .mat th.corner { font-size: 10px; font-weight: 500; white-space: nowrap; }
 .mat td.upd { background: var(--good-soft); color: var(--good); font-weight: 600; }
@@ -301,7 +311,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       <div class="bench-head"><h3>Try it: Floyd–Warshall on 5 cities</h3><span class="tag">interactive</span></div>
       <div class="two">
         <svg id="fw-svg" viewBox="0 0 360 304" role="img" aria-label="Map of five cities P to T with road lengths" style="width:100%; max-width:420px"></svg>
-        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Distance table"></table></div>
+        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Distance table"></table><div class="matlegend"><p><b>Reading the table:</b> each cell is the shortest distance <b>known so far</b> from the row city to the column city. At the start only the direct roads are filled in (∞ means no road yet); each check tries to shorten one cell.</p><ul><li><span class="key k1"></span>Orange background: the current middle city’s row and column. This round’s pieces come from here.</li><li><span class="key k2"></span>Dashed frame: the two cells being added right now.</li><li><span class="key k3"></span>Blue frame: the cell being compared (turns green if it gets shorter).</li><li><span class="key k4">6</span>Green number: a distance that has got shorter since the start.</li></ul><p>The diagonal is always 0 (a city to itself). The table is symmetric because the roads go both ways.</p></div></div>
       </div>
       <div class="controls">
         <button class="primary" id="fw-step">Step (one check)</button>
@@ -746,11 +756,12 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   const pos = [[40, 120], [320, 120], [180, 30], [180, 110], [180, 195]];
   const edges = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
   const fv = v => v === INF ? '∞' : v;
-  let D, fw;
+  let D, D0, fw;
   const fwLog = (n) => n ? `Shortcuts found: ${fw.log.join(' · ')}` : 'Shortcuts found: none yet.';
   function fwInit() {
     D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
     edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
+    D0 = D.map(r => r.slice());
     fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, log: [] };
     fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Middle city = P. Each check asks: is start → middle city → end shorter than the current start → end? Press Step.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
   }
@@ -798,6 +809,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       for (let j = 0; j < 5; j++) {
         const cls = [];
         if (!fw.done && (i === fw.k || j === fw.k)) cls.push('krow');
+        if (D[i][j] !== D0[i][j]) cls.push('chg');
         if (L && L.i === i && L.j === j) cls.push(L.better ? 'upd' : 'cur');
         else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) cls.push('src');
         h += `<td class="${cls.join(' ')}">${fv(D[i][j])}</td>`;

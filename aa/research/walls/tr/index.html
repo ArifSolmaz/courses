@@ -141,6 +141,16 @@ label { font-size: 14px; color: var(--muted); }
 .mat td { width: 46px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; transition: background .2s; }
 .mat td.krow { background: var(--wall-soft); }
 .mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); }
+.mat td.chg { color: var(--good); font-weight: 700; }
+.matlegend { font-size: 13px; color: var(--muted); margin-top: 10px; max-width: 420px; display: grid; gap: 6px; }
+.matlegend p { font-size: 13px; }
+.matlegend ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.matlegend li { display: flex; gap: 8px; align-items: center; }
+.matlegend .key { flex: none; width: 22px; height: 18px; border-radius: 5px; display: inline-grid; place-items: center; font: 700 11px var(--mono); }
+.key.k1 { background: var(--wall-soft); }
+.key.k2 { outline: 2px dashed var(--wall); outline-offset: -2px; background: var(--bg); }
+.key.k3 { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: -2px; }
+.key.k4 { background: var(--bg); color: var(--good); }
 .mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
 .mat th.corner { font-size: 10px; font-weight: 500; white-space: nowrap; }
 .mat td.upd { background: var(--good-soft); color: var(--good); font-weight: 600; }
@@ -301,7 +311,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       <div class="bench-head"><h3>Dene: 5 şehirde Floyd–Warshall</h3><span class="tag">etkileşimli</span></div>
       <div class="two">
         <svg id="fw-svg" viewBox="0 0 360 304" role="img" aria-label="Yol uzunluklarıyla P’den T’ye beş şehirlik harita" style="width:100%; max-width:420px"></svg>
-        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Mesafe tablosu"></table></div>
+        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Mesafe tablosu"></table><div class="matlegend"><p><b>Tabloyu okuma:</b> her hücre, satırdaki şehirden sütundaki şehre <b>şu ana kadar bilinen</b> en kısa mesafedir. Başta yalnızca doğrudan yollar vardır (yol yoksa ∞); her kontrol bir hücreyi kısaltmayı dener.</p><ul><li><span class="key k1"></span>Turuncu zemin: şimdiki ara şehrin satırı ve sütunu. Bu turda toplanan parçalar buradan gelir.</li><li><span class="key k2"></span>Kesikli çerçeve: şu an toplanan iki hücre.</li><li><span class="key k3"></span>Mavi çerçeve: karşılaştırılan hücre (kısalırsa yeşile döner).</li><li><span class="key k4">6</span>Yeşil sayı: başlangıçtan beri kısalmış mesafe.</li></ul><p>Köşegen hep 0 (bir şehirden kendisine). Tablo simetrik, çünkü yollar iki yönlü.</p></div></div>
       </div>
       <div class="controls">
         <button class="primary" id="fw-step">Adım (bir kontrol)</button>
@@ -746,11 +756,12 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   const pos = [[40, 120], [320, 120], [180, 30], [180, 110], [180, 195]];
   const edges = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
   const fv = v => v === INF ? '∞' : v;
-  let D, fw;
+  let D, D0, fw;
   const fwLog = (n) => n ? `Bulunan kısayollar: ${fw.log.join(' · ')}` : 'Bulunan kısayollar: henüz yok.';
   function fwInit() {
     D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
     edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
+    D0 = D.map(r => r.slice());
     fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, log: [] };
     fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Ara şehir = P. Her kontrol şunu sorar: başlangıç → ara şehir → varış, şimdiki başlangıç → varış mesafesinden kısa mı? Adım’a bas.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
   }
@@ -798,6 +809,7 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       for (let j = 0; j < 5; j++) {
         const cls = [];
         if (!fw.done && (i === fw.k || j === fw.k)) cls.push('krow');
+        if (D[i][j] !== D0[i][j]) cls.push('chg');
         if (L && L.i === i && L.j === j) cls.push(L.better ? 'upd' : 'cur');
         else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) cls.push('src');
         h += `<td class="${cls.join(' ')}">${fv(D[i][j])}</td>`;
