@@ -30,6 +30,14 @@ answer together in both files. The code cells use the shared `assets/python-runn
 `full.html` and `tr/full.html` in each week's folder. `tools/build.py` does not know about this split, so do not
 run it over Weeks 8 and 9.
 
+## Research explainer: the walls that fell
+
+`research/walls/index.html` (English) and `research/walls/tr/index.html` (Turkish) are a single-file, hand-written
+interactive explainer of the 2026 3SUM/APSP results: how the classic algorithms work, explicit step counts for n² and
+n³, why they looked unbeatable, the Alman–Vassilevska Williams (Claude) approach and the two follow-up approaches.
+Each file carries its own CSS and JS; `tools/build.py` does not touch them. Keep the two files in step when editing.
+It is linked from the course home ("Outside the weekly route") and from `research/3sum-apsp/`.
+
 ## Earlier editions
 
 The 14-week course follows the topic order of the supplied bilingual Skiena CSE 373 notes. Document lectures 1–22 are grouped into teaching weeks; the dashboard and every weekly page identify the corresponding lectures and reading sections.

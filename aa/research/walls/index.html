@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Walls That Fell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout idea: one reading column with full-width "lab benches" where each idea can be poked. */
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --ink: #141B2D;
+  --muted: #56607A;
+  --line: #DCE1EC;
+  --accent: #2F5BEA;
+  --accent-soft: #E3EAFD;
+  --wall: #C46A1B;
+  --wall-soft: #FBEBD9;
+  --good: #1D7F53;
+  --good-soft: #DFF3E9;
+  --bad: #B93A26;
+  --bad-soft: #FBE3DE;
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1422; --surface: #171E30; --ink: #E8ECF5; --muted: #A3ADC4; --line: #2A3350;
+    --accent: #85A2FF; --accent-soft: #1F2A4D; --wall: #F0A05A; --wall-soft: #3A2A1A;
+    --good: #4CC38A; --good-soft: #15352A; --bad: #F07A66; --bad-soft: #3D1F1A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1422; --surface: #171E30; --ink: #E8ECF5; --muted: #A3ADC4; --line: #2A3350;
+  --accent: #85A2FF; --accent-soft: #1F2A4D; --wall: #F0A05A; --wall-soft: #3A2A1A;
+  --good: #4CC38A; --good-soft: #15352A; --bad: #F07A66; --bad-soft: #3D1F1A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(44px, 7vw, 80px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(30px, 4vw, 42px); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 22px; font-weight: 700; }
+p { margin: 0; max-width: 68ch; }
+.mono, code { font-family: var(--mono); }
+code { font-size: 0.92em; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+a { color: var(--accent); }
+b { font-weight: 600; }
+
+/* nav */
+nav.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+nav.top .wrap { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+nav.top a { white-space: nowrap; text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 999px; }
+nav.top a:hover, nav.top a:focus-visible { background: var(--accent-soft); color: var(--accent); outline: none; }
+nav.top .brand { font-family: var(--display); font-weight: 800; color: var(--ink); }
+nav.top .lang { color: var(--accent); background: var(--accent-soft); margin-right: 8px; }
+
+/* hero */
+header.hero { padding: 64px 0 40px; }
+.hero .kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin-bottom: 16px; }
+.hero .lede { font-size: 20px; color: var(--muted); margin-top: 18px; max-width: 60ch; }
+.records { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 36px; }
+.record { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; }
+.record .name { font-size: 14px; color: var(--muted); font-weight: 500; }
+.record .eq { font-family: var(--display); font-size: clamp(32px, 5vw, 44px); font-weight: 700; margin-top: 4px; }
+.record .eq .old { color: var(--wall); text-decoration: line-through; text-decoration-thickness: 3px; }
+.record .eq .arrow { color: var(--muted); font-weight: 500; padding: 0 6px; }
+.record .eq .new { color: var(--accent); }
+.record .note { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.story { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 28px; counter-reset: s; }
+.story div { counter-increment: s; font-size: 15px; color: var(--muted); border-top: 2px solid var(--line); padding-top: 10px; }
+.story div::before { content: counter(s); font-family: var(--mono); font-weight: 600; color: var(--accent); margin-right: 8px; }
+
+/* sections */
+section.part { padding: 56px 0 24px; border-top: 1px solid var(--line); }
+.part-head { display: grid; gap: 12px; margin-bottom: 28px; }
+.part-head .num { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+.part-head p { color: var(--muted); font-size: 18px; }
+.prose { display: grid; gap: 14px; margin-bottom: 22px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+
+/* bench = interactive card */
+.bench { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; margin: 18px 0; display: grid; gap: 16px; min-width: 0; }
+.bench-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.bench-head .tag { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; }
+.bench .sub { color: var(--muted); font-size: 15px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, .btn { font: 600 14px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] button.primary { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #0F1422; } }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible, nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: default; }
+input[type="text"], input[type="number"] { font: 15px var(--mono); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+label { font-size: 14px; color: var(--muted); }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.stat { background: var(--bg); border-radius: 12px; padding: 10px 14px; min-width: 130px; }
+.stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat .v { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat.hl { background: var(--accent-soft); }
+.stat.hl .v { color: var(--accent); }
+.msg { font-size: 15px; padding: 10px 14px; border-radius: 12px; background: var(--bg); }
+.msg.good { background: var(--good-soft); color: var(--good); }
+.msg.bad { background: var(--bad-soft); color: var(--bad); }
+
+/* chips (numbers) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; min-width: 56px; height: 56px; display: grid; place-items: center; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font: 600 18px var(--mono); transition: all .15s; }
+.chip.fixed { background: var(--wall-soft); border-color: var(--wall); color: var(--wall); }
+.chip.left, .chip.right { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.chip.gone { opacity: 0.3; }
+.chip .lab { position: absolute; bottom: -20px; font: 600 11px var(--body); color: var(--muted); }
+.chips.pointers { padding-bottom: 22px; }
+
+/* matrices / grids */
+.mat { border-collapse: separate; border-spacing: 4px; font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
+.mat th { font-weight: 600; color: var(--muted); padding: 2px 6px; }
+.mat td { width: 46px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; transition: background .2s; }
+.mat td.krow { background: var(--wall-soft); }
+.mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); }
+.mat td.upd { background: var(--good-soft); color: var(--good); font-weight: 600; }
+.scroll-x { overflow-x: auto; }
+.pairgrid { display: grid; grid-template-columns: repeat(6, 52px); gap: 5px; }
+.pc { height: 52px; white-space: nowrap; border-radius: 10px; display: grid; place-items: center; font: 600 14px var(--mono); border: 2px solid var(--line); background: var(--surface); color: var(--muted); }
+.pc.lo { background: var(--bg); border-color: transparent; }
+.pc.open { cursor: pointer; }
+.pc.open:hover { border-color: var(--accent); color: var(--accent); }
+.pc.checked { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.pc.trap { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.cellgrid { display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; }
+.cg { width: 30px; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
+.cg.fill { background: var(--accent-soft); border-color: var(--accent-soft); }
+.cg.ask { background: var(--accent); border-color: var(--accent); }
+
+/* bars */
+.barrow { display: grid; grid-template-columns: 140px 1fr 120px; gap: 10px; align-items: center; font-size: 14px; }
+.bar { height: 14px; border-radius: 999px; background: var(--accent); min-width: 3px; transition: width .25s; }
+.bar.w { background: var(--wall); }
+.bar.g { background: var(--good); }
+.barrow .val { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.people { display: flex; gap: 14px; align-items: flex-end; height: 150px; }
+.person { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; }
+.person .body { width: 46px; border-radius: 10px 10px 4px 4px; background: var(--accent-soft); border: 2px solid var(--accent); transition: all .2s; }
+.person.left-queue .body { background: transparent; border-style: dashed; }
+.bigbox { border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+.bigbox .v { font: 700 30px var(--display); }
+
+/* bits */
+.bits { display: flex; gap: 4px; }
+.bit { width: 34px; height: 34px; border-radius: 7px; border: 2px solid var(--line); display: grid; place-items: center; font: 600 13px var(--mono); color: var(--muted); }
+.bit.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.bit.clash { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
+.bitrow { display: grid; grid-template-columns: 90px auto 1fr; gap: 12px; align-items: center; font-family: var(--mono); font-size: 14px; }
+
+/* flow / chain */
+.chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.node { flex: 1 1 170px; background: var(--bg); border-radius: 14px; padding: 14px; border: 1px solid var(--line); }
+.node .t { font-weight: 600; }
+.node .d { font-size: 14px; color: var(--muted); }
+.node.goal { background: var(--accent-soft); border-color: var(--accent); }
+.arr { align-self: center; color: var(--muted); font-size: 22px; }
+.moves { display: grid; gap: 14px; counter-reset: mv; }
+.move { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
+.move .n { counter-increment: mv; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 18px var(--display); }
+:root[data-theme="dark"] .move .n { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .move .n { color: #0F1422; } }
+
+/* tables */
+table.t { width: 100%; border-collapse: collapse; font-size: 15px; }
+table.t th, table.t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.t th { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+table.t td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.wall { background: var(--wall-soft); color: var(--wall); }
+.approach { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; display: grid; gap: 10px; }
+.approach .who { font-size: 14px; color: var(--muted); }
+.approach.main { border: 2px solid var(--accent); }
+.timeline { display: grid; gap: 0; }
+.tl { display: grid; grid-template-columns: 70px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.tl .y { font-family: var(--mono); font-weight: 600; color: var(--muted); }
+.tl.hit .y { color: var(--accent); }
+.formula { font-family: var(--mono); font-size: 16px; background: var(--bg); border-radius: 12px; padding: 12px 16px; overflow-x: auto; white-space: nowrap; }
+svg text { font-family: var(--body); }
+footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); margin-top: 40px; }
+@media (max-width: 560px) {
+  .barrow { grid-template-columns: 100px 1fr 90px; }
+  .chip { min-width: 44px; height: 46px; font-size: 15px; }
+  .pairgrid { grid-template-columns: repeat(6, 42px); }
+  .pc { height: 42px; font-size: 12px; }
+  .cellgrid { grid-template-columns: repeat(8, 26px); }
+  .cg { width: 26px; height: 26px; }
+  .bit { width: 28px; height: 28px; }
+}
+</style>
+</head>
+<body>
+<nav class="top" aria-label="Sections">
+  <div class="wrap">
+    <a class="brand" href="../../">AA</a>
+    <a class="lang" href="tr/" hreflang="tr" lang="tr">Türkçe</a>
+    <a href="#puzzles">1 · The puzzles</a>
+    <a href="#counting">2 · Counting the steps</a>
+    <a href="#walls">3 · Why it looked impossible</a>
+    <a href="#claude">4 · Claude’s approach</a>
+    <a href="#others">5 · Other approaches</a>
+    <a href="#faster">6 · How much faster?</a>
+    <a href="#sources">Sources</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Fine-grained complexity · October–November 2026</div>
+    <h1>The walls that fell</h1>
+    <p class="lede">For decades, two classic problems seemed stuck at their textbook speed. In October 2026 both got faster, by an exponent. This site shows how the old algorithms work, why they looked unbeatable, and how the new ones get past them. Every idea has something you can click.</p>
+    <div class="records">
+      <div class="record"><div class="name">3SUM: do three numbers add to 0?</div><div class="eq"><span class="old">n²</span><span class="arrow">→</span><span class="new">n<sup>1.9992</sup></span></div><div class="note">Simpler follow-up: n<sup>1.965</sup> (randomized)</div></div>
+      <div class="record"><div class="name">APSP: shortest route between every pair</div><div class="eq"><span class="old">n³</span><span class="arrow">→</span><span class="new">n<sup>2.9995</sup></span></div><div class="note">Integer weights, directed graphs</div></div>
+    </div>
+    <div class="story">
+      <div>The obvious ways take n² and n³ steps.</div>
+      <div>Proofs said you can’t do better, under certain rules.</div>
+      <div>An AI model found an algorithm that breaks those rules.</div>
+      <div>Mathematicians checked, simplified and extended it.</div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============ 1 PUZZLES ============ -->
+<section class="part" id="puzzles">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 1 · How the classic algorithms work</div>
+      <h2>Two puzzles</h2>
+      <p>Both are easy to state and easy to solve slowly. The question was always: how fast can you go?</p>
+    </div>
+
+    <div class="prose">
+      <h3>Puzzle 1: 3SUM</h3>
+      <p>You get a list of n numbers. Do any three of them add up to exactly 0? The smart textbook method sorts the list, fixes one number, and walks two fingers inward from both ends of the rest. If the sum is too small, the left finger moves right. If it’s too big, the right finger moves left.</p>
+    </div>
+
+    <div class="bench" id="b-3sum">
+      <div class="bench-head"><h3>Try it: the two-finger walk</h3><span class="tag">interactive</span></div>
+      <div class="controls">
+        <label for="list-in">Numbers</label>
+        <input type="text" id="list-in" value="-7, -5, -2, 3, 4, 9" style="flex:1; min-width:200px">
+        <button id="list-set">Use these</button>
+        <button id="list-rand">Random 10</button>
+      </div>
+      <div class="chips pointers" id="tp-chips"></div>
+      <div class="controls">
+        <button class="primary" id="tp-step">Step</button>
+        <button id="tp-run">Run to end</button>
+        <button id="tp-reset">Reset</button>
+      </div>
+      <div class="msg" id="tp-msg" aria-live="polite"></div>
+      <div class="stats">
+        <div class="stat hl"><div class="k">Finger moves used</div><div class="v" id="tp-moves">0</div></div>
+        <div class="stat"><div class="k">Most it can take</div><div class="v" id="tp-max">0</div></div>
+        <div class="stat"><div class="k">Brute force: all triples</div><div class="v" id="tp-brute">0</div></div>
+        <div class="stat"><div class="k">Triples found</div><div class="v" id="tp-found">none yet</div></div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>Puzzle 2: All-pairs shortest paths (APSP)</h3>
+      <p>You get a map of n cities with road lengths. What’s the shortest route between every pair? Floyd–Warshall (1962) asks one question over and over: <b>“Is it shorter to go from A to B through X?”</b> It asks it for every middle city X and every pair A, B.</p>
+    </div>
+
+    <div class="bench" id="b-fw">
+      <div class="bench-head"><h3>Try it: Floyd–Warshall on 5 cities</h3><span class="tag">interactive</span></div>
+      <div class="two">
+        <svg id="fw-svg" viewBox="0 0 360 268" role="img" aria-label="Map of five cities A to E with road lengths" style="width:100%; max-width:420px"></svg>
+        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Distance table"></table></div>
+      </div>
+      <div class="controls">
+        <button class="primary" id="fw-step">Step (one check)</button>
+        <button id="fw-k">Finish this middle city</button>
+        <button id="fw-run">Run all</button>
+        <button id="fw-reset">Reset</button>
+      </div>
+      <div class="msg" id="fw-msg" aria-live="polite"></div>
+      <div class="stats">
+        <div class="stat hl"><div class="k">Checks done</div><div class="v" id="fw-checks">0</div></div>
+        <div class="stat"><div class="k">Total checks: 5 × 5 × 5</div><div class="v">125</div></div>
+        <div class="stat"><div class="k">Shortcuts found</div><div class="v" id="fw-upd">0</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 COUNTING ============ -->
+<section class="part" id="counting">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 2 · Where n² and n³ come from</div>
+      <h2>Counting the steps</h2>
+      <p>“n²” isn’t a guess. It’s what you get when you count how many times the innermost step runs.</p>
+    </div>
+    <div class="two">
+      <div class="approach">
+        <h3>3SUM, two fingers</h3>
+        <p>Fixing the 1st number leaves at most n − 2 finger moves, the 2nd at most n − 3, and so on down to 1. Add them up (Gauss’s sum):</p>
+        <div class="formula">(n−2) + (n−3) + … + 1 = (n−1)(n−2)/2 ≈ n²/2</div>
+        <svg viewBox="0 0 260 150" role="img" aria-label="Staircase of moves 4, 3, 2, 1 filling half a square" style="width:100%; max-width:300px" id="stair"></svg>
+        <p class="sub" style="color:var(--muted); font-size:15px">For 6 numbers: 4 + 3 + 2 + 1 = 10 moves, half of a square.</p>
+      </div>
+      <div class="approach">
+        <h3>APSP, three loops</h3>
+        <p>The check runs once for every middle city X, every start A and every end B. Each check is 1 addition and 1 comparison:</p>
+        <div class="formula">n × n × n = n³ checks</div>
+        <div class="formula" style="font-size:14px; line-height:1.7">for X in cities:<br>&nbsp;&nbsp;for A in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;for B in cities:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d[A][B] = min(d[A][B], d[A][X] + d[X][B])</div>
+      </div>
+    </div>
+    <div class="bench" id="b-derive">
+      <div class="bench-head"><h3>Derivation 1: why brute force is n(n−1)(n−2)/6 ≈ n³/6</h3></div>
+      <div class="moves">
+        <div class="move"><div class="n">a</div><p>Pick the first number: <b>n</b> ways. The second: <b>n − 1</b> ways (it must be different). The third: <b>n − 2</b> ways. That gives n(n−1)(n−2) ordered picks.</p></div>
+        <div class="move"><div class="n">b</div><p>But (−7, 3, 4), (3, −7, 4), (4, 3, −7)… are the same triple. Three numbers can be ordered in 3 × 2 × 1 = <b>6</b> ways, so divide by 6.</p></div>
+        <div class="move"><div class="n">c</div><p>For the list in Part 1 (n = <span class="mono" id="dv-n">6</span>): <span class="mono" id="dv-brute">6 × 5 × 4 / 6 = 20</span> triples. Multiply it out and the biggest term is n³/6.</p></div>
+      </div>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Derivation 2: why two fingers is (n−1)(n−2)/2 ≈ n²/2</h3><span class="tag">live from Part 1</span></div>
+      <p class="sub">When a number is fixed, the fingers walk over the k numbers to its right. Every step moves one finger inward by one, and they stop when they meet, so they make at most <b>k − 1</b> steps. Here is that count for your list, row by row (run the walk in Part 1 to fill the last column):</p>
+      <div class="scroll-x"><table class="t" id="dv-rows"></table></div>
+      <div class="formula" id="dv-sum"></div>
+      <p class="sub">The sum (n−2) + (n−3) + … + 1 is Gauss’s sum: write it forwards and backwards, add the two rows, and each column gives n − 1. There are n − 2 columns, so twice the sum is (n−1)(n−2).</p>
+      <div class="formula">(n−1)(n−2)/2 = (n² − 3n + 2)/2 = <b>n²/2</b> − 1.5n + 1</div>
+      <p class="sub">For n = 1,000: 500,000 − 1,500 + 1 = 498,501. The n²/2 term alone is within 0.3% of the total, and gets closer as n grows. That is why we just say “n²”: constants like ½ and smaller terms like 1.5n are dropped.</p>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Derivation 3: what “n²” and “n³” mean in practice</h3></div>
+      <div class="scroll-x"><table class="t">
+        <thead><tr><th>n</th><th>Two fingers (n−1)(n−2)/2</th><th>× vs previous row</th><th>Floyd–Warshall n³</th><th>× vs previous row</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1,000</td><td class="num">498,501</td><td>–</td><td class="num">1,000,000,000</td><td>–</td></tr>
+          <tr><td class="num">2,000</td><td class="num">1,997,001</td><td class="num">4.006×</td><td class="num">8,000,000,000</td><td class="num">8×</td></tr>
+          <tr><td class="num">4,000</td><td class="num">7,994,001</td><td class="num">4.003×</td><td class="num">64,000,000,000</td><td class="num">8×</td></tr>
+          <tr><td class="num">8,000</td><td class="num">31,988,001</td><td class="num">4.002×</td><td class="num">512,000,000,000</td><td class="num">8×</td></tr>
+        </tbody>
+      </table></div>
+      <p class="sub">Doubling n multiplies n² by 2² = 4 and n³ by 2³ = 8. The exponent is exactly this ratio: the “2” in n² means “double the input, 2² times the work”. An n<sup>1.9992</sup> algorithm gives 2<sup>1.9992</sup> ≈ 3.998× instead.</p>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Derivation 4: why Floyd–Warshall is exactly n³</h3><span class="tag">live from Part 1</span></div>
+      <p class="sub">For each middle city X there are n × n = 25 pairs (A, B) to check. There are n = 5 middle cities. Run the stepper in Part 1 and watch each row fill:</p>
+      <div class="scroll-x"><table class="t" id="dv-fw"></table></div>
+      <div class="formula" id="dv-fw-sum"></div>
+      <p class="sub">In general: n middle cities × n starts × n ends = n³ checks, each 1 addition + 1 comparison, so 2n³ basic operations. Written as a table product (the “min-plus product”): n² cells, each the smallest of n candidate sums, so again n² × n = n³.</p>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Slide n and watch the counts grow</h3><span class="tag">interactive</span></div>
+      <div><label for="n-sl">n = <b class="mono" id="n-val">1,000</b></label><input type="range" id="n-sl" min="1" max="6" step="0.01" value="3"></div>
+      <div id="count-bars" style="display:grid; gap:10px"></div>
+      <div class="msg">Double n: two fingers does about <b>4×</b> the work, Floyd–Warshall about <b>8×</b>. That’s exactly what n² and n³ mean. Bars use a log scale.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 WALLS ============ -->
+<section class="part" id="walls">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 3 · Why nobody could do better</div>
+      <h2>Why it looked impossible</h2>
+      <p>Two real proofs said “you can’t beat n² / n³”. Both were correct, but only for algorithms that follow certain rules.</p>
+    </div>
+
+    <div class="bench" id="b-adv">
+      <div class="bench-head"><h3>Game: beat the sneaky friend (the n² proof)</h3><span class="tag">interactive</span></div>
+      <p class="sub">Your friend built a list of 6 numbers where every pair is <i>almost</i> a hit: a + b + c is 0.001 or −0.001. Click pairs to check them. When you think you’re done, answer “no triple adds to 0”. Your friend may nudge any pair you skipped to exactly 0.</p>
+      <div class="pairgrid" id="adv-grid" aria-label="Pairs of the list"></div>
+      <div class="controls">
+        <button class="primary" id="adv-answer">Answer: no triple adds to 0</button>
+        <button id="adv-reset">New game</button>
+        <span class="sub" id="adv-count">Checked 0 of 15</span>
+      </div>
+      <div class="msg" id="adv-msg" aria-live="polite">Skip even one pair and you can lose. That’s Erickson’s 1999 argument in miniature: an algorithm that only asks “is a + b + c positive, negative or zero?” must ask about ≈ n² of them.</div>
+    </div>
+
+    <div class="bench" id="b-min">
+      <div class="bench-head"><h3>Why n³: you can undo a sum, not a minimum</h3><span class="tag">interactive</span></div>
+      <div class="two">
+        <div>
+          <div class="people" id="queue"></div>
+          <div class="controls" style="margin-top:10px">
+            <button class="primary" id="q-leave">Berk leaves</button>
+            <button id="q-measure" disabled>Re-measure everyone</button>
+            <button id="q-reset">Reset</button>
+          </div>
+        </div>
+        <div style="display:grid; gap:10px">
+          <div class="bigbox"><div class="sub">Sum world: total height</div><div class="v" id="q-sum">600 cm</div><div class="sub" id="q-sum-note">Keep one number. Fix it by subtracting.</div></div>
+          <div class="bigbox"><div class="sub">Smallest-of world: shortest</div><div class="v" id="q-min">140 cm</div><div class="sub" id="q-min-note">Keep one number. Can it be fixed?</div></div>
+        </div>
+      </div>
+      <p class="sub">Every trick that makes multiplication faster than n³ (Strassen, 1969) computes too much and then subtracts the extra. Shortest paths use “smallest of” instead of “plus”, and you can’t subtract a minimum. Kerr (1970) proved it: using only + and min, you need about n³ steps.</p>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Computed, proven, believed</h3></div>
+      <div class="scroll-x">
+      <table class="t">
+        <thead><tr><th>Kind of claim</th><th>3SUM</th><th>APSP</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><b>Computed</b>: this algorithm takes this many steps</td><td>Two fingers ≈ n²/2</td><td>Floyd–Warshall n³</td><td><span class="pill good">Still true</span></td></tr>
+          <tr><td><b>Proven</b>: a limit, under restricted rules</td><td>Only signs of a + b + c → ≈ n² questions (Erickson 1999)</td><td>Only + and min → ≈ n³ steps (Kerr 1970)</td><td><span class="pill good">Still true</span></td></tr>
+          <tr><td><b>Believed</b>: the hypothesis (“the wall”)</td><td>Nothing runs in n<sup>2−ε</sup></td><td>Nothing runs in n<sup>3−ε</sup></td><td><span class="pill bad">Refuted 2026</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="sub">The new algorithms don’t follow those rules. They ask about <b>exact sums</b> and use <b>algebra with subtraction</b>, so neither proof applies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 CLAUDE ============ -->
+<section class="part" id="claude">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 4 · Alman &amp; Vassilevska Williams, October 2026</div>
+      <h2>Claude’s approach</h2>
+      <p>The core algorithm was found by an internal Anthropic research model, credited in the paper as Claude. Josh Alman (Columbia) and Virginia Vassilevska Williams (MIT) understood it, simplified it, extended it and wrote it up.</p>
+    </div>
+
+    <div class="two">
+      <div class="approach main">
+        <h3>How it was found</h3>
+        <p>An Anthropic employee was using an internal research model on open problems in cryptography, including constructions based on the hardness of Zero-k-Clique. The model found the algorithm during an unattended session. Anthropic shared it with the authors in September 2026.</p>
+      </div>
+      <div class="approach">
+        <h3>How it was checked</h3>
+        <p>The paper was posted to arXiv on 5 October 2026. Anthropic then certified the main deterministic results in the Lean 4 proof assistant and published the formal proof on GitHub. Within weeks, two independent groups found simpler proofs (Part 5).</p>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:28px">
+      <h3>The idea in four moves</h3>
+      <p>Leave the “smallest-of” world, where subtraction is impossible. Turn both puzzles into one exact-sum problem about triangles. Then compute only the answers that are actually needed.</p>
+    </div>
+
+    <div class="moves">
+      <div class="move"><div class="n">1</div><div class="bench" style="margin:0">
+        <div class="bench-head"><h3>Exact sums are algebra-friendly</h3><span class="tag">interactive</span></div>
+        <p class="sub">Write each number as a power of x and multiply: multiplying <b>adds exponents</b>, so one product counts every pair sum at once. This is ordinary arithmetic, with subtraction, so fast multiplication tricks work.</p>
+        <div class="controls"><label for="poly-in">Numbers (1–20)</label><input type="text" id="poly-in" value="1, 2, 4" style="max-width:200px"><button id="poly-go">Square it</button></div>
+        <div class="formula" id="poly-out"></div>
+        <div id="poly-bars" style="display:flex; gap:6px; align-items:flex-end; height:120px; overflow-x:auto"></div>
+      </div></div>
+
+      <div class="move"><div class="n">2</div><div class="bench" style="margin:0">
+        <div class="bench-head"><h3>Shrink big numbers with remainders</h3><span class="tag">interactive</span></div>
+        <p class="sub">The power trick is only fast for small numbers, so replace each number by its remainder after dividing by a prime p. True sums survive. Fake ones can appear, so every hit is double-checked.</p>
+        <div class="controls"><label for="mod-p">Prime p</label><select id="mod-p" class="btn"><option>5</option><option selected>7</option><option>11</option><option>13</option></select><span class="sub">Question: does 1003 + 2017 equal c?</span></div>
+        <div class="scroll-x"><table class="t" id="mod-t"></table></div>
+      </div></div>
+
+      <div class="move"><div class="n">3</div><div class="bench" style="margin:0">
+        <div class="bench-head"><h3>Both puzzles are triangle hunts</h3></div>
+        <p class="sub">Three numbers that add to 0, or a detour A → X → B that beats the direct road: both are three things that fit together, a triangle. The general version, <b>Exact Triangle</b> (“find a triangle whose weights add to exactly a target”), is at least as hard as both. Speed it up and both puzzles speed up.</p>
+        <div class="chain">
+          <div class="node"><div class="t">Thin table product</div><div class="d">fill only selected cells</div></div><div class="arr" aria-hidden="true">→</div>
+          <div class="node"><div class="t">Count triangles</div><div class="d">common friends of a pair</div></div><div class="arr" aria-hidden="true">→</div>
+          <div class="node"><div class="t">Exact Triangle</div><div class="d">n<sup>2.9983</sup></div></div><div class="arr" aria-hidden="true">→</div>
+          <div class="node goal"><div class="t">3SUM n<sup>1.9992</sup></div><div class="d">APSP n<sup>2.9995</sup></div></div>
+        </div>
+      </div></div>
+
+      <div class="move"><div class="n">4</div><div class="bench" style="margin:0">
+        <div class="bench-head"><h3>The new part: only fill the cells you need</h3><span class="tag">interactive</span></div>
+        <p class="sub">Counting triangles through pairs is a table product: each cell counts common friends. Fast multiplication tricks compute <b>every</b> cell, and just writing an N × N table costs N². Here the table is thin (N × D times D × N, D small) and only a few cells are asked for. The new algorithm prunes the fast-multiplication recipe (built on an identity of Schönhage and a 1982 method of Coppersmith) so it computes only what those cells need, and shares that work.</p>
+        <div class="two">
+          <div><div class="cellgrid" id="cells" aria-label="8 by 8 table"></div></div>
+          <div style="display:grid; gap:10px; align-content:start">
+            <div class="controls"><button class="primary" id="cells-full">Old: fill everything</button><button id="cells-ask">New: only asked cells</button><button id="cells-new">New question</button></div>
+            <div class="stats"><div class="stat hl"><div class="k">Cells computed</div><div class="v" id="cells-c">64</div></div><div class="stat"><div class="k">Cells needed</div><div class="v">6</div></div></div>
+            <p class="sub">In the paper: at most N²/√D cells are asked, and they cost about <span class="mono">N² / D<sup>0.063</sup></span> operations, less than writing the whole table.</p>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Why a small saving lowers the exponent</h3><span class="tag">interactive</span></div>
+      <p class="sub">The same mechanism, in Strassen’s 1969 algorithm: split a table into 2 × 2 blocks and multiply with 7 block products instead of 8. One level saves little. Repeated at every level, the saving becomes a <b>power of n</b>, and the exponent drops. The 2026 saving (D<sup>0.063</sup>, with D a power of n) works the same way.</p>
+      <div><label for="k-sl">Levels k = <b class="mono" id="k-val">10</b> (table size n = 2<sup>k</sup> = <span class="mono" id="k-n">1,024</span>)</label><input type="range" id="k-sl" min="1" max="20" value="10"></div>
+      <div id="k-bars" style="display:grid; gap:10px"></div>
+      <div class="formula">8<sup>k</sup> = n³ &nbsp;·&nbsp; 7<sup>k</sup> = n<sup>log₂7</sup> ≈ n<sup>2.807</sup> &nbsp;·&nbsp; saving (8/7)<sup>k</sup> = n<sup>0.193</sup></div>
+      <h3 style="font-size:18px">Where 7<sup>k</sup> comes from, level by level</h3>
+      <p class="sub">Each problem splits into 7 problems of half the size. Count the problems at each level until the blocks are single numbers:</p>
+      <div class="scroll-x"><table class="t" id="k-rows"></table></div>
+      <p class="sub">The bottom level has 7<sup>k</sup> tiny multiplications, and k = log₂ n, so 7<sup>k</sup> = 7<sup>log₂ n</sup> = n<sup>log₂ 7</sup> = n<sup>2.807</sup>. (The extra additions cost about n² per level, which is less than this.) With 8 instead of 7 the same count gives 8<sup>log₂ n</sup> = n³. The same mechanism explains 2026: a saving that repeats until it becomes a power of n lowers the exponent.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 OTHERS ============ -->
+<section class="part" id="others">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 5 · Other ways in</div>
+      <h2>Other approaches</h2>
+      <p>Within a month, two groups found simpler routes to the same conclusion. Before 2026, many people shaved the old bounds without lowering the exponent.</p>
+    </div>
+
+    <div class="two">
+      <div class="approach">
+        <div class="who">Karingula &amp; Lovett · 14 October 2026</div>
+        <h3>A simplified proof</h3>
+        <p>Keeps the key idea (only compute the requested cells) but replaces the machinery with one explicit rule: each wanted output = <b>six products from a shared pool − one private correction</b>, built from a small 2 × 3 case of Schönhage’s identity. Applied to sets: is the pair of sets disjoint? Known reductions then give 3SUM and APSP.</p>
+        <p><span class="pill wall">Weaker exponents</span> <span class="pill good">Much shorter proof</span></p>
+      </div>
+      <div class="approach">
+        <div class="who">Chan, Itakura, Ma &amp; Yu · 2 November 2026</div>
+        <h3>3SUM without matrix multiplication</h3>
+        <p>Write numbers in binary. If two numbers have no 1s in the same place, adding them is just stacking their 1s: no carries. Then “a + b = c?” becomes a question about sets, which a classic table method answers in bulk. Random shuffles make the right pair carry-free in some trial.</p>
+        <p><span class="pill good">n<sup>1.965</sup>, faster</span> <span class="pill wall">Randomized</span></p>
+      </div>
+    </div>
+
+    <div class="bench" id="b-bits">
+      <div class="bench-head"><h3>Try it: add by stacking</h3><span class="tag">interactive</span></div>
+      <div class="controls">
+        <label for="ba">a</label><input type="number" id="ba" value="5" min="0" max="255" style="width:90px">
+        <label for="bb">b</label><input type="number" id="bb" value="2" min="0" max="255" style="width:90px">
+        <button id="bits-try">Try a carry case</button>
+      </div>
+      <div style="display:grid; gap:8px" id="bits-out"></div>
+      <div class="msg" id="bits-msg" aria-live="polite"></div>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Three 2026 approaches side by side</h3></div>
+      <div class="scroll-x">
+      <table class="t">
+        <thead><tr><th></th><th>Alman &amp; Vassilevska Williams</th><th>Karingula &amp; Lovett</th><th>Chan, Itakura, Ma &amp; Yu</th></tr></thead>
+        <tbody>
+          <tr><td>Core trick</td><td>Fill only asked cells of a thin product (Coppersmith/Schönhage, pruned)</td><td>Explicit “6 shared − 1 private” rule, same idea</td><td>Binary sets with no carries, random shuffles</td></tr>
+          <tr><td>Fast matrix multiplication?</td><td>Yes</td><td>Yes (simpler)</td><td>No</td></tr>
+          <tr><td>3SUM exponent</td><td class="num">1.9992</td><td>below 2, not optimized</td><td class="num">1.965</td></tr>
+          <tr><td>APSP exponent</td><td class="num">2.9995</td><td>below 3, not optimized</td><td>real-weight APSP made deterministic</td></tr>
+          <tr><td>Randomness</td><td>Deterministic</td><td>Deterministic</td><td>Randomized for integer 3SUM</td></tr>
+          <tr><td>Extra</td><td>Lean-verified main results</td><td>Short, self-contained</td><td>Also refutes the k-SUM hypothesis for odd k</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="bench">
+      <div class="bench-head"><h3>Before 2026: shaving without breaking</h3></div>
+      <div class="timeline">
+        <div class="tl"><div class="y">1962</div><div>Floyd and Warshall: APSP in n³.</div></div>
+        <div class="tl"><div class="y">1969</div><div>Strassen: normal matrix multiplication below n³ (n<sup>2.81</sup>), using subtraction.</div></div>
+        <div class="tl"><div class="y">1970</div><div>Kerr: with only + and min, n³ is necessary.</div></div>
+        <div class="tl"><div class="y">1976</div><div>Fredman: “a + b &lt; c + d” equals “a − c &lt; d − b”, a first crack.</div></div>
+        <div class="tl"><div class="y">1999</div><div>Erickson: sign-only algorithms need ≈ n² questions for 3SUM.</div></div>
+        <div class="tl"><div class="y">2014</div><div>Grønlund &amp; Pettie: 3SUM slightly below n², by log factors. Williams: APSP in n³ / 2<sup>Ω(√log n)</sup>.</div></div>
+        <div class="tl"><div class="y">2018</div><div>Chan: 3SUM in about n² / log² n.</div></div>
+        <div class="tl hit"><div class="y">2026</div><div><b>First exponent drops:</b> n<sup>1.9992</sup> and n<sup>2.9995</sup>, then n<sup>1.965</sup>.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 FASTER ============ -->
+<section class="part" id="faster">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="num">Part 6 · The honest answer</div>
+      <h2>How much faster?</h2>
+      <p>In practice, barely. In principle, completely. A log-factor saving fades as n grows; a power-of-n saving never does.</p>
+    </div>
+    <div class="bench">
+      <div class="bench-head"><h3>Speedup over textbook 3SUM (n²)</h3><span class="tag">interactive</span></div>
+      <div><label for="L-sl">n has <b class="mono" id="L-val">20</b> binary digits (n ≈ <span class="mono" id="L-n">10^6</span>)</label><input type="range" id="L-sl" min="1" max="5" step="0.01" value="1.301"></div>
+      <div id="L-bars" style="display:grid; gap:10px"></div>
+      <div class="msg" id="L-msg"></div>
+      <p class="sub">Hidden constants ignored. The authors say the new algorithms are likely impractical. What changed is the map: many “this is hard because 3SUM is hard” results must be re-examined.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer id="sources">
+  <div class="wrap" style="display:grid; gap:10px">
+    <h3 style="color:var(--ink)">Sources</h3>
+    <p>Alman &amp; Vassilevska Williams, <a href="https://arxiv.org/abs/2610.06783">Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs</a>, arXiv, Oct 2026. Lean formalization: <a href="https://github.com/anthropics/formal-math/tree/main/3sum-apsp">anthropics/formal-math</a>.</p>
+    <p>Karingula &amp; Lovett, <a href="https://arxiv.org/abs/2610.15663">A simplified proof of polynomial improvements for 3SUM and APSP</a>, arXiv, Oct 2026.</p>
+    <p>Chan, Itakura, Ma &amp; Yu, <a href="https://arxiv.org/abs/2610.42012">3SUM Made Simpler (Without Matrix Multiplication), k-SUM Hypothesis Refuted for Odd k, and Real 3SUM/APSP Derandomized</a>, arXiv, Nov 2026.</p>
+    <p>In this course: <a href="../3sum-apsp/">the 18-piece guided case study on the same paper</a>.</p>
+    <p>Background: <a href="https://alphaxiv.org/abs/2610.06783">alphaXiv overview</a> · <a href="https://arxiv.org/abs/1502.05204">Chan &amp; Lewenstein (older bounds)</a>. Classic results (Floyd, Warshall, Strassen, Kerr, Fredman, Erickson, Grønlund &amp; Pettie, Williams) are cited from general knowledge.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const fmt = x => x.toLocaleString('en-US');
+  const sci = x => {
+    if (!isFinite(x)) return '∞';
+    if (x < 1e7) return fmt(Math.round(x));
+    const e = Math.floor(Math.log10(x)); return (x / 10 ** e).toFixed(2) + '×10^' + e;
+  };
+  const sciLog = lg => { // value given as log10
+    if (lg < 6) return fmt(Math.round(10 ** lg));
+    const e = Math.floor(lg); return (10 ** (lg - e)).toFixed(2) + '×10^' + fmt(e);
+  };
+
+  /* ---------- two-finger walk ---------- */
+  let A = [], st = {};
+  function tpInit(arr) {
+    A = arr.slice().sort((a, b) => a - b);
+    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), found: [], done: A.length < 3, last: '' };
+    const n = A.length;
+    $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
+    $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
+    tpRender('Sorted the list. The first number is fixed; fingers sit on both ends of the rest. Press Step.');
+  }
+  function tpStep() {
+    if (st.done) return;
+    const { i, l, r } = st, s = A[i] + A[l] + A[r];
+    st.moves++; st.per[i]++;
+    let txt = `${A[i]} + ${A[l]} + ${A[r]} = ${s}. `;
+    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Found one! Move both fingers.'; st.l++; st.r--; }
+    else if (s < 0) { txt += 'Too small: left finger moves right.'; st.l++; }
+    else { txt += 'Too big: right finger moves left.'; st.r--; }
+    if (st.l >= st.r) {
+      st.i++; st.l = st.i + 1; st.r = A.length - 1;
+      if (st.i > A.length - 3) { st.done = true; txt += ' All numbers fixed: done.'; }
+      else txt += ` Fingers met. Now fix ${A[st.i]}.`;
+    }
+    tpRender(txt);
+  }
+  function tpRender(msg) {
+    const c = $('tp-chips'); c.innerHTML = '';
+    A.forEach((v, k) => {
+      const d = document.createElement('div'); d.className = 'chip'; d.textContent = v;
+      if (!st.done) {
+        if (k === st.i) { d.classList.add('fixed'); d.insertAdjacentHTML('beforeend', '<span class="lab">fixed</span>'); }
+        else if (k === st.l) { d.classList.add('left'); d.insertAdjacentHTML('beforeend', '<span class="lab">left</span>'); }
+        else if (k === st.r) { d.classList.add('right'); d.insertAdjacentHTML('beforeend', '<span class="lab">right</span>'); }
+        else if (k < st.i || k < st.l || k > st.r) d.classList.add('gone');
+      }
+      c.appendChild(d);
+    });
+    $('tp-moves').textContent = fmt(st.moves);
+    $('tp-found').textContent = st.found.length ? st.found.join(' ') : (st.done ? 'none' : 'none yet');
+    $('tp-msg').textContent = msg;
+    $('tp-step').disabled = $('tp-run').disabled = st.done;
+    dvRender();
+  }
+  function dvRender() {
+    const n = A.length; if (!$('dv-rows')) return;
+    $('dv-n').textContent = n;
+    $('dv-brute').textContent = `${n} × ${n - 1} × ${n - 2} / 6 = ${fmt(n * (n - 1) * (n - 2) / 6)}`;
+    let h = '<thead><tr><th>Fixed number</th><th>Numbers to its right (k)</th><th>Most steps (k − 1)</th><th>Steps used so far</th></tr></thead><tbody>';
+    const terms = [];
+    for (let i = 0; i <= n - 3; i++) { const k = n - 1 - i; terms.push(k - 1);
+      h += `<tr><td class="num">${A[i]}</td><td class="num">${k}</td><td class="num">${k - 1}</td><td class="num">${st.per[i] || (i < st.i || st.done ? 0 : '–')}</td></tr>`; }
+    $('dv-rows').innerHTML = h + '</tbody>';
+    $('dv-sum').innerHTML = `${terms.join(' + ')} = <b>${fmt(terms.reduce((a, b) => a + b, 0))}</b> = (${n}−1)(${n}−2)/2 &nbsp;·&nbsp; steps actually used: <b>${st.moves}</b>`;
+  }
+  $('tp-step').onclick = tpStep;
+  $('tp-run').onclick = () => { let g = 0; while (!st.done && g++ < 5000) tpStep(); };
+  $('tp-reset').onclick = () => tpInit(A);
+  $('list-set').onclick = () => {
+    const v = $('list-in').value.split(/[\s,;]+/).map(Number).filter(x => Number.isFinite(x) && x === Math.round(x));
+    if (v.length < 3 || v.length > 16) { $('tp-msg').textContent = 'Please enter 3 to 16 whole numbers, separated by commas.'; return; }
+    tpInit(v);
+  };
+  $('list-rand').onclick = () => {
+    const s = new Set(); while (s.size < 10) s.add(Math.floor(Math.random() * 31) - 15);
+    const v = [...s]; $('list-in').value = v.join(', '); tpInit(v);
+  };
+  tpInit([-7, -5, -2, 3, 4, 9]);
+
+  /* ---------- Floyd–Warshall ---------- */
+  const names = ['A', 'B', 'C', 'D', 'E'], INF = Infinity;
+  const pos = [[40, 120], [320, 120], [180, 30], [180, 110], [180, 195]];
+  const edges = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
+  let D, fw;
+  function fwInit() {
+    D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
+    edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
+    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null };
+    fwDraw(); fwTable(); $('fw-msg').textContent = 'Middle city X = A. Each step asks: is A→X→B shorter than the current A→B? Press Step.';
+  }
+  function fwOne() {
+    if (fw.done) return '';
+    const { k, i, j } = fw; const via = D[i][k] + D[k][j]; let txt;
+    fw.checks++; fw.last = { i, j, k, better: false };
+    if (via < D[i][j]) { txt = `${names[i]}→${names[k]}→${names[j]} = ${via} beats ${D[i][j] === INF ? '∞' : D[i][j]}. Shortcut!`; D[i][j] = via; fw.upd++; fw.last.better = true; }
+    else txt = `${names[i]}→${names[k]}→${names[j]} = ${via === INF ? '∞' : via}, not shorter than ${D[i][j] === INF ? '∞' : D[i][j]}.`;
+    fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) { fw.done = true; txt += ' All 125 checks done.'; }
+    return txt;
+  }
+  function fwDv() { if (!$('dv-fw')) return; let h = '<thead><tr><th>Middle city X</th><th>Pairs (A, B) checked</th><th>Of</th></tr></thead><tbody>';
+    const rows = [];
+    for (let k = 0; k < 5; k++) { const done = fw.done || k < fw.k ? 25 : (k === fw.k ? fw.i * 5 + fw.j : 0); rows.push(done);
+      h += `<tr><td class="num">${names[k]}</td><td class="num">${done}</td><td class="num">5 × 5 = 25</td></tr>`; }
+    $('dv-fw').innerHTML = h + '</tbody>';
+    $('dv-fw-sum').innerHTML = `${rows.join(' + ')} = <b>${rows.reduce((a, b) => a + b, 0)}</b> of 25 + 25 + 25 + 25 + 25 = 5 × 25 = 5³ = <b>125</b>`; }
+  function fwRefresh(txt) { fwTable(); fwDraw(); fwDv(); $('fw-checks').textContent = fw.checks; $('fw-upd').textContent = fw.upd; $('fw-msg').textContent = txt; ['fw-step', 'fw-k', 'fw-run'].forEach(id => $(id).disabled = fw.done); }
+  $('fw-step').onclick = () => fwRefresh(fwOne());
+  $('fw-k').onclick = () => { const k0 = fw.k; let t = ''; while (!fw.done && fw.k === k0) t = fwOne(); fwRefresh(`Finished middle city ${names[k0]} (25 checks).` + (fw.done ? ' All 125 checks done.' : ` Next middle city: ${names[fw.k]}.`)); };
+  $('fw-run').onclick = () => { while (!fw.done) fwOne(); fwRefresh('All 125 checks done. The table now holds every shortest distance.'); };
+  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Reset. Middle city X = A.'); };
+  function fwTable() {
+    const t = $('fw-mat'); const L = fw.last;
+    let h = '<tr><th></th>' + names.map(n => `<th>${n}</th>`).join('') + '</tr>';
+    for (let i = 0; i < 5; i++) {
+      h += `<tr><th>${names[i]}</th>`;
+      for (let j = 0; j < 5; j++) {
+        let c = '';
+        if (!fw.done && (i === fw.k || j === fw.k)) c = 'krow';
+        if (L && L.i === i && L.j === j) c = L.better ? 'upd' : 'cur';
+        h += `<td class="${c}">${D[i][j] === INF ? '∞' : D[i][j]}</td>`;
+      }
+      h += '</tr>';
+    }
+    t.innerHTML = h;
+  }
+  function fwDraw() {
+    const s = $('fw-svg'); const L = fw.last; let h = '';
+    const css = getComputedStyle(document.documentElement);
+    const ink = css.getPropertyValue('--ink'), mut = css.getPropertyValue('--muted'), acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), surf = css.getPropertyValue('--surface'), wall = css.getPropertyValue('--wall');
+    edges.forEach(([a, b, w]) => {
+      const [x1, y1] = pos[a], [x2, y2] = pos[b];
+      let on = L && ((a === L.i && b === L.k) || (b === L.i && a === L.k) || (a === L.k && b === L.j) || (b === L.k && a === L.j));
+      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 20} Q180 330 ${x2} ${y2 + 20}" fill="none" stroke="${on ? acc : line}" stroke-width="${on ? 4 : 2}"/><text x="180" y="256" text-anchor="middle" font-size="12" fill="${mut}">12 (direct road)</text>`; return; }
+      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? acc : line}" stroke-width="${on ? 4 : 2}"/>`;
+      h += `<text x="${(x1 + x2) / 2 + 6}" y="${(y1 + y2) / 2 - 6}" font-size="12" fill="${mut}">${w}</text>`;
+    });
+    pos.forEach(([x, y], k) => {
+      const role = !fw.done && k === fw.k ? wall : (L && (k === L.i || k === L.j) ? acc : ink);
+      h += `<circle cx="${x}" cy="${y}" r="20" fill="${surf}" stroke="${role}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="${role}">${names[k]}</text>`;
+    });
+    h += `<text x="10" y="18" font-size="12" fill="${wall}">● middle city X</text>`;
+    s.innerHTML = h;
+  }
+  fwInit(); fwDv();
+
+  /* ---------- staircase ---------- */
+  (function () {
+    const css = getComputedStyle(document.documentElement); const acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), mut = css.getPropertyValue('--muted');
+    let h = ''; const c = 30, x0 = 90, y0 = 10;
+    const labs = ['−7 fixed', '−5 fixed', '−2 fixed', '3 fixed'];
+    for (let i = 0; i < 4; i++) { for (let j = 0; j < 4; j++) { const on = j < 4 - i; h += `<rect x="${x0 + c * j}" y="${y0 + c * i}" width="${c - 3}" height="${c - 3}" rx="5" fill="${on ? acc : 'none'}" fill-opacity="${on ? 0.3 : 1}" stroke="${on ? acc : line}"/>`; }
+      h += `<text x="${x0 - 8}" y="${y0 + c * i + 19}" text-anchor="end" font-size="12" fill="${mut}">${labs[i]}</text><text x="${x0 + 4 * c + 6}" y="${y0 + c * i + 19}" font-size="12" fill="${mut}">${4 - i}</text>`; }
+    $('stair').innerHTML = h;
+  })();
+
+  /* ---------- counting bars ---------- */
+  function bars(el, rows) { // rows: [label, log10 value, cls, text]
+    const max = Math.max(...rows.map(r => r[1]), 1);
+    $(el).innerHTML = rows.map(r => `<div class="barrow"><div>${r[0]}</div><div><div class="bar ${r[2] || ''}" style="width:${Math.max(1, 100 * r[1] / max)}%"></div></div><div class="val">${r[3]}</div></div>`).join('');
+  }
+  function countUpd() {
+    const n = Math.round(10 ** parseFloat($('n-sl').value)); $('n-val').textContent = fmt(n);
+    const tri = n * (n - 1) * (n - 2) / 6, two = (n - 1) * (n - 2) / 2, cube = n ** 3;
+    bars('count-bars', [
+      ['3SUM brute force', Math.log10(Math.max(tri, 1)), 'w', sci(tri)],
+      ['3SUM two fingers', Math.log10(Math.max(two, 1)), '', sci(two)],
+      ['APSP three loops', Math.log10(cube), 'g', sci(cube)]]);
+  }
+  $('n-sl').oninput = countUpd; countUpd();
+
+  /* ---------- adversary game ---------- */
+  let adv;
+  function advInit() {
+    adv = { checked: new Set(), over: false };
+    const g = $('adv-grid'); g.innerHTML = '';
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) {
+      const b = document.createElement(j > i ? 'button' : 'div');
+      b.className = 'pc ' + (j > i ? 'open' : 'lo');
+      if (j > i) { b.textContent = '?'; b.setAttribute('aria-label', `Check pair ${i + 1} and ${j + 1}`); b.dataset.k = i * 6 + j;
+        b.onclick = () => { if (adv.over || adv.checked.has(b.dataset.k)) return; adv.checked.add(b.dataset.k); b.className = 'pc checked'; b.textContent = '≠ 0'; $('adv-count').textContent = `Checked ${adv.checked.size} of 15`; }; }
+      g.appendChild(b);
+    }
+    $('adv-count').textContent = 'Checked 0 of 15';
+    $('adv-msg').className = 'msg';
+    $('adv-msg').textContent = 'Skip even one pair and you can lose. That’s Erickson’s 1999 argument in miniature: an algorithm that only asks “is a + b + c positive, negative or zero?” must ask about ≈ n² of them.';
+  }
+  $('adv-answer').onclick = () => {
+    if (adv.over) return; adv.over = true;
+    const open = [...document.querySelectorAll('#adv-grid .pc.open')];
+    if (open.length) {
+      const t = open[Math.floor(Math.random() * open.length)]; t.className = 'pc trap'; t.textContent = '= 0';
+      $('adv-msg').className = 'msg bad';
+      $('adv-msg').textContent = `You lose. You skipped ${open.length} pair${open.length > 1 ? 's' : ''}, so your friend nudged one to exactly 0. Every answer you saw stays the same, but now the right answer is “yes”.`;
+    } else {
+      $('adv-msg').className = 'msg good';
+      $('adv-msg').textContent = 'Correct, but only because you checked all 15 pairs. For n numbers that’s about n²/2 questions: there was no shortcut.';
+    }
+  };
+  $('adv-reset').onclick = advInit; advInit();
+
+  /* ---------- queue ---------- */
+  const ppl = [['Ali', 150], ['Berk', 140], ['Cem', 165], ['Deniz', 145]]; let qLeft = false, qMeasured = false;
+  function qRender() {
+    $('queue').innerHTML = ppl.map(([n, h], k) => `<div class="person ${qLeft && k === 1 ? 'left-queue' : ''}"><span class="mono">${h}</span><div class="body" style="height:${(h - 100) * 2}px"></div><span>${n}</span></div>`).join('');
+    if (!qLeft) { $('q-sum').textContent = '600 cm'; $('q-sum-note').textContent = 'Keep one number. Fix it by subtracting.'; $('q-min').textContent = '140 cm'; $('q-min-note').textContent = 'Keep one number. Can it be fixed?'; }
+    else {
+      $('q-sum').textContent = '460 cm'; $('q-sum-note').innerHTML = '600 − 140 = 460. <b style="color:var(--good)">Fixed instantly.</b>';
+      if (!qMeasured) { $('q-min').textContent = '?'; $('q-min-note').innerHTML = '<b style="color:var(--bad)">“140” tells you nothing about who’s next.</b> You must look at everyone again.'; }
+      else { $('q-min').textContent = '145 cm'; $('q-min-note').textContent = 'Found it, but only by re-measuring all 3 people. In a table of n² cells, this redo is what costs n³.'; }
+    }
+    $('q-leave').disabled = qLeft; $('q-measure').disabled = !qLeft || qMeasured;
+  }
+  $('q-leave').onclick = () => { qLeft = true; qRender(); };
+  $('q-measure').onclick = () => { qMeasured = true; qRender(); };
+  $('q-reset').onclick = () => { qLeft = qMeasured = false; qRender(); };
+  qRender();
+
+  /* ---------- polynomial ---------- */
+  const sup = n => String(n).split('').map(d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
+  function polyGo() {
+    const v = [...new Set($('poly-in').value.split(/[\s,;]+/).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= 20))].sort((a, b) => a - b).slice(0, 8);
+    if (!v.length) { $('poly-out').textContent = 'Enter a few whole numbers from 1 to 20.'; return; }
+    const co = {}; v.forEach(a => v.forEach(b => { co[a + b] = (co[a + b] || 0) + 1; }));
+    const left = '(' + v.map(a => a === 1 ? 'x' : 'x' + sup(a)).join(' + ') + ')²';
+    const right = Object.keys(co).map(Number).sort((a, b) => a - b).map(e => (co[e] > 1 ? co[e] : '') + 'x' + sup(e)).join(' + ');
+    $('poly-out').textContent = left + ' = ' + right;
+    const lo = 2 * v[0], hi = 2 * v[v.length - 1], mx = Math.max(...Object.values(co));
+    let h = '';
+    for (let e = lo; e <= hi; e++) { const c = co[e] || 0; h += `<div style="display:flex; flex-direction:column; align-items:center; gap:4px; min-width:24px"><span class="mono" style="font-size:12px">${c || ''}</span><div style="width:20px; height:${c ? 12 + 70 * c / mx : 2}px; border-radius:5px 5px 2px 2px; background:${c ? 'var(--accent)' : 'var(--line)'}"></div><span class="mono" style="font-size:11px; color:var(--muted)">${e}</span></div>`; }
+    $('poly-bars').innerHTML = h;
+  }
+  $('poly-go').onclick = polyGo; polyGo();
+
+  /* ---------- mod ---------- */
+  function modGo() {
+    const p = +$('mod-p').value, a = 1003, b = 2017, t = (a + b) % p;
+    const cs = [3020, 10, 24, 3021, 3027];
+    let h = `<thead><tr><th>c</th><th>c mod ${p}</th><th>(1003 + 2017) mod ${p}</th><th>Remainder test</th><th>Real check</th></tr></thead><tbody>`;
+    cs.forEach(c => { const m = c % p, pass = m === t, real = a + b === c;
+      h += `<tr><td class="num">${fmt(c)}</td><td class="num">${m}</td><td class="num">${t}</td><td>${pass ? '<span class="pill good">match</span>' : '<span class="pill">no match</span>'}</td><td>${pass ? (real ? '<span class="pill good">true sum</span>' : '<span class="pill bad">fake alarm</span>') : '–'}</td></tr>`; });
+    $('mod-t').innerHTML = h + '</tbody>';
+  }
+  $('mod-p').onchange = modGo; modGo();
+
+  /* ---------- cells ---------- */
+  let ask = [], full = true;
+  function cellsNew() { const s = new Set(); while (s.size < 6) s.add(Math.floor(Math.random() * 64)); ask = [...s]; cellsDraw(); }
+  function cellsDraw() {
+    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => `<div class="cg ${ask.includes(k) ? 'ask' : (full ? 'fill' : '')}"></div>`).join('');
+    $('cells-c').textContent = full ? 64 : 6;
+    $('cells-full').className = full ? 'primary' : ''; $('cells-ask').className = full ? '' : 'primary';
+  }
+  $('cells-full').onclick = () => { full = true; cellsDraw(); };
+  $('cells-ask').onclick = () => { full = false; cellsDraw(); };
+  $('cells-new').onclick = cellsNew;
+  ask = [3, 14, 17, 36, 47, 58]; cellsDraw();
+
+  /* ---------- Strassen ---------- */
+  function kUpd() {
+    const k = +$('k-sl').value; $('k-val').textContent = k; $('k-n').textContent = fmt(2 ** k);
+    const a = k * Math.log10(8), b = k * Math.log10(7);
+    bars('k-bars', [['School: 8ᵏ', a, 'w', sciLog(a)], ['Strassen: 7ᵏ', b, '', sciLog(b)], ['Saving (8/7)ᵏ', Math.max(k * Math.log10(8 / 7), 0.02), 'g', (8 / 7) ** k < 1000 ? ((8 / 7) ** k).toFixed(2) + '×' : sciLog(k * Math.log10(8 / 7)) + '×']]);
+  }
+  function kRows() { const k = +$('k-sl').value, n = 2 ** k; let h = '<thead><tr><th>Level</th><th>Block size</th><th>Problems (school, ×8)</th><th>Problems (Strassen, ×7)</th></tr></thead><tbody>';
+    const lv = k <= 7 ? [...Array(k + 1).keys()] : [0, 1, 2, 3, -1, k];
+    lv.forEach(j => { if (j < 0) { h += '<tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>'; return; }
+      h += `<tr><td class="num">${j}${j === k ? ' (bottom)' : ''}</td><td class="num">${fmt(n / 2 ** j)} × ${fmt(n / 2 ** j)}</td><td class="num">8<sup>${j}</sup> = ${sciLog(j * Math.log10(8))}</td><td class="num">7<sup>${j}</sup> = ${sciLog(j * Math.log10(7))}</td></tr>`; });
+    $('k-rows').innerHTML = h + '</tbody>'; }
+  $('k-sl').oninput = () => { kUpd(); kRows(); }; kUpd(); kRows();
+
+  /* ---------- bits ---------- */
+  function bitsGo() {
+    let a = Math.max(0, Math.min(255, Math.floor(+$('ba').value || 0))), b = Math.max(0, Math.min(255, Math.floor(+$('bb').value || 0)));
+    const row = (lab, v, clash, cls) => `<div class="bitrow"><span>${lab}</span><div class="bits">${[7, 6, 5, 4, 3, 2, 1, 0].map(i => { const on = (v >> i) & 1; const c = clash && ((clash >> i) & 1); return `<div class="bit ${on ? 'on' : ''} ${c ? 'clash' : ''}">${on}</div>`; }).join('')}</div><span>${cls || ''}</span></div>`;
+    const ov = a & b, st = a | b;
+    $('bits-out').innerHTML = row('a = ' + a, a, ov) + row('b = ' + b, b, ov) + row('stacked', st, 0, '= ' + st) + row('real sum', (a + b) & 511, 0, '= ' + (a + b));
+    const m = $('bits-msg');
+    if (!ov) { m.className = 'msg good'; m.textContent = `No 1s overlap, so stacking gives the real sum: ${a} + ${b} = ${st}. A set question, no carries.`; }
+    else { m.className = 'msg bad'; m.textContent = `The 1s overlap (red), so a carry is needed: stacking gives ${st}, but ${a} + ${b} = ${a + b}. The algorithm reshuffles the numbers and tries again.`; }
+  }
+  $('ba').oninput = $('bb').oninput = bitsGo;
+  $('bits-try').onclick = () => { $('ba').value = 3; $('bb').value = 1; bitsGo(); };
+  bitsGo();
+
+  /* ---------- speedup ---------- */
+  function LUpd() {
+    const L = Math.round(10 ** parseFloat($('L-sl').value)); $('L-val').textContent = fmt(L);
+    const lgN = L * Math.log10(2); $('L-n').textContent = lgN < 7 ? fmt(Math.round(2 ** L)) : '10^' + fmt(Math.floor(lgN));
+    const logShave = 2 * Math.log10(L), avw = 0.0008 * lgN, cimy = 0.035 * lgN;
+    const show = lg => lg < 4 ? (10 ** lg).toFixed(lg < 1 ? 3 : 1) + '×' : sciLog(lg) + '×';
+    bars('L-bars', [['Log-shaving n²/log²n', logShave, 'w', show(logShave)], ['n^1.9992 (2026)', Math.max(avw, 0.001), '', show(avw)], ['n^1.965 (2026)', Math.max(cimy, 0.001), 'g', show(cimy)]]);
+    const e = 2 - 2 * Math.log2(L) / L;
+    const best = avw > logShave ? 'n^1.9992 now beats log-shaving.' : (cimy > logShave ? 'n^1.965 beats log-shaving here; n^1.9992 needs n with about 11,440 digits.' : 'At this size the old log-shaving still wins.');
+    $('L-msg').innerHTML = `Log-shaving acts like n<sup>${e.toFixed(4)}</sup> here, and that exponent climbs back to 2 as n grows. The 2026 exponents stay put forever. ${best}`;
+  }
+  $('L-sl').oninput = LUpd; LUpd();
+})();
+</script>
+</body>
+</html>
