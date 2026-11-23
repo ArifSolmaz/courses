@@ -141,6 +141,8 @@ label { font-size: 14px; color: var(--muted); }
 .mat td { width: 46px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; transition: background .2s; }
 .mat td.krow { background: var(--wall-soft); }
 .mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); }
+.mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
+.mat th.corner { font-size: 10px; font-weight: 500; white-space: nowrap; }
 .mat td.upd { background: var(--good-soft); color: var(--good); font-weight: 600; }
 .scroll-x { overflow-x: auto; }
 .pairgrid { display: grid; grid-template-columns: repeat(6, 52px); gap: 5px; }
@@ -298,21 +300,23 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
     <div class="bench" id="b-fw">
       <div class="bench-head"><h3>Dene: 5 şehirde Floyd–Warshall</h3><span class="tag">etkileşimli</span></div>
       <div class="two">
-        <svg id="fw-svg" viewBox="0 0 360 268" role="img" aria-label="Yol uzunluklarıyla A’dan E’ye beş şehirlik harita" style="width:100%; max-width:420px"></svg>
+        <svg id="fw-svg" viewBox="0 0 360 304" role="img" aria-label="Yol uzunluklarıyla P’den T’ye beş şehirlik harita" style="width:100%; max-width:420px"></svg>
         <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Mesafe tablosu"></table></div>
       </div>
       <div class="controls">
         <button class="primary" id="fw-step">Adım (bir kontrol)</button>
-        <button id="fw-k">Bu ara şehri bitir</button>
-        <button id="fw-run">Hepsini çalıştır</button>
+        <button id="fw-k">X = P için kalan 25 kontrolü yap</button>
+        <button id="fw-run">Kalan bütün kontrolleri yap</button>
         <button id="fw-reset">Sıfırla</button>
       </div>
       <div class="msg" id="fw-msg" aria-live="polite"></div>
+      <div class="sub" id="fw-where" style="font-size:14px"></div>
       <div class="stats">
         <div class="stat hl"><div class="k">Yapılan kontrol</div><div class="v" id="fw-checks">0</div></div>
         <div class="stat"><div class="k">Toplam kontrol: 5 × 5 × 5</div><div class="v">125</div></div>
         <div class="stat"><div class="k">Bulunan kısayol</div><div class="v" id="fw-upd">0</div></div>
       </div>
+      <div class="sub" id="fw-log" style="font-size:14px; font-family:var(--mono)"></div>
     </div>
   </div>
 </section>
@@ -738,24 +742,36 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   tpInit([-7, -5, -2, 3, 4, 9]);
 
   /* ---------- Floyd–Warshall ---------- */
-  const names = ['A', 'B', 'C', 'D', 'E'], INF = Infinity;
+  const names = ['P', 'Q', 'R', 'S', 'T'], INF = Infinity;
   const pos = [[40, 120], [320, 120], [180, 30], [180, 110], [180, 195]];
   const edges = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
+  const fv = v => v === INF ? '∞' : v;
   let D, fw;
+  const fwLog = (n) => n ? `Bulunan kısayollar: ${fw.log.join(' · ')}` : 'Bulunan kısayollar: henüz yok.';
   function fwInit() {
     D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
     edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
-    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null };
-    fwDraw(); fwTable(); $('fw-msg').textContent = 'Ara şehir X = A. Her adım şunu sorar: A→X→B, şimdiki A→B’den kısa mı? Adım’a bas.';
+    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, log: [] };
+    fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Ara şehir X = P. Her kontrol şunu sorar: başlangıç → X → varış, şimdiki başlangıç → varış mesafesinden kısa mı? Adım’a bas.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
   }
+  function fwText(L) {
+    const s = names[L.i], x = names[L.k], t = names[L.j];
+    let h = `<b>125 kontrolün ${fw.checks}. kontrolü.</b> ${s} → ${t} yolculuğunda ${x} üzerinden gitmek daha mı kısa? `;
+    if (L.i === L.j) h += `Başlangıç ve varış aynı şehir, mesafe 0 kalır. Döngü bu kontrolü yine de sayar.`;
+    else if (L.k === L.i || L.k === L.j) h += `${x} zaten yolculuğun bir ucu; onun “üzerinden” gitmek bir şey katmaz (d[${s}][${t}] = ${fv(L.cur)} aynı kalır). Döngü bu kontrolü yine de sayar.`;
+    else h += `d[${s}][${x}] + d[${x}][${t}] = ${fv(L.a)} + ${fv(L.b)} = ${fv(L.via)}. Şimdiki d[${s}][${t}] = ${fv(L.cur)}. ` + (L.better ? `<b style="color:var(--good)">${fv(L.via)} &lt; ${fv(L.cur)}: kısayol! d[${s}][${t}] artık ${L.via}.</b>` : `${fv(L.via)}, ${fv(L.cur)} değerinden küçük değil, bir şey değişmez.`);
+    return h;
+  }
+  function fwWhere(L) { const x = names[L.k]; return `Sıra: ara şehir X = ${x} (${L.k + 1}/5) sabit kalır; başlangıç satırlarda aşağı, varış sütunlarda sağa ilerler. Bu, X = ${x} için ${L.i * 5 + L.j + 1}/25. kontroldü.`; }
   function fwOne() {
     if (fw.done) return '';
-    const { k, i, j } = fw; const via = D[i][k] + D[k][j]; let txt;
-    fw.checks++; fw.last = { i, j, k, better: false };
-    if (via < D[i][j]) { txt = `${names[i]}→${names[k]}→${names[j]} = ${via}, ${D[i][j] === INF ? '∞' : D[i][j]} değerini yener. Kısayol!`; D[i][j] = via; fw.upd++; fw.last.better = true; }
-    else txt = `${names[i]}→${names[k]}→${names[j]} = ${via === INF ? '∞' : via}, ${D[i][j] === INF ? '∞' : D[i][j]} değerinden kısa değil.`;
-    fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) { fw.done = true; txt += ' 125 kontrolün hepsi yapıldı.'; }
-    return txt;
+    const { k, i, j } = fw, a = D[i][k], b = D[k][j], via = a + b, cur = D[i][j], better = via < cur;
+    fw.checks++;
+    fw.last = { i, j, k, a, b, via, cur, better };
+    const txt = fwText(fw.last);
+    if (better) { D[i][j] = via; fw.upd++; fw.log.push(`${names[i]}→${names[k]}→${names[j]}: ${fv(cur)} → ${via}`); }
+    fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) fw.done = true;
+    return txt + (fw.done ? ' 125 kontrolün hepsi yapıldı.' : '');
   }
   function fwDv() { if (!$('dv-fw')) return; let h = '<thead><tr><th>Ara şehir X</th><th>Kontrol edilen çift (A, B)</th><th>Toplam</th></tr></thead><tbody>';
     const rows = [];
@@ -763,21 +779,28 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
       h += `<tr><td class="num">${names[k]}</td><td class="num">${done}</td><td class="num">5 × 5 = 25</td></tr>`; }
     $('dv-fw').innerHTML = h + '</tbody>';
     $('dv-fw-sum').innerHTML = `${rows.join(' + ')} = <b>${rows.reduce((a, b) => a + b, 0)}</b> / 25 + 25 + 25 + 25 + 25 = 5 × 25 = 5³ = <b>125</b>`; }
-  function fwRefresh(txt) { fwTable(); fwDraw(); fwDv(); $('fw-checks').textContent = fw.checks; $('fw-upd').textContent = fw.upd; $('fw-msg').textContent = txt; ['fw-step', 'fw-k', 'fw-run'].forEach(id => $(id).disabled = fw.done); }
+  function fwRefresh(txt) {
+    fwTable(); fwDraw(); fwDv(); $('fw-checks').textContent = fw.checks; $('fw-upd').textContent = fw.upd; $('fw-msg').innerHTML = txt;
+    $('fw-where').textContent = fw.last ? fwWhere(fw.last) : ''; $('fw-log').textContent = fwLog(fw.log.length);
+    ['fw-step', 'fw-k', 'fw-run'].forEach(id => $(id).disabled = fw.done);
+    fwBtn();
+  }
+  function fwBtn() { if (!fw.done) $('fw-k').textContent = `X = ${names[fw.k]} için kalan ${25 - (fw.i * 5 + fw.j)} kontrolü yap`; }
   $('fw-step').onclick = () => fwRefresh(fwOne());
-  $('fw-k').onclick = () => { const k0 = fw.k; let t = ''; while (!fw.done && fw.k === k0) t = fwOne(); fwRefresh(`${names[k0]} ara şehri bitti (25 kontrol).` + (fw.done ? ' 125 kontrolün hepsi yapıldı.' : ` Sıradaki ara şehir: ${names[fw.k]}.`)); };
+  $('fw-k').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwRefresh(`X = ${names[k0]} için kalan ${n0} kontrol yapıldı. Artık her başlangıç–varış çifti ${names[k0]} üzerinden denendi (25/25).` + (fw.done ? ' 125 kontrolün hepsi yapıldı.' : ` Sıradaki ara şehir: X = ${names[fw.k]}.`)); };
   $('fw-run').onclick = () => { while (!fw.done) fwOne(); fwRefresh('125 kontrolün hepsi yapıldı. Tablo artık bütün en kısa mesafeleri tutuyor.'); };
-  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Sıfırlandı. Ara şehir X = A.'); };
+  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Sıfırlandı. Ara şehir X = P.'); };
   function fwTable() {
     const t = $('fw-mat'); const L = fw.last;
-    let h = '<tr><th></th>' + names.map(n => `<th>${n}</th>`).join('') + '</tr>';
+    let h = `<tr><th class="corner">${'başlangıç ↓ · varış →'}</th>` + names.map(n => `<th>${n}</th>`).join('') + '</tr>';
     for (let i = 0; i < 5; i++) {
       h += `<tr><th>${names[i]}</th>`;
       for (let j = 0; j < 5; j++) {
-        let c = '';
-        if (!fw.done && (i === fw.k || j === fw.k)) c = 'krow';
-        if (L && L.i === i && L.j === j) c = L.better ? 'upd' : 'cur';
-        h += `<td class="${c}">${D[i][j] === INF ? '∞' : D[i][j]}</td>`;
+        const cls = [];
+        if (!fw.done && (i === fw.k || j === fw.k)) cls.push('krow');
+        if (L && L.i === i && L.j === j) cls.push(L.better ? 'upd' : 'cur');
+        else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) cls.push('src');
+        h += `<td class="${cls.join(' ')}">${fv(D[i][j])}</td>`;
       }
       h += '</tr>';
     }
@@ -786,19 +809,34 @@ footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top:
   function fwDraw() {
     const s = $('fw-svg'); const L = fw.last; let h = '';
     const css = getComputedStyle(document.documentElement);
-    const ink = css.getPropertyValue('--ink'), mut = css.getPropertyValue('--muted'), acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), surf = css.getPropertyValue('--surface'), wall = css.getPropertyValue('--wall');
+    const ink = css.getPropertyValue('--ink'), mut = css.getPropertyValue('--muted'), acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), surf = css.getPropertyValue('--surface'), wall = css.getPropertyValue('--wall'), good = css.getPropertyValue('--good');
+    h += `<defs><marker id="ma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${acc}"/></marker><marker id="mg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${good}"/></marker></defs>`;
     edges.forEach(([a, b, w]) => {
       const [x1, y1] = pos[a], [x2, y2] = pos[b];
-      let on = L && ((a === L.i && b === L.k) || (b === L.i && a === L.k) || (a === L.k && b === L.j) || (b === L.k && a === L.j));
-      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 20} Q180 330 ${x2} ${y2 + 20}" fill="none" stroke="${on ? acc : line}" stroke-width="${on ? 4 : 2}"/><text x="180" y="256" text-anchor="middle" font-size="12" fill="${mut}">12 (doğrudan yol)</text>`; return; }
-      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? acc : line}" stroke-width="${on ? 4 : 2}"/>`;
+      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 20} Q180 330 ${x2} ${y2 + 20}" fill="none" stroke="${line}" stroke-width="2"/><text x="180" y="256" text-anchor="middle" font-size="12" fill="${mut}">12 (doğrudan yol)</text>`; return; }
+      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${line}" stroke-width="2"/>`;
       h += `<text x="${(x1 + x2) / 2 + 6}" y="${(y1 + y2) / 2 - 6}" font-size="12" fill="${mut}">${w}</text>`;
     });
+    const arc = (p, q, bend, col, dash, lab, mk) => {
+      const [x1, y1] = pos[p], [x2, y2] = pos[q]; const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
+      const cx = (x1 + x2) / 2 - dy / len * bend, cy = (y1 + y2) / 2 + dx / len * bend;
+      const sh = (ax, ay) => { const vx = cx - ax, vy = cy - ay, l = Math.hypot(vx, vy) || 1; return [ax + vx / l * 23, ay + vy / l * 23]; };
+      const [sx, sy] = sh(x1, y1), [ex, ey] = sh(x2, y2);
+      const lx = 0.25 * sx + 0.5 * cx + 0.25 * ex, ly = 0.25 * sy + 0.5 * cy + 0.25 * ey;
+      return `<path d="M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}" fill="none" stroke="${col}" stroke-width="3" ${dash ? 'stroke-dasharray="7 5"' : ''} marker-end="url(#${mk})"/><rect x="${lx - 17}" y="${ly - 11}" width="34" height="21" rx="6" fill="${surf}" stroke="${col}"/><text x="${lx}" y="${ly + 4}" text-anchor="middle" font-size="12" font-weight="600" fill="${col}">${lab}</text>`;
+    };
+    const live = L && L.i !== L.j && L.k !== L.i && L.k !== L.j;
+    if (live) {
+      const bend = (p, q, f) => f * Math.hypot(pos[q][0] - pos[p][0], pos[q][1] - pos[p][1]);
+      h += arc(L.i, L.j, bend(L.i, L.j, -0.34), good, true, fv(L.cur), 'mg');
+      h += arc(L.i, L.k, bend(L.i, L.k, 0.3), acc, false, fv(L.a), 'ma');
+      h += arc(L.k, L.j, bend(L.k, L.j, 0.3), acc, false, fv(L.b), 'ma');
+    }
     pos.forEach(([x, y], k) => {
       const role = !fw.done && k === fw.k ? wall : (L && (k === L.i || k === L.j) ? acc : ink);
       h += `<circle cx="${x}" cy="${y}" r="20" fill="${surf}" stroke="${role}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="${role}">${names[k]}</text>`;
     });
-    h += `<text x="10" y="18" font-size="12" fill="${wall}">● ara şehir X</text>`;
+    h += `<text x="6" y="282" font-size="11" fill="${mut}">● turuncu: ara şehir X  ·  mavi oklar: denenen aktarma</text><text x="6" y="298" font-size="11" fill="${mut}">yeşil kesikli: şimdiki en iyi  ·  etiketler tablo mesafeleri</text>`;
     s.innerHTML = h;
   }
   fwInit(); fwDv();
