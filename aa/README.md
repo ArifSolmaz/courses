@@ -32,11 +32,16 @@ run it over Weeks 8 and 9.
 
 ## Research explainer: the walls that fell
 
-`research/walls/index.html` (English) and `research/walls/tr/index.html` (Turkish) are a single-file, hand-written
-interactive explainer of the 2026 3SUM/APSP results: how the classic algorithms work, explicit step counts for n² and
-n³, why they looked unbeatable, the Alman–Vassilevska Williams (Claude) approach and the two follow-up approaches.
-Each file carries its own CSS and JS; `tools/build.py` does not touch them. Keep the two files in step when editing.
-It is linked from the course home ("Outside the weekly route") and from `research/3sum-apsp/`.
+A guided, 10-screen explainer of the 2026 3SUM/APSP results, told through the course robot (shortest routes between
+5 factory stations), with 3SUM as a side box.
+
+- `research/walls/index.html` (English) and `research/walls/tr/index.html` (Turkish) are generated from one bilingual
+  source, `research/walls/src/template.html`, where each string is written as `⟪Turkish‖English⟫`. Edit the template,
+  then run `python3 research/walls/src/build.py`.
+- `research/walls/deep/` and `research/walls/deep/tr/` hold the earlier detailed version (step counts, derivations,
+  proof game, Strassen, the four moves, the other two approaches). The last guided screen links to it.
+- Each file carries its own CSS and JS; `tools/build.py` does not touch them. Linked from the course home
+  ("Outside the weekly route") and from `research/3sum-apsp/`.
 
 ## Earlier editions
 

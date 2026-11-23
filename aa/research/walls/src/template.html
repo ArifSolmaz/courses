@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="⟪tr‖en⟫">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⟪Yıkılan Duvarlar · robotun yol haritası‖The Walls That Fell · the robot’s route map⟫</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout idea: one guided screen at a time, like slides with a working demo on each. */
+  --bg: #F4F6FA; --surface: #FFFFFF; --ink: #141B2D; --muted: #56607A; --line: #DCE1EC;
+  --accent: #2F5BEA; --accent-soft: #E3EAFD; --wall: #C46A1B; --wall-soft: #FBEBD9;
+  --good: #1D7F53; --good-soft: #DFF3E9; --bad: #B93A26; --bad-soft: #FBE3DE;
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1422; --surface: #171E30; --ink: #E8ECF5; --muted: #A3ADC4; --line: #2A3350;
+    --accent: #85A2FF; --accent-soft: #1F2A4D; --wall: #F0A05A; --wall-soft: #3A2A1A;
+    --good: #4CC38A; --good-soft: #15352A; --bad: #F07A66; --bad-soft: #3D1F1A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1422; --surface: #171E30; --ink: #E8ECF5; --muted: #A3ADC4; --line: #2A3350;
+  --accent: #85A2FF; --accent-soft: #1F2A4D; --wall: #F0A05A; --wall-soft: #3A2A1A;
+  --good: #4CC38A; --good-soft: #15352A; --bad: #F07A66; --bad-soft: #3D1F1A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+h3 { font-size: 20px; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
+a { color: var(--accent); }
+b { font-weight: 600; }
+.mono { font-family: var(--mono); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 18px; }
+
+/* top bar */
+.bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 10px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.bar .brand { font-family: var(--display); font-weight: 800; color: var(--ink); text-decoration: none; }
+.bar .lang { font-size: 14px; font-weight: 600; text-decoration: none; background: var(--accent-soft); padding: 4px 12px; border-radius: 999px; }
+.stops { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.stops button { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.stops button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] .stops button.on { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stops button.on { color: #0F1422; } }
+.progress { height: 4px; background: var(--line); }
+.progress div { height: 4px; background: var(--accent); width: 0; transition: width .25s; }
+
+/* steps */
+main { padding: 28px 0 120px; }
+.step { display: grid; gap: 18px; padding: 8px 0 40px; }
+body.js .step { display: none; }
+body.js .step.cur { display: grid; }
+.kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.q { font-size: 20px; color: var(--muted); }
+.q b { color: var(--ink); }
+.take { border-left: 5px solid var(--good); background: var(--good-soft); padding: 14px 18px; border-radius: 0 14px 14px 0; font-size: 18px; }
+.take::before { content: "⟪Akılda kalsın: ‖Remember: ⟫"; font-weight: 700; color: var(--good); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+.side { background: var(--wall-soft); border: 1px solid color-mix(in srgb, var(--wall) 35%, transparent); border-radius: 20px; padding: 20px 22px; display: grid; gap: 10px; }
+.side .tag { font: 600 12px var(--mono); color: var(--wall); text-transform: uppercase; letter-spacing: 0.06em; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button.btn { font: 600 15px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 9px 15px; border-radius: 11px; cursor: pointer; }
+button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] button.btn.primary { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0F1422; } }
+button.btn.picked { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+button:hover { border-color: var(--accent); }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: default; }
+.msg { background: var(--bg); border-radius: 12px; padding: 12px 16px; font-size: 17px; }
+.msg.good { background: var(--good-soft); }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.stat { background: var(--bg); border-radius: 12px; padding: 10px 14px; flex: 1 1 150px; }
+.stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat .v { font: 600 22px var(--mono); font-variant-numeric: tabular-nums; }
+.stat.hl { background: var(--accent-soft); }
+.stat.hl .v { color: var(--accent); }
+svg text { font-family: var(--body); }
+.scroll-x { overflow-x: auto; }
+
+/* distance table */
+.mat { border-collapse: separate; border-spacing: 4px; font: 14px var(--mono); font-variant-numeric: tabular-nums; }
+.mat th { font: 600 12px var(--body); color: var(--muted); padding: 2px 4px; }
+.mat td { width: 56px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; }
+.mat td.krow { background: var(--wall-soft); }
+.mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
+.mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: -2px; }
+.mat td.upd { background: var(--good-soft); outline: 2px solid var(--good); outline-offset: -2px; color: var(--good); font-weight: 700; }
+.mat td.chg { color: var(--good); font-weight: 700; }
+.legend { font-size: 14px; color: var(--muted); }
+
+/* 125 grid */
+.cubes { display: flex; flex-wrap: wrap; gap: 14px; }
+.cube { display: grid; gap: 6px; justify-items: center; }
+.cube .g { display: grid; grid-template-columns: repeat(5, 16px); gap: 3px; }
+.cube .g span { width: 16px; height: 16px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); }
+.cube .g span.on { background: var(--accent); border-color: var(--accent); }
+.cube .lab { font-size: 13px; color: var(--muted); }
+
+/* bars */
+.barrow { display: grid; grid-template-columns: 150px 1fr 170px; gap: 10px; align-items: center; font-size: 15px; }
+.bar2 { height: 16px; border-radius: 999px; background: var(--accent); min-width: 3px; transition: width .25s; }
+.barrow .val { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+.big { font: 700 clamp(26px, 4vw, 36px) var(--display); }
+
+/* queue */
+.people { display: flex; gap: 14px; align-items: flex-end; height: 150px; }
+.person { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; }
+.person .body { width: 46px; border-radius: 10px 10px 4px 4px; background: var(--accent-soft); border: 2px solid var(--accent); }
+.person.gone .body { background: transparent; border-style: dashed; }
+.bigbox { border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+.bigbox .v { font: 700 30px var(--display); }
+
+/* timeline */
+.tl { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+.tl .y { font: 600 14px var(--mono); color: var(--accent); }
+
+/* cells */
+.cellgrid { display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; }
+.cg { width: 30px; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
+.cg.fill { background: var(--accent-soft); border-color: var(--accent-soft); }
+.cg.ask { background: var(--accent); border-color: var(--accent); }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 16px; }
+table.t th, table.t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+table.t th { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+table.t td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+details.quiz { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+details.quiz summary { cursor: pointer; font-weight: 600; }
+details.quiz p { margin-top: 8px; color: var(--muted); }
+.stops3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.stops3 > div { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.stops3 .n { font: 700 13px var(--mono); color: var(--accent); }
+
+/* bottom nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+.nav .count { font: 600 14px var(--mono); color: var(--muted); }
+body:not(.js) .nav { display: none; }
+@media (max-width: 560px) {
+  .barrow { grid-template-columns: 96px 1fr 120px; font-size: 13px; }
+  .mat td { width: 44px; font-size: 12px; }
+  .stops { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="wrap">
+    <a class="brand" href="⟪../../../‖../../⟫">AA</a>
+    <a class="lang" href="⟪../‖tr/⟫" hreflang="⟪en‖tr⟫" lang="⟪en‖tr⟫">⟪English‖Türkçe⟫</a>
+    <nav class="stops" aria-label="⟪Duraklar‖Stops⟫" id="stops"></nav>
+  </div>
+  <div class="progress"><div id="prog"></div></div>
+</div>
+
+<main class="wrap" id="main">
+
+<!-- 1 -->
+<section class="step" data-stop="0" id="adim-1">
+  <div class="kicker">⟪Başlangıç‖Start⟫</div>
+  <h1>⟪Robotun yol haritası‖The robot’s route map⟫</h1>
+  <p class="q">⟪Fabrikadaki robotumuz 5 istasyon arasında gidip geliyor. <b>Her istasyondan her istasyona en kısa yolu bilmesi gerekiyor.</b> Bunu nasıl hesaplarız, ne kadar sürer ve 2026’da bu konuda ne değişti?‖Our factory robot moves between 5 stations. <b>It needs to know the shortest route from every station to every other station.</b> How do we work that out, how long does it take, and what changed about it in 2026?⟫</p>
+  <div class="card"><svg id="map1" viewBox="0 0 460 290" role="img" aria-label="⟪5 istasyonlu fabrika haritası‖Factory map with 5 stations⟫" style="width:100%; max-width:560px; justify-self:center"></svg>
+  <p class="legend">⟪Sayılar yolların uzunluğu (metre). Şarj ile Kargo arasında alttan dolaşan 12 metrelik doğrudan bir yol var.‖Numbers are road lengths (metres). There is also a 12-metre direct road between Charge and Dock, running along the bottom.⟫</p></div>
+  <div class="stops3">
+    <div><div class="n">⟪DURAK 1‖STOP 1⟫</div><b>⟪Problem‖The problem⟫</b><br>⟪Robot en kısa yolları nasıl bulur?‖How does the robot find shortest routes?⟫</div>
+    <div><div class="n">⟪DURAK 2‖STOP 2⟫</div><b>⟪Neden yavaş‖Why it is slow⟫</b><br>⟪Kaç kontrol gerekir, neden daha azı bulunamadı?‖How many checks, and why nobody found fewer?⟫</div>
+    <div><div class="n">⟪DURAK 3‖STOP 3⟫</div><b>⟪2026‖2026⟫</b><br>⟪Bir yapay zekâ modeli bir yol buldu. Ne kadar hızlandı?‖An AI model found a way. How much faster is it?⟫</div>
+  </div>
+  <p class="legend">⟪Gezinmek için alttaki “İleri” düğmesini ya da klavyede ← → oklarını kullan.‖Use the “Next” button below, or the ← → keys.⟫</p>
+</section>
+
+<!-- 2 -->
+<section class="step" data-stop="1" id="adim-2">
+  <div class="kicker">⟪Durak 1 · Problem‖Stop 1 · The problem⟫</div>
+  <h2>⟪Tek bir soru: aktarma daha mı kısa?‖One question: is a detour shorter?⟫</h2>
+  <p class="q">⟪Robot <b>Şarj</b> istasyonundan <b>Kargo</b> istasyonuna gidecek. Doğrudan yol 12 metre. Başka bir istasyona uğrayarak gitmek daha kısa olabilir mi? Aşağıdan bir yol seç.‖The robot must go from <b>Charge</b> to <b>Dock</b>. The direct road is 12 metres. Could stopping at another station on the way be shorter? Pick a route below.⟫</p>
+  <div class="card">
+    <svg id="map2" viewBox="0 0 460 290" role="img" aria-label="⟪Şarj’dan Kargo’ya yollar‖Routes from Charge to Dock⟫" style="width:100%; max-width:560px; justify-self:center"></svg>
+    <div class="controls" id="routeBtns"></div>
+    <div class="msg" id="routeMsg" aria-live="polite">⟪Bir yol seç.‖Pick a route.⟫</div>
+  </div>
+  <p class="take">⟪Bütün iş bu tek sorunun tekrarı: “Bir ara istasyon üzerinden gitmek daha mı kısa?” Robot bu soruyu her başlangıç, her varış ve her ara istasyon için sorar.‖All the work is this one question repeated: “Is going through a middle station shorter?” The robot asks it for every start, every end and every middle station.⟫</p>
+</section>
+
+<!-- 3 -->
+<section class="step" data-stop="1" id="adim-3">
+  <div class="kicker">⟪Durak 1 · Problem‖Stop 1 · The problem⟫</div>
+  <h2>⟪Robot soruyu her çift için sorar‖The robot asks it for every pair⟫</h2>
+  <p class="q">⟪Bu yönteme <b>Floyd–Warshall</b> denir (1962). Robot bir ara istasyon seçer ve her başlangıç–varış çifti için “bu istasyon üzerinden gitmek daha mı kısa?” diye bakar. Sonra sıradaki ara istasyona geçer. Adım adım izle.‖This method is called <b>Floyd–Warshall</b> (1962). The robot picks one middle station and, for every start–end pair, asks “is going through this station shorter?”. Then it moves on to the next middle station. Watch it step by step.⟫</p>
+  <div class="card">
+    <div class="two">
+      <svg id="map3" viewBox="0 0 460 290" role="img" aria-label="⟪Fabrika haritası‖Factory map⟫" style="width:100%"></svg>
+      <div class="scroll-x"><table class="mat" id="mat" aria-label="⟪Mesafe tablosu‖Distance table⟫"></table>
+        <p class="legend" style="margin-top:8px">⟪<b>Tablo:</b> satırdaki istasyondan sütundaki istasyona <b>şimdiye kadar bilinen</b> en kısa mesafe (∞ = henüz yol yok). <span style="color:var(--wall)">Turuncu</span>: şu anki ara istasyonun satırı ve sütunu. <span style="color:var(--accent)">Mavi çerçeve</span>: şu an bakılan hücre. <span style="color:var(--good)">Yeşil</span>: kısalmış mesafe.‖<b>Table:</b> the shortest distance <b>known so far</b> from the row station to the column station (∞ = no route yet). <span style="color:var(--wall)">Orange</span>: the current middle station’s row and column. <span style="color:var(--accent)">Blue frame</span>: the cell being checked. <span style="color:var(--good)">Green</span>: a distance that got shorter.⟫</p>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="fwStep">⟪1 kontrol yap‖Do 1 check⟫</button>
+      <button class="btn" id="fwK"></button>
+      <button class="btn" id="fwAll">⟪Hepsini bitir‖Finish all⟫</button>
+      <button class="btn" id="fwReset">⟪Baştan‖Start over⟫</button>
+    </div>
+    <div class="msg" id="fwMsg" aria-live="polite"></div>
+    <div class="stats">
+      <div class="stat hl"><div class="k">⟪Yapılan kontrol‖Checks done⟫</div><div class="v" id="fwChecks">0 / 125</div></div>
+      <div class="stat"><div class="k">⟪Ara istasyon‖Middle station⟫</div><div class="v" id="fwVia">–</div></div>
+      <div class="stat"><div class="k">⟪Kısalan mesafe‖Distances shortened⟫</div><div class="v" id="fwUpd">0</div></div>
+    </div>
+  </div>
+  <p class="take">⟪125 kontrolün sonunda tablo, her istasyondan her istasyona en kısa mesafeyi tutar. Robot artık her yolu biliyor.‖After 125 checks, the table holds the shortest distance from every station to every station. The robot now knows every route.⟫</p>
+</section>
+
+<!-- 4 -->
+<section class="step" data-stop="2" id="adim-4">
+  <div class="kicker">⟪Durak 2 · Neden yavaş‖Stop 2 · Why it is slow⟫</div>
+  <h2>⟪125 kontrol nereden geliyor?‖Where do the 125 checks come from?⟫</h2>
+  <p class="q">⟪Her ara istasyon için robot <b>5 başlangıç × 5 varış = 25</b> çifte bakar. 5 ara istasyon olduğuna göre: <b>5 × 25 = 125</b>. Her küçük kare bir kontrol; önceki ekranda yaptıkların boyalı.‖For each middle station the robot looks at <b>5 starts × 5 ends = 25</b> pairs. With 5 middle stations that makes <b>5 × 25 = 125</b>. Each small square is one check; the ones you did on the previous screen are filled in.⟫</p>
+  <div class="card">
+    <div class="cubes" id="cubes"></div>
+    <div class="msg" id="cubeMsg"></div>
+  </div>
+  <p class="take">⟪İstasyon sayısı 5 ise kontrol sayısı 5 × 5 × 5 = 125. Genel olarak: istasyon sayısı × istasyon sayısı × istasyon sayısı.‖With 5 stations there are 5 × 5 × 5 = 125 checks. In general: stations × stations × stations.⟫</p>
+</section>
+
+<!-- 5 -->
+<section class="step" data-stop="2" id="adim-5">
+  <div class="kicker">⟪Durak 2 · Neden yavaş‖Stop 2 · Why it is slow⟫</div>
+  <h2>⟪Fabrika büyürse ne olur?‖What if the factory grows?⟫</h2>
+  <p class="q">⟪İstasyon sayısını kaydır. Bilgisayarın saniyede 1 milyar kontrol yaptığını varsayalım.‖Slide the number of stations. Assume the computer does 1 billion checks per second.⟫</p>
+  <div class="card">
+    <label for="nSl">⟪İstasyon sayısı:‖Stations:⟫ <span class="big" id="nVal">100</span></label>
+    <input type="range" id="nSl" min="0.7" max="5" step="0.01" value="2">
+    <div class="stats">
+      <div class="stat hl"><div class="k">⟪Kontrol sayısı‖Checks⟫</div><div class="v" id="nChecks"></div></div>
+      <div class="stat"><div class="k">⟪Yaklaşık süre‖Rough time⟫</div><div class="v" id="nTime"></div></div>
+    </div>
+    <div class="controls"><button class="btn primary" id="nDouble">⟪İstasyonları 2 katına çıkar‖Double the stations⟫</button><span class="legend" id="nDoubleMsg"></span></div>
+  </div>
+  <p class="take">⟪İstasyon sayısı 2 katına çıkınca iş 2 × 2 × 2 = 8 katına çıkar. Bu büyümenin adı <b>n³</b> (“n küp”): n istasyon için n × n × n kontrol.‖Double the stations and the work grows 2 × 2 × 2 = 8 times. This kind of growth is called <b>n³</b> (“n cubed”): n × n × n checks for n stations.⟫</p>
+  <aside class="side" aria-label="⟪Yan kutu: 3SUM‖Side box: 3SUM⟫">
+    <div class="tag">⟪Yan kutu · aynı hikâye, başka bir bulmaca‖Side box · same story, another puzzle⟫</div>
+    <h3>3SUM: ⟪üç sayının toplamı 0 olabilir mi?‖can three numbers add up to 0?⟫</h3>
+    <p>⟪Bir listede toplamı tam 0 olan üç sayı var mı? Örneğin −7, −5, −2, 3, 4, 9 listesinde: −7 + 3 + 4 = 0. Akıllı yöntem listeyi sıralar, bir sayıyı sabitler ve geri kalanların iki ucundan içeri doğru yürür: toplam küçükse soldaki, büyükse sağdaki sayı içeri kayar.‖Does a list contain three numbers that add up to exactly 0? In the list −7, −5, −2, 3, 4, 9: −7 + 3 + 4 = 0. The smart method sorts the list, fixes one number and walks inward from both ends of the rest: if the sum is too small the left number moves in, if it is too big the right one does.⟫</p>
+    <p>⟪10 sayı için en fazla 36 adım, 1.000 sayı için yaklaşık 500.000 adım. Sayı 2 katına çıkınca iş 4 katına çıkar: buna <b>n²</b> denir. 2026’daki sonuç bu duvarı da kırdı.‖10 numbers need at most 36 steps; 1,000 numbers about 500,000. Double the list and the work grows 4 times: this is called <b>n²</b>. The 2026 result broke this wall too.⟫</p>
+  </aside>
+</section>
+
+<!-- 6 -->
+<section class="step" data-stop="2" id="adim-6">
+  <div class="kicker">⟪Durak 2 · Neden yavaş‖Stop 2 · Why it is slow⟫</div>
+  <h2>⟪Neden 50 yıl daha hızlısı bulunamadı?‖Why did nobody find a faster way for 50 years?⟫</h2>
+  <p class="q">⟪Bilgisayarı hızlandıran hilelerin çoğu <b>fazlasını hesaplayıp sonra çıkarmaya</b> dayanır. En kısa yol ise “en küçüğünü al” işlemini kullanır ve bu geri alınamaz. Dört kişilik bir sırada dene.‖Most tricks that speed computers up rely on <b>computing too much and then subtracting the extra</b>. Shortest routes use “take the smallest” instead, and that cannot be undone. Try it with a queue of four people.⟫</p>
+  <div class="card">
+    <div class="two">
+      <div>
+        <div class="people" id="queue"></div>
+        <div class="controls" style="margin-top:10px"><button class="btn primary" id="qLeave">⟪Berk sıradan ayrılsın‖Berk leaves the queue⟫</button><button class="btn" id="qReset">⟪Baştan‖Start over⟫</button></div>
+      </div>
+      <div style="display:grid; gap:10px">
+        <div class="bigbox"><div class="legend">⟪Toplam boy‖Total height⟫</div><div class="v" id="qSum">600 cm</div><div class="legend" id="qSumN">⟪Tek bir sayı tutuyoruz.‖We keep just one number.⟫</div></div>
+        <div class="bigbox"><div class="legend">⟪En kısa kişi‖Shortest person⟫</div><div class="v" id="qMin">140 cm</div><div class="legend" id="qMinN">⟪Tek bir sayı tutuyoruz.‖We keep just one number.⟫</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="take">⟪Toplamı çıkararak düzeltebilirsin; en küçüğü düzeltemezsin, herkese yeniden bakman gerekir. 1970’te ispatlandı: yalnızca toplama ve “en küçüğünü al” kullanan bir yöntem n³’ten kurtulamaz. Uzmanlar daha hızlısının da olmadığına inandı. Buna <b>duvar</b> dendi.‖A total can be fixed by subtracting; a minimum cannot, so you must look at everyone again. In 1970 it was proved: a method that only adds and “takes the smallest” cannot avoid n³. Experts believed no faster method existed at all. This became known as <b>the wall</b>.⟫</p>
+</section>
+
+<!-- 7 -->
+<section class="step" data-stop="3" id="adim-7">
+  <div class="kicker">⟪Durak 3 · 2026‖Stop 3 · 2026⟫</div>
+  <h2>⟪Bir yapay zekâ modeli bir yol buldu‖An AI model found a way⟫</h2>
+  <p class="q">⟪Duvar onlarca yıl dayandı. Sonra 2026’da kısa sürede şunlar oldu:‖The wall held for decades. Then, within a few weeks in 2026:⟫</p>
+  <div class="card">
+    <div class="tl"><div class="y">⟪Eylül 2026‖Sep 2026⟫</div><div>⟪Anthropic’in şirket içi bir araştırma modeli (Claude), kriptografi problemleri üzerinde çalışırken bu algoritmayı buldu. Anthropic algoritmayı matematikçilerle paylaştı.‖An internal Anthropic research model (Claude), working on cryptography problems, found the algorithm. Anthropic shared it with mathematicians.⟫</div></div>
+    <div class="tl"><div class="y">⟪5 Ekim 2026‖5 Oct 2026⟫</div><div>⟪Josh Alman (Columbia) ve Virginia Vassilevska Williams (MIT) algoritmayı anladı, sadeleştirdi, genişletti ve makale olarak yayımladı.‖Josh Alman (Columbia) and Virginia Vassilevska Williams (MIT) understood, simplified and extended it, and published the paper.⟫</div></div>
+    <div class="tl"><div class="y">⟪Ekim 2026‖Oct 2026⟫</div><div>⟪Ana sonuçlar, bir bilgisayar ispat denetleyicisiyle (Lean 4) satır satır doğrulandı.‖The main results were checked line by line by a computer proof checker (Lean 4).⟫</div></div>
+    <div class="tl"><div class="y">⟪Ekim–Kasım 2026‖Oct–Nov 2026⟫</div><div>⟪İki ayrı araştırma grubu aynı sonuca daha basit yollardan ulaştı.‖Two separate research groups reached the same result by simpler routes.⟫</div></div>
+  </div>
+  <p class="take">⟪Sonuç: en kısa yollar n³’ten biraz daha hızlı bulunabiliyor (n<sup>2,9995</sup>). 3SUM da n²’den biraz daha hızlı (n<sup>1,9992</sup>). İkisinde de “duvar” yıkıldı.‖The result: shortest routes can be found a little faster than n³ (n<sup>2.9995</sup>), and 3SUM a little faster than n² (n<sup>1.9992</sup>). Both walls fell.⟫</p>
+</section>
+
+<!-- 8 -->
+<section class="step" data-stop="3" id="adim-8">
+  <div class="kicker">⟪Durak 3 · 2026‖Stop 3 · 2026⟫</div>
+  <h2>⟪Fikir: yalnızca sorulan hücreleri doldur‖The idea: fill only the cells you were asked for⟫</h2>
+  <p class="q">⟪Yeni yöntemin iki hamlesi var. <b>Birincisi:</b> soruyu değiştir. “En kısası hangisi?” yerine “tam şu uzunlukta bir yol var mı?” diye sor. Bu soruda çıkarma yapılabilir, yani hızlı hileler çalışır. <b>İkincisi:</b> eski hileler koca bir tablonun her hücresini hesaplar; yeni yöntem yalnızca gerçekten sorulan hücreleri hesaplar ve ortak işi paylaşır.‖The new method makes two moves. <b>First:</b> change the question. Instead of “which is shortest?”, ask “is there a route of exactly this length?”. That question allows subtraction, so fast tricks work. <b>Second:</b> the old tricks fill in every cell of a big table; the new method fills in only the cells actually asked for, and shares the common work.⟫</p>
+  <div class="card">
+    <div class="two">
+      <div class="cellgrid" id="cells" aria-label="⟪8’e 8 tablo‖8 by 8 table⟫"></div>
+      <div style="display:grid; gap:10px; align-content:start">
+        <div class="controls"><button class="btn primary" id="cFull">⟪Eski: hepsini doldur‖Old: fill everything⟫</button><button class="btn" id="cAsk">⟪Yeni: yalnızca sorulanlar‖New: only the asked cells⟫</button></div>
+        <div class="stats"><div class="stat hl"><div class="k">⟪Hesaplanan hücre‖Cells computed⟫</div><div class="v" id="cCount">64</div></div><div class="stat"><div class="k">⟪Gereken hücre‖Cells needed⟫</div><div class="v">6</div></div></div>
+      </div>
+    </div>
+  </div>
+  <p class="take">⟪Kazanç her seferinde küçük. Ama her ölçekte tekrar tekrar uygulanınca, istasyon sayısı büyüdükçe büyüyen bir kazanca dönüşür. Duvarı yıkan da budur.‖The saving is small each time. But applied again and again at every scale, it turns into a saving that grows with the number of stations. That is what broke the wall.⟫</p>
+</section>
+
+<!-- 9 -->
+<section class="step" data-stop="3" id="adim-9">
+  <div class="kicker">⟪Durak 3 · 2026‖Stop 3 · 2026⟫</div>
+  <h2>⟪Ne kadar hızlandı? Dürüst cevap‖How much faster? The honest answer⟫</h2>
+  <p class="q">⟪Robotumuz için fark neredeyse görünmez:‖For our robot, the difference is almost invisible:⟫</p>
+  <div class="card scroll-x">
+    <table class="t">
+      <thead><tr><th>⟪İstasyon‖Stations⟫</th><th>⟪Eski yöntem (n³)‖Old method (n³)⟫</th><th>⟪Yeni yöntem (n<sup>2,9995</sup>)‖New method (n<sup>2.9995</sup>)⟫</th><th>⟪Kazanç‖Saving⟫</th></tr></thead>
+      <tbody>
+        <tr><td class="num">100</td><td class="num">⟪1 milyon‖1 million⟫</td><td class="num">⟪≈ 997.700‖≈ 997,700⟫</td><td class="num">⟪%0,23‖0.23%⟫</td></tr>
+        <tr><td class="num">⟪1.000‖1,000⟫</td><td class="num">⟪1 milyar‖1 billion⟫</td><td class="num">⟪≈ 996,6 milyon‖≈ 996.6 million⟫</td><td class="num">⟪%0,35‖0.35%⟫</td></tr>
+        <tr><td class="num">⟪1 milyon‖1 million⟫</td><td class="num">10<sup>18</sup></td><td class="num">⟪≈ %0,7 daha az‖≈ 0.7% fewer⟫</td><td class="num">⟪%0,69‖0.69%⟫</td></tr>
+      </tbody>
+    </table>
+    <p class="legend">⟪Gizli sabitler hesaba katılmadı; pratikte yeni yöntem büyük olasılıkla daha yavaş çalışır. Yazarlar da algoritmaların pratik olmadığını söylüyor.‖Hidden constants are ignored; in practice the new method is probably slower. The authors also say the algorithms are not practical.⟫</p>
+  </div>
+  <div class="card">
+    <h3>⟪Peki neden önemli?‖So why does it matter?⟫</h3>
+    <p>⟪Bir benzetme: herkes “insan 2,45 metreden yükseğe atlayamaz” diye kanıtlanmış bir sınır olduğunu sanıyor. Biri 2,4502 metre atlıyor. Rekor küçük, ama “imkânsız” sözü artık geçersiz.‖An analogy: everyone believes there is a proven limit that “no human can jump higher than 2.45 metres”. Then someone jumps 2.4502 metres. The record is tiny, but “impossible” is no longer true.⟫</p>
+    <p>⟪Bilgisayar biliminde pek çok sonuç “bu problem zordur, çünkü en kısa yollar n³ ister” varsayımına dayanıyordu. Bu varsayım çöktü; o sonuçların hepsi yeniden incelenecek.‖In computer science many results relied on the assumption “this problem is hard, because shortest routes need n³”. That assumption has collapsed, so all those results must be re-examined.⟫</p>
+  </div>
+  <p class="take">⟪Pratikte robot için hiçbir şey değişmedi. Ama 50 yıllık bir “imkânsız” yıkıldı.‖In practice nothing changed for the robot. But a 50-year-old “impossible” fell.⟫</p>
+</section>
+
+<!-- 10 -->
+<section class="step" data-stop="4" id="adim-10">
+  <div class="kicker">⟪Son‖The end⟫</div>
+  <h2>⟪Üç cümlede bütün hikâye‖The whole story in three sentences⟫</h2>
+  <div class="card">
+    <p>⟪<b>1.</b> Robot en kısa yolları, “ara istasyon üzerinden daha mı kısa?” sorusunu her üçlü için sorarak bulur: n istasyon için n × n × n kontrol.‖<b>1.</b> The robot finds shortest routes by asking “is it shorter through a middle station?” for every triple: n × n × n checks for n stations.⟫</p>
+    <p>⟪<b>2.</b> “En küçüğünü al” geri alınamadığı için hızlı hileler işe yaramadı ve 50 yıl n³’ün bir duvar olduğuna inanıldı.‖<b>2.</b> Because “take the smallest” cannot be undone, the fast tricks did not work, and for 50 years n³ was believed to be a wall.⟫</p>
+    <p>⟪<b>3.</b> 2026’da bir yapay zekâ modelinin bulduğu yöntem, soruyu değiştirip yalnızca gereken hücreleri hesaplayarak duvarı kırdı: az ama gerçek bir kazanç.‖<b>3.</b> In 2026 a method found by an AI model broke the wall by changing the question and computing only the needed cells: a small but real saving.⟫</p>
+  </div>
+  <h3>⟪Kendini dene‖Test yourself⟫</h3>
+  <details class="quiz"><summary>⟪10 istasyonlu bir fabrikada robot kaç kontrol yapar?‖How many checks does the robot make in a factory with 10 stations?⟫</summary><p>⟪10 × 10 × 10 = 1.000 kontrol.‖10 × 10 × 10 = 1,000 checks.⟫</p></details>
+  <details class="quiz"><summary>⟪İstasyon sayısı 3 katına çıkarsa kontrol sayısı kaç katına çıkar?‖If the number of stations triples, how many times more checks are needed?⟫</summary><p>⟪3 × 3 × 3 = 27 katına.‖3 × 3 × 3 = 27 times as many.⟫</p></details>
+  <details class="quiz"><summary>⟪Sıradan en kısa kişi ayrılınca yeni en kısayı neden hemen bilemeyiz?‖When the shortest person leaves the queue, why can’t we know the new shortest right away?⟫</summary><p>⟪Çünkü tuttuğumuz tek sayı (en kısa boy) diğerleri hakkında bilgi vermez. Toplamı çıkararak düzeltebiliriz, en küçüğü düzeltemeyiz.‖Because the one number we kept (the shortest height) tells us nothing about the others. A total can be fixed by subtracting; a minimum cannot.⟫</p></details>
+  <details class="quiz"><summary>⟪2026 sonucu robotun yol hesabını gözle görülür biçimde hızlandırır mı?‖Does the 2026 result noticeably speed up the robot’s route calculation?⟫</summary><p>⟪Hayır. Fark %1’in altında; pratikte muhtemelen daha yavaş bile. Önemli olan, “n³’ten hızlısı imkânsız” inancının çürümesi.‖No. The difference is under 1%, and in practice it is probably even slower. What matters is that the belief “faster than n³ is impossible” was disproved.⟫</p></details>
+  <div class="card">
+    <h3>⟪Daha derine inmek isteyenler‖Want to go deeper?⟫</h3>
+    <p>⟪Adım adım sayımlar, türetmeler, “neredeyse sıfır” ispat oyunu, Strassen’in hilesi, yeni yöntemin dört hamlesi ve diğer iki yaklaşım ayrıntılı sayfada.‖Step-by-step counts, derivations, the “almost zero” proof game, Strassen’s trick, the four moves of the new method and the two other approaches are on the detailed page.⟫ <a href="⟪../deep/tr/‖deep/⟫">⟪Ayrıntılı sayfayı aç →‖Open the detailed page →⟫</a></p>
+    <p class="legend">⟪Kaynak: Alman & Vassilevska Williams, <a href="https://arxiv.org/abs/2610.06783">Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs</a>, arXiv, Ekim 2026. Diğer kaynaklar ayrıntılı sayfada.‖Source: Alman & Vassilevska Williams, <a href="https://arxiv.org/abs/2610.06783">Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs</a>, arXiv, Oct 2026. More sources on the detailed page.⟫</p>
+  </div>
+</section>
+</main>
+
+<div class="nav">
+  <div class="wrap">
+    <button class="btn" id="prev">⟪← Geri‖← Back⟫</button>
+    <span class="count" id="count"></span>
+    <button class="btn primary" id="next">⟪İleri →‖Next →⟫</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  document.body.classList.add('js');
+  const $ = id => document.getElementById(id);
+  const LOC = '⟪tr-TR‖en-US⟫';
+  const fmt = x => Math.round(x).toLocaleString(LOC);
+  const css = () => { const c = getComputedStyle(document.documentElement); const g = k => c.getPropertyValue(k).trim(); return { ink: g('--ink'), mut: g('--muted'), acc: g('--accent'), line: g('--line'), surf: g('--surface'), wall: g('--wall'), good: g('--good') }; };
+
+  /* ---------- steps ---------- */
+  const steps = [...document.querySelectorAll('.step')];
+  const STOPS = ['⟪Başlangıç‖Start⟫', '⟪1 · Problem‖1 · Problem⟫', '⟪2 · Neden yavaş‖2 · Why slow⟫', '⟪3 · 2026‖3 · 2026⟫', '⟪Son‖End⟫'];
+  let cur = 0;
+  $('stops').innerHTML = STOPS.map((s, i) => `<button data-s="${i}">${s}</button>`).join('');
+  $('stops').querySelectorAll('button').forEach(b => b.onclick = () => go(steps.findIndex(st => +st.dataset.stop === +b.dataset.s)));
+  function go(i, push = true) {
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((s, k) => s.classList.toggle('cur', k === cur));
+    $('count').textContent = `${cur + 1} / ${steps.length}`;
+    $('prog').style.width = (100 * (cur + 1) / steps.length) + '%';
+    $('prev').disabled = cur === 0; $('next').disabled = cur === steps.length - 1;
+    const stop = +steps[cur].dataset.stop;
+    $('stops').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.s === stop));
+    if (push && location.hash !== '#' + steps[cur].id) history.replaceState(null, '', '#' + steps[cur].id);
+    window.scrollTo(0, 0);
+    if (steps[cur].id === 'adim-4') drawCubes();
+  }
+  $('prev').onclick = () => go(cur - 1); $('next').onclick = () => go(cur + 1);
+  document.addEventListener('keydown', e => { if (e.target.closest('input, textarea, select')) return; if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
+  window.addEventListener('hashchange', () => { const i = steps.findIndex(s => '#' + s.id === location.hash); if (i >= 0) go(i, false); });
+
+  /* ---------- map ---------- */
+  const NAMES = ['⟪Şarj‖Charge⟫', '⟪Kargo‖Dock⟫', '⟪Montaj‖Assembly⟫', '⟪Depo‖Store⟫', '⟪Test‖Test⟫'];
+  const POS = [[62, 130], [398, 130], [230, 38], [230, 130], [230, 222]];
+  const EDGES = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
+  function drawMap(svg, o = {}) {
+    const c = css(); let h = '';
+    const hot = new Set((o.edges || []).map(([a, b]) => a < b ? a + '-' + b : b + '-' + a));
+    EDGES.forEach(([a, b, w]) => {
+      const on = hot.has(a < b ? a + '-' + b : b + '-' + a); const col = on ? c.acc : c.line, sw = on ? 5 : 2.5;
+      const [x1, y1] = POS[a], [x2, y2] = POS[b];
+      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 16} Q230 370 ${x2} ${y2 + 16}" fill="none" stroke="${col}" stroke-width="${sw}"/><text x="230" y="278" text-anchor="middle" font-size="13" fill="${on ? c.acc : c.mut}" font-weight="${on ? 700 : 400}">12</text>`; return; }
+      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}"/>`;
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+      h += `<text x="${mx - dy / L * 13}" y="${my + dx / L * 13 + 5}" text-anchor="middle" font-size="13" fill="${on ? c.acc : c.mut}" font-weight="${on ? 700 : 400}">${w}</text>`;
+    });
+    POS.forEach(([x, y], k) => {
+      const role = o.roles && o.roles[k]; const col = role === 'via' ? c.wall : role ? c.acc : c.ink;
+      h += `<rect x="${x - 40}" y="${y - 16}" width="80" height="32" rx="10" fill="${c.surf}" stroke="${col}" stroke-width="${role ? 3 : 1.8}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="600" fill="${col}">${NAMES[k]}</text>`;
+      if (role === 'via') h += `<text x="${x}" y="${y - 22}" text-anchor="middle" font-size="11" fill="${c.wall}" font-weight="600">⟪ara istasyon‖middle⟫</text>`;
+      if (role === 'start') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">⟪başlangıç‖start⟫</text>`;
+      if (role === 'end') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">⟪varış‖end⟫</text>`;
+    });
+    svg.innerHTML = h;
+  }
+  drawMap($('map1'));
+
+  /* ---------- screen 2: pick a route ---------- */
+  const ROUTES = [
+    { lab: '⟪Doğrudan‖Direct⟫', edges: [[0, 1]], parts: [12] },
+    { lab: '⟪Montaj üzerinden‖Through Assembly⟫', via: 2, edges: [[0, 2], [2, 1]], parts: [3, 6] },
+    { lab: '⟪Depo üzerinden‖Through Store⟫', via: 3, edges: [[0, 3], [3, 1]], parts: [2, 4] },
+    { lab: '⟪Test üzerinden‖Through Test⟫', via: 4, edges: [[0, 4], [4, 1]], parts: [5, 5] }];
+  const tried = new Set();
+  $('routeBtns').innerHTML = ROUTES.map((r, i) => `<button class="btn" data-r="${i}">${r.lab}</button>`).join('');
+  function pickRoute(i) {
+    const r = ROUTES[i]; tried.add(i);
+    $('routeBtns').querySelectorAll('button').forEach(b => b.classList.toggle('picked', +b.dataset.r === i));
+    const roles = { 0: 'start', 1: 'end' }; if (r.via !== undefined) roles[r.via] = 'via';
+    drawMap($('map2'), { edges: r.edges, roles });
+    const len = r.parts.reduce((a, b) => a + b, 0);
+    let m = r.via === undefined ? `⟪Doğrudan yol: <b>12 metre</b>.‖Direct road: <b>12 metres</b>.⟫`
+      : `${NAMES[0]} → ${NAMES[r.via]} → ${NAMES[1]}: ${r.parts.join(' + ')} = <b>${len} ⟪metre‖metres⟫</b>. ` + (len < 12 ? `⟪Doğrudan yoldan (12) <b>kısa</b>!‖<b>Shorter</b> than the direct road (12)!⟫` : '');
+    if (r.via !== undefined && len >= 12) m = `${NAMES[0]} → ${NAMES[r.via]} → ${NAMES[1]}: ${r.parts.join(' + ')} = <b>${len}</b>. ⟪Doğrudan yoldan (12) kısa değil.‖Not shorter than the direct road (12).⟫`;
+    if (tried.size === 4) m += ` ⟪<br><b>Hepsini denedin: en kısası Depo üzerinden 6 metre.</b>‖<br><b>You tried them all: the shortest is through Store, 6 metres.</b>⟫`;
+    $('routeMsg').innerHTML = m; $('routeMsg').classList.toggle('good', tried.size === 4);
+  }
+  $('routeBtns').querySelectorAll('button').forEach(b => b.onclick = () => pickRoute(+b.dataset.r));
+  drawMap($('map2'), { roles: { 0: 'start', 1: 'end' } });
+
+  /* ---------- screen 3: Floyd–Warshall ---------- */
+  const INF = Infinity, fv = v => v === INF ? '∞' : v;
+  let D, D0, fw;
+  function fwInit() {
+    D = NAMES.map((_, i) => NAMES.map((_, j) => i === j ? 0 : INF));
+    EDGES.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
+    D0 = D.map(r => r.slice());
+    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null };
+    fwShow('⟪Robot ilk ara istasyon olarak Şarj’ı seçti. “1 kontrol yap”a bas.‖The robot picked Charge as the first middle station. Press “Do 1 check”.⟫');
+  }
+  function fwOne() {
+    if (fw.done) return '';
+    const { k, i, j } = fw, a = D[i][k], b = D[k][j], via = a + b, cur0 = D[i][j];
+    const better = via < cur0; fw.checks++;
+    fw.last = { i, j, k, better };
+    const s = NAMES[i], t = NAMES[j], x = NAMES[k]; let m;
+    if (i === j) m = `${s} → ${s}: ⟪aynı istasyon, mesafe 0. Değişiklik yok.‖same station, distance 0. Nothing changes.⟫`;
+    else if (k === i || k === j) m = `${s} → ${t}: ⟪${x} zaten yolun bir ucu, onun üzerinden gitmek bir şey katmaz. Değişiklik yok.‖${x} is already one end of the route, so going through it adds nothing. Nothing changes.⟫`;
+    else if (better) { m = `${s} → ${t}: ⟪${x} üzerinden‖through ${x}:⟫ ${fv(a)} + ${fv(b)} = <b>${via}</b>. ` + (cur0 === INF ? `⟪Şimdiye kadar yol bilinmiyordu (∞).‖No route was known yet (∞).⟫` : `⟪Şimdiki değerden (${cur0}) kısa!‖Shorter than the current ${cur0}!⟫`) + ` <b style="color:var(--good)">⟪Tabloya ${via} yazıldı.‖The table now says ${via}.⟫</b>`; D[i][j] = via; fw.upd++; }
+    else m = `${s} → ${t}: ⟪${x} üzerinden‖through ${x}:⟫ ${fv(a)} + ${fv(b)} = ${fv(via)}. ⟪Şimdiki ${fv(cur0)} daha kısa ya da eşit. Değişiklik yok.‖The current ${fv(cur0)} is shorter or equal. Nothing changes.⟫`;
+    fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) fw.done = true;
+    return m;
+  }
+  function fwShow(m) {
+    const L = fw.last;
+    let h = '<tr><th></th>' + NAMES.map(n => `<th>${n}</th>`).join('') + '</tr>';
+    for (let i = 0; i < 5; i++) {
+      h += `<tr><th>${NAMES[i]}</th>`;
+      for (let j = 0; j < 5; j++) {
+        const c = [];
+        if (!fw.done && (i === fw.k || j === fw.k)) c.push('krow');
+        if (D[i][j] !== D0[i][j]) c.push('chg');
+        if (L && L.i === i && L.j === j) c.push(L.better ? 'upd' : 'cur');
+        else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) c.push('src');
+        h += `<td class="${c.join(' ')}">${fv(D[i][j])}</td>`;
+      }
+      h += '</tr>';
+    }
+    $('mat').innerHTML = h;
+    const roles = {}; if (L) { roles[L.i] = 'start'; roles[L.j] = 'end'; roles[L.k] = 'via'; } else roles[0] = 'via';
+    drawMap($('map3'), { roles });
+    $('fwMsg').innerHTML = (L ? `<span class="legend">⟪Kontrol‖Check⟫ ${fw.checks} / 125 · </span>` : '') + m + (fw.done ? ` ⟪<b>125 kontrolün hepsi bitti: tablo artık bütün en kısa mesafeleri tutuyor.</b>‖<b>All 125 checks done: the table now holds every shortest distance.</b>⟫` : '');
+    $('fwChecks').textContent = `${fw.checks} / 125`;
+    $('fwVia').textContent = fw.done ? '–' : `${NAMES[fw.k]} (${fw.k + 1}/5)`;
+    $('fwUpd').textContent = fw.upd;
+    const rest = 25 - (fw.i * 5 + fw.j);
+    $('fwK').textContent = fw.done ? '⟪Bitti‖Done⟫' : `⟪${NAMES[fw.k]} için kalan ${rest} kontrolü yap‖Do the remaining ${rest} checks for ${NAMES[fw.k]}⟫`;
+    ['fwStep', 'fwK', 'fwAll'].forEach(id => $(id).disabled = fw.done);
+  }
+  $('fwStep').onclick = () => fwShow(fwOne());
+  $('fwK').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwShow(`⟪${NAMES[k0]} ara istasyonu için kalan ${n0} kontrol yapıldı.‖Did the remaining ${n0} checks for ${NAMES[k0]}.⟫` + (fw.done ? '' : ` ⟪Sıradaki ara istasyon: ${NAMES[fw.k]}.‖Next middle station: ${NAMES[fw.k]}.⟫`)); };
+  $('fwAll').onclick = () => { while (!fw.done) fwOne(); fwShow(''); };
+  $('fwReset').onclick = fwInit;
+  fwInit();
+
+  /* ---------- screen 4: 125 squares ---------- */
+  function drawCubes() {
+    let h = '';
+    for (let k = 0; k < 5; k++) {
+      h += `<div class="cube"><div class="g">`;
+      for (let q = 0; q < 25; q++) h += `<span class="${k * 25 + q < fw.checks ? 'on' : ''}"></span>`;
+      h += `</div><div class="lab">⟪ara: ‖middle: ⟫${NAMES[k]}</div></div>`;
+    }
+    $('cubes').innerHTML = h;
+    $('cubeMsg').innerHTML = fw.checks ? `⟪Önceki ekranda <b>${fw.checks}</b> kontrol yaptın; 125’in boyalı kısmı bu kadar.‖You did <b>${fw.checks}</b> checks on the previous screen; that is the filled part of the 125.⟫` : `⟪Önceki ekranda henüz kontrol yapmadın. Geri dönüp birkaç kontrol yaparsan burada boyanır.‖You have not done any checks yet. Go back and do a few, and they will be filled in here.⟫`;
+  }
+  drawCubes();
+
+  /* ---------- screen 5: growth ---------- */
+  const words = x => {
+    const T = [[1e15, '⟪katrilyon‖quadrillion⟫'], [1e12, '⟪trilyon‖trillion⟫'], [1e9, '⟪milyar‖billion⟫'], [1e6, '⟪milyon‖million⟫']];
+    for (const [v, w] of T) if (x >= v) return (x / v).toLocaleString(LOC, { maximumFractionDigits: x / v < 10 ? 1 : 0 }) + ' ' + w;
+    return fmt(x);
+  };
+  const dur = sec => {
+    if (sec < 1e-3) return '⟪bir milisaniyeden az‖under a millisecond⟫';
+    if (sec < 1) return (sec * 1000).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪milisaniye‖milliseconds⟫';
+    if (sec < 120) return sec.toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪saniye‖seconds⟫';
+    if (sec < 7200) return (sec / 60).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪dakika‖minutes⟫';
+    if (sec < 172800) return (sec / 3600).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪saat‖hours⟫';
+    if (sec < 2 * 31557600) return (sec / 86400).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪gün‖days⟫';
+    return (sec / 31557600).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' ⟪yıl‖years⟫';
+  };
+  let nStations = 100;
+  function nShow() {
+    const n = nStations, c = n * n * n;
+    $('nVal').textContent = fmt(n);
+    $('nChecks').textContent = `${fmt(n)} × ${fmt(n)} × ${fmt(n)} = ${words(c)}`;
+    $('nTime').textContent = dur(c / 1e9);
+  }
+  $('nSl').oninput = () => { nStations = Math.round(10 ** parseFloat($('nSl').value)); $('nDoubleMsg').textContent = ''; nShow(); };
+  $('nDouble').onclick = () => {
+    const old = nStations; nStations = Math.min(200000, old * 2); $('nSl').value = Math.log10(nStations);
+    const r = (nStations / old) ** 3;
+    $('nDoubleMsg').textContent = `⟪${fmt(old)} → ${fmt(nStations)} istasyon: kontrol ${r.toLocaleString(LOC)} katına çıktı.‖${fmt(old)} → ${fmt(nStations)} stations: ${r.toLocaleString(LOC)} times as many checks.⟫`;
+    nShow();
+  };
+  nShow();
+
+  /* ---------- screen 6: queue ---------- */
+  const PPL = [['Ali', 150], ['Berk', 140], ['Cem', 165], ['Deniz', 145]]; let qGone = false;
+  function qShow() {
+    $('queue').innerHTML = PPL.map(([n, h], k) => `<div class="person ${qGone && k === 1 ? 'gone' : ''}"><span class="mono">${h}</span><div class="body" style="height:${(h - 100) * 2}px"></div><span>${n}</span></div>`).join('');
+    if (!qGone) { $('qSum').textContent = '600 cm'; $('qSumN').textContent = '⟪Tek bir sayı tutuyoruz.‖We keep just one number.⟫'; $('qMin').textContent = '140 cm'; $('qMinN').textContent = '⟪Tek bir sayı tutuyoruz.‖We keep just one number.⟫'; }
+    else {
+      $('qSum').textContent = '460 cm'; $('qSumN').innerHTML = '⟪600 − 140 = 460. <b style="color:var(--good)">Çıkararak hemen düzelttik.</b>‖600 − 140 = 460. <b style="color:var(--good)">Fixed at once by subtracting.</b>⟫';
+      $('qMin').textContent = '?'; $('qMinN').innerHTML = '⟪<b style="color:var(--bad)">“140” sıradaki en kısanın kim olduğunu söylemez.</b> Herkesi yeniden ölçmek gerekir (sonuç: 145).‖<b style="color:var(--bad)">“140” says nothing about who is next shortest.</b> Everyone must be measured again (answer: 145).⟫';
+    }
+    $('qLeave').disabled = qGone;
+  }
+  $('qLeave').onclick = () => { qGone = true; qShow(); };
+  $('qReset').onclick = () => { qGone = false; qShow(); };
+  qShow();
+
+  /* ---------- screen 8: cells ---------- */
+  const ASK = [3, 14, 17, 36, 47, 58]; let full = true;
+  function cShow() {
+    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => `<div class="cg ${ASK.includes(k) ? 'ask' : (full ? 'fill' : '')}"></div>`).join('');
+    $('cCount').textContent = full ? 64 : 6;
+    $('cFull').classList.toggle('primary', full); $('cAsk').classList.toggle('primary', !full);
+  }
+  $('cFull').onclick = () => { full = true; cShow(); };
+  $('cAsk').onclick = () => { full = false; cShow(); };
+  cShow();
+
+  const start = steps.findIndex(s => '#' + s.id === location.hash);
+  go(start >= 0 ? start : 0, false);
+})();
+</script>
+</body>
+</html>

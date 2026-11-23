@@ -3,26 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Yıkılan Duvarlar</title>
+<title>Yıkılan Duvarlar · robotun yol haritası</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Layout idea: one reading column with full-width "lab benches" where each idea can be poked. */
-  --bg: #F4F6FA;
-  --surface: #FFFFFF;
-  --ink: #141B2D;
-  --muted: #56607A;
-  --line: #DCE1EC;
-  --accent: #2F5BEA;
-  --accent-soft: #E3EAFD;
-  --wall: #C46A1B;
-  --wall-soft: #FBEBD9;
-  --good: #1D7F53;
-  --good-soft: #DFF3E9;
-  --bad: #B93A26;
-  --bad-soft: #FBE3DE;
+  /* Layout idea: one guided screen at a time, like slides with a working demo on each. */
+  --bg: #F4F6FA; --surface: #FFFFFF; --ink: #141B2D; --muted: #56607A; --line: #DCE1EC;
+  --accent: #2F5BEA; --accent-soft: #E3EAFD; --wall: #C46A1B; --wall-soft: #FBEBD9;
+  --good: #1D7F53; --good-soft: #DFF3E9; --bad: #B93A26; --bad-soft: #FBE3DE;
   --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
   --body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
@@ -41,969 +31,546 @@
   --good: #4CC38A; --good-soft: #15352A; --bad: #F07A66; --bad-soft: #3D1F1A; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; }
-.wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
-h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(44px, 7vw, 80px); font-weight: 800; letter-spacing: -0.02em; }
-h2 { font-size: clamp(30px, 4vw, 42px); font-weight: 700; letter-spacing: -0.01em; }
-h3 { font-size: 22px; font-weight: 700; }
-p { margin: 0; max-width: 68ch; }
-.mono, code { font-family: var(--mono); }
-code { font-size: 0.92em; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+h3 { font-size: 20px; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
 a { color: var(--accent); }
 b { font-weight: 600; }
+.mono { font-family: var(--mono); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 18px; }
 
-/* nav */
-nav.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-nav.top .wrap { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
-nav.top a { white-space: nowrap; text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 999px; }
-nav.top a:hover, nav.top a:focus-visible { background: var(--accent-soft); color: var(--accent); outline: none; }
-nav.top .brand { font-family: var(--display); font-weight: 800; color: var(--ink); }
-nav.top .lang { color: var(--accent); background: var(--accent-soft); margin-right: 8px; }
+/* top bar */
+.bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 10px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.bar .brand { font-family: var(--display); font-weight: 800; color: var(--ink); text-decoration: none; }
+.bar .lang { font-size: 14px; font-weight: 600; text-decoration: none; background: var(--accent-soft); padding: 4px 12px; border-radius: 999px; }
+.stops { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.stops button { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.stops button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] .stops button.on { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stops button.on { color: #0F1422; } }
+.progress { height: 4px; background: var(--line); }
+.progress div { height: 4px; background: var(--accent); width: 0; transition: width .25s; }
 
-/* hero */
-header.hero { padding: 64px 0 40px; }
-.hero .kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin-bottom: 16px; }
-.hero .lede { font-size: 20px; color: var(--muted); margin-top: 18px; max-width: 60ch; }
-.records { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 36px; }
-.record { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; }
-.record .name { font-size: 14px; color: var(--muted); font-weight: 500; }
-.record .eq { font-family: var(--display); font-size: clamp(32px, 5vw, 44px); font-weight: 700; margin-top: 4px; }
-.record .eq .old { color: var(--wall); text-decoration: line-through; text-decoration-thickness: 3px; }
-.record .eq .arrow { color: var(--muted); font-weight: 500; padding: 0 6px; }
-.record .eq .new { color: var(--accent); }
-.record .note { font-size: 14px; color: var(--muted); margin-top: 6px; }
-.story { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 28px; counter-reset: s; }
-.story div { counter-increment: s; font-size: 15px; color: var(--muted); border-top: 2px solid var(--line); padding-top: 10px; }
-.story div::before { content: counter(s); font-family: var(--mono); font-weight: 600; color: var(--accent); margin-right: 8px; }
-
-/* sections */
-section.part { padding: 56px 0 24px; border-top: 1px solid var(--line); }
-.part-head { display: grid; gap: 12px; margin-bottom: 28px; }
-.part-head .num { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
-.part-head p { color: var(--muted); font-size: 18px; }
-.prose { display: grid; gap: 14px; margin-bottom: 22px; }
-.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
-
-/* bench = interactive card */
-.bench { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; margin: 18px 0; display: grid; gap: 16px; min-width: 0; }
-.bench-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
-.bench-head .tag { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; }
-.bench .sub { color: var(--muted); font-size: 15px; }
+/* steps */
+main { padding: 28px 0 120px; }
+.step { display: grid; gap: 18px; padding: 8px 0 40px; }
+body.js .step { display: none; }
+body.js .step.cur { display: grid; }
+.kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.q { font-size: 20px; color: var(--muted); }
+.q b { color: var(--ink); }
+.take { border-left: 5px solid var(--good); background: var(--good-soft); padding: 14px 18px; border-radius: 0 14px 14px 0; font-size: 18px; }
+.take::before { content: "Akılda kalsın: "; font-weight: 700; color: var(--good); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+.side { background: var(--wall-soft); border: 1px solid color-mix(in srgb, var(--wall) 35%, transparent); border-radius: 20px; padding: 20px 22px; display: grid; gap: 10px; }
+.side .tag { font: 600 12px var(--mono); color: var(--wall); text-transform: uppercase; letter-spacing: 0.06em; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-button, .btn { font: 600 14px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: 10px; cursor: pointer; }
-button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-:root[data-theme="dark"] button.primary { color: #0F1422; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #0F1422; } }
+button.btn { font: 600 15px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 9px 15px; border-radius: 11px; cursor: pointer; }
+button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] button.btn.primary { color: #0F1422; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.btn.primary { color: #0F1422; } }
+button.btn.picked { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 button:hover { border-color: var(--accent); }
-button:focus-visible, input:focus-visible, nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 button:disabled { opacity: 0.45; cursor: default; }
-input[type="text"], input[type="number"] { font: 15px var(--mono); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
-input[type="range"] { accent-color: var(--accent); width: 100%; }
-label { font-size: 14px; color: var(--muted); }
+.msg { background: var(--bg); border-radius: 12px; padding: 12px 16px; font-size: 17px; }
+.msg.good { background: var(--good-soft); }
 .stats { display: flex; flex-wrap: wrap; gap: 10px; }
-.stat { background: var(--bg); border-radius: 12px; padding: 10px 14px; min-width: 130px; }
+.stat { background: var(--bg); border-radius: 12px; padding: 10px 14px; flex: 1 1 150px; }
 .stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.stat .v { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.stat .how { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
-.stats .stat { flex: 1 1 210px; }
-.explain { display: grid; gap: 12px; }
-.ex { background: var(--bg); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; min-width: 0; }
-.ex h4 { margin: 0; font-family: var(--display); font-size: 18px; }
-.ex p { font-size: 15px; }
-.ex table.t { font-size: 14px; }
-.ex details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
-.tri { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.tri span { font: 13px var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; }
-.tri span.z { background: var(--good-soft); border-color: var(--good); color: var(--good); font-weight: 600; }
-.zz { color: var(--good); font-weight: 600; }
+.stat .v { font: 600 22px var(--mono); font-variant-numeric: tabular-nums; }
 .stat.hl { background: var(--accent-soft); }
 .stat.hl .v { color: var(--accent); }
-.msg { font-size: 15px; padding: 10px 14px; border-radius: 12px; background: var(--bg); }
-.msg.good { background: var(--good-soft); color: var(--good); }
-.msg.bad { background: var(--bad-soft); color: var(--bad); }
-
-/* chips (numbers) */
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { position: relative; min-width: 56px; height: 56px; display: grid; place-items: center; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font: 600 18px var(--mono); transition: all .15s; }
-.chip.fixed { background: var(--wall-soft); border-color: var(--wall); color: var(--wall); }
-.chip.left, .chip.right { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.chip.gone { opacity: 0.3; }
-.chip.hit { background: var(--good-soft); border-color: var(--good); color: var(--good); }
-.chip .lab { position: absolute; bottom: -20px; font: 600 11px var(--body); color: var(--muted); }
-.chips.pointers { padding-bottom: 22px; }
-
-/* matrices / grids */
-.mat { border-collapse: separate; border-spacing: 4px; font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
-.mat th { font-weight: 600; color: var(--muted); padding: 2px 6px; }
-.mat td { width: 46px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; transition: background .2s; }
-.mat td.krow { background: var(--wall-soft); }
-.mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); }
-.mat td.chg { color: var(--good); font-weight: 700; }
-.matlegend { font-size: 13px; color: var(--muted); margin-top: 10px; max-width: 420px; display: grid; gap: 6px; }
-.matlegend p { font-size: 13px; }
-.matlegend ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
-.matlegend li { display: flex; gap: 8px; align-items: center; }
-.matlegend .key { flex: none; width: 22px; height: 18px; border-radius: 5px; display: inline-grid; place-items: center; font: 700 11px var(--mono); }
-.key.k1 { background: var(--wall-soft); }
-.key.k2 { outline: 2px dashed var(--wall); outline-offset: -2px; background: var(--bg); }
-.key.k3 { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: -2px; }
-.key.k4 { background: var(--bg); color: var(--good); }
-.mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
-.mat th.corner { font-size: 10px; font-weight: 500; white-space: nowrap; }
-.mat td.upd { background: var(--good-soft); color: var(--good); font-weight: 600; }
+svg text { font-family: var(--body); }
 .scroll-x { overflow-x: auto; }
-.pairgrid { display: grid; grid-template-columns: repeat(6, 52px); gap: 5px; }
-.pc { height: 52px; white-space: nowrap; border-radius: 10px; display: grid; place-items: center; font: 600 14px var(--mono); border: 2px solid var(--line); background: var(--surface); color: var(--muted); }
-.pc.lo { background: var(--bg); border-color: transparent; }
-.pc.open { cursor: pointer; }
-.pc.open:hover { border-color: var(--accent); color: var(--accent); }
-.pc.checked { background: var(--good-soft); border-color: var(--good); color: var(--good); }
-.pc.trap { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+
+/* distance table */
+.mat { border-collapse: separate; border-spacing: 4px; font: 14px var(--mono); font-variant-numeric: tabular-nums; }
+.mat th { font: 600 12px var(--body); color: var(--muted); padding: 2px 4px; }
+.mat td { width: 56px; height: 38px; text-align: center; background: var(--bg); border-radius: 8px; }
+.mat td.krow { background: var(--wall-soft); }
+.mat td.src { outline: 2px dashed var(--wall); outline-offset: -2px; }
+.mat td.cur { background: var(--accent-soft); outline: 2px solid var(--accent); outline-offset: -2px; }
+.mat td.upd { background: var(--good-soft); outline: 2px solid var(--good); outline-offset: -2px; color: var(--good); font-weight: 700; }
+.mat td.chg { color: var(--good); font-weight: 700; }
+.legend { font-size: 14px; color: var(--muted); }
+
+/* 125 grid */
+.cubes { display: flex; flex-wrap: wrap; gap: 14px; }
+.cube { display: grid; gap: 6px; justify-items: center; }
+.cube .g { display: grid; grid-template-columns: repeat(5, 16px); gap: 3px; }
+.cube .g span { width: 16px; height: 16px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); }
+.cube .g span.on { background: var(--accent); border-color: var(--accent); }
+.cube .lab { font-size: 13px; color: var(--muted); }
+
+/* bars */
+.barrow { display: grid; grid-template-columns: 150px 1fr 170px; gap: 10px; align-items: center; font-size: 15px; }
+.bar2 { height: 16px; border-radius: 999px; background: var(--accent); min-width: 3px; transition: width .25s; }
+.barrow .val { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+.big { font: 700 clamp(26px, 4vw, 36px) var(--display); }
+
+/* queue */
+.people { display: flex; gap: 14px; align-items: flex-end; height: 150px; }
+.person { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; }
+.person .body { width: 46px; border-radius: 10px 10px 4px 4px; background: var(--accent-soft); border: 2px solid var(--accent); }
+.person.gone .body { background: transparent; border-style: dashed; }
+.bigbox { border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+.bigbox .v { font: 700 30px var(--display); }
+
+/* timeline */
+.tl { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+.tl .y { font: 600 14px var(--mono); color: var(--accent); }
+
+/* cells */
 .cellgrid { display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; }
 .cg { width: 30px; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
 .cg.fill { background: var(--accent-soft); border-color: var(--accent-soft); }
 .cg.ask { background: var(--accent); border-color: var(--accent); }
 
-/* bars */
-.barrow { display: grid; grid-template-columns: 140px 1fr 120px; gap: 10px; align-items: center; font-size: 14px; }
-.bar { height: 14px; border-radius: 999px; background: var(--accent); min-width: 3px; transition: width .25s; }
-.bar.w { background: var(--wall); }
-.bar.g { background: var(--good); }
-.barrow .val { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-.people { display: flex; gap: 14px; align-items: flex-end; height: 150px; }
-.person { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; }
-.person .body { width: 46px; border-radius: 10px 10px 4px 4px; background: var(--accent-soft); border: 2px solid var(--accent); transition: all .2s; }
-.person.left-queue .body { background: transparent; border-style: dashed; }
-.bigbox { border-radius: 14px; padding: 14px 16px; background: var(--bg); }
-.bigbox .v { font: 700 30px var(--display); }
-
-/* bits */
-.bits { display: flex; gap: 4px; }
-.bit { width: 34px; height: 34px; border-radius: 7px; border: 2px solid var(--line); display: grid; place-items: center; font: 600 13px var(--mono); color: var(--muted); }
-.bit.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-.bit.clash { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
-.bitrow { display: grid; grid-template-columns: 90px auto 1fr; gap: 12px; align-items: center; font-family: var(--mono); font-size: 14px; }
-
-/* flow / chain */
-.chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
-.node { flex: 1 1 170px; background: var(--bg); border-radius: 14px; padding: 14px; border: 1px solid var(--line); }
-.node .t { font-weight: 600; }
-.node .d { font-size: 14px; color: var(--muted); }
-.node.goal { background: var(--accent-soft); border-color: var(--accent); }
-.arr { align-self: center; color: var(--muted); font-size: 22px; }
-.moves { display: grid; gap: 14px; counter-reset: mv; }
-.move { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
-.move .n { counter-increment: mv; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 18px var(--display); }
-:root[data-theme="dark"] .move .n { color: #0F1422; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .move .n { color: #0F1422; } }
-
-/* tables */
-table.t { width: 100%; border-collapse: collapse; font-size: 15px; }
-table.t th, table.t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-table.t th { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+table.t { width: 100%; border-collapse: collapse; font-size: 16px; }
+table.t th, table.t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+table.t th { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 table.t td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
-.pill.good { background: var(--good-soft); color: var(--good); }
-.pill.bad { background: var(--bad-soft); color: var(--bad); }
-.pill.wall { background: var(--wall-soft); color: var(--wall); }
-.approach { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; display: grid; gap: 10px; }
-.approach .who { font-size: 14px; color: var(--muted); }
-.approach.main { border: 2px solid var(--accent); }
-.timeline { display: grid; gap: 0; }
-.tl { display: grid; grid-template-columns: 70px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
-.tl .y { font-family: var(--mono); font-weight: 600; color: var(--muted); }
-.tl.hit .y { color: var(--accent); }
-.formula { font-family: var(--mono); font-size: 16px; background: var(--bg); border-radius: 12px; padding: 12px 16px; overflow-x: auto; white-space: nowrap; }
-svg text { font-family: var(--body); }
-footer { padding: 40px 0 70px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); margin-top: 40px; }
+details.quiz { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+details.quiz summary { cursor: pointer; font-weight: 600; }
+details.quiz p { margin-top: 8px; color: var(--muted); }
+.stops3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.stops3 > div { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.stops3 .n { font: 700 13px var(--mono); color: var(--accent); }
+
+/* bottom nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+.nav .count { font: 600 14px var(--mono); color: var(--muted); }
+body:not(.js) .nav { display: none; }
 @media (max-width: 560px) {
-  .barrow { grid-template-columns: 100px 1fr 90px; }
-  .chip { min-width: 44px; height: 46px; font-size: 15px; }
-  .pairgrid { grid-template-columns: repeat(6, 42px); }
-  .pc { height: 42px; font-size: 12px; }
-  .cellgrid { grid-template-columns: repeat(8, 26px); }
-  .cg { width: 26px; height: 26px; }
-  .bit { width: 28px; height: 28px; }
+  .barrow { grid-template-columns: 96px 1fr 120px; font-size: 13px; }
+  .mat td { width: 44px; font-size: 12px; }
+  .stops { display: none; }
 }
 </style>
 </head>
 <body>
-<nav class="top" aria-label="Bölümler">
+<div class="bar">
   <div class="wrap">
     <a class="brand" href="../../../">AA</a>
     <a class="lang" href="../" hreflang="en" lang="en">English</a>
-    <a href="#puzzles">1 · Bulmacalar</a>
-    <a href="#counting">2 · Adımları saymak</a>
-    <a href="#walls">3 · Neden imkânsız görünüyordu</a>
-    <a href="#claude">4 · Claude’un yaklaşımı</a>
-    <a href="#others">5 · Diğer yaklaşımlar</a>
-    <a href="#faster">6 · Ne kadar hızlı?</a>
-    <a href="#sources">Kaynaklar</a>
+    <nav class="stops" aria-label="Duraklar" id="stops"></nav>
   </div>
-</nav>
+  <div class="progress"><div id="prog"></div></div>
+</div>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="kicker">İnce taneli karmaşıklık · Ekim–Kasım 2026</div>
-    <h1>Yıkılan duvarlar</h1>
-    <p class="lede">İki klasik problem onlarca yıl boyunca ders kitabındaki hızlarına takılı kalmış görünüyordu. Ekim 2026’da ikisi de hızlandı, hem de üs düzeyinde. Bu site eski algoritmaların nasıl çalıştığını, neden yenilmez göründüklerini ve yenilerinin onları nasıl aştığını gösteriyor. Her fikrin tıklayıp deneyebileceğin bir parçası var.</p>
-    <div class="records">
-      <div class="record"><div class="name">3SUM: üç sayının toplamı 0 olabilir mi?</div><div class="eq"><span class="old">n²</span><span class="arrow">→</span><span class="new">n<sup>1.9992</sup></span></div><div class="note">Daha basit takip çalışması: n<sup>1.965</sup> (rastgele)</div></div>
-      <div class="record"><div class="name">APSP: her çift arasındaki en kısa yol</div><div class="eq"><span class="old">n³</span><span class="arrow">→</span><span class="new">n<sup>2.9995</sup></span></div><div class="note">Tam sayı ağırlıklar, yönlü çizgeler</div></div>
-    </div>
-    <div class="story">
-      <div>Bariz yöntemler n² ve n³ adım sürer.</div>
-      <div>İspatlar, belirli kurallar altında daha iyisinin olmadığını söyledi.</div>
-      <div>Bir yapay zekâ modeli bu kuralları çiğneyen bir algoritma buldu.</div>
-      <div>Matematikçiler onu doğruladı, sadeleştirdi ve genişletti.</div>
-    </div>
+<main class="wrap" id="main">
+
+<!-- 1 -->
+<section class="step" data-stop="0" id="adim-1">
+  <div class="kicker">Başlangıç</div>
+  <h1>Robotun yol haritası</h1>
+  <p class="q">Fabrikadaki robotumuz 5 istasyon arasında gidip geliyor. <b>Her istasyondan her istasyona en kısa yolu bilmesi gerekiyor.</b> Bunu nasıl hesaplarız, ne kadar sürer ve 2026’da bu konuda ne değişti?</p>
+  <div class="card"><svg id="map1" viewBox="0 0 460 290" role="img" aria-label="5 istasyonlu fabrika haritası" style="width:100%; max-width:560px; justify-self:center"></svg>
+  <p class="legend">Sayılar yolların uzunluğu (metre). Şarj ile Kargo arasında alttan dolaşan 12 metrelik doğrudan bir yol var.</p></div>
+  <div class="stops3">
+    <div><div class="n">DURAK 1</div><b>Problem</b><br>Robot en kısa yolları nasıl bulur?</div>
+    <div><div class="n">DURAK 2</div><b>Neden yavaş</b><br>Kaç kontrol gerekir, neden daha azı bulunamadı?</div>
+    <div><div class="n">DURAK 3</div><b>2026</b><br>Bir yapay zekâ modeli bir yol buldu. Ne kadar hızlandı?</div>
   </div>
-</header>
-
-<main>
-<!-- ============ 1 PUZZLES ============ -->
-<section class="part" id="puzzles">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 1 · Klasik algoritmalar nasıl çalışır</div>
-      <h2>İki bulmaca</h2>
-      <p>İkisini de anlatmak kolay, yavaşça çözmek de kolay. Asıl soru hep şuydu: ne kadar hızlı çözebilirsin?</p>
-    </div>
-
-    <div class="prose">
-      <h3>Bulmaca 1: 3SUM</h3>
-      <p>Elinde n sayılık bir liste var. Bunlardan herhangi üçünün toplamı tam olarak 0 olabilir mi? Ders kitabındaki akıllı yöntem listeyi sıralar, bir sayıyı sabitler ve geri kalanın iki ucundan içeri doğru iki parmak yürütür. Toplam çok küçükse sol parmak sağa, çok büyükse sağ parmak sola kayar.</p>
-    </div>
-
-    <div class="bench" id="b-3sum">
-      <div class="bench-head"><h3>Dene: iki parmak yürüyüşü</h3><span class="tag">etkileşimli</span></div>
-      <div class="controls">
-        <label for="list-in">Sayılar</label>
-        <input type="text" id="list-in" value="-7, -5, -2, 3, 4, 9" style="flex:1; min-width:200px">
-        <button id="list-set">Bunları kullan</button>
-        <button id="list-rand">Rastgele 10</button>
-      </div>
-      <div class="chips pointers" id="tp-chips"></div>
-      <div class="controls">
-        <button class="primary" id="tp-step">Adım</button>
-        <button id="tp-run">Sonuna kadar çalıştır</button>
-        <button id="tp-reset">Sıfırla</button>
-      </div>
-      <div class="msg" id="tp-msg" aria-live="polite"></div>
-      <div class="stats">
-        <div class="stat hl"><div class="k">Atılan adım</div><div class="v" id="tp-moves">0</div><div class="how">1 adım = 1 üçlü kontrolü · ayrıntı aşağıda</div></div>
-        <div class="stat"><div class="k">En fazla adım</div><div class="v" id="tp-max">0</div><div class="how">nereden geldiği: aşağıda</div></div>
-        <div class="stat"><div class="k">Kaba kuvvet: tüm üçlüler</div><div class="v" id="tp-brute">0</div><div class="how">nereden geldiği: aşağıda</div></div>
-        <div class="stat"><div class="k">Bulunan üçlüler</div><div class="v" id="tp-found">henüz yok</div><div class="how">kontrolde toplamı 0 çıkan üçlüler</div></div>
-      </div>
-      <div class="explain" id="tp-explain" aria-live="polite"></div>
-    </div>
-
-    <div class="prose">
-      <h3>Bulmaca 2: Tüm çiftler için en kısa yollar (APSP)</h3>
-      <p>Elinde n şehirli, yol uzunlukları belli bir harita var. Her şehir çifti arasındaki en kısa yol nedir? Floyd–Warshall (1962) aynı soruyu tekrar tekrar sorar: <b>“Başlangıç şehrinden varış şehrine, bir ara şehir üzerinden gitmek daha mı kısa?”</b> Aşağıdaki haritadan bir örnek: Q’dan R’ye P üzerinden gitmek, şimdiki Q → R mesafesinden kısa mı? Bu soruyu her ara şehir ve her başlangıç–varış çifti için sorar.</p>
-    </div>
-
-    <div class="bench" id="b-fw">
-      <div class="bench-head"><h3>Dene: 5 şehirde Floyd–Warshall</h3><span class="tag">etkileşimli</span></div>
-      <div class="two">
-        <svg id="fw-svg" viewBox="0 0 360 304" role="img" aria-label="Yol uzunluklarıyla P’den T’ye beş şehirlik harita" style="width:100%; max-width:420px"></svg>
-        <div class="scroll-x"><table class="mat" id="fw-mat" aria-label="Mesafe tablosu"></table><div class="matlegend"><p><b>Tabloyu okuma:</b> her hücre, satırdaki şehirden sütundaki şehre <b>şu ana kadar bilinen</b> en kısa mesafedir. Başta yalnızca doğrudan yollar vardır (yol yoksa ∞); her kontrol bir hücreyi kısaltmayı dener.</p><ul><li><span class="key k1"></span>Turuncu zemin: şimdiki ara şehrin satırı ve sütunu. Bu turda toplanan parçalar buradan gelir.</li><li><span class="key k2"></span>Kesikli çerçeve: şu an toplanan iki hücre.</li><li><span class="key k3"></span>Mavi çerçeve: karşılaştırılan hücre (kısalırsa yeşile döner).</li><li><span class="key k4">6</span>Yeşil sayı: başlangıçtan beri kısalmış mesafe.</li></ul><p>Köşegen hep 0 (bir şehirden kendisine). Tablo simetrik, çünkü yollar iki yönlü.</p></div></div>
-      </div>
-      <div class="controls">
-        <button class="primary" id="fw-step">Adım (bir kontrol)</button>
-        <button id="fw-k">Ara şehir P için kalan 25 kontrolü yap</button>
-        <button id="fw-run">Kalan bütün kontrolleri yap</button>
-        <button id="fw-reset">Sıfırla</button>
-      </div>
-      <div class="msg" id="fw-msg" aria-live="polite"></div>
-      <div class="sub" id="fw-where" style="font-size:14px"></div>
-      <div class="stats">
-        <div class="stat hl"><div class="k">Yapılan kontrol</div><div class="v" id="fw-checks">0</div></div>
-        <div class="stat"><div class="k">Toplam kontrol: 5 × 5 × 5</div><div class="v">125</div></div>
-        <div class="stat"><div class="k">Bulunan kısayol</div><div class="v" id="fw-upd">0</div></div>
-      </div>
-      <div class="sub" id="fw-log" style="font-size:14px; font-family:var(--mono)"></div>
-    </div>
-  </div>
+  <p class="legend">Gezinmek için alttaki “İleri” düğmesini ya da klavyede ← → oklarını kullan.</p>
 </section>
 
-<!-- ============ 2 COUNTING ============ -->
-<section class="part" id="counting">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 2 · n² ve n³ nereden geliyor</div>
-      <h2>Adımları saymak</h2>
-      <p>“n²” bir tahmin değil. En içteki adımın kaç kez çalıştığını saydığında çıkan sayı.</p>
-    </div>
+<!-- 2 -->
+<section class="step" data-stop="1" id="adim-2">
+  <div class="kicker">Durak 1 · Problem</div>
+  <h2>Tek bir soru: aktarma daha mı kısa?</h2>
+  <p class="q">Robot <b>Şarj</b> istasyonundan <b>Kargo</b> istasyonuna gidecek. Doğrudan yol 12 metre. Başka bir istasyona uğrayarak gitmek daha kısa olabilir mi? Aşağıdan bir yol seç.</p>
+  <div class="card">
+    <svg id="map2" viewBox="0 0 460 290" role="img" aria-label="Şarj’dan Kargo’ya yollar" style="width:100%; max-width:560px; justify-self:center"></svg>
+    <div class="controls" id="routeBtns"></div>
+    <div class="msg" id="routeMsg" aria-live="polite">Bir yol seç.</div>
+  </div>
+  <p class="take">Bütün iş bu tek sorunun tekrarı: “Bir ara istasyon üzerinden gitmek daha mı kısa?” Robot bu soruyu her başlangıç, her varış ve her ara istasyon için sorar.</p>
+</section>
+
+<!-- 3 -->
+<section class="step" data-stop="1" id="adim-3">
+  <div class="kicker">Durak 1 · Problem</div>
+  <h2>Robot soruyu her çift için sorar</h2>
+  <p class="q">Bu yönteme <b>Floyd–Warshall</b> denir (1962). Robot bir ara istasyon seçer ve her başlangıç–varış çifti için “bu istasyon üzerinden gitmek daha mı kısa?” diye bakar. Sonra sıradaki ara istasyona geçer. Adım adım izle.</p>
+  <div class="card">
     <div class="two">
-      <div class="approach">
-        <h3>3SUM, iki parmak</h3>
-        <p>1. sayıyı sabitlemek en fazla n − 2 parmak hareketi bırakır, 2. sayı en fazla n − 3, ve böyle 1’e kadar iner. Hepsini topla (Gauss toplamı):</p>
-        <div class="formula">(n−2) + (n−3) + … + 1 = (n−1)(n−2)/2 ≈ n²/2</div>
-        <svg viewBox="0 0 260 150" role="img" aria-label="4, 3, 2, 1 hareketlik merdiven, karenin yarısını doldurur" style="width:100%; max-width:300px" id="stair"></svg>
-        <p class="sub" style="color:var(--muted); font-size:15px">6 sayı için: 4 + 3 + 2 + 1 = 10 hareket, bir karenin yarısı.</p>
-      </div>
-      <div class="approach">
-        <h3>APSP, üç döngü</h3>
-        <p>Kontrol her ara şehir, her başlangıç şehri ve her varış şehri için bir kez çalışır. Her kontrol 1 toplama ve 1 karşılaştırmadır:</p>
-        <div class="formula">n × n × n = n³ kontrol</div>
-        <div class="formula" style="font-size:14px; line-height:1.7">for ara in sehirler:<br>&nbsp;&nbsp;for bas in sehirler:<br>&nbsp;&nbsp;&nbsp;&nbsp;for var in sehirler:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d[bas][var] = min(d[bas][var], d[bas][ara] + d[ara][var])</div>
+      <svg id="map3" viewBox="0 0 460 290" role="img" aria-label="Fabrika haritası" style="width:100%"></svg>
+      <div class="scroll-x"><table class="mat" id="mat" aria-label="Mesafe tablosu"></table>
+        <p class="legend" style="margin-top:8px"><b>Tablo:</b> satırdaki istasyondan sütundaki istasyona <b>şimdiye kadar bilinen</b> en kısa mesafe (∞ = henüz yol yok). <span style="color:var(--wall)">Turuncu</span>: şu anki ara istasyonun satırı ve sütunu. <span style="color:var(--accent)">Mavi çerçeve</span>: şu an bakılan hücre. <span style="color:var(--good)">Yeşil</span>: kısalmış mesafe.</p>
       </div>
     </div>
-    <div class="bench" id="b-derive">
-      <div class="bench-head"><h3>Türetme 1: kaba kuvvet neden n(n−1)(n−2)/6 ≈ n³/6</h3></div>
-      <div class="moves">
-        <div class="move"><div class="n">a</div><p>Birinci sayıyı seç: <b>n</b> yol. İkinciyi: <b>n − 1</b> yol (farklı olmalı). Üçüncüyü: <b>n − 2</b> yol. Bu, n(n−1)(n−2) sıralı seçim eder.</p></div>
-        <div class="move"><div class="n">b</div><p>Ama (−7, 3, 4), (3, −7, 4), (4, 3, −7)… aynı üçlüdür. Üç sayı 3 × 2 × 1 = <b>6</b> farklı sırada yazılabilir, bu yüzden 6’ya böleriz.</p></div>
-        <div class="move"><div class="n">c</div><p>Bölüm 1’deki liste için (n = <span class="mono" id="dv-n">6</span>): <span class="mono" id="dv-brute">6 × 5 × 4 / 6 = 20</span> üçlü. Çarpımı açınca en büyük terim n³/6 olur.</p></div>
-      </div>
+    <div class="controls">
+      <button class="btn primary" id="fwStep">1 kontrol yap</button>
+      <button class="btn" id="fwK"></button>
+      <button class="btn" id="fwAll">Hepsini bitir</button>
+      <button class="btn" id="fwReset">Baştan</button>
     </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Türetme 2: iki parmak neden (n−1)(n−2)/2 ≈ n²/2</h3><span class="tag">Bölüm 1’den canlı</span></div>
-      <p class="sub">Bir sayı sabitlenince parmaklar onun sağındaki k sayının üzerinde yürür. Her adımda parmaklardan biri bir sayı içeri girer ve buluşunca dururlar, yani en fazla <b>k − 1</b> adım atarlar. Senin listen için bu sayım satır satır aşağıda (son sütunu doldurmak için Bölüm 1’deki yürüyüşü çalıştır):</p>
-      <div class="scroll-x"><table class="t" id="dv-rows"></table></div>
-      <div class="formula" id="dv-sum"></div>
-      <p class="sub">(n−2) + (n−3) + … + 1 toplamı Gauss toplamıdır: bir kez baştan, bir kez sondan yaz, iki satırı topla; her sütun n − 1 verir. n − 2 sütun olduğu için toplamın iki katı (n−1)(n−2) olur.</p>
-      <div class="formula">(n−1)(n−2)/2 = (n² − 3n + 2)/2 = <b>n²/2</b> − 1,5n + 1</div>
-      <p class="sub">n = 1.000 için: 500.000 − 1.500 + 1 = 498.501. Tek başına n²/2 terimi toplamdan yalnızca %0,3 kadar farklıdır ve n büyüdükçe fark daha da küçülür. Bu yüzden kısaca “n²” deriz: ½ gibi sabitler ve 1,5n gibi küçük terimler atılır.</p>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Türetme 3: “n²” ve “n³” pratikte ne demek</h3></div>
-      <div class="scroll-x"><table class="t">
-        <thead><tr><th>n</th><th>İki parmak (n−1)(n−2)/2</th><th>Önceki satıra göre ×</th><th>Floyd–Warshall n³</th><th>Önceki satıra göre ×</th></tr></thead>
-        <tbody>
-          <tr><td class="num">1.000</td><td class="num">498.501</td><td>–</td><td class="num">1.000.000.000</td><td>–</td></tr>
-          <tr><td class="num">2.000</td><td class="num">1.997.001</td><td class="num">4,006×</td><td class="num">8.000.000.000</td><td class="num">8×</td></tr>
-          <tr><td class="num">4.000</td><td class="num">7.994.001</td><td class="num">4,003×</td><td class="num">64.000.000.000</td><td class="num">8×</td></tr>
-          <tr><td class="num">8.000</td><td class="num">31.988.001</td><td class="num">4,002×</td><td class="num">512.000.000.000</td><td class="num">8×</td></tr>
-        </tbody>
-      </table></div>
-      <p class="sub">n’yi iki katına çıkarmak n²’yi 2² = 4 ile, n³’ü 2³ = 8 ile çarpar. Üs tam olarak bu oranı söyler: n²’deki “2”, “girdiyi iki katına çıkar, iş 2² katına çıksın” demektir. n<sup>1.9992</sup> bir algoritmada ise oran 2<sup>1.9992</sup> ≈ 3,998× olur.</p>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Türetme 4: Floyd–Warshall neden tam olarak n³</h3><span class="tag">Bölüm 1’den canlı</span></div>
-      <p class="sub">Her ara şehir için kontrol edilecek n × n = 25 başlangıç–varış çifti vardır. n = 5 ara şehir var. Bölüm 1’deki adımlayıcıyı çalıştır ve her satırın dolmasını izle:</p>
-      <div class="scroll-x"><table class="t" id="dv-fw"></table></div>
-      <div class="formula" id="dv-fw-sum"></div>
-      <p class="sub">Genel olarak: n ara şehir × n başlangıç × n varış = n³ kontrol; her biri 1 toplama + 1 karşılaştırma, yani 2n³ temel işlem. Tablo çarpımı olarak yazınca (“min-artı çarpımı”): n² hücre, her biri n aday toplamın en küçüğü, yani yine n² × n = n³.</p>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>n’yi kaydır, sayıların büyümesini izle</h3><span class="tag">etkileşimli</span></div>
-      <div><label for="n-sl">n = <b class="mono" id="n-val">1.000</b></label><input type="range" id="n-sl" min="1" max="6" step="0.01" value="3"></div>
-      <div id="count-bars" style="display:grid; gap:10px"></div>
-      <div class="msg">n’yi iki katına çıkar: iki parmak yaklaşık <b>4×</b>, Floyd–Warshall yaklaşık <b>8×</b> iş yapar. n² ve n³’ün anlamı tam olarak bu. Çubuklar logaritmik ölçekte.</div>
+    <div class="msg" id="fwMsg" aria-live="polite"></div>
+    <div class="stats">
+      <div class="stat hl"><div class="k">Yapılan kontrol</div><div class="v" id="fwChecks">0 / 125</div></div>
+      <div class="stat"><div class="k">Ara istasyon</div><div class="v" id="fwVia">–</div></div>
+      <div class="stat"><div class="k">Kısalan mesafe</div><div class="v" id="fwUpd">0</div></div>
     </div>
   </div>
+  <p class="take">125 kontrolün sonunda tablo, her istasyondan her istasyona en kısa mesafeyi tutar. Robot artık her yolu biliyor.</p>
 </section>
 
-<!-- ============ 3 WALLS ============ -->
-<section class="part" id="walls">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 3 · Neden kimse daha iyisini yapamadı</div>
-      <h2>Neden imkânsız görünüyordu</h2>
-      <p>İki gerçek ispat “n² / n³ yenilemez” diyordu. İkisi de doğruydu, ama yalnızca belirli kurallara uyan algoritmalar için.</p>
-    </div>
-
-    <div class="bench" id="b-adv">
-      <div class="bench-head"><h3>Oyun: sinsi arkadaşı yen (n² ispatı)</h3><span class="tag">etkileşimli</span></div>
-      <p class="sub">Arkadaşın, her çiftin <i>neredeyse</i> isabet olduğu 6 sayılık bir liste kurdu: a + b + c ya 0,001 ya da −0,001. Kontrol etmek için çiftlere tıkla. Bittiğini düşündüğünde “hiçbir üçlünün toplamı 0 değil” diye cevap ver. Arkadaşın, atladığın herhangi bir çifti azıcık kaydırıp tam 0 yapabilir.</p>
-      <div class="pairgrid" id="adv-grid" aria-label="Listenin çiftleri"></div>
-      <div class="controls">
-        <button class="primary" id="adv-answer">Cevap: hiçbir üçlünün toplamı 0 değil</button>
-        <button id="adv-reset">Yeni oyun</button>
-        <span class="sub" id="adv-count">15 çiftten 0’ı kontrol edildi</span>
-      </div>
-      <div class="msg" id="adv-msg" aria-live="polite">Tek bir çifti bile atlarsan kaybedebilirsin. Bu, Erickson’ın 1999 argümanının küçük bir modeli: yalnızca “a + b + c pozitif mi, negatif mi, sıfır mı?” diye soran bir algoritma bunlardan ≈ n² tanesini sormak zorundadır.</div>
-    </div>
-
-    <div class="bench" id="b-min">
-      <div class="bench-head"><h3>Neden n³: toplamı geri alabilirsin, minimumu alamazsın</h3><span class="tag">etkileşimli</span></div>
-      <div class="two">
-        <div>
-          <div class="people" id="queue"></div>
-          <div class="controls" style="margin-top:10px">
-            <button class="primary" id="q-leave">Berk sıradan ayrılır</button>
-            <button id="q-measure" disabled>Herkesi yeniden ölç</button>
-            <button id="q-reset">Sıfırla</button>
-          </div>
-        </div>
-        <div style="display:grid; gap:10px">
-          <div class="bigbox"><div class="sub">Toplam dünyası: toplam boy</div><div class="v" id="q-sum">600 cm</div><div class="sub" id="q-sum-note">Tek bir sayı tut. Çıkararak düzelt.</div></div>
-          <div class="bigbox"><div class="sub">En-küçük dünyası: en kısa</div><div class="v" id="q-min">140 cm</div><div class="sub" id="q-min-note">Tek bir sayı tut. Düzeltilebilir mi?</div></div>
-        </div>
-      </div>
-      <p class="sub">Çarpmayı n³’ten hızlı yapan her hile (Strassen, 1969) fazlasını hesaplar, sonra fazlalığı çıkarır. En kısa yolda “artı” yerine “en küçüğü” vardır ve bir minimumu çıkaramazsın. Kerr (1970) bunu ispatladı: yalnızca + ve min kullanırsan yaklaşık n³ adım gerekir.</p>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Hesaplanan, ispatlanan, inanılan</h3></div>
-      <div class="scroll-x">
-      <table class="t">
-        <thead><tr><th>İddia türü</th><th>3SUM</th><th>APSP</th><th>Durum</th></tr></thead>
-        <tbody>
-          <tr><td><b>Hesaplanan</b>: bu algoritma şu kadar adım atar</td><td>İki parmak ≈ n²/2</td><td>Floyd–Warshall n³</td><td><span class="pill good">Hâlâ doğru</span></td></tr>
-          <tr><td><b>İspatlanan</b>: kısıtlı kurallar altında bir sınır</td><td>Yalnızca a + b + c’nin işareti → ≈ n² soru (Erickson 1999)</td><td>Yalnızca + ve min → ≈ n³ adım (Kerr 1970)</td><td><span class="pill good">Hâlâ doğru</span></td></tr>
-          <tr><td><b>İnanılan</b>: hipotez (“duvar”)</td><td>Hiçbir algoritma n<sup>2−ε</sup> sürede çalışmaz</td><td>Hiçbir algoritma n<sup>3−ε</sup> sürede çalışmaz</td><td><span class="pill bad">2026’da çürütüldü</span></td></tr>
-        </tbody>
-      </table>
-      </div>
-      <p class="sub">Yeni algoritmalar bu kurallara uymaz. <b>Tam toplamları</b> sorar ve <b>çıkarmalı cebir</b> kullanırlar, bu yüzden iki ispat da onlara uygulanamaz.</p>
-    </div>
+<!-- 4 -->
+<section class="step" data-stop="2" id="adim-4">
+  <div class="kicker">Durak 2 · Neden yavaş</div>
+  <h2>125 kontrol nereden geliyor?</h2>
+  <p class="q">Her ara istasyon için robot <b>5 başlangıç × 5 varış = 25</b> çifte bakar. 5 ara istasyon olduğuna göre: <b>5 × 25 = 125</b>. Her küçük kare bir kontrol; önceki ekranda yaptıkların boyalı.</p>
+  <div class="card">
+    <div class="cubes" id="cubes"></div>
+    <div class="msg" id="cubeMsg"></div>
   </div>
+  <p class="take">İstasyon sayısı 5 ise kontrol sayısı 5 × 5 × 5 = 125. Genel olarak: istasyon sayısı × istasyon sayısı × istasyon sayısı.</p>
 </section>
 
-<!-- ============ 4 CLAUDE ============ -->
-<section class="part" id="claude">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 4 · Alman &amp; Vassilevska Williams, Ekim 2026</div>
-      <h2>Claude’un yaklaşımı</h2>
-      <p>Temel algoritmayı, makalede Claude olarak anılan Anthropic’in şirket içi bir araştırma modeli buldu. Josh Alman (Columbia) ve Virginia Vassilevska Williams (MIT) onu anladı, sadeleştirdi, genişletti ve makaleye dönüştürdü.</p>
+<!-- 5 -->
+<section class="step" data-stop="2" id="adim-5">
+  <div class="kicker">Durak 2 · Neden yavaş</div>
+  <h2>Fabrika büyürse ne olur?</h2>
+  <p class="q">İstasyon sayısını kaydır. Bilgisayarın saniyede 1 milyar kontrol yaptığını varsayalım.</p>
+  <div class="card">
+    <label for="nSl">İstasyon sayısı: <span class="big" id="nVal">100</span></label>
+    <input type="range" id="nSl" min="0.7" max="5" step="0.01" value="2">
+    <div class="stats">
+      <div class="stat hl"><div class="k">Kontrol sayısı</div><div class="v" id="nChecks"></div></div>
+      <div class="stat"><div class="k">Yaklaşık süre</div><div class="v" id="nTime"></div></div>
     </div>
+    <div class="controls"><button class="btn primary" id="nDouble">İstasyonları 2 katına çıkar</button><span class="legend" id="nDoubleMsg"></span></div>
+  </div>
+  <p class="take">İstasyon sayısı 2 katına çıkınca iş 2 × 2 × 2 = 8 katına çıkar. Bu büyümenin adı <b>n³</b> (“n küp”): n istasyon için n × n × n kontrol.</p>
+  <aside class="side" aria-label="Yan kutu: 3SUM">
+    <div class="tag">Yan kutu · aynı hikâye, başka bir bulmaca</div>
+    <h3>3SUM: üç sayının toplamı 0 olabilir mi?</h3>
+    <p>Bir listede toplamı tam 0 olan üç sayı var mı? Örneğin −7, −5, −2, 3, 4, 9 listesinde: −7 + 3 + 4 = 0. Akıllı yöntem listeyi sıralar, bir sayıyı sabitler ve geri kalanların iki ucundan içeri doğru yürür: toplam küçükse soldaki, büyükse sağdaki sayı içeri kayar.</p>
+    <p>10 sayı için en fazla 36 adım, 1.000 sayı için yaklaşık 500.000 adım. Sayı 2 katına çıkınca iş 4 katına çıkar: buna <b>n²</b> denir. 2026’daki sonuç bu duvarı da kırdı.</p>
+  </aside>
+</section>
 
+<!-- 6 -->
+<section class="step" data-stop="2" id="adim-6">
+  <div class="kicker">Durak 2 · Neden yavaş</div>
+  <h2>Neden 50 yıl daha hızlısı bulunamadı?</h2>
+  <p class="q">Bilgisayarı hızlandıran hilelerin çoğu <b>fazlasını hesaplayıp sonra çıkarmaya</b> dayanır. En kısa yol ise “en küçüğünü al” işlemini kullanır ve bu geri alınamaz. Dört kişilik bir sırada dene.</p>
+  <div class="card">
     <div class="two">
-      <div class="approach main">
-        <h3>Nasıl bulundu</h3>
-        <p>Bir Anthropic çalışanı, şirket içi bir araştırma modelini kriptografideki açık problemler üzerinde kullanıyordu; bunlar arasında Zero-k-Clique’in zorluğuna dayanan yapılar da vardı. Model algoritmayı gözetimsiz bir oturumda buldu. Anthropic algoritmayı Eylül 2026’da yazarlarla paylaştı.</p>
+      <div>
+        <div class="people" id="queue"></div>
+        <div class="controls" style="margin-top:10px"><button class="btn primary" id="qLeave">Berk sıradan ayrılsın</button><button class="btn" id="qReset">Baştan</button></div>
       </div>
-      <div class="approach">
-        <h3>Nasıl doğrulandı</h3>
-        <p>Makale 5 Ekim 2026’da arXiv’e yüklendi. Ardından Anthropic, ana deterministik sonuçları Lean 4 ispat asistanında doğruladı ve biçimsel ispatı GitHub’da yayımladı. Birkaç hafta içinde iki bağımsız grup daha basit ispatlar buldu (Bölüm 5).</p>
+      <div style="display:grid; gap:10px">
+        <div class="bigbox"><div class="legend">Toplam boy</div><div class="v" id="qSum">600 cm</div><div class="legend" id="qSumN">Tek bir sayı tutuyoruz.</div></div>
+        <div class="bigbox"><div class="legend">En kısa kişi</div><div class="v" id="qMin">140 cm</div><div class="legend" id="qMinN">Tek bir sayı tutuyoruz.</div></div>
       </div>
-    </div>
-
-    <div class="prose" style="margin-top:28px">
-      <h3>Dört hamlede fikir</h3>
-      <p>Çıkarmanın imkânsız olduğu “en-küçük” dünyasından çık. İki bulmacayı da üçgenlerle ilgili tek bir tam-toplam problemine çevir. Sonra yalnızca gerçekten gereken cevapları hesapla.</p>
-    </div>
-
-    <div class="moves">
-      <div class="move"><div class="n">1</div><div class="bench" style="margin:0">
-        <div class="bench-head"><h3>Tam toplamlar cebirle dosttur</h3><span class="tag">etkileşimli</span></div>
-        <p class="sub">Her sayıyı x’in bir kuvveti olarak yaz ve çarp: çarpmak <b>üsleri toplar</b>, yani tek bir çarpım bütün çift toplamlarını bir anda sayar. Bu, çıkarmanın da olduğu sıradan aritmetiktir, bu yüzden hızlı çarpma hileleri çalışır.</p>
-        <div class="controls"><label for="poly-in">Sayılar (1–20)</label><input type="text" id="poly-in" value="1, 2, 4" style="max-width:200px"><button id="poly-go">Karesini al</button></div>
-        <div class="formula" id="poly-out"></div>
-        <div id="poly-bars" style="display:flex; gap:6px; align-items:flex-end; height:120px; overflow-x:auto"></div>
-      </div></div>
-
-      <div class="move"><div class="n">2</div><div class="bench" style="margin:0">
-        <div class="bench-head"><h3>Büyük sayıları kalanlarla küçült</h3><span class="tag">etkileşimli</span></div>
-        <p class="sub">Kuvvet hilesi yalnızca küçük sayılarda hızlıdır, bu yüzden her sayıyı bir p asalına bölümünden kalanla değiştir. Gerçek toplamlar korunur. Sahteleri de çıkabilir, bu yüzden her isabet bir kez daha kontrol edilir.</p>
-        <div class="controls"><label for="mod-p">Asal p</label><select id="mod-p" class="btn"><option>5</option><option selected>7</option><option>11</option><option>13</option></select><span class="sub">Soru: 1003 + 2017, c’ye eşit mi?</span></div>
-        <div class="scroll-x"><table class="t" id="mod-t"></table></div>
-      </div></div>
-
-      <div class="move"><div class="n">3</div><div class="bench" style="margin:0">
-        <div class="bench-head"><h3>İki bulmaca da üçgen avıdır</h3></div>
-        <p class="sub">Toplamı 0 olan üç sayı ya da doğrudan yolu yenen bir başlangıç → ara şehir → varış aktarması: ikisi de birbirine uyan üç şeydir, yani bir üçgen. Genel sürümü <b>Tam Üçgen</b> (“ağırlıkları tam olarak bir hedefe toplanan üçgeni bul”) ikisi kadar zordur. Onu hızlandırırsan iki bulmaca da hızlanır.</p>
-        <div class="chain">
-          <div class="node"><div class="t">İnce tablo çarpımı</div><div class="d">yalnızca seçili hücreleri doldur</div></div><div class="arr" aria-hidden="true">→</div>
-          <div class="node"><div class="t">Üçgenleri say</div><div class="d">bir çiftin ortak arkadaşları</div></div><div class="arr" aria-hidden="true">→</div>
-          <div class="node"><div class="t">Tam Üçgen</div><div class="d">n<sup>2.9983</sup></div></div><div class="arr" aria-hidden="true">→</div>
-          <div class="node goal"><div class="t">3SUM n<sup>1.9992</sup></div><div class="d">APSP n<sup>2.9995</sup></div></div>
-        </div>
-      </div></div>
-
-      <div class="move"><div class="n">4</div><div class="bench" style="margin:0">
-        <div class="bench-head"><h3>Yeni kısım: yalnızca gereken hücreleri doldur</h3><span class="tag">etkileşimli</span></div>
-        <p class="sub">Çiftlerden geçen üçgenleri saymak bir tablo çarpımıdır: her hücre ortak arkadaşları sayar. Hızlı çarpma hileleri <b>her</b> hücreyi hesaplar ve yalnızca N × N bir tabloyu yazmak bile N² tutar. Burada tablo incedir (N × D çarpı D × N, D küçük) ve yalnızca birkaç hücre sorulur. Yeni algoritma hızlı çarpma tarifini (Schönhage’ın bir özdeşliği ve Coppersmith’in 1982 yöntemi üzerine kurulu) budar: yalnızca bu hücrelerin ihtiyaç duyduğunu hesaplar ve bu işi aralarında paylaştırır.</p>
-        <div class="two">
-          <div><div class="cellgrid" id="cells" aria-label="8’e 8 tablo"></div></div>
-          <div style="display:grid; gap:10px; align-content:start">
-            <div class="controls"><button class="primary" id="cells-full">Eski: her şeyi doldur</button><button id="cells-ask">Yeni: yalnızca sorulan hücreler</button><button id="cells-new">Yeni soru</button></div>
-            <div class="stats"><div class="stat hl"><div class="k">Hesaplanan hücre</div><div class="v" id="cells-c">64</div></div><div class="stat"><div class="k">Gereken hücre</div><div class="v">6</div></div></div>
-            <p class="sub">Makalede: en fazla N²/√D hücre sorulur ve bunlar yaklaşık <span class="mono">N² / D<sup>0.063</sup></span> işlem tutar; bu, tablonun tamamını yazmaktan bile azdır.</p>
-          </div>
-        </div>
-      </div></div>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Küçük bir kazanç üssü neden düşürür</h3><span class="tag">etkileşimli</span></div>
-      <p class="sub">Aynı mekanizma, Strassen’in 1969 algoritmasında: tabloyu 2 × 2 bloka böl ve 8 yerine 7 blok çarpımıyla çarp. Tek seviyede kazanç küçüktür. Her seviyede tekrarlanınca kazanç <b>n’nin bir kuvveti</b> olur ve üs düşer. 2026 kazancı (D<sup>0.063</sup>, D de n’nin bir kuvveti) aynı şekilde çalışır.</p>
-      <div><label for="k-sl">Seviye k = <b class="mono" id="k-val">10</b> (tablo boyutu n = 2<sup>k</sup> = <span class="mono" id="k-n">1.024</span>)</label><input type="range" id="k-sl" min="1" max="20" value="10"></div>
-      <div id="k-bars" style="display:grid; gap:10px"></div>
-      <div class="formula">8<sup>k</sup> = n³ &nbsp;·&nbsp; 7<sup>k</sup> = n<sup>log₂7</sup> ≈ n<sup>2.807</sup> &nbsp;·&nbsp; kazanç (8/7)<sup>k</sup> = n<sup>0.193</sup></div>
-      <h3 style="font-size:18px">7<sup>k</sup> nereden geliyor, seviye seviye</h3>
-      <p class="sub">Her problem yarı boyutta 7 probleme bölünür. Bloklar tek sayıya inene kadar her seviyedeki problemleri say:</p>
-      <div class="scroll-x"><table class="t" id="k-rows"></table></div>
-      <p class="sub">En alt seviyede 7<sup>k</sup> minik çarpma vardır ve k = log₂ n olduğu için 7<sup>k</sup> = 7<sup>log₂ n</sup> = n<sup>log₂ 7</sup> = n<sup>2.807</sup>. (Fazladan toplamalar seviye başına yaklaşık n² tutar, bu daha azdır.) 7 yerine 8 olsaydı aynı sayım 8<sup>log₂ n</sup> = n³ verirdi. 2026’yı da aynı mekanizma açıklar: n’nin bir kuvvetine dönüşene kadar tekrarlanan bir kazanç üssü düşürür.</p>
     </div>
   </div>
+  <p class="take">Toplamı çıkararak düzeltebilirsin; en küçüğü düzeltemezsin, herkese yeniden bakman gerekir. 1970’te ispatlandı: yalnızca toplama ve “en küçüğünü al” kullanan bir yöntem n³’ten kurtulamaz. Uzmanlar daha hızlısının da olmadığına inandı. Buna <b>duvar</b> dendi.</p>
 </section>
 
-<!-- ============ 5 OTHERS ============ -->
-<section class="part" id="others">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 5 · Başka yollar</div>
-      <h2>Diğer yaklaşımlar</h2>
-      <p>Bir ay içinde iki grup aynı sonuca daha basit yollardan ulaştı. 2026’dan önce ise pek çok kişi eski sınırları tıraşladı ama üssü düşüremedi.</p>
-    </div>
+<!-- 7 -->
+<section class="step" data-stop="3" id="adim-7">
+  <div class="kicker">Durak 3 · 2026</div>
+  <h2>Bir yapay zekâ modeli bir yol buldu</h2>
+  <p class="q">Duvar onlarca yıl dayandı. Sonra 2026’da kısa sürede şunlar oldu:</p>
+  <div class="card">
+    <div class="tl"><div class="y">Eylül 2026</div><div>Anthropic’in şirket içi bir araştırma modeli (Claude), kriptografi problemleri üzerinde çalışırken bu algoritmayı buldu. Anthropic algoritmayı matematikçilerle paylaştı.</div></div>
+    <div class="tl"><div class="y">5 Ekim 2026</div><div>Josh Alman (Columbia) ve Virginia Vassilevska Williams (MIT) algoritmayı anladı, sadeleştirdi, genişletti ve makale olarak yayımladı.</div></div>
+    <div class="tl"><div class="y">Ekim 2026</div><div>Ana sonuçlar, bir bilgisayar ispat denetleyicisiyle (Lean 4) satır satır doğrulandı.</div></div>
+    <div class="tl"><div class="y">Ekim–Kasım 2026</div><div>İki ayrı araştırma grubu aynı sonuca daha basit yollardan ulaştı.</div></div>
+  </div>
+  <p class="take">Sonuç: en kısa yollar n³’ten biraz daha hızlı bulunabiliyor (n<sup>2,9995</sup>). 3SUM da n²’den biraz daha hızlı (n<sup>1,9992</sup>). İkisinde de “duvar” yıkıldı.</p>
+</section>
 
+<!-- 8 -->
+<section class="step" data-stop="3" id="adim-8">
+  <div class="kicker">Durak 3 · 2026</div>
+  <h2>Fikir: yalnızca sorulan hücreleri doldur</h2>
+  <p class="q">Yeni yöntemin iki hamlesi var. <b>Birincisi:</b> soruyu değiştir. “En kısası hangisi?” yerine “tam şu uzunlukta bir yol var mı?” diye sor. Bu soruda çıkarma yapılabilir, yani hızlı hileler çalışır. <b>İkincisi:</b> eski hileler koca bir tablonun her hücresini hesaplar; yeni yöntem yalnızca gerçekten sorulan hücreleri hesaplar ve ortak işi paylaşır.</p>
+  <div class="card">
     <div class="two">
-      <div class="approach">
-        <div class="who">Karingula &amp; Lovett · 14 Ekim 2026</div>
-        <h3>Sadeleştirilmiş bir ispat</h3>
-        <p>Ana fikri (yalnızca istenen hücreleri hesapla) korur ama ağır makineyi tek bir açık kuralla değiştirir: istenen her çıktı = <b>ortak bir havuzdan altı çarpım − bir özel düzeltme</b>; bu kural Schönhage özdeşliğinin küçük bir 2 × 3 durumundan kurulur. Kümelere uygulanır: bu iki küme ayrık mı? Bilinen indirgemeler sonra 3SUM ve APSP’yi verir.</p>
-        <p><span class="pill wall">Daha zayıf üsler</span> <span class="pill good">Çok daha kısa ispat</span></p>
-      </div>
-      <div class="approach">
-        <div class="who">Chan, Itakura, Ma &amp; Yu · 2 Kasım 2026</div>
-        <h3>Matris çarpımı olmadan 3SUM</h3>
-        <p>Sayıları ikilik tabanda yaz. İki sayının aynı yerde 1’i yoksa, onları toplamak 1’lerini üst üste koymaktan ibarettir: elde yok. O zaman “a + b = c mi?” sorusu bir küme sorusuna dönüşür ve klasik bir tablo yöntemi bunu toplu hâlde cevaplar. Rastgele karıştırmalar, doğru çifti denemelerden birinde eldesiz hâle getirir.</p>
-        <p><span class="pill good">n<sup>1.965</sup>, daha hızlı</span> <span class="pill wall">Rastgele</span></p>
-      </div>
-    </div>
-
-    <div class="bench" id="b-bits">
-      <div class="bench-head"><h3>Dene: üst üste koyarak topla</h3><span class="tag">etkileşimli</span></div>
-      <div class="controls">
-        <label for="ba">a</label><input type="number" id="ba" value="5" min="0" max="255" style="width:90px">
-        <label for="bb">b</label><input type="number" id="bb" value="2" min="0" max="255" style="width:90px">
-        <button id="bits-try">Elde gereken bir örnek dene</button>
-      </div>
-      <div style="display:grid; gap:8px" id="bits-out"></div>
-      <div class="msg" id="bits-msg" aria-live="polite"></div>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>Üç 2026 yaklaşımı yan yana</h3></div>
-      <div class="scroll-x">
-      <table class="t">
-        <thead><tr><th></th><th>Alman &amp; Vassilevska Williams</th><th>Karingula &amp; Lovett</th><th>Chan, Itakura, Ma &amp; Yu</th></tr></thead>
-        <tbody>
-          <tr><td>Temel hile</td><td>İnce çarpımın yalnızca sorulan hücrelerini doldur (budanmış Coppersmith/Schönhage)</td><td>Açık “6 ortak − 1 özel” kuralı, aynı fikir</td><td>Eldesiz ikili kümeler, rastgele karıştırma</td></tr>
-          <tr><td>Hızlı matris çarpımı?</td><td>Evet</td><td>Evet (daha basit)</td><td>Hayır</td></tr>
-          <tr><td>3SUM üssü</td><td class="num">1.9992</td><td>2’nin altında, optimize edilmemiş</td><td class="num">1.965</td></tr>
-          <tr><td>APSP üssü</td><td class="num">2.9995</td><td>3’ün altında, optimize edilmemiş</td><td>gerçel ağırlıklı APSP deterministik hâle getirildi</td></tr>
-          <tr><td>Rastgelelik</td><td>Deterministik</td><td>Deterministik</td><td>Tam sayı 3SUM için rastgele</td></tr>
-          <tr><td>Ek</td><td>Ana sonuçlar Lean ile doğrulandı</td><td>Kısa, kendi içinde tam</td><td>Tek k için k-SUM hipotezini de çürütür</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </div>
-
-    <div class="bench">
-      <div class="bench-head"><h3>2026’dan önce: kırmadan tıraşlamak</h3></div>
-      <div class="timeline">
-        <div class="tl"><div class="y">1962</div><div>Floyd ve Warshall: APSP n³ sürede.</div></div>
-        <div class="tl"><div class="y">1969</div><div>Strassen: normal matris çarpımı çıkarma kullanarak n³’ün altında (n<sup>2.81</sup>).</div></div>
-        <div class="tl"><div class="y">1970</div><div>Kerr: yalnızca + ve min ile n³ gereklidir.</div></div>
-        <div class="tl"><div class="y">1976</div><div>Fredman: “a + b &lt; c + d” ile “a − c &lt; d − b” aynı sorudur; ilk çatlak.</div></div>
-        <div class="tl"><div class="y">1999</div><div>Erickson: yalnızca işarete bakan algoritmalar 3SUM için ≈ n² soru ister.</div></div>
-        <div class="tl"><div class="y">2014</div><div>Grønlund &amp; Pettie: 3SUM, log çarpanları kadar n²’nin biraz altında. Williams: APSP n³ / 2<sup>Ω(√log n)</sup> sürede.</div></div>
-        <div class="tl"><div class="y">2018</div><div>Chan: 3SUM yaklaşık n² / log² n sürede.</div></div>
-        <div class="tl hit"><div class="y">2026</div><div><b>İlk üs düşüşleri:</b> n<sup>1.9992</sup> ve n<sup>2.9995</sup>, ardından n<sup>1.965</sup>.</div></div>
+      <div class="cellgrid" id="cells" aria-label="8’e 8 tablo"></div>
+      <div style="display:grid; gap:10px; align-content:start">
+        <div class="controls"><button class="btn primary" id="cFull">Eski: hepsini doldur</button><button class="btn" id="cAsk">Yeni: yalnızca sorulanlar</button></div>
+        <div class="stats"><div class="stat hl"><div class="k">Hesaplanan hücre</div><div class="v" id="cCount">64</div></div><div class="stat"><div class="k">Gereken hücre</div><div class="v">6</div></div></div>
       </div>
     </div>
   </div>
+  <p class="take">Kazanç her seferinde küçük. Ama her ölçekte tekrar tekrar uygulanınca, istasyon sayısı büyüdükçe büyüyen bir kazanca dönüşür. Duvarı yıkan da budur.</p>
 </section>
 
-<!-- ============ 6 FASTER ============ -->
-<section class="part" id="faster">
-  <div class="wrap">
-    <div class="part-head">
-      <div class="num">Bölüm 6 · Dürüst cevap</div>
-      <h2>Ne kadar hızlı?</h2>
-      <p>Pratikte neredeyse hiç. Prensipte tamamen. Log çarpanı kadar bir kazanç n büyüdükçe söner; n’nin bir kuvveti kadar bir kazanç asla sönmez.</p>
-    </div>
-    <div class="bench">
-      <div class="bench-head"><h3>Ders kitabı 3SUM’una (n²) göre hızlanma</h3><span class="tag">etkileşimli</span></div>
-      <div><label for="L-sl">n’nin <b class="mono" id="L-val">20</b> ikili basamağı var (n ≈ <span class="mono" id="L-n">10^6</span>)</label><input type="range" id="L-sl" min="1" max="5" step="0.01" value="1.301"></div>
-      <div id="L-bars" style="display:grid; gap:10px"></div>
-      <div class="msg" id="L-msg"></div>
-      <p class="sub">Gizli sabitler hesaba katılmadı. Yazarlar yeni algoritmaların büyük olasılıkla pratik olmadığını söylüyor. Değişen şey harita: “bu zordur, çünkü 3SUM zordur” diyen pek çok sonuç yeniden incelenmeli.</p>
-    </div>
+<!-- 9 -->
+<section class="step" data-stop="3" id="adim-9">
+  <div class="kicker">Durak 3 · 2026</div>
+  <h2>Ne kadar hızlandı? Dürüst cevap</h2>
+  <p class="q">Robotumuz için fark neredeyse görünmez:</p>
+  <div class="card scroll-x">
+    <table class="t">
+      <thead><tr><th>İstasyon</th><th>Eski yöntem (n³)</th><th>Yeni yöntem (n<sup>2,9995</sup>)</th><th>Kazanç</th></tr></thead>
+      <tbody>
+        <tr><td class="num">100</td><td class="num">1 milyon</td><td class="num">≈ 997.700</td><td class="num">%0,23</td></tr>
+        <tr><td class="num">1.000</td><td class="num">1 milyar</td><td class="num">≈ 996,6 milyon</td><td class="num">%0,35</td></tr>
+        <tr><td class="num">1 milyon</td><td class="num">10<sup>18</sup></td><td class="num">≈ %0,7 daha az</td><td class="num">%0,69</td></tr>
+      </tbody>
+    </table>
+    <p class="legend">Gizli sabitler hesaba katılmadı; pratikte yeni yöntem büyük olasılıkla daha yavaş çalışır. Yazarlar da algoritmaların pratik olmadığını söylüyor.</p>
+  </div>
+  <div class="card">
+    <h3>Peki neden önemli?</h3>
+    <p>Bir benzetme: herkes “insan 2,45 metreden yükseğe atlayamaz” diye kanıtlanmış bir sınır olduğunu sanıyor. Biri 2,4502 metre atlıyor. Rekor küçük, ama “imkânsız” sözü artık geçersiz.</p>
+    <p>Bilgisayar biliminde pek çok sonuç “bu problem zordur, çünkü en kısa yollar n³ ister” varsayımına dayanıyordu. Bu varsayım çöktü; o sonuçların hepsi yeniden incelenecek.</p>
+  </div>
+  <p class="take">Pratikte robot için hiçbir şey değişmedi. Ama 50 yıllık bir “imkânsız” yıkıldı.</p>
+</section>
+
+<!-- 10 -->
+<section class="step" data-stop="4" id="adim-10">
+  <div class="kicker">Son</div>
+  <h2>Üç cümlede bütün hikâye</h2>
+  <div class="card">
+    <p><b>1.</b> Robot en kısa yolları, “ara istasyon üzerinden daha mı kısa?” sorusunu her üçlü için sorarak bulur: n istasyon için n × n × n kontrol.</p>
+    <p><b>2.</b> “En küçüğünü al” geri alınamadığı için hızlı hileler işe yaramadı ve 50 yıl n³’ün bir duvar olduğuna inanıldı.</p>
+    <p><b>3.</b> 2026’da bir yapay zekâ modelinin bulduğu yöntem, soruyu değiştirip yalnızca gereken hücreleri hesaplayarak duvarı kırdı: az ama gerçek bir kazanç.</p>
+  </div>
+  <h3>Kendini dene</h3>
+  <details class="quiz"><summary>10 istasyonlu bir fabrikada robot kaç kontrol yapar?</summary><p>10 × 10 × 10 = 1.000 kontrol.</p></details>
+  <details class="quiz"><summary>İstasyon sayısı 3 katına çıkarsa kontrol sayısı kaç katına çıkar?</summary><p>3 × 3 × 3 = 27 katına.</p></details>
+  <details class="quiz"><summary>Sıradan en kısa kişi ayrılınca yeni en kısayı neden hemen bilemeyiz?</summary><p>Çünkü tuttuğumuz tek sayı (en kısa boy) diğerleri hakkında bilgi vermez. Toplamı çıkararak düzeltebiliriz, en küçüğü düzeltemeyiz.</p></details>
+  <details class="quiz"><summary>2026 sonucu robotun yol hesabını gözle görülür biçimde hızlandırır mı?</summary><p>Hayır. Fark %1’in altında; pratikte muhtemelen daha yavaş bile. Önemli olan, “n³’ten hızlısı imkânsız” inancının çürümesi.</p></details>
+  <div class="card">
+    <h3>Daha derine inmek isteyenler</h3>
+    <p>Adım adım sayımlar, türetmeler, “neredeyse sıfır” ispat oyunu, Strassen’in hilesi, yeni yöntemin dört hamlesi ve diğer iki yaklaşım ayrıntılı sayfada. <a href="../deep/tr/">Ayrıntılı sayfayı aç →</a></p>
+    <p class="legend">Kaynak: Alman & Vassilevska Williams, <a href="https://arxiv.org/abs/2610.06783">Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs</a>, arXiv, Ekim 2026. Diğer kaynaklar ayrıntılı sayfada.</p>
   </div>
 </section>
 </main>
 
-<footer id="sources">
-  <div class="wrap" style="display:grid; gap:10px">
-    <h3 style="color:var(--ink)">Kaynaklar</h3>
-    <p>Alman &amp; Vassilevska Williams, <a href="https://arxiv.org/abs/2610.06783">Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs</a>, arXiv, Ekim 2026. Lean biçimselleştirmesi: <a href="https://github.com/anthropics/formal-math/tree/main/3sum-apsp">anthropics/formal-math</a>.</p>
-    <p>Karingula &amp; Lovett, <a href="https://arxiv.org/abs/2610.15663">A simplified proof of polynomial improvements for 3SUM and APSP</a>, arXiv, Ekim 2026.</p>
-    <p>Chan, Itakura, Ma &amp; Yu, <a href="https://arxiv.org/abs/2610.42012">3SUM Made Simpler (Without Matrix Multiplication), k-SUM Hypothesis Refuted for Odd k, and Real 3SUM/APSP Derandomized</a>, arXiv, Kasım 2026.</p>
-    <p>Bu derste: <a href="../../3sum-apsp/">aynı makale üzerine 18 parçalık rehberli vaka çalışması</a> (İngilizce).</p>
-    <p>Arka plan: <a href="https://alphaxiv.org/abs/2610.06783">alphaXiv özeti</a> · <a href="https://arxiv.org/abs/1502.05204">Chan &amp; Lewenstein (eski sınırlar)</a>. Klasik sonuçlar (Floyd, Warshall, Strassen, Kerr, Fredman, Erickson, Grønlund &amp; Pettie, Williams) genel bilgiden aktarılmıştır.</p>
+<div class="nav">
+  <div class="wrap">
+    <button class="btn" id="prev">← Geri</button>
+    <span class="count" id="count"></span>
+    <button class="btn primary" id="next">İleri →</button>
   </div>
-</footer>
+</div>
 
 <script>
 (function () {
+  document.body.classList.add('js');
   const $ = id => document.getElementById(id);
-  const fmt = x => x.toLocaleString('tr-TR');
-  const sci = x => {
-    if (!isFinite(x)) return '∞';
-    if (x < 1e7) return fmt(Math.round(x));
-    const e = Math.floor(Math.log10(x)); return (x / 10 ** e).toFixed(2) + '×10^' + e;
-  };
-  const sciLog = lg => { // value given as log10
-    if (lg < 6) return fmt(Math.round(10 ** lg));
-    const e = Math.floor(lg); return (10 ** (lg - e)).toFixed(2) + '×10^' + fmt(e);
-  };
+  const LOC = 'tr-TR';
+  const fmt = x => Math.round(x).toLocaleString(LOC);
+  const css = () => { const c = getComputedStyle(document.documentElement); const g = k => c.getPropertyValue(k).trim(); return { ink: g('--ink'), mut: g('--muted'), acc: g('--accent'), line: g('--line'), surf: g('--surface'), wall: g('--wall'), good: g('--good') }; };
 
-  /* ---------- two-finger walk ---------- */
-  let A = [], st = {};
-  function tpInit(arr) {
-    A = arr.slice().sort((a, b) => a - b);
-    st = { i: 0, l: 1, r: A.length - 1, moves: 0, per: A.map(() => 0), log: A.map(() => []), found: [], done: A.length < 3, pending: null, hit: false };
-    const n = A.length;
-    $('tp-max').textContent = fmt(Math.max(0, (n - 1) * (n - 2) / 2));
-    $('tp-brute').textContent = fmt(n * (n - 1) * (n - 2) / 6);
-    tpRender('Liste sıralandı. İşaretli üç sayı ilk kontrol edilecek üçlü. Adım’a bas.');
+  /* ---------- steps ---------- */
+  const steps = [...document.querySelectorAll('.step')];
+  const STOPS = ['Başlangıç', '1 · Problem', '2 · Neden yavaş', '3 · 2026', 'Son'];
+  let cur = 0;
+  $('stops').innerHTML = STOPS.map((s, i) => `<button data-s="${i}">${s}</button>`).join('');
+  $('stops').querySelectorAll('button').forEach(b => b.onclick = () => go(steps.findIndex(st => +st.dataset.stop === +b.dataset.s)));
+  function go(i, push = true) {
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((s, k) => s.classList.toggle('cur', k === cur));
+    $('count').textContent = `${cur + 1} / ${steps.length}`;
+    $('prog').style.width = (100 * (cur + 1) / steps.length) + '%';
+    $('prev').disabled = cur === 0; $('next').disabled = cur === steps.length - 1;
+    const stop = +steps[cur].dataset.stop;
+    $('stops').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.s === stop));
+    if (push && location.hash !== '#' + steps[cur].id) history.replaceState(null, '', '#' + steps[cur].id);
+    window.scrollTo(0, 0);
+    if (steps[cur].id === 'adim-4') drawCubes();
   }
-  function tpMove() {
-    const s = st.pending; st.pending = null;
-    if (s === 0) { st.l++; st.r--; } else if (s < 0) st.l++; else st.r--;
-    if (st.l >= st.r) { st.i++; st.l = st.i + 1; st.r = A.length - 1; }
-  }
-  function tpStep() {
-    if (st.done) return;
-    if (st.pending !== null) tpMove();
-    const { i, l, r } = st, s = A[i] + A[l] + A[r];
-    st.moves++; st.per[i]++; st.pending = s; st.hit = s === 0;
-    st.log[i].push(s === 0 ? `<span class="zz">${A[i]}, ${A[l]}, ${A[r]} → 0 ✓</span>` : `${A[i]}, ${A[l]}, ${A[r]} → ${s}`);
-    let txt = `${A[i]} + ${A[l]} + ${A[r]} = ${s}. `;
-    if (s === 0) { st.found.push(`(${A[i]}, ${A[l]}, ${A[r]})`); txt += 'Bir tane bulundu! Sırada: iki parmak da içeri kayar.'; }
-    else if (s < 0) txt += 'Çok küçük. Sırada: sol parmak sağa kayar.';
-    else txt += 'Çok büyük. Sırada: sağ parmak sola kayar.';
-    let nl = l, nr = r; if (s === 0) { nl++; nr--; } else if (s < 0) nl++; else nr--;
-    if (nl >= nr) { if (i + 1 > A.length - 3) { st.done = true; txt += ' Bu son kontroldü: bitti.'; } else txt += ` Sonra parmaklar buluşur, bu yüzden sıradaki sabit sayı ${A[i + 1]}.`; }
-    tpRender(txt);
-  }
-  function tpRender(msg) {
-    const c = $('tp-chips'); c.innerHTML = '';
-    A.forEach((v, k) => {
-      const d = document.createElement('div'); d.className = 'chip'; d.textContent = v;
-      const on = k === st.i || k === st.l || k === st.r;
-      if (st.hit && on) d.classList.add('hit');
-      if (A.length >= 3) {
-        if (k === st.i) { d.classList.add('fixed'); d.insertAdjacentHTML('beforeend', '<span class="lab">sabit</span>'); }
-        else if (k === st.l) { d.classList.add('left'); d.insertAdjacentHTML('beforeend', '<span class="lab">sol</span>'); }
-        else if (k === st.r) { d.classList.add('right'); d.insertAdjacentHTML('beforeend', '<span class="lab">sağ</span>'); }
-        else if (k < st.i || k < st.l || k > st.r) d.classList.add('gone');
-      }
-      c.appendChild(d);
+  $('prev').onclick = () => go(cur - 1); $('next').onclick = () => go(cur + 1);
+  document.addEventListener('keydown', e => { if (e.target.closest('input, textarea, select')) return; if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
+  window.addEventListener('hashchange', () => { const i = steps.findIndex(s => '#' + s.id === location.hash); if (i >= 0) go(i, false); });
+
+  /* ---------- map ---------- */
+  const NAMES = ['Şarj', 'Kargo', 'Montaj', 'Depo', 'Test'];
+  const POS = [[62, 130], [398, 130], [230, 38], [230, 130], [230, 222]];
+  const EDGES = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
+  function drawMap(svg, o = {}) {
+    const c = css(); let h = '';
+    const hot = new Set((o.edges || []).map(([a, b]) => a < b ? a + '-' + b : b + '-' + a));
+    EDGES.forEach(([a, b, w]) => {
+      const on = hot.has(a < b ? a + '-' + b : b + '-' + a); const col = on ? c.acc : c.line, sw = on ? 5 : 2.5;
+      const [x1, y1] = POS[a], [x2, y2] = POS[b];
+      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 16} Q230 370 ${x2} ${y2 + 16}" fill="none" stroke="${col}" stroke-width="${sw}"/><text x="230" y="278" text-anchor="middle" font-size="13" fill="${on ? c.acc : c.mut}" font-weight="${on ? 700 : 400}">12</text>`; return; }
+      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}"/>`;
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+      h += `<text x="${mx - dy / L * 13}" y="${my + dx / L * 13 + 5}" text-anchor="middle" font-size="13" fill="${on ? c.acc : c.mut}" font-weight="${on ? 700 : 400}">${w}</text>`;
     });
-    $('tp-moves').textContent = fmt(st.moves);
-    $('tp-found').textContent = st.found.length ? st.found.join(' ') : (st.done ? 'yok' : 'henüz yok');
-    $('tp-msg').textContent = msg;
-    $('tp-step').disabled = $('tp-run').disabled = st.done;
-    dvRender(); tpExplain();
+    POS.forEach(([x, y], k) => {
+      const role = o.roles && o.roles[k]; const col = role === 'via' ? c.wall : role ? c.acc : c.ink;
+      h += `<rect x="${x - 40}" y="${y - 16}" width="80" height="32" rx="10" fill="${c.surf}" stroke="${col}" stroke-width="${role ? 3 : 1.8}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="600" fill="${col}">${NAMES[k]}</text>`;
+      if (role === 'via') h += `<text x="${x}" y="${y - 22}" text-anchor="middle" font-size="11" fill="${c.wall}" font-weight="600">ara istasyon</text>`;
+      if (role === 'start') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">başlangıç</text>`;
+      if (role === 'end') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">varış</text>`;
+    });
+    svg.innerHTML = h;
   }
-  function dvRender() {
-    const n = A.length; if (!$('dv-rows')) return;
-    $('dv-n').textContent = n;
-    $('dv-brute').textContent = `${n} × ${n - 1} × ${n - 2} / 6 = ${fmt(n * (n - 1) * (n - 2) / 6)}`;
-    let h = '<thead><tr><th>Sabit sayı</th><th>Sağındaki sayılar (k)</th><th>En fazla adım (k − 1)</th><th>Şu ana kadar kullanılan adım</th></tr></thead><tbody>';
-    const terms = [];
-    for (let i = 0; i <= n - 3; i++) { const k = n - 1 - i; terms.push(k - 1);
-      h += `<tr><td class="num">${A[i]}</td><td class="num">${k}</td><td class="num">${k - 1}</td><td class="num">${st.per[i] || (i < st.i || st.done ? 0 : '–')}</td></tr>`; }
-    $('dv-rows').innerHTML = h + '</tbody>';
-    $('dv-sum').innerHTML = `${terms.join(' + ')} = <b>${fmt(terms.reduce((a, b) => a + b, 0))}</b> = (${n}−1)(${n}−2)/2 &nbsp;·&nbsp; gerçekte kullanılan adım: <b>${st.moves}</b>`;
-  }
-  const TX = { stepsQ: m => `“Atılan adım = ${m}” nereden geliyor?`, stepsP: 'Her adım tek bir üçlüyü kontrol eder. Şu ana kadarki bütün kontroller, sabit sayıya göre gruplanmış hâlde:', fixed: 'Sabit sayı', checks: 'Kontrol edilen üçlüler → toplam', steps: 'Adım', total: 'Toplam',
-    maxQ: m => `“En fazla adım = ${m}” nereden geliyor?`, maxP: 'Bir sayı sabitlenince parmaklar onun sağındaki sayıların iki ucundan başlar. Her adım bir sayıyı eler; parmaklar buluşunca durur. Sağda k sayı varsa en fazla k − 1 adım atılır.', right: 'Sağındaki sayılar (k)', maxs: 'En fazla adım (k − 1)', gauss: n => `Son sütunu toplayalım: (n−2) + … + 2 + 1. Gauss’un hilesi: toplamı bir baştan, bir sondan alt alta yaz. Alt alta gelen her sütun n − 1 = ${n - 1} eder ve n − 2 = ${n - 2} sütun vardır; yani toplam ${n - 1} × ${n - 2} / 2 = ${(n - 1) * (n - 2) / 2}. Genel olarak (n−1)(n−2)/2 ≈ n²/2.`, less: (m, mx) => `${mx} olası adımın yalnızca ${m} tanesi gerekti: bir üçlü bulununca iki parmak birden kayar, yani tek adımda iki sayı birden elenir.`,
-    bruteQ: c => `“Kaba kuvvet = ${c}” nereden geliyor?`, bruteP: n => `Kaba kuvvet, 3 sayılık her grubu dener. Birinci sayıyı ${n}, ikinciyi ${n - 1}, üçüncüyü ${n - 2} farklı şekilde seçebilirsin: ${n} × ${n - 1} × ${n - 2} = ${n * (n - 1) * (n - 2)} sıralı seçim. Ama aynı üç sayı 3 × 2 × 1 = 6 farklı sırada gelir (a, b, c ile c, a, b aynı üçlüdür), bu yüzden farklı üçlü sayısı ${n * (n - 1) * (n - 2)} / 6 = ${n * (n - 1) * (n - 2) / 6}.`, showAll: c => `${c} üçlünün hepsini göster (toplamı 0 olanlar yeşil)`, tooMany: c => `(${c} üçlü: burada listelemek için fazla.)` };
-  function tpExplain() {
-    const n = A.length, el = $('tp-explain'); if (!el) return; if (n < 3) { el.innerHTML = ''; return; }
-    const rows = []; for (let i = 0; i <= n - 3; i++) { const k = n - 1 - i; rows.push({ i, k, max: k - 1, used: st.per[i], log: st.log[i] }); }
-    const mx = rows.reduce((a, r) => a + r.max, 0);
-    let h = `<div class="ex"><h4>${TX.stepsQ(st.moves)}</h4><p>${TX.stepsP}</p><div class="scroll-x"><table class="t"><thead><tr><th>${TX.fixed}</th><th>${TX.checks}</th><th>${TX.steps}</th></tr></thead><tbody>`;
-    rows.forEach(r => { h += `<tr><td class="num">${A[r.i]}</td><td class="num">${r.log.length ? r.log.join('<br>') : '–'}</td><td class="num">${r.used}</td></tr>`; });
-    h += `<tr><td><b>${TX.total}</b></td><td class="num">${rows.map(r => r.used).join(' + ')}</td><td class="num"><b>${st.moves}</b></td></tr></tbody></table></div></div>`;
-    h += `<div class="ex"><h4>${TX.maxQ(mx)}</h4><p>${TX.maxP}</p><div class="scroll-x"><table class="t"><thead><tr><th>${TX.fixed}</th><th>${TX.right}</th><th>${TX.maxs}</th></tr></thead><tbody>`;
-    rows.forEach(r => { h += `<tr><td class="num">${A[r.i]}</td><td class="num">${r.k} &nbsp;(${A.slice(r.i + 1).join(', ')})</td><td class="num">${r.k} − 1 = ${r.max}</td></tr>`; });
-    h += `<tr><td><b>${TX.total}</b></td><td></td><td class="num">${rows.map(r => r.max).join(' + ')} = <b>${mx}</b></td></tr></tbody></table></div><p>${TX.gauss(n)}</p>`;
-    if (st.done && st.moves < mx) h += `<p>${TX.less(st.moves, mx)}</p>`;
-    h += `</div>`;
-    const cnt = n * (n - 1) * (n - 2) / 6;
-    h += `<div class="ex"><h4>${TX.bruteQ(cnt)}</h4><p>${TX.bruteP(n)}</p>`;
-    if (cnt <= 220) {
-      const all = []; for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) for (let d = b + 1; d < n; d++) all.push([A[a], A[b], A[d]]);
-      const open = el.querySelector('details') && el.querySelector('details').open ? ' open' : '';
-      h += `<details${open}><summary>${TX.showAll(cnt)}</summary><div class="tri">${all.map(t => { const z = t[0] + t[1] + t[2]; return `<span class="${z === 0 ? 'z' : ''}">${t.join(', ')} → ${z}</span>`; }).join('')}</div></details>`;
-    } else h += `<p>${TX.tooMany(cnt)}</p>`;
-    el.innerHTML = h + `</div>`;
-  }
-  $('tp-step').onclick = tpStep;
-  $('tp-run').onclick = () => { let g = 0; while (!st.done && g++ < 5000) tpStep(); };
-  $('tp-reset').onclick = () => tpInit(A);
-  $('list-set').onclick = () => {
-    const v = $('list-in').value.split(/[\s,;]+/).map(Number).filter(x => Number.isFinite(x) && x === Math.round(x));
-    if (v.length < 3 || v.length > 16) { $('tp-msg').textContent = 'Lütfen virgülle ayrılmış 3 ile 16 arasında tam sayı gir.'; return; }
-    tpInit(v);
-  };
-  $('list-rand').onclick = () => {
-    const s = new Set(); while (s.size < 10) s.add(Math.floor(Math.random() * 31) - 15);
-    const v = [...s]; $('list-in').value = v.join(', '); tpInit(v);
-  };
-  tpInit([-7, -5, -2, 3, 4, 9]);
+  drawMap($('map1'));
 
-  /* ---------- Floyd–Warshall ---------- */
-  const names = ['P', 'Q', 'R', 'S', 'T'], INF = Infinity;
-  const pos = [[40, 120], [320, 120], [180, 30], [180, 110], [180, 195]];
-  const edges = [[0, 1, 12], [0, 2, 3], [2, 1, 6], [0, 3, 2], [3, 1, 4], [0, 4, 5], [4, 1, 5], [2, 3, 4], [3, 4, 7]];
-  const fv = v => v === INF ? '∞' : v;
+  /* ---------- screen 2: pick a route ---------- */
+  const ROUTES = [
+    { lab: 'Doğrudan', edges: [[0, 1]], parts: [12] },
+    { lab: 'Montaj üzerinden', via: 2, edges: [[0, 2], [2, 1]], parts: [3, 6] },
+    { lab: 'Depo üzerinden', via: 3, edges: [[0, 3], [3, 1]], parts: [2, 4] },
+    { lab: 'Test üzerinden', via: 4, edges: [[0, 4], [4, 1]], parts: [5, 5] }];
+  const tried = new Set();
+  $('routeBtns').innerHTML = ROUTES.map((r, i) => `<button class="btn" data-r="${i}">${r.lab}</button>`).join('');
+  function pickRoute(i) {
+    const r = ROUTES[i]; tried.add(i);
+    $('routeBtns').querySelectorAll('button').forEach(b => b.classList.toggle('picked', +b.dataset.r === i));
+    const roles = { 0: 'start', 1: 'end' }; if (r.via !== undefined) roles[r.via] = 'via';
+    drawMap($('map2'), { edges: r.edges, roles });
+    const len = r.parts.reduce((a, b) => a + b, 0);
+    let m = r.via === undefined ? `Doğrudan yol: <b>12 metre</b>.`
+      : `${NAMES[0]} → ${NAMES[r.via]} → ${NAMES[1]}: ${r.parts.join(' + ')} = <b>${len} metre</b>. ` + (len < 12 ? `Doğrudan yoldan (12) <b>kısa</b>!` : '');
+    if (r.via !== undefined && len >= 12) m = `${NAMES[0]} → ${NAMES[r.via]} → ${NAMES[1]}: ${r.parts.join(' + ')} = <b>${len}</b>. Doğrudan yoldan (12) kısa değil.`;
+    if (tried.size === 4) m += ` <br><b>Hepsini denedin: en kısası Depo üzerinden 6 metre.</b>`;
+    $('routeMsg').innerHTML = m; $('routeMsg').classList.toggle('good', tried.size === 4);
+  }
+  $('routeBtns').querySelectorAll('button').forEach(b => b.onclick = () => pickRoute(+b.dataset.r));
+  drawMap($('map2'), { roles: { 0: 'start', 1: 'end' } });
+
+  /* ---------- screen 3: Floyd–Warshall ---------- */
+  const INF = Infinity, fv = v => v === INF ? '∞' : v;
   let D, D0, fw;
-  const fwLog = (n) => n ? `Bulunan kısayollar: ${fw.log.join(' · ')}` : 'Bulunan kısayollar: henüz yok.';
   function fwInit() {
-    D = names.map((_, i) => names.map((_, j) => i === j ? 0 : INF));
-    edges.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
+    D = NAMES.map((_, i) => NAMES.map((_, j) => i === j ? 0 : INF));
+    EDGES.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
     D0 = D.map(r => r.slice());
-    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, log: [] };
-    fwDraw(); fwTable(); $('fw-msg').innerHTML = 'Ara şehir = P. Her kontrol şunu sorar: başlangıç → ara şehir → varış, şimdiki başlangıç → varış mesafesinden kısa mı? Adım’a bas.'; $('fw-where').textContent = ''; $('fw-log').textContent = fwLog(0);
+    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null };
+    fwShow('Robot ilk ara istasyon olarak Şarj’ı seçti. “1 kontrol yap”a bas.');
   }
-  function fwText(L) {
-    const s = names[L.i], x = names[L.k], t = names[L.j];
-    let h = `<b>125 kontrolün ${fw.checks}. kontrolü.</b> ${s} → ${t} yolculuğunda ${x} üzerinden gitmek daha mı kısa? `;
-    if (L.i === L.j) h += `Başlangıç ve varış aynı şehir, mesafe 0 kalır. Döngü bu kontrolü yine de sayar.`;
-    else if (L.k === L.i || L.k === L.j) h += `${x} zaten yolculuğun bir ucu; onun “üzerinden” gitmek bir şey katmaz (d[${s}][${t}] = ${fv(L.cur)} aynı kalır). Döngü bu kontrolü yine de sayar.`;
-    else h += `d[${s}][${x}] + d[${x}][${t}] = ${fv(L.a)} + ${fv(L.b)} = ${fv(L.via)}. Şimdiki d[${s}][${t}] = ${fv(L.cur)}. ` + (L.better ? `<b style="color:var(--good)">${fv(L.via)} &lt; ${fv(L.cur)}: kısayol! d[${s}][${t}] artık ${L.via}.</b>` : `${fv(L.via)}, ${fv(L.cur)} değerinden küçük değil, bir şey değişmez.`);
-    return h;
-  }
-  function fwWhere(L) { const x = names[L.k]; return `Sıra: ara şehir ${x} (${L.k + 1}/5) sabit kalır; başlangıç satırlarda aşağı, varış sütunlarda sağa ilerler. Bu, ara şehir ${x} için ${L.i * 5 + L.j + 1}/25. kontroldü.`; }
   function fwOne() {
     if (fw.done) return '';
-    const { k, i, j } = fw, a = D[i][k], b = D[k][j], via = a + b, cur = D[i][j], better = via < cur;
-    fw.checks++;
-    fw.last = { i, j, k, a, b, via, cur, better };
-    const txt = fwText(fw.last);
-    if (better) { D[i][j] = via; fw.upd++; fw.log.push(`${names[i]}→${names[k]}→${names[j]}: ${fv(cur)} → ${via}`); }
+    const { k, i, j } = fw, a = D[i][k], b = D[k][j], via = a + b, cur0 = D[i][j];
+    const better = via < cur0; fw.checks++;
+    fw.last = { i, j, k, better };
+    const s = NAMES[i], t = NAMES[j], x = NAMES[k]; let m;
+    if (i === j) m = `${s} → ${s}: aynı istasyon, mesafe 0. Değişiklik yok.`;
+    else if (k === i || k === j) m = `${s} → ${t}: ${x} zaten yolun bir ucu, onun üzerinden gitmek bir şey katmaz. Değişiklik yok.`;
+    else if (better) { m = `${s} → ${t}: ${x} üzerinden ${fv(a)} + ${fv(b)} = <b>${via}</b>. ` + (cur0 === INF ? `Şimdiye kadar yol bilinmiyordu (∞).` : `Şimdiki değerden (${cur0}) kısa!`) + ` <b style="color:var(--good)">Tabloya ${via} yazıldı.</b>`; D[i][j] = via; fw.upd++; }
+    else m = `${s} → ${t}: ${x} üzerinden ${fv(a)} + ${fv(b)} = ${fv(via)}. Şimdiki ${fv(cur0)} daha kısa ya da eşit. Değişiklik yok.`;
     fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) fw.done = true;
-    return txt + (fw.done ? ' 125 kontrolün hepsi yapıldı.' : '');
+    return m;
   }
-  function fwDv() { if (!$('dv-fw')) return; let h = '<thead><tr><th>Ara şehir</th><th>Kontrol edilen başlangıç–varış çifti</th><th>Toplam</th></tr></thead><tbody>';
-    const rows = [];
-    for (let k = 0; k < 5; k++) { const done = fw.done || k < fw.k ? 25 : (k === fw.k ? fw.i * 5 + fw.j : 0); rows.push(done);
-      h += `<tr><td class="num">${names[k]}</td><td class="num">${done}</td><td class="num">5 × 5 = 25</td></tr>`; }
-    $('dv-fw').innerHTML = h + '</tbody>';
-    $('dv-fw-sum').innerHTML = `${rows.join(' + ')} = <b>${rows.reduce((a, b) => a + b, 0)}</b> / 25 + 25 + 25 + 25 + 25 = 5 × 25 = 5³ = <b>125</b>`; }
-  function fwRefresh(txt) {
-    fwTable(); fwDraw(); fwDv(); $('fw-checks').textContent = fw.checks; $('fw-upd').textContent = fw.upd; $('fw-msg').innerHTML = txt;
-    $('fw-where').textContent = fw.last ? fwWhere(fw.last) : ''; $('fw-log').textContent = fwLog(fw.log.length);
-    ['fw-step', 'fw-k', 'fw-run'].forEach(id => $(id).disabled = fw.done);
-    fwBtn();
-  }
-  function fwBtn() { if (!fw.done) $('fw-k').textContent = `Ara şehir ${names[fw.k]} için kalan ${25 - (fw.i * 5 + fw.j)} kontrolü yap`; }
-  $('fw-step').onclick = () => fwRefresh(fwOne());
-  $('fw-k').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwRefresh(`Ara şehir ${names[k0]} için kalan ${n0} kontrol yapıldı. Artık her başlangıç–varış çifti ${names[k0]} üzerinden denendi (25/25).` + (fw.done ? ' 125 kontrolün hepsi yapıldı.' : ` Sıradaki ara şehir: ${names[fw.k]}.`)); };
-  $('fw-run').onclick = () => { while (!fw.done) fwOne(); fwRefresh('125 kontrolün hepsi yapıldı. Tablo artık bütün en kısa mesafeleri tutuyor.'); };
-  $('fw-reset').onclick = () => { fwInit(); fwRefresh('Sıfırlandı. Ara şehir = P.'); };
-  function fwTable() {
-    const t = $('fw-mat'); const L = fw.last;
-    let h = `<tr><th class="corner">${'başlangıç ↓ · varış →'}</th>` + names.map(n => `<th>${n}</th>`).join('') + '</tr>';
+  function fwShow(m) {
+    const L = fw.last;
+    let h = '<tr><th></th>' + NAMES.map(n => `<th>${n}</th>`).join('') + '</tr>';
     for (let i = 0; i < 5; i++) {
-      h += `<tr><th>${names[i]}</th>`;
+      h += `<tr><th>${NAMES[i]}</th>`;
       for (let j = 0; j < 5; j++) {
-        const cls = [];
-        if (!fw.done && (i === fw.k || j === fw.k)) cls.push('krow');
-        if (D[i][j] !== D0[i][j]) cls.push('chg');
-        if (L && L.i === i && L.j === j) cls.push(L.better ? 'upd' : 'cur');
-        else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) cls.push('src');
-        h += `<td class="${cls.join(' ')}">${fv(D[i][j])}</td>`;
+        const c = [];
+        if (!fw.done && (i === fw.k || j === fw.k)) c.push('krow');
+        if (D[i][j] !== D0[i][j]) c.push('chg');
+        if (L && L.i === i && L.j === j) c.push(L.better ? 'upd' : 'cur');
+        else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) c.push('src');
+        h += `<td class="${c.join(' ')}">${fv(D[i][j])}</td>`;
       }
       h += '</tr>';
     }
-    t.innerHTML = h;
+    $('mat').innerHTML = h;
+    const roles = {}; if (L) { roles[L.i] = 'start'; roles[L.j] = 'end'; roles[L.k] = 'via'; } else roles[0] = 'via';
+    drawMap($('map3'), { roles });
+    $('fwMsg').innerHTML = (L ? `<span class="legend">Kontrol ${fw.checks} / 125 · </span>` : '') + m + (fw.done ? ` <b>125 kontrolün hepsi bitti: tablo artık bütün en kısa mesafeleri tutuyor.</b>` : '');
+    $('fwChecks').textContent = `${fw.checks} / 125`;
+    $('fwVia').textContent = fw.done ? '–' : `${NAMES[fw.k]} (${fw.k + 1}/5)`;
+    $('fwUpd').textContent = fw.upd;
+    const rest = 25 - (fw.i * 5 + fw.j);
+    $('fwK').textContent = fw.done ? 'Bitti' : `${NAMES[fw.k]} için kalan ${rest} kontrolü yap`;
+    ['fwStep', 'fwK', 'fwAll'].forEach(id => $(id).disabled = fw.done);
   }
-  function fwDraw() {
-    const s = $('fw-svg'); const L = fw.last; let h = '';
-    const css = getComputedStyle(document.documentElement);
-    const ink = css.getPropertyValue('--ink'), mut = css.getPropertyValue('--muted'), acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), surf = css.getPropertyValue('--surface'), wall = css.getPropertyValue('--wall'), good = css.getPropertyValue('--good');
-    h += `<defs><marker id="ma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${acc}"/></marker><marker id="mg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${good}"/></marker></defs>`;
-    edges.forEach(([a, b, w]) => {
-      const [x1, y1] = pos[a], [x2, y2] = pos[b];
-      if (a === 0 && b === 1) { h += `<path d="M${x1} ${y1 + 20} Q180 330 ${x2} ${y2 + 20}" fill="none" stroke="${line}" stroke-width="2"/><text x="180" y="256" text-anchor="middle" font-size="12" fill="${mut}">12 (doğrudan yol)</text>`; return; }
-      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${line}" stroke-width="2"/>`;
-      h += `<text x="${(x1 + x2) / 2 + 6}" y="${(y1 + y2) / 2 - 6}" font-size="12" fill="${mut}">${w}</text>`;
-    });
-    const arc = (p, q, bend, col, dash, lab, mk) => {
-      const [x1, y1] = pos[p], [x2, y2] = pos[q]; const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
-      const cx = (x1 + x2) / 2 - dy / len * bend, cy = (y1 + y2) / 2 + dx / len * bend;
-      const sh = (ax, ay) => { const vx = cx - ax, vy = cy - ay, l = Math.hypot(vx, vy) || 1; return [ax + vx / l * 23, ay + vy / l * 23]; };
-      const [sx, sy] = sh(x1, y1), [ex, ey] = sh(x2, y2);
-      const lx = 0.25 * sx + 0.5 * cx + 0.25 * ex, ly = 0.25 * sy + 0.5 * cy + 0.25 * ey;
-      return `<path d="M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}" fill="none" stroke="${col}" stroke-width="3" ${dash ? 'stroke-dasharray="7 5"' : ''} marker-end="url(#${mk})"/><rect x="${lx - 17}" y="${ly - 11}" width="34" height="21" rx="6" fill="${surf}" stroke="${col}"/><text x="${lx}" y="${ly + 4}" text-anchor="middle" font-size="12" font-weight="600" fill="${col}">${lab}</text>`;
-    };
-    const live = L && L.i !== L.j && L.k !== L.i && L.k !== L.j;
-    if (live) {
-      const bend = (p, q, f) => f * Math.hypot(pos[q][0] - pos[p][0], pos[q][1] - pos[p][1]);
-      h += arc(L.i, L.j, bend(L.i, L.j, -0.34), good, true, fv(L.cur), 'mg');
-      h += arc(L.i, L.k, bend(L.i, L.k, 0.3), acc, false, fv(L.a), 'ma');
-      h += arc(L.k, L.j, bend(L.k, L.j, 0.3), acc, false, fv(L.b), 'ma');
-    }
-    pos.forEach(([x, y], k) => {
-      const role = !fw.done && k === fw.k ? wall : (L && (k === L.i || k === L.j) ? acc : ink);
-      h += `<circle cx="${x}" cy="${y}" r="20" fill="${surf}" stroke="${role}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="${role}">${names[k]}</text>`;
-    });
-    h += `<text x="6" y="282" font-size="11" fill="${mut}">● turuncu: ara şehir  ·  mavi oklar: denenen aktarma</text><text x="6" y="298" font-size="11" fill="${mut}">yeşil kesikli: şimdiki en iyi  ·  etiketler tablo mesafeleri</text>`;
-    s.innerHTML = h;
-  }
-  fwInit(); fwDv();
+  $('fwStep').onclick = () => fwShow(fwOne());
+  $('fwK').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwShow(`${NAMES[k0]} ara istasyonu için kalan ${n0} kontrol yapıldı.` + (fw.done ? '' : ` Sıradaki ara istasyon: ${NAMES[fw.k]}.`)); };
+  $('fwAll').onclick = () => { while (!fw.done) fwOne(); fwShow(''); };
+  $('fwReset').onclick = fwInit;
+  fwInit();
 
-  /* ---------- staircase ---------- */
-  (function () {
-    const css = getComputedStyle(document.documentElement); const acc = css.getPropertyValue('--accent'), line = css.getPropertyValue('--line'), mut = css.getPropertyValue('--muted');
-    let h = ''; const c = 30, x0 = 90, y0 = 10;
-    const labs = ['−7 sabit', '−5 sabit', '−2 sabit', '3 sabit'];
-    for (let i = 0; i < 4; i++) { for (let j = 0; j < 4; j++) { const on = j < 4 - i; h += `<rect x="${x0 + c * j}" y="${y0 + c * i}" width="${c - 3}" height="${c - 3}" rx="5" fill="${on ? acc : 'none'}" fill-opacity="${on ? 0.3 : 1}" stroke="${on ? acc : line}"/>`; }
-      h += `<text x="${x0 - 8}" y="${y0 + c * i + 19}" text-anchor="end" font-size="12" fill="${mut}">${labs[i]}</text><text x="${x0 + 4 * c + 6}" y="${y0 + c * i + 19}" font-size="12" fill="${mut}">${4 - i}</text>`; }
-    $('stair').innerHTML = h;
-  })();
-
-  /* ---------- counting bars ---------- */
-  function bars(el, rows) { // rows: [label, log10 value, cls, text]
-    const max = Math.max(...rows.map(r => r[1]), 1);
-    $(el).innerHTML = rows.map(r => `<div class="barrow"><div>${r[0]}</div><div><div class="bar ${r[2] || ''}" style="width:${Math.max(1, 100 * r[1] / max)}%"></div></div><div class="val">${r[3]}</div></div>`).join('');
-  }
-  function countUpd() {
-    const n = Math.round(10 ** parseFloat($('n-sl').value)); $('n-val').textContent = fmt(n);
-    const tri = n * (n - 1) * (n - 2) / 6, two = (n - 1) * (n - 2) / 2, cube = n ** 3;
-    bars('count-bars', [
-      ['3SUM kaba kuvvet', Math.log10(Math.max(tri, 1)), 'w', sci(tri)],
-      ['3SUM iki parmak', Math.log10(Math.max(two, 1)), '', sci(two)],
-      ['APSP üç döngü', Math.log10(cube), 'g', sci(cube)]]);
-  }
-  $('n-sl').oninput = countUpd; countUpd();
-
-  /* ---------- adversary game ---------- */
-  let adv;
-  function advInit() {
-    adv = { checked: new Set(), over: false };
-    const g = $('adv-grid'); g.innerHTML = '';
-    for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) {
-      const b = document.createElement(j > i ? 'button' : 'div');
-      b.className = 'pc ' + (j > i ? 'open' : 'lo');
-      if (j > i) { b.textContent = '?'; b.setAttribute('aria-label', `${i + 1}. ve ${j + 1}. sayıların çiftini kontrol et`); b.dataset.k = i * 6 + j;
-        b.onclick = () => { if (adv.over || adv.checked.has(b.dataset.k)) return; adv.checked.add(b.dataset.k); b.className = 'pc checked'; b.textContent = '≠ 0'; $('adv-count').textContent = `15 çiftten ${adv.checked.size}’i kontrol edildi`; }; }
-      g.appendChild(b);
-    }
-    $('adv-count').textContent = '15 çiftten 0’ı kontrol edildi';
-    $('adv-msg').className = 'msg';
-    $('adv-msg').textContent = 'Tek bir çifti bile atlarsan kaybedebilirsin. Bu, Erickson’ın 1999 argümanının küçük bir modeli: yalnızca “a + b + c pozitif mi, negatif mi, sıfır mı?” diye soran bir algoritma bunlardan ≈ n² tanesini sormak zorundadır.';
-  }
-  $('adv-answer').onclick = () => {
-    if (adv.over) return; adv.over = true;
-    const open = [...document.querySelectorAll('#adv-grid .pc.open')];
-    if (open.length) {
-      const t = open[Math.floor(Math.random() * open.length)]; t.className = 'pc trap'; t.textContent = '= 0';
-      $('adv-msg').className = 'msg bad';
-      $('adv-msg').textContent = `Kaybettin. ${open.length} çifti atladın, arkadaşın da birini azıcık kaydırıp tam 0 yaptı. Gördüğün bütün cevaplar aynı kaldı, ama doğru cevap artık “evet”.`;
-    } else {
-      $('adv-msg').className = 'msg good';
-      $('adv-msg').textContent = 'Doğru, ama yalnızca 15 çiftin hepsini kontrol ettiğin için. n sayı için bu yaklaşık n²/2 soru eder: kısa yol yoktu.';
-    }
-  };
-  $('adv-reset').onclick = advInit; advInit();
-
-  /* ---------- queue ---------- */
-  const ppl = [['Ali', 150], ['Berk', 140], ['Cem', 165], ['Deniz', 145]]; let qLeft = false, qMeasured = false;
-  function qRender() {
-    $('queue').innerHTML = ppl.map(([n, h], k) => `<div class="person ${qLeft && k === 1 ? 'left-queue' : ''}"><span class="mono">${h}</span><div class="body" style="height:${(h - 100) * 2}px"></div><span>${n}</span></div>`).join('');
-    if (!qLeft) { $('q-sum').textContent = '600 cm'; $('q-sum-note').textContent = 'Tek bir sayı tut. Çıkararak düzelt.'; $('q-min').textContent = '140 cm'; $('q-min-note').textContent = 'Tek bir sayı tut. Düzeltilebilir mi?'; }
-    else {
-      $('q-sum').textContent = '460 cm'; $('q-sum-note').innerHTML = '600 − 140 = 460. <b style="color:var(--good)">Anında düzeldi.</b>';
-      if (!qMeasured) { $('q-min').textContent = '?'; $('q-min-note').innerHTML = '<b style="color:var(--bad)">“140”, sıradaki en kısanın kim olduğu hakkında hiçbir şey söylemez.</b> Herkese yeniden bakmak zorundasın.'; }
-      else { $('q-min').textContent = '145 cm'; $('q-min-note').textContent = 'Bulundu, ama ancak 3 kişinin hepsini yeniden ölçerek. n² hücrelik bir tabloda n³’e mal olan şey bu yeniden yapmadır.'; }
-    }
-    $('q-leave').disabled = qLeft; $('q-measure').disabled = !qLeft || qMeasured;
-  }
-  $('q-leave').onclick = () => { qLeft = true; qRender(); };
-  $('q-measure').onclick = () => { qMeasured = true; qRender(); };
-  $('q-reset').onclick = () => { qLeft = qMeasured = false; qRender(); };
-  qRender();
-
-  /* ---------- polynomial ---------- */
-  const sup = n => String(n).split('').map(d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
-  function polyGo() {
-    const v = [...new Set($('poly-in').value.split(/[\s,;]+/).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= 20))].sort((a, b) => a - b).slice(0, 8);
-    if (!v.length) { $('poly-out').textContent = '1 ile 20 arasında birkaç tam sayı gir.'; return; }
-    const co = {}; v.forEach(a => v.forEach(b => { co[a + b] = (co[a + b] || 0) + 1; }));
-    const left = '(' + v.map(a => a === 1 ? 'x' : 'x' + sup(a)).join(' + ') + ')²';
-    const right = Object.keys(co).map(Number).sort((a, b) => a - b).map(e => (co[e] > 1 ? co[e] : '') + 'x' + sup(e)).join(' + ');
-    $('poly-out').textContent = left + ' = ' + right;
-    const lo = 2 * v[0], hi = 2 * v[v.length - 1], mx = Math.max(...Object.values(co));
+  /* ---------- screen 4: 125 squares ---------- */
+  function drawCubes() {
     let h = '';
-    for (let e = lo; e <= hi; e++) { const c = co[e] || 0; h += `<div style="display:flex; flex-direction:column; align-items:center; gap:4px; min-width:24px"><span class="mono" style="font-size:12px">${c || ''}</span><div style="width:20px; height:${c ? 12 + 70 * c / mx : 2}px; border-radius:5px 5px 2px 2px; background:${c ? 'var(--accent)' : 'var(--line)'}"></div><span class="mono" style="font-size:11px; color:var(--muted)">${e}</span></div>`; }
-    $('poly-bars').innerHTML = h;
+    for (let k = 0; k < 5; k++) {
+      h += `<div class="cube"><div class="g">`;
+      for (let q = 0; q < 25; q++) h += `<span class="${k * 25 + q < fw.checks ? 'on' : ''}"></span>`;
+      h += `</div><div class="lab">ara: ${NAMES[k]}</div></div>`;
+    }
+    $('cubes').innerHTML = h;
+    $('cubeMsg').innerHTML = fw.checks ? `Önceki ekranda <b>${fw.checks}</b> kontrol yaptın; 125’in boyalı kısmı bu kadar.` : `Önceki ekranda henüz kontrol yapmadın. Geri dönüp birkaç kontrol yaparsan burada boyanır.`;
   }
-  $('poly-go').onclick = polyGo; polyGo();
+  drawCubes();
 
-  /* ---------- mod ---------- */
-  function modGo() {
-    const p = +$('mod-p').value, a = 1003, b = 2017, t = (a + b) % p;
-    const cs = [3020, 10, 24, 3021, 3027];
-    let h = `<thead><tr><th>c</th><th>c mod ${p}</th><th>(1003 + 2017) mod ${p}</th><th>Kalan testi</th><th>Gerçek kontrol</th></tr></thead><tbody>`;
-    cs.forEach(c => { const m = c % p, pass = m === t, real = a + b === c;
-      h += `<tr><td class="num">${fmt(c)}</td><td class="num">${m}</td><td class="num">${t}</td><td>${pass ? '<span class="pill good">eşleşti</span>' : '<span class="pill">eşleşmedi</span>'}</td><td>${pass ? (real ? '<span class="pill good">gerçek toplam</span>' : '<span class="pill bad">sahte alarm</span>') : '–'}</td></tr>`; });
-    $('mod-t').innerHTML = h + '</tbody>';
+  /* ---------- screen 5: growth ---------- */
+  const words = x => {
+    const T = [[1e15, 'katrilyon'], [1e12, 'trilyon'], [1e9, 'milyar'], [1e6, 'milyon']];
+    for (const [v, w] of T) if (x >= v) return (x / v).toLocaleString(LOC, { maximumFractionDigits: x / v < 10 ? 1 : 0 }) + ' ' + w;
+    return fmt(x);
+  };
+  const dur = sec => {
+    if (sec < 1e-3) return 'bir milisaniyeden az';
+    if (sec < 1) return (sec * 1000).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' milisaniye';
+    if (sec < 120) return sec.toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' saniye';
+    if (sec < 7200) return (sec / 60).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' dakika';
+    if (sec < 172800) return (sec / 3600).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' saat';
+    if (sec < 2 * 31557600) return (sec / 86400).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' gün';
+    return (sec / 31557600).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' yıl';
+  };
+  let nStations = 100;
+  function nShow() {
+    const n = nStations, c = n * n * n;
+    $('nVal').textContent = fmt(n);
+    $('nChecks').textContent = `${fmt(n)} × ${fmt(n)} × ${fmt(n)} = ${words(c)}`;
+    $('nTime').textContent = dur(c / 1e9);
   }
-  $('mod-p').onchange = modGo; modGo();
+  $('nSl').oninput = () => { nStations = Math.round(10 ** parseFloat($('nSl').value)); $('nDoubleMsg').textContent = ''; nShow(); };
+  $('nDouble').onclick = () => {
+    const old = nStations; nStations = Math.min(200000, old * 2); $('nSl').value = Math.log10(nStations);
+    const r = (nStations / old) ** 3;
+    $('nDoubleMsg').textContent = `${fmt(old)} → ${fmt(nStations)} istasyon: kontrol ${r.toLocaleString(LOC)} katına çıktı.`;
+    nShow();
+  };
+  nShow();
 
-  /* ---------- cells ---------- */
-  let ask = [], full = true;
-  function cellsNew() { const s = new Set(); while (s.size < 6) s.add(Math.floor(Math.random() * 64)); ask = [...s]; cellsDraw(); }
-  function cellsDraw() {
-    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => `<div class="cg ${ask.includes(k) ? 'ask' : (full ? 'fill' : '')}"></div>`).join('');
-    $('cells-c').textContent = full ? 64 : 6;
-    $('cells-full').className = full ? 'primary' : ''; $('cells-ask').className = full ? '' : 'primary';
+  /* ---------- screen 6: queue ---------- */
+  const PPL = [['Ali', 150], ['Berk', 140], ['Cem', 165], ['Deniz', 145]]; let qGone = false;
+  function qShow() {
+    $('queue').innerHTML = PPL.map(([n, h], k) => `<div class="person ${qGone && k === 1 ? 'gone' : ''}"><span class="mono">${h}</span><div class="body" style="height:${(h - 100) * 2}px"></div><span>${n}</span></div>`).join('');
+    if (!qGone) { $('qSum').textContent = '600 cm'; $('qSumN').textContent = 'Tek bir sayı tutuyoruz.'; $('qMin').textContent = '140 cm'; $('qMinN').textContent = 'Tek bir sayı tutuyoruz.'; }
+    else {
+      $('qSum').textContent = '460 cm'; $('qSumN').innerHTML = '600 − 140 = 460. <b style="color:var(--good)">Çıkararak hemen düzelttik.</b>';
+      $('qMin').textContent = '?'; $('qMinN').innerHTML = '<b style="color:var(--bad)">“140” sıradaki en kısanın kim olduğunu söylemez.</b> Herkesi yeniden ölçmek gerekir (sonuç: 145).';
+    }
+    $('qLeave').disabled = qGone;
   }
-  $('cells-full').onclick = () => { full = true; cellsDraw(); };
-  $('cells-ask').onclick = () => { full = false; cellsDraw(); };
-  $('cells-new').onclick = cellsNew;
-  ask = [3, 14, 17, 36, 47, 58]; cellsDraw();
+  $('qLeave').onclick = () => { qGone = true; qShow(); };
+  $('qReset').onclick = () => { qGone = false; qShow(); };
+  qShow();
 
-  /* ---------- Strassen ---------- */
-  function kUpd() {
-    const k = +$('k-sl').value; $('k-val').textContent = k; $('k-n').textContent = fmt(2 ** k);
-    const a = k * Math.log10(8), b = k * Math.log10(7);
-    bars('k-bars', [['Okul: 8ᵏ', a, 'w', sciLog(a)], ['Strassen: 7ᵏ', b, '', sciLog(b)], ['Kazanç (8/7)ᵏ', Math.max(k * Math.log10(8 / 7), 0.02), 'g', (8 / 7) ** k < 1000 ? ((8 / 7) ** k).toFixed(2) + '×' : sciLog(k * Math.log10(8 / 7)) + '×']]);
+  /* ---------- screen 8: cells ---------- */
+  const ASK = [3, 14, 17, 36, 47, 58]; let full = true;
+  function cShow() {
+    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => `<div class="cg ${ASK.includes(k) ? 'ask' : (full ? 'fill' : '')}"></div>`).join('');
+    $('cCount').textContent = full ? 64 : 6;
+    $('cFull').classList.toggle('primary', full); $('cAsk').classList.toggle('primary', !full);
   }
-  function kRows() { const k = +$('k-sl').value, n = 2 ** k; let h = '<thead><tr><th>Seviye</th><th>Blok boyutu</th><th>Problem sayısı (okul, ×8)</th><th>Problem sayısı (Strassen, ×7)</th></tr></thead><tbody>';
-    const lv = k <= 7 ? [...Array(k + 1).keys()] : [0, 1, 2, 3, -1, k];
-    lv.forEach(j => { if (j < 0) { h += '<tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>'; return; }
-      h += `<tr><td class="num">${j}${j === k ? ' (en alt)' : ''}</td><td class="num">${fmt(n / 2 ** j)} × ${fmt(n / 2 ** j)}</td><td class="num">8<sup>${j}</sup> = ${sciLog(j * Math.log10(8))}</td><td class="num">7<sup>${j}</sup> = ${sciLog(j * Math.log10(7))}</td></tr>`; });
-    $('k-rows').innerHTML = h + '</tbody>'; }
-  $('k-sl').oninput = () => { kUpd(); kRows(); }; kUpd(); kRows();
+  $('cFull').onclick = () => { full = true; cShow(); };
+  $('cAsk').onclick = () => { full = false; cShow(); };
+  cShow();
 
-  /* ---------- bits ---------- */
-  function bitsGo() {
-    let a = Math.max(0, Math.min(255, Math.floor(+$('ba').value || 0))), b = Math.max(0, Math.min(255, Math.floor(+$('bb').value || 0)));
-    const row = (lab, v, clash, cls) => `<div class="bitrow"><span>${lab}</span><div class="bits">${[7, 6, 5, 4, 3, 2, 1, 0].map(i => { const on = (v >> i) & 1; const c = clash && ((clash >> i) & 1); return `<div class="bit ${on ? 'on' : ''} ${c ? 'clash' : ''}">${on}</div>`; }).join('')}</div><span>${cls || ''}</span></div>`;
-    const ov = a & b, st = a | b;
-    $('bits-out').innerHTML = row('a = ' + a, a, ov) + row('b = ' + b, b, ov) + row('üst üste', st, 0, '= ' + st) + row('gerçek toplam', (a + b) & 511, 0, '= ' + (a + b));
-    const m = $('bits-msg');
-    if (!ov) { m.className = 'msg good'; m.textContent = `Hiçbir 1 çakışmıyor, yani üst üste koymak gerçek toplamı veriyor: ${a} + ${b} = ${st}. Bir küme sorusu, elde yok.`; }
-    else { m.className = 'msg bad'; m.textContent = `1’ler çakışıyor (kırmızı), yani elde gerekiyor: üst üste koymak ${st} veriyor ama ${a} + ${b} = ${a + b}. Algoritma sayıları yeniden karıştırır ve tekrar dener.`; }
-  }
-  $('ba').oninput = $('bb').oninput = bitsGo;
-  $('bits-try').onclick = () => { $('ba').value = 3; $('bb').value = 1; bitsGo(); };
-  bitsGo();
-
-  /* ---------- speedup ---------- */
-  function LUpd() {
-    const L = Math.round(10 ** parseFloat($('L-sl').value)); $('L-val').textContent = fmt(L);
-    const lgN = L * Math.log10(2); $('L-n').textContent = lgN < 7 ? fmt(Math.round(2 ** L)) : '10^' + fmt(Math.floor(lgN));
-    const logShave = 2 * Math.log10(L), avw = 0.0008 * lgN, cimy = 0.035 * lgN;
-    const show = lg => lg < 4 ? (10 ** lg).toFixed(lg < 1 ? 3 : 1) + '×' : sciLog(lg) + '×';
-    bars('L-bars', [['Log tıraşı n²/log²n', logShave, 'w', show(logShave)], ['n^1.9992 (2026)', Math.max(avw, 0.001), '', show(avw)], ['n^1.965 (2026)', Math.max(cimy, 0.001), 'g', show(cimy)]]);
-    const e = 2 - 2 * Math.log2(L) / L;
-    const best = avw > logShave ? 'n^1.9992 artık log tıraşını geçiyor.' : (cimy > logShave ? 'Burada n^1.965 log tıraşını geçiyor; n^1.9992 için n’nin yaklaşık 11.440 basamaklı olması gerekir.' : 'Bu boyutta eski log tıraşı hâlâ kazanıyor.');
-    $('L-msg').innerHTML = `Log tıraşı burada n<sup>${e.toFixed(4)}</sup> gibi davranıyor ve n büyüdükçe bu üs 2’ye geri tırmanıyor. 2026 üsleri ise sonsuza kadar yerinde kalır. ${best}`;
-  }
-  $('L-sl').oninput = LUpd; LUpd();
+  const start = steps.findIndex(s => '#' + s.id === location.hash);
+  go(start >= 0 ? start : 0, false);
 })();
 </script>
 </body>
