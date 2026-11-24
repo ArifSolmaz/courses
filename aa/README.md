@@ -32,7 +32,7 @@ run it over Weeks 8 and 9.
 
 ## Research explainer: the walls that fell
 
-A guided, 10-screen explainer of the 2026 3SUM/APSP results, told through the course robot (shortest routes between
+A guided, 12-screen explainer of the 2026 3SUM/APSP results, told through the course robot (shortest routes between
 5 factory stations), with 3SUM as a side box.
 
 - `research/walls/index.html` (English) and `research/walls/tr/index.html` (Turkish) are generated from one bilingual
