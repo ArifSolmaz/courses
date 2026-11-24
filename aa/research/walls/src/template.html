@@ -67,7 +67,7 @@ body.js .step.cur { display: grid; }
 .take { border-left: 5px solid var(--good); background: var(--good-soft); padding: 14px 18px; border-radius: 0 14px 14px 0; font-size: 18px; }
 .take::before { content: "⟪Akılda kalsın: ‖Remember: ⟫"; font-weight: 700; color: var(--good); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
-.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; align-items: start; }
 .side { background: var(--wall-soft); border: 1px solid color-mix(in srgb, var(--wall) 35%, transparent); border-radius: 20px; padding: 20px 22px; display: grid; gap: 10px; }
 .side .tag { font: 600 12px var(--mono); color: var(--wall); text-transform: uppercase; letter-spacing: 0.06em; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -127,12 +127,17 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 /* timeline */
 .tl { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--line); }
 .tl .y { font: 600 14px var(--mono); color: var(--accent); }
+.tl > div { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .tl { grid-template-columns: 1fr; gap: 4px; } }
 
 /* cells */
-.cellgrid { display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; }
-.cg { width: 30px; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
+.cellgrid { display: grid; grid-template-columns: repeat(8, minmax(0, 34px)); gap: 4px; }
+.cg { aspect-ratio: 1; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); display: grid; place-items: center; font: 600 11px var(--mono); color: var(--ink); cursor: pointer; padding: 0; }
+.cg.sel { outline: 2px solid var(--wall); outline-offset: 1px; }
+.mat.pick td { cursor: pointer; }
+.mat td.sel { outline: 2px solid var(--accent); outline-offset: -2px; background: var(--accent-soft); }
 .cg.fill { background: var(--accent-soft); border-color: var(--accent-soft); }
-.cg.ask { background: var(--accent); border-color: var(--accent); }
+.cg.ask { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 
 table.t { width: 100%; border-collapse: collapse; font-size: 16px; }
 table.t th, table.t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -206,7 +211,7 @@ body:not(.js) .nav { display: none; }
     <div class="two">
       <svg id="map3" viewBox="0 0 460 290" role="img" aria-label="⟪Fabrika haritası‖Factory map⟫" style="width:100%"></svg>
       <div class="scroll-x"><table class="mat" id="mat" aria-label="⟪Mesafe tablosu‖Distance table⟫"></table>
-        <p class="legend" style="margin-top:8px">⟪<b>Tablo:</b> satırdaki istasyondan sütundaki istasyona <b>şimdiye kadar bilinen</b> en kısa mesafe (∞ = henüz yol yok). <span style="color:var(--wall)">Turuncu</span>: şu anki ara istasyonun satırı ve sütunu. <span style="color:var(--accent)">Mavi çerçeve</span>: şu an bakılan hücre. <span style="color:var(--good)">Yeşil</span>: kısalmış mesafe.‖<b>Table:</b> the shortest distance <b>known so far</b> from the row station to the column station (∞ = no route yet). <span style="color:var(--wall)">Orange</span>: the current middle station’s row and column. <span style="color:var(--accent)">Blue frame</span>: the cell being checked. <span style="color:var(--good)">Green</span>: a distance that got shorter.⟫</p>
+        <p class="legend" style="margin-top:8px">⟪<b>Tablo:</b> satırdaki istasyondan sütundaki istasyona <b>şimdiye kadar bilinen</b> en kısa mesafe (∞ = henüz yol yok). <span style="color:var(--wall)">Turuncu</span>: gösterilen kontroldeki ara istasyonun satırı ve sütunu. <span style="color:var(--accent)">Mavi çerçeve</span>: şu an bakılan hücre. <span style="color:var(--good)">Yeşil</span>: kısalmış mesafe.‖<b>Table:</b> the shortest distance <b>known so far</b> from the row station to the column station (∞ = no route yet). <span style="color:var(--wall)">Orange</span>: the row and column of the middle station in the check being shown. <span style="color:var(--accent)">Blue frame</span>: the cell being checked. <span style="color:var(--good)">Green</span>: a distance that got shorter.⟫</p>
       </div>
     </div>
     <div class="controls">
@@ -222,7 +227,7 @@ body:not(.js) .nav { display: none; }
       <div class="stat"><div class="k">⟪Kısalan mesafe‖Distances shortened⟫</div><div class="v" id="fwUpd">0</div></div>
     </div>
   </div>
-  <p class="take">⟪125 kontrolün sonunda tablo, her istasyondan her istasyona en kısa mesafeyi tutar. Robot artık her yolu biliyor.‖After 125 checks, the table holds the shortest distance from every station to every station. The robot now knows every route.⟫</p>
+  <p class="take">⟪125 kontrolün sonunda tablo, her istasyondan her istasyona en kısa mesafeyi tutar. Robot her kısalmada “önce hangi istasyona gideceğini” de not eder; böylece yolun kendisini de bilir. Bitince tabloda bir hücreye tıkla: yol haritada çizilir.‖After 125 checks, the table holds the shortest distance from every station to every station. At every shortening the robot also notes “which station to go to first”, so it knows the route itself too. When it is done, click a cell in the table: the route is drawn on the map.⟫</p>
 </section>
 
 <!-- 4 -->
@@ -255,15 +260,15 @@ body:not(.js) .nav { display: none; }
   <aside class="side" aria-label="⟪Yan kutu: 3SUM‖Side box: 3SUM⟫">
     <div class="tag">⟪Yan kutu · aynı hikâye, başka bir bulmaca‖Side box · same story, another puzzle⟫</div>
     <h3>3SUM: ⟪üç sayının toplamı 0 olabilir mi?‖can three numbers add up to 0?⟫</h3>
-    <p>⟪Bir listede toplamı tam 0 olan üç sayı var mı? Örneğin −7, −5, −2, 3, 4, 9 listesinde: −7 + 3 + 4 = 0. Akıllı yöntem listeyi sıralar, bir sayıyı sabitler ve geri kalanların iki ucundan içeri doğru yürür: toplam küçükse soldaki, büyükse sağdaki sayı içeri kayar.‖Does a list contain three numbers that add up to exactly 0? In the list −7, −5, −2, 3, 4, 9: −7 + 3 + 4 = 0. The smart method sorts the list, fixes one number and walks inward from both ends of the rest: if the sum is too small the left number moves in, if it is too big the right one does.⟫</p>
-    <p>⟪10 sayı için en fazla 36 adım, 1.000 sayı için yaklaşık 500.000 adım. Sayı 2 katına çıkınca iş 4 katına çıkar: buna <b>n²</b> denir. 2026’daki sonuç bu duvarı da kırdı.‖10 numbers need at most 36 steps; 1,000 numbers about 500,000. Double the list and the work grows 4 times: this is called <b>n²</b>. The 2026 result broke this wall too.⟫</p>
+    <p>⟪Bir listenin üç farklı elemanının toplamı tam 0 olabilir mi? Örneğin −7, −5, −2, 3, 4, 9 listesinde: −7 + 3 + 4 = 0. Akıllı yöntem (adı: iki işaretçi) listeyi sıralar, bir sayıyı sabitler ve geri kalanların iki ucundan içeri doğru yürür: toplam küçükse soldaki, büyükse sağdaki sayı içeri kayar.‖Can three different entries of a list add up to exactly 0? In the list −7, −5, −2, 3, 4, 9: −7 + 3 + 4 = 0. The smart method (its name: two pointers) sorts the list, fixes one number and walks inward from both ends of the rest: if the sum is too small the left number moves in, if it is too big the right one does.⟫</p>
+    <p>⟪10 sayı için en fazla 36 adım, 1.000 sayı için yaklaşık 500.000 adım. Sayı 2 katına çıkınca iş 4 katına çıkar: buna <b>n²</b> denir. Burada da 50 yıl boyunca 2 sayısını düşüren olmadı; 2026’daki sonuç onu da düşürdü: n<sup>1,9992</sup>.‖10 numbers need at most 36 steps; 1,000 numbers about 500,000. Double the list and the work grows 4 times: this is called <b>n²</b>. Here too nobody lowered the 2 for 50 years; the 2026 result did: n<sup>1.9992</sup>.⟫</p>
   </aside>
 </section>
 
 <!-- 6 -->
 <section class="step" data-stop="2" id="adim-6">
   <div class="kicker">⟪Durak 2 · Neden yavaş‖Stop 2 · Why it is slow⟫</div>
-  <h2>⟪Neden 50 yıl daha hızlısı bulunamadı?‖Why did nobody find a faster way for 50 years?⟫</h2>
+  <h2>⟪Neden 50 yıl kimse n³’teki 3’ü düşüremedi?‖Why could nobody lower the 3 in n³ for 50 years?⟫</h2>
   <p class="q">⟪Bilgisayarı hızlandıran hilelerin çoğu <b>fazlasını hesaplayıp sonra çıkarmaya</b> dayanır. En kısa yol ise “en küçüğünü al” işlemini kullanır ve bu geri alınamaz. Dört kişilik bir sırada dene.‖Most tricks that speed computers up rely on <b>computing too much and then subtracting the extra</b>. Shortest routes use “take the smallest” instead, and that cannot be undone. Try it with a queue of four people.⟫</p>
   <div class="card">
     <div class="two">
@@ -276,8 +281,9 @@ body:not(.js) .nav { display: none; }
         <div class="bigbox"><div class="legend">⟪En kısa kişi‖Shortest person⟫</div><div class="v" id="qMin">140 cm</div><div class="legend" id="qMinN">⟪Tek bir sayı tutuyoruz.‖We keep just one number.⟫</div></div>
       </div>
     </div>
+    <p class="legend">⟪Sıra örneği bir sezgidir, ispat değildir. Ayrıca 50 yılda küçük kazançlar bulundu: örneğin iş n³ yerine n³ ÷ log n oldu. Ama bunlar 3 sayısına dokunmadı; aranan şey n<sup>2,99</sup> gibi, 3’ten küçük bir üstü.‖The queue is an intuition, not the proof. Also, small gains were found in those 50 years: for example n³ ÷ log n work instead of n³. But they never touched the 3; what people wanted was an exponent below 3, like n<sup>2.99</sup>.⟫</p>
   </div>
-  <p class="take">⟪Toplamı çıkararak düzeltebilirsin; en küçüğü düzeltemezsin, herkese yeniden bakman gerekir. 1970’te ispatlandı: yalnızca toplama ve “en küçüğünü al” kullanan bir yöntem n³’ten kurtulamaz. Uzmanlar daha hızlısının da olmadığına inandı. Buna <b>duvar</b> dendi.‖A total can be fixed by subtracting; a minimum cannot, so you must look at everyone again. In 1970 it was proved: a method that only adds and “takes the smallest” cannot avoid n³. Experts believed no faster method existed at all. This became known as <b>the wall</b>.⟫</p>
+  <p class="take">⟪Toplamı çıkararak düzeltebilirsin; elinde yalnızca en küçük varsa onu düzeltemezsin. <b>İspatlanan</b> (Kerr, 1970): yalnızca toplama ve “en küçüğünü al” kullanan bir yöntem n³’ten kurtulamaz. <b>Tahmin edilen</b>: başka işlemler kullanan yöntemler de 3’ü düşüremez. Bu tahmine <b>duvar</b> dendi; kimse ispatlayamadı.‖A total can be fixed by subtracting; if all you kept is the minimum, you cannot fix it. <b>Proved</b> (Kerr, 1970): a method that only adds and “takes the smallest” cannot avoid n³. <b>Guessed</b>: methods using other operations cannot lower the 3 either. That guess was called <b>the wall</b>; nobody could prove it.⟫</p>
 </section>
 
 <!-- 7 -->
@@ -287,28 +293,45 @@ body:not(.js) .nav { display: none; }
   <p class="q">⟪Duvar onlarca yıl dayandı. Sonra 2026’da kısa sürede şunlar oldu:‖The wall held for decades. Then, within a few weeks in 2026:⟫</p>
   <div class="card">
     <div class="tl"><div class="y">⟪Eylül 2026‖Sep 2026⟫</div><div>⟪Anthropic’in şirket içi bir araştırma modeli (Claude), kriptografi problemleri üzerinde çalışırken bu algoritmayı buldu. Anthropic algoritmayı matematikçilerle paylaştı.‖An internal Anthropic research model (Claude), working on cryptography problems, found the algorithm. Anthropic shared it with mathematicians.⟫</div></div>
-    <div class="tl"><div class="y">⟪5 Ekim 2026‖5 Oct 2026⟫</div><div>⟪Josh Alman (Columbia) ve Virginia Vassilevska Williams (MIT) algoritmayı anladı, sadeleştirdi, genişletti ve makale olarak yayımladı.‖Josh Alman (Columbia) and Virginia Vassilevska Williams (MIT) understood, simplified and extended it, and published the paper.⟫</div></div>
+    <div class="tl"><div class="y">⟪5 Ekim 2026‖5 Oct 2026⟫</div><div>⟪Josh Alman (Columbia) ve Virginia Vassilevska Williams (MIT) algoritmayı anladı, sadeleştirdi, genişletti ve arXiv’de ön baskı (henüz hakem değerlendirmesinden geçmemiş makale) olarak yayımladı.‖Josh Alman (Columbia) and Virginia Vassilevska Williams (MIT) understood, simplified and extended it, and posted it on arXiv as a preprint (a paper not yet peer reviewed).⟫</div></div>
     <div class="tl"><div class="y">⟪Ekim 2026‖Oct 2026⟫</div><div>⟪Ana sonuçlar, bir bilgisayar ispat denetleyicisiyle (Lean 4) satır satır doğrulandı.‖The main results were checked line by line by a computer proof checker (Lean 4).⟫</div></div>
     <div class="tl"><div class="y">⟪Ekim–Kasım 2026‖Oct–Nov 2026⟫</div><div>⟪İki ayrı araştırma grubu aynı sonuca daha basit yollardan ulaştı.‖Two separate research groups reached the same result by simpler routes.⟫</div></div>
+    <div class="tl"><div class="y">⟪Kasım 2026‖Nov 2026⟫</div><div>⟪Yarış sürüyor: bilgisayar denetimli ispatların toplandığı açık bir skor tablosunda (Big O Speedrun) 3SUM için n<sup>1,9203</sup> bildirildi. Bu bir makale değil, bir topluluk kaydı.‖The race goes on: an open leaderboard of computer-checked proofs (Big O Speedrun) lists n<sup>1.9203</sup> for 3SUM. That is a community record, not a paper.⟫</div></div>
   </div>
-  <p class="take">⟪Sonuç: en kısa yollar n³’ten biraz daha hızlı bulunabiliyor (n<sup>2,9995</sup>). 3SUM da n²’den biraz daha hızlı (n<sup>1,9992</sup>). İkisinde de “duvar” yıkıldı.‖The result: shortest routes can be found a little faster than n³ (n<sup>2.9995</sup>), and 3SUM a little faster than n² (n<sup>1.9992</sup>). Both walls fell.⟫</p>
+  <p class="take">⟪Sonuç: mesafeler çok büyük olmayan tam sayılarsa en kısa yollar n<sup>2,9995</sup> işlemle bulunabiliyor; 3SUM da n<sup>1,9992</sup> ile. Üs ilk kez düştü: iki tahmin de çürüdü. Kerr’in ispatı ise hâlâ doğru; yeni yöntem onun kapsamadığı işlemleri kullanıyor.‖The result: when distances are whole numbers that are not too large, shortest routes can be found with n<sup>2.9995</sup> operations, and 3SUM with n<sup>1.9992</sup>. The exponent dropped for the first time: both guesses were refuted. Kerr’s proof is still true; the new method uses operations it does not cover.⟫</p>
 </section>
 
 <!-- 8 -->
 <section class="step" data-stop="3" id="adim-8">
   <div class="kicker">⟪Durak 3 · 2026‖Stop 3 · 2026⟫</div>
-  <h2>⟪Fikir: yalnızca sorulan hücreleri doldur‖The idea: fill only the cells you were asked for⟫</h2>
-  <p class="q">⟪Yeni yöntemin iki hamlesi var. <b>Birincisi:</b> soruyu değiştir. “En kısası hangisi?” yerine “tam şu uzunlukta bir yol var mı?” diye sor. Bu soruda çıkarma yapılabilir, yani hızlı hileler çalışır. <b>İkincisi:</b> eski hileler koca bir tablonun her hücresini hesaplar; yeni yöntem yalnızca gerçekten sorulan hücreleri hesaplar ve ortak işi paylaşır.‖The new method makes two moves. <b>First:</b> change the question. Instead of “which is shortest?”, ask “is there a route of exactly this length?”. That question allows subtraction, so fast tricks work. <b>Second:</b> the old tricks fill in every cell of a big table; the new method fills in only the cells actually asked for, and shares the common work.⟫</p>
+  <h2>⟪Fikir: sorulan hücreleri tek tek hesaplamaktan bile ucuz‖The idea: cheaper than computing even the asked cells one by one⟫</h2>
+  <p class="q">⟪Yeni yöntemin iki hamlesi var. <b>Birincisi:</b> soruyu değiştir. “En kısası hangisi?” yerine “bu iki yolun toplamı şu üçüncü yola <b>tam eşit</b> mi?” diye sor. Tam eşitlik sorularında çıkarma yapılabilir. <b>İkincisi:</b> bu sorular bir <b>tablo çarpımına</b> dönüşür ve tablonun yalnızca birkaç hücresi sorulur. Aşağıdaki çarpım gerçek: bir hücreye tıkla, hesabını gör.‖The new method makes two moves. <b>First:</b> change the question. Instead of “which is shortest?”, ask “do these two routes add up <b>exactly</b> to that third one?”. Exact-equality questions allow subtraction. <b>Second:</b> those questions turn into a <b>table product</b>, and only a few cells of the table are asked for. The product below is real: click a cell to see its calculation.⟫</p>
   <div class="card">
     <div class="two">
-      <div class="cellgrid" id="cells" aria-label="⟪8’e 8 tablo‖8 by 8 table⟫"></div>
+      <div style="display:grid; gap:10px">
+        <div class="cellgrid" id="cells" aria-label="⟪8’e 8 çarpım tablosu‖8 by 8 product table⟫"></div>
+        <p class="legend">⟪Koyu mavi: sorulan 6 hücre. Her hücre = bir satır ile bir sütunun çarpımı = <b>4 çarpma</b> (D = 4).‖Dark blue: the 6 asked cells. Each cell = one row times one column = <b>4 multiplications</b> (D = 4).⟫</p>
+      </div>
       <div style="display:grid; gap:10px; align-content:start">
-        <div class="controls"><button class="btn primary" id="cFull">⟪Eski: hepsini doldur‖Old: fill everything⟫</button><button class="btn" id="cAsk">⟪Yeni: yalnızca sorulanlar‖New: only the asked cells⟫</button></div>
-        <div class="stats"><div class="stat hl"><div class="k">⟪Hesaplanan hücre‖Cells computed⟫</div><div class="v" id="cCount">64</div></div><div class="stat"><div class="k">⟪Gereken hücre‖Cells needed⟫</div><div class="v">6</div></div></div>
+        <div class="controls"><button class="btn primary" id="cFull">⟪Hepsini hesapla‖Compute everything⟫</button><button class="btn" id="cAsk">⟪Yalnızca sorulanları, tek tek‖Only the asked cells, one by one⟫</button></div>
+        <div class="stats"><div class="stat hl"><div class="k">⟪Yapılan çarpma‖Multiplications done⟫</div><div class="v" id="cCount">256</div></div><div class="stat"><div class="k">⟪Hesaplanan hücre‖Cells computed⟫</div><div class="v" id="cCells">64</div></div></div>
+        <div class="msg" id="cMsg" aria-live="polite"></div>
       </div>
     </div>
   </div>
-  <p class="take">⟪Kazanç her seferinde küçük. Ama her ölçekte tekrar tekrar uygulanınca, istasyon sayısı büyüdükçe büyüyen bir kazanca dönüşür. Duvarı yıkan da budur.‖The saving is small each time. But applied again and again at every scale, it turns into a saving that grows with the number of stations. That is what broke the wall.⟫</p>
+  <div class="card">
+    <h3>⟪Asıl yenilik burada‖The real novelty is here⟫</h3>
+    <p>⟪Sorulan hücreleri tek tek hesaplamak eskiden beri mümkündü: hücre başına D çarpma. 2026 yöntemi hücreler arasındaki ortak işi paylaşır ve hücre başına ortalama yaklaşık <b>D<sup>0,437</sup></b> işleme iner. D’yi büyüt:‖Computing the asked cells one by one was always possible: D multiplications per cell. The 2026 method shares the common work between cells and gets down to about <b>D<sup>0.437</sup></b> operations per cell on average. Make D bigger:⟫</p>
+    <label for="dSl">D = <span class="big" id="dVal">256</span></label>
+    <input type="range" id="dSl" min="1" max="10" step="1" value="4">
+    <div class="stats">
+      <div class="stat"><div class="k">⟪Tek tek: hücre başına‖One by one: per cell⟫</div><div class="v" id="dOld"></div></div>
+      <div class="stat hl"><div class="k">⟪2026: hücre başına (yaklaşık)‖2026: per cell (roughly)⟫</div><div class="v" id="dNew"></div></div>
+      <div class="stat"><div class="k">⟪Gereken en küçük tablo‖Smallest table it needs⟫</div><div class="v" id="dN"></div></div>
+    </div>
+    <p class="legend">⟪Sabit çarpanlar hesaba katılmadı. Yöntem yalnızca çok ince tablolarda çalışır: N satır, D sütun için N en az D<sup>18</sup> olmalı ve en fazla N² ÷ √D hücre sorulmalı. Bu yüzden küçük bir örnekte çalıştırıp gösteremiyoruz; yukarıdaki tablo yalnızca “tek tek” yöntemi gerçekten hesaplar.‖Constant factors are ignored. The method only works for very thin tables: with N rows and D columns, N must be at least D<sup>18</sup>, and at most N² ÷ √D cells may be asked for. That is why it cannot be run on a small example; the table above really computes only the “one by one” method.⟫</p>
+  </div>
+  <p class="take">⟪Yalnızca sorulanı hesaplamak yeni değil. Yeni olan, sorulan her hücreyi D’den az işlemle hesaplamak. Kazanç küçük, ama istasyon sayısı büyüdükçe büyüyor; üssü düşüren de bu.‖Computing only what was asked is not new. What is new is computing each asked cell with fewer than D operations. The saving is small, but it grows with the number of stations; that is what lowers the exponent.⟫</p>
 </section>
 
 <!-- 9 -->
@@ -318,21 +341,21 @@ body:not(.js) .nav { display: none; }
   <p class="q">⟪Robotumuz için fark neredeyse görünmez:‖For our robot, the difference is almost invisible:⟫</p>
   <div class="card scroll-x">
     <table class="t">
-      <thead><tr><th>⟪İstasyon‖Stations⟫</th><th>⟪Eski yöntem (n³)‖Old method (n³)⟫</th><th>⟪Yeni yöntem (n<sup>2,9995</sup>)‖New method (n<sup>2.9995</sup>)⟫</th><th>⟪Kazanç‖Saving⟫</th></tr></thead>
+      <thead><tr><th>⟪İstasyon‖Stations⟫</th><th>n³</th><th>n<sup>⟪2,9995‖2.9995⟫</sup></th><th>⟪Fark‖Difference⟫</th></tr></thead>
       <tbody>
         <tr><td class="num">100</td><td class="num">⟪1 milyon‖1 million⟫</td><td class="num">⟪≈ 997.700‖≈ 997,700⟫</td><td class="num">⟪%0,23‖0.23%⟫</td></tr>
         <tr><td class="num">⟪1.000‖1,000⟫</td><td class="num">⟪1 milyar‖1 billion⟫</td><td class="num">⟪≈ 996,6 milyon‖≈ 996.6 million⟫</td><td class="num">⟪%0,35‖0.35%⟫</td></tr>
         <tr><td class="num">⟪1 milyon‖1 million⟫</td><td class="num">10<sup>18</sup></td><td class="num">⟪≈ %0,7 daha az‖≈ 0.7% fewer⟫</td><td class="num">⟪%0,69‖0.69%⟫</td></tr>
       </tbody>
     </table>
-    <p class="legend">⟪Gizli sabitler hesaba katılmadı; pratikte yeni yöntem büyük olasılıkla daha yavaş çalışır. Yazarlar da algoritmaların pratik olmadığını söylüyor.‖Hidden constants are ignored; in practice the new method is probably slower. The authors also say the algorithms are not practical.⟫</p>
+    <p class="legend">⟪Bu tablo bir ölçüm değil, yalnızca iki formülün karşılaştırması: gizli sabitler hesaba katılmadı. Pratikte yeni yöntem büyük olasılıkla daha yavaş çalışır; yazarlar da algoritmaların pratik olmadığını söylüyor.‖This table is not a measurement, only a comparison of two formulas: hidden constants are ignored. In practice the new method is probably slower; the authors also say the algorithms are not practical.⟫</p>
   </div>
   <div class="card">
     <h3>⟪Peki neden önemli?‖So why does it matter?⟫</h3>
-    <p>⟪Bir benzetme: herkes “insan 2,45 metreden yükseğe atlayamaz” diye kanıtlanmış bir sınır olduğunu sanıyor. Biri 2,4502 metre atlıyor. Rekor küçük, ama “imkânsız” sözü artık geçersiz.‖An analogy: everyone believes there is a proven limit that “no human can jump higher than 2.45 metres”. Then someone jumps 2.4502 metres. The record is tiny, but “impossible” is no longer true.⟫</p>
+    <p>⟪Bir benzetme: 50 yıldır herkes “insan 2,45 metreden yükseğe atlayamaz” diye tahmin ediyor, ama bunu kimse kanıtlayamamış. Biri 2,4502 metre atlıyor. Rekor küçük, ama tahmin artık yanlış. Önceki küçük kazançlar (n³ ÷ log n gibi) çıtaya dokunmamıştı; ilk kez çıtanın kendisi aşıldı.‖An analogy: for 50 years everyone has guessed that “no human can jump higher than 2.45 metres”, but nobody could prove it. Then someone jumps 2.4502 metres. The record is tiny, but the guess is now wrong. The earlier small gains (like n³ ÷ log n) never touched the bar; this is the first time the bar itself was cleared.⟫</p>
     <p>⟪Bilgisayar biliminde pek çok sonuç “bu problem zordur, çünkü en kısa yollar n³ ister” varsayımına dayanıyordu. Bu varsayım çöktü; o sonuçların hepsi yeniden incelenecek.‖In computer science many results relied on the assumption “this problem is hard, because shortest routes need n³”. That assumption has collapsed, so all those results must be re-examined.⟫</p>
   </div>
-  <p class="take">⟪Pratikte robot için hiçbir şey değişmedi. Ama 50 yıllık bir “imkânsız” yıkıldı.‖In practice nothing changed for the robot. But a 50-year-old “impossible” fell.⟫</p>
+  <p class="take">⟪Pratikte robot için hiçbir şey değişmedi. Ama 50 yıllık bir tahmin çürüdü.‖In practice nothing changed for the robot. But a 50-year-old guess was refuted.⟫</p>
 </section>
 
 <!-- 10 -->
@@ -341,14 +364,15 @@ body:not(.js) .nav { display: none; }
   <h2>⟪Üç cümlede bütün hikâye‖The whole story in three sentences⟫</h2>
   <div class="card">
     <p>⟪<b>1.</b> Robot en kısa yolları, “ara istasyon üzerinden daha mı kısa?” sorusunu her üçlü için sorarak bulur: n istasyon için n × n × n kontrol.‖<b>1.</b> The robot finds shortest routes by asking “is it shorter through a middle station?” for every triple: n × n × n checks for n stations.⟫</p>
-    <p>⟪<b>2.</b> “En küçüğünü al” geri alınamadığı için hızlı hileler işe yaramadı ve 50 yıl n³’ün bir duvar olduğuna inanıldı.‖<b>2.</b> Because “take the smallest” cannot be undone, the fast tricks did not work, and for 50 years n³ was believed to be a wall.⟫</p>
-    <p>⟪<b>3.</b> 2026’da bir yapay zekâ modelinin bulduğu yöntem, soruyu değiştirip yalnızca gereken hücreleri hesaplayarak duvarı kırdı: az ama gerçek bir kazanç.‖<b>3.</b> In 2026 a method found by an AI model broke the wall by changing the question and computing only the needed cells: a small but real saving.⟫</p>
+    <p>⟪<b>2.</b> “En küçüğünü al” geri alınamadığı için hızlı hileler işe yaramadı; 50 yıl boyunca küçük kazançlar dışında n³’teki 3 düşmedi ve düşmeyeceği tahmin edildi.‖<b>2.</b> Because “take the smallest” cannot be undone, the fast tricks did not work; for 50 years, apart from small gains, the 3 in n³ did not drop, and people guessed it never would.⟫</p>
+    <p>⟪<b>3.</b> 2026’da bir yapay zekâ modelinin bulduğu yöntem, soruyu tam eşitliğe çevirip sorulan hücreleri tek tek hesaplamaktan bile az iş yaparak üssü düşürdü: az ama gerçek bir kazanç.‖<b>3.</b> In 2026 a method found by an AI model lowered the exponent by turning the question into exact equality and doing less work than computing even the asked cells one by one: a small but real saving.⟫</p>
   </div>
   <h3>⟪Kendini dene‖Test yourself⟫</h3>
   <details class="quiz"><summary>⟪10 istasyonlu bir fabrikada robot kaç kontrol yapar?‖How many checks does the robot make in a factory with 10 stations?⟫</summary><p>⟪10 × 10 × 10 = 1.000 kontrol.‖10 × 10 × 10 = 1,000 checks.⟫</p></details>
   <details class="quiz"><summary>⟪İstasyon sayısı 3 katına çıkarsa kontrol sayısı kaç katına çıkar?‖If the number of stations triples, how many times more checks are needed?⟫</summary><p>⟪3 × 3 × 3 = 27 katına.‖3 × 3 × 3 = 27 times as many.⟫</p></details>
   <details class="quiz"><summary>⟪Sıradan en kısa kişi ayrılınca yeni en kısayı neden hemen bilemeyiz?‖When the shortest person leaves the queue, why can’t we know the new shortest right away?⟫</summary><p>⟪Çünkü tuttuğumuz tek sayı (en kısa boy) diğerleri hakkında bilgi vermez. Toplamı çıkararak düzeltebiliriz, en küçüğü düzeltemeyiz.‖Because the one number we kept (the shortest height) tells us nothing about the others. A total can be fixed by subtracting; a minimum cannot.⟫</p></details>
-  <details class="quiz"><summary>⟪2026 sonucu robotun yol hesabını gözle görülür biçimde hızlandırır mı?‖Does the 2026 result noticeably speed up the robot’s route calculation?⟫</summary><p>⟪Hayır. Fark %1’in altında; pratikte muhtemelen daha yavaş bile. Önemli olan, “n³’ten hızlısı imkânsız” inancının çürümesi.‖No. The difference is under 1%, and in practice it is probably even slower. What matters is that the belief “faster than n³ is impossible” was disproved.⟫</p></details>
+  <details class="quiz"><summary>⟪2026 sonucu robotun yol hesabını gözle görülür biçimde hızlandırır mı?‖Does the 2026 result noticeably speed up the robot’s route calculation?⟫</summary><p>⟪Hayır. Fark %1’in altında; pratikte muhtemelen daha yavaş bile. Önemli olan, “3 düşürülemez” tahmininin çürümesi.‖No. The difference is under 1%, and in practice it is probably even slower. What matters is that the guess “the 3 cannot be lowered” was refuted.⟫</p></details>
+  <details class="quiz"><summary>⟪2026 sonucu Kerr’in 1970 ispatını yanlış mı çıkardı?‖Did the 2026 result prove Kerr’s 1970 proof wrong?⟫</summary><p>⟪Hayır. İspat yalnızca toplama ve “en küçüğünü al” kullanan yöntemler için geçerli ve hâlâ doğru. Çürüyen şey ispat değil, “başka hiçbir yöntem de 3’ü düşüremez” tahmini.‖No. The proof covers only methods that add and “take the smallest”, and it is still true. What was refuted is not the proof but the guess that “no other method can lower the 3 either”.⟫</p></details>
   <div class="card">
     <h3>⟪Daha derine inmek isteyenler‖Want to go deeper?⟫</h3>
     <p>⟪Adım adım sayımlar, türetmeler, “neredeyse sıfır” ispat oyunu, Strassen’in hilesi, yeni yöntemin dört hamlesi ve diğer iki yaklaşım ayrıntılı sayfada.‖Step-by-step counts, derivations, the “almost zero” proof game, Strassen’s trick, the four moves of the new method and the two other approaches are on the detailed page.⟫ <a href="⟪../deep/tr/‖deep/⟫">⟪Ayrıntılı sayfayı aç →‖Open the detailed page →⟫</a></p>
@@ -411,11 +435,11 @@ body:not(.js) .nav { display: none; }
       h += `<text x="${mx - dy / L * 13}" y="${my + dx / L * 13 + 5}" text-anchor="middle" font-size="13" fill="${on ? c.acc : c.mut}" font-weight="${on ? 700 : 400}">${w}</text>`;
     });
     POS.forEach(([x, y], k) => {
-      const role = o.roles && o.roles[k]; const col = role === 'via' ? c.wall : role ? c.acc : c.ink;
-      h += `<rect x="${x - 40}" y="${y - 16}" width="80" height="32" rx="10" fill="${c.surf}" stroke="${col}" stroke-width="${role ? 3 : 1.8}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="600" fill="${col}">${NAMES[k]}</text>`;
-      if (role === 'via') h += `<text x="${x}" y="${y - 22}" text-anchor="middle" font-size="11" fill="${c.wall}" font-weight="600">⟪ara istasyon‖middle⟫</text>`;
-      if (role === 'start') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">⟪başlangıç‖start⟫</text>`;
-      if (role === 'end') h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">⟪varış‖end⟫</text>`;
+      const rs = [].concat((o.roles && o.roles[k]) || []); const isVia = rs.includes('via'); const col = isVia ? c.wall : rs.length ? c.acc : c.ink;
+      h += `<rect x="${x - 40}" y="${y - 16}" width="80" height="32" rx="10" fill="${c.surf}" stroke="${col}" stroke-width="${rs.length ? 3 : 1.8}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="600" fill="${col}">${NAMES[k]}</text>`;
+      if (isVia) h += `<text x="${x}" y="${y - 22}" text-anchor="middle" font-size="11" fill="${c.wall}" font-weight="600">⟪ara istasyon‖middle⟫</text>`;
+      const ends = rs.filter(r => r !== 'via').map(r => r === 'start' ? '⟪başlangıç‖start⟫' : '⟪varış‖end⟫').join(' + ');
+      if (ends) h += `<text x="${x}" y="${y + 32}" text-anchor="middle" font-size="11" fill="${c.acc}" font-weight="600">${ends}</text>`;
     });
     svg.innerHTML = h;
   }
@@ -446,12 +470,13 @@ body:not(.js) .nav { display: none; }
 
   /* ---------- screen 3: Floyd–Warshall ---------- */
   const INF = Infinity, fv = v => v === INF ? '∞' : v;
-  let D, D0, fw;
+  let D, D0, NX, fw;
   function fwInit() {
     D = NAMES.map((_, i) => NAMES.map((_, j) => i === j ? 0 : INF));
     EDGES.forEach(([a, b, w]) => { D[a][b] = D[b][a] = w; });
     D0 = D.map(r => r.slice());
-    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null };
+    NX = D.map((r, i) => r.map((v, j) => v === INF ? null : j));
+    fw = { k: 0, i: 0, j: 0, checks: 0, upd: 0, done: false, last: null, pick: null };
     fwShow('⟪Robot ilk ara istasyon olarak Şarj’ı seçti. “1 kontrol yap”a bas.‖The robot picked Charge as the first middle station. Press “Do 1 check”.⟫');
   }
   function fwOne() {
@@ -462,40 +487,53 @@ body:not(.js) .nav { display: none; }
     const s = NAMES[i], t = NAMES[j], x = NAMES[k]; let m;
     if (i === j) m = `${s} → ${s}: ⟪aynı istasyon, mesafe 0. Değişiklik yok.‖same station, distance 0. Nothing changes.⟫`;
     else if (k === i || k === j) m = `${s} → ${t}: ⟪${x} zaten yolun bir ucu, onun üzerinden gitmek bir şey katmaz. Değişiklik yok.‖${x} is already one end of the route, so going through it adds nothing. Nothing changes.⟫`;
-    else if (better) { m = `${s} → ${t}: ⟪${x} üzerinden‖through ${x}:⟫ ${fv(a)} + ${fv(b)} = <b>${via}</b>. ` + (cur0 === INF ? `⟪Şimdiye kadar yol bilinmiyordu (∞).‖No route was known yet (∞).⟫` : `⟪Şimdiki değerden (${cur0}) kısa!‖Shorter than the current ${cur0}!⟫`) + ` <b style="color:var(--good)">⟪Tabloya ${via} yazıldı.‖The table now says ${via}.⟫</b>`; D[i][j] = via; fw.upd++; }
+    else if (better) { m = `${s} → ${t}: ⟪${x} üzerinden‖through ${x}:⟫ ${fv(a)} + ${fv(b)} = <b>${via}</b>. ` + (cur0 === INF ? `⟪Şimdiye kadar yol bilinmiyordu (∞).‖No route was known yet (∞).⟫` : `⟪Şimdiki değerden (${cur0}) kısa!‖Shorter than the current ${cur0}!⟫`) + ` <b style="color:var(--good)">⟪Tabloya ${via} yazıldı.‖The table now says ${via}.⟫</b>`; D[i][j] = via; NX[i][j] = NX[i][k]; fw.upd++; }
     else m = `${s} → ${t}: ⟪${x} üzerinden‖through ${x}:⟫ ${fv(a)} + ${fv(b)} = ${fv(via)}. ⟪Şimdiki ${fv(cur0)} daha kısa ya da eşit. Değişiklik yok.‖The current ${fv(cur0)} is shorter or equal. Nothing changes.⟫`;
     fw.j++; if (fw.j === 5) { fw.j = 0; fw.i++; } if (fw.i === 5) { fw.i = 0; fw.k++; } if (fw.k === 5) fw.done = true;
     return m;
   }
   function fwShow(m) {
-    const L = fw.last;
+    fw.msg = m;
+    const L = fw.last, shownK = L ? L.k : 0;
     let h = '<tr><th></th>' + NAMES.map(n => `<th>${n}</th>`).join('') + '</tr>';
     for (let i = 0; i < 5; i++) {
       h += `<tr><th>${NAMES[i]}</th>`;
       for (let j = 0; j < 5; j++) {
         const c = [];
-        if (!fw.done && (i === fw.k || j === fw.k)) c.push('krow');
+        if (!fw.done && (i === shownK || j === shownK)) c.push('krow');
+        if (fw.pick && fw.pick[0] === i && fw.pick[1] === j) c.push('sel');
         if (D[i][j] !== D0[i][j]) c.push('chg');
-        if (L && L.i === i && L.j === j) c.push(L.better ? 'upd' : 'cur');
+        if (fw.done) {}
+        else if (L && L.i === i && L.j === j) c.push(L.better ? 'upd' : 'cur');
         else if (L && L.i !== L.j && L.k !== L.i && L.k !== L.j && ((i === L.i && j === L.k) || (i === L.k && j === L.j))) c.push('src');
-        h += `<td class="${c.join(' ')}">${fv(D[i][j])}</td>`;
+        h += `<td class="${c.join(' ')}" data-i="${i}" data-j="${j}">${fv(D[i][j])}</td>`;
       }
       h += '</tr>';
     }
-    $('mat').innerHTML = h;
-    const roles = {}; if (L) { roles[L.i] = 'start'; roles[L.j] = 'end'; roles[L.k] = 'via'; } else roles[0] = 'via';
-    drawMap($('map3'), { roles });
-    $('fwMsg').innerHTML = (L ? `<span class="legend">⟪Kontrol‖Check⟫ ${fw.checks} / 125 · </span>` : '') + m + (fw.done ? ` ⟪<b>125 kontrolün hepsi bitti: tablo artık bütün en kısa mesafeleri tutuyor.</b>‖<b>All 125 checks done: the table now holds every shortest distance.</b>⟫` : '');
+    $('mat').innerHTML = h; $('mat').classList.toggle('pick', fw.done);
+    const roles = {}, add = (k, r) => (roles[k] = roles[k] || []).push(r); let pe = [];
+    if (fw.done) { if (fw.pick) { const p = fwPath(...fw.pick); add(p[0], 'start'); add(p[p.length - 1], 'end'); pe = p.slice(1).map((v, q) => [p[q], v]); } }
+    else if (L) { add(L.i, 'start'); add(L.j, 'end'); add(L.k, 'via'); } else add(0, 'via');
+    drawMap($('map3'), { roles, edges: pe });
+    $('fwMsg').innerHTML = (L ? `<span class="legend">⟪Kontrol‖Check⟫ ${fw.checks} / 125 · </span>` : '') + m + (fw.done ? ` ⟪<b>125 kontrolün hepsi bitti: tablo artık bütün en kısa mesafeleri tutuyor.</b> Yolu görmek için tabloda bir hücreye tıkla.‖<b>All 125 checks done: the table now holds every shortest distance.</b> Click a cell in the table to see the route.⟫` : '');
     $('fwChecks').textContent = `${fw.checks} / 125`;
-    $('fwVia').textContent = fw.done ? '–' : `${NAMES[fw.k]} (${fw.k + 1}/5)`;
+    $('fwVia').textContent = fw.done ? '–' : `${NAMES[shownK]} (${shownK + 1}/5)`;
     $('fwUpd').textContent = fw.upd;
     const rest = 25 - (fw.i * 5 + fw.j);
     $('fwK').textContent = fw.done ? '⟪Bitti‖Done⟫' : `⟪${NAMES[fw.k]} için kalan ${rest} kontrolü yap‖Do the remaining ${rest} checks for ${NAMES[fw.k]}⟫`;
     ['fwStep', 'fwK', 'fwAll'].forEach(id => $(id).disabled = fw.done);
   }
+  function fwPath(i, j) { const p = [i]; let u = i; while (u !== j && p.length < 6) { u = NX[u][j]; p.push(u); } return p; }
+  $('mat').onclick = e => {
+    const td = e.target.closest('td'); if (!td || !fw.done) return;
+    const i = +td.dataset.i, j = +td.dataset.j; if (i === j) return;
+    fw.pick = [i, j]; const p = fwPath(i, j);
+    fwShow(`⟪En kısa yol‖Shortest route⟫: <b>${p.map(q => NAMES[q]).join(' → ')}</b> = ${p.slice(1).map((v, q) => D0[p[q]][v]).join(' + ')} = <b>${D[i][j]} ⟪metre‖metres⟫</b>.`);
+  };
   $('fwStep').onclick = () => fwShow(fwOne());
   $('fwK').onclick = () => { const k0 = fw.k, n0 = 25 - (fw.i * 5 + fw.j); while (!fw.done && fw.k === k0) fwOne(); fwShow(`⟪${NAMES[k0]} ara istasyonu için kalan ${n0} kontrol yapıldı.‖Did the remaining ${n0} checks for ${NAMES[k0]}.⟫` + (fw.done ? '' : ` ⟪Sıradaki ara istasyon: ${NAMES[fw.k]}.‖Next middle station: ${NAMES[fw.k]}.⟫`)); };
   $('fwAll').onclick = () => { while (!fw.done) fwOne(); fwShow(''); };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawMap($('map1')); drawMap($('map2'), { roles: { 0: 'start', 1: 'end' } }); fwShow(fw.msg); });
   $('fwReset').onclick = fwInit;
   fwInit();
 
@@ -558,16 +596,35 @@ body:not(.js) .nav { display: none; }
   $('qReset').onclick = () => { qGone = false; qShow(); };
   qShow();
 
-  /* ---------- screen 8: cells ---------- */
-  const ASK = [3, 14, 17, 36, 47, 58]; let full = true;
+  /* ---------- screen 8: a real thin product ---------- */
+  const X = [[2, 1, 0, 3], [1, 4, 2, 0], [0, 2, 5, 1], [3, 0, 1, 2], [1, 1, 3, 4], [4, 2, 0, 1], [2, 3, 1, 0], [0, 1, 2, 5]];
+  const Y = [[1, 0, 2, 3, 1, 4, 0, 2], [2, 1, 0, 1, 3, 0, 2, 1], [0, 3, 1, 2, 0, 1, 4, 0], [1, 2, 3, 0, 2, 1, 1, 3]];
+  const ASK = [3, 14, 17, 36, 47, 58]; let full = true, cSel = null;
+  const cell = k => { const r = k >> 3, c = k & 7; return X[r].reduce((t, x, d) => t + x * Y[d][c], 0); };
   function cShow() {
-    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => `<div class="cg ${ASK.includes(k) ? 'ask' : (full ? 'fill' : '')}"></div>`).join('');
-    $('cCount').textContent = full ? 64 : 6;
+    $('cells').innerHTML = Array.from({ length: 64 }, (_, k) => { const ask = ASK.includes(k), done = full || ask; return `<button class="cg ${ask ? 'ask' : (full ? 'fill' : '')} ${cSel === k ? 'sel' : ''}" data-k="${k}" aria-label="⟪satır‖row⟫ ${(k >> 3) + 1}, ⟪sütun‖column⟫ ${(k & 7) + 1}">${done ? cell(k) : ''}</button>`; }).join('');
+    const n = full ? 64 : 6;
+    $('cCount').textContent = `${n} × 4 = ${n * 4}`; $('cCells').textContent = n;
     $('cFull').classList.toggle('primary', full); $('cAsk').classList.toggle('primary', !full);
+    if (cSel === null) $('cMsg').innerHTML = full ? '⟪64 hücrenin hepsi hesaplandı: 256 çarpma. Sorulan ise yalnızca 6 hücreydi.‖All 64 cells were computed: 256 multiplications. Only 6 cells were asked for.⟫' : '⟪Yalnızca sorulan 6 hücre hesaplandı: 24 çarpma. Bu eskiden beri yapılabiliyordu.‖Only the 6 asked cells were computed: 24 multiplications. This was always possible.⟫';
   }
-  $('cFull').onclick = () => { full = true; cShow(); };
-  $('cAsk').onclick = () => { full = false; cShow(); };
+  $('cells').onclick = e => {
+    const b = e.target.closest('.cg'); if (!b) return; const k = +b.dataset.k, r = k >> 3, c = k & 7;
+    if (!full && !ASK.includes(k)) { cSel = null; cShow(); $('cMsg').innerHTML = '⟪Bu hücre sorulmadı, o yüzden hesaplanmadı.‖This cell was not asked for, so it was not computed.⟫'; return; }
+    cSel = k; cShow();
+    $('cMsg').innerHTML = `⟪Satır‖Row⟫ ${r + 1} (${X[r].join(', ')}) × ⟪sütun‖column⟫ ${c + 1} (${Y.map(y => y[c]).join(', ')}): ${X[r].map((x, d) => `${x}·${Y[d][c]}`).join(' + ')} = <b>${cell(k)}</b>. ⟪4 çarpma.‖4 multiplications.⟫`;
+  };
+  $('cFull').onclick = () => { full = true; cSel = null; cShow(); };
+  $('cAsk').onclick = () => { full = false; cSel = null; cShow(); };
   cShow();
+  function dShow() {
+    const e = +$('dSl').value, d = 4 ** e, lgN = 18 * e * Math.log10(4);
+    $('dVal').textContent = fmt(d);
+    $('dOld').textContent = fmt(d) + ' ⟪çarpma‖multiplications⟫';
+    $('dNew').textContent = '≈ ' + fmt(d ** 0.437) + ' ⟪işlem‖operations⟫';
+    $('dN').innerHTML = `10<sup>${Math.floor(lgN)}</sup> ⟪satır‖rows⟫`;
+  }
+  $('dSl').oninput = dShow; dShow();
 
   const start = steps.findIndex(s => '#' + s.id === location.hash);
   go(start >= 0 ? start : 0, false);
